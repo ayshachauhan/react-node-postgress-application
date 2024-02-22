@@ -1,0 +1,4 @@
+
+> @surgery-app/entities@0.0.1 build /Users/thinksysuser/Desktop/surgery_app/packages/entities
+> tsc -b tsconfig.json
+

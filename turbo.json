@@ -1,0 +1,14 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "pipeline": {
+    "build": {
+      "dependsOn": ["^build"]
+    },
+    "start:dev":{}
+  },
+  "globalDependencies": [
+    ".prettierrc",
+    "tsconfig.release.json",
+    "tsconfig.json"
+  ]
+}
