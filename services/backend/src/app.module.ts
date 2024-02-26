@@ -4,25 +4,27 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 import { UsersModule } from "./modules/users/users.module";
-import * as path from "path";
 import { HealthModule } from "./modules/healthz/health.module";
+import { CustomConfigService } from "./config.service";
+import { EnvironmentVariable } from "./enums/environment.enums";
+import { envVariablesSchema } from "./env-validation";
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: path.resolve(__dirname, "../../../.env"),
+      validationSchema: envVariablesSchema,
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: async (configService: ConfigService) => ({
+      useFactory: async (configService: CustomConfigService) => ({
         type: "postgres",
-        host: configService.get<string>("DB_HOST"),
-        port: configService.get<number>("DB_PORT"),
-        username: configService.get<string>("DB_USERNAME"),
-        password: configService.get<string>("DB_PASSWORD"),
-        database: configService.get<string>("DB_DATABASE"),
+        host: configService.get(EnvironmentVariable.DB_HOST),
+        port: configService.get(EnvironmentVariable.DB_PORT),
+        username: configService.get(EnvironmentVariable.DB_USERNAME),
+        password: configService.get(EnvironmentVariable.DB_PASSWORD),
+        database: configService.get(EnvironmentVariable.DB_DATABASE),
         autoLoadEntities: true,
         synchronize: true,
       }),
