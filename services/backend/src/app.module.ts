@@ -7,7 +7,9 @@ import { UsersModule } from './modules/users/users.module';
 
 @Module({
     imports: [
-        ConfigModule.forRoot(),
+        ConfigModule.forRoot({
+            envFilePath: `${__dirname}/../../../.env`
+        }),
         TypeOrmModule.forRootAsync({
             useFactory: async () => {
               return {
