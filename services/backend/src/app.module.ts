@@ -1,31 +1,33 @@
-import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { ConfigModule } from '@nestjs/config';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { UsersModule } from './modules/users/users.module';
+import { Module } from "@nestjs/common";
+import { TypeOrmModule } from "@nestjs/typeorm";
+import { ConfigModule, ConfigService } from "@nestjs/config";
+import { AppController } from "./app.controller";
+import { AppService } from "./app.service";
+import { UsersModule } from "./modules/users/users.module";
+import * as path from "path";
 
 @Module({
-    imports: [
-        ConfigModule.forRoot({
-            envFilePath: `${__dirname}/../../../.env`
-        }),
-        TypeOrmModule.forRootAsync({
-            useFactory: async () => {
-              return {
-                type: 'postgres',
-                host: process.env.DB_HOST || 'localhost',
-                port: Number(process.env.PORT) || 5432,
-                username: process.env.DB_USERNAME || 'postgres',
-                password: process.env.DB_PASSWORD || 'postgres',
-                database: process.env.DB_DATABASE || 'postgres',
-                autoLoadEntities: true,
-                synchronize: true,
-              };
-            },
-          }),
-        UsersModule,
-      ],
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: path.resolve(__dirname, "../../../.env"),
+    }),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => ({
+        type: "postgres",
+        host: configService.get<string>("DB_HOST"),
+        port: configService.get<number>("DB_PORT"),
+        username: configService.get<string>("DB_USERNAME"),
+        password: configService.get<string>("DB_PASSWORD"),
+        database: configService.get<string>("DB_DATABASE"),
+        autoLoadEntities: true,
+        synchronize: true,
+      }),
+    }),
+    UsersModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
