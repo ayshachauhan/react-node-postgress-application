@@ -5,6 +5,7 @@ import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 import { UsersModule } from "./modules/users/users.module";
 import * as path from "path";
+import { HealthModule } from "./modules/healthz/health.module";
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import * as path from "path";
       }),
     }),
     UsersModule,
+    HealthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
