@@ -1,4 +1,4 @@
-export enum EnvironmentVariable {
+export enum ENVIRONMENT_VARIABLES {
   NODE_ENV = "NODE_ENV",
   DB_HOST = "DB_HOST",
   DB_PORT = "DB_PORT",

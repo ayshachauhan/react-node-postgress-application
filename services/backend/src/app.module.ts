@@ -5,26 +5,25 @@ import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 import { UsersModule } from "./modules/users/users.module";
 import { HealthModule } from "./modules/healthz/health.module";
-import { CustomConfigService } from "./config.service";
-import { EnvironmentVariable } from "./enums/environment.enums";
-import { envVariablesSchema } from "./env-validation";
+import { ENVIRONMENT_VARIABLES } from "./enums/environment.enums";
+import { ENV_VARIABLES_SCHEMA } from "./env-validation";
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      validationSchema: envVariablesSchema,
+      validationSchema: ENV_VARIABLES_SCHEMA,
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: async (configService: CustomConfigService) => ({
+      useFactory: async (configService: ConfigService) => ({
         type: "postgres",
-        host: configService.get(EnvironmentVariable.DB_HOST),
-        port: configService.get(EnvironmentVariable.DB_PORT),
-        username: configService.get(EnvironmentVariable.DB_USERNAME),
-        password: configService.get(EnvironmentVariable.DB_PASSWORD),
-        database: configService.get(EnvironmentVariable.DB_DATABASE),
+        host: configService.get(ENVIRONMENT_VARIABLES.DB_HOST),
+        port: configService.get(ENVIRONMENT_VARIABLES.DB_PORT),
+        username: configService.get(ENVIRONMENT_VARIABLES.DB_USERNAME),
+        password: configService.get(ENVIRONMENT_VARIABLES.DB_PASSWORD),
+        database: configService.get(ENVIRONMENT_VARIABLES.DB_DATABASE),
         autoLoadEntities: true,
         synchronize: true,
       }),

@@ -2,7 +2,7 @@
 
 import Joi from "joi";
 
-export const envVariablesSchema = Joi.object({
+export const ENV_VARIABLES_SCHEMA = Joi.object({
   NODE_ENV: Joi.string()
     .valid("development", "production", "test", "staging")
     .default("development"),
