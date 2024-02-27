@@ -26,6 +26,8 @@ export class PracticesService {
   }
 
   async create(createDto: CreateDto): Promise<string> {
+    console.log(createDto);
+
     return "User created";
   }
 
