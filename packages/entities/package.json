@@ -1,5 +1,5 @@
 {
-  "name": "@surgery-app/entities",
+  "name": "@azentia/entities",
   "version": "0.0.1",
   "description": "entities for app",
   "packageManager": "pnpm@8.10.5",

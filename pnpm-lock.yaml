@@ -45,6 +45,9 @@ importers:
 
   services/backend:
     dependencies:
+      '@azentia/entities':
+        specifier: workspace:*
+        version: link:../../packages/entities
       '@nestjs/common':
         specifier: ^10.0.0
         version: 10.3.3(reflect-metadata@0.2.1)(rxjs@7.8.1)
