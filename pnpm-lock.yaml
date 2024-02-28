@@ -49,6 +49,9 @@ importers:
 
   services/backend:
     dependencies:
+      '@azentia/entities':
+        specifier: workspace:*
+        version: link:../../packages/entities
       '@nestjs/axios':
         specifier: ^3.0.2
         version: 3.0.2(@nestjs/common@10.3.3)(axios@1.6.7)(rxjs@7.8.1)

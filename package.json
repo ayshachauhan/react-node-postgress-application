@@ -1,8 +1,8 @@
 {
-  "name": "@surgery-app",
+  "name": "@azentia/monorepo",
   "version": "0.0.1",
   "description": "Monorepo for surgery app",
-  "repository": "https://github.com/surgery-app",
+  "repository": "https://github.com/anakshiant-thinksys/azentia",
   "packageManager": "pnpm@8.10.5",
   "private": true,
   "scripts": {
