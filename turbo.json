@@ -1,21 +1,29 @@
 {
-    "$schema": "https://turbo.build/schema.json",
-    "pipeline": {
-      "build": {
-        "dependsOn": ["^build"]
-      },
-      "start:dev":{},
-      "start:prod":{},
-      "format":{},
-      "format:check":{},
-      "lint":{},
-      "lint:fix":{},
-      "generate-migration": {},
-      "run-migrations": {}
+  "$schema": "https://turbo.build/schema.json",
+  "pipeline": {
+    "build": {
+      "dependsOn": ["^build"]
     },
-    "globalDependencies": [
-      ".prettierrc",
-      "tsconfig.release.json",
-      "tsconfig.json"
-    ]
-  }
+    "start:dev": {},
+    "start:prod": {},
+    "format": {
+      "cache": false
+    },
+    "format:check": {
+      "cache": false
+    },
+    "lint": {
+      "cache": false
+    },
+    "lint:fix": {
+      "cache": false
+    },
+    "generate-migration": {},
+    "run-migrations": {}
+  },
+  "globalDependencies": [
+    ".prettierrc",
+    "tsconfig.release.json",
+    "tsconfig.json"
+  ]
+}
