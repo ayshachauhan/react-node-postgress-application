@@ -1,5 +1,5 @@
 // patch.dto.ts
-export class PatchDto {
+export class PracticePatchDto {
   // Define properties to be updated in the PATCH request
   readonly name?: string;
 

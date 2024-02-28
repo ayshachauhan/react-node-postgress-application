@@ -8,9 +8,9 @@ import {
   Body,
 } from "@nestjs/common";
 import { PracticesService } from "./practices.service";
-import { PracticeEntity } from "./practices.entity";
-import { PatchDto } from "./dto/patch.dto";
-import { CreateDto } from "./dto/create.dto";
+import { PracticeEntity } from "../entities/practices.entity";
+import { PracticePatchDto } from "./dto/patch.dto";
+import { PracticeCreateDto } from "./dto/create.dto";
 
 @Controller("practices")
 export class PracticesController {
@@ -32,15 +32,15 @@ export class PracticesController {
   }
 
   @Post()
-  async create(@Body() createDto: CreateDto): Promise<String> {
-    return this.practiceService.create(createDto);
+  async create(@Body() practiceCreateDto: PracticeCreateDto): Promise<String> {
+    return this.practiceService.create(practiceCreateDto);
   }
 
   @Patch(":id")
   async update(
     @Param("id") id: string,
-    @Body() patchDto: PatchDto
+    @Body() practicePatchDto: PracticePatchDto
   ): Promise<String> {
-    return this.practiceService.update(id, patchDto);
+    return this.practiceService.update(id, practicePatchDto);
   }
 }

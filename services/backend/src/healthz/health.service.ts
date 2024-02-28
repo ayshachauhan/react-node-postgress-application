@@ -1,10 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable } from "@nestjs/common";
 
 @Injectable()
 export class HealthService {
   constructor() {}
 
   check() {
-    return 'ok';
+    return "ok";
   }
 }

@@ -4,10 +4,10 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './modules/users/users.module';
-import { HealthModule } from './modules/healthz/health.module';
+import { HealthModule } from './healthz/health.module';
 import { ENVIRONMENT_VARIABLES } from './enums/environment.enums';
 import { ENV_VARIABLES_SCHEMA } from './env-validation';
-import { PracticesModule } from './modules/practices/practices.module';
+import { PracticesModule } from './practices/practices.module';
 
 @Module({
   imports: [

@@ -1,9 +1,9 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import { PracticeEntity } from "./practices.entity";
-import { PatchDto } from "./dto/patch.dto";
-import { CreateDto } from "./dto/create.dto";
+import { PracticeEntity } from "../entities/practices.entity";
+import { PracticePatchDto } from "./dto/patch.dto";
+import { PracticeCreateDto } from "./dto/create.dto";
 
 @Injectable()
 export class PracticesService {
@@ -25,15 +25,20 @@ export class PracticesService {
     return "Practice deleted successfully";
   }
 
-  async create(createDto: CreateDto): Promise<string> {
-    console.log(createDto);
+  async create(practiceCreateDto: PracticeCreateDto): Promise<string> {
+    const newPractice: PracticeEntity = new PracticeEntity();
+    newPractice.name = practiceCreateDto.name;
+
+    await this.practicesRepository.save(newPractice);
 
     return "User created";
   }
 
-  async update(id: string, patchDto: PatchDto): Promise<string> {
-    console.log(id, patchDto);
-    await this.practicesRepository.update(id, patchDto);
+  async update(
+    id: string,
+    practicePatchDto: PracticePatchDto
+  ): Promise<string> {
+    await this.practicesRepository.update(id, practicePatchDto);
     return "User updated";
   }
 }
