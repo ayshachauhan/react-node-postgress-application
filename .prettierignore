@@ -2,6 +2,10 @@
 node_modules
 tmp/**
 .vscode/
+.husky/
+.prettierignore
+.gitignore
+.eslintignore
 
 /packages/*/dist
 
