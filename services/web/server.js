@@ -1,19 +1,19 @@
 // server.js
 
-import http from "http";
-import nextConfig from "./next.config.mjs";
+import http from 'http';
+import nextConfig from './next.config.mjs';
 
 // Access public runtime config
 const { publicRuntimeConfig } = nextConfig;
 
 // Define the health check endpoint
 const handleRequest = (request, response) => {
-  if (request.url === "/health") {
-    response.writeHead(200, { "Content-Type": "application/json" });
-    response.end(JSON.stringify({ status: "ok" }));
+  if (request.url === '/health') {
+    response.writeHead(200, { 'Content-Type': 'application/json' });
+    response.end(JSON.stringify({ status: 'ok' }));
   } else {
-    response.writeHead(404, { "Content-Type": "text/plain" });
-    response.end("Not Found");
+    response.writeHead(404, { 'Content-Type': 'text/plain' });
+    response.end('Not Found');
   }
 };
 
