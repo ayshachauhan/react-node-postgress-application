@@ -7,15 +7,23 @@
   "private": true,
   "scripts": {
     "turbo": "./node_modules/turbo/bin/turbo",
-    "start:dev": "dotenv -e .env -- pnpm turbo start:dev"
+    "start:dev": "dotenv -e .env -- pnpm turbo start:dev --filter=services",
+    "start:prod":"dotenv -e .env -- pnpm turbo start:prod --filter=services",
+    "format":"turbo format",
+    "format:check":"turbo format:check",
+    "lint":"turbo lint",
+    "lint:fix":"turbo lint:fix",
+    "clean":"turbo clean"
   },
   "devDependencies": {
     "@types/node": "^20.10.3",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "dotenv-cli": "^7.3.0",
+    "eslint": "^8.42.0",
+    "prettier": "^3.0.0",
     "ts-node": "^10.9.1",
     "tslib": "2.3.1",
     "turbo": "^1.10.16"
-  },
-  "dependencies": {
-    "dotenv-cli": "^7.3.0"
   }
 }

@@ -5,6 +5,11 @@
         "dependsOn": ["^build"]
       },
       "start:dev":{},
+      "start:prod":{},
+      "format":{},
+      "format:check":{},
+      "lint":{},
+      "lint:fix":{},
       "generate-migration": {},
       "run-migrations": {}
     },

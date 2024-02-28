@@ -1,0 +1,9 @@
+.git
+node_modules
+tmp/**
+.vscode/
+
+/packages/*/dist
+
+/services/*/dist
+/services/*/.next
