@@ -26,7 +26,7 @@ import { PracticesModule } from './practices/practices.module';
         password: configService.get(ENVIRONMENT_VARIABLES.DB_PASSWORD),
         database: configService.get(ENVIRONMENT_VARIABLES.DB_DATABASE),
         autoLoadEntities: true,
-        synchronize: true,
+        synchronize: false,
       }),
     }),
     UsersModule,

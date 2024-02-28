@@ -5,18 +5,16 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   DeleteDateColumn,
-} from "typeorm";
-import { IsEmpty } from "class-validator";
+} from 'typeorm';
+import { IsEmpty } from 'class-validator';
 
-export const CREATE = "CREATE";
-export const UPDATE = "UPDATE";
+export const CREATE = 'CREATE';
 
-@Entity()
-@Entity("practices")
+@Entity('practices')
 export class PracticeEntity {
   //  commenting this is unknown for the moment groups
-  @IsEmpty({ groups: [CREATE, UPDATE] })
-  @PrimaryGeneratedColumn("uuid")
+  @IsEmpty({ groups: [CREATE] })
+  @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @CreateDateColumn({ nullable: false })
@@ -25,9 +23,9 @@ export class PracticeEntity {
   @UpdateDateColumn({ nullable: false })
   dateUpdated: Date;
 
-  @DeleteDateColumn({ nullable: true, type: "timestamp", select: false })
+  @DeleteDateColumn({ nullable: true, type: 'timestamp', select: false })
   dateDeleted?: Date;
 
-  @Column({ type: "varchar" })
+  @Column({ type: 'varchar' })
   name: string;
 }
