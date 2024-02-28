@@ -1,31 +1,8 @@
-import {
-  Entity,
-  Column,
-  PrimaryGeneratedColumn,
-  CreateDateColumn,
-  UpdateDateColumn,
-  DeleteDateColumn,
-} from 'typeorm';
-import { IsEmpty } from 'class-validator';
-
-export const CREATE = 'CREATE';
+import { Entity, Column } from 'typeorm';
+import { BaseEntity } from './base.entity';
 
 @Entity('practices')
-export class PracticeEntity {
-  //  commenting this is unknown for the moment groups
-  @IsEmpty({ groups: [CREATE] })
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
-  @CreateDateColumn({ nullable: false })
-  dateCreated: Date;
-
-  @UpdateDateColumn({ nullable: false })
-  dateUpdated: Date;
-
-  @DeleteDateColumn({ nullable: true, type: 'timestamp', select: false })
-  dateDeleted?: Date;
-
+export class PracticeEntity extends BaseEntity {
   @Column({ type: 'varchar' })
   name: string;
 }

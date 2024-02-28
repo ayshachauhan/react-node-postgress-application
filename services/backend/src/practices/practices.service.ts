@@ -1,15 +1,15 @@
-import { Injectable } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
-import { PracticeEntity } from "../entities/practices.entity";
-import { PracticePatchDto } from "./dto/patch.dto";
-import { PracticeCreateDto } from "./dto/create.dto";
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { PracticeEntity } from '../entities/practices.entity';
+import { PracticePatchDto } from './dto/patch.dto';
+import { PracticeCreateDto } from './dto/create.dto';
 
 @Injectable()
 export class PracticesService {
   constructor(
     @InjectRepository(PracticeEntity)
-    private practicesRepository: Repository<PracticeEntity>
+    private practicesRepository: Repository<PracticeEntity>,
   ) {}
 
   async findAll(): Promise<PracticeEntity[]> {
@@ -22,7 +22,7 @@ export class PracticesService {
 
   async remove(id: string): Promise<string> {
     await this.practicesRepository.softDelete(id);
-    return "Practice deleted successfully";
+    return 'Practice deleted successfully';
   }
 
   async create(practiceCreateDto: PracticeCreateDto): Promise<string> {
@@ -31,14 +31,14 @@ export class PracticesService {
 
     await this.practicesRepository.save(newPractice);
 
-    return "User created";
+    return 'Practice created';
   }
 
   async update(
     id: string,
-    practicePatchDto: PracticePatchDto
+    practicePatchDto: PracticePatchDto,
   ): Promise<string> {
     await this.practicesRepository.update(id, practicePatchDto);
-    return "User updated";
+    return 'Practice updated';
   }
 }
