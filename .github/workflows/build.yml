@@ -1,11 +1,11 @@
-name: Build application
+name: build app
 
 on:
   pull_request:
 
 jobs:
     lint:
-        name : lint app
+        name : lint and build app
         runs-on: ubuntu-latest
         steps:
           - name: checkout
@@ -25,23 +25,5 @@ jobs:
           - name : lint packages
             run: pnpm lint:check & pnpm format:check
 
-    build:
-        name : build app
-        runs-on: ubuntu-latest
-        steps:
-          - name: checkout
-            uses: actions/checkout@v4
-
-          - name:  setup node
-            uses: actions/setup-node@v4
-            with:
-                 node-version: 20
-
-          - name: setup pnpm
-            uses: pnpm/action-setup@v3
-        
-          - name: pnpm install
-            run: pnpm install --frozen-lockfile
-
           - name : build packages
-            run: pnpm build
+            run : pnpm build
