@@ -1,7 +1,13 @@
-const { Table } = require('typeorm');
+import {
+  MigrationInterface,
+  QueryRunner,
+  Table,
+  TableColumn,
+  TableForeignKey,
+} from 'typeorm';
 
-module.exports = class CreatePracticeHome1622933799215 {
-  async up(queryRunner) {
+export class CreatePracticeHome1622933799215 implements MigrationInterface {
+  public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(
       new Table({
         name: 'practice_homes',
@@ -29,30 +35,36 @@ module.exports = class CreatePracticeHome1622933799215 {
             default: 'CURRENT_TIMESTAMP',
             onUpdate: 'CURRENT_TIMESTAMP',
           },
-          {
+          new TableColumn({
             name: 'dateDeleted',
             type: 'timestamp',
             isNullable: true,
-            select: false,
-          },
+          }),
           {
             name: 'name',
             type: 'varchar',
           },
         ],
-        foreignKeys: [
-          {
-            columnNames: ['practiceId'],
-            referencedTableName: 'practices',
-            referencedColumnNames: ['id'],
-            onDelete: 'CASCADE',
-          },
-        ],
+      }),
+      true,
+    );
+
+    await queryRunner.createForeignKey(
+      'practice_homes',
+      new TableForeignKey({
+        columnNames: ['practiceId'],
+        referencedTableName: 'practices',
+        referencedColumnNames: ['id'],
+        onDelete: 'CASCADE',
       }),
     );
   }
 
-  async down(queryRunner) {
+  public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.dropForeignKey(
+      'practice_homes',
+      'FK_practice_homes_practiceId',
+    );
     await queryRunner.dropTable('practice_homes');
   }
-};
+}
