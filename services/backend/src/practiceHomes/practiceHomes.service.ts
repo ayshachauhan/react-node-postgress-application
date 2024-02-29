@@ -1,6 +1,6 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, UpdateResult } from 'typeorm';
 import { PracticeHome } from '../entities/practiceHomes.entity';
 import { PracticesService } from '../practices/practices.service';
 import { PracticeHomePatchDto } from './dto/patch.dto';
@@ -22,35 +22,42 @@ export class PracticeHomesService {
     return this.practiceHomesRepository.findOneBy({ id });
   }
 
-  async remove(id: string): Promise<string> {
+  async remove(id: string): Promise<void> {
     await this.practiceHomesRepository.softDelete(id);
-    return 'Practice deleted successfully';
   }
 
-  async create(practiceHomeCreateDto: PracticeHomeCreateDto): Promise<string> {
+  async create({
+    name,
+    practiceId,
+  }: PracticeHomeCreateDto): Promise<PracticeHome> {
     const newPracticeHome: PracticeHome = new PracticeHome();
-    newPracticeHome.name = practiceHomeCreateDto.name;
 
-    const practiceEntity = await this.practicesService.findOne(
-      practiceHomeCreateDto.practiceId,
-    );
-
+    const practiceEntity = await this.practicesService.findOne(practiceId);
     if (!practiceEntity) {
       throw new HttpException('Practice not found', HttpStatus.NOT_FOUND);
     }
 
-    newPracticeHome.practice = practiceEntity;
-
-    await this.practiceHomesRepository.save(newPracticeHome);
-
-    return 'Practice Homes created';
+    return await this.practiceHomesRepository.save({
+      ...newPracticeHome,
+      practice: practiceEntity,
+      name,
+    });
   }
 
   async update(
     id: string,
     practiceHomePatchDto: PracticeHomePatchDto,
-  ): Promise<string> {
-    await this.practiceHomesRepository.update(id, practiceHomePatchDto);
-    return 'Practice Home updated';
+  ): Promise<PracticeHome | null> {
+    const updateResult: UpdateResult =
+      await this.practiceHomesRepository.update(id, practiceHomePatchDto);
+
+    if (updateResult.affected === 0) {
+      throw new HttpException(
+        `PracticeHome with id ${id} not found`,
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    return await this.practiceHomesRepository.findOne({ where: { id } });
   }
 }

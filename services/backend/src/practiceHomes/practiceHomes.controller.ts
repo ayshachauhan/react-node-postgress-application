@@ -12,8 +12,9 @@ import { PracticeHomesService } from './practiceHomes.service';
 import { PracticeEntity } from '../entities/practices.entity';
 import { PracticeHomePatchDto } from './dto/patch.dto';
 import { PracticeHomeCreateDto } from './dto/create.dto';
+import { PracticeHome } from 'src/entities/practiceHomes.entity';
 
-@Controller('practiceHomes')
+@Controller('practice-homes')
 export class PracticeHomesController {
   constructor(private readonly practiceHomesService: PracticeHomesService) {}
 
@@ -23,19 +24,19 @@ export class PracticeHomesController {
   }
 
   @Get(':id')
-  async findOne(@Param() params: any): Promise<PracticeEntity | null> {
-    return this.practiceHomesService.findOne(params.id);
+  async findOne(@Param('id') id: string): Promise<PracticeEntity | null> {
+    return this.practiceHomesService.findOne(id);
   }
 
   @Delete(':id')
-  async remove(@Param() params: any): Promise<string> {
-    return this.practiceHomesService.remove(params.id);
+  async remove(@Param('id') id: string): Promise<void> {
+    return this.practiceHomesService.remove(id);
   }
 
   @Post()
   async create(
     @Body(new ValidationPipe()) practiceHomeCreateto: PracticeHomeCreateDto,
-  ): Promise<String> {
+  ): Promise<PracticeHome> {
     return this.practiceHomesService.create(practiceHomeCreateto);
   }
 
@@ -43,7 +44,7 @@ export class PracticeHomesController {
   async update(
     @Param('id') id: string,
     @Body() practiceHomePatchDto: PracticeHomePatchDto,
-  ): Promise<String> {
+  ): Promise<PracticeHome | null> {
     return this.practiceHomesService.update(id, practiceHomePatchDto);
   }
 }

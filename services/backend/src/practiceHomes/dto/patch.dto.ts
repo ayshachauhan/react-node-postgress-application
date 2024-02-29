@@ -1,8 +1,10 @@
-import { IsUUID } from 'class-validator';
+import { IsOptional, IsUUID } from 'class-validator';
 
 export class PracticeHomePatchDto {
+  @IsOptional()
   @IsUUID('4')
-  practiceId?: string;
+  practiceId: string;
 
-  name?: string;
+  @IsOptional()
+  name: string;
 }

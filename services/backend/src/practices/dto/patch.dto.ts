@@ -1,7 +1,5 @@
-// patch.dto.ts
+import { IsOptional } from 'class-validator';
 export class PracticePatchDto {
-  // Define properties to be updated in the PATCH request
-  readonly name?: string;
-
-  // Add more properties as needed
+  @IsOptional()
+  name: string;
 }
