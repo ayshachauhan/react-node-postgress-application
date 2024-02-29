@@ -20,8 +20,8 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "generate-migration": "typeorm migration:create -o",
-    "run-migrations": "typeorm migration:run -d ./migration-runner/datasource.js"
+    "generate-migration": "typeorm migration:create",
+    "run-migrations": "typeorm-ts-node-commonjs migration:run -d ./migration-runner/datasource.js"
   },
   "dependencies": {
     "@azentia/entities": "workspace:*",
