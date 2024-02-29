@@ -1,12 +1,9 @@
-import { Entity, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, DeleteDateColumn, Column } from 'typeorm';
-import { IsEmpty } from 'class-validator';
+import { Entity, Column } from 'typeorm';
+import { BaseEntity } from './base.entity';
 
 @Entity('videos')
-export class Video {
-   @IsEmpty({ groups: ['CREATE'] })
-   @PrimaryGeneratedColumn('uuid')
-   id: string;
-  
+export class Video extends BaseEntity {
+        
   @Column({ type: 'uuid' }) 
   practiceId: string;   
 
@@ -18,14 +15,5 @@ export class Video {
   
   @Column({ type: 'varchar' })
   url: string;
-  
-  @CreateDateColumn({ nullable: false })
-  dateCreated: Date;
-
-  @UpdateDateColumn({ nullable: false })
-  dateUpdated: Date;
-
-  @DeleteDateColumn({ nullable: true, type: 'timestamp', select: false })
-  dateDeleted?: Date;
   
 }

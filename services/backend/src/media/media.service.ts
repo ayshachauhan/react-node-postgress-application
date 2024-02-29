@@ -17,8 +17,12 @@ export class MediaService {
     return await this.videos.find({ where: { practiceId } });
   }
 
-  async getVideosById(practiceId: string, videoId: string): Promise<Video | null> {
-    return await this.videos.findOne({ where: { id: videoId, practiceId } });
+  async getVideosById(practiceId: string, videoId: string): Promise<Video> {
+    const video = await this.videos.findOne({ where: { id: videoId, practiceId } });
+    if (!video) {
+        throw new NotFoundException("Video not exists");
+    }
+    return video;
   }
 
   async createVideo(practiceId: string, videoData: Partial<Video>): Promise<Video> {
@@ -32,9 +36,8 @@ export class MediaService {
 
   async updateVideo(practiceId: string, videoId: string, videoData: Partial<Video>): Promise<Video | undefined> {
     const video = await this.getVideosById(practiceId, videoId);
-    if (!video)  throw new NotFoundException("Video not exists");
     const updatedVideo = this.videos.merge(video, videoData);
-    return await this.videos.save(updatedVideo);
+    return this.videos.save(updatedVideo);
   }
 
   async deleteVideo(practiceId: string, videoId: string): Promise<void> {
