@@ -9,6 +9,7 @@
     "turbo": "./node_modules/turbo/bin/turbo",
     "start:dev": "dotenv -e .env -- pnpm turbo start:dev",
     "start:prod": "dotenv -e .env -- pnpm turbo start:prod",
+    "build": "dotenv -e .env -- pnpm turbo build",
     "format": "turbo format",
     "format:check": "turbo format:check",
     "lint": "turbo lint",
