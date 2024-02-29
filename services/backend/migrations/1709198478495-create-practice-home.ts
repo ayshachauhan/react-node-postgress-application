@@ -1,12 +1,6 @@
-import {
-  MigrationInterface,
-  QueryRunner,
-  Table,
-  TableColumn,
-  TableForeignKey,
-} from 'typeorm';
+import { MigrationInterface, QueryRunner, Table } from 'typeorm';
 
-export class CreatePracticeHome1622933799215 implements MigrationInterface {
+export class CreatePracticeHome1709198478495 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(
       new Table({
@@ -35,27 +29,24 @@ export class CreatePracticeHome1622933799215 implements MigrationInterface {
             default: 'CURRENT_TIMESTAMP',
             onUpdate: 'CURRENT_TIMESTAMP',
           },
-          new TableColumn({
+          {
             name: 'dateDeleted',
             type: 'timestamp',
             isNullable: true,
-          }),
+          },
           {
             name: 'name',
             type: 'varchar',
           },
         ],
-      }),
-      true,
-    );
-
-    await queryRunner.createForeignKey(
-      'practice_homes',
-      new TableForeignKey({
-        columnNames: ['practiceId'],
-        referencedTableName: 'practices',
-        referencedColumnNames: ['id'],
-        onDelete: 'CASCADE',
+        foreignKeys: [
+          {
+            columnNames: ['practiceId'],
+            referencedTableName: 'practices',
+            referencedColumnNames: ['id'],
+            onDelete: 'CASCADE',
+          },
+        ],
       }),
     );
   }
