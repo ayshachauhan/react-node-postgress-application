@@ -10,7 +10,7 @@ export class MediaService {
     @InjectRepository(Video)
     private readonly videos: Repository<Video>,
     @InjectRepository(PracticeEntity)
-    private readonly practice: Repository<PracticeEntity>
+    private readonly practice: Repository<PracticeEntity>,
   ) {}
 
   async getVideosByPracticeId(practiceId: string) {
@@ -18,23 +18,32 @@ export class MediaService {
   }
 
   async getVideosById(practiceId: string, videoId: string): Promise<Video> {
-    const video = await this.videos.findOne({ where: { id: videoId, practiceId } });
+    const video = await this.videos.findOne({
+      where: { id: videoId, practiceId },
+    });
     if (!video) {
-        throw new NotFoundException("Video not exists");
+      throw new NotFoundException('Video not exists');
     }
     return video;
   }
 
-  async createVideo(practiceId: string, videoData: Partial<Video>): Promise<Video> {
-    const practice = await this.practice.findOne({ where: { id: practiceId }});
+  async createVideo(
+    practiceId: string,
+    videoData: Partial<Video>,
+  ): Promise<Video> {
+    const practice = await this.practice.findOne({ where: { id: practiceId } });
     if (!practice) {
-        throw new NotFoundException('Practice not exists');
-    } 
+      throw new NotFoundException('Practice not exists');
+    }
     const video = this.videos.create({ ...videoData, practiceId });
     return await this.videos.save(video);
   }
 
-  async updateVideo(practiceId: string, videoId: string, videoData: Partial<Video>): Promise<Video | undefined> {
+  async updateVideo(
+    practiceId: string,
+    videoId: string,
+    videoData: Partial<Video>,
+  ): Promise<Video | undefined> {
     const video = await this.getVideosById(practiceId, videoId);
     const updatedVideo = this.videos.merge(video, videoData);
     return this.videos.save(updatedVideo);
