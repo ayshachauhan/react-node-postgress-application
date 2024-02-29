@@ -8,7 +8,7 @@ const dbdatasource = {
   username: process.env.DB_USERNAME || 'postgres',
   password: process.env.DB_PASSWORD || 'postgres',
   database: process.env.DB_NAME || 'postgres',
-  migrations: [path.join('migrations', '*.js')],
+  migrations: [path.join('migrations', '*.{ts,js}')],
   synchronize: false,
 };
 
