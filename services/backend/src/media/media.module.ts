@@ -8,6 +8,6 @@ import { PracticeEntity } from 'src/entities/practices.entity';
 @Module({
   imports: [TypeOrmModule.forFeature([Video, PracticeEntity])],
   controllers: [MediaController],
-  providers: [MediaService]
+  providers: [MediaService],
 })
 export class MediaModule {}
