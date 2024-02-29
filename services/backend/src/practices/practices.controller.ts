@@ -23,19 +23,19 @@ export class PracticesController {
   }
 
   @Get(':id')
-  async findOne(@Param() params: any): Promise<PracticeEntity | null> {
-    return this.practiceService.findOne(params.id);
+  async findOne(@Param('id') id: string): Promise<PracticeEntity | null> {
+    return this.practiceService.findOne(id);
   }
 
   @Delete(':id')
-  async remove(@Param() params: any): Promise<string> {
-    return this.practiceService.remove(params.id);
+  async remove(@Param('id') id: string): Promise<void> {
+    return this.practiceService.remove(id);
   }
 
   @Post()
   async create(
     @Body(new ValidationPipe()) practiceCreateDto: PracticeCreateDto,
-  ): Promise<String> {
+  ): Promise<PracticeEntity> {
     return this.practiceService.create(practiceCreateDto);
   }
 
@@ -43,7 +43,7 @@ export class PracticesController {
   async update(
     @Param('id') id: string,
     @Body() practicePatchDto: PracticePatchDto,
-  ): Promise<String> {
+  ): Promise<PracticeEntity | null> {
     return this.practiceService.update(id, practicePatchDto);
   }
 }

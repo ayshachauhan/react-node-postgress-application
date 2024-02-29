@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, UpdateResult } from 'typeorm';
 import { PracticeEntity } from '../entities/practices.entity';
 import { PracticePatchDto } from './dto/patch.dto';
 import { PracticeCreateDto } from './dto/create.dto';
@@ -13,32 +13,39 @@ export class PracticesService {
   ) {}
 
   async findAll(): Promise<PracticeEntity[]> {
-    return this.practicesRepository.find();
+    return await this.practicesRepository.find();
   }
 
   async findOne(id: string): Promise<PracticeEntity | null> {
-    return this.practicesRepository.findOneBy({ id });
+    return await this.practicesRepository.findOneBy({ id });
   }
 
-  async remove(id: string): Promise<string> {
+  async remove(id: string): Promise<void> {
     await this.practicesRepository.softDelete(id);
-    return 'Practice deleted successfully';
   }
 
-  async create(practiceCreateDto: PracticeCreateDto): Promise<string> {
+  async create({ name }: PracticeCreateDto): Promise<PracticeEntity> {
     const newPractice: PracticeEntity = new PracticeEntity();
-    newPractice.name = practiceCreateDto.name;
 
-    await this.practicesRepository.save(newPractice);
-
-    return 'Practice created';
+    return await this.practicesRepository.save({ ...newPractice, name });
   }
 
   async update(
     id: string,
     practicePatchDto: PracticePatchDto,
-  ): Promise<string> {
-    await this.practicesRepository.update(id, practicePatchDto);
-    return 'Practice updated';
+  ): Promise<PracticeEntity | null> {
+    const updateResult: UpdateResult = await this.practicesRepository.update(
+      id,
+      practicePatchDto,
+    );
+
+    if (updateResult.affected === 0) {
+      throw new HttpException(
+        `Practice with id ${id} not found`,
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    return await this.practicesRepository.findOne({ where: { id } });
   }
 }
