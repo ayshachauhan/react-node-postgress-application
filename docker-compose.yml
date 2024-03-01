@@ -1,7 +1,7 @@
 version: '3.6'
 services:
   db:
-    image: postgres
+    image: postgres:16.0
     restart: always
     ports:
       - 5432:5432
@@ -9,6 +9,7 @@ services:
       POSTGRES_PASSWORD: postgres
     volumes:
       - db_data:/var/lib/postgresql/data
+      - ./pg:/docker-entrypoint-initdb.d/
 
 volumes:
   db_data:
