@@ -17,7 +17,8 @@
     "clean": "turbo clean",
     "prepare": "husky",
     "commit": "git-cz",
-    "lint-staged": "lint-staged"
+    "lint-staged": "lint-staged",
+    "migrate":"pnpm turbo run run-migrations"
   },
   "devDependencies": {
     "@types/node": "^20.10.3",

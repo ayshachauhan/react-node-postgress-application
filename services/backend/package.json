@@ -32,6 +32,8 @@
     "@nestjs/platform-express": "^10.0.0",
     "@nestjs/terminus": "^10.2.3",
     "@nestjs/typeorm": "^10.0.2",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.1",
     "joi": "^17.12.2",
     "pg": "^8.11.3",
     "reflect-metadata": "^0.2.0",
@@ -57,7 +59,6 @@
     "supertest": "^6.3.3",
     "ts-jest": "^29.1.0",
     "ts-loader": "^9.4.3",
-    "ts-node": "^10.9.1",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.1.3"
   },
