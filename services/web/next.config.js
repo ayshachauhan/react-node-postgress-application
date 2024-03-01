@@ -1,5 +1,5 @@
 module.exports = {
-  publicRuntimeConfig: {
+  serverRuntimeConfig: {
     PORT: process.env.PORT,
   },
 };
