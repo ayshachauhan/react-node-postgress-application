@@ -14,37 +14,48 @@ import { PracticeHomePatchDto } from './dto/patch.dto';
 import { PracticeHomeCreateDto } from './dto/create.dto';
 import { PracticeHome } from 'src/entities/practiceHomes.entity';
 
-@Controller('practice-homes')
+@Controller('practices/:practiceId/homes')
 export class PracticeHomesController {
   constructor(private readonly practiceHomesService: PracticeHomesService) {}
 
   @Get()
-  async findAll(): Promise<PracticeEntity[]> {
-    return this.practiceHomesService.findAll();
+  async getPracticeHomesByPractice(
+    @Param('practiceId') practiceId: string,
+  ): Promise<PracticeEntity[]> {
+    return this.practiceHomesService.getPracticeHomesByPractice(practiceId);
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string): Promise<PracticeEntity | null> {
-    return this.practiceHomesService.findOne(id);
+  async getPracticeHomeById(
+    @Param() { practiceId, id }: { practiceId: string; id: string },
+  ): Promise<PracticeEntity | null> {
+    return this.practiceHomesService.getPracticeHomeById(id, practiceId);
   }
 
   @Delete(':id')
-  async remove(@Param('id') id: string): Promise<void> {
-    return this.practiceHomesService.remove(id);
+  async remove(
+    @Param() { practiceId, id }: { practiceId: string; id: string },
+  ): Promise<void> {
+    return this.practiceHomesService.remove(id, practiceId);
   }
 
   @Post()
   async create(
+    @Param('practiceId') practiceId: string,
     @Body(new ValidationPipe()) practiceHomeCreateto: PracticeHomeCreateDto,
   ): Promise<PracticeHome> {
-    return this.practiceHomesService.create(practiceHomeCreateto);
+    return this.practiceHomesService.create(practiceHomeCreateto, practiceId);
   }
 
   @Patch(':id')
   async update(
-    @Param('id') id: string,
+    @Param() { practiceId, id }: { practiceId: string; id: string },
     @Body() practiceHomePatchDto: PracticeHomePatchDto,
   ): Promise<PracticeHome | null> {
-    return this.practiceHomesService.update(id, practiceHomePatchDto);
+    return this.practiceHomesService.update(
+      id,
+      practiceHomePatchDto,
+      practiceId,
+    );
   }
 }

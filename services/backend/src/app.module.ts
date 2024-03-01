@@ -9,6 +9,7 @@ import { ENVIRONMENT_VARIABLES } from './enums/environment.enums';
 import { ENV_VARIABLES_SCHEMA } from './env-validation';
 import { PracticesModule } from './practices/practices.module';
 import { PracticeHomesModule } from './practiceHomes/practiceHomes.module';
+import { MediaModule } from './media/media.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { PracticeHomesModule } from './practiceHomes/practiceHomes.module';
     HealthModule,
     PracticesModule,
     PracticeHomesModule,
+    MediaModule,
   ],
   controllers: [AppController],
   providers: [AppService],
