@@ -1,26 +1,33 @@
-// server.js
+const express = require('express');
+const bodyParser = require('body-parser');
+const next = require('next');
+const { publicRuntimeConfig } = require('./next.config.js');
 
-import http from 'http';
-import nextConfig from './next.config.mjs';
+const dev = process.env.NODE_ENV !== 'production';
+const app = next({ dev });
+const handle = app.getRequestHandler();
 
-// Access public runtime config
-const { publicRuntimeConfig } = nextConfig;
+app.prepare().then(() => {
+  const server = express();
 
-// Define the health check endpoint
-const handleRequest = (request, response) => {
-  if (request.url === '/health') {
-    response.writeHead(200, { 'Content-Type': 'application/json' });
-    response.end(JSON.stringify({ status: 'ok' }));
-  } else {
-    response.writeHead(404, { 'Content-Type': 'text/plain' });
-    response.end('Not Found');
-  }
-};
+  // Middleware
+  server.use(bodyParser.json());
 
-// Create the server and start listening
-const server = http.createServer(handleRequest);
-const port = publicRuntimeConfig.PORT;
+  // Health Endpoint
+  server.get('/health', (req, res) => {
+    res.status(200).json({ message: 'ok' });
+  });
 
-server.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+  // Next.js request handler
+  server.all('*', (req, res) => {
+    return handle(req, res);
+  });
+
+  // Start server
+
+  const PORT = publicRuntimeConfig.PORT || 3000;
+  server.listen(PORT, (err) => {
+    if (err) throw err;
+    console.log(`Server ready on http://localhost:${PORT}`);
+  });
 });
