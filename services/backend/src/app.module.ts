@@ -3,7 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { UsersModule } from './modules/users/users.module';
+import { UsersModule } from './users/users.module';
 import { HealthModule } from './healthz/health.module';
 import { ENVIRONMENT_VARIABLES } from './enums/environment.enums';
 import { ENV_VARIABLES_SCHEMA } from './env-validation';
