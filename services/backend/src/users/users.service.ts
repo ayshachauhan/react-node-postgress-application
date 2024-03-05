@@ -3,21 +3,21 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { Repository } from 'typeorm';
-import { Users } from '../entities/users.entity';
+import { User } from '../entities/users.entity';
 import { CreateUserDto } from './dto/create.dto';
 import { PracticesService } from '../practices/practices.service';
 
 @Injectable()
 export class UsersService {
   constructor(
-    @InjectRepository(Users)
-    private usersRepository: Repository<Users>,
+    @InjectRepository(User)
+    private usersRepository: Repository<User>,
     private jwtService: JwtService,
     private readonly practicesService: PracticesService,
   ) {}
 
-  async create(createUserDto: CreateUserDto): Promise<Users> {
-    const newUser: Users = new Users();
+  async create(createUserDto: CreateUserDto): Promise<User> {
+    const newUser: User = new User();
     const { firstName, lastName, practiceId } = createUserDto;
 
     createUserDto.password = await bcrypt.hash(createUserDto.password, 10);
@@ -36,7 +36,7 @@ export class UsersService {
     });
   }
 
-  async findUserByEmail(email: string): Promise<Users | null> {
+  async findUserByEmail(email: string): Promise<User | null> {
     const existingUser = await this.usersRepository.findOne({
       where: { email },
     });
@@ -58,5 +58,17 @@ export class UsersService {
     return {
       access_token: this.jwtService.sign(user),
     };
+  }
+
+  async findOne(practiceId: string, id: string): Promise<User | null> {
+    return await this.usersRepository.findOne({
+      where: { practice: { id: practiceId }, id },
+    });
+  }
+
+  async getUsersByPractice(practiceId: string): Promise<User[]> {
+    return this.usersRepository.find({
+      where: { practice: { id: practiceId } },
+    });
   }
 }

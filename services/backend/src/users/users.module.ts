@@ -4,13 +4,13 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ENVIRONMENT_VARIABLES } from '../enums/environment.enums';
 import { UsersController } from './users.controller';
-import { Users } from '../entities/users.entity';
+import { User } from '../entities/users.entity';
 import { UsersService } from './users.service';
 import { PracticesModule } from 'src/practices/practices.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Users]),
+    TypeOrmModule.forFeature([User]),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
@@ -24,5 +24,6 @@ import { PracticesModule } from 'src/practices/practices.module';
   ],
   providers: [UsersService],
   controllers: [UsersController],
+  exports: [UsersService],
 })
 export class UsersModule {}

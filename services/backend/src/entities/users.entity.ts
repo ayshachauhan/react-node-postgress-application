@@ -5,7 +5,7 @@ import { UserType } from 'src/enums/userType.enum';
 import { UserStatus } from 'src/enums/status.enum';
 
 @Entity('users')
-export class Users extends BaseEntity {
+export class User extends BaseEntity {
   @ManyToOne(() => PracticeEntity)
   @JoinColumn({ name: 'practiceId' })
   practice: PracticeEntity;
