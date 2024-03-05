@@ -15,9 +15,6 @@ export class CreateUserDto {
   @IsNotEmpty({ message: 'Password is requried.' })
   password: string;
 
-  @IsNotEmpty({ message: 'Practice id is required.' })
-  practiceId: string;
-
   @IsNotEmpty({ message: 'userName is required.' })
   userName: string;
 
@@ -25,8 +22,8 @@ export class CreateUserDto {
   status: UserStatus;
 
   @IsNotEmpty({ message: 'userType is required.' })
-  userType: UserType;
+  type: UserType;
 
   @IsOptional()
-  userUrl: string;
+  url: string;
 }

@@ -29,7 +29,7 @@ export class User extends BaseEntity {
   fullName: string;
 
   @Column({ type: 'varchar' })
-  userUrl: string;
+  url: string;
 
   @Column({
     type: 'enum',
@@ -41,7 +41,7 @@ export class User extends BaseEntity {
   @Column({
     type: 'enum',
     enum: UserType,
-    default: UserType.USER,
+    default: UserType.EMPLOYEE,
   })
-  userType: UserType;
+  type: UserType;
 }

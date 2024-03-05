@@ -10,6 +10,7 @@ import { ENV_VARIABLES_SCHEMA } from './env-validation';
 import { PracticesModule } from './practices/practices.module';
 import { PracticeHomesModule } from './practiceHomes/practiceHomes.module';
 import { MediaModule } from './media/media.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { MediaModule } from './media/media.module';
         synchronize: false,
       }),
     }),
+    AuthModule,
     UsersModule,
     HealthModule,
     PracticesModule,
