@@ -6,7 +6,7 @@ import { AppService } from './app.service';
 import { UsersModule } from './modules/users/users.module';
 import { HealthModule } from './healthz/health.module';
 import { ENVIRONMENT_VARIABLES } from './enums/environment.enums';
-import { ENV_VARIABLES_SCHEMA } from './env-validation';
+import { ENV_VARIABLES_SCHEMA } from './enums/env-validation';
 import { PracticesModule } from './practices/practices.module';
 import { PracticeHomesModule } from './practiceHomes/practiceHomes.module';
 import { MediaModule } from './media/media.module';

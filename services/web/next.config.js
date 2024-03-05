@@ -1,5 +1,5 @@
 module.exports = {
   serverRuntimeConfig: {
-    PORT: process.env.PORT,
+    PORT: process.env.WEB_PORT,
   },
 };
