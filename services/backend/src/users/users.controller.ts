@@ -2,7 +2,7 @@ import { Controller, Post, Body, Get, Param, UseGuards } from '@nestjs/common';
 import { CreateUserDto } from './dto/create.dto';
 import { UsersService } from './users.service';
 import { User } from 'src/entities/users.entity';
-import { AuthGuard } from 'src/auth/auth.gaurd';
+import { AuthGuard } from 'src/auth/auth.guard';
 
 @Controller('practices/:practiceId/users')
 @UseGuards(AuthGuard)

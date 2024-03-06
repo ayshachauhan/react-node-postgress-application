@@ -14,7 +14,7 @@ import { PracticeEntity } from '../entities/practices.entity';
 import { PracticeHomePatchDto } from './dto/patch.dto';
 import { PracticeHomeCreateDto } from './dto/create.dto';
 import { PracticeHome } from 'src/entities/practiceHomes.entity';
-import { AuthGuard } from 'src/auth/auth.gaurd';
+import { AuthGuard } from 'src/auth/auth.guard';
 
 @Controller('practices/:practiceId/homes')
 @UseGuards(AuthGuard)
