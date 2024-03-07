@@ -13,10 +13,10 @@ import { PracticesService } from './practices.service';
 import { PracticeEntity } from '../entities/practices.entity';
 import { PracticePatchDto } from './dto/patch.dto';
 import { PracticeCreateDto } from './dto/create.dto';
-import { AuthGuard } from 'src/auth/auth.guard';
+import { SuperAdminGuard } from 'src/auth/superAdmin.guard';
 
 @Controller('practices')
-@UseGuards(AuthGuard)
+@UseGuards(SuperAdminGuard)
 export class PracticesController {
   constructor(private readonly practiceService: PracticesService) {}
 

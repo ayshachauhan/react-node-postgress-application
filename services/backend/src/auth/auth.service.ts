@@ -51,7 +51,7 @@ export class AuthService {
       );
 
       if (isPasswordMatched) {
-        return { email };
+        return { email, isSuperAdmin: true };
       } else return null;
     }
     return null;
@@ -64,5 +64,14 @@ export class AuthService {
     } catch (error) {
       throw new Error('Invalid token');
     }
+  }
+
+  extractTokenFromHeader(request: any): string | undefined {
+    const authHeader = request.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return undefined;
+    }
+    return authHeader.substring('Bearer '.length);
   }
 }

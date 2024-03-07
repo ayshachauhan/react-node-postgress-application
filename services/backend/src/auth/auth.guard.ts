@@ -15,18 +15,15 @@ export class AuthGuard implements CanActivate {
     return this.validateToken(request);
   }
 
-  private async validateToken(request: any): Promise<boolean> {
+  async validateToken(request: any): Promise<boolean> {
     const token = this.extractTokenFromHeader(request);
     if (!token) {
       return false;
     }
 
     try {
-      await jwt.verify(
-        token,
-        this.configService.get(ENVIRONMENT_VARIABLES.JWT_SECRET_KEY),
-      );
-      return true;
+      const payload = await this.verify(token);
+      return !payload?.isSuperAdmin;
     } catch (error) {
       console.log(error);
 
@@ -34,9 +31,15 @@ export class AuthGuard implements CanActivate {
     }
   }
 
-  private extractTokenFromHeader(request: any): string | undefined {
+  async verify(token: string) {
+    return await jwt.verify(
+      token,
+      this.configService.get(ENVIRONMENT_VARIABLES.JWT_SECRET_KEY),
+    );
+  }
+
+  extractTokenFromHeader(request: any): string | undefined {
     const authHeader = request.headers.authorization;
-    console.log(authHeader);
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return undefined;
