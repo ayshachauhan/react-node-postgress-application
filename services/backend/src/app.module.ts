@@ -1,8 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { LoggerModule } from 'nestjs-pino';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { HealthModule } from './healthz/health.module';
 import { ENVIRONMENT_VARIABLES } from './enums/environment.enums';
@@ -14,6 +13,23 @@ import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
+    LoggerModule.forRootAsync({
+      useFactory: async (configService: ConfigService) => {
+        const nodeEnv: string =
+          configService.get(ENVIRONMENT_VARIABLES.NODE_ENV) ?? 'production';
+        return {
+          pinoHttp: {
+            level: 'debug',
+            transport:
+              nodeEnv !== 'production'
+                ? { target: 'pino-pretty', options: { colorize: true } }
+                : undefined,
+          },
+        };
+      },
+      imports: [ConfigModule],
+      inject: [ConfigService],
+    }),
     ConfigModule.forRoot({
       isGlobal: true,
       validationSchema: ENV_VARIABLES_SCHEMA,
@@ -39,7 +55,5 @@ import { AuthModule } from './auth/auth.module';
     PracticeHomesModule,
     MediaModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
 })
 export class AppModule {}
