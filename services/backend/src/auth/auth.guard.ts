@@ -23,6 +23,7 @@ export class AuthGuard implements CanActivate {
 
     try {
       const payload = await this.verify(token);
+      request['user'] = payload;
       return !payload?.isSuperAdmin;
     } catch (error) {
       console.log(error);
