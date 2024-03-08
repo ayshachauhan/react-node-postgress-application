@@ -13,7 +13,7 @@ async function bootstrap() {
   const port: number = configService.get(ENVIRONMENT_VARIABLES.BACKEND_PORT)!;
 
   await app.listen(port);
-  logger.info('Application started at port', { port });
+  logger.info(`Application started at port: ${port}`);
 }
 
 bootstrap();
