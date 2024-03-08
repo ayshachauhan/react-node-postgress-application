@@ -7,12 +7,15 @@ import {
   Param,
   Body,
   ValidationPipe,
+  UseGuards,
 } from '@nestjs/common';
 import { MediaService } from './media.service';
 import { CreateVideoDto } from './dtos/createVideo.dto';
 import { UpdateVideoDto } from './dtos/update.video.dto';
+import { AuthGuard } from 'src/auth/auth.guard';
 
 @Controller('/practices/:practiceId/videos')
+@UseGuards(AuthGuard)
 export class MediaController {
   constructor(private mediaService: MediaService) {}
 

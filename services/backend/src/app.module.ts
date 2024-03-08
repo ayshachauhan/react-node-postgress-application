@@ -3,13 +3,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { UsersModule } from './modules/users/users.module';
+import { UsersModule } from './users/users.module';
 import { HealthModule } from './healthz/health.module';
 import { ENVIRONMENT_VARIABLES } from './enums/environment.enums';
 import { ENV_VARIABLES_SCHEMA } from './enums/env-validation';
 import { PracticesModule } from './practices/practices.module';
 import { PracticeHomesModule } from './practiceHomes/practiceHomes.module';
 import { MediaModule } from './media/media.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { MediaModule } from './media/media.module';
       }),
     }),
     UsersModule,
+    AuthModule,
     HealthModule,
     PracticesModule,
     PracticeHomesModule,

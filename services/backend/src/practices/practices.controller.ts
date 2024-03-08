@@ -7,13 +7,16 @@ import {
   Patch,
   Body,
   ValidationPipe,
+  UseGuards,
 } from '@nestjs/common';
 import { PracticesService } from './practices.service';
 import { PracticeEntity } from '../entities/practices.entity';
 import { PracticePatchDto } from './dto/patch.dto';
 import { PracticeCreateDto } from './dto/create.dto';
+import { SuperAdminGuard } from 'src/auth/superAdmin.guard';
 
 @Controller('practices')
+@UseGuards(SuperAdminGuard)
 export class PracticesController {
   constructor(private readonly practiceService: PracticesService) {}
 

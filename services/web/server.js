@@ -27,7 +27,7 @@ app.prepare().then(() => {
   // Start server
 
   const PORT = serverRuntimeConfig.PORT || 3000;
-  console.log(serverRuntimeConfig.PORT);
+
   server.listen(PORT, (err) => {
     if (err) throw err;
     console.log(`Server ready on http://localhost:${PORT}`);
