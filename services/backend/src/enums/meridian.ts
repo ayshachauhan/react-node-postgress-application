@@ -1,5 +1,4 @@
 export enum Meridian {
-    AM = 'AM',
-    PM = 'PM'
-  }
-  
+  AM = 'AM',
+  PM = 'PM',
+}

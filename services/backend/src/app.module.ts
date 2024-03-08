@@ -51,21 +51,25 @@ import { TransporterModule } from './transporter';
     }),
     TransporterModule.forRootAsync({
       useFactory: async (configService: ConfigService) => {
-        const host: string =
-          configService.get(ENVIRONMENT_VARIABLES.SMTP_HOST)!
-        const port: number =
-          configService.get<number>(ENVIRONMENT_VARIABLES.SMTP_PORT)!
-          
-          const user: string =
-          configService.get(ENVIRONMENT_VARIABLES.SMTP_EMAIL)!
-          const pass: string =
-          configService.get(ENVIRONMENT_VARIABLES.SMTP_PASSWORD)!
+        const host: string = configService.get(
+          ENVIRONMENT_VARIABLES.SMTP_HOST,
+        )!;
+        const port: number = configService.get<number>(
+          ENVIRONMENT_VARIABLES.SMTP_PORT,
+        )!;
+
+        const user: string = configService.get(
+          ENVIRONMENT_VARIABLES.SMTP_EMAIL,
+        )!;
+        const pass: string = configService.get(
+          ENVIRONMENT_VARIABLES.SMTP_PASSWORD,
+        )!;
         return {
           host,
           port,
           user,
-          pass
-        }
+          pass,
+        };
       },
       imports: [ConfigModule],
       inject: [ConfigService],

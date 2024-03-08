@@ -11,7 +11,6 @@ import SMTPTransport from 'nodemailer/lib/smtp-transport';
 
 @Module({ imports: [], providers: [], exports: [] })
 export class TransporterModule {
-
   static forRootAsync(options: AsyncModuleOptions): DynamicModule {
     const providers: Provider[] = [
       {
@@ -23,15 +22,16 @@ export class TransporterModule {
         provide: EMAIL_CONNECTION_TOKEN,
         useFactory: async (options: ModuleOptions) => {
           const { host, port, user, pass } = options;
-          const client: Transporter<SMTPTransport.SentMessageInfo> = createTransport({
-            host,
-            port,
-            secure: port === 465,
-            auth: {
-              user,
-              pass,
-            },
-          });
+          const client: Transporter<SMTPTransport.SentMessageInfo> =
+            createTransport({
+              host,
+              port,
+              secure: port === 465,
+              auth: {
+                user,
+                pass,
+              },
+            });
           return client;
         },
         inject: [EMAIL_MODULE_OPTIONS],
