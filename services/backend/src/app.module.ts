@@ -5,11 +5,12 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { UsersModule } from './users/users.module';
 import { HealthModule } from './healthz/health.module';
 import { ENVIRONMENT_VARIABLES } from './enums/environment.enums';
-import { ENV_VARIABLES_SCHEMA } from './enums/env-validation';
+import { ENV_VALIDATIONS } from './enums/env-validation';
 import { PracticesModule } from './practices/practices.module';
 import { PracticeHomesModule } from './practiceHomes/practiceHomes.module';
 import { MediaModule } from './media/media.module';
 import { AuthModule } from './auth/auth.module';
+import { TransporterModule } from './transporter';
 
 @Module({
   imports: [
@@ -32,7 +33,7 @@ import { AuthModule } from './auth/auth.module';
     }),
     ConfigModule.forRoot({
       isGlobal: true,
-      validationSchema: ENV_VARIABLES_SCHEMA,
+      validationSchema: ENV_VALIDATIONS,
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
@@ -47,6 +48,31 @@ import { AuthModule } from './auth/auth.module';
         autoLoadEntities: true,
         synchronize: false,
       }),
+    }),
+    TransporterModule.forRootAsync({
+      useFactory: async (configService: ConfigService) => {
+        const host: string = configService.get(
+          ENVIRONMENT_VARIABLES.SMTP_HOST,
+        )!;
+        const port: number = configService.get<number>(
+          ENVIRONMENT_VARIABLES.SMTP_PORT,
+        )!;
+
+        const user: string = configService.get(
+          ENVIRONMENT_VARIABLES.SMTP_EMAIL,
+        )!;
+        const pass: string = configService.get(
+          ENVIRONMENT_VARIABLES.SMTP_PASSWORD,
+        )!;
+        return {
+          host,
+          port,
+          user,
+          pass,
+        };
+      },
+      imports: [ConfigModule],
+      inject: [ConfigService],
     }),
     UsersModule,
     AuthModule,
