@@ -5,7 +5,7 @@ import { AppModule } from './app.module';
 import { ENVIRONMENT_VARIABLES } from './enums/environment.enums';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { cors: true });
   const configService = await app.resolve(ConfigService);
   await app.listen(configService.get(ENVIRONMENT_VARIABLES.BACKEND_PORT)!);
 }

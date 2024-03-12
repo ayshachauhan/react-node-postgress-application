@@ -33,6 +33,7 @@ export class AuthService {
   async login(user: any) {
     return {
       access_token: this.jwtService.sign(user),
+      is_super_admin: !!user.isSuperAdmin,
     };
   }
 
