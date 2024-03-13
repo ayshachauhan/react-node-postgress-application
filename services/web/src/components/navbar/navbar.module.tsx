@@ -1,22 +1,27 @@
 'use client';
-import React, { useState } from 'react';
+import Image from 'next/image';
+import React, { useState, useEffect } from 'react';
 
 const NavbarModule: React.FC = () => {
   const [tabIndex, setTabIndex] = useState(false);
-  const [token, setToken] = useState(localStorage.getItem('token'));
+  const [token, setToken] = useState<string | null>(null);
 
   const toggleUserButton = () => {
-    console.log(tabIndex);
-
     setTabIndex(!tabIndex);
   };
 
   const signout = () => {
-    console.log(' im out');
-
     localStorage.removeItem('token');
     setToken(null);
+    token;
   };
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const storedToken = localStorage.getItem('token');
+      setToken(storedToken);
+    }
+  }, []);
 
   return (
     <>
@@ -66,7 +71,7 @@ const NavbarModule: React.FC = () => {
             </div>
             <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
               <div className="flex flex-shrink-0 items-center">
-                <img
+                <Image
                   className="h-8 w-auto"
                   src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=500"
                   alt="Your Company"
@@ -138,7 +143,7 @@ const NavbarModule: React.FC = () => {
                   >
                     <span className="absolute -inset-1.5"></span>
                     <span className="sr-only">Open user menu</span>
-                    <img
+                    <Image
                       className="h-8 w-8 rounded-full"
                       src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
                       alt=""

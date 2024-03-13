@@ -25,7 +25,7 @@ export default function PracticeModule() {
   };
   useEffect(() => {
     getPractices();
-  }, []);
+  });
 
   useEffect(() => {
     console.log(practices);
