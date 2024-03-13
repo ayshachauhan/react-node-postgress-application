@@ -13,9 +13,12 @@ import { PracticeHomesService } from './practiceHomes.service';
 import { PracticeEntity } from '../entities/practices.entity';
 import { PracticeHomePatchDto } from './dto/patch.dto';
 import { PracticeHomeCreateDto } from './dto/create.dto';
-import { PracticeHome } from 'src/entities/practiceHomes.entity';
-import { AuthGuard } from 'src/auth/auth.guard';
+import { PracticeHome } from '../entities/practiceHomes.entity';
+import { AuthGuard } from '../auth/auth.guard';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('PracticeHomes')
+@ApiBearerAuth('normal')
 @Controller('practices/:practiceId/homes')
 @UseGuards(AuthGuard)
 export class PracticeHomesController {

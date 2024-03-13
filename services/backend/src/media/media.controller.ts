@@ -13,7 +13,10 @@ import { MediaService } from './media.service';
 import { CreateVideoDto } from './dtos/createVideo.dto';
 import { UpdateVideoDto } from './dtos/update.video.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Media')
+@ApiBearerAuth('normal')
 @Controller('/practices/:practiceId/videos')
 @UseGuards(AuthGuard)
 export class MediaController {
