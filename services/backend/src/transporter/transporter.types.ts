@@ -15,7 +15,10 @@ export type ModuleOptions = {
  */
 
 export interface AsyncModuleOptions extends Pick<ModuleMetadata, 'imports'> {
+  // eslint-disable-next-line
   useFactory: (...args: any[]) => ModuleOptions | Promise<ModuleOptions>;
+  // eslint-disable-next-line
   inject?: any[];
+  // eslint-disable-next-line
   imports?: any[];
 }

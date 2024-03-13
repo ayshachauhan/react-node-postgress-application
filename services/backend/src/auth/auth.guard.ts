@@ -1,21 +1,26 @@
-import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
-import { ENVIRONMENT_VARIABLES } from '../enums/environment.enums';
-import { Observable } from 'rxjs';
-import * as jwt from 'jsonwebtoken';
+import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
+import { Request } from 'express';
+import { Observable } from 'rxjs';
+import { ENVIRONMENT_VARIABLES } from '../enums/environment.enums';
+import { SanitizedUser, SuperAdminUser } from './types';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-  constructor(private configService: ConfigService) {}
+  constructor(
+    private configService: ConfigService,
+    private jwtService: JwtService,
+  ) {}
   canActivate(
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
-    const request = context.switchToHttp().getRequest();
+    const request: Request = context.switchToHttp().getRequest();
 
     return this.validateToken(request);
   }
 
-  async validateToken(request: any): Promise<boolean> {
+  async validateToken(request: Request): Promise<boolean> {
     const token = this.extractTokenFromHeader(request);
     if (!token) {
       return false;
@@ -24,7 +29,7 @@ export class AuthGuard implements CanActivate {
     try {
       const payload = await this.verify(token);
       request['user'] = payload;
-      return !payload?.isSuperAdmin;
+      return true;
     } catch (error) {
       console.log(error);
 
@@ -32,14 +37,14 @@ export class AuthGuard implements CanActivate {
     }
   }
 
-  async verify(token: string) {
-    return await jwt.verify(
+  async verify(token: string): Promise<SanitizedUser | SuperAdminUser> {
+    return this.jwtService.verify(
       token,
-      this.configService.get(ENVIRONMENT_VARIABLES.JWT_SECRET_KEY),
+      this.configService.get(ENVIRONMENT_VARIABLES.JWT_SECRET_KEY)!,
     );
   }
 
-  extractTokenFromHeader(request: any): string | undefined {
+  extractTokenFromHeader(request: Request): string | undefined {
     const authHeader = request.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {

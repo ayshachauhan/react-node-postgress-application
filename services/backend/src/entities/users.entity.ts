@@ -1,8 +1,8 @@
-import { Entity, Column, JoinColumn, ManyToOne } from 'typeorm';
+import { UserStatus } from 'src/enums/status.enum';
+import { UserType } from 'src/enums/userType.enum';
+import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { BaseEntity } from './base.entity';
 import { PracticeEntity } from './practices.entity';
-import { UserType } from 'src/enums/userType.enum';
-import { UserStatus } from 'src/enums/status.enum';
 
 @Entity('users')
 export class User extends BaseEntity {

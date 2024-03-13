@@ -1,21 +1,24 @@
 import {
+  Body,
   Controller,
+  Delete,
   Get,
   Param,
-  Post,
-  Delete,
   Patch,
-  Body,
-  ValidationPipe,
+  Post,
   UseGuards,
+  ValidationPipe,
 } from '@nestjs/common';
-import { PracticeHomesService } from './practiceHomes.service';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { AuthGuard } from '../auth/auth.guard';
+import { PracticeHome } from '../entities/practiceHomes.entity';
 import { PracticeEntity } from '../entities/practices.entity';
-import { PracticeHomePatchDto } from './dto/patch.dto';
 import { PracticeHomeCreateDto } from './dto/create.dto';
-import { PracticeHome } from 'src/entities/practiceHomes.entity';
-import { AuthGuard } from 'src/auth/auth.guard';
+import { PracticeHomePatchDto } from './dto/patch.dto';
+import { PracticeHomesService } from './practiceHomes.service';
 
+@ApiTags('PracticeHomes')
+@ApiBearerAuth('normal')
 @Controller('practices/:practiceId/homes')
 @UseGuards(AuthGuard)
 export class PracticeHomesController {

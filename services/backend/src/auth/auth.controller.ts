@@ -1,7 +1,18 @@
-import { Controller, Post, Body, UnauthorizedException } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Req,
+  UnauthorizedException,
+  UseGuards,
+} from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { AuthGuard } from './auth.guard';
 import { AuthService } from './auth.service';
 import { LoginUserDto } from './dto/login.dto';
 
+@ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
@@ -15,13 +26,10 @@ export class AuthController {
     return this.authService.login(user);
   }
 
-  @Post('me')
-  async validateToken(@Body('token') token: string): Promise<any> {
-    try {
-      const payload = await this.authService.validateToken(token);
-      return { valid: true, payload };
-    } catch (error) {
-      return { valid: false, error };
-    }
+  @Get('me')
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth('normal')
+  async validateToken(@Req() request): Promise<Record<string, string>> {
+    return request.user;
   }
 }

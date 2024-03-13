@@ -1,16 +1,16 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { LoggerModule } from 'nestjs-pino';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { UsersModule } from './users/users.module';
-import { HealthModule } from './healthz/health.module';
-import { ENVIRONMENT_VARIABLES } from './enums/environment.enums';
-import { ENV_VALIDATIONS } from './enums/env-validation';
-import { PracticesModule } from './practices/practices.module';
-import { PracticeHomesModule } from './practiceHomes/practiceHomes.module';
-import { MediaModule } from './media/media.module';
 import { AuthModule } from './auth/auth.module';
+import { ENV_VALIDATIONS } from './enums/env-validation';
+import { ENVIRONMENT_VARIABLES } from './enums/environment.enums';
+import { HealthModule } from './healthz/health.module';
+import { MediaModule } from './media/media.module';
+import { PracticeHomesModule } from './practiceHomes/practiceHomes.module';
+import { PracticesModule } from './practices/practices.module';
 import { TransporterModule } from './transporter';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [

@@ -1,19 +1,22 @@
 import {
-  Controller,
-  Get,
-  Post,
-  Delete,
-  Patch,
-  Param,
   Body,
-  ValidationPipe,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
   UseGuards,
+  ValidationPipe,
 } from '@nestjs/common';
-import { MediaService } from './media.service';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { AuthGuard } from 'src/auth/auth.guard';
 import { CreateVideoDto } from './dtos/createVideo.dto';
 import { UpdateVideoDto } from './dtos/update.video.dto';
-import { AuthGuard } from 'src/auth/auth.guard';
+import { MediaService } from './media.service';
 
+@ApiTags('Media')
+@ApiBearerAuth('normal')
 @Controller('/practices/:practiceId/videos')
 @UseGuards(AuthGuard)
 export class MediaController {

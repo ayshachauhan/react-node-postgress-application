@@ -1,6 +1,9 @@
 name: build app
 
 on:
+  push:
+    branches:
+      - master
   pull_request:
 
 jobs:
@@ -23,7 +26,7 @@ jobs:
             run: pnpm install --frozen-lockfile
 
           - name : lint packages
-            run: pnpm lint:check & pnpm format:check
+            run: pnpm lint & pnpm format:check
 
           - name : build packages
             run : pnpm build

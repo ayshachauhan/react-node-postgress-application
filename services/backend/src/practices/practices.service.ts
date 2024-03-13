@@ -1,15 +1,26 @@
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+  forwardRef,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, UpdateResult } from 'typeorm';
 import { PracticeEntity } from '../entities/practices.entity';
-import { PracticePatchDto } from './dto/patch.dto';
+import { UserStatus } from '../enums/status.enum';
+import { UserType } from '../enums/userType.enum';
+import { UsersService } from '../users/users.service';
 import { PracticeCreateDto } from './dto/create.dto';
+import { PracticePatchDto } from './dto/patch.dto';
 
 @Injectable()
 export class PracticesService {
   constructor(
     @InjectRepository(PracticeEntity)
     private practicesRepository: Repository<PracticeEntity>,
+    @Inject(forwardRef(() => UsersService))
+    private readonly userService: UsersService,
   ) {}
 
   async findAll(): Promise<PracticeEntity[]> {
@@ -24,10 +35,29 @@ export class PracticesService {
     await this.practicesRepository.softDelete(id);
   }
 
-  async create({ name }: PracticeCreateDto): Promise<PracticeEntity> {
+  async create({ name, email }: PracticeCreateDto): Promise<PracticeEntity> {
     const newPractice: PracticeEntity = new PracticeEntity();
 
-    return await this.practicesRepository.save({ ...newPractice, name });
+    const practice = await this.practicesRepository.save({
+      ...newPractice,
+      name,
+    });
+
+    await this.userService.create(
+      {
+        firstName: 'admin',
+        lastName: 'admin',
+        email,
+        password: 'Test@123',
+        userName: `${name}_${email}`,
+        status: UserStatus.ACTIVE,
+        type: UserType.ADMIN,
+        url: '',
+      },
+      practice.id,
+    );
+
+    return practice;
   }
 
   async update(

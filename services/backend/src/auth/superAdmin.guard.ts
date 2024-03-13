@@ -1,6 +1,7 @@
-import { Injectable, ExecutionContext } from '@nestjs/common';
-import { AuthGuard } from './auth.guard';
+import { ExecutionContext, Injectable } from '@nestjs/common';
+import { Request } from 'express';
 import { Observable } from 'rxjs';
+import { AuthGuard } from './auth.guard';
 
 @Injectable()
 export class SuperAdminGuard extends AuthGuard {
@@ -12,7 +13,7 @@ export class SuperAdminGuard extends AuthGuard {
     return this.validateToken(request);
   }
 
-  async validateToken(request: any): Promise<boolean> {
+  async validateToken(request: Request): Promise<boolean> {
     const token = this.extractTokenFromHeader(request);
     if (!token) {
       return false;

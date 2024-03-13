@@ -1,13 +1,13 @@
 import { DynamicModule, Module, Provider } from '@nestjs/common';
 import { Transporter, createTransport } from 'nodemailer';
+import SMTPTransport from 'nodemailer/lib/smtp-transport';
+import { TransporterService } from './transporter.service';
 import {
   AsyncModuleOptions,
-  ModuleOptions,
   EMAIL_CONNECTION_TOKEN,
   EMAIL_MODULE_OPTIONS,
+  ModuleOptions,
 } from './transporter.types';
-import { TransporterService } from './transporter.service';
-import SMTPTransport from 'nodemailer/lib/smtp-transport';
 
 @Module({ imports: [], providers: [], exports: [] })
 export class TransporterModule {
