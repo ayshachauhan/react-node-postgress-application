@@ -15,7 +15,7 @@ import { AuthService } from './auth.service';
         global: true,
         secret: configService.get(ENVIRONMENT_VARIABLES.JWT_SECRET_KEY),
         signOptions: {
-          expiresIn: configService.get(ENVIRONMENT_VARIABLES.EXPIRES_IN)
+          expiresIn: configService.get(ENVIRONMENT_VARIABLES.EXPIRES_IN),
         },
       }),
       inject: [ConfigService],

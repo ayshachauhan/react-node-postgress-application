@@ -22,13 +22,13 @@ export class UsersController {
 
   @Get()
   async getUsersByPractice(@Param('practiceId') practiceId: string) {
-    return  this.usersService.getUsersByPractice(practiceId);
+    return this.usersService.getUsersByPractice(practiceId);
   }
 
   @Get(':id')
   async getUserById(
     @Param() { practiceId, id }: { practiceId: string; id: string },
   ): Promise<User | null> {
-    return  this.usersService.getUserById(practiceId, id);
+    return this.usersService.getUserById(practiceId, id);
   }
 }

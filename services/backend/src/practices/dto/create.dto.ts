@@ -8,5 +8,5 @@ export class PracticeCreateDto {
 
   @IsNotEmpty({ message: 'Email is required' })
   @ApiProperty()
-  email: string
+  email: string;
 }

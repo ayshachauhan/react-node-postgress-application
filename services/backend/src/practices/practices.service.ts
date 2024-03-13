@@ -1,4 +1,10 @@
-import { Injectable, HttpException, HttpStatus, forwardRef, Inject } from '@nestjs/common';
+import {
+  Injectable,
+  HttpException,
+  HttpStatus,
+  forwardRef,
+  Inject,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, UpdateResult } from 'typeorm';
 import { PracticeEntity } from '../entities/practices.entity';
