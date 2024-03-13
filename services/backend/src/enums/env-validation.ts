@@ -26,7 +26,7 @@ export const ENV_VARIABLES_SCHEMA: Record<ENVIRONMENT_VARIABLES, Joi.Schema> = {
     .default('admin@thinksys.com'),
   [ENVIRONMENT_VARIABLES.SUPER_ADMIN_PASSWORD]: Joi.string()
     .optional()
-    .default('$2b$10$gt4FY0WCZDp/Wn2A4aZIH.WdRtelB2vmOxdhaRvQpohYp1OXa2DZC'), //thinksys@123,
+    .default('$2b$10$9P8VN5pQGFovE7DhgpicB.OlfT7UFe6RQ.wHEQ7ao9ree.HEKTiea'), //admin,
 };
 
 export const ENV_VALIDATIONS = Joi.object(ENV_VARIABLES_SCHEMA);

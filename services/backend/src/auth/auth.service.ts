@@ -31,6 +31,7 @@ export class AuthService {
   }
 
   async login(user: any) {
+    console.log(user);
     return {
       access_token: this.jwtService.sign(user),
     };
@@ -43,7 +44,6 @@ export class AuthService {
     const superAdminPassword = await this.configService.get(
       ENVIRONMENT_VARIABLES.SUPER_ADMIN_PASSWORD,
     );
-
     if (email == superAdminEmail) {
       const isPasswordMatched = await bcrypt.compare(
         password,

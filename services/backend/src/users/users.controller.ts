@@ -1,10 +1,13 @@
 import { Controller, Post, Body, Get, Param, UseGuards } from '@nestjs/common';
 import { CreateUserDto } from './dto/create.dto';
 import { UsersService } from './users.service';
-import { User } from 'src/entities/users.entity';
-import { AuthGuard } from 'src/auth/auth.guard';
+import { User } from '../entities/users.entity';
+import { AuthGuard } from '../auth/auth.guard';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Users')
 @Controller('practices/:practiceId/users')
+@ApiBearerAuth('normal')
 @UseGuards(AuthGuard)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
@@ -19,13 +22,13 @@ export class UsersController {
 
   @Get()
   async getUsersByPractice(@Param('practiceId') practiceId: string) {
-    return await this.usersService.getUsersByPractice(practiceId);
+    return  this.usersService.getUsersByPractice(practiceId);
   }
 
   @Get(':id')
   async getUserById(
     @Param() { practiceId, id }: { practiceId: string; id: string },
   ): Promise<User | null> {
-    return await this.usersService.getUserById(practiceId, id);
+    return  this.usersService.getUserById(practiceId, id);
   }
 }
