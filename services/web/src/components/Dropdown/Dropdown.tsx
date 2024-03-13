@@ -1,9 +1,9 @@
 import clsx from 'clsx';
 import React, { useState } from 'react';
 
+import { styled } from 'baseui';
 import { Button, ButtonProps } from 'baseui/button';
 import { Popover, PopoverPlacement } from 'baseui/popover';
-import { styled } from 'baseui';
 
 const DropDownItemContainer = styled<'div', { width: number }>(
   'div',

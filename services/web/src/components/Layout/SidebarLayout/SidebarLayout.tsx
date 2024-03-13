@@ -1,6 +1,6 @@
 import React from 'react';
-import Sidebar from './Sidebar';
 import Header from './Header';
+import Sidebar from './Sidebar';
 
 const SidebarLayout: React.FC<{ children: React.ReactNode }> = ({
   children,

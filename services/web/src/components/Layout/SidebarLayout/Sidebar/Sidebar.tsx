@@ -1,11 +1,11 @@
 'use client';
 
+import { ChevronDown, ChevronRightSmall } from 'baseui/icon';
 import Link from 'next/link';
 import React, { useState } from 'react';
-import { ChevronRightSmall, ChevronDown } from 'baseui/icon';
 
-import { SideBarItem, sidebarItems } from './types';
 import clsx from 'clsx';
+import { SideBarItem, sidebarItems } from './types';
 
 const Sidebar: React.FC = () => {
   const [activeMenuItemId, setActiveMenuItemId] = useState<string>('');
@@ -28,7 +28,7 @@ const Sidebar: React.FC = () => {
     >
       <div className="h-[68px] flex px-4 items-center justify-start">
         <Link href="/dashboard">
-          <img alt='Azentia' src="/images/azentia.svg" />
+          <img alt="Azentia" src="/images/azentia.svg" />
         </Link>
       </div>
 

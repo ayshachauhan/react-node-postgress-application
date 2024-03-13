@@ -1,12 +1,12 @@
 import {
   DashboardIcon,
-  UsersIcon,
-  StethoscopeIcon,
   HistoryIcon,
   MediaIcon,
   MessageIcon,
   SettingIcon,
+  StethoscopeIcon,
   TemplateIcon,
+  UsersIcon,
 } from '@components/Icons';
 
 export type SideBarItem = {

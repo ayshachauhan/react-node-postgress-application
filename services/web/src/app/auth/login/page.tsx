@@ -12,7 +12,7 @@ const LoginPage: React.FC = () => {
 
       <TextInput value="" onChange={() => {}} />
 
-      <Button kind='secondary' title="Submit"  />
+      <Button kind="secondary" title="Submit" />
     </div>
   );
 };

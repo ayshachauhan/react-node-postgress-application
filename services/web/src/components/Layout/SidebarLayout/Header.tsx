@@ -2,8 +2,8 @@
 
 import React from 'react';
 
-import { Avatar } from 'baseui/avatar';
 import Dropdown from '@root/components/Dropdown';
+import { Avatar } from 'baseui/avatar';
 import { ChevronDown } from 'baseui/icon';
 
 const Header: React.FC = () => {

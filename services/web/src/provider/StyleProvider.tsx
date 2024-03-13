@@ -1,10 +1,10 @@
 'use client';
 
-import { Client as Styletron } from 'styletron-engine-monolithic';
-import { Provider as StyleProvider } from 'styletron-react';
-import { createLightTheme } from 'baseui/themes';
 import { BaseProvider, Theme } from 'baseui';
 import { DeepPartial } from 'baseui/styles';
+import { createLightTheme } from 'baseui/themes';
+import { Client as Styletron } from 'styletron-engine-monolithic';
+import { Provider as StyleProvider } from 'styletron-react';
 
 const styleEngine = new Styletron();
 

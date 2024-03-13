@@ -1,7 +1,7 @@
 'use client';
 
-import React from 'react';
 import { Input, InputOverrides, InputProps } from 'baseui/input';
+import React from 'react';
 
 type Props = Partial<InputProps> & {
   onChange: (value: string) => void;
