@@ -1,6 +1,6 @@
 import React from 'react';
 import Sidebar from './Sidebar';
-import TopBar from './TopBar';
+import Header from './Header';
 
 const SidebarLayout: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -10,7 +10,7 @@ const SidebarLayout: React.FC<{ children: React.ReactNode }> = ({
       <Sidebar />
 
       <div className="ml-64">
-        <TopBar />
+        <Header />
 
         <div className="p-4 mt-14">{children}</div>
       </div>
