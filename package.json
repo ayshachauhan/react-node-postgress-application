@@ -15,7 +15,7 @@
     "lint": "turbo lint",
     "lint:fix": "turbo lint:fix",
     "clean": "turbo clean",
-    "prepare": "husky init",
+    "prepare": "husky install",
     "commit": "git-cz",
     "lint-staged": "lint-staged",
     "migrate":"dotenv -e .env -- pnpm turbo run run-migrations"
@@ -38,10 +38,5 @@
       "prettier --write",
       "git add"
     ]
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
   }
 }
