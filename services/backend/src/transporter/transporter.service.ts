@@ -1,9 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
-import type { Transporter } from 'nodemailer';
 import { compile } from 'handlebars';
+import type { Transporter } from 'nodemailer';
+import Mail from 'nodemailer/lib/mailer';
 import SMTPTransport from 'nodemailer/lib/smtp-transport';
 import { EMAIL_CONNECTION_TOKEN } from './transporter.types';
-import Mail from 'nodemailer/lib/mailer';
 
 @Injectable()
 export class TransporterService {

@@ -1,6 +1,6 @@
 import { Module, forwardRef } from '@nestjs/common';
-import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { JwtModule } from '@nestjs/jwt';
 import { ENVIRONMENT_VARIABLES } from '../enums/environment.enums';
 import { UsersModule } from '../users/users.module';
 import { AuthController } from './auth.controller';

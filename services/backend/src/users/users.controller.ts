@@ -1,9 +1,9 @@
-import { Controller, Post, Body, Get, Param, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { AuthGuard } from '../auth/auth.guard';
+import { User } from '../entities/users.entity';
 import { CreateUserDto } from './dto/create.dto';
 import { UsersService } from './users.service';
-import { User } from '../entities/users.entity';
-import { AuthGuard } from '../auth/auth.guard';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Users')
 @Controller('practices/:practiceId/users')

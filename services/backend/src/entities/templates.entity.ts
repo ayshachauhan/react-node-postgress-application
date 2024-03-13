@@ -1,7 +1,7 @@
+import { Meridian } from 'src/enums/meridian';
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { BaseEntity } from './base.entity';
 import { PracticeEntity } from './practices.entity';
-import { Meridian } from 'src/enums/meridian';
 
 @Entity('templates')
 export class TemplateEntity extends BaseEntity {

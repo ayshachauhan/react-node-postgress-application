@@ -1,5 +1,5 @@
-import { IsNotEmpty } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { IsNotEmpty } from 'class-validator';
 
 export class PracticeCreateDto {
   @IsNotEmpty({ message: 'Name is required' })

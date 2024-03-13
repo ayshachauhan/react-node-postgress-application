@@ -1,10 +1,10 @@
-import { NestFactory } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
+import { NestFactory } from '@nestjs/core';
 
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { PinoLogger } from 'nestjs-pino';
 import { AppModule } from './app.module';
 import { ENVIRONMENT_VARIABLES } from './enums/environment.enums';
-import { PinoLogger } from 'nestjs-pino';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { cors: true });
