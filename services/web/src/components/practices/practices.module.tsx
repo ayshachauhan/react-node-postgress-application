@@ -25,7 +25,7 @@ export default function PracticeModule() {
   };
   useEffect(() => {
     getPractices();
-  });
+  }, []);
 
   useEffect(() => {
     console.log(practices);
@@ -33,9 +33,11 @@ export default function PracticeModule() {
 
   return (
     <>
-      <h1 className="msm:px-6 lg:px-8  text-3xl pt-8 text-gray-900 font-semibold">
-        Practices
-      </h1>
+      <div className="msm:px-6 lg:px-8  text-3xl pt-8">
+        <h1 className="" style={{ fontWeight: 100 }}>
+          All Practices
+        </h1>
+      </div>
       <div className="text-gray-50 w-full  items-center  bg-gray-50 py-4 px-4 sm:px-6 lg:px-8 rounded-lg">
         <div className="bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 grid grid-cols-4 rounded-lg">
           <div className="font-bold text-white p-4">S. No.</div>
