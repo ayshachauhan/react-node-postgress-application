@@ -9,3 +9,25 @@
 .btn-secondary {
   @apply bg-secondary !important;
 }
+
+.data-table {
+  border: none !important;
+
+  .data-table_header {
+    @apply bg-primary !important;
+
+    & > div {
+      @apply border-0;
+
+      button {
+        @apply text-white;
+      }
+    }
+  }
+
+  .data-table_body {
+    .data-table_body-row {
+      @apply border-b hover:bg-gray-100;
+    }
+  }
+}
