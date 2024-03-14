@@ -8,6 +8,7 @@ import { ENV_VALIDATIONS } from './enums/env-validation';
 import { ENVIRONMENT_VARIABLES } from './enums/environment.enums';
 import { HealthModule } from './healthz/health.module';
 import { MediaModule } from './media/media.module';
+import { PermissionsModule } from './permissions/permissions.module';
 import { PracticeHomesModule } from './practiceHomes/practiceHomes.module';
 import { PracticesModule } from './practices/practices.module';
 import { TransporterModule } from './transporter';
@@ -19,10 +20,7 @@ import { UsersModule } from './users/users.module';
       global: true,
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => {
-        console.log(
-          configService.get(ENVIRONMENT_VARIABLES.JWT_SECRET_KEY),
-          '@@@@@',
-        );
+        console.log(configService.get(ENVIRONMENT_VARIABLES.JWT_SECRET_KEY));
         return {
           global: true,
           secret: configService.get(ENVIRONMENT_VARIABLES.JWT_SECRET_KEY),
@@ -100,6 +98,7 @@ import { UsersModule } from './users/users.module';
     PracticesModule,
     PracticeHomesModule,
     MediaModule,
+    PermissionsModule,
   ],
 })
 export class AppModule {}
