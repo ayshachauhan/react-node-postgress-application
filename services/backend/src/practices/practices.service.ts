@@ -1,18 +1,18 @@
 import {
-  Injectable,
   HttpException,
   HttpStatus,
-  forwardRef,
   Inject,
+  Injectable,
+  forwardRef,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, UpdateResult } from 'typeorm';
 import { PracticeEntity } from '../entities/practices.entity';
-import { PracticePatchDto } from './dto/patch.dto';
-import { PracticeCreateDto } from './dto/create.dto';
-import { UsersService } from '../users/users.service';
 import { UserStatus } from '../enums/status.enum';
 import { UserType } from '../enums/userType.enum';
+import { UsersService } from '../users/users.service';
+import { PracticeCreateDto } from './dto/create.dto';
+import { PracticePatchDto } from './dto/patch.dto';
 
 @Injectable()
 export class PracticesService {

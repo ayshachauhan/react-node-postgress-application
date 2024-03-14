@@ -1,0 +1,90 @@
+'use client';
+
+import { ChevronDown, ChevronRightSmall } from 'baseui/icon';
+import Link from 'next/link';
+import React, { useState } from 'react';
+
+import clsx from 'clsx';
+import { SideBarItem, sidebarItems } from './types';
+
+const Sidebar: React.FC = () => {
+  const [activeMenuItemId, setActiveMenuItemId] = useState<string>('');
+
+  function handleSidebarItemClick(
+    e: React.MouseEvent<HTMLAnchorElement, MouseEvent>,
+    item: SideBarItem,
+  ) {
+    if (item.child && item.child.length > 0) {
+      e.preventDefault();
+    }
+
+    setActiveMenuItemId(item.id);
+  }
+
+  return (
+    <aside
+      aria-label="Sidebar"
+      className="fixed top-0 left-0 z-50 w-64 h-screen translate-x-0 bg-gradient-to-b from-primary-dark to-primary-light"
+    >
+      <div className="h-[68px] flex px-4 items-center justify-start">
+        <Link href="/dashboard">
+          <img alt="Azentia" src="/images/azentia.svg" />
+        </Link>
+      </div>
+
+      <div className="h-full px-3 py-4 overflow-y-auto">
+        <ul className="space-y-2 font-medium">
+          {sidebarItems.map(({ Icon, ...item }) => (
+            <li key={item.id}>
+              <Link
+                href={item.path}
+                onClick={(e) => handleSidebarItemClick(e, { ...item, Icon })}
+                className={clsx(
+                  'flex items-center p-2 text-white rounded-lg ease-linear duration-200 hover:bg-secondary',
+                  { 'bg-secondary': item.id === activeMenuItemId },
+                )}
+              >
+                <Icon />
+                <span className="ms-3">{item.title}</span>
+
+                {item.child && (
+                  <span className="ml-auto">
+                    <ChevronDown size={20} />
+                  </span>
+                )}
+              </Link>
+
+              {item.child && (
+                <ul
+                  className={clsx(
+                    'ease-in-out duration-300 my-1 py-2 space-y-2 rounded-lg',
+                    {
+                      hidden: item.id !== activeMenuItemId,
+                      'bg-secondary': item.id === activeMenuItemId,
+                    },
+                  )}
+                >
+                  {item.child.map((childItem) => (
+                    <li key={childItem.id}>
+                      <Link
+                        href={childItem.path}
+                        className="flex items-center w-full p-1 rounded-lg pl-5 group text-white text-xs font-normal"
+                      >
+                        <span className="mr-2">
+                          <ChevronRightSmall />
+                        </span>
+                        {childItem.title}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </li>
+          ))}
+        </ul>
+      </div>
+    </aside>
+  );
+};
+
+export default Sidebar;

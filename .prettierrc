@@ -1,4 +1,19 @@
 {
-    "singleQuote": true,
-    "trailingComma": "all"
+  "singleQuote": true,
+  "trailingComma": "all",
+  "overrides": [
+    {
+      "files": "*.ts",
+      "options": {
+        "parser": "typescript"
+      }
+    }
+  ],
+  "plugins": [
+    "@trivago/prettier-plugin-sort-imports",
+    "prettier-plugin-organize-imports"
+  ],
+  "organizeImportsSkipDestructiveCodeActions": true,
+  "importOrderSeparation": true,
+  "importOrderCaseInsensitive": true
 }

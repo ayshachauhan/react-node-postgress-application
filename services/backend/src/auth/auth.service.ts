@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
-import { UsersService } from '../users/users.service';
-import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcrypt';
 import { ENVIRONMENT_VARIABLES } from '../enums/environment.enums';
+import { UsersService } from '../users/users.service';
+import { SanitizedUser, SuperAdminUser } from './types';
 
 @Injectable()
 export class AuthService {
@@ -13,7 +14,10 @@ export class AuthService {
     private configService: ConfigService,
   ) {}
 
-  async validateUser(email: string, password: string): Promise<any> {
+  async validateUser(
+    email: string,
+    password: string,
+  ): Promise<SanitizedUser | SuperAdminUser | null> {
     const superAdmin = await this.checkSuperAdmin(email, password);
 
     if (superAdmin) return superAdmin;
@@ -23,22 +27,28 @@ export class AuthService {
       if (user) {
         const isPasswordMatched = await bcrypt.compare(password, user.password);
         if (isPasswordMatched) {
-          const { password: _password, ...result } = user;
-          return result;
+          const { password, ...result } = user;
+          password && password;
+          return {
+            ...result,
+            isSuperAdmin: false,
+          };
         } else return null;
       } else return null;
     }
   }
 
-  async login(user: any) {
-    console.log(user);
+  async login(user: SanitizedUser | SuperAdminUser) {
     return {
       access_token: this.jwtService.sign(user),
       is_super_admin: !!user.isSuperAdmin,
     };
   }
 
-  async checkSuperAdmin(email: string, password: string): Promise<any> {
+  async checkSuperAdmin(
+    email: string,
+    password: string,
+  ): Promise<SuperAdminUser | null> {
     const superAdminEmail = await this.configService.get(
       ENVIRONMENT_VARIABLES.SUPER_ADMIN_EMAIL,
     );
@@ -56,23 +66,5 @@ export class AuthService {
       } else return null;
     }
     return null;
-  }
-
-  async validateToken(token: string): Promise<any> {
-    try {
-      const payload = await this.jwtService.verify(token);
-      return payload;
-    } catch (error) {
-      throw new Error('Invalid token');
-    }
-  }
-
-  extractTokenFromHeader(request: any): string | undefined {
-    const authHeader = request.headers.authorization;
-
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return undefined;
-    }
-    return authHeader.substring('Bearer '.length);
   }
 }

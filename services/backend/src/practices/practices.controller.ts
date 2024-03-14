@@ -1,21 +1,21 @@
 import {
+  Body,
   Controller,
+  Delete,
   Get,
   Param,
-  Post,
-  Delete,
   Patch,
-  Body,
-  ValidationPipe,
+  Post,
   UseGuards,
+  ValidationPipe,
 } from '@nestjs/common';
-import { PracticesService } from './practices.service';
-import { PracticeEntity } from '../entities/practices.entity';
-import { PracticePatchDto } from './dto/patch.dto';
-import { PracticeCreateDto } from './dto/create.dto';
-import { SuperAdminGuard } from '../auth/superAdmin.guard';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '../auth/auth.guard';
+import { SuperAdminGuard } from '../auth/superAdmin.guard';
+import { PracticeEntity } from '../entities/practices.entity';
+import { PracticeCreateDto } from './dto/create.dto';
+import { PracticePatchDto } from './dto/patch.dto';
+import { PracticesService } from './practices.service';
 
 @ApiTags('Practcies')
 @Controller('practices')

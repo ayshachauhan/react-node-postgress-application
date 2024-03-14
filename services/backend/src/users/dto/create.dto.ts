@@ -1,6 +1,6 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsOptional } from 'class-validator';
 import { UserStatus } from 'src/enums/status.enum';
-import { ApiProperty } from '@nestjs/swagger';
 
 import { UserType } from 'src/enums/userType.enum';
 
