@@ -1,7 +1,11 @@
 import ReduxProvider from '@root/provider/Redux';
-import StyleProvider from '@root/provider/StyleProvider';
+import dynamic from 'next/dynamic';
 import { Inter } from 'next/font/google';
 import './globals.css';
+
+const StyleProvider = dynamic(() => import('@root/provider/StyleProvider'), {
+  ssr: false,
+});
 
 const inter = Inter({ subsets: ['latin'] });
 
