@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { JwtModule, JwtService } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { LoggerModule } from 'nestjs-pino';
 import { AuthModule } from './auth/auth.module';
@@ -14,6 +15,25 @@ import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
+    JwtModule.registerAsync({
+      global: true,
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => {
+        console.log(
+          configService.get(ENVIRONMENT_VARIABLES.JWT_SECRET_KEY),
+          '@@@@@',
+        );
+        return {
+          global: true,
+          secret: configService.get(ENVIRONMENT_VARIABLES.JWT_SECRET_KEY),
+          signOptions: {
+            expiresIn: configService.get(ENVIRONMENT_VARIABLES.EXPIRES_IN),
+          },
+        };
+      },
+      inject: [ConfigService],
+      extraProviders: [JwtService],
+    }),
     LoggerModule.forRootAsync({
       useFactory: async (configService: ConfigService) => {
         const nodeEnv: string =
