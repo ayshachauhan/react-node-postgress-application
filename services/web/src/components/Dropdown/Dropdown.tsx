@@ -102,7 +102,7 @@ const DropdownItem: React.FC<ItemProps> = ({ children, ...props }) => {
       kind="tertiary"
       overrides={{
         Root: { style: { width: '100%' } },
-        BaseButton: { style: { textAlign: 'left', justifyContent: 'left' } },
+        BaseButton: { style: { justifyContent: 'left', boxShadow: 'none' } },
       }}
       {...props}
     >
