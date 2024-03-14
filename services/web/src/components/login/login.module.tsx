@@ -1,8 +1,8 @@
 'use client';
-import React, { useState } from 'react';
+import { AzentiaLogo } from '@utils/constants';
 import { useRouter } from 'next/navigation';
+import React, { useState } from 'react';
 import { publicRuntimeConfig } from '../../../next.config';
-import { AzentiaLogo } from '@/utils/constants';
 
 export default function LoginModule() {
   const { NEXT_PUBLIC_API_BASE_URL } = publicRuntimeConfig;
