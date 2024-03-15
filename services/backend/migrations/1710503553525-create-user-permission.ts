@@ -1,6 +1,6 @@
 import { MigrationInterface, QueryRunner, Table } from 'typeorm';
 
-export class CreateUserPermissions1710415416376 implements MigrationInterface {
+export class CreateUserPermissions1710503553525 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(
       new Table({
@@ -14,7 +14,7 @@ export class CreateUserPermissions1710415416376 implements MigrationInterface {
             default: 'uuid_generate_v4()',
           },
           {
-            name: 'practiceId',
+            name: 'permissionId',
             type: 'uuid',
             isNullable: false,
           },
@@ -42,8 +42,8 @@ export class CreateUserPermissions1710415416376 implements MigrationInterface {
         ],
         foreignKeys: [
           {
-            columnNames: ['practiceId'],
-            referencedTableName: 'practices',
+            columnNames: ['permissionId'],
+            referencedTableName: 'permissions',
             referencedColumnNames: ['id'],
             onDelete: 'CASCADE',
           },
@@ -61,7 +61,7 @@ export class CreateUserPermissions1710415416376 implements MigrationInterface {
   public async down(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.dropForeignKey(
       'user_permissions',
-      'FK_user_permissions_practiceId',
+      'FK_user_permissions_permissionId',
     );
 
     await queryRunner.dropForeignKey(

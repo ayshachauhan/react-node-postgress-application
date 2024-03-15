@@ -13,4 +13,8 @@ export class PermissionsService {
   async findAll(): Promise<PermissionEntity[]> {
     return await this.permissionRepository.find();
   }
+
+  async getPermissionById(id: string): Promise<PermissionEntity | null> {
+    return await this.permissionRepository.findOneBy({ id });
+  }
 }

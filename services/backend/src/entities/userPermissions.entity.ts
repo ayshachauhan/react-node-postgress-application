@@ -1,14 +1,15 @@
 import { Entity, JoinColumn, OneToOne } from 'typeorm';
+import { BaseEntity } from './base.entity';
 import { PermissionEntity } from './permissions.entity';
-import { PracticeEntity } from './practices.entity';
+import { User } from './users.entity';
 
 @Entity('user_permissions')
-export class UserPermission {
-  @OneToOne(() => PracticeEntity)
-  @JoinColumn({ name: 'practiceId' })
-  practice: 'practiceId';
+export class UserPermissionEntity extends BaseEntity {
+  @OneToOne(() => User)
+  @JoinColumn({ name: 'userId' })
+  user: User;
 
   @OneToOne(() => PermissionEntity)
   @JoinColumn({ name: 'permissionId' })
-  permission: 'permssionId';
+  permission: PermissionEntity;
 }

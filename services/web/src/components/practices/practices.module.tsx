@@ -2,14 +2,14 @@
 import React, { useEffect, useState } from 'react';
 import { publicRuntimeConfig } from '../../../next.config';
 
-export default function PracticeModule() {
-  const { NEXT_PUBLIC_API_BASE_URL } = publicRuntimeConfig;
+export default function PracticePage() {
+  const { API_BASE_URL } = publicRuntimeConfig;
 
   const [practices, setPractices] = useState<Practice[]>([]);
 
   const getPractices = async () => {
     try {
-      const response = await fetch(`${NEXT_PUBLIC_API_BASE_URL}/practices`, {
+      const response = await fetch(`${API_BASE_URL}/practices`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
