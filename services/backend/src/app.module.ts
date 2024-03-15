@@ -19,10 +19,6 @@ import { UsersModule } from './users/users.module';
       global: true,
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => {
-        console.log(
-          configService.get(ENVIRONMENT_VARIABLES.JWT_SECRET_KEY),
-          '@@@@@',
-        );
         return {
           global: true,
           secret: configService.get(ENVIRONMENT_VARIABLES.JWT_SECRET_KEY),
