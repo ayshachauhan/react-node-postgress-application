@@ -7,8 +7,10 @@ tmp/**
 .prettierignore
 .gitignore
 .eslintignore
+.dockerignore
 
 /packages/*/dist
 
 /services/*/dist
+/services/*/Dockerfile
 /services/*/.next

@@ -1,10 +1,38 @@
 version: '3.6'
 services:
+  web:
+    container_name: web
+    build:
+      context: .
+      dockerfile: ./services/web/Dockerfile
+    restart: always
+    env_file: ${AZENTIA_ENV_PATH:-.env}
+    ports:
+      - ${WEB_PORT:-1611}:${WEB_PORT:-1611}
+    networks:
+      - azentia_network
+    depends_on:
+      - db
+
+  backend:
+    container_name: backend
+    build:
+      context: .
+      dockerfile: ./services/backend/Dockerfile
+    restart: always
+    env_file: ${AZENTIA_ENV_PATH:-.env}
+    ports:
+      - ${BACKEND_PORT:-1600}:${BACKEND_PORT:-1600}
+    networks:
+      - azentia_network
+    depends_on:
+      - db
+
   db:
     image: postgres:16.0
     restart: always
     ports:
-      - 5432:5432
+      - ${DB_PORT:-5432}:${DB_PORT:-5432}
     environment:
       POSTGRES_PASSWORD: azentia
       POSTGRES_USER: azentia
@@ -12,6 +40,12 @@ services:
     volumes:
       - db_data:/var/lib/postgresql/data
       - ./pg:/docker-entrypoint-initdb.d/
+    networks:
+      - azentia_network
 
 volumes:
   db_data:
+
+networks:
+  azentia_network:
+    external: true
