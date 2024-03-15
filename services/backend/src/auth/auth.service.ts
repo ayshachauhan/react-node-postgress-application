@@ -41,7 +41,7 @@ export class AuthService {
   async login(user: SanitizedUser | SuperAdminUser) {
     return {
       access_token: this.jwtService.sign(user),
-      is_super_admin: !!user.isSuperAdmin,
+      is_super_admin: user.isSuperAdmin,
     };
   }
 
