@@ -3,7 +3,7 @@
 import { Input, InputOverrides, InputProps } from 'baseui/input';
 import React from 'react';
 
-type Props = Partial<InputProps> & {
+type Props = Partial<Omit<InputProps, 'onChange'>> & {
   onChange: (value: string) => void;
   onBlur?: (event: React.FocusEvent) => void;
   onFocus?: () => void;

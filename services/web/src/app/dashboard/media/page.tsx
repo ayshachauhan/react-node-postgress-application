@@ -1,69 +1,88 @@
 'use client';
 import Button from '@root/components/Button';
-import { PlayIcon } from '@root/components/Icons';
+import { AddIcon, PlayIcon } from '@root/components/Icons';
 import Form from '@root/components/media/addMedia.module';
+import { useAppSelector } from '@root/store';
+import {
+  clearErrorMessage,
+  clearSuccessMessage,
+  fetchListings,
+  selectError,
+  selectSuccessMessage,
+} from '@root/store/reducers/media';
+import { Modal, ModalBody, ModalHeader, ROLE, SIZE } from 'baseui/modal';
 import Image from 'next/image';
 import React, { useEffect, useState } from 'react';
-import Modal from 'react-modal';
-import YouTube from 'react-youtube';
-import { publicRuntimeConfig } from '../../../../next.config';
+import { useDispatch } from 'react-redux';
 
 const Media: React.FC = () => {
-  const { NEXT_PUBLIC_API_BASE_URL } = publicRuntimeConfig;
+  const dispatch = useDispatch();
+  const media = useAppSelector((state) => state.media.media);
+  const [isFirstModalOpen, setIsFirstModalOpen] = useState(false);
+  const [isSecondModalOpen, setIsSecondModalOpen] = useState(false);
+  const [isVideoLoaded, setIsVideoLoaded] = useState(false);
+  const successMessage = useAppSelector(selectSuccessMessage); // Select success message from Redux store
+  const errorMessage = useAppSelector(selectError); // Select success message from Redux store
+  const [showModal, setShowModal] = useState(false); // State to manage modal visibility
+  const [showErrorMessage, setShowErrorMessage] = useState(false);
 
-  const [media, setMedia] = useState<Media[]>([]);
-  const [videoId, setVideoId] = useState(null);
-  const [isOpen, setIsOpen] = useState(false);
-
-  const openModal = (videoId) => {
+  const openFirstModal = (videoId) => {
     setVideoId(videoId);
-    setIsOpen(true);
+    setIsVideoLoaded(true);
+    setIsFirstModalOpen(true);
+    setIsSecondModalOpen(false);
   };
 
-  const closeModal = () => {
+  const closeFirstModal = () => {
     setVideoId(null);
-    setIsOpen(false);
+    setIsVideoLoaded(false);
+    setIsFirstModalOpen(false);
   };
 
-  const opts = {
-    height: '390',
-    width: '640',
-    playerVars: {
-      autoplay: 1,
-    },
+  const openSecondModal = () => {
+    setIsSecondModalOpen(true);
+    setIsFirstModalOpen(false);
   };
 
-  const FormModal = ({ isOpen, closeModal }) => {
+  const closeSecondModal = () => {
+    setIsSecondModalOpen(false);
+  };
+
+  // const handleAddError = () => {
+  //   setIsSecondModalOpen(false);
+  //   setShowErrorMessage(true); // Show the error message
+  //   setTimeout(() => {
+  //     setShowErrorMessage(false); // Hide the error message after some time
+  //   }, 2000); // Hide after 2 seconds
+  // };
+
+  const [videoId, setVideoId] = useState(null);
+
+  const FormModal = ({}) => {
     return (
       <Modal
-        isOpen={isOpen}
-        onRequestClose={closeModal}
-        style={{
-          overlay: {
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          },
-          content: {
-            backgroundColor: 'white',
-            borderRadius: '8px',
-            textAlign: 'center',
-            width: 'auto',
-            maxWidth: '30%',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            padding: 0,
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
+        isOpen={isSecondModalOpen}
+        onClose={closeSecondModal}
+        closeable
+        animate
+        autoFocus
+        size={SIZE.default}
+        role={ROLE.dialog}
+        overrides={{
+          Root: {
+            style: ({ $theme }) => ({
+              outline: `${$theme.colors.warning200} solid`,
+              backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            }),
           },
         }}
       >
-        <button onClick={closeModal}>Close Modal</button>
-        <h1>Add a Video</h1>
-        <Form />
+        <ModalHeader $style={{ fontSize: '1.25rem', fontWeight: 700 }}>
+          Add a Video
+        </ModalHeader>
+        <ModalBody>
+          <Form onClose={closeSecondModal} />
+        </ModalBody>
       </Modal>
     );
   };
@@ -83,39 +102,42 @@ const Media: React.FC = () => {
     return `https://img.youtube.com/vi/${youTubeVideoid}/hqdefault.jpg`;
   };
 
-  const getMedia = async () => {
-    try {
-      const response = await fetch(
-        `${NEXT_PUBLIC_API_BASE_URL}/practices/12e738c5-bded-4733-837f-b6fa987284cf/videos`,
-        {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization:
-              'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Ijg0N2JmMjdhLTRiNTAtNGUwYS04NjMzLTI4MDM0NWQxOWIzYiIsImRhdGVDcmVhdGVkIjoiMjAyNC0wMy0xM1QwMDozODowMC45MTlaIiwiZGF0ZVVwZGF0ZWQiOiIyMDI0LTAzLTEzVDAwOjM4OjAwLjkxOVoiLCJlbWFpbCI6InB1bGtlc2hAdGhpbmtzeXMuY29tIiwidXNlck5hbWUiOiJ0cml5YW5rX3RqIiwiZmlyc3ROYW1lIjoiUHVsa2VzaCIsImxhc3ROYW1lIjoiSmFpbiIsImZ1bGxOYW1lIjoiUHVsa2VzaCBKYWluIiwidXJsIjpudWxsLCJzdGF0dXMiOiJhY3RpdmUiLCJ0eXBlIjoiZW1wbG95ZWUiLCJpYXQiOjE3MTAzOTczMTYsImV4cCI6MTcxMDQ4MzcxNn0.C6HFSmA--JdXf5tmV-1AeYlih8PxpzO1wwygQ99Pm2U',
-          },
-        },
-      );
-      const data = await response.json();
-
-      setMedia(data);
-    } catch (error) {
-      console.error('Error:', error);
-    }
-  };
-
   useEffect(() => {
-    Modal.setAppElement('#__next');
-    getMedia();
-  }, []);
-
-  useEffect(() => {}, [media]);
+    if (successMessage) {
+      setShowModal(true);
+      const timer = setTimeout(() => {
+        setShowModal(false);
+        dispatch(clearSuccessMessage()); // Clear success message after closing modal
+      }, 2000); // Hide modal after 2 seconds
+      return () => clearTimeout(timer);
+    }
+    if (errorMessage) {
+      setShowErrorMessage(true);
+      const timer = setTimeout(() => {
+        setShowErrorMessage(false);
+        dispatch(clearErrorMessage()); // Clear success message after closing modal
+      }, 2000); // Hide modal after 2 seconds
+      return () => clearTimeout(timer);
+    }
+    dispatch(fetchListings()); // Fetch listings from PostgreSQL database
+  }, [successMessage, errorMessage, dispatch]);
 
   return (
     <div id="__next" className="mt-4">
       <div className="flex justify-between border-gray-400">
         <h1>Media</h1>
-        <Button kind="secondary" title="Add New" onClick={openModal} />
+        {showModal && <div style={{ color: 'green' }}>{successMessage}</div>}
+        {showErrorMessage && (
+          <div style={{ color: 'red' }}>
+            Error occurred while adding record.
+          </div>
+        )}
+        <Button
+          kind="secondary"
+          title="Add New"
+          onClick={openSecondModal}
+          startEnhancer={() => <AddIcon className="mt-2" size={25}></AddIcon>}
+        />{' '}
       </div>
       <hr className="h-px my-2.5 bg-gray-100 border-1 dark:bg-gray-700"></hr>
       <div className="flex flex-wrap gap-6">
@@ -125,14 +147,6 @@ const Media: React.FC = () => {
                     id={this.props.id}
                     /> */}
             <div className="rounded-lg shadow-md p-6 w-[298px] h-298 relative">
-              {/* <iframe
-                          width="265"
-                          height="208"
-                          src="https://www.youtube.com/embed/n_3cG9oeuNo"
-                          title="YouTube video player"
-                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                          className="rounded-lg"
-                      ></iframe> */}
               <div>
                 <Image
                   src={getImageUrl(data.url)}
@@ -144,12 +158,12 @@ const Media: React.FC = () => {
                 />
                 <div
                   className="bg-black absolute text-center transform -translate-x-1/2 -translate-y-1/2 border top-32 left-1/2 text-white rounded-full flex justify-center items-center p-2 border-black w-14 h-14"
-                  onClick={() => openModal(extractVideoId(data.url))}
+                  onClick={() => openFirstModal(extractVideoId(data.url))}
                   style={{ cursor: 'pointer' }}
                 >
                   <PlayIcon></PlayIcon>
                 </div>
-                <div className="bg-black text-white rounded text-xs leading-[18px] absolute text-center border top-14 left-44 border-black py-1 px-1.5">
+                <div className="bg-black text-white rounded text-xs leading-[18px] absolute text-center border top-14 right-9 border-black py-1 px-1.5">
                   Surgery Type
                 </div>
                 <div className="text-gray-900 pt-2 text-left">{data.name}</div>
@@ -161,48 +175,89 @@ const Media: React.FC = () => {
       <div>
         {videoId && (
           <Modal
-            isOpen={isOpen}
-            onRequestClose={closeModal}
-            contentLabel="Video Modal"
-            appElement={document.getElementById('__next')}
-            style={{
-              overlay: {
-                backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
+            isOpen={isFirstModalOpen}
+            onClose={closeFirstModal}
+            animate
+            autoFocus
+            size={SIZE.default}
+            role={ROLE.dialog}
+            overrides={{
+              Root: {
+                style: ({ $theme }) => ({
+                  outline: `${$theme.colors.warning200} solid`,
+                  backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                  padding: 0, // Set padding to zero for modal container
+                  margin: 0, // Set margin to zero for modal container
+                }),
               },
-              content: {
-                backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                borderRadius: '8px',
-                textAlign: 'center',
-                width: 'auto',
-                maxWidth: '80%',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                padding: 0,
-                top: '50%',
-                left: '50%',
-                transform: 'translate(-50%, -50%)',
+              Close: {
+                style: {
+                  display: 'none', // Hide the close icon
+                },
               },
             }}
           >
-            <YouTube videoId={videoId} opts={opts} />
+            <ModalBody
+              overrides={{
+                Body: {
+                  style: {
+                    padding: 0, // Set padding to zero for modal body
+                    margin: 0, // Set margin to zero for modal body
+                  },
+                },
+              }}
+            >
+              {isVideoLoaded && (
+                <div
+                  style={{
+                    position: 'relative',
+                    paddingBottom: '56.25%',
+                    height: 0,
+                    overflow: 'hidden',
+                  }}
+                >
+                  <iframe
+                    width="560"
+                    height="315"
+                    src="https://www.youtube.com/embed/Bb8bnjnEM00?si=N_KX5ZVF2C7BMXbB"
+                    title="YouTube video player"
+                    frameborder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowfullscreen
+                  ></iframe>
+                  <iframe
+                    width="560"
+                    height="315"
+                    src={`https://www.youtube.com/embed/${videoId}?autoplay=1`}
+                    title="YouTube video player"
+                    className="rounded-lg"
+                    allow="autoplay; fullscreen"
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      width: '100%',
+                      height: '100%',
+                    }}
+                  ></iframe>
+                </div>
+              )}
+            </ModalBody>
           </Modal>
         )}
       </div>
-      <FormModal isOpen={isOpen} closeModal={closeModal} />
+      <FormModal />
     </div>
   );
 };
 
 interface Media {
-  id: string;
+  id?: string;
   name: string;
   urlEmbed: string;
   url: string;
-  dateCreated: Date;
-  dateUpdated: Date;
+  dateCreated?: Date;
+  dateUpdated?: Date;
 }
+
 export default Media;
