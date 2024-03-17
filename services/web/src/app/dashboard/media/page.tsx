@@ -58,7 +58,7 @@ const Media: React.FC = () => {
 
   const [videoId, setVideoId] = useState(null);
 
-  const FormModal = ({}) => {
+  const FormModal = () => {
     return (
       <Modal
         isOpen={isSecondModalOpen}
