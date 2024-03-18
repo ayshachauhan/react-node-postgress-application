@@ -7,9 +7,9 @@ export const login = async (
   },
   { rejectWithValue },
 ) => {
-  const { NEXT_PUBLIC_API_BASE_URL } = publicRuntimeConfig;
+  const { API_BASE_URL } = publicRuntimeConfig;
   try {
-    const response = await fetch(`${NEXT_PUBLIC_API_BASE_URL}/auth/login`, {
+    const response = await fetch(`${API_BASE_URL}/auth/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

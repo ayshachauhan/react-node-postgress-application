@@ -6,11 +6,11 @@ export const addMedia = async (payloadData: {
   url: string;
   urlEmbed: string;
 }) => {
-  const { NEXT_PUBLIC_API_BASE_URL } = publicRuntimeConfig;
+  const { API_BASE_URL } = publicRuntimeConfig;
   try {
     const accessToken = Cookies.get('access_token');
     const response = await fetch(
-      `${NEXT_PUBLIC_API_BASE_URL}/practices/12e738c5-bded-4733-837f-b6fa987284cf/videos`,
+      `${API_BASE_URL}/practices/12e738c5-bded-4733-837f-b6fa987284cf/videos`,
       {
         method: 'POST',
         headers: {
