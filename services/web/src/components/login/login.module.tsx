@@ -70,12 +70,7 @@ export default function LoginPage() {
               <div className="space-y-4"></div>
             </div>
             <div className="mt-6 flex flex-col sm:flex-row sm:justify-between items-center">
-              <Button
-                kind="primary"
-                title="Login"
-                type="submit"
-                width="164px"
-              />
+              <Button kind="primary" title="Login" type="submit" width={164} />
               <div className="text-sm">
                 <a
                   href="#"
