@@ -11,6 +11,7 @@ import {
   selectSuccessMessage,
 } from '@root/store/reducers/media';
 import { extractVideoId } from '@utils/extractVideoId';
+import { getImageUrl } from '@utils/getImageUrl';
 import { Modal, ModalBody, ModalHeader, ROLE, SIZE } from 'baseui/modal';
 import Image from 'next/image';
 import React, { useEffect, useState } from 'react';
@@ -78,11 +79,6 @@ const Media: React.FC = () => {
         </ModalBody>
       </Modal>
     );
-  };
-
-  const getImageUrl = (videoUrl: string): string => {
-    const youTubeVideoid = extractVideoId(videoUrl);
-    return `https://img.youtube.com/vi/${youTubeVideoid}/hqdefault.jpg`;
   };
 
   useEffect(() => {
