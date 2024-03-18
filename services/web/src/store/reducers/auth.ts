@@ -59,7 +59,11 @@ const authSlice = createSlice({
       state.isAuthenticated = true;
       state.user = action.payload;
       state.successMessage = 'User logged in successfully'; // Set success message
-      Cookies.set('access_token', state.user.access_token, { expires: 1 });
+      if (action.payload) {
+        Cookies.set('access_token', action.payload.access_token, {
+          expires: 1,
+        });
+      }
       state.error = null;
     });
 
