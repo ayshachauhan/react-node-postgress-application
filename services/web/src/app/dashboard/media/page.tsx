@@ -24,7 +24,7 @@ const Media: React.FC = () => {
   const [isSecondModalOpen, setIsSecondModalOpen] = useState(false);
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
   const successMessage = useAppSelector(selectSuccessMessage); // Select success message from Redux store
-  const errorMessage = useAppSelector(selectError); // Select success message from Redux store
+  const errorMessage = useAppSelector(selectError); // Select error message from Redux store
   const [showModal, setShowModal] = useState(false); // State to manage modal visibility
   const [showErrorMessage, setShowErrorMessage] = useState(false);
 
@@ -86,7 +86,7 @@ const Media: React.FC = () => {
       setShowModal(true);
       const timer = setTimeout(() => {
         setShowModal(false);
-        dispatch(clearSuccessMessage()); // Clear success message after closing modal
+        dispatch(clearSuccessMessage()); // Clear success message
       }, 2000); // Hide modal after 2 seconds
       return () => clearTimeout(timer);
     }
@@ -94,11 +94,13 @@ const Media: React.FC = () => {
       setShowErrorMessage(true);
       const timer = setTimeout(() => {
         setShowErrorMessage(false);
-        dispatch(clearErrorMessage()); // Clear success message after closing modal
+        dispatch(clearErrorMessage()); // Clear error message
       }, 2000); // Hide modal after 2 seconds
       return () => clearTimeout(timer);
     }
-    dispatch(fetchListings()); // Fetch listings from PostgreSQL database
+    return () => {
+      dispatch(fetchListings()); // Fetch listings from PostgreSQL database
+    };
   }, [successMessage, errorMessage, dispatch]);
 
   return (
