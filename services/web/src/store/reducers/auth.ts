@@ -1,5 +1,6 @@
-import type { PayloadAction } from '@reduxjs/toolkit';
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
+import Cookies from 'js-cookie';
+import { login } from '../requests/login';
 
 // todo add api call and move type to appropriate folder
 const getMe = async () => {
@@ -7,45 +8,86 @@ const getMe = async () => {
 };
 type IUser = {
   id: string;
+  email: string;
+  password: string;
 };
 
 export interface AuthState {
-  isAuthenticated: boolean | null;
-  user: IUser | null;
+  isAuthenticated: boolean;
+  user: IUser[] | null;
+  isProcessing: boolean;
+  entities: Record<string, IUser>;
+  status: 'idle' | 'loading' | 'failed';
+  successMessage: string | null;
+  error: string | null;
 }
 
 const initialState: AuthState = {
-  isAuthenticated: null,
+  isAuthenticated: false,
   user: null,
+  isProcessing: false,
+  entities: {},
+  status: 'idle',
+  successMessage: null, // Initial value for success message
+  error: null,
 };
 
 const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    setIsAuthenticated: (state, action: PayloadAction<boolean>) => {
-      state.isAuthenticated = action.payload;
-    },
-    setUserInfo: (state, action: PayloadAction<IUser>) => {
+    setUserInfo(state, action: PayloadAction<IUser>) {
       state.user = action.payload;
+    },
+    clearSuccessMessage(state) {
+      state.successMessage = null;
+    },
+    clearErrorMessage(state) {
+      state.error = null;
+    },
+    logout: (state) => {
+      state.isAuthenticated = false;
+      state.user = null;
+      Cookies.remove('access_token'); // Remove access token from cookies on logout
     },
   },
   extraReducers(builder) {
-    builder.addCase(fetchLoggedInUser.fulfilled, (state, action) => {
+    builder.addCase(loginUser.pending, (state) => {
+      state.isProcessing = true;
+      state.status = 'loading';
+      state.error = null;
+    });
+    builder.addCase(loginUser.fulfilled, (state, action) => {
+      state.status = 'idle';
+      state.isAuthenticated = true;
       state.user = action.payload;
+      state.successMessage = 'User logged in successfully'; // Set success message
+      Cookies.set('access_token', state.user.access_token, { expires: 1 });
+      state.error = null;
     });
 
-    builder.addCase(fetchLoggedInUser.rejected, (state) => {
+    builder.addCase(loginUser.rejected, (state, action) => {
+      state.status = 'failed';
       state.isAuthenticated = false;
+      state.error = action.payload as string;
+      console.log('Login failed:', action.payload); // Handle rejected action
     });
   },
 });
 
-export const { setUserInfo, setIsAuthenticated } = authSlice.actions;
+export const { setUserInfo, clearSuccessMessage, clearErrorMessage } =
+  authSlice.actions;
 
 export const fetchLoggedInUser = createAsyncThunk(
   'users/fetchLoggedInUser',
   getMe,
 );
+
+export const loginUser = createAsyncThunk('auth/loginUser', login);
+
+export const selectRecords = (state) => state.auth.user;
+export const selectStatus = (state) => state.status;
+export const selectError = (state) => state.auth.error;
+export const selectSuccessMessage = (state) => state.user.successMessage; // Export selectSuccessMessage selecto
 
 export default authSlice.reducer;

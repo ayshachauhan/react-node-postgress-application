@@ -3,7 +3,7 @@ import { getPractices } from '../requests/practices';
 
 // todo add api call and move type to appropriate folder
 
-type Practice = {
+type Practices = {
   id: string;
   name: string;
   dateCreated: Date;
@@ -12,8 +12,8 @@ type Practice = {
 
 export interface PracticeState {
   isProcessing: boolean;
-  entities: Record<string, Practice>;
-  media: Practice[];
+  entities: Record<string, Practices>;
+  practices: Practices[];
   status: 'idle' | 'loading' | 'failed';
   successMessage: string | null;
   error: string | null;
@@ -22,7 +22,7 @@ export interface PracticeState {
 const initialState: PracticeState = {
   isProcessing: false,
   entities: {},
-  media: [],
+  practices: [],
   status: 'idle',
   successMessage: null, // Initial value for success message
   error: null,
@@ -40,12 +40,12 @@ const practiceSlice = createSlice({
 
     builder.addCase(fetchListings.fulfilled, (state, action) => {
       state.status = 'idle';
-      state.media = action.payload;
+      state.practices = action.payload;
     });
 
     builder.addCase(fetchListings.rejected, (state, action) => {
       state.status = 'failed';
-      state.error = action.payload ?? 'Failed to fetch videos';
+      state.error = action.payload ?? 'Failed to fetch practices';
     });
   },
 });
@@ -55,8 +55,8 @@ export const fetchListings = createAsyncThunk(
   getPractices,
 );
 
-export const selectRecords = (state) => state.media;
-export const selectStatus = (state) => state.media.status;
-export const selectError = (state) => state.media.error;
+export const selectRecords = (state) => state.practices;
+export const selectStatus = (state) => state.practices.status;
+export const selectError = (state) => state.practices.error;
 
 export default practiceSlice.reducer;

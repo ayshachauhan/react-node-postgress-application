@@ -3,11 +3,13 @@ import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
 
 import authReducer from './reducers/auth';
 import mediaReducer from './reducers/media';
+import practicesReducer from './reducers/practices';
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
     media: mediaReducer,
+    practices: practicesReducer,
   },
 });
 

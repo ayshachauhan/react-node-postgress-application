@@ -14,6 +14,13 @@ const TextInputOverrides: InputOverrides = {
     style: { border: 0, height: '48px' },
     props: { className: 'shadow-md' },
   },
+  Input: {
+    props: {
+      style: {
+        backgroundColor: 'rgba(250, 250, 250, 1)', // Set the desired background color here
+      },
+    },
+  },
 };
 
 const TextInput: React.FC<Props> = ({

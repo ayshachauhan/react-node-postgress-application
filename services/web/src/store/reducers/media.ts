@@ -35,7 +35,7 @@ const mediaSlice = createSlice({
   name: 'media',
   initialState,
   reducers: {
-    addMediaItem(state, action: PayloadAction<Record>) {
+    addMediaItem(state, action: PayloadAction<Media>) {
       state.media = [...state.media, action.payload];
     },
     clearSuccessMessage(state) {
@@ -85,7 +85,7 @@ export const { addMediaItem, clearSuccessMessage, clearErrorMessage } =
 export const fetchListings = createAsyncThunk('media/fetchListings', getMedia);
 
 export const addRecordAsync = createAsyncThunk(
-  'records/addRecordAsync',
+  'media/addRecordAsync',
   addMedia,
 );
 
