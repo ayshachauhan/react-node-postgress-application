@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { MediaInterface } from '@root/components/media/types';
+import { State } from '@root/store';
 import { addMedia } from '../requests/addMedia';
 import { getMedia } from '../requests/media';
 
@@ -87,9 +88,10 @@ export const addRecordAsync = createAsyncThunk(
   addMedia,
 );
 
-export const selectRecords = (state) => state.media;
-export const selectStatus = (state) => state.media.status;
-export const selectError = (state) => state.media.error;
-export const selectSuccessMessage = (state) => state.media.successMessage; // Export selectSuccessMessage selector
+export const selectRecords = (state: State) => state.media;
+export const selectStatus = (state: State) => state.media.status;
+export const selectError = (state: State) => state.media.error;
+export const selectSuccessMessage = (state: State) =>
+  state.media.successMessage; // Export selectSuccessMessage selector
 
 export default mediaSlice.reducer;
