@@ -8,9 +8,11 @@ import { ENV_VALIDATIONS } from './enums/env-validation';
 import { ENVIRONMENT_VARIABLES } from './enums/environment.enums';
 import { HealthModule } from './healthz/health.module';
 import { MediaModule } from './media/media.module';
+import { PermissionsModule } from './permissions/permissions.module';
 import { PracticeHomesModule } from './practiceHomes/practiceHomes.module';
 import { PracticesModule } from './practices/practices.module';
 import { TransporterModule } from './transporter';
+import { UserPermissionsModule } from './userPermissions/userPermissions.module';
 import { UsersModule } from './users/users.module';
 
 @Module({
@@ -96,6 +98,8 @@ import { UsersModule } from './users/users.module';
     PracticesModule,
     PracticeHomesModule,
     MediaModule,
+    PermissionsModule,
+    UserPermissionsModule,
   ],
 })
 export class AppModule {}
