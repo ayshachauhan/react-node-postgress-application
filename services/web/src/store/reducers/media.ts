@@ -48,7 +48,11 @@ const mediaSlice = createSlice({
 
     builder.addCase(fetchListings.rejected, (state, action) => {
       state.status = 'failed';
-      state.error = action.payload ?? 'Failed to fetch videos';
+      if (typeof action.payload === 'string') {
+        state.error = action.payload ?? 'Failed to fetch videos';
+      } else {
+        state.error = 'Failed to fetch videos';
+      }
     });
 
     builder.addCase(addRecordAsync.pending, (state) => {
@@ -64,7 +68,11 @@ const mediaSlice = createSlice({
 
     builder.addCase(addRecordAsync.rejected, (state, action) => {
       state.status = 'failed';
-      state.error = action.payload ?? 'Failed to add video';
+      if (typeof action.payload === 'string') {
+        state.error = action.payload ?? 'Failed to add video';
+      } else {
+        state.error = 'Failed to add video';
+      }
     });
   },
 });
