@@ -41,7 +41,7 @@ const Media: React.FC = () => {
     setIsFirstModalOpen(false);
   };
 
-  const handleOpenSecondModal = () => {
+  const handleOpenSecondModal = (): void => {
     setIsSecondModalOpen(true);
     setIsFirstModalOpen(false);
   };
