@@ -202,9 +202,7 @@ const Media: React.FC = () => {
                     height="315"
                     src="https://www.youtube.com/embed/Bb8bnjnEM00?si=N_KX5ZVF2C7BMXbB"
                     title="YouTube video player"
-                    frameborder="0"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                    allowfullscreen
                   ></iframe>
                   <iframe
                     width="560"
