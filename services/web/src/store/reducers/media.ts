@@ -1,22 +1,12 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { MediaInterface } from '@root/components/media/types';
 import { addMedia } from '../requests/addMedia';
 import { getMedia } from '../requests/media';
 
-// todo add api call and move type to appropriate folder
-
-type Media = {
-  id: string;
-  name: string;
-  urlEmbed: string;
-  url: string;
-  dateCreated: Date;
-  dateUpdated: Date;
-};
-
 export interface MediaState {
   isProcessing: boolean;
-  entities: Record<string, Media>;
-  media: Media[];
+  entities: Record<string, MediaInterface>;
+  media: MediaInterface[];
   status: 'idle' | 'loading' | 'failed';
   successMessage: string | null;
   error: string | null;
@@ -35,7 +25,7 @@ const mediaSlice = createSlice({
   name: 'media',
   initialState,
   reducers: {
-    addMediaItem(state, action: PayloadAction<Media>) {
+    addMediaItem(state, action: PayloadAction<MediaInterface>) {
       state.media = [...state.media, action.payload];
     },
     clearSuccessMessage(state) {

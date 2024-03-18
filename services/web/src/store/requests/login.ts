@@ -17,8 +17,7 @@ export const login = async (
       body: JSON.stringify(payloadData),
     });
     const result = await response.json();
-    console.log(result);
-    if (result.access_token) {
+    if (result?.access_token) {
       return result;
     } else {
       throw new Error('Invalid username or password');

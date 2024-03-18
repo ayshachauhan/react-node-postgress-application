@@ -10,6 +10,7 @@ import {
   selectError,
   selectSuccessMessage,
 } from '@root/store/reducers/media';
+import { extractVideoId } from '@utils/extractVideoId';
 import { Modal, ModalBody, ModalHeader, ROLE, SIZE } from 'baseui/modal';
 import Image from 'next/image';
 import React, { useEffect, useState } from 'react';
@@ -33,7 +34,7 @@ const Media: React.FC = () => {
     setIsSecondModalOpen(false);
   };
 
-  const closeFirstModal = () => {
+  const closeFirstModal = (): void => {
     setVideoId(null);
     setIsVideoLoaded(false);
     setIsFirstModalOpen(false);
@@ -44,19 +45,11 @@ const Media: React.FC = () => {
     setIsFirstModalOpen(false);
   };
 
-  const closeSecondModal = () => {
+  const closeSecondModal = (): void => {
     setIsSecondModalOpen(false);
   };
 
-  // const handleAddError = () => {
-  //   setIsSecondModalOpen(false);
-  //   setShowErrorMessage(true); // Show the error message
-  //   setTimeout(() => {
-  //     setShowErrorMessage(false); // Hide the error message after some time
-  //   }, 2000); // Hide after 2 seconds
-  // };
-
-  const [videoId, setVideoId] = useState(null);
+  const [videoId, setVideoId] = useState<string | null>(null);
 
   const FormModal = () => {
     return (
@@ -85,16 +78,6 @@ const Media: React.FC = () => {
         </ModalBody>
       </Modal>
     );
-  };
-
-  const extractVideoId = (url: string): string => {
-    const regExp =
-      /^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
-    const match = url.match(regExp);
-    if (match) {
-      return match[1];
-    }
-    return '';
   };
 
   const getImageUrl = (videoUrl: string): string => {
@@ -250,14 +233,5 @@ const Media: React.FC = () => {
     </div>
   );
 };
-
-interface Media {
-  id?: string;
-  name: string;
-  urlEmbed: string;
-  url: string;
-  dateCreated?: Date;
-  dateUpdated?: Date;
-}
 
 export default Media;

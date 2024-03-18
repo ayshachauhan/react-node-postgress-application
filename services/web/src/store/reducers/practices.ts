@@ -1,19 +1,11 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { PracticesInterface } from '@root/components/practices/types';
 import { getPractices } from '../requests/practices';
-
-// todo add api call and move type to appropriate folder
-
-type Practices = {
-  id: string;
-  name: string;
-  dateCreated: Date;
-  dateUpdated: Date;
-};
 
 export interface PracticeState {
   isProcessing: boolean;
-  entities: Record<string, Practices>;
-  practices: Practices[];
+  entities: Record<string, PracticesInterface>;
+  practices: PracticesInterface[];
   status: 'idle' | 'loading' | 'failed';
   successMessage: string | null;
   error: string | null;

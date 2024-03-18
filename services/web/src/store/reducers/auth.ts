@@ -1,22 +1,18 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { UserInterface } from '@root/components/login/types';
 import Cookies from 'js-cookie';
 import { login } from '../requests/login';
 
 // todo add api call and move type to appropriate folder
 const getMe = async () => {
-  return {} as IUser;
-};
-type IUser = {
-  id: string;
-  email: string;
-  password: string;
+  return {} as UserInterface;
 };
 
 export interface AuthState {
   isAuthenticated: boolean;
-  user: IUser[] | null;
+  user: UserInterface[] | null;
   isProcessing: boolean;
-  entities: Record<string, IUser>;
+  entities: Record<string, UserInterface>;
   status: 'idle' | 'loading' | 'failed';
   successMessage: string | null;
   error: string | null;
@@ -36,7 +32,7 @@ const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    setUserInfo(state, action: PayloadAction<IUser>) {
+    setUserInfo(state, action: PayloadAction<UserInterface>) {
       state.user = action.payload;
     },
     clearSuccessMessage(state) {
@@ -70,7 +66,6 @@ const authSlice = createSlice({
       state.status = 'failed';
       state.isAuthenticated = false;
       state.error = action.payload as string;
-      console.log('Login failed:', action.payload); // Handle rejected action
     });
   },
 });

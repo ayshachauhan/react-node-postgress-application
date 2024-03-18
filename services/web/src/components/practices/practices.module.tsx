@@ -50,10 +50,3 @@ export default function PracticePage() {
     </>
   );
 }
-
-// interface Practice {
-//   id: string;
-//   name: string;
-//   dateCreated: Date;
-//   dateUpdated: Date;
-// }
