@@ -1,4 +1,4 @@
-import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { UserInterface } from '@root/components/login/types';
 import { State } from '@root/store';
 import Cookies from 'js-cookie';
@@ -33,9 +33,6 @@ const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    setUserInfo(state, action: PayloadAction<UserInterface>) {
-      state.user = action.payload;
-    },
     clearSuccessMessage(state) {
       state.successMessage = null;
     },
@@ -75,8 +72,7 @@ const authSlice = createSlice({
   },
 });
 
-export const { setUserInfo, clearSuccessMessage, clearErrorMessage } =
-  authSlice.actions;
+export const { clearSuccessMessage, clearErrorMessage } = authSlice.actions;
 
 export const fetchLoggedInUser = createAsyncThunk(
   'users/fetchLoggedInUser',
