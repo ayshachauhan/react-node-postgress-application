@@ -20,14 +20,10 @@ export class UserPermissionsService {
     });
   }
 
-  async create({
-    userId,
-    permissionId,
-    practiceId,
-  }): Promise<UserPermissionEntity> {
+  async create({ userId, permissionId }): Promise<UserPermissionEntity> {
     const newUserPermission: UserPermissionEntity = new UserPermissionEntity();
 
-    const userEntity = await this.userService.getUserById(practiceId, userId);
+    const userEntity = await this.userService.getUserById(userId);
     if (!userEntity) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
@@ -48,10 +44,9 @@ export class UserPermissionsService {
   async update({
     id,
     userId,
-    practiceId,
     permissionId,
   }): Promise<UserPermissionEntity | null> {
-    const userEntity = await this.userService.getUserById(practiceId, userId);
+    const userEntity = await this.userService.getUserById(userId);
     if (!userEntity) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
