@@ -7,7 +7,8 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
-import { Repository } from 'typeorm';
+import { UserPracticesService } from 'src/userPractices/userPractices.services';
+import { In, Repository } from 'typeorm';
 import { User } from '../entities/users.entity';
 import { PracticesService } from '../practices/practices.service';
 import { CreateUserDto } from './dto/create.dto';
@@ -19,6 +20,8 @@ export class UsersService {
     private usersRepository: Repository<User>,
     @Inject(forwardRef(() => PracticesService))
     private readonly practicesService: PracticesService,
+    @Inject(forwardRef(() => UserPracticesService))
+    private readonly userPracticeService: UserPracticesService,
   ) {}
 
   async create(
@@ -35,13 +38,18 @@ export class UsersService {
     if (!practiceEntity) {
       throw new HttpException('Practice not found', HttpStatus.NOT_FOUND);
     }
-
-    return await this.usersRepository.save({
+    const resultUser = await this.usersRepository.save({
       ...newUser,
       ...createUserDto,
       fullName,
-      practice: { id: practiceEntity.id },
     });
+
+    await this.userPracticeService.create({
+      userId: resultUser.id,
+      practiceId,
+    });
+
+    return resultUser;
   }
 
   async findUserByEmail(email: string): Promise<User | null> {
@@ -52,15 +60,22 @@ export class UsersService {
     return existingUser ? existingUser : null;
   }
 
-  async getUserById(practiceId: string, id: string): Promise<User | null> {
+  async getUserById(id: string): Promise<User | null> {
     return await this.usersRepository.findOne({
-      where: { practice: { id: practiceId }, id },
+      where: { id },
     });
   }
 
   async getUsersByPractice(practiceId: string): Promise<User[]> {
-    return this.usersRepository.find({
-      where: { practice: { id: practiceId } },
+    const practiceEntity = await this.practicesService.findOne(practiceId);
+    if (!practiceEntity) {
+      throw new HttpException('Practice not found', HttpStatus.NOT_FOUND);
+    }
+
+    const usersByPractice =
+      await this.userPracticeService.getUsersByPractice(practiceId);
+    return await this.usersRepository.find({
+      where: { id: In(usersByPractice.map((ele) => ele.id)) },
     });
   }
 }

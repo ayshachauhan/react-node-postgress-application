@@ -13,6 +13,7 @@ import { PracticeHomesModule } from './practiceHomes/practiceHomes.module';
 import { PracticesModule } from './practices/practices.module';
 import { TransporterModule } from './transporter';
 import { UserPermissionsModule } from './userPermissions/userPermissions.module';
+import { UserPracticesModule } from './userPractices/userPractices.module';
 import { UsersModule } from './users/users.module';
 
 @Module({
@@ -100,6 +101,7 @@ import { UsersModule } from './users/users.module';
     MediaModule,
     PermissionsModule,
     UserPermissionsModule,
+    UserPracticesModule,
   ],
 })
 export class AppModule {}
