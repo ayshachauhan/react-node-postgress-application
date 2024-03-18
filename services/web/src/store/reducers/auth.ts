@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { UserInterface } from '@root/components/login/types';
+import { State } from '@root/store';
 import Cookies from 'js-cookie';
 import { login } from '../requests/login';
 
@@ -80,9 +81,9 @@ export const fetchLoggedInUser = createAsyncThunk(
 
 export const loginUser = createAsyncThunk('auth/loginUser', login);
 
-export const selectRecords = (state) => state.auth.user;
-export const selectStatus = (state) => state.status;
-export const selectError = (state) => state.auth.error;
-export const selectSuccessMessage = (state) => state.user.successMessage; // Export selectSuccessMessage selecto
+export const selectRecords = (state: State) => state.auth.user;
+export const selectStatus = (state: State) => state.auth.status;
+export const selectError = (state: State) => state.auth.error;
+export const selectSuccessMessage = (state: State) => state.auth.successMessage; // Export selectSuccessMessage selecto
 
 export default authSlice.reducer;
