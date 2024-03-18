@@ -27,25 +27,25 @@ const Media: React.FC = () => {
   const [showModal, setShowModal] = useState(false); // State to manage modal visibility
   const [showErrorMessage, setShowErrorMessage] = useState(false);
 
-  const openFirstModal = (videoId: string): void => {
+  const handleOpenFirstModal = (videoId: string): void => {
     setVideoId(videoId);
     setIsVideoLoaded(true);
     setIsFirstModalOpen(true);
     setIsSecondModalOpen(false);
   };
 
-  const closeFirstModal = (): void => {
+  const handleCloseFirstModal = (): void => {
     setVideoId(null);
     setIsVideoLoaded(false);
     setIsFirstModalOpen(false);
   };
 
-  const openSecondModal = () => {
+  const handleOpenSecondModal = () => {
     setIsSecondModalOpen(true);
     setIsFirstModalOpen(false);
   };
 
-  const closeSecondModal = (): void => {
+  const handleCloseSecondModal = (): void => {
     setIsSecondModalOpen(false);
   };
 
@@ -55,7 +55,7 @@ const Media: React.FC = () => {
     return (
       <Modal
         isOpen={isSecondModalOpen}
-        onClose={closeSecondModal}
+        onClose={handleCloseSecondModal}
         closeable
         animate
         autoFocus
@@ -74,7 +74,7 @@ const Media: React.FC = () => {
           Add a Video
         </ModalHeader>
         <ModalBody>
-          <Form onClose={closeSecondModal} />
+          <Form onClose={handleCloseSecondModal} />
         </ModalBody>
       </Modal>
     );
@@ -118,7 +118,7 @@ const Media: React.FC = () => {
         <Button
           kind="secondary"
           title="Add New"
-          onClick={openSecondModal}
+          onClick={handleOpenSecondModal}
           startEnhancer={() => <AddIcon className="mt-2" size={25}></AddIcon>}
         />{' '}
       </div>
@@ -141,7 +141,7 @@ const Media: React.FC = () => {
                 />
                 <div
                   className="bg-black absolute text-center transform -translate-x-1/2 -translate-y-1/2 border top-32 left-1/2 text-white rounded-full flex justify-center items-center p-2 border-black w-14 h-14"
-                  onClick={() => openFirstModal(extractVideoId(data.url))}
+                  onClick={() => handleOpenFirstModal(extractVideoId(data.url))}
                   style={{ cursor: 'pointer' }}
                 >
                   <PlayIcon></PlayIcon>
@@ -159,7 +159,7 @@ const Media: React.FC = () => {
         {videoId && (
           <Modal
             isOpen={isFirstModalOpen}
-            onClose={closeFirstModal}
+            onClose={handleCloseFirstModal}
             animate
             autoFocus
             size={SIZE.default}
