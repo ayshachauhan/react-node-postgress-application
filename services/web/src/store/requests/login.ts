@@ -23,7 +23,6 @@ export const login = async (
       throw new Error('Invalid username or password');
     }
   } catch (error) {
-    console.error('Error:', error);
     return rejectWithValue('Invalid username or psassword');
   }
 };

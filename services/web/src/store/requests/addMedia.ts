@@ -23,7 +23,6 @@ export const addMedia = async (payloadData: {
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error('Error:', error);
     return error;
   }
 };

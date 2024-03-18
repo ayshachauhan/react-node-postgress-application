@@ -22,7 +22,6 @@ const MediaPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       setUrlEmbed('');
       onClose(); // Close the modal after form submission
     } catch (error) {
-      console.error('Error adding record:', error);
       onClose();
     }
   };
