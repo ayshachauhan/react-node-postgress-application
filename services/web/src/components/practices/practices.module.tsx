@@ -12,10 +12,6 @@ export default function PracticePage() {
     dispatch(fetchListings()); // Fetch listings from PostgreSQL database
   }, [dispatch]);
 
-  useEffect(() => {
-    console.log(practices);
-  }, [practices]);
-
   return (
     <>
       <div className="msm:px-6 lg:px-8  text-3xl pt-8">
