@@ -27,7 +27,7 @@ const Media: React.FC = () => {
   const [showModal, setShowModal] = useState(false); // State to manage modal visibility
   const [showErrorMessage, setShowErrorMessage] = useState(false);
 
-  const openFirstModal = (videoId) => {
+  const openFirstModal = (videoId: string): void => {
     setVideoId(videoId);
     setIsVideoLoaded(true);
     setIsFirstModalOpen(true);
