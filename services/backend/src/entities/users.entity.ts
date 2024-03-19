@@ -1,15 +1,10 @@
 import { UserStatus } from 'src/enums/status.enum';
 import { UserType } from 'src/enums/userType.enum';
-import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import { Column, Entity } from 'typeorm';
 import { BaseEntity } from './base.entity';
-import { PracticeEntity } from './practices.entity';
 
 @Entity('users')
 export class User extends BaseEntity {
-  @ManyToOne(() => PracticeEntity)
-  @JoinColumn({ name: 'practiceId' })
-  practice: PracticeEntity;
-
   @Column({ type: 'varchar' })
   email: string;
 
