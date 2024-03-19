@@ -6,7 +6,7 @@ import { useAppSelector } from '@root/store';
 import {
   clearErrorMessage,
   clearSuccessMessage,
-  fetchListings,
+  // fetchListings,
   selectError,
   selectSuccessMessage,
 } from '@root/store/reducers/media';
@@ -82,9 +82,15 @@ const Media: React.FC = () => {
   };
 
   useEffect(() => {
+    // @ts-ignore
+    dispatch(fetchListings()); // Fetch listings from PostgreSQL database
+  }, [dispatch]);
+
+  useEffect(() => {
+    let timer;
     if (successMessage) {
       setShowModal(true);
-      const timer = setTimeout(() => {
+      timer = setTimeout(() => {
         setShowModal(false);
         dispatch(clearSuccessMessage()); // Clear success message
       }, 2000); // Hide modal after 2 seconds
@@ -92,14 +98,16 @@ const Media: React.FC = () => {
     }
     if (errorMessage) {
       setShowErrorMessage(true);
-      const timer = setTimeout(() => {
+      timer = setTimeout(() => {
         setShowErrorMessage(false);
         dispatch(clearErrorMessage()); // Clear error message
       }, 2000); // Hide modal after 2 seconds
       return () => clearTimeout(timer);
     }
     return () => {
-      dispatch(fetchListings()); // Fetch listings from PostgreSQL database
+      if (timer) {
+        clearTimeout(timer);
+      }
     };
   }, [successMessage, errorMessage, dispatch]);
 
@@ -178,16 +186,7 @@ const Media: React.FC = () => {
               },
             }}
           >
-            <ModalBody
-              overrides={{
-                Body: {
-                  style: {
-                    padding: 0, // Set padding to zero for modal body
-                    margin: 0, // Set margin to zero for modal body
-                  },
-                },
-              }}
-            >
+            <ModalBody>
               {isVideoLoaded && (
                 <div
                   style={{

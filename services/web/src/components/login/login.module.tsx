@@ -1,7 +1,6 @@
 'use client';
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
-import { UserInterface } from '@root/components/login/types';
 import { useAppSelector } from '@root/store';
 import { loginUser, selectError } from '@root/store/reducers/auth';
 import { AzentiaLogo } from '@utils/constants';
@@ -16,19 +15,18 @@ export default function LoginPage() {
   const router = useRouter();
   const error = useAppSelector(selectError); // Select success message from Redux store
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    const data: UserInterface = { email, password };
     e.preventDefault();
     try {
-      const user = await dispatch(loginUser(data));
-      setPassword('');
-      setUsername('');
+      // @ts-ignore
+      const user = await dispatch(loginUser({email, password}));
       !user.error
+      // @ts-ignore
         ? user.payload?.is_super_admin
           ? router.push('/practices')
           : router.push('/dashboard')
         : 'return';
     } catch (error) {
-      return error;
+      throw error;
     }
   };
   return (
