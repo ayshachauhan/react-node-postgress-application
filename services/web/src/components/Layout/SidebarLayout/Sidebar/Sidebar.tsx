@@ -39,7 +39,7 @@ const Sidebar: React.FC = () => {
             <li key={item.id}>
               <Link
                 href={item.path}
-                onClick={(e) => handleSidebarItemClick(e, { ...item, Icon })}
+                onClick={(e) => handleSidebarItemClick({ ...item, Icon })}
                 className={clsx(
                   'flex items-center p-2 text-white rounded-lg ease-linear duration-200 hover:bg-secondary',
                   { 'bg-secondary': item.id === activeMenuItemId },
