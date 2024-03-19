@@ -2,11 +2,11 @@
 import Button from '@root/components/Button';
 import { AddIcon, PlayIcon } from '@root/components/Icons';
 import Form from '@root/components/media/addMedia.module';
-import { useAppSelector } from '@root/store';
+import { useAppDispatch, useAppSelector } from '@root/store';
 import {
   clearErrorMessage,
   clearSuccessMessage,
-  // fetchListings,
+  fetchListings,
   selectError,
   selectSuccessMessage,
 } from '@root/store/reducers/media';
@@ -15,10 +15,9 @@ import { getImageUrl } from '@utils/getImageUrl';
 import { Modal, ModalBody, ModalHeader, ROLE, SIZE } from 'baseui/modal';
 import Image from 'next/image';
 import React, { useEffect, useState } from 'react';
-import { useDispatch } from 'react-redux';
 
 const Media: React.FC = () => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const media = useAppSelector((state) => state.media.media);
   const [isFirstModalOpen, setIsFirstModalOpen] = useState(false);
   const [isSecondModalOpen, setIsSecondModalOpen] = useState(false);
@@ -82,7 +81,6 @@ const Media: React.FC = () => {
   };
 
   useEffect(() => {
-    // @ts-ignore
     dispatch(fetchListings()); // Fetch listings from PostgreSQL database
   }, [dispatch]);
 
@@ -94,7 +92,6 @@ const Media: React.FC = () => {
         setShowModal(false);
         dispatch(clearSuccessMessage()); // Clear success message
       }, 2000); // Hide modal after 2 seconds
-      return () => clearTimeout(timer);
     }
     if (errorMessage) {
       setShowErrorMessage(true);
@@ -102,7 +99,6 @@ const Media: React.FC = () => {
         setShowErrorMessage(false);
         dispatch(clearErrorMessage()); // Clear error message
       }, 2000); // Hide modal after 2 seconds
-      return () => clearTimeout(timer);
     }
     return () => {
       if (timer) {

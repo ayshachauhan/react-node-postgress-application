@@ -1,12 +1,12 @@
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
 import { MediaInterface } from '@root/components/media/types';
+import { useAppDispatch } from '@root/store';
 import { addRecordAsync } from '@root/store/reducers/media';
 import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
 
 const MediaPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const [name, setName] = useState('');
   const [url, setUrl] = useState('');
   const [urlEmbed, setUrlEmbed] = useState('');

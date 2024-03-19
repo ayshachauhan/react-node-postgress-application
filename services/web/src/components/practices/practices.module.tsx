@@ -1,11 +1,10 @@
 'use client';
-import { useAppSelector } from '@root/store';
+import { useAppDispatch, useAppSelector } from '@root/store';
 import { fetchListings } from '@root/store/reducers/practices';
 import React, { useEffect } from 'react';
-import { useDispatch } from 'react-redux';
 
 export default function PracticePage() {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const practices = useAppSelector((state) => state.practices.practices);
 
   useEffect(() => {
