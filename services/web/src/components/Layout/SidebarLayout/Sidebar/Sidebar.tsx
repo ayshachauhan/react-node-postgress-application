@@ -9,10 +9,10 @@ import { SideBarItem, filterSidebarItems, sidebarItems } from './types';
 
 const Sidebar: React.FC = () => {
   const [activeMenuItemId, setActiveMenuItemId] = useState<string>('');
-  const user = useAppSelector((state: State) => state.auth);
-
-  const userType =
-    user.user?.length && user.user[0].is_super_admin ? 'super_admin' : 'admin';
+  const is_super_admin = useAppSelector(
+    (state: State) => state.auth.isSuperAdmin,
+  );
+  const userType = is_super_admin ? 'super_admin' : 'admin';
   const filteredSidebarItems: SideBarItem[] = filterSidebarItems(
     userType,
     sidebarItems,

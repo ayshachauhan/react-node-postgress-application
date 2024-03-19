@@ -17,6 +17,7 @@ export interface AuthState {
   status: 'idle' | 'loading' | 'failed';
   successMessage: string | null;
   error: string | null;
+  isSuperAdmin: boolean;
 }
 
 const initialState: AuthState = {
@@ -27,6 +28,7 @@ const initialState: AuthState = {
   status: 'idle',
   successMessage: null, // Initial value for success message
   error: null,
+  isSuperAdmin: false,
 };
 
 const authSlice = createSlice({
@@ -42,6 +44,7 @@ const authSlice = createSlice({
     logoutUser: (state) => {
       state.isAuthenticated = false;
       state.user = null;
+      state.isSuperAdmin = false;
       Cookies.remove('access_token'); // Remove access token from cookies on logout
     },
   },
@@ -60,6 +63,7 @@ const authSlice = createSlice({
         Cookies.set('access_token', action.payload.access_token, {
           expires: 1,
         });
+        state.isSuperAdmin = action.payload.is_super_admin;
       }
       state.error = null;
     });
@@ -68,6 +72,7 @@ const authSlice = createSlice({
       state.status = 'failed';
       state.isAuthenticated = false;
       state.error = action.payload as string;
+      state.isSuperAdmin = false;
     });
   },
 });
@@ -84,6 +89,7 @@ export const loginUser = createAsyncThunk('auth/loginUser', login);
 export const { logoutUser } = authSlice.actions;
 
 export const selectRecords = (state: State) => state.auth.user;
+export const isSuperAdmin = (state: State) => state.auth.isSuperAdmin;
 export const selectStatus = (state: State) => state.auth.status;
 export const selectError = (state: State) => state.auth.error;
 export const selectSuccessMessage = (state: State) => state.auth.successMessage; // Export selectSuccessMessage selecto
