@@ -48,7 +48,7 @@ export class TemplatesController {
       practiceId,
       userId,
       id,
-    }: { practiceId: string; userId: string; id: String },
+    }: { practiceId: string; userId: string; id: string },
   ): Promise<TemplateEntity | null> {
     return this.templateService.update({
       templatePatchDto,
