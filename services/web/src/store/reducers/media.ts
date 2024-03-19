@@ -1,8 +1,7 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { MediaInterface } from '@root/components/media/types';
 import { State } from '@root/store';
-import { addMedia } from '../requests/addMedia';
-import { getMedia } from '../requests/media';
+import { addMedia, getMedia } from '../requests/media';
 
 export interface MediaState {
   isProcessing: boolean;
