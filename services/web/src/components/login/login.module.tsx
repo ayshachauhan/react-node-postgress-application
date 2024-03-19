@@ -66,6 +66,7 @@ export default function LoginPage() {
                 value={password}
                 onChange={(value) => setPassword(value)}
                 required
+                type="password"
               />
               <div className="space-y-4"></div>
             </div>
