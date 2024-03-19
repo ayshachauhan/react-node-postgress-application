@@ -26,9 +26,7 @@ export class UsersController {
   }
 
   @Get(':id')
-  async getUserById(
-    @Param() { practiceId, id }: { practiceId: string; id: string },
-  ): Promise<User | null> {
-    return this.usersService.getUserById(practiceId, id);
+  async getUserById(@Param() { id }: { id: string }): Promise<User | null> {
+    return this.usersService.getUserById(id);
   }
 }
