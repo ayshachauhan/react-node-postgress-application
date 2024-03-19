@@ -1,14 +1,20 @@
 'use client';
 
+import { State, useAppSelector } from '@root/store';
 import { ChevronDown, ChevronRightSmall } from 'baseui/icon';
+import clsx from 'clsx';
 import Link from 'next/link';
 import React, { useState } from 'react';
-
-import clsx from 'clsx';
-import { SideBarItem, sidebarItems } from './types';
+import { SideBarItem, filterSidebarItems, sidebarItems } from './types';
 
 const Sidebar: React.FC = () => {
   const [activeMenuItemId, setActiveMenuItemId] = useState<string>('');
+  const user = useAppSelector((state: State) => state.auth);
+  const userType = user?.user?.is_super_admin ? 'super_admin' : 'admin';
+  const filteredSidebarItems: SideBarItem[] = filterSidebarItems(
+    userType,
+    sidebarItems,
+  );
 
   function handleSidebarItemClick(
     e: React.MouseEvent<HTMLAnchorElement, MouseEvent>,
@@ -34,7 +40,7 @@ const Sidebar: React.FC = () => {
 
       <div className="h-full px-3 py-4 overflow-y-auto">
         <ul className="space-y-2 font-medium">
-          {sidebarItems.map(({ Icon, ...item }) => (
+          {filteredSidebarItems.map(({ Icon, ...item }) => (
             <li key={item.id}>
               <Link
                 href={item.path}
