@@ -1,7 +1,10 @@
-import { Meridian } from 'src/enums/meridian';
+import { Meridiem } from 'src/enums/meridian';
+import { SurgeryType } from 'src/enums/surgeryType.enum';
+import { TemplateMessageType } from 'src/enums/templateMessageType.enum';
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { BaseEntity } from './base.entity';
 import { PracticeEntity } from './practices.entity';
+import { User } from './users.entity';
 
 @Entity('templates')
 export class TemplateEntity extends BaseEntity {
@@ -9,19 +12,37 @@ export class TemplateEntity extends BaseEntity {
   @JoinColumn({ name: 'practiceId' })
   practice: PracticeEntity;
 
+  @ManyToOne(() => User)
+  @JoinColumn({ name: 'surgeonId' })
+  surgeon: User;
+
   @Column({ type: 'boolean', default: false })
   active: boolean;
 
-  @Column({ type: 'number' })
+  @Column({
+    type: 'enum',
+    enum: TemplateMessageType,
+    default: null,
+    nullable: true,
+  })
+  messageType: TemplateMessageType;
+
+  @Column({ type: 'integer' })
   dateOffset: number;
 
   @Column({
     type: 'enum',
-    enum: Meridian,
+    enum: Meridiem,
     default: null,
     nullable: true,
   })
-  meridiem?: Meridian;
+  meridiem?: Meridiem;
+
+  @Column({ type: 'enum', enum: SurgeryType, default: null, nullable: true })
+  surgeryType: SurgeryType;
+
+  @Column({ type: 'integer' })
+  surgeryNumber: number;
 
   @Column({ type: 'varchar' })
   emailSubject: string;
@@ -33,5 +54,11 @@ export class TemplateEntity extends BaseEntity {
   emailAttachment: string;
 
   @Column({ type: 'varchar' })
-  textBody: string;
+  email1stCataract: string;
+
+  @Column({ type: 'varchar' })
+  email2ndCataract: string;
+
+  @Column({ type: 'varchar' })
+  messageText: string;
 }

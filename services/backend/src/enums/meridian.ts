@@ -1,4 +1,4 @@
-export enum Meridian {
+export enum Meridiem {
   AM = 'AM',
   PM = 'PM',
 }
