@@ -18,14 +18,7 @@ const Sidebar: React.FC = () => {
     sidebarItems,
   );
 
-  function handleSidebarItemClick(
-    e: React.MouseEvent<HTMLAnchorElement, MouseEvent>,
-    item: SideBarItem,
-  ) {
-    // if (item.child && item.child.length > 0) {
-    //   e.preventDefault();
-    // }
-
+  function handleSidebarItemClick(item: SideBarItem) {
     setActiveMenuItemId(item.id);
   }
 
