@@ -22,9 +22,9 @@ const Sidebar: React.FC = () => {
     e: React.MouseEvent<HTMLAnchorElement, MouseEvent>,
     item: SideBarItem,
   ) {
-    if (item.child && item.child.length > 0) {
-      e.preventDefault();
-    }
+    // if (item.child && item.child.length > 0) {
+    //   e.preventDefault();
+    // }
 
     setActiveMenuItemId(item.id);
   }
