@@ -33,10 +33,10 @@ export default function PracticePage() {
                 {data.name}
               </div>
               <div className="text-gray-900 bg-gray-50 pt-2 px-4">
-                {data.dateCreated.toString()}
+                {data.dateCreated?.toString()}
               </div>
               <div className="text-gray-900 bg-gray-50 pt-2 px-4">
-                {data.dateUpdated.toString()}
+                {data.dateCreated?.toString()}
               </div>
             </React.Fragment>
           ))}
