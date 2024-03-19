@@ -3,8 +3,11 @@
 import React from 'react';
 
 import Dropdown from '@root/components/Dropdown';
+import { logoutUser } from '@root/store/reducers/auth';
 import { Avatar } from 'baseui/avatar';
 import { ChevronDown } from 'baseui/icon';
+import { useRouter } from 'next/navigation';
+import { useDispatch } from 'react-redux';
 
 const Header: React.FC = () => {
   const selectedUserBox = (
@@ -15,6 +18,13 @@ const Header: React.FC = () => {
     </span>
   );
 
+  const router = useRouter();
+  const dispatch = useDispatch();
+  const handleLogout = () => {
+    dispatch(logoutUser());
+    router.push('/login'); // Redirect to login page after logout
+  };
+
   return (
     <nav className="fixed top-0 right-0 z-40 bg-white shadow-md w-[calc(100%-16rem)] h-[68px]">
       <div className="px-5 py-3">
@@ -23,7 +33,9 @@ const Header: React.FC = () => {
             <Dropdown position="bottomLeft" trigger={selectedUserBox}>
               <Dropdown.Item id="profile">Profile</Dropdown.Item>
               <Dropdown.Item id="setting">Settings</Dropdown.Item>
-              <Dropdown.Item id="logout">Log out</Dropdown.Item>
+              <Dropdown.Item id="logout" onClick={handleLogout}>
+                Log out
+              </Dropdown.Item>
             </Dropdown>
           </div>
 
@@ -31,7 +43,9 @@ const Header: React.FC = () => {
             <Dropdown position="bottomRight" trigger={<Avatar />}>
               <Dropdown.Item id="profile">Profile</Dropdown.Item>
               <Dropdown.Item id="setting">Settings</Dropdown.Item>
-              <Dropdown.Item id="logout">Log out</Dropdown.Item>
+              <Dropdown.Item id="logout" onClick={handleLogout}>
+                Log out
+              </Dropdown.Item>
             </Dropdown>
           </div>
         </div>

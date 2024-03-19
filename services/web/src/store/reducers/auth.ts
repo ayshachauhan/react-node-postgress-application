@@ -39,7 +39,7 @@ const authSlice = createSlice({
     clearErrorMessage(state) {
       state.error = null;
     },
-    logout: (state) => {
+    logoutUser: (state) => {
       state.isAuthenticated = false;
       state.user = null;
       Cookies.remove('access_token'); // Remove access token from cookies on logout
@@ -80,6 +80,8 @@ export const fetchLoggedInUser = createAsyncThunk(
 );
 
 export const loginUser = createAsyncThunk('auth/loginUser', login);
+
+export const { logoutUser } = authSlice.actions;
 
 export const selectRecords = (state: State) => state.auth.user;
 export const selectStatus = (state: State) => state.auth.status;
