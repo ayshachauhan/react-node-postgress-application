@@ -70,6 +70,7 @@ export class UserPracticesService {
   async getUsersByPractice(practiceId: string): Promise<UserPracticeEntity[]> {
     return this.userPracticeRepository.find({
       where: { practice: { id: practiceId } },
+      relations: ['user'],
     });
   }
 
