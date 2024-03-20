@@ -17,6 +17,7 @@ import { UserPracticesService } from 'src/userPractices/userPractices.services';
 import { SanitizedUser } from 'src/users/types';
 import { In, Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create.dto';
+import { UpdateUserDto } from './dto/update.dto';
 
 @Injectable()
 export class UsersService {
@@ -103,5 +104,34 @@ export class UsersService {
     }
 
     await this.usersRepository.softDelete(id);
+  }
+
+  async updateUser(
+    id: string,
+    updateUserDto: UpdateUserDto,
+  ): Promise<SanitizedUser | null> {
+    const userToUpdate = await this.getUserById(id);
+    if (!userToUpdate) {
+      throw new HttpException(
+        `User with id ${id} not found`,
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    const updatedResult = await this.usersRepository.update(id, {
+      ...updateUserDto,
+    });
+
+    if (updatedResult.affected === 0) {
+      throw new HttpException(
+        `User with id ${id} not found`,
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    const resultUser = await this.getUserById(id);
+    if (resultUser) {
+      return { ...resultUser, password: undefined };
+    }
+    return null;
   }
 }

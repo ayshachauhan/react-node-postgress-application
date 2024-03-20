@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Post,
   UseGuards,
   ValidationPipe,
@@ -12,6 +13,7 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '../auth/auth.guard';
 import { User } from '../entities/users.entity';
 import { CreateUserDto } from './dto/create.dto';
+import { UpdateUserDto } from './dto/update.dto';
 import { SanitizedUser } from './types';
 import { UsersService } from './users.service';
 
@@ -45,5 +47,13 @@ export class UsersController {
     @Param() { practiceId, id }: { id: string; practiceId: string },
   ): Promise<void> {
     await this.usersService.deleteUser(practiceId, id);
+  }
+
+  @Patch(':id')
+  async updateUser(
+    @Param('id') id: string,
+    @Body(new ValidationPipe()) patchUserDto: UpdateUserDto,
+  ) {
+    return this.usersService.updateUser(id, patchUserDto);
   }
 }
