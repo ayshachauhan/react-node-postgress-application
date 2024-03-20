@@ -5,12 +5,17 @@ import {
   Injectable,
   forwardRef,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
+import { User } from 'src/entities/users.entity';
+import { ENVIRONMENT_VARIABLES } from 'src/enums/environment.enums';
+import { UserStatus } from 'src/enums/status.enum';
+import { UserType } from 'src/enums/userType.enum';
+import { PracticesService } from 'src/practices/practices.service';
 import { UserPracticesService } from 'src/userPractices/userPractices.services';
+import { SanitizedUser } from 'src/users/types';
 import { In, Repository } from 'typeorm';
-import { User } from '../entities/users.entity';
-import { PracticesService } from '../practices/practices.service';
 import { CreateUserDto } from './dto/create.dto';
 
 @Injectable()
@@ -22,26 +27,33 @@ export class UsersService {
     private readonly practicesService: PracticesService,
     @Inject(forwardRef(() => UserPracticesService))
     private readonly userPracticeService: UserPracticesService,
+    private readonly configService: ConfigService,
   ) {}
 
   async create(
     createUserDto: CreateUserDto,
     practiceId: string,
-  ): Promise<User> {
+  ): Promise<SanitizedUser> {
+    const defaultUserPassword = this.configService.get(
+      ENVIRONMENT_VARIABLES.DEFAULT_USER_PASSWORD,
+    );
     const newUser: User = new User();
-    const { firstName, lastName } = createUserDto;
-
-    createUserDto.password = await bcrypt.hash(createUserDto.password, 10);
-    const fullName = `${firstName} ${lastName}`;
+    const { firstName, lastName, status, type } = createUserDto;
+    const fullName = `${firstName}_${lastName}`;
+    const hashedDefaultPassword = await bcrypt.hash(defaultUserPassword, 10);
 
     const practiceEntity = await this.practicesService.findOne(practiceId);
     if (!practiceEntity) {
       throw new HttpException('Practice not found', HttpStatus.NOT_FOUND);
     }
+
     const resultUser = await this.usersRepository.save({
       ...newUser,
       ...createUserDto,
       fullName,
+      status: UserStatus[status],
+      type: UserType[type],
+      password: hashedDefaultPassword,
     });
 
     await this.userPracticeService.create({
@@ -49,7 +61,7 @@ export class UsersService {
       practiceId,
     });
 
-    return resultUser;
+    return { ...resultUser, password: undefined };
   }
 
   async findUserByEmail(email: string): Promise<User | null> {
@@ -77,5 +89,19 @@ export class UsersService {
     return await this.usersRepository.find({
       where: { id: In(usersByPractice.map((ele) => ele.id)) },
     });
+  }
+
+  async deleteUser(practiceId: string, id: string): Promise<void> {
+    const practiceEntity = await this.practicesService.findOne(practiceId);
+    if (!practiceEntity) {
+      throw new HttpException('Practice not found', HttpStatus.NOT_FOUND);
+    }
+
+    const userEntity = await this.getUserById(id);
+    if (!userEntity) {
+      throw new HttpException('user not found', HttpStatus.NOT_FOUND);
+    }
+
+    await this.usersRepository.softDelete(id);
   }
 }

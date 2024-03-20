@@ -1,8 +1,18 @@
-import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  UseGuards,
+  ValidationPipe,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '../auth/auth.guard';
 import { User } from '../entities/users.entity';
 import { CreateUserDto } from './dto/create.dto';
+import { SanitizedUser } from './types';
 import { UsersService } from './users.service';
 
 @ApiTags('Users')
@@ -14,9 +24,9 @@ export class UsersController {
 
   @Post()
   create(
-    @Body() createUserDto: CreateUserDto,
+    @Body(new ValidationPipe()) createUserDto: CreateUserDto,
     @Param() { practiceId }: { practiceId: string },
-  ) {
+  ): Promise<SanitizedUser> {
     return this.usersService.create(createUserDto, practiceId);
   }
 
@@ -28,5 +38,12 @@ export class UsersController {
   @Get(':id')
   async getUserById(@Param() { id }: { id: string }): Promise<User | null> {
     return this.usersService.getUserById(id);
+  }
+
+  @Delete(':id')
+  async deleteUser(
+    @Param() { practiceId, id }: { id: string; practiceId: string },
+  ): Promise<void> {
+    await this.usersService.deleteUser(practiceId, id);
   }
 }
