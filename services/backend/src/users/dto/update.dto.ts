@@ -1,31 +1,35 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsOptional } from 'class-validator';
+import { IsEmpty, IsOptional } from 'class-validator';
 import { UserStatus } from 'src/enums/status.enum';
 
 import { UserType } from 'src/enums/userType.enum';
 
-export class CreateUserDto {
-  @IsNotEmpty({ message: 'First name is required' })
+export class UpdateUserDto {
+  @IsOptional()
   @ApiProperty()
   firstName: string;
 
-  @IsNotEmpty({ message: 'Last name is required' })
+  @IsOptional()
   @ApiProperty()
   lastName: string;
 
-  @IsNotEmpty({ message: 'Email is required' })
+  @IsOptional()
   @ApiProperty()
   email: string;
 
-  @IsNotEmpty({ message: 'userName is required.' })
+  @IsOptional()
   @ApiProperty()
   userName: string;
 
-  @IsNotEmpty({ message: 'Status is required.' })
+  @IsEmpty()
+  @ApiProperty()
+  password: string;
+
+  @IsOptional()
   @ApiProperty()
   status: UserStatus;
 
-  @IsNotEmpty({ message: 'userType is required.' })
+  @IsOptional()
   @ApiProperty()
   type: UserType;
 
