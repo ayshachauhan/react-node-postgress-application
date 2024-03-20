@@ -133,6 +133,7 @@ export class UsersService {
 
   sanitizeUser(user: User): SanitizedUser {
     const { password, ...sanitizeedUser } = user;
+    password && password;
     return {
       ...sanitizeedUser,
     };
