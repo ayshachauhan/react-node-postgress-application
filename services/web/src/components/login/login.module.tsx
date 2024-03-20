@@ -1,33 +1,29 @@
 'use client';
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
-import { useAppSelector } from '@root/store';
+import { useAppDispatch, useAppSelector } from '@root/store';
 import { loginUser, selectError } from '@root/store/reducers/auth';
 import { AzentiaLogo } from '@utils/constants';
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
 
 export default function LoginPage() {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const [email, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const router = useRouter();
   const error = useAppSelector(selectError); // Select success message from Redux store
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    const data: User = { email, password };
     e.preventDefault();
-    try {
-      const user = await dispatch(loginUser(data));
-      setPassword('');
-      setUsername('');
-      !user.error
-        ? user.payload?.is_super_admin
-          ? router.push('/practices')
-          : router.push('/dashboard')
-        : 'return';
-    } catch (error) {
-      console.error('Login error:', error);
+    const user = await dispatch(loginUser({ email, password }));
+    if (user.payload?.access_token) {
+      if (user.payload?.is_super_admin) {
+        router.push('/practices');
+      } else {
+        router.push('/dashboard');
+      }
+    } else {
+      router.push('/login');
     }
   };
   return (
@@ -65,16 +61,12 @@ export default function LoginPage() {
                 value={password}
                 onChange={(value) => setPassword(value)}
                 required
+                type="password"
               />
               <div className="space-y-4"></div>
             </div>
             <div className="mt-6 flex flex-col sm:flex-row sm:justify-between items-center">
-              <Button
-                kind="primary"
-                title="Login"
-                type="submit"
-                width="164px"
-              />
+              <Button kind="primary" title="Login" type="submit" width={164} />
               <div className="text-sm">
                 <a
                   href="#"
@@ -91,10 +83,4 @@ export default function LoginPage() {
       </div>
     </div>
   );
-}
-
-interface User {
-  id?: string;
-  email: string;
-  password: string;
 }

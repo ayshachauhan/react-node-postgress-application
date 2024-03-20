@@ -2,7 +2,7 @@
 import Button from '@root/components/Button';
 import { AddIcon, PlayIcon } from '@root/components/Icons';
 import Form from '@root/components/media/addMedia.module';
-import { useAppSelector } from '@root/store';
+import { useAppDispatch, useAppSelector } from '@root/store';
 import {
   clearErrorMessage,
   clearSuccessMessage,
@@ -10,59 +10,52 @@ import {
   selectError,
   selectSuccessMessage,
 } from '@root/store/reducers/media';
+import { extractVideoId } from '@utils/extractVideoId';
+import { getImageUrl } from '@utils/getImageUrl';
 import { Modal, ModalBody, ModalHeader, ROLE, SIZE } from 'baseui/modal';
 import Image from 'next/image';
 import React, { useEffect, useState } from 'react';
-import { useDispatch } from 'react-redux';
 
 const Media: React.FC = () => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const media = useAppSelector((state) => state.media.media);
   const [isFirstModalOpen, setIsFirstModalOpen] = useState(false);
   const [isSecondModalOpen, setIsSecondModalOpen] = useState(false);
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
   const successMessage = useAppSelector(selectSuccessMessage); // Select success message from Redux store
-  const errorMessage = useAppSelector(selectError); // Select success message from Redux store
+  const errorMessage = useAppSelector(selectError); // Select error message from Redux store
   const [showModal, setShowModal] = useState(false); // State to manage modal visibility
   const [showErrorMessage, setShowErrorMessage] = useState(false);
 
-  const openFirstModal = (videoId) => {
+  const handleOpenFirstModal = (videoId: string): void => {
     setVideoId(videoId);
     setIsVideoLoaded(true);
     setIsFirstModalOpen(true);
     setIsSecondModalOpen(false);
   };
 
-  const closeFirstModal = () => {
+  const handleCloseFirstModal = (): void => {
     setVideoId(null);
     setIsVideoLoaded(false);
     setIsFirstModalOpen(false);
   };
 
-  const openSecondModal = () => {
+  const handleOpenSecondModal = (): void => {
     setIsSecondModalOpen(true);
     setIsFirstModalOpen(false);
   };
 
-  const closeSecondModal = () => {
+  const handleCloseSecondModal = (): void => {
     setIsSecondModalOpen(false);
   };
 
-  // const handleAddError = () => {
-  //   setIsSecondModalOpen(false);
-  //   setShowErrorMessage(true); // Show the error message
-  //   setTimeout(() => {
-  //     setShowErrorMessage(false); // Hide the error message after some time
-  //   }, 2000); // Hide after 2 seconds
-  // };
-
-  const [videoId, setVideoId] = useState(null);
+  const [videoId, setVideoId] = useState<string | null>(null);
 
   const FormModal = () => {
     return (
       <Modal
         isOpen={isSecondModalOpen}
-        onClose={closeSecondModal}
+        onClose={handleCloseSecondModal}
         closeable
         animate
         autoFocus
@@ -81,45 +74,37 @@ const Media: React.FC = () => {
           Add a Video
         </ModalHeader>
         <ModalBody>
-          <Form onClose={closeSecondModal} />
+          <Form onClose={handleCloseSecondModal} />
         </ModalBody>
       </Modal>
     );
   };
 
-  const extractVideoId = (url: string) => {
-    const regExp =
-      /^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
-    const match = url.match(regExp);
-    if (match) {
-      return match[1];
-    }
-    return '';
-  };
-
-  const getImageUrl = (videoUrl) => {
-    const youTubeVideoid = extractVideoId(videoUrl);
-    return `https://img.youtube.com/vi/${youTubeVideoid}/hqdefault.jpg`;
-  };
+  useEffect(() => {
+    dispatch(fetchListings()); // Fetch listings from PostgreSQL database
+  }, [dispatch]);
 
   useEffect(() => {
+    let timer;
     if (successMessage) {
       setShowModal(true);
-      const timer = setTimeout(() => {
+      timer = setTimeout(() => {
         setShowModal(false);
-        dispatch(clearSuccessMessage()); // Clear success message after closing modal
+        dispatch(clearSuccessMessage()); // Clear success message
       }, 2000); // Hide modal after 2 seconds
-      return () => clearTimeout(timer);
     }
     if (errorMessage) {
       setShowErrorMessage(true);
-      const timer = setTimeout(() => {
+      timer = setTimeout(() => {
         setShowErrorMessage(false);
-        dispatch(clearErrorMessage()); // Clear success message after closing modal
+        dispatch(clearErrorMessage()); // Clear error message
       }, 2000); // Hide modal after 2 seconds
-      return () => clearTimeout(timer);
     }
-    dispatch(fetchListings()); // Fetch listings from PostgreSQL database
+    return () => {
+      if (timer) {
+        clearTimeout(timer);
+      }
+    };
   }, [successMessage, errorMessage, dispatch]);
 
   return (
@@ -135,7 +120,7 @@ const Media: React.FC = () => {
         <Button
           kind="secondary"
           title="Add New"
-          onClick={openSecondModal}
+          onClick={handleOpenSecondModal}
           startEnhancer={() => <AddIcon className="mt-2" size={25}></AddIcon>}
         />{' '}
       </div>
@@ -158,7 +143,7 @@ const Media: React.FC = () => {
                 />
                 <div
                   className="bg-black absolute text-center transform -translate-x-1/2 -translate-y-1/2 border top-32 left-1/2 text-white rounded-full flex justify-center items-center p-2 border-black w-14 h-14"
-                  onClick={() => openFirstModal(extractVideoId(data.url))}
+                  onClick={() => handleOpenFirstModal(extractVideoId(data.url))}
                   style={{ cursor: 'pointer' }}
                 >
                   <PlayIcon></PlayIcon>
@@ -176,7 +161,7 @@ const Media: React.FC = () => {
         {videoId && (
           <Modal
             isOpen={isFirstModalOpen}
-            onClose={closeFirstModal}
+            onClose={handleCloseFirstModal}
             animate
             autoFocus
             size={SIZE.default}
@@ -197,16 +182,7 @@ const Media: React.FC = () => {
               },
             }}
           >
-            <ModalBody
-              overrides={{
-                Body: {
-                  style: {
-                    padding: 0, // Set padding to zero for modal body
-                    margin: 0, // Set margin to zero for modal body
-                  },
-                },
-              }}
-            >
+            <ModalBody>
               {isVideoLoaded && (
                 <div
                   style={{
@@ -221,9 +197,7 @@ const Media: React.FC = () => {
                     height="315"
                     src="https://www.youtube.com/embed/Bb8bnjnEM00?si=N_KX5ZVF2C7BMXbB"
                     title="YouTube video player"
-                    frameborder="0"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                    allowfullscreen
                   ></iframe>
                   <iframe
                     width="560"
@@ -250,14 +224,5 @@ const Media: React.FC = () => {
     </div>
   );
 };
-
-interface Media {
-  id?: string;
-  name: string;
-  urlEmbed: string;
-  url: string;
-  dateCreated?: Date;
-  dateUpdated?: Date;
-}
 
 export default Media;

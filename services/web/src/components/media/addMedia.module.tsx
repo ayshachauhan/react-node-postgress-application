@@ -1,11 +1,12 @@
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
+import { MediaInterface } from '@root/components/media/types';
+import { useAppDispatch } from '@root/store';
 import { addRecordAsync } from '@root/store/reducers/media';
 import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
 
-const MediaModule: React.FC<{ onClose: () => void }> = ({ onClose }) => {
-  const dispatch = useDispatch();
+const MediaPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
+  const dispatch = useAppDispatch();
   const [name, setName] = useState('');
   const [url, setUrl] = useState('');
   const [urlEmbed, setUrlEmbed] = useState('');
@@ -13,7 +14,7 @@ const MediaModule: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   // Function to handle form submission
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const data: AddMedia = { name, url, urlEmbed };
+    const data: MediaInterface = { name, url, urlEmbed };
     try {
       dispatch(addRecordAsync(data));
       setName('');
@@ -21,8 +22,7 @@ const MediaModule: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       setUrlEmbed('');
       onClose(); // Close the modal after form submission
     } catch (error) {
-      console.error('Error adding record:', error);
-      onClose(); // Call the onError callback if an error occurs
+      onClose();
     }
   };
 
@@ -72,20 +72,11 @@ const MediaModule: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           <div className="space-y-4"></div>
         </div>
         <div className="text-right text-base">
-          <Button kind="primary" title="Add new video" width="189px" />
+          <Button kind="primary" title="Add new video" width={189} />
         </div>
       </form>
     </div>
   );
 };
 
-interface AddMedia {
-  id?: string;
-  name: string;
-  urlEmbed: string;
-  url: string;
-  dateCreated?: Date;
-  dateUpdated?: Date;
-}
-
-export default MediaModule;
+export default MediaPage;

@@ -3,7 +3,7 @@ module.exports = {
     PORT: process.env.WEB_PORT,
   },
   publicRuntimeConfig: {
-    NEXT_PUBLIC_API_BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL,
+    API_BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL,
   },
   images: {
     domains: ['img.youtube.com'],

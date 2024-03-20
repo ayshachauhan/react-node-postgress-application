@@ -1,19 +1,12 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { PracticesInterface } from '@root/components/practices/types';
+import { State } from '@root/store';
 import { getPractices } from '../requests/practices';
-
-// todo add api call and move type to appropriate folder
-
-type Practices = {
-  id: string;
-  name: string;
-  dateCreated: Date;
-  dateUpdated: Date;
-};
 
 export interface PracticeState {
   isProcessing: boolean;
-  entities: Record<string, Practices>;
-  practices: Practices[];
+  entities: Record<string, PracticesInterface>;
+  practices: PracticesInterface[];
   status: 'idle' | 'loading' | 'failed';
   successMessage: string | null;
   error: string | null;
@@ -45,7 +38,11 @@ const practiceSlice = createSlice({
 
     builder.addCase(fetchListings.rejected, (state, action) => {
       state.status = 'failed';
-      state.error = action.payload ?? 'Failed to fetch practices';
+      if (typeof action.payload === 'string') {
+        state.error = action.payload ?? 'Failed to fetch practices';
+      } else {
+        state.error = 'Failed to fetch practices';
+      }
     });
   },
 });
@@ -55,8 +52,8 @@ export const fetchListings = createAsyncThunk(
   getPractices,
 );
 
-export const selectRecords = (state) => state.practices;
-export const selectStatus = (state) => state.practices.status;
-export const selectError = (state) => state.practices.error;
+export const selectRecords = (state: State) => state.practices;
+export const selectStatus = (state: State) => state.practices.status;
+export const selectError = (state: State) => state.practices.error;
 
 export default practiceSlice.reducer;

@@ -1,22 +1,12 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { addMedia } from '../requests/addMedia';
-import { getMedia } from '../requests/media';
-
-// todo add api call and move type to appropriate folder
-
-type Media = {
-  id: string;
-  name: string;
-  urlEmbed: string;
-  url: string;
-  dateCreated: Date;
-  dateUpdated: Date;
-};
+import { MediaInterface } from '@root/components/media/types';
+import { State } from '@root/store';
+import { addMedia, getMedia } from '../requests/media';
 
 export interface MediaState {
   isProcessing: boolean;
-  entities: Record<string, Media>;
-  media: Media[];
+  entities: Record<string, MediaInterface>;
+  media: MediaInterface[];
   status: 'idle' | 'loading' | 'failed';
   successMessage: string | null;
   error: string | null;
@@ -35,7 +25,7 @@ const mediaSlice = createSlice({
   name: 'media',
   initialState,
   reducers: {
-    addMediaItem(state, action: PayloadAction<Media>) {
+    addMediaItem(state, action: PayloadAction<MediaInterface>) {
       state.media = [...state.media, action.payload];
     },
     clearSuccessMessage(state) {
@@ -58,7 +48,11 @@ const mediaSlice = createSlice({
 
     builder.addCase(fetchListings.rejected, (state, action) => {
       state.status = 'failed';
-      state.error = action.payload ?? 'Failed to fetch videos';
+      if (typeof action.payload === 'string') {
+        state.error = action.payload ?? 'Failed to fetch videos';
+      } else {
+        state.error = 'Failed to fetch videos';
+      }
     });
 
     builder.addCase(addRecordAsync.pending, (state) => {
@@ -74,7 +68,11 @@ const mediaSlice = createSlice({
 
     builder.addCase(addRecordAsync.rejected, (state, action) => {
       state.status = 'failed';
-      state.error = action.payload ?? 'Failed to add video';
+      if (typeof action.payload === 'string') {
+        state.error = action.payload ?? 'Failed to add video';
+      } else {
+        state.error = 'Failed to add video';
+      }
     });
   },
 });
@@ -89,9 +87,10 @@ export const addRecordAsync = createAsyncThunk(
   addMedia,
 );
 
-export const selectRecords = (state) => state.media;
-export const selectStatus = (state) => state.media.status;
-export const selectError = (state) => state.media.error;
-export const selectSuccessMessage = (state) => state.media.successMessage; // Export selectSuccessMessage selector
+export const selectRecords = (state: State) => state.media;
+export const selectStatus = (state: State) => state.media.status;
+export const selectError = (state: State) => state.media.error;
+export const selectSuccessMessage = (state: State) =>
+  state.media.successMessage; // Export selectSuccessMessage selector
 
 export default mediaSlice.reducer;
