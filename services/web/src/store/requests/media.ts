@@ -1,12 +1,12 @@
 import Cookies from 'js-cookie';
 import { publicRuntimeConfig } from 'next.config';
 
-export const getMedia = async () => {
+export const getMedia = async (payloadData: { practiceId: string | null }) => {
   const { API_BASE_URL } = publicRuntimeConfig;
   try {
     const accessToken = Cookies.get('access_token');
     const response = await fetch(
-      `${API_BASE_URL}/practices/12e738c5-bded-4733-837f-b6fa987284cf/videos`,
+      `${API_BASE_URL}/practices/${payloadData.practiceId}/videos`,
       {
         method: 'GET',
         headers: {
@@ -26,12 +26,13 @@ export const addMedia = async (payloadData: {
   name: string;
   url: string;
   urlEmbed: string;
+  practiceId: string;
 }) => {
   const { API_BASE_URL } = publicRuntimeConfig;
   try {
     const accessToken = Cookies.get('access_token');
     const response = await fetch(
-      `${API_BASE_URL}/practices/12e738c5-bded-4733-837f-b6fa987284cf/videos`,
+      `${API_BASE_URL}/practices/${payloadData.practiceId}/videos`,
       {
         method: 'POST',
         headers: {

@@ -3,6 +3,7 @@ export interface MediaInterface {
   name: string;
   urlEmbed: string;
   url: string;
+  practiceId: string;
   dateCreated?: Date;
   dateUpdated?: Date;
 }

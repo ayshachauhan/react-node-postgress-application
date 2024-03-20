@@ -1,11 +1,13 @@
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
 import { MediaInterface } from '@root/components/media/types';
-import { useAppDispatch } from '@root/store';
+import { useAppDispatch, useAppSelector } from '@root/store';
+import { selectPractice } from '@root/store/reducers/auth';
 import { addRecordAsync } from '@root/store/reducers/media';
 import React, { useState } from 'react';
 
 const MediaPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
+  const practiceId = useAppSelector(selectPractice); // Select success message from Redux store
   const dispatch = useAppDispatch();
   const [name, setName] = useState('');
   const [url, setUrl] = useState('');
@@ -14,7 +16,7 @@ const MediaPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   // Function to handle form submission
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const data: MediaInterface = { name, url, urlEmbed };
+    const data: MediaInterface = { name, url, urlEmbed, practiceId };
     try {
       dispatch(addRecordAsync(data));
       setName('');
