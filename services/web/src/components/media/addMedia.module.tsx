@@ -16,15 +16,17 @@ const MediaPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   // Function to handle form submission
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const data: MediaInterface = { name, url, urlEmbed, practiceId };
-    try {
-      dispatch(addRecordAsync(data));
-      setName('');
-      setUrl('');
-      setUrlEmbed('');
-      onClose(); // Close the modal after form submission
-    } catch (error) {
-      onClose();
+    if (practiceId) {
+      const data: MediaInterface = { name, url, urlEmbed, practiceId };
+      try {
+        dispatch(addRecordAsync(data));
+        setName('');
+        setUrl('');
+        setUrlEmbed('');
+        onClose(); // Close the modal after form submission
+      } catch (error) {
+        onClose();
+      }
     }
   };
 
