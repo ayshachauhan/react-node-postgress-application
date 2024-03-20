@@ -58,7 +58,7 @@ export class UsersService {
       practiceId,
     });
 
-    return { ...resultUser, password: undefined };
+    return this.sanitizeUser(resultUser);
   }
 
   async findUserByEmail(email: string): Promise<User | null> {
@@ -126,8 +126,15 @@ export class UsersService {
     }
     const resultUser = await this.getUserById(id);
     if (resultUser) {
-      return { ...resultUser, password: undefined };
+      return this.sanitizeUser(resultUser);
     }
     return null;
+  }
+
+  sanitizeUser(user: User): SanitizedUser {
+    const { password, ...sanitizeedUser } = user;
+    return {
+      ...sanitizeedUser,
+    };
   }
 }

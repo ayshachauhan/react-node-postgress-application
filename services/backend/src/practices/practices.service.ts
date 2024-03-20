@@ -6,11 +6,11 @@ import {
   forwardRef,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { PracticeEntity } from 'src/entities/practices.entity';
-import { UserStatus } from 'src/enums/status.enum';
-import { UserType } from 'src/enums/userType.enum';
-import { UsersService } from 'src/users/users.service';
 import { Repository, UpdateResult } from 'typeorm';
+import { PracticeEntity } from '../entities/practices.entity';
+import { UserStatus } from '../enums/status.enum';
+import { UserType } from '../enums/userType.enum';
+import { UsersService } from '../users/users.service';
 import { PracticeCreateDto } from './dto/create.dto';
 import { PracticePatchDto } from './dto/patch.dto';
 

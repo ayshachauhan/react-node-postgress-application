@@ -8,7 +8,6 @@ export type SanitizedUser = {
   email: string;
   userName: string;
   status: UserStatus;
-  password: string | undefined;
   type: UserType;
   url: string;
   id: string;
