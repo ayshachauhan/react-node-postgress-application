@@ -11,8 +11,7 @@ import {
   selectError,
   selectSuccessMessage,
 } from '@root/store/reducers/media';
-import { extractVideoId } from '@utils/extractVideoId';
-import { getImageUrl } from '@utils/getImageUrl';
+import { extractVideoId, getImageUrl } from '@utils/methods';
 import { Modal, ModalBody, ModalHeader, ROLE, SIZE } from 'baseui/modal';
 import Image from 'next/image';
 import React, { useEffect, useState } from 'react';
@@ -114,7 +113,7 @@ const Media: React.FC = () => {
   return (
     <div id="__next" className="mt-4">
       <div className="flex justify-between border-gray-400">
-        <h1>Media</h1>
+        <span className="text-xl">Media</span>
         {showModal && <div style={{ color: 'green' }}>{successMessage}</div>}
         {showErrorMessage && (
           <div style={{ color: 'red' }}>

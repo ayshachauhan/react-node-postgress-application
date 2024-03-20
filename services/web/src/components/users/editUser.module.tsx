@@ -4,9 +4,9 @@ import { User } from '@root/components/users/types';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { selectPractice } from '@root/store/reducers/auth';
 import { fetchUserInfo, updateRecordAsync } from '@root/store/reducers/users';
+import { generateFullName } from '@utils/methods';
 import { Select } from 'baseui/select';
 import React, { useEffect, useState } from 'react';
-
 interface Data {
   id: string;
 }
@@ -41,9 +41,6 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
   const handleChange = ({ value }) => {
     setSelectedValue(value);
     setSelectedLabel(value.length > 0 ? value[0].label : ''); // Extract label from the selected option
-  };
-  const generateFullName = (firstName: string, lastName: string): string => {
-    return `${firstName} ${lastName}`;
   };
 
   // Function to handle form submission

@@ -11,7 +11,14 @@ import EditUser from '@root/components/users/editUser.module';
 import ViewUser from '@root/components/users/viewUser.module';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { selectPractice } from '@root/store/reducers/auth';
-import { fetchListings } from '@root/store/reducers/users';
+import {
+  clearErrorMessage,
+  clearSuccessMessage,
+  deleteRecordAsync,
+  fetchListings,
+  selectError,
+  selectSuccessMessage,
+} from '@root/store/reducers/users';
 import {
   Modal,
   ModalBody,
@@ -23,6 +30,7 @@ import {
 import React, { useEffect, useState } from 'react';
 
 export default function UserPage() {
+  const [showModal, setShowModal] = useState(false); // State to manage modal visibility
   const dispatch = useAppDispatch();
   const users = useAppSelector((state) => state.users.users);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -30,11 +38,37 @@ export default function UserPage() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const practiceId = useAppSelector(selectPractice); // Select success message from Redux store
+  const [showErrorMessage, setShowErrorMessage] = useState(false);
+  const successMessage = useAppSelector(selectSuccessMessage); // Select success message from Redux store
+  const errorMessage = useAppSelector(selectError); // Select error message from Redux store
   useEffect(() => {
     if (practiceId !== null) {
       dispatch(fetchListings({ practiceId: practiceId })); // Fetch listings from PostgreSQL database
     }
   }, [practiceId, dispatch]);
+
+  useEffect(() => {
+    let timer;
+    if (successMessage) {
+      setShowModal(true);
+      timer = setTimeout(() => {
+        setShowModal(false);
+        dispatch(clearSuccessMessage()); // Clear success message
+      }, 2000); // Hide modal after 2 seconds
+    }
+    if (errorMessage) {
+      setShowErrorMessage(true);
+      timer = setTimeout(() => {
+        setShowErrorMessage(false);
+        dispatch(clearErrorMessage()); // Clear error message
+      }, 2000); // Hide modal after 2 seconds
+    }
+    return () => {
+      if (timer) {
+        clearTimeout(timer);
+      }
+    };
+  }, [successMessage, errorMessage, dispatch]);
 
   const [userId, setUserId] = useState<string | null>(null);
 
@@ -42,7 +76,19 @@ export default function UserPage() {
     id: userId,
   };
 
-  const onConfirm = () => {
+  const onConfirmDelete = (): void => {
+    const id = userId;
+    if (practiceId && id) {
+      try {
+        const id = userId;
+        dispatch(deleteRecordAsync({ practiceId, id }));
+        setIsDeleteModalOpen(false);
+        setUserId(null);
+        window.location.reload(); // Reload the page
+      } catch (error) {
+        console.log(error);
+      }
+    }
     console.log('Item deleted!');
     setUserId(null);
   };
@@ -90,6 +136,7 @@ export default function UserPage() {
 
   const handleCloseDeleteModal = (): void => {
     setIsDeleteModalOpen(false);
+    setUserId(null);
   };
 
   const UserAddModal = () => {
@@ -143,7 +190,7 @@ export default function UserPage() {
           User Information
         </ModalHeader>
         <ModalBody>
-          <ViewUser data={userInfo} />
+          <ViewUser data={userInfo} onClose={handleCloseViewModal} />
         </ModalBody>
       </Modal>
     );
@@ -200,7 +247,7 @@ export default function UserPage() {
         </ModalHeader>
         <ModalBody>Are you sure you want to delete this user?</ModalBody>
         <ModalFooter>
-          <Button kind="primary" title="Delete" onClick={onConfirm}>
+          <Button kind="primary" title="Delete" onClick={onConfirmDelete}>
             Delete
           </Button>
         </ModalFooter>
@@ -212,6 +259,8 @@ export default function UserPage() {
     <div id="__next" className="mt-4">
       <div className="flex justify-between border-gray-400">
         <span className="text-xl">Users</span>
+        {showModal && <div style={{ color: 'green' }}>{successMessage}</div>}
+        {showErrorMessage && <div style={{ color: 'red' }}>{errorMessage}</div>}
         <Button
           kind="secondary"
           title="Add New"

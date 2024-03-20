@@ -4,6 +4,7 @@ import { User } from '@root/components/users/types';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { selectPractice } from '@root/store/reducers/auth';
 import { addRecordAsync } from '@root/store/reducers/users';
+import { generateFullName } from '@utils/methods';
 import { Select } from 'baseui/select';
 import React, { useState } from 'react';
 
@@ -25,15 +26,11 @@ const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     setSelectedValue(value);
     setSelectedLabel(value.length > 0 ? value[0].label : ''); // Extract label from the selected option
   };
-  const generateFullName = (firstName: string, lastName: string): string => {
-    return `${firstName} ${lastName}`;
-  };
 
   // Function to handle form submission
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const fullName = generateFullName(firstName, lastName);
-    const password = 'Thinksys@123*';
     if (practiceId) {
       const userPayloadData: User = {
         practiceId,
@@ -45,7 +42,6 @@ const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         url,
         type,
         status,
-        password,
       };
       try {
         dispatch(addRecordAsync(userPayloadData));

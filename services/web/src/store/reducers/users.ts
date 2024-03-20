@@ -1,7 +1,13 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { User } from '@root/components/users/types';
 import { State } from '@root/store';
-import { addUser, getUserInfo, getUsers, updateUser } from '../requests/users';
+import {
+  addUser,
+  deleteUser,
+  getUserInfo,
+  getUsers,
+  updateUser,
+} from '../requests/users';
 
 export interface UserState {
   isProcessing: boolean;
@@ -91,6 +97,26 @@ const userSlice = createSlice({
         state.error = 'Failed to add user';
       }
     });
+
+    builder.addCase(deleteRecordAsync.pending, (state) => {
+      state.isProcessing = true;
+      state.status = 'loading';
+    });
+
+    builder.addCase(deleteRecordAsync.fulfilled, (state, action) => {
+      state.status = 'idle';
+      state.users = state.users.filter((user) => user.id !== action.payload.id);
+      state.successMessage = 'Record deleted successfully'; // Set success message
+    });
+
+    builder.addCase(deleteRecordAsync.rejected, (state, action) => {
+      state.status = 'failed';
+      if (typeof action.payload === 'string') {
+        state.error = action.payload ?? 'Failed to delete user';
+      } else {
+        state.error = 'Failed to delete user';
+      }
+    });
   },
 });
 export const { clearSuccessMessage, clearErrorMessage } = userSlice.actions;
@@ -103,6 +129,11 @@ export const fetchUserInfo = createAsyncThunk(
 );
 
 export const addRecordAsync = createAsyncThunk('users/addRecordAsync', addUser);
+
+export const deleteRecordAsync = createAsyncThunk(
+  'users/deleteRecordAsync',
+  deleteUser,
+);
 
 export const updateRecordAsync = createAsyncThunk(
   'users/updateRecordAsync',
