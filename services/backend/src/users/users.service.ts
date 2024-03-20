@@ -10,8 +10,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import { User } from 'src/entities/users.entity';
 import { ENVIRONMENT_VARIABLES } from 'src/enums/environment.enums';
-import { UserStatus } from 'src/enums/status.enum';
-import { UserType } from 'src/enums/userType.enum';
 import { PracticesService } from 'src/practices/practices.service';
 import { UserPracticesService } from 'src/userPractices/userPractices.services';
 import { SanitizedUser } from 'src/users/types';
@@ -39,7 +37,7 @@ export class UsersService {
       ENVIRONMENT_VARIABLES.DEFAULT_USER_PASSWORD,
     );
     const newUser: User = new User();
-    const { firstName, lastName, status, type } = createUserDto;
+    const { firstName, lastName } = createUserDto;
     const fullName = `${firstName}_${lastName}`;
     const hashedDefaultPassword = await bcrypt.hash(defaultUserPassword, 10);
 
@@ -52,8 +50,6 @@ export class UsersService {
       ...newUser,
       ...createUserDto,
       fullName,
-      status: UserStatus[status],
-      type: UserType[type],
       password: hashedDefaultPassword,
     });
 
