@@ -1,4 +1,6 @@
+import Cookies from 'js-cookie';
 import { publicRuntimeConfig } from 'next.config';
+import { User } from '.';
 
 export const login = async (
   payloadData: {
@@ -25,4 +27,18 @@ export const login = async (
   } catch (error) {
     return rejectWithValue('Invalid username or psassword');
   }
+};
+
+export const getMe = async (): Promise<User> => {
+  const { API_BASE_URL } = publicRuntimeConfig;
+  const accessToken = Cookies.get('access_token');
+  const response = await fetch(`${API_BASE_URL}/auth/me`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+  const data = await response.json();
+  return data;
 };
