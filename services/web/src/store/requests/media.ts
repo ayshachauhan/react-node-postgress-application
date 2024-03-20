@@ -1,7 +1,7 @@
 import Cookies from 'js-cookie';
 import { publicRuntimeConfig } from 'next.config';
 
-export const getMedia = async (payloadData: { practiceId: string | null }) => {
+export const getMedia = async (payloadData: { practiceId: string }) => {
   const { API_BASE_URL } = publicRuntimeConfig;
   try {
     const accessToken = Cookies.get('access_token');

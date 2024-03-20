@@ -83,7 +83,9 @@ const Media: React.FC = () => {
   };
 
   useEffect(() => {
-    dispatch(fetchListings({ practiceId: practiceId })); // Fetch listings from PostgreSQL database
+    if (practiceId !== null) {
+      dispatch(fetchListings({ practiceId: practiceId })); // Fetch listings from PostgreSQL database
+    }
   }, [practiceId, dispatch]);
 
   useEffect(() => {
