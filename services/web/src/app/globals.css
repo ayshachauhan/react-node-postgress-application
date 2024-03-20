@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 .btn-primary {
-  @apply bg-gradient-to-r from-primary-dark to-primary-light;
+  @apply bg-gradient-to-r from-primary-light to-primary-dark;
 }
 
 .btn-secondary {

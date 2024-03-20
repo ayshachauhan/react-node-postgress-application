@@ -1,31 +1,16 @@
 'use client';
-import React, { useEffect, useState } from 'react';
-import { publicRuntimeConfig } from '../../../next.config';
+import { useAppSelector } from '@root/store';
+import { fetchListings } from '@root/store/reducers/practices';
+import React, { useEffect } from 'react';
+import { useDispatch } from 'react-redux';
 
 export default function PracticePage() {
-  const { API_BASE_URL } = publicRuntimeConfig;
+  const dispatch = useDispatch();
+  const practices = useAppSelector((state) => state.practices.practices);
 
-  const [practices, setPractices] = useState<Practice[]>([]);
-
-  const getPractices = async () => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/practices`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('access_token')}`,
-        },
-      });
-      const data = await response.json();
-
-      setPractices(data);
-    } catch (error) {
-      console.error('Error:', error);
-    }
-  };
   useEffect(() => {
-    getPractices();
-  }, []);
+    dispatch(fetchListings()); // Fetch listings from PostgreSQL database
+  }, [dispatch]);
 
   useEffect(() => {
     console.log(practices);
@@ -66,9 +51,9 @@ export default function PracticePage() {
   );
 }
 
-interface Practice {
-  id: string;
-  name: string;
-  dateCreated: Date;
-  dateUpdated: Date;
-}
+// interface Practice {
+//   id: string;
+//   name: string;
+//   dateCreated: Date;
+//   dateUpdated: Date;
+// }

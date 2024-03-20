@@ -27,6 +27,17 @@ const Button: React.FC<Props> = ({
             }),
           },
         },
+        BaseButton: {
+          style: () => ({
+            width: width || '', // Set the desired width here
+          }),
+          props: {
+            className: clsx({
+              'btn-primary': kind === KIND.primary,
+              'btn-secondary': kind === KIND.secondary,
+            }),
+          },
+        },
       }}
     >
       {title}
