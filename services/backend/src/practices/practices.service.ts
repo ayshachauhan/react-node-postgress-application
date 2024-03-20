@@ -53,6 +53,7 @@ export class PracticesService {
         status: UserStatus.ACTIVE,
         type: UserType.ADMIN,
         url: '',
+        contactNumber: '9876543210',
       },
       practice.id,
     );
