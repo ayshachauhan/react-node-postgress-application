@@ -12,13 +12,12 @@ export default function PracticePage() {
   }, [dispatch]);
 
   return (
-    <>
-      <div className="msm:px-6 lg:px-8  text-3xl pt-8">
-        <h1 className="" style={{ fontWeight: 100 }}>
-          All Practices
-        </h1>
+    <div className="mt-4">
+      <div className="flex justify-between border-gray-400">
+        <span className="text-xl">All Practices</span>
       </div>
-      <div className="text-gray-50 w-full  items-center  bg-gray-50 py-4 px-4 sm:px-6 lg:px-8 rounded-lg">
+      <hr className="h-px my-2.5 bg-gray-100 border-1 dark:bg-gray-700"></hr>
+      <div className="text-gray-50 w-full  items-center  bg-gray-50 py-4 rounded-lg">
         <div className="bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 grid grid-cols-4 rounded-lg">
           <div className="font-bold text-white p-4">S. No.</div>
           <div className="font-bold text-white p-4">Practice</div>
@@ -42,6 +41,6 @@ export default function PracticePage() {
           ))}
         </div>
       </div>
-    </>
+    </div>
   );
 }

@@ -3,6 +3,7 @@ import Button from '@root/components/Button';
 import { AddIcon, PlayIcon } from '@root/components/Icons';
 import Form from '@root/components/media/addMedia.module';
 import { useAppDispatch, useAppSelector } from '@root/store';
+import { selectPractice } from '@root/store/reducers/auth';
 import {
   clearErrorMessage,
   clearSuccessMessage,
@@ -19,6 +20,7 @@ import React, { useEffect, useState } from 'react';
 const Media: React.FC = () => {
   const dispatch = useAppDispatch();
   const media = useAppSelector((state) => state.media.media);
+  const practiceId = useAppSelector(selectPractice); // Select success message from Redux store
   const [isFirstModalOpen, setIsFirstModalOpen] = useState(false);
   const [isSecondModalOpen, setIsSecondModalOpen] = useState(false);
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
@@ -81,8 +83,10 @@ const Media: React.FC = () => {
   };
 
   useEffect(() => {
-    dispatch(fetchListings()); // Fetch listings from PostgreSQL database
-  }, [dispatch]);
+    if (practiceId !== null) {
+      dispatch(fetchListings({ practiceId: practiceId })); // Fetch listings from PostgreSQL database
+    }
+  }, [practiceId, dispatch]);
 
   useEffect(() => {
     let timer;
