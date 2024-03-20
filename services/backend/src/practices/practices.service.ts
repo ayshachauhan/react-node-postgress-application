@@ -48,7 +48,6 @@ export class PracticesService {
         firstName: 'admin',
         lastName: 'admin',
         email,
-        password: 'Test@123',
         userName: `${name}_${email}`,
         status: UserStatus.ACTIVE,
         type: UserType.ADMIN,
