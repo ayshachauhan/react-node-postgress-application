@@ -1,4 +1,5 @@
 export { default as AddIcon } from './Add';
+export { default as AddReferrerIcon } from './AddReferrerIcon';
 export { default as DashboardIcon } from './Dashboard';
 export { default as HistoryIcon } from './History';
 export { default as MediaIcon } from './Media';

@@ -1,4 +1,5 @@
 import {
+  AddReferrerIcon,
   DashboardIcon,
   HistoryIcon,
   MediaIcon,
@@ -70,6 +71,13 @@ export const sidebarItems: SideBarItem[] = [
     path: '/media',
     permissions: ['admin'],
     Icon: MediaIcon,
+  },
+  {
+    id: 'referrer',
+    title: 'Referrer',
+    path: '/referrer',
+    permissions: ['admin'],
+    Icon: AddReferrerIcon,
   },
   {
     id: 'setting',
