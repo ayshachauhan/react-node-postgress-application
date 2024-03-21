@@ -17,10 +17,6 @@ export class CreateUserDto {
   @ApiProperty()
   email: string;
 
-  @IsNotEmpty({ message: 'Password is requried.' })
-  @ApiProperty()
-  password: string;
-
   @IsNotEmpty({ message: 'userName is required.' })
   @ApiProperty()
   userName: string;
