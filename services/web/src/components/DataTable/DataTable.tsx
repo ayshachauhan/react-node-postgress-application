@@ -27,7 +27,7 @@ type Props<T extends object> = {
 function DataTable<T extends object>({ data, columns }: Props<T>) {
   const dataToRender = data;
 
-  const _renderTableCell = (
+  const renderTableCell = (
     row: T,
     column: ColumnConfig<T>,
     rowIndex: number,
@@ -62,7 +62,7 @@ function DataTable<T extends object>({ data, columns }: Props<T>) {
         {dataToRender.map((row, rowIndex) => {
           return (
             <StyledRow key={`row-${rowIndex}`} className="data-table_body-row">
-              {columns.map((cell) => _renderTableCell(row, cell, rowIndex))}
+              {columns.map((cell) => renderTableCell(row, cell, rowIndex))}
             </StyledRow>
           );
         })}

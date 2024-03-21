@@ -30,6 +30,9 @@ export class AuthController {
   @UseGuards(AuthGuard)
   @ApiBearerAuth('normal')
   async validateToken(@Req() request): Promise<Record<string, string>> {
+    if (!request.user.isSuperAdmin) {
+      await this.authService.setUserPractices(request.user);
+    }
     return request.user;
   }
 }

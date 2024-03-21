@@ -3,7 +3,7 @@
 import { Input, InputOverrides, InputProps } from 'baseui/input';
 import React from 'react';
 
-type Props = Partial<InputProps> & {
+type Props = Partial<Omit<InputProps, 'onChange'>> & {
   onChange: (value: string) => void;
   onBlur?: (event: React.FocusEvent) => void;
   onFocus?: () => void;
@@ -13,6 +13,13 @@ const TextInputOverrides: InputOverrides = {
   Root: {
     style: { border: 0, height: '48px' },
     props: { className: 'shadow-md' },
+  },
+  Input: {
+    props: {
+      style: {
+        backgroundColor: 'rgba(250, 250, 250, 1)', // Set the desired background color here
+      },
+    },
   },
 };
 
