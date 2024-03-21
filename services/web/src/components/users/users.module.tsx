@@ -12,6 +12,10 @@ import ViewUser from '@root/components/users/viewUser.module';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { selectPractice } from '@root/store/reducers/auth';
 import {
+  getPracticeInfo,
+  selectPracticeInfo,
+} from '@root/store/reducers/practices';
+import {
   clearErrorMessage,
   clearSuccessMessage,
   deleteRecordAsync,
@@ -70,6 +74,12 @@ export default function UserPage() {
     };
   }, [successMessage, errorMessage, dispatch]);
 
+  useEffect(() => {
+    if (practiceId) {
+      dispatch(getPracticeInfo({ id: practiceId })); // Fetch listings from PostgreSQL database
+    }
+  }, [practiceId]);
+  const practiceName = useAppSelector(selectPracticeInfo);
   const [userId, setUserId] = useState<string | null>(null);
 
   const userInfo = {
@@ -295,7 +305,9 @@ export default function UserPage() {
               <div className="text-gray-900 bg-gray-50 pt-2 px-4">
                 {data.email}
               </div>
-              <div className="text-gray-900 bg-gray-50 pt-2 px-4"></div>
+              <div className="text-gray-900 bg-gray-50 pt-2 px-4">
+                {practiceName}
+              </div>
               <div className="text-gray-900 bg-gray-50 pt-2 px-4">
                 {data.fullName}
               </div>

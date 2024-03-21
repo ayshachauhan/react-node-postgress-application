@@ -9,11 +9,13 @@ import {
   updateUser,
 } from '../requests/users';
 
+type EmptyObject = Record<string, never>;
+
 export interface UserState {
   isProcessing: boolean;
   entities: Record<string, User>;
   users: User[];
-  userInfo: User;
+  userInfo: User | EmptyObject;
   status: 'idle' | 'loading' | 'failed';
   successMessage: string | null;
   error: string | null;
