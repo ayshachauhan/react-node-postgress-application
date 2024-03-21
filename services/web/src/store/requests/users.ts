@@ -65,6 +65,7 @@ export const addUser = async (
     userName: string;
     firstName: string;
     lastName: string;
+    contactNo: string;
     fullName: string;
     url: string;
     type: string;
@@ -106,6 +107,7 @@ export const updateUser = async (
     userName: string;
     firstName: string;
     lastName: string;
+    contactNo: string;
     fullName: string;
     url: string;
     type: string;

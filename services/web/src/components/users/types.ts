@@ -4,6 +4,7 @@ export interface User {
   email: string;
   userName: string;
   firstName: string;
+  contactNo: string;
   lastName: string;
   fullName: string;
   url?: string;

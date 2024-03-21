@@ -30,6 +30,7 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
   const [email, setEmail] = useState('');
   // const [practiceId, setPracticeId] = useState('');
   const [firstName, setFirstName] = useState('');
+  const [contactNo, setContactNo] = useState('');
   const [lastName, setLastName] = useState('');
   const [url, setUrl] = useState('');
   const [type, setType] = useState('');
@@ -60,6 +61,7 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
         url,
         type,
         status,
+        contactNo,
       };
 
       try {
@@ -125,6 +127,20 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
             value={userInfo?.lastName}
             onChange={(value) => {
               setLastName(value);
+            }}
+            required
+          />
+          <div className="space-y-4"></div>
+        </div>
+        <div className="space-y-4">
+          <label htmlFor="contactNo" className="text-black text-sm">
+            Contact No.
+          </label>
+          <TextInput
+            name="contactNo"
+            value={contactNo}
+            onChange={(value) => {
+              setContactNo(value);
             }}
             required
           />

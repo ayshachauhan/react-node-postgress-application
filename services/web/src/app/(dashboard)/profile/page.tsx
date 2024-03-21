@@ -64,7 +64,8 @@ const Profile: React.FC = () => {
         </div>
         <div>
           <p>
-            <span className="font-bold">Location</span> <span>: India</span>
+            <span className="font-bold">Contact No.</span>{' '}
+            <span>: {userInfo?.contactNo}</span>
           </p>
           <p className="mt-2">
             <span className="font-bold">User URL </span>
