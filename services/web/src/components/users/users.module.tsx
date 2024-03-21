@@ -313,7 +313,7 @@ export default function UserPage() {
                 {data.fullName}
               </div>
               <div className="text-gray-900 bg-gray-50 pt-2 px-4">
-                {data.contactNo}
+                {data.contactNumber}
               </div>
               <div className="text-gray-900 bg-gray-50 pt-2 px-4">
                 {data.type}

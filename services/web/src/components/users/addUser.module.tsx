@@ -13,7 +13,7 @@ const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const [userName, setUserName] = useState('');
   const [email, setEmail] = useState('');
   const [firstName, setFirstName] = useState('');
-  const [contactNo, setContactNo] = useState('');
+  const [contactNumber, setcontactNumber] = useState('');
   const [lastName, setLastName] = useState('');
   const [url, setUrl] = useState('');
   const [type, setType] = useState('');
@@ -43,7 +43,7 @@ const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         url,
         type,
         status,
-        contactNo,
+        contactNumber,
       };
       try {
         dispatch(addRecordAsync(userPayloadData));
@@ -114,14 +114,14 @@ const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           <div className="space-y-4"></div>
         </div>
         <div className="space-y-4">
-          <label htmlFor="contactNo" className="text-black text-sm">
+          <label htmlFor="contactNumber" className="text-black text-sm">
             Contact No.
           </label>
           <TextInput
-            name="contactNo"
-            value={contactNo}
+            name="contactNumber"
+            value={contactNumber}
             onChange={(value) => {
-              setContactNo(value);
+              setcontactNumber(value);
             }}
             required
           />

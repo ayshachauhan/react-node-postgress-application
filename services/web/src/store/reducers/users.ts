@@ -100,6 +100,34 @@ const userSlice = createSlice({
       }
     });
 
+    builder.addCase(updateRecordAsync.pending, (state) => {
+      state.isProcessing = true;
+      state.status = 'loading';
+    });
+
+    builder.addCase(updateRecordAsync.fulfilled, (state, action) => {
+      state.status = 'idle';
+      const updatedUser = action.payload;
+      const updatedUsers = state.users.map((user) => {
+        if (user.id === updatedUser.id) {
+          return updatedUser; // Replace the user with updated user data
+        }
+        return user; // Otherwise, return the original user
+      });
+
+      state.users = updatedUsers;
+      state.successMessage = 'Record updated successfully'; // Set success message
+    });
+
+    builder.addCase(updateRecordAsync.rejected, (state, action) => {
+      state.status = 'failed';
+      if (typeof action.payload === 'string') {
+        state.error = action.payload ?? 'Failed to update user';
+      } else {
+        state.error = 'Failed to update user';
+      }
+    });
+
     builder.addCase(deleteRecordAsync.pending, (state) => {
       state.isProcessing = true;
       state.status = 'loading';

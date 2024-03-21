@@ -2,7 +2,7 @@ export interface User {
   userName: string;
   firstName: string;
   lastName: string;
-  contactNo: string;
+  contactNumber: string;
   fullName: string;
   url: string;
   status: string;
