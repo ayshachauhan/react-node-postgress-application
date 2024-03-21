@@ -16,7 +16,7 @@ const Profile: React.FC = () => {
     if (userPracticeId) {
       dispatch(getPracticeInfo({ id: userPracticeId })); // Fetch listings from PostgreSQL database
     }
-  }, [userPracticeId]);
+  }, [userPracticeId, dispatch]);
   const practiceName = useAppSelector(selectPracticeInfo);
   return (
     <div id="__next" className="mt-4">

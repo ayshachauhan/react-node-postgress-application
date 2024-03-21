@@ -78,7 +78,7 @@ export default function UserPage() {
     if (practiceId) {
       dispatch(getPracticeInfo({ id: practiceId })); // Fetch listings from PostgreSQL database
     }
-  }, [practiceId]);
+  }, [practiceId, dispatch]);
   const practiceName = useAppSelector(selectPracticeInfo);
   const [userId, setUserId] = useState<string | null>(null);
 
