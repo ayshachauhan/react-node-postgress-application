@@ -1,43 +1,58 @@
 import Cookies from 'js-cookie';
 import { publicRuntimeConfig } from 'next.config';
-import { User } from '.';
+import { MediaInterface } from '.';
 
-export const login = async (
-  payloadData: {
-    email: string;
-    password: string;
-  },
+export const getMedia = async (
+  payloadData: { practiceId: string },
   { rejectWithValue },
 ) => {
   const { API_BASE_URL } = publicRuntimeConfig;
   try {
-    const response = await fetch(`${API_BASE_URL}/auth/login`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
+    const accessToken = Cookies.get('access_token');
+    const response = await fetch(
+      `${API_BASE_URL}/practices/${payloadData.practiceId}/videos`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
       },
-      body: JSON.stringify(payloadData),
-    });
+    );
     if (!response.ok) {
-      throw new Error('Failed to login');
+      throw new Error('Failed to fetch videos');
     }
-    const result = await response.json();
-    return result;
+    const data = await response.json();
+    return data;
   } catch (error) {
     return rejectWithValue(error); // Pass error message to payload
   }
 };
 
-export const getMe = async (): Promise<User> => {
+export const addMedia = async (
+  payloadData: MediaInterface,
+  { rejectWithValue },
+) => {
   const { API_BASE_URL } = publicRuntimeConfig;
-  const accessToken = Cookies.get('access_token');
-  const response = await fetch(`${API_BASE_URL}/auth/me`, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${accessToken}`,
-    },
-  });
-  const data = await response.json();
-  return data;
+  try {
+    const accessToken = Cookies.get('access_token');
+    const response = await fetch(
+      `${API_BASE_URL}/practices/${payloadData.practiceId}/videos`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify(payloadData),
+      },
+    );
+    if (!response.ok) {
+      throw new Error('Failed to add video');
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    return rejectWithValue(error); // Pass error message to payload
+  }
 };
