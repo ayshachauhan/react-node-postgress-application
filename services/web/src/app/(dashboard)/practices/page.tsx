@@ -90,13 +90,9 @@ const Practice: React.FC = () => {
   return (
     <div className="mt-4">
       <div className="flex justify-between border-gray-400">
-        <span className="text-xl">All Practices</span>
+        <span className="text-xl font-bold">All Practices</span>
         {showModal && <div style={{ color: 'green' }}>{successMessage}</div>}
-        {showErrorMessage && (
-          <div style={{ color: 'red' }}>
-            Error occurred while adding record.
-          </div>
-        )}
+        {showErrorMessage && <div style={{ color: 'red' }}>{errorMessage}</div>}
         <Button
           kind="secondary"
           title="Add New"

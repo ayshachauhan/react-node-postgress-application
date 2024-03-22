@@ -229,7 +229,7 @@ export default function UserPage() {
   return (
     <div id="__next" className="mt-4">
       <div className="flex justify-between border-gray-400">
-        <span className="text-xl">Users</span>
+        <span className="text-xl font-bold">Users</span>
         {showModal && <div style={{ color: 'green' }}>{successMessage}</div>}
         {showErrorMessage && <div style={{ color: 'red' }}>{errorMessage}</div>}
         <Button
