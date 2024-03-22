@@ -98,9 +98,9 @@ const practiceSlice = createSlice({
     builder.addCase(addRecordAsync.rejected, (state, action) => {
       state.status = 'failed';
       if (typeof action.payload === 'string') {
-        state.error = action.payload ?? 'Failed to add video';
+        state.error = action.payload ?? 'Failed to add practice';
       } else {
-        state.error = 'Failed to add video';
+        state.error = 'Failed to add practice';
       }
     });
   },
