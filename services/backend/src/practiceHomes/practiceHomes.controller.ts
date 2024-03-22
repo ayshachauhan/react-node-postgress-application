@@ -12,7 +12,6 @@ import {
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '../auth/auth.guard';
 import { PracticeHome } from '../entities/practiceHomes.entity';
-import { PracticeEntity } from '../entities/practices.entity';
 import { PracticeHomeCreateDto } from './dto/create.dto';
 import { PracticeHomePatchDto } from './dto/patch.dto';
 import { PracticeHomesService } from './practiceHomes.service';
@@ -27,14 +26,14 @@ export class PracticeHomesController {
   @Get()
   async getPracticeHomesByPractice(
     @Param('practiceId') practiceId: string,
-  ): Promise<PracticeEntity[]> {
+  ): Promise<PracticeHome[]> {
     return this.practiceHomesService.getPracticeHomesByPractice(practiceId);
   }
 
   @Get(':id')
   async getPracticeHomeById(
     @Param() { practiceId, id }: { practiceId: string; id: string },
-  ): Promise<PracticeEntity | null> {
+  ): Promise<PracticeHome | null> {
     return this.practiceHomesService.getPracticeHomeById(id, practiceId);
   }
 

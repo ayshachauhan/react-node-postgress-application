@@ -1,46 +1,241 @@
 'use client';
-import { useAppDispatch, useAppSelector } from '@root/store';
-import { fetchListings } from '@root/store/reducers/practices';
-import React, { useEffect } from 'react';
+import Button from '@root/components/Button';
+import Dropdown from '@root/components/Dropdown';
+import TextInput from '@root/components/TextInput';
+import { useAppDispatch } from '@root/store';
+import { addRecordAsync } from '@root/store/reducers/practices';
+import React, { useState } from 'react';
+import { PracticeCreateInterface } from './types';
 
-export default function PracticePage() {
+const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const dispatch = useAppDispatch();
-  const practices = useAppSelector((state) => state.practices.practices);
+  const [name, setName] = useState('');
+  const [adminFirstName, setAdminFirstName] = useState('');
+  const [adminLastName, setAdminLastName] = useState('');
+  const [adminEmail, setAdminEmail] = useState('');
+  const [adminContactNumber, setAdminContactNumber] = useState('');
+  const [physicianEmail, setPhysicianEmail] = useState('');
+  const [physicianContactNumber, setPhysicianContactNumber] = useState('');
+  const [status, setStatus] = useState('');
+  const [code, setCode] = useState('');
 
-  useEffect(() => {
-    dispatch(fetchListings()); // Fetch listings from PostgreSQL database
-  }, [dispatch]);
+  const selectedStatusColumn = (
+    <TextInput
+      name="status"
+      value={status}
+      onChange={(value) => {
+        setStatus(value);
+      }}
+      required
+    />
+  );
+
+  const handleStatusDropdown = (value: string) => {
+    setStatus(value);
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    const data: PracticeCreateInterface = {
+      name,
+      adminFirstName,
+      adminLastName,
+      adminEmail,
+      adminContactNumber,
+      physicianEmail,
+      physicianContactNumber,
+      status,
+      code,
+    };
+    try {
+      dispatch(addRecordAsync(data));
+      setName('');
+      setAdminFirstName('');
+      setAdminLastName('');
+      setAdminEmail('');
+      setAdminContactNumber('');
+      setPhysicianEmail('');
+      setPhysicianContactNumber('');
+      setStatus('');
+      setCode('');
+      onClose();
+    } catch (error) {
+      onClose();
+    }
+  };
 
   return (
-    <div className="mt-4">
-      <div className="flex justify-between border-gray-400">
-        <span className="text-xl">All Practices</span>
-      </div>
-      <hr className="h-px my-2.5 bg-gray-100 border-1 dark:bg-gray-700"></hr>
-      <div className="text-gray-50 w-full  items-center  bg-gray-50 py-4 rounded-lg">
-        <div className="bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 grid grid-cols-4 rounded-lg">
-          <div className="font-bold text-white p-4">S. No.</div>
-          <div className="font-bold text-white p-4">Practice</div>
-          <div className="font-bold text-white p-4">Create Date</div>
-          <div className="font-bold text-white p-4">Update Date</div>
-          {practices.map((data, index) => (
-            <React.Fragment key={data.id}>
-              <div className="text-gray-900 bg-gray-50 pt-2 px-4">
-                {index + 1}
+    <div>
+      <form onSubmit={handleSubmit}>
+        <div className="flex flex-col">
+          <div className="flex flex-row justify-between pt-4">
+            <div className="">
+              <label htmlFor="code" className="text-black text-sm">
+                Practice Code
+              </label>
+              <TextInput
+                name="code"
+                value={code}
+                onChange={(value) => {
+                  setCode(value);
+                }}
+                required
+              />
+            </div>
+            <div className="">
+              <label htmlFor="name" className="text-black text-sm">
+                Practice Name
+              </label>
+              <TextInput
+                name="practiceName"
+                value={name}
+                onChange={(value) => {
+                  setName(value);
+                }}
+                required
+              />
+            </div>
+          </div>
+          <div className="flex flex-row justify-between pt-4">
+            <div className="">
+              <label htmlFor="adminFirstName" className="text-black text-sm">
+                First Name
+              </label>
+              <TextInput
+                name="adminFirstName"
+                value={adminFirstName}
+                onChange={(value) => {
+                  setAdminFirstName(value);
+                }}
+                required
+              />
+            </div>
+            <div className="">
+              <label htmlFor="adminLastName" className="text-black text-sm">
+                Last Name
+              </label>
+              <TextInput
+                name="adminLastName"
+                value={adminLastName}
+                onChange={(value) => {
+                  setAdminLastName(value);
+                }}
+                required
+              />
+            </div>
+          </div>
+          <div className="flex flex-row justify-between pt-4">
+            <div className="">
+              <label htmlFor="adminEmail" className="text-black text-sm">
+                Admin Email
+              </label>
+              <TextInput
+                name="adminEmail"
+                value={adminEmail}
+                onChange={(value) => {
+                  setAdminEmail(value);
+                }}
+                required
+              />
+            </div>
+            <div className="">
+              <label
+                htmlFor="adminContactNumber"
+                className="text-black text-sm"
+              >
+                Admin Contact No.
+              </label>
+              <TextInput
+                name="adminContactNumber"
+                value={adminContactNumber}
+                onChange={(value) => {
+                  setAdminContactNumber(value);
+                }}
+                required
+              />
+            </div>
+          </div>
+          <div className="flex flex-row justify-between pt-4">
+            <div className="">
+              <label htmlFor="physicianEmail" className="text-black text-sm">
+                Physician Email
+              </label>
+              <TextInput
+                name="physicianEmail"
+                value={physicianEmail}
+                onChange={(value) => {
+                  setPhysicianEmail(value);
+                }}
+                required
+              />
+            </div>
+            <div className="">
+              <label
+                htmlFor="physicianContactNumber"
+                className="text-black text-sm"
+              >
+                Physician Contact No.
+              </label>
+              <TextInput
+                name="physicianContactNumber"
+                value={physicianContactNumber}
+                onChange={(value) => {
+                  setPhysicianContactNumber(value);
+                }}
+                required
+              />
+            </div>
+          </div>
+
+          <div className="flex flex-row justify-between pt-4">
+            <div className="flex flex-col">
+              <label htmlFor="status" className="text-black text-sm">
+                Status
+              </label>
+              <div>
+                <Dropdown position="bottom" trigger={selectedStatusColumn}>
+                  <Dropdown.Item
+                    id="active"
+                    onClick={() => handleStatusDropdown('Active')}
+                  >
+                    Active
+                  </Dropdown.Item>
+                  <Dropdown.Item
+                    id="inactive"
+                    onClick={() => handleStatusDropdown('Inactive')}
+                  >
+                    Inactive
+                  </Dropdown.Item>
+                  <Dropdown.Item
+                    id="pending"
+                    onClick={() => handleStatusDropdown('Pending')}
+                  >
+                    Pending
+                  </Dropdown.Item>
+                </Dropdown>
               </div>
-              <div className="text-gray-900 bg-gray-50 pt-2 px-4">
-                {data.name}
-              </div>
-              <div className="text-gray-900 bg-gray-50 pt-2 px-4">
-                {data.dateCreated?.toString()}
-              </div>
-              <div className="text-gray-900 bg-gray-50 pt-2 px-4">
-                {data.dateCreated?.toString()}
-              </div>
-            </React.Fragment>
-          ))}
+            </div>
+            <div className="">
+              <label htmlFor="status" className="text-black text-sm">
+                Practice Photo
+              </label>
+              <TextInput
+                name="practicePhoto"
+                value=""
+                onChange={(value) => {
+                  setStatus(value);
+                }}
+              />
+            </div>
+          </div>
+          <div className="text-right text-base pt-4">
+            <Button kind="primary" title="Add new video" width={189} />
+          </div>
         </div>
-      </div>
+      </form>
     </div>
   );
-}
+};
+
+export default PracticePage;

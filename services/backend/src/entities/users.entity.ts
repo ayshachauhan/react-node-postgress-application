@@ -39,4 +39,7 @@ export class User extends BaseEntity {
     default: UserType.EMPLOYEE,
   })
   type: UserType;
+
+  @Column({ type: 'varchar' })
+  contactNumber: string;
 }
