@@ -1,14 +1,21 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { PracticesInterface } from '@root/components/practices/types';
+import { PayloadAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import {
+  PracticeCreateInterface,
+  PracticesGetInterface,
+} from '@root/components/practices/types';
 import { State } from '@root/store';
-import { getPracticeData, getPractices } from '../requests/practices';
+import {
+  addPractice,
+  getPracticeData,
+  getPractices,
+} from '../requests/practices';
 
 type EmptyObject = Record<string, never>;
 
 export interface PracticeState {
   isProcessing: boolean;
-  entities: Record<string, PracticesInterface>;
-  practices: PracticesInterface[];
+  entities: Record<string, PracticeCreateInterface>;
+  practices: PracticesGetInterface[];
   practiceInfo: PracticesInterface | EmptyObject;
   status: 'idle' | 'loading' | 'failed';
   successMessage: string | null;
@@ -28,7 +35,17 @@ const initialState: PracticeState = {
 const practiceSlice = createSlice({
   name: 'practices',
   initialState,
-  reducers: {},
+  reducers: {
+    addPracticeItem(state, action: PayloadAction<PracticeCreateInterface>) {
+      state.practices = [...state.practices, action.payload];
+    },
+    clearSuccessMessage(state) {
+      state.successMessage = null;
+    },
+    clearErrorMessage(state) {
+      state.error = null;
+    },
+  },
   extraReducers(builder) {
     builder.addCase(fetchListings.pending, (state) => {
       state.isProcessing = true;
@@ -66,12 +83,40 @@ const practiceSlice = createSlice({
         state.error = 'Failed to fetch practice';
       }
     });
+
+    builder.addCase(addRecordAsync.pending, (state) => {
+      state.isProcessing = true;
+      state.status = 'loading';
+    });
+
+    builder.addCase(addRecordAsync.fulfilled, (state, action) => {
+      state.status = 'idle';
+      state.practices = [...state.practices, action.payload];
+      state.successMessage = 'Record added successfully'; // Set success message
+    });
+
+    builder.addCase(addRecordAsync.rejected, (state, action) => {
+      state.status = 'failed';
+      if (typeof action.payload === 'string') {
+        state.error = action.payload ?? 'Failed to add video';
+      } else {
+        state.error = 'Failed to add video';
+      }
+    });
   },
 });
+
+export const { addPracticeItem, clearSuccessMessage, clearErrorMessage } =
+  practiceSlice.actions;
 
 export const fetchListings = createAsyncThunk(
   'practices/fetchListings',
   getPractices,
+);
+
+export const addRecordAsync = createAsyncThunk(
+  'practice/addRecordAsync',
+  addPractice,
 );
 
 export const getPracticeInfo = createAsyncThunk(
@@ -87,5 +132,7 @@ export const selectPracticeInfo = (state: State) => {
   }
   return '';
 };
+export const selectSuccessMessage = (state: State) =>
+  state.practices.successMessage;
 
 export default practiceSlice.reducer;

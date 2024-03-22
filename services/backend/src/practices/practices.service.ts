@@ -6,7 +6,7 @@ import {
   forwardRef,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, UpdateResult } from 'typeorm';
+import { DataSource, Repository, UpdateResult } from 'typeorm';
 import { PracticeEntity } from '../entities/practices.entity';
 import { UserStatus } from '../enums/status.enum';
 import { UserType } from '../enums/userType.enum';
@@ -21,6 +21,7 @@ export class PracticesService {
     private practicesRepository: Repository<PracticeEntity>,
     @Inject(forwardRef(() => UsersService))
     private readonly userService: UsersService,
+    private dataSource: DataSource,
   ) {}
 
   async findAll(): Promise<PracticeEntity[]> {
@@ -34,30 +35,69 @@ export class PracticesService {
   async remove(id: string): Promise<void> {
     await this.practicesRepository.softDelete(id);
   }
+  async create({
+    name,
+    adminEmail,
+    adminContactNumber,
+    adminFirstName,
+    adminLastName,
+    physicianContactNumber,
+    physicianEmail,
+    code,
+  }: PracticeCreateDto): Promise<PracticeEntity> {
+    // initiating transaction as multiple table operations are in queue
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
 
-  async create({ name, email }: PracticeCreateDto): Promise<PracticeEntity> {
-    const newPractice: PracticeEntity = new PracticeEntity();
+    try {
+      const newPractice: PracticeEntity = new PracticeEntity();
 
-    const practice = await this.practicesRepository.save({
-      ...newPractice,
-      name,
-    });
+      const practice = await this.practicesRepository.save({
+        ...newPractice,
+        name,
+        code,
+      });
 
-    await this.userService.create(
-      {
-        firstName: 'admin',
-        lastName: 'admin',
-        email,
-        userName: `${name}_${email}`,
-        status: UserStatus.ACTIVE,
-        type: UserType.ADMIN,
-        url: '',
-        contactNumber: '9876543210',
-      },
-      practice.id,
-    );
+      // creating admin user
+      await this.userService.create(
+        {
+          firstName: adminFirstName,
+          lastName: adminLastName,
+          email: adminEmail,
+          userName: `${adminEmail}`,
+          status: UserStatus.ACTIVE,
+          type: UserType.ADMIN,
+          url: '',
+          contactNumber: adminContactNumber,
+        },
+        practice.id,
+      );
 
-    return practice;
+      // creating physician user
+      await this.userService.create(
+        {
+          firstName: `${name}`,
+          lastName: 'physician',
+          email: physicianEmail,
+          userName: `${physicianEmail}`,
+          status: UserStatus.ACTIVE,
+          type: UserType.PHYSICIAN,
+          url: '',
+          contactNumber: physicianContactNumber,
+        },
+        practice.id,
+      );
+
+      await queryRunner.commitTransaction();
+
+      return practice;
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
   }
 
   async update(

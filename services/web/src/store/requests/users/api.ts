@@ -1,6 +1,6 @@
-import { User } from '@root/components/users/types';
 import Cookies from 'js-cookie';
 import { publicRuntimeConfig } from 'next.config';
+import { User } from '.';
 
 export const getUsers = async (
   payloadData: { practiceId: string },
@@ -86,7 +86,10 @@ export const addUser = async (payloadData: User, { rejectWithValue }) => {
   }
 };
 
-export const updateUser = async (payloadData: User, { rejectWithValue }) => {
+export const updateUser = async (
+  payloadData: Omit<User, 'password'>,
+  { rejectWithValue },
+) => {
   const { API_BASE_URL } = publicRuntimeConfig;
   try {
     const accessToken = Cookies.get('access_token');

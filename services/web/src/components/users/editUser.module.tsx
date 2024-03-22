@@ -1,9 +1,9 @@
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
-import { User } from '@root/components/users/types';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { selectPractice } from '@root/store/reducers/auth';
 import { updateRecordAsync } from '@root/store/reducers/users';
+import { User } from '@root/store/requests/users';
 import { generateFullName } from '@utils/methods';
 import { Select } from 'baseui/select';
 import React, { useEffect, useState } from 'react';
@@ -26,12 +26,12 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
 
   const handleStatusChange = (params) => {
     const { label } = params.option;
-    setUserInfo({ ...userInfo, status: label });
+    setUserInfo({ ...updatedUserInfo, status: label });
   };
 
   const handleTypeChange = (params) => {
     const { label } = params.option;
-    setUserInfo({ ...userInfo, type: label });
+    setUserInfo({ ...updatedUserInfo, type: label });
   };
 
   useEffect(() => {
@@ -75,7 +75,7 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
             name="userName"
             value={updatedUserInfo?.userName}
             onChange={(value) => {
-              setUserInfo({ ...userInfo, userName: value });
+              setUserInfo({ ...updatedUserInfo, userName: value });
             }}
             required
           />
@@ -89,7 +89,7 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
             name="email"
             value={updatedUserInfo?.email}
             onChange={(value) => {
-              setUserInfo({ ...userInfo, email: value });
+              setUserInfo({ ...updatedUserInfo, email: value });
             }}
             required
           />
@@ -103,7 +103,7 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
             name="firstName"
             value={updatedUserInfo?.firstName}
             onChange={(value) => {
-              setUserInfo({ ...userInfo, firstName: value });
+              setUserInfo({ ...updatedUserInfo, firstName: value });
             }}
             required
           />
@@ -117,7 +117,7 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
             name="lastName"
             value={updatedUserInfo?.lastName}
             onChange={(value) => {
-              setUserInfo({ ...userInfo, lastName: value });
+              setUserInfo({ ...updatedUserInfo, lastName: value });
             }}
             required
           />
@@ -131,7 +131,7 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
             name="contactNumber"
             value={updatedUserInfo?.contactNumber}
             onChange={(value) => {
-              setUserInfo({ ...userInfo, contactNumber: value });
+              setUserInfo({ ...updatedUserInfo, contactNumber: value });
             }}
             required
           />
@@ -145,7 +145,7 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
             name="url"
             value={updatedUserInfo?.url}
             onChange={(value) => {
-              setUserInfo({ ...userInfo, url: value });
+              setUserInfo({ ...updatedUserInfo, url: value });
             }}
             required
           />
@@ -184,6 +184,7 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
             options={[
               { label: 'active', id: '1' },
               { label: 'inactive', id: '2' },
+              { label: 'pending', id: '3' },
             ]}
             onChange={handleStatusChange}
             overrides={{

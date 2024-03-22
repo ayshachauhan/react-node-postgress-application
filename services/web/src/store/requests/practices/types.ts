@@ -7,7 +7,9 @@ export interface User {
   url: string;
   status: string;
   type: string;
-  email: string;
+  isSuperAdmin: boolean;
+  iat: number;
+  exp: number;
   userPractices: UserPractice[];
 }
 

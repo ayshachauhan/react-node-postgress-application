@@ -83,10 +83,6 @@ export default function UserPage() {
   const practiceName = useAppSelector(selectPracticeInfo);
   const [userId, setUserId] = useState<string | null>(null);
 
-  const userInfo = {
-    id: userId,
-  };
-
   const onConfirmDelete = (): void => {
     const id = userId;
     if (practiceId && id) {
@@ -191,7 +187,9 @@ export default function UserPage() {
           Edit User
         </ModalHeader>
         <ModalBody>
-          <EditUser data={userInfo} onClose={handleCloseEditModal} />
+          {userId !== null && (
+            <EditUser data={{ id: userId }} onClose={handleCloseEditModal} />
+          )}
         </ModalBody>
       </Modal>
     );

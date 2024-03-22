@@ -85,7 +85,7 @@ export class UsersService {
       await this.userPracticeService.getUsersByPractice(practiceId);
 
     return await this.usersRepository.find({
-      where: { id: In(usersByPractice.map((ele) => ele.user.id)) },
+      where: { id: In(usersByPractice.map((ele) => ele.user?.id)) },
     });
   }
 

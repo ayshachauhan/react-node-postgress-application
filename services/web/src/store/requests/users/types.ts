@@ -1,13 +1,17 @@
+import { UserStatus } from '@root/enums/status.enum';
+import { UserType } from '@root/enums/userType.enum';
+
 export interface User {
+  id: string;
   userName: string;
   firstName: string;
   lastName: string;
   contactNumber: string;
   fullName: string;
-  url: string;
-  status: string;
-  type: string;
   email: string;
+  url: string;
+  status: UserStatus;
+  type: UserType;
   userPractices: UserPractice[];
 }
 

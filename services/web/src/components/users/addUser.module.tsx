@@ -1,9 +1,11 @@
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
-import { User } from '@root/components/users/types';
+import { UserStatus } from '@root/enums/status.enum';
+import { UserType } from '@root/enums/userType.enum';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { selectPractice } from '@root/store/reducers/auth';
 import { addRecordAsync } from '@root/store/reducers/users';
+import { User } from '@root/store/requests/users';
 import { generateFullName } from '@utils/methods';
 import { Select } from 'baseui/select';
 import React, { useState } from 'react';
@@ -16,17 +18,17 @@ const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const [contactNumber, setcontactNumber] = useState('');
   const [lastName, setLastName] = useState('');
   const [url, setUrl] = useState('');
-  const [type, setType] = useState('');
-  const [status, setStatus] = useState('');
+  const [type, setType] = useState<UserType>(UserType.ADMIN);
+  const [status, setStatus] = useState<UserStatus>(UserStatus.ACTIVE);
   const practiceId = useAppSelector(selectPractice); // Select success message from Redux store
 
   const handleStatusChange = ({ value }) => {
     // Assuming only one option can be selected
-    setStatus(value[0] ? value[0].label : null); // Save the id as a string
+    setStatus(value[0] ? value[0].label : null);
   };
 
   const handleTypeChange = ({ value }) => {
-    setType(value[0] ? value[0].label : null); // Save the id as a string
+    setType(value[0] ? value[0].label : null);
   };
 
   // Function to handle form submission
@@ -34,7 +36,7 @@ const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     e.preventDefault();
     const fullName = generateFullName(firstName, lastName);
     if (practiceId) {
-      const userPayloadData: User = {
+      const userPayloadData: Omit<User, 'userPractices' | 'id'> = {
         practiceId,
         email,
         userName,
@@ -172,6 +174,7 @@ const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             options={[
               { label: 'active', id: '1' },
               { label: 'inactive', id: '2' },
+              { label: 'pending', id: '3' },
             ]}
             onChange={handleStatusChange}
             value={status ? [{ label: status, id: status }] : []} // Convert string to array format
