@@ -16,7 +16,7 @@ export interface PracticeState {
   isProcessing: boolean;
   entities: Record<string, PracticeCreateInterface>;
   practices: PracticesGetInterface[];
-  practiceInfo: PracticesInterface | EmptyObject;
+  practiceInfo: PracticesGetInterface | EmptyObject;
   status: 'idle' | 'loading' | 'failed';
   successMessage: string | null;
   error: string | null;
