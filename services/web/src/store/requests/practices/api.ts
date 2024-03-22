@@ -1,43 +1,72 @@
 import Cookies from 'js-cookie';
 import { publicRuntimeConfig } from 'next.config';
-import { User } from '.';
+import { PracticeCreateInterface } from '.';
 
-export const login = async (
-  payloadData: {
-    email: string;
-    password: string;
-  },
-  { rejectWithValue },
-) => {
+export const getPractices = async (_, { rejectWithValue }) => {
   const { API_BASE_URL } = publicRuntimeConfig;
   try {
-    const response = await fetch(`${API_BASE_URL}/auth/login`, {
-      method: 'POST',
+    const accessToken = Cookies.get('access_token');
+    const response = await fetch(`${API_BASE_URL}/practices`, {
+      method: 'GET',
       headers: {
         'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
       },
-      body: JSON.stringify(payloadData),
     });
     if (!response.ok) {
-      throw new Error('Failed to login');
+      throw new Error('Failed to get practices');
     }
-    const result = await response.json();
-    return result;
+    const data = await response.json();
+    return data;
   } catch (error) {
     return rejectWithValue(error); // Pass error message to payload
   }
 };
 
-export const getMe = async (): Promise<User> => {
+export const getPracticeData = async (
+  payloadData: {
+    id: string;
+  },
+  { rejectWithValue },
+) => {
   const { API_BASE_URL } = publicRuntimeConfig;
-  const accessToken = Cookies.get('access_token');
-  const response = await fetch(`${API_BASE_URL}/auth/me`, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${accessToken}`,
-    },
-  });
-  const data = await response.json();
-  return data;
+  try {
+    const accessToken = Cookies.get('access_token');
+    const response = await fetch(
+      `${API_BASE_URL}/practices/${payloadData.id}`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+      },
+    );
+    if (!response.ok) {
+      throw new Error('Failed to get practice data');
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    return rejectWithValue(error); // Pass error message to payload
+  }
+};
+
+export const addPractice = async (payloadData: PracticeCreateInterface) => {
+  const { API_BASE_URL } = publicRuntimeConfig;
+  try {
+    const accessToken = Cookies.get('access_token');
+    const response = await fetch(`${API_BASE_URL}/practices`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify(payloadData),
+    });
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    return error;
+  }
 };

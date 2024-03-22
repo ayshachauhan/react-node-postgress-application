@@ -2,7 +2,7 @@ import { PracticeCreateInterface } from '@components/practices/types';
 import Cookies from 'js-cookie';
 import { publicRuntimeConfig } from 'next.config';
 
-export const getPractices = async ({ rejectWithValue }) => {
+export const getPractices = async (_, { rejectWithValue }) => {
   const { API_BASE_URL } = publicRuntimeConfig;
   try {
     const accessToken = Cookies.get('access_token');

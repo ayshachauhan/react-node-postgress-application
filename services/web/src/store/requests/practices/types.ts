@@ -1,28 +1,26 @@
-export interface User {
-  userName: string;
-  firstName: string;
-  lastName: string;
-  contactNumber: string;
-  fullName: string;
-  url: string;
-  status: string;
-  type: string;
-  isSuperAdmin: boolean;
-  iat: number;
-  exp: number;
-  userPractices: UserPractice[];
-}
-
-export interface UserPractice {
-  id: string;
-  dateCreated: string;
-  dateUpdated: string;
-  practice: Practice;
-}
-
-export interface Practice {
-  id: string;
-  dateCreated: string;
-  dateUpdated: string;
+export interface PracticeCreateInterface {
   name: string;
+  adminFirstName: string;
+  adminLastName: string;
+  adminEmail: string;
+  adminContactNumber: string;
+  physicianEmail: string;
+  physicianContactNumber: string;
+  status: string;
+  code: string;
+}
+
+export interface PracticesGetInterface {
+  id?: string;
+  name: string;
+  adminFirstName: string;
+  adminLastName: string;
+  adminEmail: string;
+  adminContactNumber: string;
+  physicianEmail: string;
+  physicianContactNumber: string;
+  status: string;
+  code: string;
+  dateCreated?: string;
+  dateUpdated?: string;
 }

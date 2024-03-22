@@ -23,8 +23,8 @@ const Practice: React.FC = () => {
   const [showErrorMessage, setShowErrorMessage] = useState(false);
 
   useEffect(() => {
-    dispatch(fetchListings());
-  }, [dispatch]);
+    dispatch(fetchListings(undefined));
+  }, []); // Empty dependency array to run the effect only once
 
   const handleOpenSecondModal = (): void => {
     setIsSecondModalOpen(true);
@@ -92,7 +92,11 @@ const Practice: React.FC = () => {
       <div className="flex justify-between border-gray-400">
         <span className="text-xl">All Practices</span>
         {showModal && <div style={{ color: 'green' }}>{successMessage}</div>}
-        {showErrorMessage && <div style={{ color: 'red' }}>{errorMessage}</div>}
+        {showErrorMessage && (
+          <div style={{ color: 'red' }}>
+            Error occurred while adding record.
+          </div>
+        )}
         <Button
           kind="secondary"
           title="Add New"
