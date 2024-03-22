@@ -113,7 +113,7 @@ const Media: React.FC = () => {
   return (
     <div id="__next" className="mt-4">
       <div className="flex justify-between border-gray-400">
-        <span className="text-xl">Media</span>
+        <span className="text-xl font-medium">Media</span>
         {showModal && <div style={{ color: 'green' }}>{successMessage}</div>}
         {showErrorMessage && (
           <div style={{ color: 'red' }}>
