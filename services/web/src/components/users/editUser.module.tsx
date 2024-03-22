@@ -38,7 +38,7 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
     if (data.id && userInfo) {
       setUserInfo(userInfo);
     }
-  }, [data.id]);
+  }, [data.id, userInfo]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

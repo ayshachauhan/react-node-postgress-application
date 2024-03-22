@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { User } from '@root/components/users/types';
 import { State } from '@root/store';
 import {
+  User,
   addUser,
   deleteUser,
   getUserInfo,
