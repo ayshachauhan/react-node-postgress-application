@@ -133,9 +133,8 @@ const userSlice = createSlice({
       state.status = 'loading';
     });
 
-    builder.addCase(deleteRecordAsync.fulfilled, (state, action) => {
+    builder.addCase(deleteRecordAsync.fulfilled, (state) => {
       state.status = 'idle';
-      state.users = state.users.filter((user) => user.id !== action.payload.id);
       state.successMessage = 'Record deleted successfully'; // Set success message
     });
 

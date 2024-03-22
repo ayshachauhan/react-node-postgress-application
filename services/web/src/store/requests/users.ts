@@ -1,3 +1,4 @@
+import { User } from '@root/components/users/types';
 import Cookies from 'js-cookie';
 import { publicRuntimeConfig } from 'next.config';
 
@@ -58,21 +59,7 @@ export const getUserInfo = async (
   }
 };
 
-export const addUser = async (
-  payloadData: {
-    practiceId: string;
-    email: string;
-    userName: string;
-    firstName: string;
-    lastName: string;
-    contactNumber: string;
-    fullName: string;
-    url: string;
-    type: string;
-    status: string;
-  },
-  { rejectWithValue },
-) => {
+export const addUser = async (payloadData: User, { rejectWithValue }) => {
   const { API_BASE_URL } = publicRuntimeConfig;
   try {
     const accessToken = Cookies.get('access_token');
@@ -99,26 +86,12 @@ export const addUser = async (
   }
 };
 
-export const updateUser = async (
-  payloadData: {
-    practiceId: string;
-    id: string;
-    email: string;
-    userName: string;
-    firstName: string;
-    lastName: string;
-    contactNumber: string;
-    fullName: string;
-    url: string;
-    type: string;
-    status: string;
-  },
-  { rejectWithValue },
-) => {
+export const updateUser = async (payloadData: User, { rejectWithValue }) => {
   const { API_BASE_URL } = publicRuntimeConfig;
   try {
     const accessToken = Cookies.get('access_token');
     const { practiceId, id, ...restPayload } = payloadData;
+    delete restPayload.password;
     const sanitizedPayload = { ...restPayload };
     const response = await fetch(
       `${API_BASE_URL}/practices/${practiceId}/users/${id}`,
@@ -132,7 +105,7 @@ export const updateUser = async (
       },
     );
     if (!response.ok) {
-      throw new Error('Failed to add user');
+      throw new Error('Failed to update user');
     }
     const data = await response.json();
     return data;
@@ -164,6 +137,13 @@ export const deleteUser = async (
     if (!response.ok) {
       throw new Error('Failed to delete user');
     }
+    const responseData = await response.text();
+
+    // Check if response body is empty
+    if (!responseData.trim()) {
+      return; // Exit early or return a default value
+    }
+
     const data = await response.json();
     return data;
   } catch (error) {

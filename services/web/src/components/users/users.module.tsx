@@ -8,7 +8,6 @@ import {
 } from '@root/components/Icons';
 import Form from '@root/components/users/addUser.module';
 import EditUser from '@root/components/users/editUser.module';
-import ViewUser from '@root/components/users/viewUser.module';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { selectPractice } from '@root/store/reducers/auth';
 import {
@@ -31,6 +30,7 @@ import {
   ROLE,
   SIZE,
 } from 'baseui/modal';
+import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 
 export default function UserPage() {
@@ -38,13 +38,14 @@ export default function UserPage() {
   const dispatch = useAppDispatch();
   const users = useAppSelector((state) => state.users.users);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const practiceId = useAppSelector(selectPractice); // Select success message from Redux store
   const [showErrorMessage, setShowErrorMessage] = useState(false);
   const successMessage = useAppSelector(selectSuccessMessage); // Select success message from Redux store
   const errorMessage = useAppSelector(selectError); // Select error message from Redux store
+  const router = useRouter();
+
   useEffect(() => {
     if (practiceId !== null) {
       dispatch(fetchListings({ practiceId: practiceId })); // Fetch listings from PostgreSQL database
@@ -99,7 +100,6 @@ export default function UserPage() {
         console.log(error);
       }
     }
-    console.log('Item deleted!');
     setUserId(null);
   };
 
@@ -107,19 +107,15 @@ export default function UserPage() {
     setIsModalOpen(true);
   };
 
-  const handleOpenViewModal = (Id: string): void => {
-    console.log(Id, 2);
-    setIsModalOpen(false);
-    setIsViewModalOpen(true);
-    setIsEditModalOpen(false);
-    setIsDeleteModalOpen(false);
-    setUserId(Id);
+  const handleViewUser = (id: string): void => {
+    const query = { id };
+    const queryString = new URLSearchParams(query).toString(); // Serialize the query object
+    const url = `/users/view/?${queryString}`; // Append the serialized query string to the pathname
+    router.push(url);
   };
 
   const handleOpenEditModal = (Id: string): void => {
-    console.log(Id, 2);
     setIsModalOpen(false);
-    setIsViewModalOpen(false);
     setIsEditModalOpen(true);
     setIsDeleteModalOpen(false);
     setUserId(Id);
@@ -132,11 +128,6 @@ export default function UserPage() {
 
   const handleCloseModal = (): void => {
     setIsModalOpen(false);
-  };
-
-  const handleCloseViewModal = (): void => {
-    setIsViewModalOpen(false);
-    setUserId(null);
   };
 
   const handleCloseEditModal = (): void => {
@@ -173,34 +164,6 @@ export default function UserPage() {
         </ModalHeader>
         <ModalBody>
           <Form onClose={handleCloseModal} />
-        </ModalBody>
-      </Modal>
-    );
-  };
-  const UserViewModal = () => {
-    return (
-      <Modal
-        isOpen={isViewModalOpen}
-        onClose={handleCloseViewModal}
-        closeable
-        animate
-        autoFocus
-        size={SIZE.default}
-        role={ROLE.dialog}
-        overrides={{
-          Root: {
-            style: ({ $theme }) => ({
-              outline: `${$theme.colors.warning200} solid`,
-              backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            }),
-          },
-        }}
-      >
-        <ModalHeader $style={{ fontSize: '1.25rem', fontWeight: 700 }}>
-          User Information
-        </ModalHeader>
-        <ModalBody>
-          <ViewUser data={userInfo} onClose={handleCloseViewModal} />
         </ModalBody>
       </Modal>
     );
@@ -326,7 +289,7 @@ export default function UserPage() {
               </div>
               <div className="text-gray-900 bg-gray-50 pt-2 px-4 flex gap-4">
                 <div
-                  onClick={() => data.id && handleOpenViewModal(data.id)}
+                  onClick={() => data.id && handleViewUser(data.id)}
                   style={{ cursor: 'pointer' }}
                 >
                   <ViewIcon className="mt-2"></ViewIcon>
@@ -349,7 +312,6 @@ export default function UserPage() {
         </div>
       </div>
       <UserAddModal />
-      <UserViewModal />
       <UserEditModal />
       <UserDeleteModal />
     </div>

@@ -10,6 +10,7 @@ export interface User {
   url?: string;
   type: string;
   status: string;
+  password?: string;
   dateCreated?: Date;
   dateUpdated?: Date;
   dateDeleted?: Date;

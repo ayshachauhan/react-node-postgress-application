@@ -3,7 +3,7 @@ import TextInput from '@root/components/TextInput';
 import { User } from '@root/components/users/types';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { selectPractice } from '@root/store/reducers/auth';
-import { fetchUserInfo, updateRecordAsync } from '@root/store/reducers/users';
+import { updateRecordAsync } from '@root/store/reducers/users';
 import { generateFullName } from '@utils/methods';
 import { Select } from 'baseui/select';
 import React, { useEffect, useState } from 'react';
@@ -16,54 +16,45 @@ interface ChildProps {
 }
 const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
   const dispatch = useAppDispatch();
-  const practiceId = useAppSelector(selectPractice); // Select success message from Redux store
-  const userInfo = useAppSelector((state) => state.users.userInfo);
-  console.log(userInfo);
+  const practiceId = useAppSelector(selectPractice); // Select user practice id
+  const userInfo = useAppSelector((state) =>
+    data.id ? state.users.users.find(({ id }) => id === data.id) : undefined,
+  );
   const userId = data.id;
-  useEffect(() => {
-    if (practiceId !== null) {
-      dispatch(fetchUserInfo({ id: userId, practiceId: practiceId })); // Fetch listings from PostgreSQL database
-    }
-  }, [practiceId, userId, dispatch]);
 
-  const [userName, setUserName] = useState('');
-  const [email, setEmail] = useState('');
-  // const [practiceId, setPracticeId] = useState('');
-  const [firstName, setFirstName] = useState('');
-  const [contactNumber, setContactNumber] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [url, setUrl] = useState('');
-  const [type, setType] = useState('');
-  const [selectedLabel, setSelectedLabel] = useState('');
-  const [selectedValue, setSelectedValue] = useState([]);
-  const status = selectedLabel;
+  const [updatedUserInfo, setUserInfo] = useState<Partial<User>>({});
 
-  // Handler function to update the selected value
-  const handleChange = ({ value }) => {
-    setSelectedValue(value);
-    setSelectedLabel(value.length > 0 ? value[0].label : ''); // Extract label from the selected option
+  const handleStatusChange = (params) => {
+    const { label } = params.option;
+    setUserInfo({ ...userInfo, status: label });
   };
 
-  // Function to handle form submission
+  const handleTypeChange = (params) => {
+    const { label } = params.option;
+    setUserInfo({ ...userInfo, type: label });
+  };
+
+  useEffect(() => {
+    if (data.id && userInfo) {
+      setUserInfo(userInfo);
+    }
+  }, [data.id]);
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const fullName = generateFullName(firstName, lastName);
+    if (updatedUserInfo.firstName && updatedUserInfo.lastName) {
+      const fullName = generateFullName(
+        updatedUserInfo.firstName,
+        updatedUserInfo.lastName,
+      );
+      updatedUserInfo.fullName = fullName;
+    }
     if (userId && practiceId) {
-      const id = userId;
-      const userPayloadData: User = {
-        practiceId,
-        id,
-        email,
-        userName,
-        firstName,
-        lastName,
-        fullName,
-        url,
-        type,
-        status,
-        contactNumber,
+      const userPayloadData = {
+        ...updatedUserInfo,
+        practiceId: practiceId,
+        id: userId,
       };
-
       try {
         dispatch(updateRecordAsync(userPayloadData));
         onClose(); // Close the modal after form submission
@@ -82,9 +73,9 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
           </label>
           <TextInput
             name="userName"
-            value={userInfo?.userName}
+            value={updatedUserInfo?.userName}
             onChange={(value) => {
-              setUserName(value);
+              setUserInfo({ ...userInfo, userName: value });
             }}
             required
           />
@@ -96,9 +87,9 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
           </label>
           <TextInput
             name="email"
-            value={userInfo?.email}
+            value={updatedUserInfo?.email}
             onChange={(value) => {
-              setEmail(value);
+              setUserInfo({ ...userInfo, email: value });
             }}
             required
           />
@@ -110,9 +101,9 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
           </label>
           <TextInput
             name="firstName"
-            value={userInfo?.firstName}
+            value={updatedUserInfo?.firstName}
             onChange={(value) => {
-              setFirstName(value);
+              setUserInfo({ ...userInfo, firstName: value });
             }}
             required
           />
@@ -124,9 +115,9 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
           </label>
           <TextInput
             name="lastName"
-            value={userInfo?.lastName}
+            value={updatedUserInfo?.lastName}
             onChange={(value) => {
-              setLastName(value);
+              setUserInfo({ ...userInfo, lastName: value });
             }}
             required
           />
@@ -138,9 +129,9 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
           </label>
           <TextInput
             name="contactNumber"
-            value={userInfo?.contactNumber}
+            value={updatedUserInfo?.contactNumber}
             onChange={(value) => {
-              setContactNumber(value);
+              setUserInfo({ ...userInfo, contactNumber: value });
             }}
             required
           />
@@ -152,9 +143,9 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
           </label>
           <TextInput
             name="url"
-            value={userInfo?.url}
+            value={updatedUserInfo?.url}
             onChange={(value) => {
-              setUrl(value);
+              setUserInfo({ ...userInfo, url: value });
             }}
             required
           />
@@ -164,13 +155,24 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
           <label htmlFor="type" className="text-black text-sm">
             Designation
           </label>
-          <TextInput
-            name="type"
-            value={userInfo?.type}
-            onChange={(value) => {
-              setType(value);
+          <Select
+            options={[
+              { label: 'employee', id: '1' },
+              { label: 'doctor', id: '2' },
+              { label: 'admin', id: '3' },
+              { label: 'physician', id: '4' },
+            ]}
+            onChange={handleTypeChange}
+            overrides={{
+              ClearIcon: {
+                component: () => null, // This replaces the clear icon with null, effectively removing it
+              },
             }}
-            required
+            value={
+              updatedUserInfo?.type
+                ? [{ label: updatedUserInfo.type, id: updatedUserInfo.type }]
+                : []
+            }
           />
           <div className="space-y-4"></div>
         </div>
@@ -183,8 +185,22 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
               { label: 'active', id: '1' },
               { label: 'inactive', id: '2' },
             ]}
-            onChange={handleChange}
-            value={selectedValue}
+            onChange={handleStatusChange}
+            overrides={{
+              ClearIcon: {
+                component: () => null, // This replaces the clear icon with null, effectively removing it
+              },
+            }}
+            value={
+              updatedUserInfo?.status
+                ? [
+                    {
+                      label: updatedUserInfo.status,
+                      id: updatedUserInfo.status === 'active' ? '1' : '2',
+                    },
+                  ]
+                : []
+            }
           />
           <div className="space-y-4"></div>
         </div>

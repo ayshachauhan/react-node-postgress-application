@@ -17,15 +17,16 @@ const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const [lastName, setLastName] = useState('');
   const [url, setUrl] = useState('');
   const [type, setType] = useState('');
-  const [selectedLabel, setSelectedLabel] = useState('');
-  const [selectedValue, setSelectedValue] = useState([]);
-  const status = selectedLabel;
+  const [status, setStatus] = useState('');
   const practiceId = useAppSelector(selectPractice); // Select success message from Redux store
 
-  // Handler function to update the selected value
-  const handleChange = ({ value }) => {
-    setSelectedValue(value);
-    setSelectedLabel(value.length > 0 ? value[0].label : ''); // Extract label from the selected option
+  const handleStatusChange = ({ value }) => {
+    // Assuming only one option can be selected
+    setStatus(value[0] ? value[0].label : null); // Save the id as a string
+  };
+
+  const handleTypeChange = ({ value }) => {
+    setType(value[0] ? value[0].label : null); // Save the id as a string
   };
 
   // Function to handle form submission
@@ -145,13 +146,21 @@ const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           <label htmlFor="type" className="text-black text-sm">
             Designation
           </label>
-          <TextInput
-            name="type"
-            value={type}
-            onChange={(value) => {
-              setType(value);
-            }}
+          <Select
+            options={[
+              { label: 'employee', id: '1' },
+              { label: 'doctor', id: '2' },
+              { label: 'admin', id: '3' },
+              { label: 'physician', id: '4' },
+            ]}
+            onChange={handleTypeChange}
+            value={type ? [{ label: type, id: type }] : []} // Convert string to array format
             required
+            overrides={{
+              ClearIcon: {
+                component: () => null, // This replaces the clear icon with null, effectively removing it
+              },
+            }}
           />
           <div className="space-y-4"></div>
         </div>
@@ -164,8 +173,14 @@ const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               { label: 'active', id: '1' },
               { label: 'inactive', id: '2' },
             ]}
-            onChange={handleChange}
-            value={selectedValue}
+            onChange={handleStatusChange}
+            value={status ? [{ label: status, id: status }] : []} // Convert string to array format
+            required
+            overrides={{
+              ClearIcon: {
+                component: () => null, // This replaces the clear icon with null, effectively removing it
+              },
+            }}
           />
           <div className="space-y-4"></div>
         </div>
