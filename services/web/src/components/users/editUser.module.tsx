@@ -67,145 +67,160 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
   return (
     <div>
       <form onSubmit={handleSubmit}>
-        <div className="space-y-4">
-          <label htmlFor="userName" className="text-black text-sm">
-            Username
-          </label>
-          <TextInput
-            name="userName"
-            value={updatedUserInfo?.userName}
-            onChange={(value) => {
-              setUserInfo({ ...updatedUserInfo, userName: value });
-            }}
-            required
-          />
-          <div className="space-y-4"></div>
+        <div className="flex flex-col">
+          <div className="flex flex-row justify-between pt-4">
+            <div className="space-y-2">
+              <label htmlFor="userName" className="text-black text-sm">
+                Username
+              </label>
+              <TextInput
+                name="userName"
+                value={updatedUserInfo?.userName}
+                onChange={(value) => {
+                  setUserInfo({ ...updatedUserInfo, userName: value });
+                }}
+                required
+              />
+              <div className="space-y-2"></div>
+            </div>
+            <div className="space-y-2">
+              <label htmlFor="email" className="text-black text-sm">
+                Email
+              </label>
+              <TextInput
+                name="email"
+                value={updatedUserInfo?.email}
+                onChange={(value) => {
+                  setUserInfo({ ...updatedUserInfo, email: value });
+                }}
+                required
+              />
+              <div className="space-y-2"></div>
+            </div>
+          </div>
+          <div className="flex flex-row justify-between pt-4">
+            <div className="space-y-2">
+              <label htmlFor="firstName" className="text-black text-sm">
+                First Name
+              </label>
+              <TextInput
+                name="firstName"
+                value={updatedUserInfo?.firstName}
+                onChange={(value) => {
+                  setUserInfo({ ...updatedUserInfo, firstName: value });
+                }}
+                required
+              />
+              <div className="space-y-2"></div>
+            </div>
+            <div className="space-y-2">
+              <label htmlFor="lastName" className="text-black text-sm">
+                Last Name
+              </label>
+              <TextInput
+                name="lastName"
+                value={updatedUserInfo?.lastName}
+                onChange={(value) => {
+                  setUserInfo({ ...updatedUserInfo, lastName: value });
+                }}
+                required
+              />
+              <div className="space-y-2"></div>
+            </div>
+          </div>
+          <div className="flex flex-row justify-between pt-4">
+            <div className="space-y-2">
+              <label htmlFor="contactNumber" className="text-black text-sm">
+                Contact No.
+              </label>
+              <TextInput
+                name="contactNumber"
+                value={updatedUserInfo?.contactNumber}
+                onChange={(value) => {
+                  setUserInfo({ ...updatedUserInfo, contactNumber: value });
+                }}
+                required
+              />
+              <div className="space-y-2"></div>
+            </div>
+            <div className="space-y-2">
+              <label htmlFor="url" className="text-black text-sm">
+                User URL
+              </label>
+              <TextInput
+                name="url"
+                value={updatedUserInfo?.url}
+                onChange={(value) => {
+                  setUserInfo({ ...updatedUserInfo, url: value });
+                }}
+                required
+              />
+              <div className="space-y-2"></div>
+            </div>
+          </div>
+          <div className="flex flex-row gap-6 pt-4">
+            <div className="w-1/2 space-y-2">
+              <label htmlFor="type" className="text-black text-sm">
+                Designation
+              </label>
+              <Select
+                options={[
+                  { label: 'employee', id: '1' },
+                  { label: 'doctor', id: '2' },
+                  { label: 'admin', id: '3' },
+                  { label: 'physician', id: '4' },
+                ]}
+                onChange={handleTypeChange}
+                overrides={{
+                  ClearIcon: {
+                    component: () => null, // This replaces the clear icon with null, effectively removing it
+                  },
+                }}
+                value={
+                  updatedUserInfo?.type
+                    ? [
+                        {
+                          label: updatedUserInfo.type,
+                          id: updatedUserInfo.type,
+                        },
+                      ]
+                    : []
+                }
+              />
+              <div className="space-y-2"></div>
+            </div>
+            <div className="w-1/2 space-y-2">
+              <label htmlFor="status" className="text-black text-sm">
+                Status
+              </label>
+              <Select
+                options={[
+                  { label: 'active', id: '1' },
+                  { label: 'inactive', id: '2' },
+                  { label: 'pending', id: '3' },
+                ]}
+                onChange={handleStatusChange}
+                overrides={{
+                  ClearIcon: {
+                    component: () => null, // This replaces the clear icon with null, effectively removing it
+                  },
+                }}
+                value={
+                  updatedUserInfo?.status
+                    ? [
+                        {
+                          label: updatedUserInfo.status,
+                          id: updatedUserInfo.status === 'active' ? '1' : '2',
+                        },
+                      ]
+                    : []
+                }
+              />
+              <div className="space-y-2"></div>
+            </div>
+          </div>
         </div>
-        <div className="space-y-4">
-          <label htmlFor="email" className="text-black text-sm">
-            Email
-          </label>
-          <TextInput
-            name="email"
-            value={updatedUserInfo?.email}
-            onChange={(value) => {
-              setUserInfo({ ...updatedUserInfo, email: value });
-            }}
-            required
-          />
-          <div className="space-y-4"></div>
-        </div>
-        <div className="space-y-4">
-          <label htmlFor="firstName" className="text-black text-sm">
-            First Name
-          </label>
-          <TextInput
-            name="firstName"
-            value={updatedUserInfo?.firstName}
-            onChange={(value) => {
-              setUserInfo({ ...updatedUserInfo, firstName: value });
-            }}
-            required
-          />
-          <div className="space-y-4"></div>
-        </div>
-        <div className="space-y-4">
-          <label htmlFor="lastName" className="text-black text-sm">
-            Last Name
-          </label>
-          <TextInput
-            name="lastName"
-            value={updatedUserInfo?.lastName}
-            onChange={(value) => {
-              setUserInfo({ ...updatedUserInfo, lastName: value });
-            }}
-            required
-          />
-          <div className="space-y-4"></div>
-        </div>
-        <div className="space-y-4">
-          <label htmlFor="contactNumber" className="text-black text-sm">
-            Contact No.
-          </label>
-          <TextInput
-            name="contactNumber"
-            value={updatedUserInfo?.contactNumber}
-            onChange={(value) => {
-              setUserInfo({ ...updatedUserInfo, contactNumber: value });
-            }}
-            required
-          />
-          <div className="space-y-4"></div>
-        </div>
-        <div className="space-y-4">
-          <label htmlFor="url" className="text-black text-sm">
-            User URL
-          </label>
-          <TextInput
-            name="url"
-            value={updatedUserInfo?.url}
-            onChange={(value) => {
-              setUserInfo({ ...updatedUserInfo, url: value });
-            }}
-            required
-          />
-          <div className="space-y-4"></div>
-        </div>
-        <div className="space-y-4">
-          <label htmlFor="type" className="text-black text-sm">
-            Designation
-          </label>
-          <Select
-            options={[
-              { label: 'employee', id: '1' },
-              { label: 'doctor', id: '2' },
-              { label: 'admin', id: '3' },
-              { label: 'physician', id: '4' },
-            ]}
-            onChange={handleTypeChange}
-            overrides={{
-              ClearIcon: {
-                component: () => null, // This replaces the clear icon with null, effectively removing it
-              },
-            }}
-            value={
-              updatedUserInfo?.type
-                ? [{ label: updatedUserInfo.type, id: updatedUserInfo.type }]
-                : []
-            }
-          />
-          <div className="space-y-4"></div>
-        </div>
-        <div className="space-y-4">
-          <label htmlFor="status" className="text-black text-sm">
-            Status
-          </label>
-          <Select
-            options={[
-              { label: 'active', id: '1' },
-              { label: 'inactive', id: '2' },
-              { label: 'pending', id: '3' },
-            ]}
-            onChange={handleStatusChange}
-            overrides={{
-              ClearIcon: {
-                component: () => null, // This replaces the clear icon with null, effectively removing it
-              },
-            }}
-            value={
-              updatedUserInfo?.status
-                ? [
-                    {
-                      label: updatedUserInfo.status,
-                      id: updatedUserInfo.status === 'active' ? '1' : '2',
-                    },
-                  ]
-                : []
-            }
-          />
-          <div className="space-y-4"></div>
-        </div>
-        <div className="text-right text-base">
+        <div className="text-right text-base pt-4">
           <Button kind="primary" title="Update" width={189} />
         </div>
       </form>
