@@ -2,7 +2,9 @@
 import { AddIcon } from '@components/Icons';
 import AddPracticeForm from '@components/practices/practices.module';
 import Button from '@root/components/Button';
+import { UserType } from '@root/enums/userType.enum';
 import { useAppDispatch, useAppSelector } from '@root/store';
+import { selectRecords } from '@root/store/reducers/auth';
 import {
   clearErrorMessage,
   clearSuccessMessage,
@@ -11,6 +13,7 @@ import {
   selectSuccessMessage,
 } from '@root/store/reducers/practices';
 import { Modal, ModalBody, ModalHeader, ROLE, SIZE } from 'baseui/modal';
+import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 
 const Practice: React.FC = () => {
@@ -21,6 +24,14 @@ const Practice: React.FC = () => {
   const errorMessage = useAppSelector(selectError);
   const [showModal, setShowModal] = useState(false);
   const [showErrorMessage, setShowErrorMessage] = useState(false);
+  const router = useRouter();
+  const userInfo = useAppSelector(selectRecords);
+  useEffect(() => {
+    if (userInfo?.type === UserType.ADMIN) {
+      // Perform the redirect inside the useEffect
+      router.push('dashboard');
+    }
+  }, [userInfo, router]);
 
   useEffect(() => {
     dispatch(fetchListings(undefined));

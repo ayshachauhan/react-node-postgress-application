@@ -2,8 +2,9 @@
 import Button from '@root/components/Button';
 import { AddIcon, PlayIcon } from '@root/components/Icons';
 import Form from '@root/components/media/addMedia.module';
+import { UserType } from '@root/enums/userType.enum';
 import { useAppDispatch, useAppSelector } from '@root/store';
-import { selectPractice } from '@root/store/reducers/auth';
+import { selectPractice, selectRecords } from '@root/store/reducers/auth';
 import {
   clearErrorMessage,
   clearSuccessMessage,
@@ -14,6 +15,7 @@ import {
 import { extractVideoId, getImageUrl } from '@utils/methods';
 import { Modal, ModalBody, ModalHeader, ROLE, SIZE } from 'baseui/modal';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 
 const Media: React.FC = () => {
@@ -27,6 +29,15 @@ const Media: React.FC = () => {
   const errorMessage = useAppSelector(selectError); // Select error message from Redux store
   const [showModal, setShowModal] = useState(false); // State to manage modal visibility
   const [showErrorMessage, setShowErrorMessage] = useState(false);
+  const router = useRouter();
+  const [videoId, setVideoId] = useState<string | null>(null);
+  const userInfo = useAppSelector(selectRecords);
+  useEffect(() => {
+    if (userInfo?.type !== UserType.ADMIN) {
+      // Perform the redirect inside the useEffect
+      router.push('practices');
+    }
+  }, [userInfo, router]);
 
   const handleOpenFirstModal = (videoId: string): void => {
     setVideoId(videoId);
@@ -49,8 +60,6 @@ const Media: React.FC = () => {
   const handleCloseSecondModal = (): void => {
     setIsSecondModalOpen(false);
   };
-
-  const [videoId, setVideoId] = useState<string | null>(null);
 
   const FormModal = () => {
     return (

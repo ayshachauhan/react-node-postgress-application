@@ -109,6 +109,7 @@ export const selectError = (state: State) => state.auth.error;
 export const selectPractice = (state: State) => {
   if (
     state.auth.user &&
+    state.auth.user.userPractices &&
     state.auth.user.userPractices.length &&
     state.auth.user.userPractices[0].practice
   ) {

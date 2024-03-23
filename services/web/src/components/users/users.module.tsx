@@ -8,8 +8,9 @@ import {
 } from '@root/components/Icons';
 import Form from '@root/components/users/addUser.module';
 import EditUser from '@root/components/users/editUser.module';
+import { UserType } from '@root/enums/userType.enum';
 import { useAppDispatch, useAppSelector } from '@root/store';
-import { selectPractice } from '@root/store/reducers/auth';
+import { selectPractice, selectRecords } from '@root/store/reducers/auth';
 import {
   getPracticeInfo,
   selectPracticeInfo,
@@ -37,6 +38,7 @@ export default function UserPage() {
   const [showModal, setShowModal] = useState(false); // State to manage modal visibility
   const dispatch = useAppDispatch();
   const users = useAppSelector((state) => state.users.users);
+  const [userId, setUserId] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -45,6 +47,13 @@ export default function UserPage() {
   const successMessage = useAppSelector(selectSuccessMessage); // Select success message from Redux store
   const errorMessage = useAppSelector(selectError); // Select error message from Redux store
   const router = useRouter();
+  const userInfo = useAppSelector(selectRecords); // Select success message from Redux store
+  useEffect(() => {
+    if (userInfo?.type !== UserType.ADMIN) {
+      // Perform the redirect inside the useEffect
+      router.push('practices');
+    }
+  }, [userInfo, router]);
 
   useEffect(() => {
     if (practiceId !== null) {
@@ -81,7 +90,6 @@ export default function UserPage() {
     }
   }, [practiceId, dispatch]);
   const practiceName = useAppSelector(selectPracticeInfo);
-  const [userId, setUserId] = useState<string | null>(null);
 
   const onConfirmDelete = (): void => {
     const id = userId;
