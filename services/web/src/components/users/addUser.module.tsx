@@ -5,7 +5,7 @@ import { UserType } from '@root/enums/userType.enum';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { selectPractice } from '@root/store/reducers/auth';
 import { addRecordAsync } from '@root/store/reducers/users';
-import { User } from '@root/store/requests/users';
+import { AddUser } from '@root/store/requests/users';
 import { generateFullName } from '@utils/methods';
 import { Select } from 'baseui/select';
 import React, { useState } from 'react';
@@ -36,7 +36,7 @@ const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     e.preventDefault();
     const fullName = generateFullName(firstName, lastName);
     if (practiceId) {
-      const userPayloadData: Omit<User, 'userPractices' | 'id'> = {
+      const userPayloadData: AddUser = {
         practiceId,
         email,
         userName,

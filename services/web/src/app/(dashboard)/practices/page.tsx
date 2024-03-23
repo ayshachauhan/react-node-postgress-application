@@ -27,7 +27,7 @@ const Practice: React.FC = () => {
   const router = useRouter();
   const userInfo = useAppSelector(selectRecords);
   useEffect(() => {
-    if (userInfo?.type === UserType.ADMIN) {
+    if (userInfo && userInfo?.type === UserType.ADMIN) {
       // Perform the redirect inside the useEffect
       router.push('dashboard');
     }

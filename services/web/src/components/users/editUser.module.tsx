@@ -1,9 +1,11 @@
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
+import { UserStatus } from '@root/enums/status.enum';
+import { UserType } from '@root/enums/userType.enum';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { selectPractice } from '@root/store/reducers/auth';
 import { updateRecordAsync } from '@root/store/reducers/users';
-import { User } from '@root/store/requests/users';
+import { EditUser } from '@root/store/requests/users';
 import { generateFullName } from '@utils/methods';
 import { Select } from 'baseui/select';
 import React, { useEffect, useState } from 'react';
@@ -22,7 +24,7 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
   );
   const userId = data.id;
 
-  const [updatedUserInfo, setUserInfo] = useState<Partial<User>>({});
+  const [updatedUserInfo, setUserInfo] = useState<Partial<EditUser>>({});
 
   const handleStatusChange = (params) => {
     const { label } = params.option;
@@ -49,9 +51,20 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
       );
       updatedUserInfo.fullName = fullName;
     }
+    delete updatedUserInfo.password;
     if (userId && practiceId) {
       const userPayloadData = {
         ...updatedUserInfo,
+        userName: updatedUserInfo.userName ?? '', //, // Now assured to be a string
+        firstName: updatedUserInfo.firstName ?? '', //, // Now assured to be a string
+        lastName: updatedUserInfo.lastName ?? '', //, // Now assured to be a string
+        contactNumber: updatedUserInfo.contactNumber ?? '', //, // Now assured to be a string
+        fullName: updatedUserInfo.fullName ?? '', //, // Now assured to be a string
+        email: updatedUserInfo.email ?? '', //, // Now assured to be a string
+        url: updatedUserInfo.url ?? '', //, // Now assured to be a string
+        status: updatedUserInfo.status ?? UserStatus.INACTIVE, //, // Now assured to be a string
+        type: updatedUserInfo.type ?? UserType.EMPLOYEE, //, // Now assured to be a string
+        password: updatedUserInfo.password ?? '', //, // Now assured to be a string
         practiceId: practiceId,
         id: userId,
       };

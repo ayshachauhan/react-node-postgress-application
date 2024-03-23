@@ -28,3 +28,31 @@ export interface Practice {
   dateUpdated: string;
   name: string;
 }
+
+export interface AddUser {
+  userName: string;
+  firstName: string;
+  lastName: string;
+  contactNumber: string;
+  fullName: string;
+  email: string;
+  url: string;
+  status: UserStatus;
+  type: UserType;
+  practiceId: string;
+}
+
+export interface EditUser {
+  id: string;
+  userName: string;
+  firstName: string;
+  lastName: string;
+  contactNumber: string;
+  fullName: string;
+  email: string;
+  url: string;
+  status: UserStatus;
+  type: UserType;
+  practiceId: string;
+  password: string;
+}

@@ -1,6 +1,6 @@
 import Cookies from 'js-cookie';
 import { publicRuntimeConfig } from 'next.config';
-import { User } from '.';
+import { AddUser, EditUser } from '.';
 
 export const getUsers = async (
   payloadData: { practiceId: string },
@@ -59,7 +59,7 @@ export const getUserInfo = async (
   }
 };
 
-export const addUser = async (payloadData: User, { rejectWithValue }) => {
+export const addUser = async (payloadData: AddUser, { rejectWithValue }) => {
   const { API_BASE_URL } = publicRuntimeConfig;
   try {
     const accessToken = Cookies.get('access_token');
@@ -87,14 +87,13 @@ export const addUser = async (payloadData: User, { rejectWithValue }) => {
 };
 
 export const updateUser = async (
-  payloadData: Omit<User, 'password'>,
+  payloadData: EditUser,
   { rejectWithValue },
 ) => {
   const { API_BASE_URL } = publicRuntimeConfig;
   try {
     const accessToken = Cookies.get('access_token');
     const { practiceId, id, ...restPayload } = payloadData;
-    delete restPayload.password;
     const sanitizedPayload = { ...restPayload };
     const response = await fetch(
       `${API_BASE_URL}/practices/${practiceId}/users/${id}`,

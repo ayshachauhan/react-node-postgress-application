@@ -33,7 +33,7 @@ const Media: React.FC = () => {
   const [videoId, setVideoId] = useState<string | null>(null);
   const userInfo = useAppSelector(selectRecords);
   useEffect(() => {
-    if (userInfo?.type !== UserType.ADMIN) {
+    if (userInfo && userInfo?.type !== UserType.ADMIN) {
       // Perform the redirect inside the useEffect
       router.push('practices');
     }

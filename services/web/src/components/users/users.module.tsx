@@ -49,7 +49,7 @@ export default function UserPage() {
   const router = useRouter();
   const userInfo = useAppSelector(selectRecords); // Select success message from Redux store
   useEffect(() => {
-    if (userInfo?.type !== UserType.ADMIN) {
+    if (userInfo && userInfo?.type !== UserType.ADMIN) {
       // Perform the redirect inside the useEffect
       router.push('practices');
     }
