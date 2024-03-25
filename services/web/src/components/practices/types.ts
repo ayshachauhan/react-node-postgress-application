@@ -24,3 +24,9 @@ export interface PracticesGetInterface {
   dateCreated?: string;
   dateUpdated?: string;
 }
+
+export interface PracticesEditInterface {
+  name: string;
+  status: string;
+  code: string;
+}

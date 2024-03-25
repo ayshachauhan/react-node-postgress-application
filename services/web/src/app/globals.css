@@ -10,6 +10,14 @@
   @apply bg-secondary !important;
 }
 
+.btn-warning {
+  @apply bg-yellow-300  text-gray-900 !important;
+}
+
+.btn-danger {
+  @apply bg-transparent text-gray-900  !important;
+}
+
 .data-table {
   border: none !important;
 
