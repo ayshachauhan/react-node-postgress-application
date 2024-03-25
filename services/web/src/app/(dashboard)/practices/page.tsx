@@ -7,6 +7,7 @@ import { useAppDispatch, useAppSelector } from '@root/store';
 import {
   clearErrorMessage,
   clearSuccessMessage,
+  deleteRecordAsync,
   fetchListings,
   selectError,
   selectSuccessMessage,
@@ -42,6 +43,11 @@ const Practice: React.FC = () => {
 
   const handleCloseEditModal = (): void => {
     setIsEditModalOpen(false);
+  };
+
+  const handleDeleteRecord = (practiceId: string | undefined): void => {
+    dispatch(deleteRecordAsync(practiceId));
+    dispatch(fetchListings());
   };
 
   const CreateFormModal = () => {
@@ -190,6 +196,7 @@ const Practice: React.FC = () => {
                     kind="secondary"
                     isDanger={true}
                     title=""
+                    onClick={() => handleDeleteRecord(data.id)}
                     startEnhancer={() => <DeleteIcon />}
                   />
                 </div>

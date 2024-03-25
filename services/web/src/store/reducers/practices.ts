@@ -4,7 +4,12 @@ import {
   PracticesGetInterface,
 } from '@root/components/practices/types';
 import { State } from '@root/store';
-import { addPractice, editPractice, getPractices } from '../requests/practices';
+import {
+  addPractice,
+  deletePractice,
+  editPractice,
+  getPractices,
+} from '../requests/practices';
 
 export interface PracticeState {
   isProcessing: boolean;
@@ -96,6 +101,11 @@ export const addRecordAsync = createAsyncThunk(
 export const updateRecordAsync = createAsyncThunk(
   'practice/editRecordAsync',
   editPractice,
+);
+
+export const deleteRecordAsync = createAsyncThunk(
+  'practice/deleteRecordAsync',
+  deletePractice,
 );
 
 export const selectRecords = (state: State) => state.practices;

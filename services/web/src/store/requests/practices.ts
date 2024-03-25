@@ -60,3 +60,21 @@ export const editPractice = async (payloadData: PracticesEditInterface) => {
     return error;
   }
 };
+
+export const deletePractice = async (id: string | undefined) => {
+  const { API_BASE_URL } = publicRuntimeConfig;
+  try {
+    const accessToken = Cookies.get('access_token');
+    const response = await fetch(`${API_BASE_URL}/practices/${id}`, {
+      method: 'Delete',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    return error;
+  }
+};
