@@ -28,6 +28,8 @@ const Button: React.FC<Props> = ({
             className: clsx({
               'btn-primary': kind === KIND.primary,
               'btn-secondary': kind === KIND.secondary,
+              'btn-warning': isWarning,
+              'btn-danger': isDanger,
             }),
           },
         },

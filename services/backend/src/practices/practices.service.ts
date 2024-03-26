@@ -6,6 +6,7 @@ import {
   forwardRef,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { UserPracticesService } from 'src/userPractices/userPractices.services';
 import { DataSource, Repository, UpdateResult } from 'typeorm';
 import { PracticeEntity } from '../entities/practices.entity';
 import { UserStatus } from '../enums/status.enum';
@@ -13,6 +14,7 @@ import { UserType } from '../enums/userType.enum';
 import { UsersService } from '../users/users.service';
 import { PracticeCreateDto } from './dto/create.dto';
 import { PracticePatchDto } from './dto/patch.dto';
+import { PracticesGetInterface } from './types';
 
 @Injectable()
 export class PracticesService {
@@ -21,11 +23,47 @@ export class PracticesService {
     private practicesRepository: Repository<PracticeEntity>,
     @Inject(forwardRef(() => UsersService))
     private readonly userService: UsersService,
+    @Inject(forwardRef(() => UserPracticesService))
+    private readonly userPracticeService: UserPracticesService,
     private dataSource: DataSource,
   ) {}
 
-  async findAll(): Promise<PracticeEntity[]> {
-    return await this.practicesRepository.find();
+  async findAll(): Promise<PracticesGetInterface[]> {
+    const resultArray: PracticesGetInterface[] = [];
+    const dbPractices = await this.practicesRepository.find();
+
+    for (let index = 0; index < dbPractices.length; index++) {
+      const { id, name, code, status } = dbPractices[index];
+      const finalPractice: PracticesGetInterface = { id, name, code, status };
+
+      const dbUsersByPractice =
+        await this.userPracticeService.getUsersByPractice(id);
+
+      const adminUser = dbUsersByPractice.find(
+        (ele) => ele.user?.type === 'admin',
+      );
+      const physicianUser = dbUsersByPractice.find(
+        (ele) => ele.user?.type === 'physician',
+      );
+
+      if (adminUser) {
+        const { user } = adminUser;
+        finalPractice.adminFirstName = user.firstName;
+        finalPractice.adminLastName = user.lastName;
+        finalPractice.adminEmail = user.email;
+        finalPractice.adminContactNumber = user.contactNumber;
+      }
+
+      if (physicianUser) {
+        const { user } = physicianUser;
+        finalPractice.physicianEmail = user.email;
+        finalPractice.physicianContactNumber = user.contactNumber;
+      }
+      resultArray.push(finalPractice);
+    }
+    console.log(resultArray);
+
+    return resultArray;
   }
 
   async findOne(id: string): Promise<PracticeEntity | null> {

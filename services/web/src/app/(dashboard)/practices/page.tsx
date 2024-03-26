@@ -229,22 +229,34 @@ const Practice: React.FC = () => {
       </div>
       <hr className="h-px my-2.5 bg-gray-100 border-1 dark:bg-gray-700"></hr>
       <div className="text-gray-50 w-full  items-center  bg-gray-50 py-4 rounded-lg">
-        <div className="bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 grid grid-cols-8 rounded-lg w-auto">
+        <div className="bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 grid grid-cols-12 rounded-lg w-auto">
           <div className="font-bold text-white p-4 w-auto ">S. No.</div>
           <div className="font-bold text-white p-4 w-auto  text-center">
             Practice Code
+          </div>
+          <div className="font-bold text-white p-4 w-auto text-center">
+            Practice Name
           </div>
           <div className="font-bold text-white p-4 w-auto  text-center">
             Practice Photo
           </div>
           <div className="font-bold text-white p-4 w-auto text-center">
-            Practice
+            First Name
           </div>
           <div className="font-bold text-white p-4 w-auto text-center">
-            Create Date
+            Last Name
           </div>
           <div className="font-bold text-white p-4 w-auto text-center">
-            Update Date
+            Admin Email
+          </div>
+          <div className="font-bold text-white p-4 w-auto text-center">
+            Admin M. No.
+          </div>
+          <div className="font-bold text-white p-4 w-auto text-center">
+            Physician Email
+          </div>
+          <div className="font-bold text-white p-4 w-auto text-center">
+            Physician M. No.
           </div>
           <div className="font-bold text-white p-4 w-auto text-center">
             Status
@@ -262,19 +274,31 @@ const Practice: React.FC = () => {
                 {data.code}
               </div>
               <div className="text-gray-900 bg-gray-50 pt-2 px-4 text-center">
-                Profile Photo
-              </div>
-              <div className="text-gray-900 bg-gray-50 pt-2 px-4 text-center">
                 {data.name}
               </div>
               <div className="text-gray-900 bg-gray-50 pt-2 px-4 text-center">
-                {data.dateCreated?.toString()}
+                Profile Photo
               </div>
               <div className="text-gray-900 bg-gray-50 pt-2 px-4 text-center">
-                {data.dateCreated?.toString()}
+                {data.adminFirstName}
+              </div>
+              <div className="text-gray-900 bg-gray-50 pt-2 px-4 text-center">
+                {data.adminLastName}
+              </div>
+              <div className="text-gray-900 bg-gray-50 pt-2 px-4 text-center">
+                {data.adminEmail}
+              </div>
+              <div className="text-gray-900 bg-gray-50 pt-2 px-4 text-center">
+                {data.adminContactNumber}
+              </div>
+              <div className="text-gray-900 bg-gray-50 pt-2 px-4 text-center">
+                {data.physicianEmail}
+              </div>
+              <div className="text-gray-900 bg-gray-50 pt-2 px-4 text-center">
+                {data.physicianContactNumber}
               </div>
               <div className="text-gray-900 bg-gray-50  pt-2   px-4 flex text-center items-center justify-center">
-                <div className="bg-yellow-400 rounded-lg px-10">
+                <div className="bg-yellow-400 rounded-lg px-6">
                   {data.status?.toString()}
                 </div>
               </div>
