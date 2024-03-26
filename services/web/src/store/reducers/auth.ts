@@ -77,7 +77,6 @@ const authSlice = createSlice({
       state.status = 'idle';
       state.isAuthenticated = true;
       state.user = action.payload;
-      state.user = action.payload;
       state.error = null;
     });
 
@@ -110,6 +109,7 @@ export const selectError = (state: State) => state.auth.error;
 export const selectPractice = (state: State) => {
   if (
     state.auth.user &&
+    state.auth.user.userPractices &&
     state.auth.user.userPractices.length &&
     state.auth.user.userPractices[0].practice
   ) {

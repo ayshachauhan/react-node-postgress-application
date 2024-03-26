@@ -18,14 +18,13 @@ export const login = async (
       },
       body: JSON.stringify(payloadData),
     });
-    const result = await response.json();
-    if (result?.access_token) {
-      return result;
-    } else {
-      throw new Error('Invalid username or password');
+    if (!response.ok) {
+      throw new Error('Failed to login');
     }
+    const result = await response.json();
+    return result;
   } catch (error) {
-    return rejectWithValue('Invalid username or psassword');
+    return rejectWithValue(error); // Pass error message to payload
   }
 };
 

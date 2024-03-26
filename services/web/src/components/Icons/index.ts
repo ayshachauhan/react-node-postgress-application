@@ -10,3 +10,4 @@ export { default as SettingIcon } from './Setting';
 export { default as StethoscopeIcon } from './Stethoscope';
 export { default as TemplateIcon } from './Template';
 export { default as UsersIcon } from './Users';
+export { default as ViewIcon } from './View';

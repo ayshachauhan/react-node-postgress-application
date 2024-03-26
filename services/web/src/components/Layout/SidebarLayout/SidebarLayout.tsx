@@ -1,4 +1,5 @@
 import React from 'react';
+import Footer from './Footer';
 import Header from './Header';
 import Sidebar from './Sidebar';
 
@@ -13,6 +14,7 @@ const SidebarLayout: React.FC<{ children: React.ReactNode }> = ({
         <Header />
 
         <div className="p-4 mt-14">{children}</div>
+        <Footer />
       </div>
     </div>
   );

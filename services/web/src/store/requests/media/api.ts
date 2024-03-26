@@ -1,7 +1,11 @@
 import Cookies from 'js-cookie';
 import { publicRuntimeConfig } from 'next.config';
+import { MediaInterface } from '.';
 
-export const getMedia = async (payloadData: { practiceId: string }) => {
+export const getMedia = async (
+  payloadData: { practiceId: string },
+  { rejectWithValue },
+) => {
   const { API_BASE_URL } = publicRuntimeConfig;
   try {
     const accessToken = Cookies.get('access_token');
@@ -15,19 +19,20 @@ export const getMedia = async (payloadData: { practiceId: string }) => {
         },
       },
     );
+    if (!response.ok) {
+      throw new Error('Failed to fetch videos');
+    }
     const data = await response.json();
     return data;
   } catch (error) {
-    return error;
+    return rejectWithValue(error); // Pass error message to payload
   }
 };
 
-export const addMedia = async (payloadData: {
-  name: string;
-  url: string;
-  urlEmbed: string;
-  practiceId: string;
-}) => {
+export const addMedia = async (
+  payloadData: MediaInterface,
+  { rejectWithValue },
+) => {
   const { API_BASE_URL } = publicRuntimeConfig;
   try {
     const accessToken = Cookies.get('access_token');
@@ -42,9 +47,12 @@ export const addMedia = async (payloadData: {
         body: JSON.stringify(payloadData),
       },
     );
+    if (!response.ok) {
+      throw new Error('Failed to add video');
+    }
     const data = await response.json();
     return data;
   } catch (error) {
-    return error;
+    return rejectWithValue(error); // Pass error message to payload
   }
 };

@@ -2,13 +2,13 @@ export interface User {
   userName: string;
   firstName: string;
   lastName: string;
+  contactNumber: string;
   fullName: string;
   url: string;
   status: string;
   type: string;
-  isSuperAdmin: boolean;
-  iat: number;
-  exp: number;
+  email: string;
+  isSuperAdmin: string;
   userPractices: UserPractice[];
 }
 

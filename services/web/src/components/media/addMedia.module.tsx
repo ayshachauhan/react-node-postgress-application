@@ -1,9 +1,9 @@
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
-import { MediaInterface } from '@root/components/media/types';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { selectPractice } from '@root/store/reducers/auth';
 import { addRecordAsync } from '@root/store/reducers/media';
+import { MediaInterface } from '@root/store/requests/media';
 import React, { useState } from 'react';
 
 const MediaPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {

@@ -24,6 +24,9 @@ const Header: React.FC = () => {
     dispatch(logoutUser());
     router.push('/login'); // Redirect to login page after logout
   };
+  const goToProfile = () => {
+    router.push('/profile'); // Redirect to login page after logout
+  };
 
   return (
     <nav className="fixed top-0 right-0 z-40 bg-white shadow-md w-[calc(100%-16rem)] h-[68px]">
@@ -31,7 +34,9 @@ const Header: React.FC = () => {
         <div className="flex items-center justify-between">
           <div className="flex items-center">
             <Dropdown position="bottomLeft" trigger={selectedUserBox}>
-              <Dropdown.Item id="profile">Profile</Dropdown.Item>
+              <Dropdown.Item id="profile" onClick={goToProfile}>
+                Profile
+              </Dropdown.Item>
               <Dropdown.Item id="setting">Settings</Dropdown.Item>
               <Dropdown.Item id="logout" onClick={handleLogout}>
                 Log out
@@ -41,7 +46,9 @@ const Header: React.FC = () => {
 
           <div className="flex items-center justify-end">
             <Dropdown position="bottomRight" trigger={<Avatar />}>
-              <Dropdown.Item id="profile">Profile</Dropdown.Item>
+              <Dropdown.Item id="profile" onClick={goToProfile}>
+                Profile
+              </Dropdown.Item>
               <Dropdown.Item id="setting">Settings</Dropdown.Item>
               <Dropdown.Item id="logout" onClick={handleLogout}>
                 Log out
