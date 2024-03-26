@@ -2,7 +2,9 @@
 import { AddIcon } from '@components/Icons';
 import AddPracticeForm from '@components/practices/practices.module';
 import Button from '@root/components/Button';
+import { UserType } from '@root/enums/userType.enum';
 import { useAppDispatch, useAppSelector } from '@root/store';
+import { selectRecords } from '@root/store/reducers/auth';
 import {
   clearErrorMessage,
   clearSuccessMessage,
@@ -11,6 +13,7 @@ import {
   selectSuccessMessage,
 } from '@root/store/reducers/practices';
 import { Modal, ModalBody, ModalHeader, ROLE, SIZE } from 'baseui/modal';
+import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 
 const Practice: React.FC = () => {
@@ -21,10 +24,18 @@ const Practice: React.FC = () => {
   const errorMessage = useAppSelector(selectError);
   const [showModal, setShowModal] = useState(false);
   const [showErrorMessage, setShowErrorMessage] = useState(false);
+  const router = useRouter();
+  const userInfo = useAppSelector(selectRecords);
+  useEffect(() => {
+    if (userInfo && userInfo?.type === UserType.ADMIN) {
+      // Perform the redirect inside the useEffect
+      router.push('dashboard');
+    }
+  }, [userInfo, router]);
 
   useEffect(() => {
-    dispatch(fetchListings());
-  }, [dispatch]);
+    dispatch(fetchListings(undefined));
+  }, []); // Empty dependency array to run the effect only once
 
   const handleOpenSecondModal = (): void => {
     setIsSecondModalOpen(true);
@@ -90,13 +101,9 @@ const Practice: React.FC = () => {
   return (
     <div className="mt-4">
       <div className="flex justify-between border-gray-400">
-        <span className="text-xl">All Practices</span>
+        <span className="text-xl font-bold">All Practices</span>
         {showModal && <div style={{ color: 'green' }}>{successMessage}</div>}
-        {showErrorMessage && (
-          <div style={{ color: 'red' }}>
-            Error occurred while adding record.
-          </div>
-        )}
+        {showErrorMessage && <div style={{ color: 'red' }}>{errorMessage}</div>}
         <Button
           kind="secondary"
           title="Add New"

@@ -230,7 +230,7 @@ const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             </div>
           </div>
           <div className="text-right text-base pt-4">
-            <Button kind="primary" title="Add new video" width={189} />
+            <Button kind="primary" title="Add new practice" width={189} />
           </div>
         </div>
       </form>

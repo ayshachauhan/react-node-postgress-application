@@ -4,12 +4,14 @@ import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
 import authReducer from './reducers/auth';
 import mediaReducer from './reducers/media';
 import practicesReducer from './reducers/practices';
+import usersReducer from './reducers/users';
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
     media: mediaReducer,
     practices: practicesReducer,
+    users: usersReducer,
   },
 });
 
