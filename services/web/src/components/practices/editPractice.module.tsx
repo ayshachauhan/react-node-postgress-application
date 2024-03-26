@@ -7,11 +7,14 @@ import { updateRecordAsync } from '@root/store/reducers/practices';
 import React, { useState } from 'react';
 import { PracticesEditInterface } from './types';
 
-const PracticeEditModule: React.FC<{ onClose: () => void }> = ({ onClose }) => {
+const PracticeEditModule: React.FC<{
+  onClose: () => void;
+  initialValues: PracticesEditInterface;
+}> = ({ onClose, initialValues }) => {
   const dispatch = useAppDispatch();
-  const [name, setName] = useState('');
-  const [status, setStatus] = useState('');
-  const [code, setCode] = useState('');
+  const [name, setName] = useState(initialValues.name);
+  const [status, setStatus] = useState(initialValues.status);
+  const [code, setCode] = useState(initialValues.code);
 
   const selectedStatusColumn = (
     <TextInput
@@ -32,6 +35,7 @@ const PracticeEditModule: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     e.preventDefault();
 
     const data: PracticesEditInterface = {
+      id: initialValues.id,
       name,
       status,
       code,

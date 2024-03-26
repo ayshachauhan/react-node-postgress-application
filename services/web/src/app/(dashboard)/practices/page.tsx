@@ -3,6 +3,7 @@ import { AddIcon, DeleteIcon, EditIcon } from '@components/Icons';
 import AddPracticeForm from '@components/practices/practices.module';
 import Button from '@root/components/Button';
 import PracticeEditModule from '@root/components/practices/editPractice.module';
+import { PracticesEditInterface } from '@root/components/practices/types';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import {
   clearErrorMessage,
@@ -12,17 +13,33 @@ import {
   selectError,
   selectSuccessMessage,
 } from '@root/store/reducers/practices';
-import { Modal, ModalBody, ModalHeader, ROLE, SIZE } from 'baseui/modal';
+import {
+  Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
+  ROLE,
+  SIZE,
+} from 'baseui/modal';
 import React, { useEffect, useState } from 'react';
 
 const Practice: React.FC = () => {
   const dispatch = useAppDispatch();
   const practices = useAppSelector((state) => state.practices.practices);
+  const [practiceId, setPracticeId] = useState<string | null>(null);
+  const [editExistingValues, setEditExistingValue] =
+    useState<PracticesEditInterface>({
+      name: '',
+      status: '',
+      code: '',
+      id: '',
+    });
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const successMessage = useAppSelector(selectSuccessMessage);
   const errorMessage = useAppSelector(selectError);
-  const [showModal, setShowModal] = useState(false);
   const [showErrorMessage, setShowErrorMessage] = useState(false);
 
   useEffect(() => {
@@ -37,7 +54,10 @@ const Practice: React.FC = () => {
     setIsCreateModalOpen(false);
   };
 
-  const handleOpenEditModal = (): void => {
+  const handleOpenEditModal = (
+    practiceEditValues: PracticesEditInterface,
+  ): void => {
+    setEditExistingValue(practiceEditValues);
     setIsEditModalOpen(true);
   };
 
@@ -45,11 +65,28 @@ const Practice: React.FC = () => {
     setIsEditModalOpen(false);
   };
 
-  const handleDeleteRecord = (practiceId: string | undefined): void => {
-    dispatch(deleteRecordAsync(practiceId));
-    dispatch(fetchListings());
+  const handleOpenDeleteModal = (Id: string): void => {
+    setIsDeleteModalOpen(true);
+    setPracticeId(Id);
   };
 
+  const handleCloseDeleteModal = (): void => {
+    setIsDeleteModalOpen(false);
+    setPracticeId(null);
+  };
+
+  const onConfirmDelete = (): void => {
+    if (practiceId) {
+      try {
+        dispatch(deleteRecordAsync({ id: practiceId }));
+        setIsDeleteModalOpen(false);
+        setPracticeId(null);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+    setPracticeId(null);
+  };
   const CreateFormModal = () => {
     return (
       <Modal
@@ -102,8 +139,43 @@ const Practice: React.FC = () => {
           Edit Practice
         </ModalHeader>
         <ModalBody>
-          <PracticeEditModule onClose={handleCloseEditModal} />
+          <PracticeEditModule
+            onClose={handleCloseEditModal}
+            initialValues={editExistingValues}
+          />
         </ModalBody>
+      </Modal>
+    );
+  };
+
+  const DeleteModal = () => {
+    return (
+      <Modal
+        isOpen={isDeleteModalOpen}
+        onClose={handleCloseDeleteModal}
+        closeable
+        animate
+        autoFocus
+        size={SIZE.default}
+        role={ROLE.dialog}
+        overrides={{
+          Root: {
+            style: ({ $theme }) => ({
+              outline: `${$theme.colors.warning200} solid`,
+              backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            }),
+          },
+        }}
+      >
+        <ModalHeader $style={{ fontSize: '1.25rem', fontWeight: 700 }}>
+          Confirm Deletion
+        </ModalHeader>
+        <ModalBody>Are you sure you want to delete this user?</ModalBody>
+        <ModalFooter>
+          <Button kind="primary" title="Delete" onClick={onConfirmDelete}>
+            Delete
+          </Button>
+        </ModalFooter>
       </Modal>
     );
   };
@@ -150,22 +222,40 @@ const Practice: React.FC = () => {
       </div>
       <hr className="h-px my-2.5 bg-gray-100 border-1 dark:bg-gray-700"></hr>
       <div className="text-gray-50 w-full  items-center  bg-gray-50 py-4 rounded-lg">
-        <div className="bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 grid grid-cols-6 rounded-lg">
-          <div className="font-bold text-white p-4 col-span-1">S. No.</div>
-          <div className="font-bold text-white p-4 text-center">Practice</div>
-          <div className="font-bold text-white p-4 text-center">
+        <div className="bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 grid grid-cols-8 rounded-lg w-auto">
+          <div className="font-bold text-white p-4 w-auto ">S. No.</div>
+          <div className="font-bold text-white p-4 w-auto  text-center">
+            Practice Code
+          </div>
+          <div className="font-bold text-white p-4 w-auto  text-center">
+            Practice Photo
+          </div>
+          <div className="font-bold text-white p-4 w-auto text-center">
+            Practice
+          </div>
+          <div className="font-bold text-white p-4 w-auto text-center">
             Create Date
           </div>
-          <div className="font-bold text-white p-4 text-center">
+          <div className="font-bold text-white p-4 w-auto text-center">
             Update Date
           </div>
-          <div className="font-bold text-white p-4 text-center">Status</div>
-          <div className="font-bold text-white p-4 text-center">Action</div>
+          <div className="font-bold text-white p-4 w-auto text-center">
+            Status
+          </div>
+          <div className="font-bold text-white p-4 w-auto text-center">
+            Action
+          </div>
 
           {practices.map((data, index) => (
             <React.Fragment key={data.id}>
-              <div className="text-gray-900 bg-gray-50 pt-2 px-4 col-span-1">
-                {index + 1}
+              <div className="text-gray-900 bg-gray-50 pt-2 px-4 ">
+                {index + 1}.
+              </div>
+              <div className="text-gray-900 bg-gray-50 pt-2 px-4 text-center">
+                {data.code}
+              </div>
+              <div className="text-gray-900 bg-gray-50 pt-2 px-4 text-center">
+                Profile Photo
               </div>
               <div className="text-gray-900 bg-gray-50 pt-2 px-4 text-center">
                 {data.name}
@@ -187,7 +277,14 @@ const Practice: React.FC = () => {
                     kind="secondary"
                     isDanger={true}
                     title=""
-                    onClick={handleOpenEditModal}
+                    onClick={() =>
+                      handleOpenEditModal({
+                        name: data.name,
+                        code: data.code,
+                        status: data.status,
+                        id: data.id,
+                      })
+                    }
                     startEnhancer={() => <EditIcon />}
                   />
                 </div>
@@ -196,7 +293,7 @@ const Practice: React.FC = () => {
                     kind="secondary"
                     isDanger={true}
                     title=""
-                    onClick={() => handleDeleteRecord(data.id)}
+                    onClick={() => data.id && handleOpenDeleteModal(data.id)}
                     startEnhancer={() => <DeleteIcon />}
                   />
                 </div>
@@ -207,6 +304,7 @@ const Practice: React.FC = () => {
       </div>
       <CreateFormModal />
       <EditFormModal />
+      <DeleteModal />
     </div>
   );
 };

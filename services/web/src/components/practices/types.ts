@@ -26,6 +26,7 @@ export interface PracticesGetInterface {
 }
 
 export interface PracticesEditInterface {
+  id?: string;
   name: string;
   status: string;
   code: string;

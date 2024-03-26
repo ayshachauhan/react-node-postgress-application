@@ -45,9 +45,11 @@ export const addPractice = async (payloadData: PracticeCreateInterface) => {
 export const editPractice = async (payloadData: PracticesEditInterface) => {
   const { API_BASE_URL } = publicRuntimeConfig;
   try {
+    const { id } = payloadData;
+    delete payloadData.id;
     const accessToken = Cookies.get('access_token');
-    const response = await fetch(`${API_BASE_URL}/practices`, {
-      method: 'Patch',
+    const response = await fetch(`${API_BASE_URL}/practices/${id}`, {
+      method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${accessToken}`,
@@ -61,20 +63,37 @@ export const editPractice = async (payloadData: PracticesEditInterface) => {
   }
 };
 
-export const deletePractice = async (id: string | undefined) => {
+export const deletePractice = async (
+  payloadData: {
+    id: string;
+  },
+  { rejectWithValue },
+) => {
   const { API_BASE_URL } = publicRuntimeConfig;
   try {
     const accessToken = Cookies.get('access_token');
-    const response = await fetch(`${API_BASE_URL}/practices/${id}`, {
-      method: 'Delete',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${accessToken}`,
+    const response = await fetch(
+      `${API_BASE_URL}/practices/${payloadData.id}`,
+      {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
       },
-    });
+    );
+    if (!response.ok) {
+      throw new Error('Failed to delete user');
+    }
+    const responseData = await response.text();
+
+    if (!responseData.trim()) {
+      return;
+    }
+
     const data = await response.json();
     return data;
   } catch (error) {
-    return error;
+    return rejectWithValue(error);
   }
 };
