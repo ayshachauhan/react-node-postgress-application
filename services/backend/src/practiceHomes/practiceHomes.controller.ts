@@ -47,9 +47,9 @@ export class PracticeHomesController {
   @Post()
   async create(
     @Param('practiceId') practiceId: string,
-    @Body(new ValidationPipe()) practiceHomeCreateto: PracticeHomeCreateDto,
+    @Body(new ValidationPipe()) practiceHomeCreateDto: PracticeHomeCreateDto,
   ): Promise<PracticeHome> {
-    return this.practiceHomesService.create(practiceHomeCreateto, practiceId);
+    return this.practiceHomesService.create(practiceHomeCreateDto, practiceId);
   }
 
   @Patch(':id')
