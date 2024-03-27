@@ -11,6 +11,7 @@ import { MediaModule } from './media/media.module';
 import { PermissionsModule } from './permissions/permissions.module';
 import { PracticeHomesModule } from './practiceHomes/practiceHomes.module';
 import { PracticesModule } from './practices/practices.module';
+import { TemplatesModule } from './templates/templates.module';
 import { TransporterModule } from './transporter';
 import { UserPermissionsModule } from './userPermissions/userPermissions.module';
 import { UserPracticesModule } from './userPractices/userPractices.module';
@@ -102,6 +103,7 @@ import { UsersModule } from './users/users.module';
     PermissionsModule,
     UserPermissionsModule,
     UserPracticesModule,
+    TemplatesModule,
   ],
 })
 export class AppModule {}
