@@ -4,8 +4,8 @@ import Dropdown from '@root/components/Dropdown';
 import TextInput from '@root/components/TextInput';
 import { useAppDispatch } from '@root/store';
 import { updateRecordAsync } from '@root/store/reducers/practices';
+import { PracticesEditInterface } from '@store/requests/practices';
 import React, { useState } from 'react';
-import { PracticesEditInterface } from './types';
 
 const PracticeEditModule: React.FC<{
   onClose: () => void;

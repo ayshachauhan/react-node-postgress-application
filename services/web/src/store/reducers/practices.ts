@@ -1,9 +1,9 @@
 import { PayloadAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { State } from '@root/store';
 import {
   PracticeCreateInterface,
   PracticesGetInterface,
-} from '@root/components/practices/types';
-import { State } from '@root/store';
+} from '@store/requests/practices';
 
 import {
   addPractice,

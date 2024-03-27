@@ -1,7 +1,7 @@
 import {
   PracticeCreateInterface,
   PracticesEditInterface,
-} from '@components/practices/types';
+} from '@store/requests/practices';
 
 import Cookies from 'js-cookie';
 import { publicRuntimeConfig } from 'next.config';
@@ -116,16 +116,11 @@ export const deletePractice = async (
       },
     );
     if (!response.ok) {
-      throw new Error('Failed to delete user');
-    }
-    const responseData = await response.text();
-
-    if (!responseData.trim()) {
-      return;
+      throw new Error('Failed to delete practice');
     }
 
-    const data = await response.json();
-    return data;
+    // this is to handle empty response.
+    return null;
   } catch (error) {
     return rejectWithValue(error);
   }

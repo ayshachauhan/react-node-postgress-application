@@ -3,7 +3,6 @@ import { AddIcon, DeleteIcon, EditIcon } from '@components/Icons';
 import AddPracticeForm from '@components/practices/practices.module';
 import Button from '@root/components/Button';
 import PracticeEditModule from '@root/components/practices/editPractice.module';
-import { PracticesEditInterface } from '@root/components/practices/types';
 import { UserType } from '@root/enums/userType.enum';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { selectRecords } from '@root/store/reducers/auth';
@@ -15,6 +14,7 @@ import {
   selectError,
   selectSuccessMessage,
 } from '@root/store/reducers/practices';
+import { PracticesEditInterface } from '@store/requests/practices';
 import {
   Modal,
   ModalBody,
@@ -181,7 +181,7 @@ const Practice: React.FC = () => {
         <ModalHeader $style={{ fontSize: '1.25rem', fontWeight: 700 }}>
           Confirm Deletion
         </ModalHeader>
-        <ModalBody>Are you sure you want to delete this user?</ModalBody>
+        <ModalBody>Are you sure you want to delete this practice?</ModalBody>
         <ModalFooter>
           <Button kind="primary" title="Delete" onClick={onConfirmDelete}>
             Delete
@@ -305,9 +305,9 @@ const Practice: React.FC = () => {
               <div className="flex flex-row bg-gray-50 pt-2 px-6 text-center item-center justify-evenly">
                 <div className="text-center">
                   <Button
-                    kind="secondary"
-                    isDanger={true}
+                    kind="tertiary"
                     title=""
+                    colors={{ backgroundColor: 'Transparent', color: 'black' }}
                     onClick={() =>
                       handleOpenEditModal({
                         name: data.name,
@@ -321,9 +321,9 @@ const Practice: React.FC = () => {
                 </div>
                 <div className="text-center">
                   <Button
-                    kind="secondary"
-                    isDanger={true}
+                    kind="tertiary"
                     title=""
+                    colors={{ backgroundColor: 'Transparent', color: 'black' }}
                     onClick={() => data.id && handleOpenDeleteModal(data.id)}
                     startEnhancer={() => <DeleteIcon />}
                   />

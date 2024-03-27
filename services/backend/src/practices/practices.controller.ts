@@ -54,7 +54,7 @@ export class PracticesController {
   }
 
   @Patch(':id')
-  @ApiBearerAuth('normal')
+  @ApiBearerAuth('superadmin')
   @UseGuards(SuperAdminGuard)
   async update(
     @Param('id') id: string,
