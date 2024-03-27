@@ -26,12 +26,12 @@ const Templates: React.FC = () => {
       style: () => ({
         backgroundColor: 'ffffff',
         height: '34px',
-        boxShadow: 'none', // Remove box shadow
+        boxShadow: 'none',
       }),
     },
     Root: {
       style: {
-        border: 'none', // Remove border
+        border: 'none',
       },
     },
   };
@@ -43,9 +43,9 @@ const Templates: React.FC = () => {
   const [time, setTimechange] = useState('');
   const [dateOffset, setDateOffset] = useState('');
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
-  const practiceId = useAppSelector(selectPractice); // Select success message from Redux store
-  const successMessage = useAppSelector(selectSuccessMessage); // Select success message from Redux store
-  const errorMessage = useAppSelector(selectError); // Select error message from Redux store
+  const practiceId = useAppSelector(selectPractice);
+  const successMessage = useAppSelector(selectSuccessMessage);
+  const errorMessage = useAppSelector(selectError);
   const [showErrorMessage, setShowErrorMessage] = useState(false);
   const router = useRouter();
   const handleSurgeryTypeChange = ({ value }) => {
@@ -127,7 +127,7 @@ const Templates: React.FC = () => {
         overrides={{
           Dialog: {
             style: () => ({
-              width: '1200px',
+              width: '1300px',
             }),
           },
           Root: {
@@ -146,76 +146,98 @@ const Templates: React.FC = () => {
             paddingBottom: '8px',
           }}
         >
-          <div className="flex justify-between">
+          <div className="flex justify-between mt-10 items-center">
             <p>Write New Template</p>
-            <div className="flex justify-between items-center">
-              <label
-                htmlFor="userName"
-                className="text-black text-sm font-normal"
-              >
-                Date Offset
-              </label>
-              <TextInput
-                name="dateOffset"
-                value={dateOffset}
-                onChange={(value) => {
-                  setDateOffset(value);
-                }}
-                required
-              />
-              <Select
-                options={[
-                  { label: 'AM', id: '1' },
-                  { label: 'PM', id: '2' },
-                ]}
-                onChange={handleTimeChange}
-                value={time ? [{ label: time, id: time }] : []}
-                required
-                overrides={{
-                  ControlContainer: {
-                    style: {
-                      backgroundColor: 'rgba(250, 250, 250, 1)',
-                      color: 'rgba(250, 250, 250, 1)',
-                      border: 'none',
-                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)', // Add shadow CSS here
-                    },
-                  },
-                  ClearIcon: {
-                    component: () => null,
-                  },
-                }}
-              />
-              <label
-                htmlFor="surgeryType"
-                className="text-black text-sm font-normal"
-              >
-                Surgery
-              </label>
-              <Select
-                options={[
-                  { label: 'cataract', id: '1' },
-                  { label: 'yag', id: '2' },
-                  { label: 'lasik', id: '3' },
-                ]}
-                onChange={handleSurgeryTypeChange}
-                value={
-                  surgeryType ? [{ label: surgeryType, id: surgeryType }] : []
-                }
-                required
-                overrides={{
-                  ControlContainer: {
-                    style: {
-                      backgroundColor: 'rgba(250, 250, 250, 1)',
-                      color: 'rgba(250, 250, 250, 1)',
-                      border: 'none',
-                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)', // Add shadow CSS here
-                    },
-                  },
-                  ClearIcon: {
-                    component: () => null,
-                  },
-                }}
-              />
+            <div className="flex items-center gap-5">
+              <div className="flex flex-row items-center gap-2">
+                <label
+                  htmlFor="dateOffset"
+                  className="text-black text-sm font-normal"
+                >
+                  Date Offset:
+                </label>
+                <div
+                  style={{ fontSize: '16px', fontWeight: 400, width: '180px' }}
+                >
+                  <TextInput
+                    name="dateOffset"
+                    value={dateOffset}
+                    onChange={(value) => {
+                      setDateOffset(value);
+                    }}
+                    required
+                    heightOverride="41px"
+                    fontSizeOverride="16px"
+                    fontWeightOverride="400"
+                    fontColorOverride="#52525B"
+                  />
+                </div>
+                <div
+                  style={{ fontSize: '14px', fontWeight: 400, width: '60px' }}
+                >
+                  <Select
+                    options={[
+                      { label: 'AM', id: '1' },
+                      { label: 'PM', id: '2' },
+                    ]}
+                    onChange={handleTimeChange}
+                    value={time ? [{ label: time, id: time }] : []}
+                    required
+                    overrides={{
+                      ControlContainer: {
+                        style: {
+                          backgroundColor: 'rgba(250, 250, 250, 1)',
+                          color: 'rgba(250, 250, 250, 1)',
+                          border: 'none',
+                          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                        },
+                      },
+                      ClearIcon: {
+                        component: () => null,
+                      },
+                    }}
+                  />
+                </div>
+              </div>
+              <div className="flex flex-row items-center gap-2">
+                <label
+                  htmlFor="surgeryType"
+                  className="text-black text-sm font-normal"
+                >
+                  Surgery:
+                </label>
+                <div
+                  style={{ fontSize: '14px', fontWeight: 400, width: '180px' }}
+                >
+                  <Select
+                    options={[
+                      { label: 'cataract', id: '1' },
+                      { label: 'yag', id: '2' },
+                      { label: 'lasik', id: '3' },
+                    ]}
+                    onChange={handleSurgeryTypeChange}
+                    value={
+                      surgeryType
+                        ? [{ label: surgeryType, id: surgeryType }]
+                        : []
+                    }
+                    required
+                    overrides={{
+                      ControlContainer: {
+                        style: {
+                          backgroundColor: 'rgba(250, 250, 250, 1)',
+                          color: 'rgba(250, 250, 250, 1)',
+                          border: 'none',
+                          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                        },
+                      },
+                      ClearIcon: {
+                        component: () => null,
+                      },
+                    }}
+                  />
+                </div>
+              </div>
             </div>
           </div>
         </ModalHeader>

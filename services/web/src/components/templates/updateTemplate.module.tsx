@@ -12,14 +12,17 @@ const TemplateUpdatePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const handleFileChange = (event) => {
     setSelectedFile(event.target.files[0]);
   };
+  const handleHtmlChange = (event) => {
+    setMessage(event.target.value);
+  };
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
   };
 
   return (
     <div>
-      <div className="flex gap-5">
-        <div className="w-1/2">
+      <div className="flex gap-5 mt-6">
+        <div className="w-1/2 pr-8 border-r border-dotted border-gray-300">
           <form onSubmit={handleSubmit}>
             <div className="flex justify-between">
               <div className="border-b border-gray-100 text-xl font-bold pb-2 text-black">
@@ -49,8 +52,8 @@ const TemplateUpdatePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 ></Checkbox>
               </div>
             </div>
-            <div className="flex mt-3 justify-between">
-              <div>
+            <div className="flex mt-5 justify-between gap-5">
+              <div className="w-1/2">
                 <div className="space-y-2">
                   <label htmlFor="title" className="text-black text-sm">
                     Email Subject
@@ -66,7 +69,7 @@ const TemplateUpdatePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 </div>
                 <div className="space-y-4"></div>
               </div>
-              <div>
+              <div className="w-1/2">
                 <div className="space-y-2">
                   <label htmlFor="attachment" className="text-black text-sm">
                     Email Attachment
@@ -75,39 +78,46 @@ const TemplateUpdatePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 </div>
               </div>
             </div>
-            <div className="mt-3">
+            <div className="mt-5">
               <div className="space-y-2">
                 <label htmlFor="messageType" className="text-black text-sm">
                   Message
                 </label>
+
                 <Textarea
+                  rows={8}
                   value={message}
-                  onChange={(e) => setMessage(e.target.value)}
+                  onChange={handleHtmlChange}
                   clearOnEscape
                   overrides={{
                     Root: {
                       style: {
-                        border: 'none', // Remove border
-                        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)', // Apply shadow
+                        border: 'none',
+                        boxShadow:
+                          '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+                        fontSize: '0.875rem',
                       },
                     },
                     Input: {
                       style: {
-                        backgroundColor: '#FAFAFA', // Change background color here
+                        backgroundColor: '#FAFAFA',
                         border: 'none',
                       },
                     },
                   }}
                 />
               </div>
-              <div className="space-y-4 border-b border-gray-100 mt-3.5 text-black font-bold text-xl pb-2">
+              <div className="space-y-4 border-b border-gray-100 mt-5 text-black font-bold text-xl pb-2">
                 Text Message
               </div>
-              <div className="text-black">{message}</div>
+              <div
+                className="text-black mt-5 text-sm overflow-hidden break-all"
+                dangerouslySetInnerHTML={{ __html: message }}
+              />
             </div>
           </form>
         </div>
-        <div className="w-1/2">
+        <div className="w-1/2 pl-8">
           <div className="border-b border-gray-100 text-xl font-bold pb-2 text-black">
             Email Message Preview
           </div>
@@ -127,7 +137,10 @@ const TemplateUpdatePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 </p>
               </div>
             )}
-            <div>{message}</div>
+            <div
+              className="mt-2.5 py-1.5 pr-1.5 overflow-hidden break-all"
+              dangerouslySetInnerHTML={{ __html: message }}
+            />
           </div>
         </div>
       </div>
