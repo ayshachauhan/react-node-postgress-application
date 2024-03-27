@@ -47,7 +47,7 @@ export const sidebarItems: SideBarItem[] = [
     id: 'templates',
     title: 'Templates',
     path: '/templates',
-    permissions: ['admin'],
+    permissions: ['super_admin'],
     Icon: TemplateIcon,
   },
   {

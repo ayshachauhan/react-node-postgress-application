@@ -20,10 +20,9 @@ const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const [url, setUrl] = useState('');
   const [type, setType] = useState<UserType>(UserType.ADMIN);
   const [status, setStatus] = useState<UserStatus>(UserStatus.ACTIVE);
-  const practiceId = useAppSelector(selectPractice); // Select success message from Redux store
+  const practiceId = useAppSelector(selectPractice);
 
   const handleStatusChange = ({ value }) => {
-    // Assuming only one option can be selected
     setStatus(value[0] ? value[0].label : null);
   };
 
@@ -31,7 +30,6 @@ const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     setType(value[0] ? value[0].label : null);
   };
 
-  // Function to handle form submission
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const fullName = generateFullName(firstName, lastName);
@@ -50,7 +48,7 @@ const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       };
       try {
         dispatch(addRecordAsync(userPayloadData));
-        onClose(); // Close the modal after form submission
+        onClose();
       } catch (error) {
         onClose();
       }
@@ -158,11 +156,19 @@ const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                   { label: 'physician', id: '4' },
                 ]}
                 onChange={handleTypeChange}
-                value={type ? [{ label: type, id: type }] : []} // Convert string to array format
+                value={type ? [{ label: type, id: type }] : []}
                 required
                 overrides={{
+                  ControlContainer: {
+                    style: {
+                      backgroundColor: 'rgba(250, 250, 250, 1)',
+                      color: 'rgba(250, 250, 250, 1)',
+                      border: 'none',
+                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)', // Add shadow CSS here
+                    },
+                  },
                   ClearIcon: {
-                    component: () => null, // This replaces the clear icon with null, effectively removing it
+                    component: () => null,
                   },
                 }}
               />
@@ -179,11 +185,19 @@ const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                   { label: 'pending', id: '3' },
                 ]}
                 onChange={handleStatusChange}
-                value={status ? [{ label: status, id: status }] : []} // Convert string to array format
+                value={status ? [{ label: status, id: status }] : []}
                 required
                 overrides={{
+                  ControlContainer: {
+                    style: {
+                      backgroundColor: 'rgba(250, 250, 250, 1)',
+                      color: 'rgba(250, 250, 250, 1)',
+                      border: 'none',
+                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)', // Add shadow CSS here
+                    },
+                  },
                   ClearIcon: {
-                    component: () => null, // This replaces the clear icon with null, effectively removing it
+                    component: () => null,
                   },
                 }}
               />

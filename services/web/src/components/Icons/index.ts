@@ -6,6 +6,7 @@ export { default as HistoryIcon } from './History';
 export { default as MediaIcon } from './Media';
 export { default as MessageIcon } from './Message';
 export { default as PlayIcon } from './Play';
+export { default as SearchIcon } from './Search';
 export { default as SettingIcon } from './Setting';
 export { default as StethoscopeIcon } from './Stethoscope';
 export { default as TemplateIcon } from './Template';

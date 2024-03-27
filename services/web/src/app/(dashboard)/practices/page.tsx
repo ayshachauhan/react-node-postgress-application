@@ -64,7 +64,14 @@ const Practice: React.FC = () => {
           },
         }}
       >
-        <ModalHeader $style={{ fontSize: '1.25rem', fontWeight: 700 }}>
+        <ModalHeader
+          $style={{
+            fontSize: '1.25rem',
+            fontWeight: 700,
+            borderBottom: '1px solid rgba(244, 244, 245, 1)',
+            paddingBottom: '8px',
+          }}
+        >
           Add New Practice
         </ModalHeader>
         <ModalBody>
