@@ -6,7 +6,7 @@ import {
   forwardRef,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { UserPracticesService } from 'src/userPractices/userPractices.services';
+import { User } from 'src/entities/users.entity';
 import { DataSource, Repository, UpdateResult } from 'typeorm';
 import { PracticeEntity } from '../entities/practices.entity';
 import { UserStatus } from '../enums/status.enum';
@@ -23,44 +23,42 @@ export class PracticesService {
     private practicesRepository: Repository<PracticeEntity>,
     @Inject(forwardRef(() => UsersService))
     private readonly userService: UsersService,
-    @Inject(forwardRef(() => UserPracticesService))
-    private readonly userPracticeService: UserPracticesService,
     private dataSource: DataSource,
   ) {}
 
   async findAll(): Promise<PracticesGetInterface[]> {
     const resultArray: PracticesGetInterface[] = [];
-    const dbPractices = await this.practicesRepository.find();
+    const dbPractices = await this.practicesRepository.find({
+      relations: ['users'],
+      order: {
+        name: 'ASC',
+      },
+    });
 
-    for (let index = 0; index < dbPractices.length; index++) {
-      const { id, name, code, status } = dbPractices[index];
+    dbPractices.forEach((element: PracticeEntity) => {
+      const { id, name, code, status } = element;
+      const dbUsersByPractice: User[] = element.users;
+
+      const adminUser = dbUsersByPractice.find((ele) => ele.type === 'admin');
+      const physicianUser = dbUsersByPractice.find(
+        (ele) => ele.type === 'physician',
+      );
+
       const finalPractice: PracticesGetInterface = { id, name, code, status };
 
-      const dbUsersByPractice =
-        await this.userPracticeService.getUsersByPractice(id);
-
-      const adminUser = dbUsersByPractice.find(
-        (ele) => ele.user?.type === 'admin',
-      );
-      const physicianUser = dbUsersByPractice.find(
-        (ele) => ele.user?.type === 'physician',
-      );
-
       if (adminUser) {
-        const { user } = adminUser;
-        finalPractice.adminFirstName = user.firstName;
-        finalPractice.adminLastName = user.lastName;
-        finalPractice.adminEmail = user.email;
-        finalPractice.adminContactNumber = user.contactNumber;
+        finalPractice.adminFirstName = adminUser.firstName;
+        finalPractice.adminLastName = adminUser.lastName;
+        finalPractice.adminEmail = adminUser.email;
+        finalPractice.adminContactNumber = adminUser.contactNumber;
       }
 
       if (physicianUser) {
-        const { user } = physicianUser;
-        finalPractice.physicianEmail = user.email;
-        finalPractice.physicianContactNumber = user.contactNumber;
+        finalPractice.physicianEmail = physicianUser.email;
+        finalPractice.physicianContactNumber = physicianUser.contactNumber;
       }
       resultArray.push(finalPractice);
-    }
+    });
 
     return resultArray;
   }
