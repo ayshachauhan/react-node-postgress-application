@@ -19,12 +19,15 @@ export const login = async (
       body: JSON.stringify(payloadData),
     });
     if (!response.ok) {
-      throw new Error('Failed to login');
+      throw new Error('Invalid username or password');
     }
     const result = await response.json();
     return result;
   } catch (error) {
-    return rejectWithValue(error); // Pass error message to payload
+    if (error instanceof Error) {
+      return rejectWithValue(error.message);
+    }
+    return rejectWithValue('An unknown error occurred');
   }
 };
 

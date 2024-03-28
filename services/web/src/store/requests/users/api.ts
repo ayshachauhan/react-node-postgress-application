@@ -25,7 +25,10 @@ export const getUsers = async (
     const data = await response.json();
     return data;
   } catch (error) {
-    return rejectWithValue(error); // Pass error message to payload
+    if (error instanceof Error) {
+      return rejectWithValue(error.message);
+    }
+    return rejectWithValue('An unknown error occurred');
   }
 };
 
@@ -55,7 +58,10 @@ export const getUserInfo = async (
     const data = await response.json();
     return data;
   } catch (error) {
-    return rejectWithValue(error); // Pass error message to payload
+    if (error instanceof Error) {
+      return rejectWithValue(error.message);
+    }
+    return rejectWithValue('An unknown error occurred');
   }
 };
 
@@ -82,7 +88,10 @@ export const addUser = async (payloadData: AddUser, { rejectWithValue }) => {
     const data = await response.json();
     return data;
   } catch (error) {
-    return rejectWithValue(error); // Pass error message to payload
+    if (error instanceof Error) {
+      return rejectWithValue(error.message);
+    }
+    return rejectWithValue('An unknown error occurred');
   }
 };
 
@@ -112,7 +121,10 @@ export const updateUser = async (
     const data = await response.json();
     return data;
   } catch (error) {
-    return rejectWithValue(error); // Pass error message to payload
+    if (error instanceof Error) {
+      return rejectWithValue(error.message);
+    }
+    return rejectWithValue('An unknown error occurred');
   }
 };
 
@@ -149,6 +161,9 @@ export const deleteUser = async (
     const data = await response.json();
     return data;
   } catch (error) {
-    return rejectWithValue(error); // Pass error message to payload
+    if (error instanceof Error) {
+      return rejectWithValue(error.message);
+    }
+    return rejectWithValue('An unknown error occurred');
   }
 };
