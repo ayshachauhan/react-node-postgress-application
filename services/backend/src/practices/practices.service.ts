@@ -61,7 +61,6 @@ export class PracticesService {
       }
       resultArray.push(finalPractice);
     }
-    console.log(resultArray);
 
     return resultArray;
   }
