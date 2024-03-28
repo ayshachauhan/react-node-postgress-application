@@ -39,7 +39,6 @@ const TemplateAddPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               ControlContainer: {
                 style: {
                   backgroundColor: 'rgba(250, 250, 250, 1)',
-                  color: 'rgba(250, 250, 250, 1)',
                   border: 'none',
                   boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)', // Add shadow CSS here
                 },
@@ -68,7 +67,6 @@ const TemplateAddPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               ControlContainer: {
                 style: {
                   backgroundColor: 'rgba(250, 250, 250, 1)',
-                  color: 'rgba(250, 250, 250, 1)',
                   border: 'none',
                   boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)', // Add shadow CSS here
                 },

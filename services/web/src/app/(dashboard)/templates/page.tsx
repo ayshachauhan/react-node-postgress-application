@@ -170,7 +170,6 @@ const Templates: React.FC = () => {
                       ControlContainer: {
                         style: {
                           backgroundColor: 'rgba(250, 250, 250, 1)',
-                          color: 'rgba(250, 250, 250, 1)',
                           border: 'none',
                           boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
                         },
