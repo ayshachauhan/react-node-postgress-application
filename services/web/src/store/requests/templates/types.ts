@@ -5,7 +5,7 @@ export interface GetTemplatesResponse {
   messageType: string;
   surgeryType: string;
   surgeryNumber: number;
-  emailSubject?: String;
+  emailSubject?: string;
   emailBody?: string;
   emailAttachment?: string;
   email1stCataract?: string;
@@ -14,7 +14,7 @@ export interface GetTemplatesResponse {
 }
 
 export interface CreateTemplateResponse {
-  practiceId: String;
+  practiceId: string;
   userId: string;
   actice: boolean;
   dateOffset: number;
@@ -22,7 +22,7 @@ export interface CreateTemplateResponse {
   messageType: string;
   surgeryType: string;
   surgeryNumber: number;
-  emailSubject?: String;
+  emailSubject?: string;
   emailBody?: string;
   emailAttachment?: string;
   email1stCataract?: string;
