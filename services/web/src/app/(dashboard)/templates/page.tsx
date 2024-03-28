@@ -1,7 +1,6 @@
 'use client';
 import Button from '@root/components/Button';
 import { AddIcon, SearchIcon } from '@root/components/Icons';
-import TextInput from '@root/components/TextInput';
 import Form from '@root/components/templates/addTemplate.module';
 import TemplateUpdate from '@root/components/templates/updateTemplate.module';
 import { UserType } from '@root/enums/userType.enum';
@@ -40,8 +39,6 @@ const Templates: React.FC = () => {
   const dispatch = useAppDispatch();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [surgeryType, setSurgeryType] = useState('');
-  const [time, setTimechange] = useState('');
-  const [dateOffset, setDateOffset] = useState('');
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const practiceId = useAppSelector(selectPractice);
   const successMessage = useAppSelector(selectSuccessMessage);
@@ -50,9 +47,6 @@ const Templates: React.FC = () => {
   const router = useRouter();
   const handleSurgeryTypeChange = ({ value }) => {
     setSurgeryType(value[0] ? value[0].label : null);
-  };
-  const handleTimeChange = ({ value }) => {
-    setTimechange(value[0] ? value[0].label : null);
   };
   const handleOpenAddModal = (): void => {
     setIsAddModalOpen(true);
@@ -149,56 +143,6 @@ const Templates: React.FC = () => {
           <div className="flex justify-between mt-10 items-center">
             <p>Write New Template</p>
             <div className="flex items-center gap-5">
-              <div className="flex flex-row items-center gap-2">
-                <label
-                  htmlFor="dateOffset"
-                  className="text-black text-sm font-normal"
-                >
-                  Date Offset:
-                </label>
-                <div
-                  style={{ fontSize: '16px', fontWeight: 400, width: '180px' }}
-                >
-                  <TextInput
-                    name="dateOffset"
-                    value={dateOffset}
-                    onChange={(value) => {
-                      setDateOffset(value);
-                    }}
-                    required
-                    heightOverride="41px"
-                    fontSizeOverride="16px"
-                    fontWeightOverride="400"
-                    fontColorOverride="#52525B"
-                  />
-                </div>
-                <div
-                  style={{ fontSize: '14px', fontWeight: 400, width: '60px' }}
-                >
-                  <Select
-                    options={[
-                      { label: 'AM', id: '1' },
-                      { label: 'PM', id: '2' },
-                    ]}
-                    onChange={handleTimeChange}
-                    value={time ? [{ label: time, id: time }] : []}
-                    required
-                    overrides={{
-                      ControlContainer: {
-                        style: {
-                          backgroundColor: 'rgba(250, 250, 250, 1)',
-                          color: 'rgba(250, 250, 250, 1)',
-                          border: 'none',
-                          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-                        },
-                      },
-                      ClearIcon: {
-                        component: () => null,
-                      },
-                    }}
-                  />
-                </div>
-              </div>
               <div className="flex flex-row items-center gap-2">
                 <label
                   htmlFor="surgeryType"
