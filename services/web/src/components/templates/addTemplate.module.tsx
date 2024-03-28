@@ -7,10 +7,6 @@ const TemplateAddPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const [surgeryType, setSurgeryType] = useState('');
   const [msgType, setMsgType] = useState('');
   const [dateOffset, setDateOffset] = useState('');
-  const [time, setTimechange] = useState('');
-  const handleTimeChange = ({ value }) => {
-    setTimechange(value[0] ? value[0].label : null);
-  };
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     onClose();
@@ -84,47 +80,18 @@ const TemplateAddPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           />
           <div className="space-y-4"></div>
         </div>
-        <div className="flex items-center gap-5">
-          <div className="space-y-4">
-            <label htmlFor="dateOffset" className="text-black text-sm">
-              Date Offset
-            </label>
-            <TextInput
-              name="dateOffset"
-              value={dateOffset}
-              onChange={(value) => {
-                setDateOffset(value);
-              }}
-              required
-            />
-          </div>
-          <div className="space-y-4">
-            <label htmlFor="time" className="text-black text-sm">
-              AM/FM
-            </label>
-            <Select
-              options={[
-                { label: 'AM', id: '1' },
-                { label: 'PM', id: '2' },
-              ]}
-              onChange={handleTimeChange}
-              value={time ? [{ label: time, id: time }] : []}
-              required
-              overrides={{
-                ControlContainer: {
-                  style: {
-                    backgroundColor: 'rgba(250, 250, 250, 1)',
-                    color: 'rgba(250, 250, 250, 1)',
-                    border: 'none',
-                    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)', // Add shadow CSS here
-                  },
-                },
-                ClearIcon: {
-                  component: () => null,
-                },
-              }}
-            />
-          </div>
+        <div className="space-y-4">
+          <label htmlFor="dateOffset" className="text-black text-sm">
+            Date Offset
+          </label>
+          <TextInput
+            name="dateOffset"
+            value={dateOffset}
+            onChange={(value) => {
+              setDateOffset(value);
+            }}
+            required
+          />
         </div>
         <div className="text-right text-base mt-4">
           <Button kind="primary" title="Add New Template" width={189} />

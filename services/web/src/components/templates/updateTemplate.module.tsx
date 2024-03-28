@@ -9,11 +9,15 @@ const TemplateUpdatePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const [checkboxes, setCheckboxes] = React.useState([false, false]);
   const [selectedFile, setSelectedFile] = useState(null);
   const [message, setMessage] = useState('');
+  const [messageText, setMessageText] = useState('');
   const handleFileChange = (event) => {
     setSelectedFile(event.target.files[0]);
   };
   const handleHtmlChange = (event) => {
     setMessage(event.target.value);
+  };
+  const handleMessageTextChange = (event) => {
+    setMessageText(event.target.value);
   };
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -110,10 +114,30 @@ const TemplateUpdatePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               <div className="space-y-4 border-b border-gray-100 mt-5 text-black font-bold text-xl pb-2">
                 Text Message
               </div>
-              <div
-                className="text-black mt-5 text-sm overflow-hidden break-all"
-                dangerouslySetInnerHTML={{ __html: message }}
-              />
+              <div className="mt-3">
+                <Textarea
+                  rows={4}
+                  value={messageText}
+                  onChange={handleMessageTextChange}
+                  clearOnEscape
+                  overrides={{
+                    Root: {
+                      style: {
+                        border: 'none',
+                        boxShadow:
+                          '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+                        fontSize: '0.875rem',
+                      },
+                    },
+                    Input: {
+                      style: {
+                        backgroundColor: '#FAFAFA',
+                        border: 'none',
+                      },
+                    },
+                  }}
+                />
+              </div>
             </div>
           </form>
         </div>
@@ -122,7 +146,7 @@ const TemplateUpdatePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             Email Message Preview
           </div>
           <div className="text-black text-sm">
-            <p className="font-bold my-1">[Dr. Shawn Lin] {subject} </p>
+            <p className="font-bold my-1">{subject} </p>
             {selectedFile && (
               <div>
                 <p className="my-1">
