@@ -100,7 +100,7 @@ const TemplateAddPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           </div>
           <div className="space-y-4">
             <label htmlFor="time" className="text-black text-sm">
-              AM/FM
+              AM/PM
             </label>
             <Select
               options={[
