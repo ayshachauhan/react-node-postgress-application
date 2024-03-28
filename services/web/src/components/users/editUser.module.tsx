@@ -51,26 +51,27 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
       );
       updatedUserInfo.fullName = fullName;
     }
-    delete updatedUserInfo.password;
     if (userId && practiceId) {
       const userPayloadData = {
         ...updatedUserInfo,
-        userName: updatedUserInfo.userName ?? '', //, // Now assured to be a string
-        firstName: updatedUserInfo.firstName ?? '', //, // Now assured to be a string
-        lastName: updatedUserInfo.lastName ?? '', //, // Now assured to be a string
-        contactNumber: updatedUserInfo.contactNumber ?? '', //, // Now assured to be a string
-        fullName: updatedUserInfo.fullName ?? '', //, // Now assured to be a string
-        email: updatedUserInfo.email ?? '', //, // Now assured to be a string
-        url: updatedUserInfo.url ?? '', //, // Now assured to be a string
-        status: updatedUserInfo.status ?? UserStatus.INACTIVE, //, // Now assured to be a string
-        type: updatedUserInfo.type ?? UserType.EMPLOYEE, //, // Now assured to be a string
-        password: updatedUserInfo.password ?? '', //, // Now assured to be a string
+        userName: updatedUserInfo.userName ?? '',
+        firstName: updatedUserInfo.firstName ?? '',
+        lastName: updatedUserInfo.lastName ?? '',
+        contactNumber: updatedUserInfo.contactNumber ?? '',
+        fullName: updatedUserInfo.fullName ?? '',
+        email: updatedUserInfo.email ?? '',
+        url: updatedUserInfo.url ?? '',
+        status: updatedUserInfo.status ?? UserStatus.INACTIVE,
+        type: updatedUserInfo.type ?? UserType.EMPLOYEE,
         practiceId: practiceId,
         id: userId,
       };
+      if ('password' in userPayloadData) {
+        delete userPayloadData.password;
+      }
       try {
         dispatch(updateRecordAsync(userPayloadData));
-        onClose(); // Close the modal after form submission
+        onClose();
       } catch (error) {
         onClose();
       }
@@ -185,8 +186,15 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
                 ]}
                 onChange={handleTypeChange}
                 overrides={{
+                  ControlContainer: {
+                    style: {
+                      backgroundColor: 'rgba(250, 250, 250, 1)',
+                      border: 'none',
+                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)', // Add shadow CSS here
+                    },
+                  },
                   ClearIcon: {
-                    component: () => null, // This replaces the clear icon with null, effectively removing it
+                    component: () => null,
                   },
                 }}
                 value={
@@ -214,8 +222,15 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
                 ]}
                 onChange={handleStatusChange}
                 overrides={{
+                  ControlContainer: {
+                    style: {
+                      backgroundColor: 'rgba(250, 250, 250, 1)',
+                      border: 'none',
+                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)', // Add shadow CSS here
+                    },
+                  },
                   ClearIcon: {
-                    component: () => null, // This replaces the clear icon with null, effectively removing it
+                    component: () => null,
                   },
                 }}
                 value={
