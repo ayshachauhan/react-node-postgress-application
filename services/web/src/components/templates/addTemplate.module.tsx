@@ -1,19 +1,43 @@
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
+import { useAppDispatch, useAppSelector } from '@root/store';
+import { selectPractice, selectRecords } from '@root/store/reducers/auth';
+import { addRecordAsync } from '@root/store/reducers/templates';
+import { CreateTemplateResponse } from '@root/store/requests/templates';
 import { Select } from 'baseui/select';
 import React, { useState } from 'react';
 
 const TemplateAddPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
+  const practiceId = useAppSelector(selectPractice);
+  const userInfo = useAppSelector(selectRecords);
+  const dispatch = useAppDispatch();
+
   const [surgeryType, setSurgeryType] = useState('');
-  const [msgType, setMsgType] = useState('');
-  const [dateOffset, setDateOffset] = useState('');
-  const [time, setTimechange] = useState('');
-  const handleTimeChange = ({ value }) => {
-    setTimechange(value[0] ? value[0].label : null);
-  };
+  const [messageType, setMsgType] = useState('');
+  const [dateOffset, setDateOffset] = useState(0);
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    onClose();
+    if (practiceId && userInfo) {
+      const data: CreateTemplateResponse = {
+        practiceId,
+        userId: userInfo.id,
+        actice: true,
+        dateOffset,
+        messageType,
+        surgeryType,
+        surgeryNumber: 0,
+      };
+      try {
+        dispatch(addRecordAsync(data));
+        setDateOffset(0);
+        setMsgType('');
+        setSurgeryType('');
+        onClose();
+      } catch (error) {
+        onClose();
+      }
+    }
   };
   const handleSurgeryTypeChange = ({ value }) => {
     setSurgeryType(value[0] ? value[0].label : null);
@@ -32,9 +56,9 @@ const TemplateAddPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           </label>
           <Select
             options={[
-              { label: 'cataract', id: '1' },
-              { label: 'yag', id: '2' },
-              { label: 'lasik', id: '3' },
+              { label: 'CATARACT', id: '1' },
+              { label: 'YAG', id: '2' },
+              { label: 'LASIK', id: '3' },
             ]}
             onChange={handleSurgeryTypeChange}
             value={surgeryType ? [{ label: surgeryType, id: surgeryType }] : []}
@@ -43,9 +67,8 @@ const TemplateAddPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               ControlContainer: {
                 style: {
                   backgroundColor: 'rgba(250, 250, 250, 1)',
-                  color: 'rgba(250, 250, 250, 1)',
                   border: 'none',
-                  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)', // Add shadow CSS here
+                  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
                 },
               },
               ClearIcon: {
@@ -61,20 +84,21 @@ const TemplateAddPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           </label>
           <Select
             options={[
-              { label: 'type 1', id: '1' },
-              { label: 'type 2', id: '2' },
-              { label: 'type 3', id: '3' },
+              { label: 'TIMED', id: '1' },
+              { label: 'EVALUATION', id: '2' },
+              { label: 'BOOKING', id: '3' },
+              { label: 'REFERRER', id: '4' },
+              { label: 'PCP', id: '5' },
             ]}
             onChange={handleMsgTypeChange}
-            value={msgType ? [{ label: msgType, id: msgType }] : []}
+            value={messageType ? [{ label: messageType, id: messageType }] : []}
             required
             overrides={{
               ControlContainer: {
                 style: {
                   backgroundColor: 'rgba(250, 250, 250, 1)',
-                  color: 'rgba(250, 250, 250, 1)',
                   border: 'none',
-                  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)', // Add shadow CSS here
+                  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
                 },
               },
               ClearIcon: {
@@ -84,47 +108,19 @@ const TemplateAddPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           />
           <div className="space-y-4"></div>
         </div>
-        <div className="flex items-center gap-5">
-          <div className="space-y-4">
-            <label htmlFor="dateOffset" className="text-black text-sm">
-              Date Offset
-            </label>
-            <TextInput
-              name="dateOffset"
-              value={dateOffset}
-              onChange={(value) => {
-                setDateOffset(value);
-              }}
-              required
-            />
-          </div>
-          <div className="space-y-4">
-            <label htmlFor="time" className="text-black text-sm">
-              AM/PM
-            </label>
-            <Select
-              options={[
-                { label: 'AM', id: '1' },
-                { label: 'PM', id: '2' },
-              ]}
-              onChange={handleTimeChange}
-              value={time ? [{ label: time, id: time }] : []}
-              required
-              overrides={{
-                ControlContainer: {
-                  style: {
-                    backgroundColor: 'rgba(250, 250, 250, 1)',
-                    color: 'rgba(250, 250, 250, 1)',
-                    border: 'none',
-                    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)', // Add shadow CSS here
-                  },
-                },
-                ClearIcon: {
-                  component: () => null,
-                },
-              }}
-            />
-          </div>
+        <div className="space-y-4">
+          <label htmlFor="dateOffset" className="text-black text-sm">
+            Date Offset
+          </label>
+          <TextInput
+            name="dateOffset"
+            value={dateOffset}
+            type="number"
+            onChange={(value) => {
+              setDateOffset(parseFloat(value));
+            }}
+            required
+          />
         </div>
         <div className="text-right text-base mt-4">
           <Button kind="primary" title="Add New Template" width={189} />

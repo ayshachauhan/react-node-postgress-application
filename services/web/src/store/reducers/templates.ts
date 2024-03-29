@@ -2,7 +2,6 @@ import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { State } from '@root/store';
 import {
   addTemplate,
-  CreateTemplateResponse,
   getTemplates,
   GetTemplatesResponse,
 } from '../requests/templates';
@@ -29,7 +28,7 @@ const templateSlice = createSlice({
   name: 'template',
   initialState,
   reducers: {
-    addMediaItem(state, action: PayloadAction<CreateTemplateResponse>) {
+    addMediaItem(state, action: PayloadAction<GetTemplatesResponse>) {
       state.template = [...state.template, action.payload];
     },
     clearSuccessMessage(state) {
@@ -53,9 +52,9 @@ const templateSlice = createSlice({
     builder.addCase(fetchListings.rejected, (state, action) => {
       state.status = 'failed';
       if (typeof action.payload === 'string') {
-        state.error = action.payload ?? 'Failed to fetch videos';
+        state.error = action.payload ?? 'Failed to fetch templates';
       } else {
-        state.error = 'Failed to fetch videos';
+        state.error = 'Failed to fetch templates';
       }
     });
 
@@ -73,9 +72,9 @@ const templateSlice = createSlice({
     builder.addCase(addRecordAsync.rejected, (state, action) => {
       state.status = 'failed';
       if (typeof action.payload === 'string') {
-        state.error = action.payload ?? 'Failed to add video';
+        state.error = action.payload ?? 'Failed to add template';
       } else {
-        state.error = 'Failed to add video';
+        state.error = 'Failed to add template';
       }
     });
   },

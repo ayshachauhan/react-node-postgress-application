@@ -1,7 +1,6 @@
 'use client';
 import Button from '@root/components/Button';
 import { AddIcon, SearchIcon } from '@root/components/Icons';
-import TextInput from '@root/components/TextInput';
 import Form from '@root/components/templates/addTemplate.module';
 import TemplateUpdate from '@root/components/templates/updateTemplate.module';
 import { UserType } from '@root/enums/userType.enum';
@@ -13,7 +12,7 @@ import {
   fetchListings,
   selectError,
   selectSuccessMessage,
-} from '@root/store/reducers/media';
+} from '@root/store/reducers/templates';
 import { Input } from 'baseui/input';
 import { Modal, ModalBody, ModalHeader, ROLE, SIZE } from 'baseui/modal';
 import { Select } from 'baseui/select';
@@ -40,19 +39,15 @@ const Templates: React.FC = () => {
   const dispatch = useAppDispatch();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [surgeryType, setSurgeryType] = useState('');
-  const [time, setTimechange] = useState('');
-  const [dateOffset, setDateOffset] = useState('');
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const practiceId = useAppSelector(selectPractice);
+  const templates = useAppSelector((state) => state.templates.template);
   const successMessage = useAppSelector(selectSuccessMessage);
   const errorMessage = useAppSelector(selectError);
   const [showErrorMessage, setShowErrorMessage] = useState(false);
   const router = useRouter();
   const handleSurgeryTypeChange = ({ value }) => {
     setSurgeryType(value[0] ? value[0].label : null);
-  };
-  const handleTimeChange = ({ value }) => {
-    setTimechange(value[0] ? value[0].label : null);
   };
   const handleOpenAddModal = (): void => {
     setIsAddModalOpen(true);
@@ -151,56 +146,6 @@ const Templates: React.FC = () => {
             <div className="flex items-center gap-5">
               <div className="flex flex-row items-center gap-2">
                 <label
-                  htmlFor="dateOffset"
-                  className="text-black text-sm font-normal"
-                >
-                  Date Offset:
-                </label>
-                <div
-                  style={{ fontSize: '16px', fontWeight: 400, width: '180px' }}
-                >
-                  <TextInput
-                    name="dateOffset"
-                    value={dateOffset}
-                    onChange={(value) => {
-                      setDateOffset(value);
-                    }}
-                    required
-                    heightOverride="41px"
-                    fontSizeOverride="16px"
-                    fontWeightOverride="400"
-                    fontColorOverride="#52525B"
-                  />
-                </div>
-                <div
-                  style={{ fontSize: '14px', fontWeight: 400, width: '60px' }}
-                >
-                  <Select
-                    options={[
-                      { label: 'AM', id: '1' },
-                      { label: 'PM', id: '2' },
-                    ]}
-                    onChange={handleTimeChange}
-                    value={time ? [{ label: time, id: time }] : []}
-                    required
-                    overrides={{
-                      ControlContainer: {
-                        style: {
-                          backgroundColor: 'rgba(250, 250, 250, 1)',
-                          color: 'rgba(250, 250, 250, 1)',
-                          border: 'none',
-                          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-                        },
-                      },
-                      ClearIcon: {
-                        component: () => null,
-                      },
-                    }}
-                  />
-                </div>
-              </div>
-              <div className="flex flex-row items-center gap-2">
-                <label
                   htmlFor="surgeryType"
                   className="text-black text-sm font-normal"
                 >
@@ -226,7 +171,6 @@ const Templates: React.FC = () => {
                       ControlContainer: {
                         style: {
                           backgroundColor: 'rgba(250, 250, 250, 1)',
-                          color: 'rgba(250, 250, 250, 1)',
                           border: 'none',
                           boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
                         },
@@ -247,10 +191,9 @@ const Templates: React.FC = () => {
       </Modal>
     );
   };
-
   useEffect(() => {
     if (practiceId !== null) {
-      dispatch(fetchListings({ practiceId: practiceId })); // Fetch listings from PostgreSQL database
+      dispatch(fetchListings({ practiceId: practiceId, userId: userInfo?.id }));
     }
   }, [practiceId, dispatch]);
 
@@ -258,15 +201,15 @@ const Templates: React.FC = () => {
     let timer;
     if (successMessage) {
       timer = setTimeout(() => {
-        dispatch(clearSuccessMessage()); // Clear success message
-      }, 2000); // Hide modal after 2 seconds
+        dispatch(clearSuccessMessage());
+      }, 2000);
     }
     if (errorMessage) {
       setShowErrorMessage(true);
       timer = setTimeout(() => {
         setShowErrorMessage(false);
-        dispatch(clearErrorMessage()); // Clear error message
-      }, 2000); // Hide modal after 2 seconds
+        dispatch(clearErrorMessage());
+      }, 2000);
     }
     return () => {
       if (timer) {
@@ -275,18 +218,17 @@ const Templates: React.FC = () => {
     };
   }, [successMessage, errorMessage, dispatch]);
 
+  const errorMessage1: string = 'Error occurred while adding record.';
   return (
     <div id="__next" className="mt-4">
       <div className="flex justify-between border-gray-400">
         <span className="text-2xl font-medium">Template Engine </span>
         <div style={{ color: 'green' }}>{successMessage}</div>
         {showErrorMessage && (
-          <div style={{ color: 'red' }}>
-            Error occurred while adding record.
-          </div>
+          <div style={{ color: 'red' }}>{errorMessage1}</div>
         )}
-        <div className="flex w-2/6 justify-between">
-          <div className="flex ml-5">
+        <div className="flex justify-between">
+          <div className="flex ml-5 pr-1">
             <div style={{ width: '291px' }}>
               <div className="rounded-tl rounded-tr-none rounded-bl rounded-br-none border border-gray-300 border-r-0">
                 <Input
@@ -311,1209 +253,75 @@ const Templates: React.FC = () => {
             fontSize="14px"
             onClick={handleOpenAddModal}
             startEnhancer={() => <AddIcon className="mt-2" size={18}></AddIcon>}
-          />{' '}
+          />
         </div>
       </div>
-      <hr className="h-px my-2.5 bg-gray-100 border-1 dark:bg-gray-700"></hr>
-      <div className="flex flex-wrap gap-6">
-        {/* {media.map((data) => (
-          <React.Fragment key={data.id}> */}
-        {/* <GeneralCard
-                    id={this.props.id}
-                    /> */}
+      <hr className="h-px my-2.5 px-0 mx-0 bg-gray-100 border-1 dark:bg-gray-700"></hr>
+      <div className="flex flex-wrap gap-7">
         <div className="rounded-lg shadow-md w-[370px] h-292 relative">
-          <div>
-            <div className="text-white py-2.5 text-center bg-gradient-to-r from-primary-light to-primary-dark uppercase rounded-t-lg font-bold">
-              CATARACT
-            </div>
-            <div className="rounded-lg" style={{ height: '245px' }}>
-              <div className="grid grid-rows-5 h-full p-2">
-                <div className="row-start-1 row-span-1 flex items-center border-b border-gray-200">
-                  <p>
-                    <span className="font-bold text-sm">Booking: </span>{' '}
-                    <span
-                      className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white cursor-pointer"
-                      onClick={handleOpenUpdateModal}
-                    >
-                      Booking
-                    </span>
-                  </p>
-                </div>
-                <div className="row-start-2 row-span-1 flex items-center border-b border-gray-200">
-                  <p>
-                    <span className="font-bold text-sm">Referrer: </span>{' '}
-                    <span className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v1
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v2
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v3
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v4
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white">
-                      v5
-                    </span>
-                  </p>
-                </div>
-                <div className="row-start-3 row-span-1 flex items-center border-b border-gray-200">
-                  <p>
-                    <span className="font-bold text-sm">PCP: </span>{' '}
-                    <span className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v1
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v2
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v3
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v4
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white">
-                      v5
-                    </span>
-                  </p>
-                </div>
-                <div className="row-start-4 row-span-1 flex items-center border-b border-gray-200">
-                  <p>
-                    <span className="font-bold text-sm">Preop: </span>{' '}
-                    <span className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      -1
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      -3
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      -5
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      -7
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white">
-                      -9
-                    </span>
-                  </p>
-                </div>
-                <div className="row-start-5 row-span flex items-center border-gray-200">
-                  <p>
-                    <span className="font-bold text-sm">Postop: </span>{' '}
-                    <span className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      1
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      3
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      5
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      7
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white">
-                      9
-                    </span>
-                  </p>
+          {templates.map((data) => (
+            <React.Fragment key={data.id}>
+              <div className="text-white py-2.5 text-center bg-gradient-to-r from-primary-light to-primary-dark uppercase rounded-t-lg font-bold">
+                {data.surgeryType}
+              </div>
+              <div className="rounded-lg" style={{ height: '245px' }}>
+                <div className="grid grid-rows-5 h-full p-2">
+                  <div className="row-start-1 row-span-1 flex items-center border-b border-gray-200">
+                    <p>
+                      <span className="font-bold text-sm">Booking: </span>{' '}
+                      <span
+                        className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white cursor-pointer"
+                        onClick={handleOpenUpdateModal}
+                      >
+                        Booking
+                      </span>
+                    </p>
+                  </div>
+                  <div className="row-start-2 row-span-1 flex items-center border-b border-gray-200">
+                    <p>
+                      <span className="font-bold text-sm">Referrer: </span>
+                      {['V1', 'V2', 'V3', 'V4', 'V5'].map((ele) => (
+                        <span className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
+                          {ele}
+                        </span>
+                      ))}
+                    </p>
+                  </div>
+                  <div className="row-start-3 row-span-1 flex items-center border-b border-gray-200">
+                    <p>
+                      <span className="font-bold text-sm">Referrer: </span>
+                      {['V1', 'V2', 'V3', 'V4', 'V5'].map((ele) => (
+                        <span className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
+                          {ele}
+                        </span>
+                      ))}
+                    </p>
+                  </div>
+                  <div className="row-start-4 row-span-1 flex items-center border-b border-gray-200">
+                    <p>
+                      <span className="font-bold text-sm">Referrer: </span>
+                      {['-1', '-3', '-5', '-7', '-9'].map((ele) => (
+                        <span className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
+                          {ele}
+                        </span>
+                      ))}
+                    </p>
+                  </div>
+                  <div className="row-start-5 row-span flex items-center border-gray-200">
+                    <p>
+                      <span className="font-bold text-sm">Referrer: </span>
+                      {['1', '3', '5', '7', '9'].map((ele) => (
+                        <span className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
+                          {ele}
+                        </span>
+                      ))}
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
+            </React.Fragment>
+          ))}
         </div>
-        <div className="rounded-lg shadow-md w-[370px] h-292 relative">
-          <div>
-            <div className="text-white py-2.5 text-center bg-gradient-to-r from-primary-light to-primary-dark uppercase rounded-t-lg font-bold">
-              CATARACT
-            </div>
-            <div className="rounded-lg" style={{ height: '245px' }}>
-              <div className="grid grid-rows-5 h-full p-2">
-                <div className="row-start-1 row-span-1 flex items-center border-b border-gray-200">
-                  <p>
-                    <span className="font-bold text-sm">Booking: </span>{' '}
-                    <span className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white">
-                      Booking
-                    </span>
-                  </p>
-                </div>
-                <div className="row-start-2 row-span-1 flex items-center border-b border-gray-200">
-                  <p>
-                    <span className="font-bold text-sm">Referrer: </span>{' '}
-                    <span className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v1
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v2
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v3
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v4
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white">
-                      v5
-                    </span>
-                  </p>
-                </div>
-                <div className="row-start-3 row-span-1 flex items-center border-b border-gray-200">
-                  <p>
-                    <span className="font-bold text-sm">PCP: </span>{' '}
-                    <span className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v1
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v2
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v3
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v4
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white">
-                      v5
-                    </span>
-                  </p>
-                </div>
-                <div className="row-start-4 row-span-1 flex items-center border-b border-gray-200">
-                  <p>
-                    <span className="font-bold text-sm">Preop: </span>{' '}
-                    <span className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      -1
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      -3
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      -5
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      -7
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white">
-                      -9
-                    </span>
-                  </p>
-                </div>
-                <div className="row-start-5 row-span flex items-center border-gray-200">
-                  <p>
-                    <span className="font-bold text-sm">Postop: </span>{' '}
-                    <span className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      1
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      3
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      5
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      7
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white">
-                      9
-                    </span>
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="rounded-lg shadow-md w-[370px] h-292 relative">
-          <div>
-            <div className="text-white py-2.5 text-center bg-gradient-to-r from-primary-light to-primary-dark uppercase rounded-t-lg font-bold">
-              CATARACT
-            </div>
-            <div className="rounded-lg" style={{ height: '245px' }}>
-              <div className="grid grid-rows-5 h-full p-2">
-                <div className="row-start-1 row-span-1 flex items-center border-b border-gray-200">
-                  <p>
-                    <span className="font-bold text-sm">Booking: </span>{' '}
-                    <span className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white">
-                      Booking
-                    </span>
-                  </p>
-                </div>
-                <div className="row-start-2 row-span-1 flex items-center border-b border-gray-200">
-                  <p>
-                    <span className="font-bold text-sm">Referrer: </span>{' '}
-                    <span className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v1
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v2
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v3
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v4
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white">
-                      v5
-                    </span>
-                  </p>
-                </div>
-                <div className="row-start-3 row-span-1 flex items-center border-b border-gray-200">
-                  <p>
-                    <span className="font-bold text-sm">PCP: </span>{' '}
-                    <span className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v1
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v2
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v3
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v4
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white">
-                      v5
-                    </span>
-                  </p>
-                </div>
-                <div className="row-start-4 row-span-1 flex items-center border-b border-gray-200">
-                  <p>
-                    <span className="font-bold text-sm">Preop: </span>{' '}
-                    <span className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      -1
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      -3
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      -5
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      -7
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white">
-                      -9
-                    </span>
-                  </p>
-                </div>
-                <div className="row-start-5 row-span flex items-center border-gray-200">
-                  <p>
-                    <span className="font-bold text-sm">Postop: </span>{' '}
-                    <span className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      1
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      3
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      5
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      7
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white">
-                      9
-                    </span>
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="rounded-lg shadow-md w-[370px] h-292 relative">
-          <div>
-            <div className="text-white py-2.5 text-center bg-gradient-to-r from-primary-light to-primary-dark uppercase rounded-t-lg font-bold">
-              CATARACT
-            </div>
-            <div className="rounded-lg" style={{ height: '245px' }}>
-              <div className="grid grid-rows-5 h-full p-2">
-                <div className="row-start-1 row-span-1 flex items-center border-b border-gray-200">
-                  <p>
-                    <span className="font-bold text-sm">Booking: </span>{' '}
-                    <span className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white">
-                      Booking
-                    </span>
-                  </p>
-                </div>
-                <div className="row-start-2 row-span-1 flex items-center border-b border-gray-200">
-                  <p>
-                    <span className="font-bold text-sm">Referrer: </span>{' '}
-                    <span className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v1
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v2
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v3
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v4
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white">
-                      v5
-                    </span>
-                  </p>
-                </div>
-                <div className="row-start-3 row-span-1 flex items-center border-b border-gray-200">
-                  <p>
-                    <span className="font-bold text-sm">PCP: </span>{' '}
-                    <span className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v1
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v2
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v3
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v4
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white">
-                      v5
-                    </span>
-                  </p>
-                </div>
-                <div className="row-start-4 row-span-1 flex items-center border-b border-gray-200">
-                  <p>
-                    <span className="font-bold text-sm">Preop: </span>{' '}
-                    <span className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      -1
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      -3
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      -5
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      -7
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white">
-                      -9
-                    </span>
-                  </p>
-                </div>
-                <div className="row-start-5 row-span flex items-center border-gray-200">
-                  <p>
-                    <span className="font-bold text-sm">Postop: </span>{' '}
-                    <span className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      1
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      3
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      5
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      7
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white">
-                      9
-                    </span>
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="rounded-lg shadow-md w-[370px] h-292 relative">
-          <div>
-            <div className="text-white py-2.5 text-center bg-gradient-to-r from-primary-light to-primary-dark uppercase rounded-t-lg font-bold">
-              CATARACT
-            </div>
-            <div className="rounded-lg" style={{ height: '245px' }}>
-              <div className="grid grid-rows-5 h-full p-2">
-                <div className="row-start-1 row-span-1 flex items-center border-b border-gray-200">
-                  <p>
-                    <span className="font-bold text-sm">Booking: </span>{' '}
-                    <span className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white">
-                      Booking
-                    </span>
-                  </p>
-                </div>
-                <div className="row-start-2 row-span-1 flex items-center border-b border-gray-200">
-                  <p>
-                    <span className="font-bold text-sm">Referrer: </span>{' '}
-                    <span className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v1
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v2
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v3
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v4
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white">
-                      v5
-                    </span>
-                  </p>
-                </div>
-                <div className="row-start-3 row-span-1 flex items-center border-b border-gray-200">
-                  <p>
-                    <span className="font-bold text-sm">PCP: </span>{' '}
-                    <span className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v1
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v2
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v3
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v4
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white">
-                      v5
-                    </span>
-                  </p>
-                </div>
-                <div className="row-start-4 row-span-1 flex items-center border-b border-gray-200">
-                  <p>
-                    <span className="font-bold text-sm">Preop: </span>{' '}
-                    <span className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      -1
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      -3
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      -5
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      -7
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white">
-                      -9
-                    </span>
-                  </p>
-                </div>
-                <div className="row-start-5 row-span flex items-center border-gray-200">
-                  <p>
-                    <span className="font-bold text-sm">Postop: </span>{' '}
-                    <span className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      1
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      3
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      5
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      7
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white">
-                      9
-                    </span>
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="rounded-lg shadow-md w-[370px] h-292 relative">
-          <div>
-            <div className="text-white py-2.5 text-center bg-gradient-to-r from-primary-light to-primary-dark uppercase rounded-t-lg font-bold">
-              CATARACT
-            </div>
-            <div className="rounded-lg" style={{ height: '245px' }}>
-              <div className="grid grid-rows-5 h-full p-2">
-                <div className="row-start-1 row-span-1 flex items-center border-b border-gray-200">
-                  <p>
-                    <span className="font-bold text-sm">Booking: </span>{' '}
-                    <span className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white">
-                      Booking
-                    </span>
-                  </p>
-                </div>
-                <div className="row-start-2 row-span-1 flex items-center border-b border-gray-200">
-                  <p>
-                    <span className="font-bold text-sm">Referrer: </span>{' '}
-                    <span className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v1
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v2
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v3
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v4
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white">
-                      v5
-                    </span>
-                  </p>
-                </div>
-                <div className="row-start-3 row-span-1 flex items-center border-b border-gray-200">
-                  <p>
-                    <span className="font-bold text-sm">PCP: </span>{' '}
-                    <span className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v1
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v2
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v3
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v4
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white">
-                      v5
-                    </span>
-                  </p>
-                </div>
-                <div className="row-start-4 row-span-1 flex items-center border-b border-gray-200">
-                  <p>
-                    <span className="font-bold text-sm">Preop: </span>{' '}
-                    <span className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      -1
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      -3
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      -5
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      -7
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white">
-                      -9
-                    </span>
-                  </p>
-                </div>
-                <div className="row-start-5 row-span flex items-center border-gray-200">
-                  <p>
-                    <span className="font-bold text-sm">Postop: </span>{' '}
-                    <span className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      1
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      3
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      5
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      7
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white">
-                      9
-                    </span>
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="rounded-lg shadow-md w-[370px] h-292 relative">
-          <div>
-            <div className="text-white py-2.5 text-center bg-gradient-to-r from-primary-light to-primary-dark uppercase rounded-t-lg font-bold">
-              CATARACT
-            </div>
-            <div className="rounded-lg" style={{ height: '245px' }}>
-              <div className="grid grid-rows-5 h-full p-2">
-                <div className="row-start-1 row-span-1 flex items-center border-b border-gray-200">
-                  <p>
-                    <span className="font-bold text-sm">Booking: </span>{' '}
-                    <span className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white">
-                      Booking
-                    </span>
-                  </p>
-                </div>
-                <div className="row-start-2 row-span-1 flex items-center border-b border-gray-200">
-                  <p>
-                    <span className="font-bold text-sm">Referrer: </span>{' '}
-                    <span className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v1
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v2
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v3
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v4
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white">
-                      v5
-                    </span>
-                  </p>
-                </div>
-                <div className="row-start-3 row-span-1 flex items-center border-b border-gray-200">
-                  <p>
-                    <span className="font-bold text-sm">PCP: </span>{' '}
-                    <span className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v1
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v2
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v3
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v4
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white">
-                      v5
-                    </span>
-                  </p>
-                </div>
-                <div className="row-start-4 row-span-1 flex items-center border-b border-gray-200">
-                  <p>
-                    <span className="font-bold text-sm">Preop: </span>{' '}
-                    <span className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      -1
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      -3
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      -5
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      -7
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white">
-                      -9
-                    </span>
-                  </p>
-                </div>
-                <div className="row-start-5 row-span flex items-center border-gray-200">
-                  <p>
-                    <span className="font-bold text-sm">Postop: </span>{' '}
-                    <span className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      1
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      3
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      5
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      7
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white">
-                      9
-                    </span>
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="rounded-lg shadow-md w-[370px] h-292 relative">
-          <div>
-            <div className="text-white py-2.5 text-center bg-gradient-to-r from-primary-light to-primary-dark uppercase rounded-t-lg font-bold">
-              CATARACT
-            </div>
-            <div className="rounded-lg" style={{ height: '245px' }}>
-              <div className="grid grid-rows-5 h-full p-2">
-                <div className="row-start-1 row-span-1 flex items-center border-b border-gray-200">
-                  <p>
-                    <span className="font-bold text-sm">Booking: </span>{' '}
-                    <span className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white">
-                      Booking
-                    </span>
-                  </p>
-                </div>
-                <div className="row-start-2 row-span-1 flex items-center border-b border-gray-200">
-                  <p>
-                    <span className="font-bold text-sm">Referrer: </span>{' '}
-                    <span className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v1
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v2
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v3
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v4
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white">
-                      v5
-                    </span>
-                  </p>
-                </div>
-                <div className="row-start-3 row-span-1 flex items-center border-b border-gray-200">
-                  <p>
-                    <span className="font-bold text-sm">PCP: </span>{' '}
-                    <span className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v1
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v2
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v3
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v4
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white">
-                      v5
-                    </span>
-                  </p>
-                </div>
-                <div className="row-start-4 row-span-1 flex items-center border-b border-gray-200">
-                  <p>
-                    <span className="font-bold text-sm">Preop: </span>{' '}
-                    <span className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      -1
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      -3
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      -5
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      -7
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white">
-                      -9
-                    </span>
-                  </p>
-                </div>
-                <div className="row-start-5 row-span flex items-center border-gray-200">
-                  <p>
-                    <span className="font-bold text-sm">Postop: </span>{' '}
-                    <span className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      1
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      3
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      5
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      7
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white">
-                      9
-                    </span>
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="rounded-lg shadow-md w-[370px] h-292 relative">
-          <div>
-            <div className="text-white py-2.5 text-center bg-gradient-to-r from-primary-light to-primary-dark uppercase rounded-t-lg font-bold">
-              CATARACT
-            </div>
-            <div className="rounded-lg" style={{ height: '245px' }}>
-              <div className="grid grid-rows-5 h-full p-2">
-                <div className="row-start-1 row-span-1 flex items-center border-b border-gray-200">
-                  <p>
-                    <span className="font-bold text-sm">Booking: </span>{' '}
-                    <span className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white">
-                      Booking
-                    </span>
-                  </p>
-                </div>
-                <div className="row-start-2 row-span-1 flex items-center border-b border-gray-200">
-                  <p>
-                    <span className="font-bold text-sm">Referrer: </span>{' '}
-                    <span className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v1
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v2
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v3
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v4
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white">
-                      v5
-                    </span>
-                  </p>
-                </div>
-                <div className="row-start-3 row-span-1 flex items-center border-b border-gray-200">
-                  <p>
-                    <span className="font-bold text-sm">PCP: </span>{' '}
-                    <span className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v1
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v2
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v3
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v4
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white">
-                      v5
-                    </span>
-                  </p>
-                </div>
-                <div className="row-start-4 row-span-1 flex items-center border-b border-gray-200">
-                  <p>
-                    <span className="font-bold text-sm">Preop: </span>{' '}
-                    <span className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      -1
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      -3
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      -5
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      -7
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white">
-                      -9
-                    </span>
-                  </p>
-                </div>
-                <div className="row-start-5 row-span flex items-center border-gray-200">
-                  <p>
-                    <span className="font-bold text-sm">Postop: </span>{' '}
-                    <span className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      1
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      3
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      5
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      7
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white">
-                      9
-                    </span>
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="rounded-lg shadow-md w-[370px] h-292 relative">
-          <div>
-            <div className="text-white py-2.5 text-center bg-gradient-to-r from-primary-light to-primary-dark uppercase rounded-t-lg font-bold">
-              CATARACT
-            </div>
-            <div className="rounded-lg" style={{ height: '245px' }}>
-              <div className="grid grid-rows-5 h-full p-2">
-                <div className="row-start-1 row-span-1 flex items-center border-b border-gray-200">
-                  <p>
-                    <span className="font-bold text-sm">Booking: </span>{' '}
-                    <span className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white">
-                      Booking
-                    </span>
-                  </p>
-                </div>
-                <div className="row-start-2 row-span-1 flex items-center border-b border-gray-200">
-                  <p>
-                    <span className="font-bold text-sm">Referrer: </span>{' '}
-                    <span className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v1
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v2
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v3
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v4
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white">
-                      v5
-                    </span>
-                  </p>
-                </div>
-                <div className="row-start-3 row-span-1 flex items-center border-b border-gray-200">
-                  <p>
-                    <span className="font-bold text-sm">PCP: </span>{' '}
-                    <span className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v1
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v2
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v3
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v4
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white">
-                      v5
-                    </span>
-                  </p>
-                </div>
-                <div className="row-start-4 row-span-1 flex items-center border-b border-gray-200">
-                  <p>
-                    <span className="font-bold text-sm">Preop: </span>{' '}
-                    <span className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      -1
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      -3
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      -5
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      -7
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white">
-                      -9
-                    </span>
-                  </p>
-                </div>
-                <div className="row-start-5 row-span flex items-center border-gray-200">
-                  <p>
-                    <span className="font-bold text-sm">Postop: </span>{' '}
-                    <span className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      1
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      3
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      5
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      7
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white">
-                      9
-                    </span>
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="rounded-lg shadow-md w-[370px] h-292 relative">
-          <div>
-            <div className="text-white py-2.5 text-center bg-gradient-to-r from-primary-light to-primary-dark uppercase rounded-t-lg font-bold">
-              CATARACT
-            </div>
-            <div className="rounded-lg" style={{ height: '245px' }}>
-              <div className="grid grid-rows-5 h-full p-2">
-                <div className="row-start-1 row-span-1 flex items-center border-b border-gray-200">
-                  <p>
-                    <span className="font-bold text-sm">Booking: </span>{' '}
-                    <span className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white">
-                      Booking
-                    </span>
-                  </p>
-                </div>
-                <div className="row-start-2 row-span-1 flex items-center border-b border-gray-200">
-                  <p>
-                    <span className="font-bold text-sm">Referrer: </span>{' '}
-                    <span className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v1
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v2
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v3
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v4
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white">
-                      v5
-                    </span>
-                  </p>
-                </div>
-                <div className="row-start-3 row-span-1 flex items-center border-b border-gray-200">
-                  <p>
-                    <span className="font-bold text-sm">PCP: </span>{' '}
-                    <span className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v1
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v2
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v3
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v4
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white">
-                      v5
-                    </span>
-                  </p>
-                </div>
-                <div className="row-start-4 row-span-1 flex items-center border-b border-gray-200">
-                  <p>
-                    <span className="font-bold text-sm">Preop: </span>{' '}
-                    <span className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      -1
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      -3
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      -5
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      -7
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white">
-                      -9
-                    </span>
-                  </p>
-                </div>
-                <div className="row-start-5 row-span flex items-center border-gray-200">
-                  <p>
-                    <span className="font-bold text-sm">Postop: </span>{' '}
-                    <span className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      1
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      3
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      5
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      7
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white">
-                      9
-                    </span>
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="rounded-lg shadow-md w-[370px] h-292 relative">
-          <div>
-            <div className="text-white py-2.5 text-center bg-gradient-to-r from-primary-light to-primary-dark uppercase rounded-t-lg font-bold">
-              CATARACT
-            </div>
-            <div className="rounded-lg" style={{ height: '245px' }}>
-              <div className="grid grid-rows-5 h-full p-2">
-                <div className="row-start-1 row-span-1 flex items-center border-b border-gray-200">
-                  <p>
-                    <span className="font-bold text-sm">Booking: </span>{' '}
-                    <span className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white">
-                      Booking
-                    </span>
-                  </p>
-                </div>
-                <div className="row-start-2 row-span-1 flex items-center border-b border-gray-200">
-                  <p>
-                    <span className="font-bold text-sm">Referrer: </span>{' '}
-                    <span className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v1
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v2
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v3
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v4
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white">
-                      v5
-                    </span>
-                  </p>
-                </div>
-                <div className="row-start-3 row-span-1 flex items-center border-b border-gray-200">
-                  <p>
-                    <span className="font-bold text-sm">PCP: </span>{' '}
-                    <span className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v1
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v2
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v3
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      v4
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white">
-                      v5
-                    </span>
-                  </p>
-                </div>
-                <div className="row-start-4 row-span-1 flex items-center border-b border-gray-200">
-                  <p>
-                    <span className="font-bold text-sm">Preop: </span>{' '}
-                    <span className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      -1
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      -3
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      -5
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      -7
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white">
-                      -9
-                    </span>
-                  </p>
-                </div>
-                <div className="row-start-5 row-span flex items-center border-gray-200">
-                  <p>
-                    <span className="font-bold text-sm">Postop: </span>{' '}
-                    <span className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      1
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      3
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      5
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                      7
-                    </span>
-                    <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white">
-                      9
-                    </span>
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        {/* </React.Fragment>
-        ))} */}
       </div>
       <FormModal />
       <TemplateUpdateModal />

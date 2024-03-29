@@ -5,16 +5,19 @@ import { Textarea } from 'baseui/textarea';
 import React, { useState } from 'react';
 
 const TemplateUpdatePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
-  const [subject, setSubject] = useState('');
-  const [checkboxes, setCheckboxes] = React.useState([false, false]);
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [message, setMessage] = useState('');
+  const [emailSubject, setEmailSubject] = useState('');
+  const [active, setActive] = React.useState([false, false]);
+  const [emailAttachment, setEmailAttachment] = useState(null);
+  const [emailBody, setEmailBody] = useState('');
+  const [messageText, setMessageText] = useState('');
   const handleFileChange = (event) => {
-    setSelectedFile(event.target.files[0]);
+    setEmailAttachment(event.target.files[0]);
   };
   const handleHtmlChange = (event) => {
-    setMessage(event.target.value);
+    setEmailBody(event.target.value);
+    setMessageText(event.target.value);
   };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
   };
@@ -30,11 +33,11 @@ const TemplateUpdatePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               </div>
               <div>
                 <Checkbox
-                  checked={checkboxes[0]}
+                  checked={active[0]}
                   onChange={(e) => {
-                    const nextCheckboxes = [...checkboxes];
+                    const nextCheckboxes = [...active];
                     nextCheckboxes[0] = e.currentTarget.checked;
-                    setCheckboxes(nextCheckboxes);
+                    setActive(nextCheckboxes);
                   }}
                   checkmarkType={STYLE_TYPE.toggle_round}
                   overrides={{
@@ -59,10 +62,10 @@ const TemplateUpdatePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                     Email Subject
                   </label>
                   <TextInput
-                    name="subject"
-                    value={subject}
+                    name="emailSubject"
+                    value={emailSubject}
                     onChange={(value) => {
-                      setSubject(value);
+                      setEmailSubject(value);
                     }}
                     required
                   />
@@ -86,7 +89,7 @@ const TemplateUpdatePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
 
                 <Textarea
                   rows={8}
-                  value={message}
+                  value={emailBody}
                   onChange={handleHtmlChange}
                   clearOnEscape
                   overrides={{
@@ -112,7 +115,7 @@ const TemplateUpdatePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               </div>
               <div
                 className="text-black mt-5 text-sm overflow-hidden break-all"
-                dangerouslySetInnerHTML={{ __html: message }}
+                dangerouslySetInnerHTML={{ __html: messageText }}
               />
             </div>
           </form>
@@ -122,14 +125,14 @@ const TemplateUpdatePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             Email Message Preview
           </div>
           <div className="text-black text-sm">
-            <p className="font-bold my-1">[Dr. Shawn Lin] {subject} </p>
-            {selectedFile && (
+            <p className="font-bold my-1">{emailSubject} </p>
+            {emailAttachment && (
               <div>
                 <p className="my-1">
                   Attachment Found |{' '}
                   <a
                     target="_blank"
-                    href={URL.createObjectURL(selectedFile)}
+                    href={URL.createObjectURL(emailAttachment)}
                     className="text-blue-700"
                   >
                     File
@@ -139,7 +142,7 @@ const TemplateUpdatePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             )}
             <div
               className="mt-2.5 py-1.5 pr-1.5 overflow-hidden break-all"
-              dangerouslySetInnerHTML={{ __html: message }}
+              dangerouslySetInnerHTML={{ __html: emailBody }}
             />
           </div>
         </div>
@@ -147,12 +150,11 @@ const TemplateUpdatePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       <div className="flex justify-end gap-5 mt-4">
         <Button
           kind="tertiary"
-          title="Cancel"
+          title="Delete"
           width={136}
           onClick={onClose}
           style={{
-            backgroundColor: '#D4D4D8',
-            color: '#000000',
+            backgroundColor: 'red',
           }}
         />
         <Button kind="primary" title="Update" width={136} />

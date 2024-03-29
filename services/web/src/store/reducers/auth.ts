@@ -2,11 +2,11 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { UserInterface } from '@root/components/login/types';
 import { State } from '@root/store';
 import Cookies from 'js-cookie';
-import { User, getMe, login } from '../requests/login';
+import { GetUserResponse, getMe, login } from '../requests/login';
 
 export interface AuthState {
   isAuthenticated: boolean;
-  user: User | null;
+  user: GetUserResponse | null;
   isProcessing: boolean;
   entities: Record<string, UserInterface>;
   status: 'idle' | 'loading' | 'failed';
@@ -21,7 +21,7 @@ const initialState: AuthState = {
   isProcessing: false,
   entities: {},
   status: 'idle',
-  successMessage: null, // Initial value for success message
+  successMessage: null,
   error: null,
   isSuperAdmin: false,
 };
@@ -40,7 +40,7 @@ const authSlice = createSlice({
       state.isAuthenticated = false;
       state.user = null;
       state.isSuperAdmin = false;
-      Cookies.remove('access_token'); // Remove access token from cookies on logout
+      Cookies.remove('access_token');
     },
   },
   extraReducers(builder) {
@@ -52,7 +52,7 @@ const authSlice = createSlice({
     builder.addCase(loginUser.fulfilled, (state, action) => {
       state.status = 'idle';
       state.isAuthenticated = true;
-      state.successMessage = 'User logged in successfully'; // Set success message
+      state.successMessage = 'User logged in successfully';
       if (action.payload) {
         Cookies.set('access_token', action.payload.access_token, {
           expires: 1,
@@ -117,6 +117,6 @@ export const selectPractice = (state: State) => {
   }
   return null;
 };
-export const selectSuccessMessage = (state: State) => state.auth.successMessage; // Export selectSuccessMessage selecto
+export const selectSuccessMessage = (state: State) => state.auth.successMessage;
 
 export default authSlice.reducer;

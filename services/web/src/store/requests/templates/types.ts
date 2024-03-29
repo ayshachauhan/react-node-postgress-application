@@ -1,6 +1,7 @@
 export interface GetTemplatesResponse {
+  id: string;
   actice: boolean;
-  dateOffset: number;
+  dateOffset?: number;
   meridiem: string;
   messageType: string;
   surgeryType: string;
@@ -15,10 +16,9 @@ export interface GetTemplatesResponse {
 
 export interface CreateTemplateResponse {
   practiceId: string;
-  userId: string;
+  userId?: string;
   actice: boolean;
-  dateOffset: number;
-  meridiem: string;
+  dateOffset?: number;
   messageType: string;
   surgeryType: string;
   surgeryNumber: number;
