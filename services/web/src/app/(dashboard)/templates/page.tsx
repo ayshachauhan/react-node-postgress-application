@@ -292,7 +292,7 @@ const Templates: React.FC = () => {
                   </div>
                   <div className="row-start-3 row-span-1 flex items-center border-b border-gray-200">
                     <p>
-                      <span className="font-bold text-sm">Referrer: </span>
+                      <span className="font-bold text-sm">PCP: </span>
                       {['V1', 'V2', 'V3', 'V4', 'V5'].map((ele, i) => (
                         <span
                           key={i}
@@ -305,7 +305,7 @@ const Templates: React.FC = () => {
                   </div>
                   <div className="row-start-4 row-span-1 flex items-center border-b border-gray-200">
                     <p>
-                      <span className="font-bold text-sm">Referrer: </span>
+                      <span className="font-bold text-sm">Preop: </span>
                       {['-1', '-3', '-5', '-7', '-9'].map((ele, i) => (
                         <span
                           key={i}
@@ -318,7 +318,7 @@ const Templates: React.FC = () => {
                   </div>
                   <div className="row-start-5 row-span flex items-center border-gray-200">
                     <p>
-                      <span className="font-bold text-sm">Referrer: </span>
+                      <span className="font-bold text-sm">Postop: </span>
                       {['1', '3', '5', '7', '9'].map((ele, i) => (
                         <span
                           key={i}
