@@ -6,7 +6,7 @@ const { API_BASE_URL } = publicRuntimeConfig;
 export const getTemplates = async (
   payloadData: {
     practiceId: string;
-    userId: string;
+    userId?: string;
   },
   { rejectWithValue },
 ) => {
@@ -36,7 +36,7 @@ export const addTemplate = async (payloadData: CreateTemplateResponse) => {
   try {
     const accessToken = Cookies.get('access_token');
     const response = await fetch(
-      `${API_BASE_URL}/practices/${payloadData.practiceId}/users/${payloadData.userId}`,
+      `${API_BASE_URL}/practices/${payloadData.practiceId}/users/${payloadData.userId}/templates`,
       {
         method: 'POST',
         headers: {

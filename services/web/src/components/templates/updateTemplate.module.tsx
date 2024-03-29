@@ -69,6 +69,7 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
       }
     }
   };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (templateId && practiceId && userId) {

@@ -141,7 +141,6 @@ const Templates: React.FC = () => {
       </Modal>
     );
   };
-
   useEffect(() => {
     if (practiceId !== null && userId !== null) {
       const formattedPracticeId = practiceId ?? '';
@@ -208,115 +207,83 @@ const Templates: React.FC = () => {
             fontSize="14px"
             onClick={handleOpenAddModal}
             startEnhancer={() => <AddIcon className="mt-2" size={18}></AddIcon>}
-          />{' '}
+          />
         </div>
       </div>
-      <hr className="h-px my-2.5 bg-gray-100 border-1 dark:bg-gray-700"></hr>
-      <div className="flex flex-wrap gap-6">
+      <hr className="h-px my-2.5 px-0 mx-0 bg-gray-100 border-1 dark:bg-gray-700"></hr>
+      <div className="flex flex-wrap gap-7">
         {templates.map((data) => (
           <React.Fragment key={data.id}>
             <div className="rounded-lg shadow-md w-[370px] h-292 relative">
-              <div>
-                <div className="text-white py-2.5 text-center bg-gradient-to-r from-primary-light to-primary-dark uppercase rounded-t-lg font-bold">
-                  {data.surgeryType}
-                </div>
-                <div className="rounded-lg" style={{ height: '245px' }}>
-                  <div className="grid grid-rows-5 h-full p-2">
-                    <div className="row-start-1 row-span-1 flex items-center border-b border-gray-200">
-                      <p>
-                        <span className="font-bold text-sm">
-                          {data.messageType}:{' '}
-                        </span>{' '}
+              <div className="text-white py-2.5 text-center bg-gradient-to-r from-primary-light to-primary-dark uppercase rounded-t-lg font-bold">
+                {data.surgeryType}
+              </div>
+              <div className="rounded-lg" style={{ height: '245px' }}>
+                <div className="grid grid-rows-5 h-full p-2">
+                  <div className="row-start-1 row-span-1 flex items-center border-b border-gray-200">
+                    <p>
+                      <span className="font-bold text-sm">Booking: </span>{' '}
+                      <span
+                        className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white cursor-pointer"
+                        onClick={() =>
+                          data.id && handleOpenUpdateModal(data.id)
+                        }
+                      >
+                        Booking
+                      </span>
+                    </p>
+                  </div>
+                  <div className="row-start-2 row-span-1 flex items-center border-b border-gray-200">
+                    <p>
+                      <span className="font-bold text-sm">Referrer: </span>
+                      {['V1', 'V2', 'V3', 'V4', 'V5'].map((ele, i) => (
                         <span
-                          className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white cursor-pointer"
-                          onClick={() =>
-                            data.id && handleOpenUpdateModal(data.id)
-                          }
+                          key={i}
+                          className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1"
                         >
-                          Booking
+                          {ele}
                         </span>
-                      </p>
-                    </div>
-                    <div className="row-start-2 row-span-1 flex items-center border-b border-gray-200">
-                      <p>
-                        <span className="font-bold text-sm">Referrer: </span>{' '}
-                        <span className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                          v1
+                      ))}
+                    </p>
+                  </div>
+                  <div className="row-start-3 row-span-1 flex items-center border-b border-gray-200">
+                    <p>
+                      <span className="font-bold text-sm">PCP: </span>
+                      {['V1', 'V2', 'V3', 'V4', 'V5'].map((ele, i) => (
+                        <span
+                          key={i}
+                          className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1"
+                        >
+                          {ele}
                         </span>
-                        <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                          v2
+                      ))}
+                    </p>
+                  </div>
+                  <div className="row-start-4 row-span-1 flex items-center border-b border-gray-200">
+                    <p>
+                      <span className="font-bold text-sm">Preop: </span>
+                      {['-1', '-3', '-5', '-7', '-9'].map((ele, i) => (
+                        <span
+                          key={i}
+                          className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1"
+                        >
+                          {ele}
                         </span>
-                        <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                          v3
+                      ))}
+                    </p>
+                  </div>
+                  <div className="row-start-5 row-span flex items-center border-gray-200">
+                    <p>
+                      <span className="font-bold text-sm">Postop: </span>
+                      {['1', '3', '5', '7', '9'].map((ele, i) => (
+                        <span
+                          key={i}
+                          className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1"
+                        >
+                          {ele}
                         </span>
-                        <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                          v4
-                        </span>
-                        <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white">
-                          v5
-                        </span>
-                      </p>
-                    </div>
-                    <div className="row-start-3 row-span-1 flex items-center border-b border-gray-200">
-                      <p>
-                        <span className="font-bold text-sm">PCP: </span>{' '}
-                        <span className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                          v1
-                        </span>
-                        <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                          v2
-                        </span>
-                        <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                          v3
-                        </span>
-                        <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                          v4
-                        </span>
-                        <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white">
-                          v5
-                        </span>
-                      </p>
-                    </div>
-                    <div className="row-start-4 row-span-1 flex items-center border-b border-gray-200">
-                      <p>
-                        <span className="font-bold text-sm">Preop: </span>{' '}
-                        <span className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                          -1
-                        </span>
-                        <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                          -3
-                        </span>
-                        <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                          -5
-                        </span>
-                        <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                          -7
-                        </span>
-                        <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white">
-                          -9
-                        </span>
-                      </p>
-                    </div>
-                    <div className="row-start-5 row-span flex items-center border-gray-200">
-                      <p>
-                        <span className="font-bold text-sm">Postop: </span>{' '}
-                        <span className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                          1
-                        </span>
-                        <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                          3
-                        </span>
-                        <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                          5
-                        </span>
-                        <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1">
-                          7
-                        </span>
-                        <span className="rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white">
-                          9
-                        </span>
-                      </p>
-                    </div>
+                      ))}
+                    </p>
                   </div>
                 </div>
               </div>

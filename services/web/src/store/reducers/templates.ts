@@ -52,7 +52,9 @@ const templateSlice = createSlice({
       state.status = 'failed';
       if (typeof action.payload === 'string') {
         state.error = action.payload ?? 'Failed to fetch templates';
+        state.error = action.payload ?? 'Failed to fetch templates';
       } else {
+        state.error = 'Failed to fetch templates';
         state.error = 'Failed to fetch templates';
       }
     });
