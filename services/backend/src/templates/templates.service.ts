@@ -72,6 +72,7 @@ export class TemplatesService {
 
     await this.templateRepository.update(id, {
       ...templateToUpdate,
+      ...templatePatchDto,
       practice: practiceEntity,
       surgeon: surgeonEntity,
     });
