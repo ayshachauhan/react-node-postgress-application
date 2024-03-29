@@ -1,5 +1,6 @@
 export interface GetTemplatesResponse {
-  actice: boolean;
+  id: string;
+  active: boolean;
   dateOffset: number;
   meridiem: string;
   messageType: string;
@@ -16,12 +17,30 @@ export interface GetTemplatesResponse {
 export interface CreateTemplateResponse {
   practiceId: string;
   userId: string;
-  actice: boolean;
+  active: boolean;
   dateOffset: number;
   meridiem: string;
   messageType: string;
   surgeryType: string;
   surgeryNumber: number;
+  emailSubject?: string;
+  emailBody?: string;
+  emailAttachment?: string;
+  email1stCataract?: string;
+  email2ndCataract?: string;
+  messageText?: string;
+}
+
+export interface EditTemplate {
+  id: string;
+  practiceId: string;
+  userId: string;
+  active: boolean;
+  dateOffset?: number;
+  meridiem?: string;
+  messageType?: string;
+  surgeryType?: string;
+  surgeryNumber?: number;
   emailSubject?: string;
   emailBody?: string;
   emailAttachment?: string;

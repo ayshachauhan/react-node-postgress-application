@@ -103,7 +103,7 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
               </label>
               <TextInput
                 name="email"
-                value={updatedUserInfo?.email}
+                value={updatedUserInfo?.email || ''}
                 onChange={(value) => {
                   setUserInfo({ ...updatedUserInfo, email: value });
                 }}
@@ -119,7 +119,7 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
               </label>
               <TextInput
                 name="firstName"
-                value={updatedUserInfo?.firstName}
+                value={updatedUserInfo?.firstName || ''}
                 onChange={(value) => {
                   setUserInfo({ ...updatedUserInfo, firstName: value });
                 }}
@@ -133,7 +133,7 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
               </label>
               <TextInput
                 name="lastName"
-                value={updatedUserInfo?.lastName}
+                value={updatedUserInfo?.lastName || ''}
                 onChange={(value) => {
                   setUserInfo({ ...updatedUserInfo, lastName: value });
                 }}
@@ -149,7 +149,7 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
               </label>
               <TextInput
                 name="contactNumber"
-                value={updatedUserInfo?.contactNumber}
+                value={updatedUserInfo?.contactNumber || ''}
                 onChange={(value) => {
                   setUserInfo({ ...updatedUserInfo, contactNumber: value });
                 }}
@@ -163,7 +163,7 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
               </label>
               <TextInput
                 name="url"
-                value={updatedUserInfo?.url}
+                value={updatedUserInfo?.url || ''}
                 onChange={(value) => {
                   setUserInfo({ ...updatedUserInfo, url: value });
                 }}
