@@ -81,7 +81,7 @@ export default function LoginPage() {
               </div>
             </div>
           </form>
-          {error && <div style={{ color: 'red' }}>{error}</div>}{' '}
+          {error && <div className="text-red-700">{error}</div>}{' '}
           {/* Display error message if present */}
         </div>
       </div>

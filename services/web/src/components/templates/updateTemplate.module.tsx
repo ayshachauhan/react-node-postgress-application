@@ -42,6 +42,7 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
   const [updatedTemplateInfo, setTemplateInfo] = useState<
     Partial<EditTemplate>
   >({});
+  const [showTooltip, setShowTooltip] = useState(false);
 
   const handleFileChange = (event) => {
     // setTemplateInfo({ ...updatedTemplateInfo, emailAttachment: event.target.files[0] });
@@ -113,9 +114,7 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
               >
                 Surgery:
               </label>
-              <div
-                style={{ fontSize: '14px', fontWeight: 400, width: '180px' }}
-              >
+              <div className="w-56 text-sm text-sm text-gray-600">
                 <Select
                   options={[
                     { label: 'CATARACT', id: '1' },
@@ -154,39 +153,48 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
         </div>
         <div className="flex gap-5 mt-6">
           <div className="w-1/2 pr-8 border-r border-dotted border-gray-300">
-            <div className="h-4/6">
+            <div className="h-4/6 overflow-auto">
               <div className="flex justify-between">
                 <div className="border-b border-gray-100 text-xl font-bold pb-2 text-black">
                   Email Message
                 </div>
                 <div>
                   {updatedTemplateInfo?.active}
-                  <Checkbox
-                    checked={updatedTemplateInfo?.active}
-                    onChange={(e) => {
-                      setTemplateInfo({
-                        ...updatedTemplateInfo,
-                        active: e.currentTarget.checked,
-                      });
-                    }}
-                    checkmarkType={STYLE_TYPE.toggle_round}
-                    overrides={{
-                      ToggleTrack: {
-                        style: () => ({
-                          backgroundColor: updatedTemplateInfo?.active
-                            ? '#BBF7D0'
-                            : '#E2E2E2',
-                        }),
-                      },
-                      Toggle: {
-                        style: () => ({
-                          backgroundColor: updatedTemplateInfo?.active
-                            ? '#16A34A'
-                            : '#FFFFFF',
-                        }),
-                      },
-                    }}
-                  ></Checkbox>
+                  <div className="relative">
+                    <Checkbox
+                      onMouseEnter={() => setShowTooltip(true)}
+                      onMouseLeave={() => setShowTooltip(false)}
+                      checked={updatedTemplateInfo?.active}
+                      onChange={(e) => {
+                        setTemplateInfo({
+                          ...updatedTemplateInfo,
+                          active: e.currentTarget.checked,
+                        });
+                      }}
+                      checkmarkType={STYLE_TYPE.toggle_round}
+                      overrides={{
+                        ToggleTrack: {
+                          style: () => ({
+                            backgroundColor: updatedTemplateInfo?.active
+                              ? '#BBF7D0'
+                              : '#E2E2E2',
+                          }),
+                        },
+                        Toggle: {
+                          style: () => ({
+                            backgroundColor: updatedTemplateInfo?.active
+                              ? '#16A34A'
+                              : '#FFFFFF',
+                          }),
+                        },
+                      }}
+                    ></Checkbox>
+                    {showTooltip && (
+                      <div className="absolute top-full left-1/2 transform -translate-x-1/2 bg-black bg-opacity-70 text-white p-2 rounded z-50">
+                        {updatedTemplateInfo?.active ? 'Enabled' : 'Disabled'}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
               <div className="flex mt-5 justify-between gap-5">
@@ -280,7 +288,7 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
             </div>
           </div>
           <div className="w-1/2 pl-8">
-            <div className="h-4/6">
+            <div className="h-4/6 overflow-auto">
               <div className="border-b border-gray-100 text-xl font-bold pb-2 text-black">
                 Email Message Preview
               </div>

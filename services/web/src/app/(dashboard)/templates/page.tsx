@@ -42,7 +42,6 @@ const Templates: React.FC = () => {
   const practiceId = useAppSelector(selectPractice);
   const successMessage = useAppSelector(selectSuccessMessage);
   const errorMessage = useAppSelector(selectError);
-  console.log(errorMessage, 2);
   const [showErrorMessage, setShowErrorMessage] = useState(false);
   const router = useRouter();
   const handleOpenAddModal = (): void => {
@@ -179,8 +178,8 @@ const Templates: React.FC = () => {
     <div id="__next" className="mt-4">
       <div className="flex justify-between border-gray-400">
         <span className="text-2xl font-medium">Template Engine </span>
-        <div style={{ color: 'green' }}>{successMessage}</div>
-        {showErrorMessage && <div style={{ color: 'red' }}>{errorMessage}</div>}
+        <div className="text-green-700">{successMessage}</div>
+        {showErrorMessage && <div className="text-red-700">{errorMessage}</div>}
         <div className="flex w-2/6 justify-between">
           <div className="flex ml-5">
             <div style={{ width: '291px' }}>

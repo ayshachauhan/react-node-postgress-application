@@ -244,8 +244,8 @@ export default function UserPage() {
     <div id="__next" className="mt-4">
       <div className="flex justify-between border-gray-400">
         <span className="text-xl font-bold">Users</span>
-        {showModal && <div style={{ color: 'green' }}>{successMessage}</div>}
-        {showErrorMessage && <div style={{ color: 'red' }}>{errorMessage}</div>}
+        {showModal && <div className="text-green-700">{successMessage}</div>}
+        {showErrorMessage && <div className="text-red-700">{errorMessage}</div>}
         <Button
           kind="secondary"
           title="Add New"
@@ -302,19 +302,19 @@ export default function UserPage() {
               <div className="text-gray-900 bg-gray-50 pt-2 px-4 flex gap-4">
                 <div
                   onClick={() => data.id && handleViewUser(data.id)}
-                  style={{ cursor: 'pointer' }}
+                  className="cursor-pointer"
                 >
                   <ViewIcon className="mt-2"></ViewIcon>
                 </div>
                 <div
                   onClick={() => data.id && handleOpenEditModal(data.id)}
-                  style={{ cursor: 'pointer' }}
+                  className="cursor-pointer"
                 >
                   <EditIcon className="mt-2"></EditIcon>
                 </div>
                 <div
                   onClick={() => data.id && handleOpenDeleteModal(data.id)}
-                  style={{ cursor: 'pointer' }}
+                  className="cursor-pointer"
                 >
                   <DeleteIcon className="mt-2"></DeleteIcon>
                 </div>
