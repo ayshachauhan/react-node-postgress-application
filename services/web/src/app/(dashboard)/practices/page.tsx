@@ -304,8 +304,16 @@ const Practice: React.FC = () => {
               <div className="text-gray-900 bg-gray-50 pt-2 px-4 text-center">
                 {data.physicianContactNumber}
               </div>
-              <div className="text-gray-900 bg-gray-50  pt-2   px-4 flex text-center items-center justify-center">
-                <div className="bg-yellow-400 rounded-lg px-6">
+              <div className="text-gray-900 bg-gray-50 pt-2 px-4 flex text-center items-center justify-center">
+                <div
+                  className={`rounded-md text-white px-3.5 ${
+                    data.status?.toString() === 'pending'
+                      ? 'bg-yellow-500'
+                      : data.status?.toString() === 'inactive'
+                        ? 'bg-red-500'
+                        : 'bg-green-500'
+                  }`}
+                >
                   {data.status?.toString()}
                 </div>
               </div>

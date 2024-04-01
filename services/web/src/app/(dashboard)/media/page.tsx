@@ -194,6 +194,11 @@ const Media: React.FC = () => {
                   display: 'none', // Hide the close icon
                 },
               },
+              Dialog: {
+                style: {
+                  width: 'auto', // Adjust the width as needed
+                },
+              },
             }}
           >
             <ModalBody>
@@ -201,21 +206,13 @@ const Media: React.FC = () => {
                 <div
                   style={{
                     position: 'relative',
+                    width: 800, // Use a percentage of the viewport width or a fixed width in pixels
+                    height: 600,
                     paddingBottom: '56.25%',
-                    height: 0,
                     overflow: 'hidden',
                   }}
                 >
                   <iframe
-                    width="560"
-                    height="315"
-                    src="https://www.youtube.com/embed/Bb8bnjnEM00?si=N_KX5ZVF2C7BMXbB"
-                    title="YouTube video player"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  ></iframe>
-                  <iframe
-                    width="560"
-                    height="315"
                     src={`https://www.youtube.com/embed/${videoId}?autoplay=1`}
                     title="YouTube video player"
                     className="rounded-lg"

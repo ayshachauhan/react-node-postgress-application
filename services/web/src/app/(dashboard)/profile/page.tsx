@@ -1,4 +1,5 @@
 'use client';
+import Button from '@root/components/Button';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { selectPractice, selectRecords } from '@root/store/reducers/auth';
 import {
@@ -6,6 +7,7 @@ import {
   selectPracticeInfo,
 } from '@root/store/reducers/practices';
 import { Avatar } from 'baseui/avatar';
+import { useRouter } from 'next/navigation';
 import React, { useEffect } from 'react';
 
 const Profile: React.FC = () => {
@@ -18,10 +20,15 @@ const Profile: React.FC = () => {
     }
   }, [userPracticeId, dispatch]);
   const practiceName = useAppSelector(selectPracticeInfo);
+  const router = useRouter();
+  const handleGoBack = () => {
+    router.back();
+  };
   return (
     <div id="__next" className="mt-4">
       <div className="flex justify-between border-gray-400">
         <span className="text-xl font-bold">Profile</span>
+        <Button kind="primary" title="Go Back" onClick={handleGoBack}></Button>
       </div>
       <hr className="h-px my-2.5 bg-gray-100 border-1 dark:bg-gray-700"></hr>
       <div className="flex mt-10 items-center">
