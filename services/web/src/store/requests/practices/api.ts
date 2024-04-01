@@ -1,6 +1,10 @@
+import {
+  PracticeCreateInterface,
+  PracticesEditInterface,
+} from '@store/requests/practices';
+
 import Cookies from 'js-cookie';
 import { publicRuntimeConfig } from 'next.config';
-import { PracticeCreateInterface } from '.';
 
 export const getPractices = async (_, { rejectWithValue }) => {
   const { API_BASE_URL } = publicRuntimeConfig;
@@ -74,5 +78,56 @@ export const addPractice = async (payloadData: PracticeCreateInterface) => {
     return data;
   } catch (error) {
     return error;
+  }
+};
+
+export const editPractice = async (payloadData: PracticesEditInterface) => {
+  const { API_BASE_URL } = publicRuntimeConfig;
+  try {
+    const { id } = payloadData;
+    delete payloadData.id;
+    const accessToken = Cookies.get('access_token');
+    const response = await fetch(`${API_BASE_URL}/practices/${id}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify(payloadData),
+    });
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    return error;
+  }
+};
+
+export const deletePractice = async (
+  payloadData: {
+    id: string;
+  },
+  { rejectWithValue },
+) => {
+  const { API_BASE_URL } = publicRuntimeConfig;
+  try {
+    const accessToken = Cookies.get('access_token');
+    const response = await fetch(
+      `${API_BASE_URL}/practices/${payloadData.id}`,
+      {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+      },
+    );
+    if (!response.ok) {
+      throw new Error('Failed to delete practice');
+    }
+
+    // this is to handle empty response.
+    return null;
+  } catch (error) {
+    return rejectWithValue(error);
   }
 };

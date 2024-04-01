@@ -6,6 +6,7 @@ import {
   forwardRef,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { User } from 'src/entities/users.entity';
 import { DataSource, Repository, UpdateResult } from 'typeorm';
 import { PracticeEntity } from '../entities/practices.entity';
 import { UserStatus } from '../enums/status.enum';
@@ -13,6 +14,7 @@ import { UserType } from '../enums/userType.enum';
 import { UsersService } from '../users/users.service';
 import { PracticeCreateDto } from './dto/create.dto';
 import { PracticePatchDto } from './dto/patch.dto';
+import { PracticesGetInterface } from './types';
 
 @Injectable()
 export class PracticesService {
@@ -24,8 +26,41 @@ export class PracticesService {
     private dataSource: DataSource,
   ) {}
 
-  async findAll(): Promise<PracticeEntity[]> {
-    return await this.practicesRepository.find();
+  async findAll(): Promise<PracticesGetInterface[]> {
+    const resultArray: PracticesGetInterface[] = [];
+    const dbPractices = await this.practicesRepository.find({
+      relations: ['users'],
+      order: {
+        name: 'ASC',
+      },
+    });
+
+    dbPractices.forEach((element: PracticeEntity) => {
+      const { id, name, code, status } = element;
+      const dbUsersByPractice: User[] = element.users;
+
+      const adminUser = dbUsersByPractice.find((ele) => ele.type === 'admin');
+      const physicianUser = dbUsersByPractice.find(
+        (ele) => ele.type === 'physician',
+      );
+
+      const finalPractice: PracticesGetInterface = { id, name, code, status };
+
+      if (adminUser) {
+        finalPractice.adminFirstName = adminUser.firstName;
+        finalPractice.adminLastName = adminUser.lastName;
+        finalPractice.adminEmail = adminUser.email;
+        finalPractice.adminContactNumber = adminUser.contactNumber;
+      }
+
+      if (physicianUser) {
+        finalPractice.physicianEmail = physicianUser.email;
+        finalPractice.physicianContactNumber = physicianUser.contactNumber;
+      }
+      resultArray.push(finalPractice);
+    });
+
+    return resultArray;
   }
 
   async findOne(id: string): Promise<PracticeEntity | null> {

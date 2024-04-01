@@ -3,9 +3,12 @@ import { State } from '@root/store';
 import {
   PracticeCreateInterface,
   PracticesGetInterface,
-} from '@root/store/requests/practices/types';
+} from '@store/requests/practices';
+
 import {
   addPractice,
+  deletePractice,
+  editPractice,
   getPracticeData,
   getPractices,
 } from '../requests/practices';
@@ -28,7 +31,7 @@ const initialState: PracticeState = {
   practices: [],
   practiceInfo: {},
   status: 'idle',
-  successMessage: null, // Initial value for success message
+  successMessage: null,
   error: null,
 };
 
@@ -92,7 +95,7 @@ const practiceSlice = createSlice({
     builder.addCase(addRecordAsync.fulfilled, (state, action) => {
       state.status = 'idle';
       state.practices = [...state.practices, action.payload];
-      state.successMessage = 'Record added successfully'; // Set success message
+      state.successMessage = 'Record added successfully';
     });
 
     builder.addCase(addRecordAsync.rejected, (state, action) => {
@@ -101,6 +104,57 @@ const practiceSlice = createSlice({
         state.error = action.payload ?? 'Failed to add practice';
       } else {
         state.error = 'Failed to add practice';
+      }
+    });
+    builder.addCase(deleteRecordAsync.pending, (state) => {
+      state.isProcessing = true;
+      state.status = 'loading';
+    });
+
+    builder.addCase(deleteRecordAsync.fulfilled, (state, action) => {
+      state.status = 'idle';
+      state.status = 'idle';
+      const deletedPracticeId = action?.meta?.arg?.id;
+      state.practices = state.practices.filter(
+        (user) => user.id !== deletedPracticeId,
+      );
+      state.successMessage = 'Record deleted successfully';
+    });
+
+    builder.addCase(deleteRecordAsync.rejected, (state, action) => {
+      state.status = 'failed';
+      if (typeof action.payload === 'string') {
+        state.error = action.payload ?? 'Failed to delete practice';
+      } else {
+        state.error = 'Failed to delete practice';
+      }
+    });
+
+    builder.addCase(updateRecordAsync.pending, (state) => {
+      state.isProcessing = true;
+      state.status = 'loading';
+    });
+
+    builder.addCase(updateRecordAsync.fulfilled, (state, action) => {
+      state.status = 'idle';
+      const updatedPractice = action.payload;
+      const updatedPractices = state.practices.map((practice) => {
+        if (practice.id === updatedPractice.id) {
+          return updatedPractice;
+        }
+        return practice;
+      });
+
+      state.practices = updatedPractices;
+      state.successMessage = 'Record updated successfully';
+    });
+
+    builder.addCase(updateRecordAsync.rejected, (state, action) => {
+      state.status = 'failed';
+      if (typeof action.payload === 'string') {
+        state.error = action.payload ?? 'Failed to update practice';
+      } else {
+        state.error = 'Failed to update practice';
       }
     });
   },
@@ -117,6 +171,16 @@ export const fetchListings = createAsyncThunk(
 export const addRecordAsync = createAsyncThunk(
   'practice/addRecordAsync',
   addPractice,
+);
+
+export const updateRecordAsync = createAsyncThunk(
+  'practice/editRecordAsync',
+  editPractice,
+);
+
+export const deleteRecordAsync = createAsyncThunk(
+  'practice/deleteRecordAsync',
+  deletePractice,
 );
 
 export const getPracticeInfo = createAsyncThunk(
