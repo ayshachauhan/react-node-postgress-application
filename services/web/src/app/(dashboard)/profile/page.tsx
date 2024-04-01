@@ -34,11 +34,7 @@ const Profile: React.FC = () => {
       <div className="flex mt-10 items-center">
         <div className="flex items-center justify-center shadow-lg w-44 h-44 bg-black-200 rounded-full  flex-shrink-0">
           {' '}
-          <Avatar
-            name="John Doe"
-            size="scale1400" // Set the size of the avatar
-            src="https://example.com/avatar.jpg" // Replace with your avatar image URL
-          />
+          <Avatar />
         </div>
         <div className="w-full flex-grow">
           <p className="ml-4">
