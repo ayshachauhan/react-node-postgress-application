@@ -1,5 +1,7 @@
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
+import { SurgeryType } from '@root/enums/surgeryType.enum';
+import { TemplateMessageType } from '@root/enums/templateMessageType.enum';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { selectPractice, selectRecords } from '@root/store/reducers/auth';
 import { addRecordAsync } from '@root/store/reducers/templates';
@@ -8,6 +10,17 @@ import { Select } from 'baseui/select';
 import React, { useState } from 'react';
 
 const TemplateAddPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
+  const surgeryTypeOptions = Object.keys(SurgeryType).map((key) => ({
+    label: SurgeryType[key as keyof typeof SurgeryType],
+    id: key,
+  }));
+
+  const templateMessageTypeOptions = Object.keys(TemplateMessageType).map(
+    (key) => ({
+      label: key,
+      id: TemplateMessageType[key as keyof typeof TemplateMessageType],
+    }),
+  );
   const practiceId = useAppSelector(selectPractice);
   const userInfo = useAppSelector(selectRecords);
   const dispatch = useAppDispatch();
@@ -22,7 +35,7 @@ const TemplateAddPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       const data: CreateTemplateResponse = {
         practiceId,
         userId: userInfo.id,
-        actice: true,
+        active: true,
         dateOffset,
         messageType,
         surgeryType,
@@ -55,11 +68,7 @@ const TemplateAddPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             Surgery Type
           </label>
           <Select
-            options={[
-              { label: 'CATARACT', id: '1' },
-              { label: 'YAG', id: '2' },
-              { label: 'LASIK', id: '3' },
-            ]}
+            options={surgeryTypeOptions}
             onChange={handleSurgeryTypeChange}
             value={surgeryType ? [{ label: surgeryType, id: surgeryType }] : []}
             required
@@ -83,13 +92,7 @@ const TemplateAddPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             Message Type
           </label>
           <Select
-            options={[
-              { label: 'TIMED', id: '1' },
-              { label: 'EVALUATION', id: '2' },
-              { label: 'BOOKING', id: '3' },
-              { label: 'REFERRER', id: '4' },
-              { label: 'PCP', id: '5' },
-            ]}
+            options={templateMessageTypeOptions}
             onChange={handleMsgTypeChange}
             value={messageType ? [{ label: messageType, id: messageType }] : []}
             required

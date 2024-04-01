@@ -17,6 +17,14 @@ interface ChildProps {
   onClose: () => void;
 }
 const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
+  const userTypeOptions = Object.keys(UserType).map((key) => ({
+    label: UserType[key as keyof typeof UserType],
+    id: key,
+  }));
+  const userStatusOptions = Object.keys(UserStatus).map((key) => ({
+    label: UserStatus[key as keyof typeof UserStatus],
+    id: key,
+  }));
   const dispatch = useAppDispatch();
   const practiceId = useAppSelector(selectPractice); // Select user practice id
   const userInfo = useAppSelector((state) =>
@@ -178,12 +186,7 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
                 Designation
               </label>
               <Select
-                options={[
-                  { label: 'employee', id: '1' },
-                  { label: 'doctor', id: '2' },
-                  { label: 'admin', id: '3' },
-                  { label: 'physician', id: '4' },
-                ]}
+                options={userTypeOptions}
                 onChange={handleTypeChange}
                 overrides={{
                   ControlContainer: {
@@ -215,11 +218,7 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
                 Status
               </label>
               <Select
-                options={[
-                  { label: 'active', id: '1' },
-                  { label: 'inactive', id: '2' },
-                  { label: 'pending', id: '3' },
-                ]}
+                options={userStatusOptions}
                 onChange={handleStatusChange}
                 overrides={{
                   ControlContainer: {

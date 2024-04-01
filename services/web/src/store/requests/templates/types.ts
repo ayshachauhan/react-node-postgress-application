@@ -19,7 +19,7 @@ export interface CreateTemplateResponse {
   userId?: string;
   active: boolean;
   dateOffset?: number;
-  meridiem: string;
+  meridiem?: string;
   messageType: string;
   surgeryType: string;
   surgeryNumber: number;

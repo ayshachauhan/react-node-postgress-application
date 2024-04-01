@@ -11,6 +11,14 @@ import { Select } from 'baseui/select';
 import React, { useState } from 'react';
 
 const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
+  const userTypeOptions = Object.keys(UserType).map((key) => ({
+    label: UserType[key as keyof typeof UserType],
+    id: key,
+  }));
+  const userStatusOptions = Object.keys(UserStatus).map((key) => ({
+    label: UserStatus[key as keyof typeof UserStatus],
+    id: key,
+  }));
   const dispatch = useAppDispatch();
   const [userName, setUserName] = useState('');
   const [email, setEmail] = useState('');
@@ -149,12 +157,7 @@ const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 Designation
               </label>
               <Select
-                options={[
-                  { label: 'employee', id: '1' },
-                  { label: 'doctor', id: '2' },
-                  { label: 'admin', id: '3' },
-                  { label: 'physician', id: '4' },
-                ]}
+                options={userTypeOptions}
                 onChange={handleTypeChange}
                 value={type ? [{ label: type, id: type }] : []}
                 required
@@ -178,11 +181,7 @@ const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 Status
               </label>
               <Select
-                options={[
-                  { label: 'active', id: '1' },
-                  { label: 'inactive', id: '2' },
-                  { label: 'pending', id: '3' },
-                ]}
+                options={userStatusOptions}
                 onChange={handleStatusChange}
                 value={status ? [{ label: status, id: status }] : []}
                 required

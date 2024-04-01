@@ -21,6 +21,11 @@ interface ChildProps {
 }
 
 const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
+  const surgeryTypeOptions = Object.keys(SurgeryType).map((key) => ({
+    label: SurgeryType[key as keyof typeof SurgeryType],
+    id: key,
+  }));
+
   const handleSurgeryTypeChange = ({ value }) => {
     setTemplateInfo({
       ...updatedTemplateInfo,
@@ -65,6 +70,7 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
       try {
         const id = templateId;
         dispatch(deleteRecordAsync({ practiceId, id, userId }));
+        onClose();
       } catch (error) {
         console.log(error);
       }
@@ -116,11 +122,7 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
               </label>
               <div className="w-56 text-sm text-sm text-gray-600">
                 <Select
-                  options={[
-                    { label: 'CATARACT', id: '1' },
-                    { label: 'YAG', id: '2' },
-                    { label: 'LASIK', id: '3' },
-                  ]}
+                  options={surgeryTypeOptions}
                   onChange={handleSurgeryTypeChange}
                   value={
                     updatedTemplateInfo?.surgeryType
@@ -334,6 +336,7 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
         </div>
         <div className="flex justify-end gap-5 mt-4">
           <Button
+            type="button"
             kind="tertiary"
             title="Delete"
             width={136}
