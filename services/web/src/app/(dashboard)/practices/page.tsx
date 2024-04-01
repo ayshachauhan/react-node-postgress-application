@@ -55,7 +55,13 @@ const Practice: React.FC = () => {
 
   useEffect(() => {
     dispatch(fetchListings(undefined));
-  }, []); // Empty dependency array to run the effect only once
+  }, []);
+
+  useEffect(() => {
+    if (successMessage) {
+      dispatch(fetchListings(undefined));
+    }
+  }, [successMessage, dispatch]);
 
   const handleOpenCreateModal = (): void => {
     setIsCreateModalOpen(true);
