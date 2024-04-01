@@ -1,4 +1,4 @@
-export interface GetTemplatesResponse {
+export interface DbTemplatesResponse {
   id: string;
   active: boolean;
   dateOffset?: number;
@@ -12,6 +12,7 @@ export interface GetTemplatesResponse {
   email1stCataract?: string;
   email2ndCataract?: string;
   messageText?: string;
+  version: string;
 }
 
 export interface CreateTemplateResponse {
@@ -47,4 +48,14 @@ export interface EditTemplate {
   email1stCataract?: string;
   email2ndCataract?: string;
   messageText?: string;
+}
+
+export interface GetTemplatesResponse {
+  surgeryType: string;
+  booking?: DbTemplatesResponse[];
+  pcp?: DbTemplatesResponse[];
+  preop?: DbTemplatesResponse[];
+  postop?: DbTemplatesResponse[];
+  referrer?: DbTemplatesResponse[];
+  evaluation?: DbTemplatesResponse[];
 }

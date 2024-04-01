@@ -15,8 +15,10 @@ export class TemplatesService {
     private userService: UsersService,
   ) {}
 
-  async findAll(): Promise<TemplateEntity[]> {
-    return await this.templateRepository.find();
+  async findAll(practiceId: string, userId: string): Promise<TemplateEntity[]> {
+    return await this.templateRepository.find({
+      where: { practice: { id: practiceId }, surgeon: { id: userId } },
+    });
   }
 
   async getTemplateById(id: string): Promise<TemplateEntity | null> {
@@ -39,12 +41,15 @@ export class TemplatesService {
     if (!practiceEntity) {
       throw new HttpException('Practice not found', HttpStatus.NOT_FOUND);
     }
+    templateCreateDto.messageType =
+      TemplateMessageType[templateCreateDto.messageType];
+
     return await this.templateRepository.save({
       ...newTemplate,
       ...templateCreateDto,
       practice: practiceEntity,
       surgeon: surgeonEntity,
-      messageType: TemplateMessageType[templateCreateDto.messageType],
+      version: await this.createVersion(templateCreateDto),
     });
   }
 
@@ -84,5 +89,20 @@ export class TemplatesService {
 
   async remove(id: string): Promise<void> {
     await this.templateRepository.softDelete(id);
+  }
+
+  async createVersion({ messageType, surgeryType }): Promise<string> {
+    const dbTemplates = await this.templateRepository.find({
+      where: { messageType, surgeryType },
+      order: { dateCreated: 'DESC' },
+    });
+
+    // if combination exists then increment the version and return V1 if new entry
+    if (dbTemplates.length) {
+      const { version: lastTemplateVersion }: TemplateEntity = dbTemplates[0];
+      return `V${parseInt(lastTemplateVersion.replace('V', ''), 10) + 1}`;
+    } else {
+      return 'V1';
+    }
   }
 }

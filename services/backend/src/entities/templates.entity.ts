@@ -61,4 +61,7 @@ export class TemplateEntity extends BaseEntity {
 
   @Column({ type: 'varchar' })
   messageText: string;
+
+  @Column({ type: 'varchar' })
+  version: string;
 }

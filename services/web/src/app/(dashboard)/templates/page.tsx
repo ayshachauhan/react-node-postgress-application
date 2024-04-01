@@ -1,6 +1,6 @@
 'use client';
 import Button from '@root/components/Button';
-import { AddIcon, SearchIcon } from '@root/components/Icons';
+import { AddIcon } from '@root/components/Icons';
 import Form from '@root/components/templates/addTemplate.module';
 import TemplateUpdate from '@root/components/templates/updateTemplate.module';
 import { UserType } from '@root/enums/userType.enum';
@@ -13,28 +13,12 @@ import {
   selectError,
   selectSuccessMessage,
 } from '@root/store/reducers/templates';
-import { Input } from 'baseui/input';
 import { Modal, ModalBody, ModalHeader, ROLE, SIZE } from 'baseui/modal';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 const Templates: React.FC = () => {
   const templates = useAppSelector((state) => state.templates.templates);
-  const inputOverrides = {
-    Input: {
-      style: () => ({
-        backgroundColor: 'ffffff',
-        height: '34px',
-        boxShadow: 'none',
-      }),
-    },
-    Root: {
-      style: {
-        border: 'none',
-      },
-    },
-  };
 
-  const [search, setSearch] = useState('');
   const dispatch = useAppDispatch();
   const [templateId, setTemplateId] = useState<string | null>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -154,6 +138,19 @@ const Templates: React.FC = () => {
   }, [practiceId, userId, dispatch]);
 
   useEffect(() => {
+    if (successMessage) {
+      if (practiceId !== null && userId !== null) {
+        dispatch(
+          fetchListings({
+            practiceId,
+            userId,
+          }),
+        );
+      }
+    }
+  }, [successMessage, dispatch]);
+
+  useEffect(() => {
     let timer;
     if (successMessage) {
       timer = setTimeout(() => {
@@ -181,22 +178,7 @@ const Templates: React.FC = () => {
         <div className="text-green-700">{successMessage}</div>
         {showErrorMessage && <div className="text-red-700">{errorMessage}</div>}
         <div className="flex w-2/6 justify-between">
-          <div className="flex ml-5">
-            <div style={{ width: '291px' }}>
-              <div className="rounded-tl rounded-tr-none rounded-bl rounded-br-none border border-gray-300 border-r-0">
-                <Input
-                  name="search"
-                  value={search}
-                  onChange={(event) => setSearch(event.currentTarget.value)}
-                  placeholder="Search Surgery"
-                  overrides={inputOverrides}
-                />
-              </div>
-            </div>
-            <div className="bg-gradient-to-r from-primary-light to-primary-dark w-14 h-9 rounded-r-lg flex items-center justify-center text-white border-none">
-              <SearchIcon></SearchIcon>
-            </div>
-          </div>
+          <div className="flex ml-5"></div>
           <Button
             kind="secondary"
             title="Add New"
@@ -211,8 +193,8 @@ const Templates: React.FC = () => {
       </div>
       <hr className="h-px my-2.5 px-0 mx-0 bg-gray-100 border-1 dark:bg-gray-700"></hr>
       <div className="flex flex-wrap gap-7">
-        {templates.map((data) => (
-          <React.Fragment key={data.id}>
+        {templates.map((data, i) => (
+          <React.Fragment key={i}>
             <div className="rounded-lg shadow-md w-[370px] h-292 relative">
               <div className="text-white py-2.5 text-center bg-gradient-to-r from-primary-light to-primary-dark uppercase rounded-t-lg font-bold">
                 {data.surgeryType}
@@ -222,66 +204,86 @@ const Templates: React.FC = () => {
                   <div className="row-start-1 row-span-1 flex items-center border-b border-gray-200">
                     <p>
                       <span className="font-bold text-sm">Booking: </span>{' '}
-                      <span
-                        className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white cursor-pointer"
-                        onClick={() =>
-                          data.id && handleOpenUpdateModal(data.id)
-                        }
-                      >
-                        Booking
-                      </span>
+                      {data.booking &&
+                        data.booking.map((ele, i) => (
+                          <span
+                            key={i}
+                            onClick={() =>
+                              ele.id && handleOpenUpdateModal(ele.id)
+                            }
+                            className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1"
+                          >
+                            {ele.version}
+                          </span>
+                        ))}
                     </p>
                   </div>
                   <div className="row-start-2 row-span-1 flex items-center border-b border-gray-200">
                     <p>
                       <span className="font-bold text-sm">Referrer: </span>
-                      {['V1', 'V2', 'V3', 'V4', 'V5'].map((ele, i) => (
-                        <span
-                          key={i}
-                          className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1"
-                        >
-                          {ele}
-                        </span>
-                      ))}
+                      {data.referrer &&
+                        data.referrer.map((ele, i) => (
+                          <span
+                            key={i}
+                            onClick={() =>
+                              ele.id && handleOpenUpdateModal(ele.id)
+                            }
+                            className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1"
+                          >
+                            {ele.version}
+                          </span>
+                        ))}
                     </p>
                   </div>
                   <div className="row-start-3 row-span-1 flex items-center border-b border-gray-200">
                     <p>
                       <span className="font-bold text-sm">PCP: </span>
-                      {['V1', 'V2', 'V3', 'V4', 'V5'].map((ele, i) => (
-                        <span
-                          key={i}
-                          className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1"
-                        >
-                          {ele}
-                        </span>
-                      ))}
+                      {data.pcp &&
+                        data.pcp.map((ele, i) => (
+                          <span
+                            key={i}
+                            onClick={() =>
+                              ele.id && handleOpenUpdateModal(ele.id)
+                            }
+                            className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1"
+                          >
+                            {ele.version}
+                          </span>
+                        ))}
                     </p>
                   </div>
                   <div className="row-start-4 row-span-1 flex items-center border-b border-gray-200">
                     <p>
                       <span className="font-bold text-sm">Preop: </span>
-                      {['-1', '-3', '-5', '-7', '-9'].map((ele, i) => (
-                        <span
-                          key={i}
-                          className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1"
-                        >
-                          {ele}
-                        </span>
-                      ))}
+                      {data.preop &&
+                        data.preop.map((ele, i) => (
+                          <span
+                            key={i}
+                            onClick={() =>
+                              ele.id && handleOpenUpdateModal(ele.id)
+                            }
+                            className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1"
+                          >
+                            {ele.version}
+                          </span>
+                        ))}
                     </p>
                   </div>
-                  <div className="row-start-5 row-span flex items-center border-gray-200">
+                  <div className="row-start-5 row-span flex items-center  border-gray-200">
                     <p>
                       <span className="font-bold text-sm">Postop: </span>
-                      {['1', '3', '5', '7', '9'].map((ele, i) => (
-                        <span
-                          key={i}
-                          className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1"
-                        >
-                          {ele}
-                        </span>
-                      ))}
+                      {data.postop &&
+                        data.postop.map((ele, i) => (
+                          <span
+                            key={i}
+                            onClick={() =>
+                              ele.id && handleOpenUpdateModal(ele.id)
+                            }
+                            className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1"
+                          >
+                            {ele.version}
+                          </span>
+                        ))}
                     </p>
                   </div>
                 </div>

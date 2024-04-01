@@ -38,7 +38,20 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
   const practiceId = useAppSelector(selectPractice); // Select user practice id
   const templateInfo = useAppSelector((state) =>
     data.id
-      ? state.templates.templates.find(({ id }) => id === data.id)
+      ? state.templates.templates.find((ele) => {
+          let dataInfo;
+          for (const key in ele) {
+            if (!dataInfo && Array.isArray(ele[key])) {
+              if (!dataInfo) {
+                for (const info in ele[key]) {
+                  const arrayValue = ele[key][info];
+                  if (arrayValue.id == data.id) dataInfo = arrayValue;
+                }
+              }
+            }
+          }
+          return dataInfo ? dataInfo : undefined;
+        })
       : undefined,
   );
 
