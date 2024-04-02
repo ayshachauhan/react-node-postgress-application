@@ -192,7 +192,7 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
                       }}
                     ></Checkbox>
                     {showTooltip && (
-                      <div className="absolute top-full left-1/2 transform -translate-x-1/2 bg-black bg-opacity-70 text-white p-2 rounded z-50">
+                      <div className="absolute top-full left-1/4 transform -translate-x-1/2 bg-black bg-opacity-70 text-white p-2 rounded z-50">
                         {updatedTemplateInfo?.active ? 'Enabled' : 'Disabled'}
                       </div>
                     )}
