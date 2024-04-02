@@ -1,9 +1,9 @@
 'use client';
 
 import Dropdown from '@root/components/Dropdown';
+import { AvatarIcon } from '@root/components/Icons';
 import { useAppSelector } from '@root/store';
 import { logoutUser, selectRecords } from '@root/store/reducers/auth';
-import { Avatar } from 'baseui/avatar';
 import { ChevronDown } from 'baseui/icon';
 import { useRouter } from 'next/navigation';
 import React from 'react';
@@ -14,7 +14,7 @@ const Header: React.FC = () => {
   const is_super_admin = userInfo ? userInfo.isSuperAdmin : false;
   const selectedUserBox = (
     <span className="inline-flex items-center gap-2">
-      <Avatar />
+      <AvatarIcon size={40}></AvatarIcon>
       Dr. Shawan Lin
       <ChevronDown />
     </span>
@@ -24,10 +24,10 @@ const Header: React.FC = () => {
   const dispatch = useDispatch();
   const handleLogout = () => {
     dispatch(logoutUser());
-    router.push('/login'); // Redirect to login page after logout
+    router.push('/login');
   };
   const goToProfile = () => {
-    router.push('/profile'); // Redirect to login page after logout
+    router.push('/profile');
   };
 
   return (
@@ -49,7 +49,10 @@ const Header: React.FC = () => {
           </div>
 
           <div className="flex items-center justify-end">
-            <Dropdown position="bottomRight" trigger={<Avatar />}>
+            <Dropdown
+              position="bottomRight"
+              trigger={<AvatarIcon size={40}></AvatarIcon>}
+            >
               {!is_super_admin && (
                 <Dropdown.Item id="profile" onClick={goToProfile}>
                   Profile
