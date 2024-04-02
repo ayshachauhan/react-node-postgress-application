@@ -16,6 +16,21 @@ interface ChildProps {
   data: Data;
   onClose: () => void;
 }
+interface SelectStatusOption {
+  label: UserStatus;
+  id?: string;
+}
+interface SelectTypeOption {
+  label: UserType;
+  id?: string;
+}
+
+interface SelectStatusEvent {
+  option: SelectStatusOption;
+}
+interface SelectChangeEvent {
+  option: SelectTypeOption;
+}
 const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
   const userTypeOptions = Object.keys(UserType).map((key) => ({
     label: UserType[key as keyof typeof UserType],
@@ -34,12 +49,12 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
 
   const [updatedUserInfo, setUserInfo] = useState<Partial<EditUser>>({});
 
-  const handleStatusChange = (params) => {
+  const handleStatusChange = (params: SelectStatusEvent) => {
     const { label } = params.option;
     setUserInfo({ ...updatedUserInfo, status: label });
   };
 
-  const handleTypeChange = (params) => {
+  const handleTypeChange = (params: SelectChangeEvent) => {
     const { label } = params.option;
     setUserInfo({ ...updatedUserInfo, type: label });
   };
