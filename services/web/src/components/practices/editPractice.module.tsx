@@ -1,10 +1,11 @@
 'use client';
 import Button from '@root/components/Button';
-import Dropdown from '@root/components/Dropdown';
 import TextInput from '@root/components/TextInput';
+import { PracticeStatus } from '@root/enums/status.enum';
 import { useAppDispatch } from '@root/store';
 import { updateRecordAsync } from '@root/store/reducers/practices';
 import { PracticesEditInterface } from '@store/requests/practices';
+import { Select } from 'baseui/select';
 import React, { useState } from 'react';
 
 const PracticeEditModule: React.FC<{
@@ -14,21 +15,14 @@ const PracticeEditModule: React.FC<{
   const dispatch = useAppDispatch();
   const [name, setName] = useState(initialValues.name);
   const [status, setStatus] = useState(initialValues.status);
-  const [code, setCode] = useState(initialValues.code);
+  const practiceStatusOptions = Object.keys(PracticeStatus).map((key) => ({
+    label: PracticeStatus[key as keyof typeof PracticeStatus],
+    id: key,
+  }));
 
-  const selectedStatusColumn = (
-    <TextInput
-      name="status"
-      value={status}
-      onChange={(value) => {
-        setStatus(value);
-      }}
-      required
-    />
-  );
-
-  const handleStatusDropdown = (value: string) => {
-    setStatus(value);
+  const handleStatusDropdown = (params) => {
+    const { label } = params.option;
+    setStatus(label);
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -38,13 +32,12 @@ const PracticeEditModule: React.FC<{
       id: initialValues.id,
       name,
       status,
-      code,
+      code: initialValues.code,
     };
     try {
       dispatch(updateRecordAsync(data));
       setName('');
       setStatus('');
-      setCode('');
       onClose();
     } catch (error) {
       onClose();
@@ -55,20 +48,7 @@ const PracticeEditModule: React.FC<{
     <div>
       <form onSubmit={handleSubmit}>
         <div className="flex flex-col">
-          <div className="flex flex-row justify-between pt-4">
-            <div className="">
-              <label htmlFor="code" className="text-black text-sm">
-                Practice Code
-              </label>
-              <TextInput
-                name="code"
-                value={code}
-                onChange={(value) => {
-                  setCode(value);
-                }}
-                required
-              />
-            </div>
+          <div className="flex flex-row gap-7 pt-4">
             <div className="">
               <label htmlFor="name" className="text-black text-sm">
                 Practice Name
@@ -82,36 +62,32 @@ const PracticeEditModule: React.FC<{
                 required
               />
             </div>
-          </div>
-
-          <div className="flex flex-row justify-between pt-4">
             <div className="flex flex-col">
               <label htmlFor="status" className="text-black text-sm">
                 Status
               </label>
-              <div>
-                <Dropdown position="bottom" trigger={selectedStatusColumn}>
-                  <Dropdown.Item
-                    id="active"
-                    onClick={() => handleStatusDropdown('Active')}
-                  >
-                    Active
-                  </Dropdown.Item>
-                  <Dropdown.Item
-                    id="inactive"
-                    onClick={() => handleStatusDropdown('Inactive')}
-                  >
-                    Inactive
-                  </Dropdown.Item>
-                  <Dropdown.Item
-                    id="pending"
-                    onClick={() => handleStatusDropdown('Pending')}
-                  >
-                    Pending
-                  </Dropdown.Item>
-                </Dropdown>
-              </div>
+              <Select
+                options={practiceStatusOptions}
+                onChange={handleStatusDropdown}
+                value={status ? [{ label: status, id: status }] : []}
+                required
+                overrides={{
+                  ControlContainer: {
+                    style: {
+                      backgroundColor: 'rgba(250, 250, 250, 1)',
+                      border: 'none',
+                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)', // Add shadow CSS here
+                    },
+                  },
+                  ClearIcon: {
+                    component: () => null,
+                  },
+                }}
+              />
             </div>
+          </div>
+
+          <div className="flex flex-row justify-between pt-4">
             <div className="">
               <label htmlFor="status" className="text-black text-sm">
                 Practice Photo
@@ -126,7 +102,7 @@ const PracticeEditModule: React.FC<{
             </div>
           </div>
           <div className="text-right text-base pt-4">
-            <Button kind="primary" title="Edit practice" width={189} />
+            <Button kind="primary" title="Update practice" width={189} />
           </div>
         </div>
       </form>

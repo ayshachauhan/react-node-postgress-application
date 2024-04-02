@@ -1,15 +1,17 @@
 'use client';
 
-import React from 'react';
-
 import Dropdown from '@root/components/Dropdown';
-import { logoutUser } from '@root/store/reducers/auth';
+import { useAppSelector } from '@root/store';
+import { logoutUser, selectRecords } from '@root/store/reducers/auth';
 import { Avatar } from 'baseui/avatar';
 import { ChevronDown } from 'baseui/icon';
 import { useRouter } from 'next/navigation';
+import React from 'react';
 import { useDispatch } from 'react-redux';
 
 const Header: React.FC = () => {
+  const userInfo = useAppSelector(selectRecords);
+  const is_super_admin = userInfo ? userInfo.isSuperAdmin : false;
   const selectedUserBox = (
     <span className="inline-flex items-center gap-2">
       <Avatar />
@@ -33,23 +35,29 @@ const Header: React.FC = () => {
       <div className="px-5 py-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
-            <Dropdown position="bottomLeft" trigger={selectedUserBox}>
-              <Dropdown.Item id="profile" onClick={goToProfile}>
-                Profile
-              </Dropdown.Item>
-              <Dropdown.Item id="setting">Settings</Dropdown.Item>
-              <Dropdown.Item id="logout" onClick={handleLogout}>
-                Log out
-              </Dropdown.Item>
-            </Dropdown>
+            {!is_super_admin && (
+              <Dropdown position="bottomLeft" trigger={selectedUserBox}>
+                <Dropdown.Item id="profile" onClick={goToProfile}>
+                  Profile
+                </Dropdown.Item>
+                <Dropdown.Item id="setting">Settings</Dropdown.Item>
+                <Dropdown.Item id="logout" onClick={handleLogout}>
+                  Log out
+                </Dropdown.Item>
+              </Dropdown>
+            )}
           </div>
 
           <div className="flex items-center justify-end">
             <Dropdown position="bottomRight" trigger={<Avatar />}>
-              <Dropdown.Item id="profile" onClick={goToProfile}>
-                Profile
-              </Dropdown.Item>
-              <Dropdown.Item id="setting">Settings</Dropdown.Item>
+              {!is_super_admin && (
+                <Dropdown.Item id="profile" onClick={goToProfile}>
+                  Profile
+                </Dropdown.Item>
+              )}
+              {!is_super_admin && (
+                <Dropdown.Item id="setting">Settings</Dropdown.Item>
+              )}
               <Dropdown.Item id="logout" onClick={handleLogout}>
                 Log out
               </Dropdown.Item>

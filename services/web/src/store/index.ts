@@ -4,6 +4,7 @@ import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
 import authReducer from './reducers/auth';
 import mediaReducer from './reducers/media';
 import practicesReducer from './reducers/practices';
+import templatesReducer from './reducers/templates';
 import usersReducer from './reducers/users';
 
 export const store = configureStore({
@@ -12,6 +13,7 @@ export const store = configureStore({
     media: mediaReducer,
     practices: practicesReducer,
     users: usersReducer,
+    templates: templatesReducer,
   },
 });
 

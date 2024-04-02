@@ -55,7 +55,13 @@ const Practice: React.FC = () => {
 
   useEffect(() => {
     dispatch(fetchListings(undefined));
-  }, []); // Empty dependency array to run the effect only once
+  }, []);
+
+  useEffect(() => {
+    if (successMessage) {
+      dispatch(fetchListings(undefined));
+    }
+  }, [successMessage, dispatch]);
 
   const handleOpenCreateModal = (): void => {
     setIsCreateModalOpen(true);
@@ -117,7 +123,14 @@ const Practice: React.FC = () => {
           },
         }}
       >
-        <ModalHeader $style={{ fontSize: '1.25rem', fontWeight: 700 }}>
+        <ModalHeader
+          $style={{
+            fontSize: '1.25rem',
+            fontWeight: 700,
+            borderBottom: '1px solid rgba(244, 244, 245, 1)',
+            paddingBottom: '8px',
+          }}
+        >
           Add New Practice
         </ModalHeader>
         <ModalBody>
@@ -218,8 +231,8 @@ const Practice: React.FC = () => {
     <div className="mt-4">
       <div className="flex justify-between border-gray-400">
         <span className="text-xl font-bold">All Practices</span>
-        {showModal && <div style={{ color: 'green' }}>{successMessage}</div>}
-        {showErrorMessage && <div style={{ color: 'red' }}>{errorMessage}</div>}
+        {showModal && <div className="text-green-700">{successMessage}</div>}
+        {showErrorMessage && <div className="text-red-700">{errorMessage}</div>}
         <Button
           kind="secondary"
           title="Add New"
@@ -297,8 +310,16 @@ const Practice: React.FC = () => {
               <div className="text-gray-900 bg-gray-50 pt-2 px-4 text-center">
                 {data.physicianContactNumber}
               </div>
-              <div className="text-gray-900 bg-gray-50  pt-2   px-4 flex text-center items-center justify-center">
-                <div className="bg-yellow-400 rounded-lg px-6">
+              <div className="text-gray-900 bg-gray-50 pt-2 px-4 flex text-center items-center justify-center">
+                <div
+                  className={`rounded-md text-white px-3.5 ${
+                    data.status?.toString() === 'pending'
+                      ? 'bg-yellow-500'
+                      : data.status?.toString() === 'inactive'
+                        ? 'bg-red-500'
+                        : 'bg-green-500'
+                  }`}
+                >
                   {data.status?.toString()}
                 </div>
               </div>

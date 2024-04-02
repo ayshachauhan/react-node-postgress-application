@@ -15,15 +15,19 @@ export default function LoginPage() {
   const error = useAppSelector(selectError); // Select success message from Redux store
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const user = await dispatch(loginUser({ email, password }));
-    if (user.payload?.access_token) {
-      if (user.payload?.is_super_admin) {
-        router.push('/practices');
+    try {
+      const user = await dispatch(loginUser({ email, password }));
+      if (user.payload?.access_token) {
+        if (user.payload?.is_super_admin) {
+          router.push('/practices');
+        } else {
+          router.push('/dashboard');
+        }
       } else {
-        router.push('/dashboard');
+        router.push('/login');
       }
-    } else {
-      router.push('/login');
+    } catch (error) {
+      console.log(error);
     }
   };
   return (
@@ -77,7 +81,7 @@ export default function LoginPage() {
               </div>
             </div>
           </form>
-          {error && <div style={{ color: 'red' }}>{error}</div>}{' '}
+          {error && <div className="text-red-700">{error}</div>}{' '}
           {/* Display error message if present */}
         </div>
       </div>

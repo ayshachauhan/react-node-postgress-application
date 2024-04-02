@@ -1,49 +1,19 @@
 import Cookies from 'js-cookie';
 import { publicRuntimeConfig } from 'next.config';
-import { AddUser, EditUser } from '.';
+import { CreateTemplateResponse, EditTemplate } from '.';
+const { API_BASE_URL } = publicRuntimeConfig;
 
-export const getUsers = async (
-  payloadData: { practiceId: string },
-  { rejectWithValue },
-) => {
-  const { API_BASE_URL } = publicRuntimeConfig;
-  try {
-    const accessToken = Cookies.get('access_token');
-    const response = await fetch(
-      `${API_BASE_URL}/practices/${payloadData.practiceId}/users`,
-      {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        },
-      },
-    );
-    if (!response.ok) {
-      throw new Error('Failed to fetch users');
-    }
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    if (error instanceof Error) {
-      return rejectWithValue(error.message);
-    }
-    return rejectWithValue('An unknown error occurred');
-  }
-};
-
-export const getUserInfo = async (
+export const getTemplates = async (
   payloadData: {
-    id: string;
     practiceId: string;
+    userId?: string;
   },
   { rejectWithValue },
 ) => {
-  const { API_BASE_URL } = publicRuntimeConfig;
   try {
     const accessToken = Cookies.get('access_token');
     const response = await fetch(
-      `${API_BASE_URL}/practices/${payloadData.practiceId}/users/${payloadData.id}`,
+      `${API_BASE_URL}/practices/${payloadData.practiceId}/users/${payloadData.userId}/templates`,
       {
         method: 'GET',
         headers: {
@@ -53,59 +23,66 @@ export const getUserInfo = async (
       },
     );
     if (!response.ok) {
-      throw new Error('Failed to fetch user');
+      throw new Error('Failed to get templates');
     }
     const data = await response.json();
-    return data;
+
+    const modifiedDataObject = {};
+    data.forEach((element) => {
+      const surgeryType: string = element.surgeryType;
+      const messageType: string = element.messageType;
+      if (modifiedDataObject[surgeryType]) {
+        if (modifiedDataObject[surgeryType][messageType]) {
+          modifiedDataObject[surgeryType][messageType].push(element);
+        } else {
+          modifiedDataObject[surgeryType][messageType] = [element];
+        }
+      } else {
+        modifiedDataObject[surgeryType] = {
+          [messageType]: [element],
+          surgeryType,
+        };
+      }
+    });
+
+    return Object.values(modifiedDataObject);
   } catch (error) {
-    if (error instanceof Error) {
-      return rejectWithValue(error.message);
-    }
-    return rejectWithValue('An unknown error occurred');
+    return rejectWithValue(error);
   }
 };
 
-export const addUser = async (payloadData: AddUser, { rejectWithValue }) => {
-  const { API_BASE_URL } = publicRuntimeConfig;
+export const addTemplate = async (payloadData: CreateTemplateResponse) => {
   try {
     const accessToken = Cookies.get('access_token');
-    const { practiceId, ...restPayload } = payloadData;
-    const sanitizedPayload = { ...restPayload };
     const response = await fetch(
-      `${API_BASE_URL}/practices/${practiceId}/users`,
+      `${API_BASE_URL}/practices/${payloadData.practiceId}/users/${payloadData.userId}/templates`,
       {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${accessToken}`,
         },
-        body: JSON.stringify(sanitizedPayload),
+        body: JSON.stringify(payloadData),
       },
     );
-    if (!response.ok) {
-      throw new Error('Failed to add user');
-    }
     const data = await response.json();
     return data;
   } catch (error) {
-    if (error instanceof Error) {
-      return rejectWithValue(error.message);
-    }
-    return rejectWithValue('An unknown error occurred');
+    return error;
   }
 };
 
-export const updateUser = async (
-  payloadData: EditUser,
+export const updateTemplate = async (
+  payloadData: EditTemplate,
   { rejectWithValue },
 ) => {
   const { API_BASE_URL } = publicRuntimeConfig;
   try {
     const accessToken = Cookies.get('access_token');
-    const { practiceId, id, ...restPayload } = payloadData;
+    const { practiceId, userId, id, ...restPayload } = payloadData;
     const sanitizedPayload = { ...restPayload };
     const response = await fetch(
-      `${API_BASE_URL}/practices/${practiceId}/users/${id}`,
+      `${API_BASE_URL}/practices/${practiceId}/users/${userId}/templates/${id}`,
       {
         method: 'PATCH',
         headers: {
@@ -116,7 +93,7 @@ export const updateUser = async (
       },
     );
     if (!response.ok) {
-      throw new Error('Failed to update user');
+      throw new Error('Failed to update template');
     }
     const data = await response.json();
     return data;
@@ -128,10 +105,11 @@ export const updateUser = async (
   }
 };
 
-export const deleteUser = async (
+export const deleteTemplate = async (
   payloadData: {
     practiceId: string;
     id: string;
+    userId: string;
   },
   { rejectWithValue },
 ) => {
@@ -139,7 +117,7 @@ export const deleteUser = async (
   try {
     const accessToken = Cookies.get('access_token');
     const response = await fetch(
-      `${API_BASE_URL}/practices/${payloadData.practiceId}/users/${payloadData.id}`,
+      `${API_BASE_URL}/practices/${payloadData.practiceId}/users/${payloadData.userId}/templates/${payloadData.id}`,
       {
         method: 'DELETE',
         headers: {
@@ -149,7 +127,7 @@ export const deleteUser = async (
       },
     );
     if (!response.ok) {
-      throw new Error('Failed to delete user');
+      throw new Error('Failed to delete template');
     }
     const responseData = await response.text();
 

@@ -11,6 +11,11 @@ import { Select } from 'baseui/select';
 import React, { useState } from 'react';
 
 const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
+  const userTypeOptions = Object.keys(UserType).map((key) => ({
+    label: UserType[key as keyof typeof UserType],
+    id: key,
+  }));
+
   const dispatch = useAppDispatch();
   const [userName, setUserName] = useState('');
   const [email, setEmail] = useState('');
@@ -19,19 +24,12 @@ const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const [lastName, setLastName] = useState('');
   const [url, setUrl] = useState('');
   const [type, setType] = useState<UserType>(UserType.ADMIN);
-  const [status, setStatus] = useState<UserStatus>(UserStatus.ACTIVE);
-  const practiceId = useAppSelector(selectPractice); // Select success message from Redux store
-
-  const handleStatusChange = ({ value }) => {
-    // Assuming only one option can be selected
-    setStatus(value[0] ? value[0].label : null);
-  };
+  const practiceId = useAppSelector(selectPractice);
 
   const handleTypeChange = ({ value }) => {
     setType(value[0] ? value[0].label : null);
   };
 
-  // Function to handle form submission
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const fullName = generateFullName(firstName, lastName);
@@ -45,12 +43,12 @@ const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         fullName,
         url,
         type,
-        status,
+        status: UserStatus.ACTIVE,
         contactNumber,
       };
       try {
         dispatch(addRecordAsync(userPayloadData));
-        onClose(); // Close the modal after form submission
+        onClose();
       } catch (error) {
         onClose();
       }
@@ -151,39 +149,20 @@ const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 Designation
               </label>
               <Select
-                options={[
-                  { label: 'employee', id: '1' },
-                  { label: 'doctor', id: '2' },
-                  { label: 'admin', id: '3' },
-                  { label: 'physician', id: '4' },
-                ]}
+                options={userTypeOptions}
                 onChange={handleTypeChange}
-                value={type ? [{ label: type, id: type }] : []} // Convert string to array format
+                value={type ? [{ label: type, id: type }] : []}
                 required
                 overrides={{
-                  ClearIcon: {
-                    component: () => null, // This replaces the clear icon with null, effectively removing it
+                  ControlContainer: {
+                    style: {
+                      backgroundColor: 'rgba(250, 250, 250, 1)',
+                      border: 'none',
+                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)', // Add shadow CSS here
+                    },
                   },
-                }}
-              />
-            </div>
-
-            <div className="w-1/2 space-y-2">
-              <label htmlFor="status" className="text-black text-sm">
-                Status
-              </label>
-              <Select
-                options={[
-                  { label: 'active', id: '1' },
-                  { label: 'inactive', id: '2' },
-                  { label: 'pending', id: '3' },
-                ]}
-                onChange={handleStatusChange}
-                value={status ? [{ label: status, id: status }] : []} // Convert string to array format
-                required
-                overrides={{
                   ClearIcon: {
-                    component: () => null, // This replaces the clear icon with null, effectively removing it
+                    component: () => null,
                   },
                 }}
               />
