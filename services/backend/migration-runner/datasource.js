@@ -5,9 +5,9 @@ const dbdatasource = {
   type: 'postgres',
   host: process.env.DB_HOST,
   port: process.env.DB_PORT,
-  username: 'azentia',
-  password: 'azentia',
-  database: 'azentia',
+  username: process.env.DB_USERNAME,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_DATABASE,
   migrations: [path.join('migrations', '*.{ts,js}')],
   synchronize: false,
 };
