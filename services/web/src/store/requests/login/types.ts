@@ -1,4 +1,20 @@
 export interface User {
+  id: string;
+  userName: string;
+  firstName: string;
+  lastName: string;
+  contactNumber: string;
+  fullName: string;
+  url: string;
+  status: string;
+  type: string;
+  email: string;
+  isSuperAdmin: string;
+  userPractices: UserPractice[];
+}
+
+export interface GetUserResponse {
+  id?: string;
   userName: string;
   firstName: string;
   lastName: string;

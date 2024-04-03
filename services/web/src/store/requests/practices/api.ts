@@ -23,7 +23,10 @@ export const getPractices = async (_, { rejectWithValue }) => {
     const data = await response.json();
     return data;
   } catch (error) {
-    return rejectWithValue(error);
+    if (error instanceof Error) {
+      return rejectWithValue(error.message);
+    }
+    return rejectWithValue('An unknown error occurred');
   }
 };
 
@@ -52,7 +55,10 @@ export const getPracticeData = async (
     const data = await response.json();
     return data;
   } catch (error) {
-    return rejectWithValue(error); // Pass error message to payload
+    if (error instanceof Error) {
+      return rejectWithValue(error.message);
+    }
+    return rejectWithValue('An unknown error occurred');
   }
 };
 

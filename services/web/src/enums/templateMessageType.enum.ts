@@ -1,5 +1,5 @@
 export enum TemplateMessageType {
-  EVALUATION = 'evaluation',
+  // EVALUATION = 'evaluation',
   BOOKING = 'booking',
   REFERRER = 'referrer',
   PCP = 'pcp',

@@ -17,6 +17,14 @@ interface ChildProps {
   onClose: () => void;
 }
 const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
+  const userTypeOptions = Object.keys(UserType).map((key) => ({
+    label: UserType[key as keyof typeof UserType],
+    id: key,
+  }));
+  const userStatusOptions = Object.keys(UserStatus).map((key) => ({
+    label: UserStatus[key as keyof typeof UserStatus],
+    id: key,
+  }));
   const dispatch = useAppDispatch();
   const practiceId = useAppSelector(selectPractice); // Select user practice id
   const userInfo = useAppSelector((state) =>
@@ -51,26 +59,27 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
       );
       updatedUserInfo.fullName = fullName;
     }
-    delete updatedUserInfo.password;
     if (userId && practiceId) {
       const userPayloadData = {
         ...updatedUserInfo,
-        userName: updatedUserInfo.userName ?? '', //, // Now assured to be a string
-        firstName: updatedUserInfo.firstName ?? '', //, // Now assured to be a string
-        lastName: updatedUserInfo.lastName ?? '', //, // Now assured to be a string
-        contactNumber: updatedUserInfo.contactNumber ?? '', //, // Now assured to be a string
-        fullName: updatedUserInfo.fullName ?? '', //, // Now assured to be a string
-        email: updatedUserInfo.email ?? '', //, // Now assured to be a string
-        url: updatedUserInfo.url ?? '', //, // Now assured to be a string
-        status: updatedUserInfo.status ?? UserStatus.INACTIVE, //, // Now assured to be a string
-        type: updatedUserInfo.type ?? UserType.EMPLOYEE, //, // Now assured to be a string
-        password: updatedUserInfo.password ?? '', //, // Now assured to be a string
+        userName: updatedUserInfo.userName ?? '',
+        firstName: updatedUserInfo.firstName ?? '',
+        lastName: updatedUserInfo.lastName ?? '',
+        contactNumber: updatedUserInfo.contactNumber ?? '',
+        fullName: updatedUserInfo.fullName ?? '',
+        email: updatedUserInfo.email ?? '',
+        url: updatedUserInfo.url ?? '',
+        status: updatedUserInfo.status ?? UserStatus.INACTIVE,
+        type: updatedUserInfo.type ?? UserType.EMPLOYEE,
         practiceId: practiceId,
         id: userId,
       };
+      if ('password' in userPayloadData) {
+        delete userPayloadData.password;
+      }
       try {
         dispatch(updateRecordAsync(userPayloadData));
-        onClose(); // Close the modal after form submission
+        onClose();
       } catch (error) {
         onClose();
       }
@@ -102,7 +111,7 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
               </label>
               <TextInput
                 name="email"
-                value={updatedUserInfo?.email}
+                value={updatedUserInfo?.email || ''}
                 onChange={(value) => {
                   setUserInfo({ ...updatedUserInfo, email: value });
                 }}
@@ -118,7 +127,7 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
               </label>
               <TextInput
                 name="firstName"
-                value={updatedUserInfo?.firstName}
+                value={updatedUserInfo?.firstName || ''}
                 onChange={(value) => {
                   setUserInfo({ ...updatedUserInfo, firstName: value });
                 }}
@@ -132,7 +141,7 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
               </label>
               <TextInput
                 name="lastName"
-                value={updatedUserInfo?.lastName}
+                value={updatedUserInfo?.lastName || ''}
                 onChange={(value) => {
                   setUserInfo({ ...updatedUserInfo, lastName: value });
                 }}
@@ -148,7 +157,7 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
               </label>
               <TextInput
                 name="contactNumber"
-                value={updatedUserInfo?.contactNumber}
+                value={updatedUserInfo?.contactNumber || ''}
                 onChange={(value) => {
                   setUserInfo({ ...updatedUserInfo, contactNumber: value });
                 }}
@@ -162,7 +171,7 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
               </label>
               <TextInput
                 name="url"
-                value={updatedUserInfo?.url}
+                value={updatedUserInfo?.url || ''}
                 onChange={(value) => {
                   setUserInfo({ ...updatedUserInfo, url: value });
                 }}
@@ -177,16 +186,18 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
                 Designation
               </label>
               <Select
-                options={[
-                  { label: 'employee', id: '1' },
-                  { label: 'doctor', id: '2' },
-                  { label: 'admin', id: '3' },
-                  { label: 'physician', id: '4' },
-                ]}
+                options={userTypeOptions}
                 onChange={handleTypeChange}
                 overrides={{
+                  ControlContainer: {
+                    style: {
+                      backgroundColor: 'rgba(250, 250, 250, 1)',
+                      border: 'none',
+                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)', // Add shadow CSS here
+                    },
+                  },
                   ClearIcon: {
-                    component: () => null, // This replaces the clear icon with null, effectively removing it
+                    component: () => null,
                   },
                 }}
                 value={
@@ -207,15 +218,18 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
                 Status
               </label>
               <Select
-                options={[
-                  { label: 'active', id: '1' },
-                  { label: 'inactive', id: '2' },
-                  { label: 'pending', id: '3' },
-                ]}
+                options={userStatusOptions}
                 onChange={handleStatusChange}
                 overrides={{
+                  ControlContainer: {
+                    style: {
+                      backgroundColor: 'rgba(250, 250, 250, 1)',
+                      border: 'none',
+                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)', // Add shadow CSS here
+                    },
+                  },
                   ClearIcon: {
-                    component: () => null, // This replaces the clear icon with null, effectively removing it
+                    component: () => null,
                   },
                 }}
                 value={

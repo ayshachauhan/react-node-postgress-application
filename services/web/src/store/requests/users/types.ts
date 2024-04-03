@@ -54,5 +54,4 @@ export interface EditUser {
   status: UserStatus;
   type: UserType;
   practiceId: string;
-  password: string;
 }
