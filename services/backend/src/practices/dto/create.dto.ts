@@ -1,6 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsOptional } from 'class-validator';
-import { PracticeStatus } from 'src/enums/status.enum';
 
 export class PracticeCreateDto {
   @IsNotEmpty({ message: 'Name is required' })
@@ -26,10 +25,6 @@ export class PracticeCreateDto {
   @IsNotEmpty({ message: 'contact number  is required' })
   @ApiProperty()
   adminContactNumber: string;
-
-  @IsNotEmpty({ message: 'status is required' })
-  @ApiProperty()
-  status: PracticeStatus;
 
   @IsOptional()
   @ApiProperty()

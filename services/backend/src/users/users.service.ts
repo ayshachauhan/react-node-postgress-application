@@ -10,6 +10,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import { User } from 'src/entities/users.entity';
 import { ENVIRONMENT_VARIABLES } from 'src/enums/environment.enums';
+import { PracticeStatus, UserStatus } from 'src/enums/status.enum';
+import { UserType } from 'src/enums/userType.enum';
 import { PracticesService } from 'src/practices/practices.service';
 import { UserPracticesService } from 'src/userPractices/userPractices.services';
 import { SanitizedUser } from 'src/users/types';
@@ -29,17 +31,21 @@ export class UsersService {
     private readonly configService: ConfigService,
   ) {}
 
+  defaultUserPassword() {
+    return this.configService.get(ENVIRONMENT_VARIABLES.DEFAULT_USER_PASSWORD);
+  }
+
   async create(
     createUserDto: CreateUserDto,
     practiceId: string,
   ): Promise<SanitizedUser> {
-    const defaultUserPassword = this.configService.get(
-      ENVIRONMENT_VARIABLES.DEFAULT_USER_PASSWORD,
-    );
     const newUser: User = new User();
     const { firstName, lastName } = createUserDto;
     const fullName = `${firstName}_${lastName}`;
-    const hashedDefaultPassword = await bcrypt.hash(defaultUserPassword, 10);
+    const hashedDefaultPassword = await bcrypt.hash(
+      this.defaultUserPassword(),
+      10,
+    );
 
     const practiceEntity = await this.practicesService.findOne(practiceId);
     if (!practiceEntity) {
@@ -138,5 +144,57 @@ export class UsersService {
     return {
       ...sanitizeedUser,
     };
+  }
+
+  async changePassword({
+    changePasswordDto,
+    practiceId,
+  }): Promise<SanitizedUser> {
+    const { email, newPassword, confirmPassword, oldPassword } =
+      changePasswordDto;
+    if (confirmPassword !== newPassword) {
+      throw new HttpException(
+        'Password does not match',
+        HttpStatus.NOT_ACCEPTABLE,
+      );
+    }
+
+    const user = await this.findUserByEmail(email);
+    if (user) {
+      const isPasswordMatched = await bcrypt.compare(
+        oldPassword,
+        user.password,
+      );
+      if (isPasswordMatched) {
+        const newHashedPassword = await bcrypt.hash(newPassword, 10);
+        const updatedResult = await this.usersRepository.update(user.id, {
+          password: newHashedPassword,
+          status: UserStatus.ACTIVE,
+        });
+
+        // if admin is changing password and the password is default. then setting practice status as active
+        if (
+          user.type == UserType.ADMIN &&
+          oldPassword == this.defaultUserPassword()
+        ) {
+          await this.practicesService.update(practiceId, {
+            status: PracticeStatus.ACTIVE,
+          });
+        }
+
+        if (updatedResult.affected === 0) {
+          throw new HttpException(
+            `error while updating`,
+            HttpStatus.NOT_ACCEPTABLE,
+          );
+        }
+        const resultUser = await this.getUserById(user.id);
+        if (resultUser) {
+          return this.sanitizeUser(resultUser);
+        }
+      }
+    }
+
+    throw new HttpException(`error while updating`, HttpStatus.NOT_ACCEPTABLE);
   }
 }

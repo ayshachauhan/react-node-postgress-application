@@ -4,7 +4,6 @@ export interface PracticeCreateInterface {
   adminLastName: string;
   adminEmail: string;
   adminContactNumber: string;
-  status: string;
   code: string;
 }
 

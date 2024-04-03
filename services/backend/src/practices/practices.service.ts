@@ -15,7 +15,6 @@ import { UserStatus } from '../enums/status.enum';
 import { UserType } from '../enums/userType.enum';
 import { UsersService } from '../users/users.service';
 import { PracticeCreateDto } from './dto/create.dto';
-import { PracticePatchDto } from './dto/patch.dto';
 import { sendPracticeAdminInvite } from './emailTemplates/adminInvite';
 import { PracticesGetInterface } from './types';
 
@@ -120,14 +119,17 @@ export class PracticesService {
         text: 'text message',
       };
       const mailData = {
-        signUpLink: process.env.FRONT_END_BASE_URL + '/login',
+        signUpLink:
+          process.env.FRONT_END_BASE_URL +
+          `/onboarding/practice?practiceId=${
+            practice.id
+          }&email=${encodeURIComponent(adminEmail)}`,
         practiceName: practice.name,
         userFirstName: adminFirstName,
         userLastName: adminLastName,
         contactEmail: adminEmail,
         contactPhone: adminContactNumber,
       };
-      console.log(newAdmin);
       await this.transporterService.sendEmail(mailOptions, mailData);
       await queryRunner.commitTransaction();
 
@@ -140,10 +142,7 @@ export class PracticesService {
     }
   }
 
-  async update(
-    id: string,
-    practicePatchDto: PracticePatchDto,
-  ): Promise<PracticeEntity | null> {
+  async update(id: string, practicePatchDto): Promise<PracticeEntity | null> {
     const updateResult: UpdateResult = await this.practicesRepository.update(
       id,
       practicePatchDto,

@@ -242,11 +242,8 @@ const Practice: React.FC = () => {
       </div>
       <hr className="h-px my-2.5 bg-gray-100 border-1 dark:bg-gray-700"></hr>
       <div className="text-gray-50 w-full  items-center  bg-gray-50 py-4 rounded-lg">
-        <div className="bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 grid grid-cols-10 rounded-lg w-auto">
+        <div className="bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 grid grid-cols-9 rounded-lg w-auto">
           <div className="font-bold text-white p-4 w-auto ">S. No.</div>
-          <div className="font-bold text-white p-4 w-auto  text-center">
-            Practice Code
-          </div>
           <div className="font-bold text-white p-4 w-auto text-center">
             Practice Name
           </div>
@@ -276,9 +273,6 @@ const Practice: React.FC = () => {
             <React.Fragment key={data.id}>
               <div className="text-gray-900 bg-gray-50 pt-2 px-4 ">
                 {index + 1}.
-              </div>
-              <div className="text-gray-900 bg-gray-50 pt-2 px-4 text-center">
-                {data.code}
               </div>
               <div className="text-gray-900 bg-gray-50 pt-2 px-4 text-center">
                 {data.name}

@@ -1,35 +1,24 @@
 'use client';
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
-import { PracticeStatus } from '@root/enums/status.enum';
 import { useAppDispatch } from '@root/store';
 import { addRecordAsync } from '@root/store/reducers/practices';
 import { PracticeCreateInterface } from '@store/requests/practices';
-import { Select } from 'baseui/select';
 import React, { useState } from 'react';
 
 const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
-  const practiceStatusOptions = Object.keys(PracticeStatus).map((key) => ({
-    label: PracticeStatus[key as keyof typeof PracticeStatus],
-    id: key,
-  }));
   const dispatch = useAppDispatch();
   const [name, setName] = useState('');
   const [adminFirstName, setAdminFirstName] = useState('');
   const [adminLastName, setAdminLastName] = useState('');
   const [adminEmail, setAdminEmail] = useState('');
   const [adminContactNumber, setAdminContactNumber] = useState('');
-  const [status, setStatus] = useState('');
   const generateRandomCode = () => {
     const min = 100000; // Minimum value for a 6-digit code
     const max = 999999; // Maximum value for a 6-digit code
     return Math.floor(Math.random() * (max - min + 1)) + min;
   };
   const [code, setCode] = useState(generateRandomCode().toString());
-
-  const handleStatusDropdown = ({ value }) => {
-    setStatus(value[0] ? value[0].label : null);
-  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -40,7 +29,6 @@ const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       adminLastName,
       adminEmail,
       adminContactNumber,
-      status,
       code,
     };
     try {
@@ -50,7 +38,6 @@ const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       setAdminLastName('');
       setAdminEmail('');
       setAdminContactNumber('');
-      setStatus('');
       setCode('');
       onClose();
     } catch (error) {
@@ -77,6 +64,20 @@ const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               />
             </div>
             <div className="">
+              <label htmlFor="status" className="text-black text-sm">
+                Practice Photo
+              </label>
+              <TextInput
+                name="practicePhoto"
+                value=""
+                onChange={(value) => {
+                  setCode(value);
+                }}
+              />
+            </div>
+          </div>
+          <div className="flex flex-row justify-between pt-4">
+            <div className="">
               <label htmlFor="adminFirstName" className="text-black text-sm">
                 First Name
               </label>
@@ -89,8 +90,6 @@ const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 required
               />
             </div>
-          </div>
-          <div className="flex flex-row justify-between pt-4">
             <div className="">
               <label htmlFor="adminLastName" className="text-black text-sm">
                 Last Name
@@ -104,6 +103,8 @@ const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 required
               />
             </div>
+          </div>
+          <div className="flex flex-row justify-between pt-4">
             <div className="">
               <label htmlFor="adminEmail" className="text-black text-sm">
                 Admin Email
@@ -117,8 +118,6 @@ const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 required
               />
             </div>
-          </div>
-          <div className="flex flex-row justify-between pt-4">
             <div className="">
               <label
                 htmlFor="adminContactNumber"
@@ -133,45 +132,6 @@ const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                   setAdminContactNumber(value);
                 }}
                 required
-              />
-            </div>
-          </div>
-          <div className="flex flex-row justify-between pt-4">
-            <div className="flex flex-col">
-              <label htmlFor="status" className="text-black text-sm">
-                Status
-              </label>
-              <Select
-                options={practiceStatusOptions}
-                onChange={handleStatusDropdown}
-                value={status ? [{ label: status, id: status }] : []}
-                required
-                overrides={{
-                  ControlContainer: {
-                    style: {
-                      backgroundColor: 'rgba(250, 250, 250, 1)',
-                      border: 'none',
-                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)', // Add shadow CSS here
-                    },
-                  },
-                  ClearIcon: {
-                    component: () => null,
-                  },
-                }}
-              />
-            </div>
-          </div>
-          <div className="flex flex-row justify-between pt-4">
-            <div className="">
-              <label htmlFor="status" className="text-black text-sm">
-                Practice Photo
-              </label>
-              <TextInput
-                name="practicePhoto"
-                value=""
-                onChange={(value) => {
-                  setStatus(value);
-                }}
               />
             </div>
           </div>
