@@ -14,8 +14,6 @@ const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const [adminLastName, setAdminLastName] = useState('');
   const [adminEmail, setAdminEmail] = useState('');
   const [adminContactNumber, setAdminContactNumber] = useState('');
-  const [physicianEmail, setPhysicianEmail] = useState('');
-  const [physicianContactNumber, setPhysicianContactNumber] = useState('');
   const [status, setStatus] = useState('');
   const [code, setCode] = useState('');
 
@@ -43,8 +41,6 @@ const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       adminLastName,
       adminEmail,
       adminContactNumber,
-      physicianEmail,
-      physicianContactNumber,
       status,
       code,
     };
@@ -55,8 +51,6 @@ const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       setAdminLastName('');
       setAdminEmail('');
       setAdminContactNumber('');
-      setPhysicianEmail('');
-      setPhysicianContactNumber('');
       setStatus('');
       setCode('');
       onClose();
@@ -156,38 +150,6 @@ const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               />
             </div>
           </div>
-          <div className="flex flex-row justify-between pt-4">
-            <div className="">
-              <label htmlFor="physicianEmail" className="text-black text-sm">
-                Physician Email
-              </label>
-              <TextInput
-                name="physicianEmail"
-                value={physicianEmail}
-                onChange={(value) => {
-                  setPhysicianEmail(value);
-                }}
-                required
-              />
-            </div>
-            <div className="">
-              <label
-                htmlFor="physicianContactNumber"
-                className="text-black text-sm"
-              >
-                Physician Contact No.
-              </label>
-              <TextInput
-                name="physicianContactNumber"
-                value={physicianContactNumber}
-                onChange={(value) => {
-                  setPhysicianContactNumber(value);
-                }}
-                required
-              />
-            </div>
-          </div>
-
           <div className="flex flex-row justify-between pt-4">
             <div className="flex flex-col">
               <label htmlFor="status" className="text-black text-sm">

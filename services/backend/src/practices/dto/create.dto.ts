@@ -31,14 +31,6 @@ export class PracticeCreateDto {
   @ApiProperty()
   status: PracticeStatus;
 
-  @IsNotEmpty({ message: 'physician email  is required' })
-  @ApiProperty()
-  physicianEmail: string;
-
-  @IsNotEmpty({ message: 'physician contact number is required' })
-  @ApiProperty()
-  physicianContactNumber: string;
-
   @IsOptional()
   @ApiProperty()
   photoUrl: string;

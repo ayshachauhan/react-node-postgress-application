@@ -12,6 +12,8 @@ import {
 @Module({ imports: [], providers: [], exports: [] })
 export class TransporterModule {
   static forRootAsync(options: AsyncModuleOptions): DynamicModule {
+    console.log('sidhbcfuhadbcidsabzciszdc');
+
     const providers: Provider[] = [
       {
         provide: EMAIL_MODULE_OPTIONS,
@@ -21,6 +23,8 @@ export class TransporterModule {
       {
         provide: EMAIL_CONNECTION_TOKEN,
         useFactory: async (options: ModuleOptions) => {
+          console.log(options, 987654);
+
           const { host, port, user, pass } = options;
           const client: Transporter<SMTPTransport.SentMessageInfo> =
             createTransport({

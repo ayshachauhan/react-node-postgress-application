@@ -6,7 +6,9 @@ import {
   forwardRef,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import Mail from 'nodemailer/lib/mailer';
 import { User } from 'src/entities/users.entity';
+import { TransporterService } from 'src/transporter';
 import { DataSource, Repository, UpdateResult } from 'typeorm';
 import { PracticeEntity } from '../entities/practices.entity';
 import { UserStatus } from '../enums/status.enum';
@@ -14,6 +16,7 @@ import { UserType } from '../enums/userType.enum';
 import { UsersService } from '../users/users.service';
 import { PracticeCreateDto } from './dto/create.dto';
 import { PracticePatchDto } from './dto/patch.dto';
+import { sendPracticeAdminInvite } from './emailTemplates/adminInvite';
 import { PracticesGetInterface } from './types';
 
 @Injectable()
@@ -23,6 +26,7 @@ export class PracticesService {
     private practicesRepository: Repository<PracticeEntity>,
     @Inject(forwardRef(() => UsersService))
     private readonly userService: UsersService,
+    private readonly transporterService: TransporterService,
     private dataSource: DataSource,
   ) {}
 
@@ -37,13 +41,20 @@ export class PracticesService {
 
     dbPractices.forEach((element: PracticeEntity) => {
       const { id, name, code, status } = element;
-      const dbUsersByPractice: User[] = element.users;
+      const dbUsersByPractice: User[] = element.users.sort((a, b) => {
+        const timestampA = a.dateCreated.getTime();
+        const timestampB = b.dateCreated.getTime();
+
+        if (timestampA < timestampB) {
+          return -1;
+        } else if (timestampA > timestampB) {
+          return 1;
+        } else {
+          return 0;
+        }
+      });
 
       const adminUser = dbUsersByPractice.find((ele) => ele.type === 'admin');
-      const physicianUser = dbUsersByPractice.find(
-        (ele) => ele.type === 'physician',
-      );
-
       const finalPractice: PracticesGetInterface = { id, name, code, status };
 
       if (adminUser) {
@@ -51,11 +62,6 @@ export class PracticesService {
         finalPractice.adminLastName = adminUser.lastName;
         finalPractice.adminEmail = adminUser.email;
         finalPractice.adminContactNumber = adminUser.contactNumber;
-      }
-
-      if (physicianUser) {
-        finalPractice.physicianEmail = physicianUser.email;
-        finalPractice.physicianContactNumber = physicianUser.contactNumber;
       }
       resultArray.push(finalPractice);
     });
@@ -76,8 +82,6 @@ export class PracticesService {
     adminContactNumber,
     adminFirstName,
     adminLastName,
-    physicianContactNumber,
-    physicianEmail,
     code,
   }: PracticeCreateDto): Promise<PracticeEntity> {
     // initiating transaction as multiple table operations are in queue
@@ -95,7 +99,7 @@ export class PracticesService {
       });
 
       // creating admin user
-      await this.userService.create(
+      const newAdmin = await this.userService.create(
         {
           firstName: adminFirstName,
           lastName: adminLastName,
@@ -108,22 +112,23 @@ export class PracticesService {
         },
         practice.id,
       );
-
-      // creating physician user
-      await this.userService.create(
-        {
-          firstName: `${name}`,
-          lastName: 'physician',
-          email: physicianEmail,
-          userName: `${physicianEmail}`,
-          status: UserStatus.ACTIVE,
-          type: UserType.PHYSICIAN,
-          url: '',
-          contactNumber: physicianContactNumber,
-        },
-        practice.id,
-      );
-
+      const mailOptions: Mail.Options = {
+        to: newAdmin.email,
+        subject:
+          'Subject: Welcome to Surgery Scheduler Portal - Complete Your Sign-up Process',
+        html: sendPracticeAdminInvite,
+        text: 'text message',
+      };
+      const mailData = {
+        signUpLink: process.env.FRONT_END_BASE_URL + '/login',
+        practiceName: practice.name,
+        userFirstName: adminFirstName,
+        userLastName: adminLastName,
+        contactEmail: adminEmail,
+        contactPhone: adminContactNumber,
+      };
+      console.log(newAdmin);
+      await this.transporterService.sendEmail(mailOptions, mailData);
       await queryRunner.commitTransaction();
 
       return practice;

@@ -16,8 +16,11 @@ export class TransporterService {
     options: Mail.Options,
     data: Record<string, unknown>,
   ): Promise<void> {
+    console.log(options, 'options');
+
     await this.emailTransporter.sendMail({
       ...options,
+      from: process.env.SMTP_USER,
       text: options.text
         ? this.compileTemplate(options.text.toString(), data)
         : undefined,
