@@ -15,10 +15,6 @@ const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     label: UserType[key as keyof typeof UserType],
     id: key,
   }));
-  const userStatusOptions = Object.keys(UserStatus).map((key) => ({
-    label: UserStatus[key as keyof typeof UserStatus],
-    id: key,
-  }));
   const dispatch = useAppDispatch();
   const [userName, setUserName] = useState('');
   const [email, setEmail] = useState('');
@@ -27,12 +23,8 @@ const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const [lastName, setLastName] = useState('');
   const [url, setUrl] = useState('');
   const [type, setType] = useState<UserType>(UserType.ADMIN);
-  const [status, setStatus] = useState<UserStatus>(UserStatus.ACTIVE);
+  const status = UserStatus.PENDING;
   const practiceId = useAppSelector(selectPractice);
-
-  const handleStatusChange = ({ value }) => {
-    setStatus(value[0] ? value[0].label : null);
-  };
 
   const handleTypeChange = ({ value }) => {
     setType(value[0] ? value[0].label : null);
@@ -172,33 +164,6 @@ const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 options={userTypeOptions}
                 onChange={handleTypeChange}
                 value={type ? [{ label: type, id: type }] : []}
-                required
-                overrides={{
-                  ControlContainer: {
-                    style: {
-                      backgroundColor: 'rgba(250, 250, 250, 1)',
-                      border: 'none',
-                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)', // Add shadow CSS here
-                    },
-                  },
-                  ClearIcon: {
-                    component: () => null,
-                  },
-                }}
-              />
-            </div>
-
-            <div className="w-1/2 space-y-2">
-              <label
-                htmlFor="status"
-                className="text-black text-sm font-normal"
-              >
-                Status
-              </label>
-              <Select
-                options={userStatusOptions}
-                onChange={handleStatusChange}
-                value={status ? [{ label: status, id: status }] : []}
                 required
                 overrides={{
                   ControlContainer: {
