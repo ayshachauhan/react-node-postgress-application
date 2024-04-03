@@ -180,34 +180,12 @@ const Templates: React.FC = () => {
         <span className="text-2xl font-medium">Template Engine </span>
         <div className="text-green-700">{successMessage}</div>
         {showErrorMessage && <div className="text-red-700">{errorMessage}</div>}
-        <div className="flex w-2/6 justify-between">
-          <div className="flex ml-5">
-            <div style={{ width: '291px' }}>
-              <div className="rounded-tl rounded-tr-none rounded-bl rounded-br-none border border-gray-300 border-r-0">
-                <Input
-                  name="search"
-                  value={search}
-                  onChange={(event) => setSearch(event.currentTarget.value)}
-                  placeholder="Search Surgery"
-                  overrides={inputOverrides}
-                />
-              </div>
-            </div>
-            <div className="bg-gradient-to-r from-primary-light to-primary-dark w-14 h-9 rounded-r-lg flex items-center justify-center text-white border-none">
-              <SearchIcon></SearchIcon>
-            </div>
-          </div>
-          <Button
-            kind="secondary"
-            title="Add New"
-            width={104}
-            height={38}
-            padding="8px 10px 8px 10px"
-            fontSize="14px"
-            onClick={handleOpenAddModal}
-            startEnhancer={() => <AddIcon className="mt-2" size={18}></AddIcon>}
-          />
-        </div>
+        <Button
+          kind="secondary"
+          title="Add New"
+          onClick={handleOpenAddModal}
+          startEnhancer={() => <AddIcon className="mt-2" size={25}></AddIcon>}
+        />
       </div>
       <hr className="h-px my-2.5 px-0 mx-0 bg-gray-100 border-1 dark:bg-gray-700"></hr>
       <div className="flex flex-wrap gap-7">
