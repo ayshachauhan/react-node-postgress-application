@@ -1,6 +1,6 @@
 'use client';
 import Button from '@root/components/Button';
-import { AddIcon, SearchIcon } from '@root/components/Icons';
+import { AddIcon } from '@root/components/Icons';
 import Form from '@root/components/templates/addTemplate.module';
 import TemplateUpdate from '@root/components/templates/updateTemplate.module';
 import { UserType } from '@root/enums/userType.enum';
@@ -13,28 +13,11 @@ import {
   selectError,
   selectSuccessMessage,
 } from '@root/store/reducers/templates';
-import { Input } from 'baseui/input';
 import { Modal, ModalBody, ModalHeader, ROLE, SIZE } from 'baseui/modal';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 const Templates: React.FC = () => {
   const templates = useAppSelector((state) => state.templates.templates);
-  const inputOverrides = {
-    Input: {
-      style: () => ({
-        backgroundColor: 'ffffff',
-        height: '34px',
-        boxShadow: 'none',
-      }),
-    },
-    Root: {
-      style: {
-        border: 'none',
-      },
-    },
-  };
-
-  const [search, setSearch] = useState('');
   const dispatch = useAppDispatch();
   const [templateId, setTemplateId] = useState<string | null>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);

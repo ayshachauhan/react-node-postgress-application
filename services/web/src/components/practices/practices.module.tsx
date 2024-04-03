@@ -21,6 +21,7 @@ const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const [adminContactNumber, setAdminContactNumber] = useState('');
   const [physicianEmail, setPhysicianEmail] = useState('');
   const [physicianContactNumber, setPhysicianContactNumber] = useState('');
+  const [photoUrl, setPhotoUrl] = useState('');
   const [status, setStatus] = useState('');
   const generateRandomCode = () => {
     const min = 100000; // Minimum value for a 6-digit code
@@ -45,6 +46,7 @@ const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       physicianEmail,
       physicianContactNumber,
       status,
+      photoUrl,
       code,
     };
     try {
@@ -57,6 +59,7 @@ const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       setPhysicianEmail('');
       setPhysicianContactNumber('');
       setStatus('');
+      setPhotoUrl('');
       setCode('');
       onClose();
     } catch (error) {
@@ -70,7 +73,7 @@ const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         <div className="flex flex-col">
           <div className="flex flex-row justify-between pt-4">
             <div className="">
-              <label htmlFor="name" className="text-black text-sm">
+              <label htmlFor="name" className="text-black text-sm font-normal">
                 Practice Name
               </label>
               <TextInput
@@ -83,7 +86,10 @@ const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               />
             </div>
             <div className="">
-              <label htmlFor="adminFirstName" className="text-black text-sm">
+              <label
+                htmlFor="adminFirstName"
+                className="text-black text-sm font-normal"
+              >
                 First Name
               </label>
               <TextInput
@@ -98,7 +104,10 @@ const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           </div>
           <div className="flex flex-row justify-between pt-4">
             <div className="">
-              <label htmlFor="adminLastName" className="text-black text-sm">
+              <label
+                htmlFor="adminLastName"
+                className="text-black text-sm font-normal"
+              >
                 Last Name
               </label>
               <TextInput
@@ -111,7 +120,10 @@ const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               />
             </div>
             <div className="">
-              <label htmlFor="adminEmail" className="text-black text-sm">
+              <label
+                htmlFor="adminEmail"
+                className="text-black text-sm font-normal"
+              >
                 Admin Email
               </label>
               <TextInput
@@ -128,7 +140,7 @@ const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             <div className="">
               <label
                 htmlFor="adminContactNumber"
-                className="text-black text-sm"
+                className="text-black text-sm font-normal"
               >
                 Admin Contact No.
               </label>
@@ -142,7 +154,10 @@ const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               />
             </div>
             <div className="">
-              <label htmlFor="physicianEmail" className="text-black text-sm">
+              <label
+                htmlFor="physicianEmail"
+                className="text-black text-sm font-normal"
+              >
                 Physician Email
               </label>
               <TextInput
@@ -159,7 +174,7 @@ const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             <div className="">
               <label
                 htmlFor="physicianContactNumber"
-                className="text-black text-sm"
+                className="text-black text-sm font-normal"
               >
                 Physician Contact No.
               </label>
@@ -173,7 +188,10 @@ const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               />
             </div>
             <div className="">
-              <label htmlFor="status" className="text-black text-sm">
+              <label
+                htmlFor="status"
+                className="text-black text-sm font-normal"
+              >
                 Status
               </label>
               <Select
@@ -198,14 +216,17 @@ const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           </div>
           <div className="flex flex-row justify-between pt-4">
             <div className="">
-              <label htmlFor="status" className="text-black text-sm">
+              <label
+                htmlFor="status"
+                className="text-black text-sm font-normal"
+              >
                 Practice Photo
               </label>
               <TextInput
-                name="practicePhoto"
-                value=""
+                name="photoUrl"
+                value={photoUrl}
                 onChange={(value) => {
-                  setStatus(value);
+                  setPhotoUrl(value);
                 }}
               />
             </div>

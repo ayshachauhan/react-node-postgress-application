@@ -7,6 +7,7 @@ export interface PracticeCreateInterface {
   physicianEmail: string;
   physicianContactNumber: string;
   status: string;
+  photoUrl: string;
   code: string;
 }
 
@@ -20,6 +21,7 @@ export interface PracticesGetInterface {
   physicianEmail: string;
   physicianContactNumber: string;
   status: string;
+  photoUrl: string;
   code: string;
   dateCreated?: string;
   dateUpdated?: string;
@@ -30,4 +32,5 @@ export interface PracticesEditInterface {
   name: string;
   status: string;
   code: string;
+  photoUrl?: string;
 }

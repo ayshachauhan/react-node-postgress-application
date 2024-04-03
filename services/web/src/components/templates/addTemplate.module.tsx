@@ -64,7 +64,7 @@ const TemplateAddPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     <div>
       <form onSubmit={handleSubmit}>
         <div className="space-y-4">
-          <label htmlFor="title" className="text-black text-sm">
+          <label htmlFor="title" className="text-black text-sm font-normal">
             Surgery Type
           </label>
           <Select
@@ -88,7 +88,10 @@ const TemplateAddPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           <div className="space-y-4"></div>
         </div>
         <div className="space-y-4">
-          <label htmlFor="messageType" className="text-black text-sm">
+          <label
+            htmlFor="messageType"
+            className="text-black text-sm font-normal"
+          >
             Message Type
           </label>
           <Select
@@ -112,7 +115,10 @@ const TemplateAddPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           <div className="space-y-4"></div>
         </div>
         <div className="space-y-4">
-          <label htmlFor="dateOffset" className="text-black text-sm">
+          <label
+            htmlFor="dateOffset"
+            className="text-black text-sm font-normal"
+          >
             Date Offset
           </label>
           <TextInput

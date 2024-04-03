@@ -202,7 +202,10 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
               <div className="flex mt-5 justify-between gap-5">
                 <div className="w-1/2">
                   <div className="space-y-2">
-                    <label htmlFor="title" className="text-black text-sm">
+                    <label
+                      htmlFor="title"
+                      className="text-black text-sm font-normal"
+                    >
                       Email Subject
                     </label>
                     <TextInput
@@ -221,7 +224,10 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
                 </div>
                 <div className="w-1/2">
                   <div className="space-y-2">
-                    <label htmlFor="attachment" className="text-black text-sm">
+                    <label
+                      htmlFor="attachment"
+                      className="text-black text-sm font-normal"
+                    >
                       Email Attachment
                     </label>
                     <input type="file" onChange={handleFileChange} />
@@ -230,7 +236,10 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
               </div>
               <div className="mt-5">
                 <div className="space-y-2">
-                  <label htmlFor="emailBody" className="text-black text-sm">
+                  <label
+                    htmlFor="emailBody"
+                    className="text-black text-sm font-normal"
+                  >
                     Message
                   </label>
 

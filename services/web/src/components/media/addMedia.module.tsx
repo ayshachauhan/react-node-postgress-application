@@ -34,7 +34,7 @@ const MediaPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     <div>
       <form onSubmit={handleSubmit}>
         <div className="space-y-4">
-          <label htmlFor="title" className="text-black text-sm">
+          <label htmlFor="title" className="text-black text-sm font-normal">
             Title
           </label>
           <TextInput
@@ -48,7 +48,7 @@ const MediaPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           <div className="space-y-4"></div>
         </div>
         <div className="space-y-4">
-          <label htmlFor="url" className="text-black text-sm">
+          <label htmlFor="url" className="text-black text-sm font-normal">
             URL
           </label>
           <TextInput
@@ -62,7 +62,7 @@ const MediaPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           <div className="space-y-4"></div>
         </div>
         <div className="space-y-4">
-          <label htmlFor="urlEmbed" className="text-black text-sm">
+          <label htmlFor="urlEmbed" className="text-black text-sm font-normal">
             URL Embed
           </label>
           <TextInput
