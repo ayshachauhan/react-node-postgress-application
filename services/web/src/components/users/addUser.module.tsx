@@ -23,7 +23,6 @@ const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const [lastName, setLastName] = useState('');
   const [url, setUrl] = useState('');
   const [type, setType] = useState<UserType>(UserType.ADMIN);
-  const status = UserStatus.PENDING;
   const practiceId = useAppSelector(selectPractice);
 
   const handleTypeChange = ({ value }) => {
@@ -43,7 +42,7 @@ const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         fullName,
         url,
         type,
-        status,
+        status: UserStatus.ACTIVE,
         contactNumber,
       };
       try {

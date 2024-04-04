@@ -24,8 +24,10 @@ export class TemplatesController {
   constructor(private readonly templateService: TemplatesService) {}
 
   @Get()
-  async findAll(): Promise<TemplateEntity[]> {
-    return this.templateService.findAll();
+  async findAll(
+    @Param() { practiceId, userId }: { practiceId: string; userId: string },
+  ): Promise<TemplateEntity[]> {
+    return this.templateService.findAll(practiceId, userId);
   }
 
   @Post()

@@ -26,7 +26,26 @@ export const getTemplates = async (
       throw new Error('Failed to get templates');
     }
     const data = await response.json();
-    return data;
+
+    const modifiedDataObject = {};
+    data.forEach((element) => {
+      const surgeryType: string = element.surgeryType;
+      const messageType: string = element.messageType;
+      if (modifiedDataObject[surgeryType]) {
+        if (modifiedDataObject[surgeryType][messageType]) {
+          modifiedDataObject[surgeryType][messageType].push(element);
+        } else {
+          modifiedDataObject[surgeryType][messageType] = [element];
+        }
+      } else {
+        modifiedDataObject[surgeryType] = {
+          [messageType]: [element],
+          surgeryType,
+        };
+      }
+    });
+
+    return Object.values(modifiedDataObject);
   } catch (error) {
     return rejectWithValue(error);
   }

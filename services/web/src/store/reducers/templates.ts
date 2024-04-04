@@ -10,7 +10,7 @@ import {
 
 export interface TemplateState {
   isProcessing: boolean;
-  entities: Record<string, GetTemplatesResponse>;
+  entities: Record<string, string | undefined>;
   templates: GetTemplatesResponse[];
   status: 'idle' | 'loading' | 'failed';
   successMessage: string | null;
@@ -84,17 +84,8 @@ const templateSlice = createSlice({
       state.status = 'loading';
     });
 
-    builder.addCase(updateRecordAsync.fulfilled, (state, action) => {
+    builder.addCase(updateRecordAsync.fulfilled, (state) => {
       state.status = 'idle';
-      const updatedTemplate = action.payload;
-      const updatedTemplates = state.templates.map((template) => {
-        if (template.id === updatedTemplate.id) {
-          return updatedTemplate;
-        }
-        return template;
-      });
-
-      state.templates = updatedTemplates;
       state.successMessage = 'Record updated successfully'; // Set success message
     });
 
@@ -112,12 +103,8 @@ const templateSlice = createSlice({
       state.status = 'loading';
     });
 
-    builder.addCase(deleteRecordAsync.fulfilled, (state, action) => {
+    builder.addCase(deleteRecordAsync.fulfilled, (state) => {
       state.status = 'idle';
-      const deletedTemplateId = action?.meta?.arg?.id;
-      state.templates = state.templates.filter(
-        (template) => template.id !== deletedTemplateId,
-      );
       state.successMessage = 'Record deleted successfully'; // Set success message
       state.error = null;
     });

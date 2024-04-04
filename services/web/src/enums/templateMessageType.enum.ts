@@ -1,7 +1,8 @@
 export enum TemplateMessageType {
-  TIMED = 'timed',
-  EVALUATION = 'evaluation',
+  // EVALUATION = 'evaluation',
   BOOKING = 'booking',
   REFERRER = 'referrer',
   PCP = 'pcp',
+  PREOP = 'preop',
+  POSTOP = 'postop',
 }

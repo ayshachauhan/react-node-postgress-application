@@ -27,7 +27,7 @@ const TemplateAddPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
 
   const [surgeryType, setSurgeryType] = useState('');
   const [messageType, setMsgType] = useState('');
-  const [dateOffset, setDateOffset] = useState(0);
+  const [dateOffset, setDateOffset] = useState('');
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -43,7 +43,7 @@ const TemplateAddPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       };
       try {
         dispatch(addRecordAsync(data));
-        setDateOffset(0);
+        setDateOffset('0');
         setMsgType('');
         setSurgeryType('');
         onClose();
@@ -124,9 +124,8 @@ const TemplateAddPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           <TextInput
             name="dateOffset"
             value={dateOffset}
-            type="number"
             onChange={(value) => {
-              setDateOffset(parseFloat(value));
+              setDateOffset(value);
             }}
             required
           />
