@@ -51,7 +51,7 @@ const MediaPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   return (
     <div>
       <form onSubmit={handleSubmit}>
-        <div className="space-y-4">
+        <div className="space-y-2">
           <label htmlFor="title" className="text-black text-sm font-normal">
             Title
           </label>
@@ -63,9 +63,9 @@ const MediaPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             }}
             required
           />
-          <div className="space-y-4"></div>
+          <div className="space-y-2"></div>
         </div>
-        <div className="space-y-4">
+        <div className="space-y-2  pt-4">
           <label htmlFor="url" className="text-black text-sm font-normal">
             URL
           </label>
@@ -77,9 +77,9 @@ const MediaPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             }}
             required
           />
-          <div className="space-y-4"></div>
+          <div className="space-y-2"></div>
         </div>
-        <div className="space-y-4">
+        <div className="space-y-2  pt-4">
           <label htmlFor="urlEmbed" className="text-black text-sm font-normal">
             URL Embed
           </label>
@@ -91,9 +91,9 @@ const MediaPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             }}
             required
           />
-          <div className="space-y-4"></div>
+          <div className="space-y-2"></div>
         </div>
-        <div className="space-y-4">
+        <div className="space-y-2 pt-4">
           <label htmlFor="urlEmbed" className="text-black text-sm font-normal">
             Surgery Type
           </label>
@@ -116,7 +116,7 @@ const MediaPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               },
             }}
           />
-          <div className="space-y-4"></div>
+          <div className="space-y-2"></div>
         </div>
         <div className="text-right text-base">
           <Button kind="primary" title="Add new video" width={189} />

@@ -52,7 +52,7 @@ const PracticeEditModule: React.FC<{
       <form onSubmit={handleSubmit}>
         <div className="flex flex-col">
           <div className="flex flex-row gap-7 pt-4">
-            <div className="">
+            <div className="space-y-2">
               <label htmlFor="name" className="text-black text-sm font-normal">
                 Practice Name
               </label>
@@ -65,7 +65,7 @@ const PracticeEditModule: React.FC<{
                 required
               />
             </div>
-            <div className="flex flex-col">
+            <div className="flex flex-col space-y-2 w-1/2">
               <label
                 htmlFor="status"
                 className="text-black text-sm font-normal"
@@ -95,9 +95,9 @@ const PracticeEditModule: React.FC<{
           </div>
 
           <div className="flex flex-row justify-between pt-4">
-            <div className="">
+            <div className="space-y-2">
               <label
-                htmlFor="status"
+                htmlFor="photoUrl"
                 className="text-black text-sm font-normal"
               >
                 Practice Photo

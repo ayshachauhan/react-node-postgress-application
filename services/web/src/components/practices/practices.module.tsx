@@ -72,7 +72,7 @@ const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       <form onSubmit={handleSubmit}>
         <div className="flex flex-col">
           <div className="flex flex-row justify-between pt-4">
-            <div className="">
+            <div className="space-y-2">
               <label htmlFor="name" className="text-black text-sm font-normal">
                 Practice Name
               </label>
@@ -85,7 +85,7 @@ const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 required
               />
             </div>
-            <div className="">
+            <div className="space-y-2">
               <label
                 htmlFor="adminFirstName"
                 className="text-black text-sm font-normal"
@@ -103,7 +103,7 @@ const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             </div>
           </div>
           <div className="flex flex-row justify-between pt-4">
-            <div className="">
+            <div className="space-y-2">
               <label
                 htmlFor="adminLastName"
                 className="text-black text-sm font-normal"
@@ -119,7 +119,7 @@ const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 required
               />
             </div>
-            <div className="">
+            <div className="space-y-2">
               <label
                 htmlFor="adminEmail"
                 className="text-black text-sm font-normal"
@@ -137,7 +137,7 @@ const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             </div>
           </div>
           <div className="flex flex-row justify-between pt-4">
-            <div className="">
+            <div className="space-y-2">
               <label
                 htmlFor="adminContactNumber"
                 className="text-black text-sm font-normal"
@@ -153,7 +153,7 @@ const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 required
               />
             </div>
-            <div className="">
+            <div className="space-y-2">
               <label
                 htmlFor="physicianEmail"
                 className="text-black text-sm font-normal"
@@ -171,7 +171,7 @@ const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             </div>
           </div>
           <div className="flex flex-row pt-4 gap-7">
-            <div className="">
+            <div className="space-y-2">
               <label
                 htmlFor="physicianContactNumber"
                 className="text-black text-sm font-normal"
@@ -187,7 +187,7 @@ const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 required
               />
             </div>
-            <div className="">
+            <div className="w-1/2 space-y-2">
               <label
                 htmlFor="status"
                 className="text-black text-sm font-normal"
@@ -216,7 +216,7 @@ const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             </div>
           </div>
           <div className="flex flex-row justify-between pt-4">
-            <div className="">
+            <div className="space-y-2">
               <label
                 htmlFor="status"
                 className="text-black text-sm font-normal"
