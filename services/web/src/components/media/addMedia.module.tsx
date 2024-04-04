@@ -107,6 +107,7 @@ const MediaPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 style: {
                   backgroundColor: 'rgba(250, 250, 250, 1)',
                   border: 'none',
+                  color: 'rgba(82, 82, 91, 1)',
                   boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
                 },
               },
