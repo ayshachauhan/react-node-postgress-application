@@ -5,7 +5,7 @@ import Form from '@root/components/templates/addTemplate.module';
 import TemplateUpdate from '@root/components/templates/updateTemplate.module';
 import { UserType } from '@root/enums/userType.enum';
 import { useAppDispatch, useAppSelector } from '@root/store';
-import { selectPractice, selectRecords } from '@root/store/reducers/auth';
+import { selectRecords } from '@root/store/reducers/auth';
 import {
   clearErrorMessage,
   clearSuccessMessage,
@@ -13,6 +13,7 @@ import {
   selectError,
   selectSuccessMessage,
 } from '@root/store/reducers/templates';
+import { getPracticeId } from '@utils/methods';
 import { Modal, ModalBody, ModalHeader, ROLE, SIZE } from 'baseui/modal';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
@@ -23,7 +24,7 @@ const Templates: React.FC = () => {
   const [templateId, setTemplateId] = useState<string | null>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
-  const practiceId = useAppSelector(selectPractice);
+  const practiceId = getPracticeId();
   const successMessage = useAppSelector(selectSuccessMessage);
   const errorMessage = useAppSelector(selectError);
   const [showErrorMessage, setShowErrorMessage] = useState(false);

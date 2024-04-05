@@ -52,6 +52,7 @@ const mediaSlice = createSlice({
       } else {
         state.error = 'Failed to fetch videos';
       }
+      state.media = [];
     });
 
     builder.addCase(addRecordAsync.pending, (state) => {

@@ -78,6 +78,21 @@ const authSlice = createSlice({
       state.isAuthenticated = true;
       state.user = action.payload;
       state.error = null;
+      if (!localStorage.getItem('practiceId')) {
+        if (
+          state.user &&
+          state.user.userPractices &&
+          state.user.userPractices.length &&
+          state.user.userPractices[0].practice
+        ) {
+          localStorage.setItem(
+            'practiceId',
+            state.user.userPractices[0].practice.id,
+          );
+        } else {
+          localStorage.setItem('practiceId', '');
+        }
+      }
     });
 
     builder.addCase(fetchLoggedInUser.rejected, (state, action) => {
@@ -116,6 +131,16 @@ export const selectPractice = (state: State) => {
     return state.auth.user.userPractices[0].practice.id;
   }
   return null;
+};
+export const userPractices = (state: State) => {
+  if (
+    state.auth.user &&
+    state.auth.user.userPractices &&
+    state.auth.user.userPractices.length
+  ) {
+    return state.auth.user.userPractices;
+  }
+  return [];
 };
 export const selectSuccessMessage = (state: State) => state.auth.successMessage;
 

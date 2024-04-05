@@ -10,7 +10,7 @@ import Form from '@root/components/users/addUser.module';
 import EditUser from '@root/components/users/editUser.module';
 import { UserType } from '@root/enums/userType.enum';
 import { useAppDispatch, useAppSelector } from '@root/store';
-import { selectPractice, selectRecords } from '@root/store/reducers/auth';
+import { selectRecords } from '@root/store/reducers/auth';
 import {
   getPracticeInfo,
   selectPracticeInfo,
@@ -23,6 +23,7 @@ import {
   selectError,
   selectSuccessMessage,
 } from '@root/store/reducers/users';
+import { getPracticeId } from '@utils/methods';
 import {
   Modal,
   ModalBody,
@@ -42,7 +43,7 @@ export default function UserPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const practiceId = useAppSelector(selectPractice); // Select success message from Redux store
+  const practiceId = getPracticeId(); // Select success message from Redux store
   const [showErrorMessage, setShowErrorMessage] = useState(false);
   const successMessage = useAppSelector(selectSuccessMessage); // Select success message from Redux store
   const errorMessage = useAppSelector(selectError); // Select error message from Redux store

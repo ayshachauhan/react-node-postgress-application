@@ -1,13 +1,13 @@
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
-import { useAppDispatch, useAppSelector } from '@root/store';
-import { selectPractice } from '@root/store/reducers/auth';
+import { useAppDispatch } from '@root/store';
 import { addRecordAsync } from '@root/store/reducers/media';
 import { MediaInterface } from '@root/store/requests/media';
+import { getPracticeId } from '@utils/methods';
 import React, { useState } from 'react';
 
 const MediaPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
-  const practiceId = useAppSelector(selectPractice); // Select success message from Redux store
+  const practiceId = getPracticeId(); // Select success message from Redux store
   const dispatch = useAppDispatch();
   const [name, setName] = useState('');
   const [url, setUrl] = useState('');

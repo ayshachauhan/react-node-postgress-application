@@ -57,6 +57,7 @@ const templateSlice = createSlice({
         state.error = 'Failed to fetch templates';
         state.error = 'Failed to fetch templates';
       }
+      state.templates = [];
     });
 
     builder.addCase(addRecordAsync.pending, (state) => {

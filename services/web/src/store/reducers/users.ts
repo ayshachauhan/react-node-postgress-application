@@ -60,6 +60,7 @@ const userSlice = createSlice({
       } else {
         state.error = 'Failed to fetch users';
       }
+      state.users = [];
     });
     builder.addCase(fetchUserInfo.pending, (state) => {
       state.isProcessing = true;

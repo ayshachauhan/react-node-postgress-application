@@ -67,6 +67,7 @@ const practiceSlice = createSlice({
       } else {
         state.error = 'Failed to fetch practices';
       }
+      state.practices = [];
     });
     builder.addCase(getPracticeInfo.pending, (state) => {
       state.isProcessing = true;
