@@ -50,6 +50,11 @@ const userSlice = createSlice({
 
     builder.addCase(fetchListings.fulfilled, (state, action) => {
       state.status = 'idle';
+      if (action.payload.length === 0) {
+        state.error = 'No records found';
+      } else {
+        state.error = '';
+      }
       state.users = action.payload;
     });
 
@@ -176,5 +181,5 @@ export const selectRecords = (state: State) => state.users;
 export const selectStatus = (state: State) => state.users.status;
 export const selectError = (state: State) => state.users.error;
 export const selectSuccessMessage = (state: State) =>
-  state.users.successMessage; // Export selectSuccessMessage selector
+  state.users.successMessage;
 export default userSlice.reducer;

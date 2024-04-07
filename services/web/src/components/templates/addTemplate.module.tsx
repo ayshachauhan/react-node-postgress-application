@@ -58,8 +58,6 @@ const TemplateAddPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   };
 
   const handleMsgTypeChange = ({ value }) => {
-    console.log(value);
-
     setMsgType(value[0] ? value[0].label : null);
   };
 

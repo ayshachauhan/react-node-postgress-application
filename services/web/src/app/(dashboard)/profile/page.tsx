@@ -1,11 +1,12 @@
 'use client';
 import Button from '@root/components/Button';
 import { useAppDispatch, useAppSelector } from '@root/store';
-import { selectPractice, selectRecords } from '@root/store/reducers/auth';
+import { selectRecords } from '@root/store/reducers/auth';
 import {
   getPracticeInfo,
   selectPracticeInfo,
 } from '@root/store/reducers/practices';
+import { getPracticeId } from '@utils/methods';
 import { Avatar } from 'baseui/avatar';
 import { useRouter } from 'next/navigation';
 import React, { useEffect } from 'react';
@@ -13,7 +14,7 @@ import React, { useEffect } from 'react';
 const Profile: React.FC = () => {
   const dispatch = useAppDispatch();
   const userInfo = useAppSelector(selectRecords); // Select success message from Redux store
-  const userPracticeId = useAppSelector(selectPractice); // Select success message from Redux store
+  const userPracticeId = getPracticeId();
   useEffect(() => {
     if (userPracticeId) {
       dispatch(getPracticeInfo({ id: userPracticeId })); // Fetch listings from PostgreSQL database

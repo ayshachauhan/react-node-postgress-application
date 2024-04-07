@@ -4,18 +4,16 @@ import Dropdown from '@root/components/Dropdown';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import {
   logoutUser,
-  selectPractice,
   selectRecords,
+  selectedPracticeName,
   userPractices,
 } from '@root/store/reducers/auth';
-import {
-  getPracticeInfo,
-  selectPracticeInfo,
-} from '@root/store/reducers/practices';
+import { getPracticeInfo } from '@root/store/reducers/practices';
+import { getPracticeId } from '@utils/methods';
 import { Avatar } from 'baseui/avatar';
 import { ChevronDown } from 'baseui/icon';
 import { useRouter } from 'next/navigation';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
 const Header: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -28,20 +26,27 @@ const Header: React.FC = () => {
       <ChevronDown />
     </span>
   );
-  const userPracticeId = useAppSelector(selectPractice); // Select success message from Redux store
+
+  const [selectedPractice, setSelectedPractice] = useState<string>('');
+  const practiceName = useAppSelector(selectedPracticeName);
+
   useEffect(() => {
+    const defaultPracticeName = practiceName;
+    setSelectedPractice(defaultPracticeName);
+  }, [practiceName]);
+
+  useEffect(() => {
+    const userPracticeId = getPracticeId();
     if (userPracticeId) {
-      dispatch(getPracticeInfo({ id: userPracticeId })); // Fetch listings from PostgreSQL database
+      dispatch(getPracticeInfo({ id: userPracticeId })).then((action) => {
+        if (action.payload && action.payload.name) {
+          setSelectedPractice(action.payload.name);
+        }
+      });
     }
-  }, [userPracticeId, dispatch]);
+  }, [dispatch]);
+
   const userPracticesList = useAppSelector(userPractices);
-  const practiceName = useAppSelector(selectPracticeInfo);
-  let selectedPracticeBox = (
-    <span className="inline-flex items-center gap-2">
-      {practiceName}
-      <ChevronDown />
-    </span>
-  );
 
   const router = useRouter();
   const handleLogout = () => {
@@ -49,21 +54,12 @@ const Header: React.FC = () => {
     router.push('/login'); // Redirect to login page after logout
   };
   const goToProfile = () => {
-    router.push('/profile'); // Redirect to login page after logout
+    router.push('/profile');
   };
 
-  const setCurrentPracticeId = (
-    practiceId: string,
-    practiceName: string,
-  ): void => {
-    console.log(practiceId, 2);
+  const handlePracticeChange = (practiceId: string, practiceName: string) => {
+    setSelectedPractice(practiceName);
     localStorage.setItem('practiceId', practiceId);
-    selectedPracticeBox = (
-      <span className="inline-flex items-center gap-2">
-        {practiceName}
-        <ChevronDown />
-      </span>
-    );
     window.location.reload();
   };
 
@@ -88,13 +84,21 @@ const Header: React.FC = () => {
           <div className="flex items-center gap-7 justify-end">
             <div className="flex items-center">
               {!is_super_admin && (
-                <Dropdown position="bottomLeft" trigger={selectedPracticeBox}>
+                <Dropdown
+                  position="bottomLeft"
+                  trigger={
+                    <span className="inline-flex items-center gap-2">
+                      {selectedPractice}
+                      <ChevronDown />
+                    </span>
+                  }
+                >
                   {userPracticesList.map((item) => (
                     <Dropdown.Item
                       key={item.practice.id}
                       id={item.practice.id}
                       onClick={() =>
-                        setCurrentPracticeId(
+                        handlePracticeChange(
                           item.practice.id,
                           item.practice.name,
                         )

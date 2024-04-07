@@ -1,27 +1,38 @@
 'use client';
 import { useAppDispatch, useAppSelector } from '@root/store';
-import { selectPractice } from '@root/store/reducers/auth';
 import {
   getPracticeInfo,
   selectPracticeInfo,
 } from '@root/store/reducers/practices';
+import { fetchListings } from '@root/store/reducers/users';
+import { getPracticeId } from '@utils/methods';
 import { Avatar } from 'baseui/avatar';
 import { useSearchParams } from 'next/navigation';
 import React, { useEffect } from 'react';
+
 const UserViewPage: React.FC = () => {
   const dispatch = useAppDispatch();
   const searchParams = useSearchParams();
   const id = searchParams.get('id');
+
+  const userPracticeId = getPracticeId();
+
+  useEffect(() => {
+    if (userPracticeId) {
+      dispatch(getPracticeInfo({ id: userPracticeId }));
+    }
+  }, [userPracticeId, dispatch]);
+
+  useEffect(() => {
+    if (userPracticeId) {
+      dispatch(fetchListings({ practiceId: userPracticeId }));
+    }
+  }, [userPracticeId, dispatch]);
+
   const userInfo = useAppSelector((state) =>
     state.users.users.find((user) => user.id === id),
   );
 
-  const userPracticeId = useAppSelector(selectPractice); // Select success message from Redux store
-  useEffect(() => {
-    if (userPracticeId) {
-      dispatch(getPracticeInfo({ id: userPracticeId })); // Fetch listings from PostgreSQL database
-    }
-  }, [userPracticeId, dispatch]);
   const practiceName = useAppSelector(selectPracticeInfo);
   return (
     <div id="__next" className="mt-4">

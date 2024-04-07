@@ -42,6 +42,11 @@ const mediaSlice = createSlice({
 
     builder.addCase(fetchListings.fulfilled, (state, action) => {
       state.status = 'idle';
+      if (action.payload.length === 0) {
+        state.error = 'No records found';
+      } else {
+        state.error = '';
+      }
       state.media = action.payload;
     });
 

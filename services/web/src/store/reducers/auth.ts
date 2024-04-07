@@ -41,6 +41,7 @@ const authSlice = createSlice({
       state.user = null;
       state.isSuperAdmin = false;
       Cookies.remove('access_token');
+      localStorage.removeItem('practiceId');
     },
   },
   extraReducers(builder) {
@@ -131,6 +132,17 @@ export const selectPractice = (state: State) => {
     return state.auth.user.userPractices[0].practice.id;
   }
   return null;
+};
+export const selectedPracticeName = (state: State) => {
+  if (
+    state.auth.user &&
+    state.auth.user.userPractices &&
+    state.auth.user.userPractices.length &&
+    state.auth.user.userPractices[0].practice
+  ) {
+    return state.auth.user.userPractices[0].practice.name;
+  }
+  return '';
 };
 export const userPractices = (state: State) => {
   if (

@@ -16,6 +16,10 @@ export class TemplatesService {
   ) {}
 
   async findAll(practiceId: string, userId: string): Promise<TemplateEntity[]> {
+    const practiceEntity = await this.practiceService.findOne(practiceId);
+    if (!practiceEntity) {
+      throw new HttpException('Practice not found', HttpStatus.NOT_FOUND);
+    }
     return await this.templateRepository.find({
       where: { practice: { id: practiceId }, surgeon: { id: userId } },
     });
