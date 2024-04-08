@@ -83,11 +83,13 @@ const Header: React.FC = () => {
 
           <div className="flex items-center gap-7 justify-end">
             <div className="flex items-center">
+              Practice Name:
               {!is_super_admin && (
                 <Dropdown
                   position="bottomLeft"
                   trigger={
-                    <span className="inline-flex items-center gap-2">
+                    <span className="inline-flex items-center gap-2 font-bold">
+                      &nbsp;&nbsp;&nbsp;
                       {selectedPractice}
                       <ChevronDown />
                     </span>
