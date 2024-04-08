@@ -62,7 +62,7 @@ const Header: React.FC = () => {
   const handlePracticeChange = (practiceId: string, practiceName: string) => {
     setSelectedPractice(practiceName);
     localStorage.setItem('practiceId', practiceId);
-    window.location.reload();
+    router.refresh();
   };
 
   return (
