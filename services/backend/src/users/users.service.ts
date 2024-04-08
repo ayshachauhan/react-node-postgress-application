@@ -6,18 +6,22 @@ import {
   forwardRef,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
+import Mail from 'nodemailer/lib/mailer';
 import { User } from 'src/entities/users.entity';
 import { ENVIRONMENT_VARIABLES } from 'src/enums/environment.enums';
 import { PracticeStatus, UserStatus } from 'src/enums/status.enum';
 import { UserType } from 'src/enums/userType.enum';
 import { PracticesService } from 'src/practices/practices.service';
+import { TransporterService } from 'src/transporter';
 import { UserPracticesService } from 'src/userPractices/userPractices.services';
 import { SanitizedUser } from 'src/users/types';
-import { In, Repository } from 'typeorm';
+import { DataSource, In, Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create.dto';
 import { UpdateUserDto } from './dto/update.dto';
+import { inviteNewUserTemplate } from './emailTemplates/inviteNewUserTemplate';
 
 @Injectable()
 export class UsersService {
@@ -29,6 +33,9 @@ export class UsersService {
     @Inject(forwardRef(() => UserPracticesService))
     private readonly userPracticeService: UserPracticesService,
     private readonly configService: ConfigService,
+    private readonly transporterService: TransporterService,
+    private jwtService: JwtService,
+    private dataSource: DataSource,
   ) {}
 
   defaultUserPassword() {
@@ -47,24 +54,60 @@ export class UsersService {
       10,
     );
 
-    const practiceEntity = await this.practicesService.findOne(practiceId);
-    if (!practiceEntity) {
-      throw new HttpException('Practice not found', HttpStatus.NOT_FOUND);
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      const practiceEntity = await this.practicesService.findOne(practiceId);
+      if (!practiceEntity) {
+        throw new HttpException('Practice not found', HttpStatus.NOT_FOUND);
+      }
+
+      const resultUser = await this.usersRepository.save({
+        ...newUser,
+        ...createUserDto,
+        fullName,
+        password: hashedDefaultPassword,
+      });
+
+      const newSanitzedUser = this.sanitizeUser(resultUser);
+
+      const token = this.jwtService.sign({
+        ...newSanitzedUser,
+      });
+
+      const mailOptions: Mail.Options = {
+        to: resultUser.email,
+        subject:
+          'Subject: Welcome to Practice Optimisation Dashboard - Complete Your Sign-up Process',
+        html: inviteNewUserTemplate,
+        text: 'text message',
+      };
+
+      const mailData = {
+        signUpLink:
+          process.env.FRONT_END_BASE_URL + `/onboarding/user?${token}`,
+        practiceName: practiceEntity.name,
+        fullName,
+        defaultUserPassword: this.defaultUserPassword(),
+      };
+
+      await this.transporterService.sendEmail(mailOptions, mailData);
+
+      await this.userPracticeService.create({
+        userId: resultUser.id,
+        practiceId,
+      });
+
+      await queryRunner.commitTransaction();
+      return this.sanitizeUser(resultUser);
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
     }
-
-    const resultUser = await this.usersRepository.save({
-      ...newUser,
-      ...createUserDto,
-      fullName,
-      password: hashedDefaultPassword,
-    });
-
-    await this.userPracticeService.create({
-      userId: resultUser.id,
-      practiceId,
-    });
-
-    return this.sanitizeUser(resultUser);
   }
 
   async findUserByEmail(email: string): Promise<User | null> {
@@ -139,10 +182,10 @@ export class UsersService {
   }
 
   sanitizeUser(user: User): SanitizedUser {
-    const { password, ...sanitizeedUser } = user;
+    const { password, ...sanitizedUser } = user;
     password && password;
     return {
-      ...sanitizeedUser,
+      ...sanitizedUser,
     };
   }
 

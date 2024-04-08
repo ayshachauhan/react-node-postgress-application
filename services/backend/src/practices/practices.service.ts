@@ -5,6 +5,7 @@ import {
   Injectable,
   forwardRef,
 } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import Mail from 'nodemailer/lib/mailer';
 import { User } from 'src/entities/users.entity';
@@ -27,6 +28,7 @@ export class PracticesService {
     private readonly userService: UsersService,
     private readonly transporterService: TransporterService,
     private dataSource: DataSource,
+    private jwtService: JwtService,
   ) {}
 
   async findAll(): Promise<PracticesGetInterface[]> {
@@ -111,19 +113,24 @@ export class PracticesService {
         },
         practice.id,
       );
+
+      const token = this.jwtService.sign({
+        ...newAdmin,
+        practiceId: practice.id,
+      });
+
       const mailOptions: Mail.Options = {
         to: newAdmin.email,
         subject:
-          'Subject: Welcome to Surgery Scheduler Portal - Complete Your Sign-up Process',
+          'Subject: Welcome to Pracice Optimiser Dashboard - Complete Your Sign-up Process',
         html: sendPracticeAdminInvite,
         text: 'text message',
       };
+
       const mailData = {
         signUpLink:
           process.env.FRONT_END_BASE_URL +
-          `/onboarding/practice?practiceId=${
-            practice.id
-          }&email=${encodeURIComponent(adminEmail)}`,
+          `/onboarding/practice?token=${token}`,
         practiceName: practice.name,
         userFirstName: adminFirstName,
         userLastName: adminLastName,

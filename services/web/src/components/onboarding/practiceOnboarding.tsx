@@ -2,16 +2,18 @@
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
 import { useAppDispatch, useAppSelector } from '@root/store';
-import { loginUser } from '@root/store/reducers/auth';
-import { getPracticeInfo, selectError } from '@root/store/reducers/practices';
+import { fetchLoggedInUser, selectPractice } from '@root/store/reducers/auth';
+import { getPracticeInfo } from '@root/store/reducers/practices';
 import {
   changePasswordAsync,
   clearErrorMessage,
   clearSuccessMessage,
+  selectError,
   selectSuccessMessage,
 } from '@root/store/reducers/users';
 import { ChangePasswordInterface } from '@root/store/requests/users';
 import { AzentiaLogo } from '@utils/constants';
+import Cookies from 'js-cookie';
 import { useRouter, useSearchParams } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import { AlreadyOnboarded } from './completed.onboarding';
@@ -24,40 +26,39 @@ export default function PracticeOnboardPage() {
   const successMessage = useAppSelector(selectSuccessMessage);
   const errorMessage = useAppSelector(selectError);
   const [showErrorMessage, setShowErrorMessage] = useState(false);
+  const practiceId = useAppSelector(selectPractice);
   const practiceInfo = useAppSelector((state) => state.practices.practiceInfo);
+  const userInfo = useAppSelector((state) => state.auth.user);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const practiceId: string | null = searchParams.get('practiceId');
-  const userEmail: string | null = searchParams.get('email');
+  const token: string | null = searchParams.get('token');
 
   useEffect(() => {
-    if (practiceId && userEmail) {
-      try {
-        const checkValidUser = async () => {
-          dispatch(
-            loginUser({
-              email: decodeURIComponent(userEmail),
-              password: 'test@123',
-            }),
-          );
-        };
-        checkValidUser();
-      } catch (error) {
-        console.log(error);
+    if (token) {
+      Cookies.set('access_token', token, {
+        expires: 1,
+      });
+
+      if (!userInfo) {
+        dispatch(fetchLoggedInUser());
       }
-    }
-    if (practiceId) {
-      dispatch(getPracticeInfo({ id: practiceId }));
+
+      const isPracticeInfoEmpty =
+        Object.getOwnPropertyNames(practiceInfo).length === 0;
+
+      if (isPracticeInfoEmpty && practiceId) {
+        dispatch(getPracticeInfo({ id: practiceId }));
+      }
     }
   }, []);
 
   const error = useAppSelector(selectError);
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (practiceId && userEmail) {
+    if (practiceId && userInfo) {
       const payload: ChangePasswordInterface = {
         practiceId,
-        email: userEmail,
+        email: userInfo?.email,
         confirmPassword,
         oldPassword,
         newPassword,
@@ -103,7 +104,7 @@ export default function PracticeOnboardPage() {
             dangerouslySetInnerHTML={{ __html: AzentiaLogo }}
           />
         </div>
-        {showErrorMessage && <div className="text-red-700">{errorMessage}</div>}
+
         {practiceInfo && practiceInfo.status == 'active' ? (
           <div>
             <AlreadyOnboarded type="Practice" />
@@ -176,7 +177,9 @@ export default function PracticeOnboardPage() {
                 </div>
               </form>
               {error && <div className="text-red-700">{error}</div>}{' '}
-              {/* Display error message if present */}
+              {showErrorMessage && (
+                <div className="text-red-700">{errorMessage}</div>
+              )}
             </div>
           </>
         )}
