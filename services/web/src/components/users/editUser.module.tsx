@@ -118,7 +118,7 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
                 onChange={(value) => {
                   setUserInfo({ ...updatedUserInfo, email: value });
                 }}
-                required
+                disabled={true}
               />
               <div className="space-y-2"></div>
             </div>

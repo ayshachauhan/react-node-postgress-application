@@ -5,7 +5,6 @@ export interface DbTemplatesResponse {
   meridiem: string;
   messageType: string;
   surgeryType: string;
-  surgeryNumber: number;
   emailSubject?: string;
   emailBody?: string;
   emailAttachment?: string;
@@ -23,7 +22,6 @@ export interface CreateTemplateResponse {
   meridiem?: string;
   messageType: string;
   surgeryType: string;
-  surgeryNumber: number;
   emailSubject?: string;
   emailBody?: string;
   emailAttachment?: string;
@@ -41,7 +39,6 @@ export interface EditTemplate {
   meridiem?: string;
   messageType?: string;
   surgeryType?: string;
-  surgeryNumber?: number;
   emailSubject?: string;
   emailBody?: string;
   emailAttachment?: string;

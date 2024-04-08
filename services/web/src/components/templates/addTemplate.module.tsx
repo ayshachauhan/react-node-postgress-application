@@ -39,7 +39,6 @@ const TemplateAddPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         dateOffset,
         messageType,
         surgeryType,
-        surgeryNumber: 0,
       };
       try {
         dispatch(addRecordAsync(data));
