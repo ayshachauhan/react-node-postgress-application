@@ -85,33 +85,35 @@ const Header: React.FC = () => {
 
           <div className="flex items-center gap-7 justify-end">
             <div className="flex items-center">
-              Practice Name:
               {!is_super_admin && (
-                <Dropdown
-                  position="bottomLeft"
-                  trigger={
-                    <span className="inline-flex items-center gap-2 font-bold">
-                      &nbsp;&nbsp;&nbsp;
-                      {selectedPractice}
-                      <ChevronDown />
-                    </span>
-                  }
-                >
-                  {userPracticesList.map((item) => (
-                    <Dropdown.Item
-                      key={item.practice.id}
-                      id={item.practice.id}
-                      onClick={() =>
-                        handlePracticeChange(
-                          item.practice.id,
-                          item.practice.name,
-                        )
-                      }
-                    >
-                      {item.practice.name}
-                    </Dropdown.Item>
-                  ))}
-                </Dropdown>
+                <>
+                  <div>Practice Name:</div>
+                  <Dropdown
+                    position="bottomLeft"
+                    trigger={
+                      <span className="inline-flex items-center gap-2 font-bold">
+                        &nbsp;&nbsp;&nbsp;
+                        {selectedPractice}
+                        <ChevronDown />
+                      </span>
+                    }
+                  >
+                    {userPracticesList.map((item) => (
+                      <Dropdown.Item
+                        key={item.practice.id}
+                        id={item.practice.id}
+                        onClick={() =>
+                          handlePracticeChange(
+                            item.practice.id,
+                            item.practice.name,
+                          )
+                        }
+                      >
+                        {item.practice.name}
+                      </Dropdown.Item>
+                    ))}
+                  </Dropdown>
+                </>
               )}
             </div>
             <Dropdown position="bottomRight" trigger={<Avatar />}>
