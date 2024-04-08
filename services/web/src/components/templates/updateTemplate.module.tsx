@@ -37,28 +37,27 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
   const userInfo = useAppSelector(selectRecords);
   const userId = userInfo?.id;
   const dispatch = useAppDispatch();
-  const practiceId = useAppSelector(selectPractice); // Select user practice id
-  const templateInfo = useAppSelector((state) =>
-    data.id
-      ? state.templates.templates.find((ele) => {
-          let dataInfo;
-          for (const key in ele) {
-            if (!dataInfo && Array.isArray(ele[key])) {
-              if (!dataInfo) {
-                for (const info in ele[key]) {
-                  const arrayValue = ele[key][info];
-                  if (arrayValue.id == data.id) dataInfo = arrayValue;
-                }
-              }
-            }
-          }
-          return dataInfo ? dataInfo : undefined;
-        })
-      : undefined,
-  );
-
+  const practiceId = useAppSelector(selectPractice);
   const templateId = data.id;
   const messageType = data.messageType;
+  const templateInfo = useAppSelector((state) => {
+    if (templateId && state.templates.templates) {
+      for (const template of state.templates.templates) {
+        for (const key in template) {
+          if (Array.isArray(template[key])) {
+            const foundItem = template[key].find(
+              (item) => item.id === templateId,
+            );
+            if (foundItem) {
+              return foundItem;
+            }
+          }
+        }
+      }
+    }
+    return undefined;
+  });
+
   const versionOffset = data.versionOffset;
 
   const [updatedTemplateInfo, setTemplateInfo] = useState<
@@ -119,10 +118,10 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
   };
 
   useEffect(() => {
-    if (data.id && templateInfo) {
+    if (templateId && templateInfo) {
       setTemplateInfo(templateInfo);
     }
-  }, [data.id, templateInfo]);
+  }, [templateId, templateInfo]);
 
   return (
     <div>
