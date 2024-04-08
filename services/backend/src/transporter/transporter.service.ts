@@ -18,7 +18,7 @@ export class TransporterService {
   ): Promise<void> {
     await this.emailTransporter.sendMail({
       ...options,
-      from: process.env.SMTP_USER,
+      from: process.env.SMTP_EMAIL,
       text: options.text
         ? this.compileTemplate(options.text.toString(), data)
         : undefined,
