@@ -12,7 +12,7 @@ import { getPracticeInfo } from '@root/store/reducers/practices';
 import { getPracticeId } from '@utils/methods';
 import { Avatar } from 'baseui/avatar';
 import { ChevronDown } from 'baseui/icon';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 
 const Header: React.FC = () => {
@@ -49,6 +49,8 @@ const Header: React.FC = () => {
   const userPracticesList = useAppSelector(userPractices);
 
   const router = useRouter();
+  const currentPath = usePathname();
+  const isDashboardPage = currentPath === '/dashboard';
   const handleLogout = () => {
     dispatch(logoutUser());
     router.push('/login'); // Redirect to login page after logout
@@ -68,7 +70,7 @@ const Header: React.FC = () => {
       <div className="px-5 py-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
-            {!is_super_admin && (
+            {!is_super_admin && isDashboardPage && (
               <Dropdown position="bottomLeft" trigger={selectedUserBox}>
                 <Dropdown.Item id="profile" onClick={goToProfile}>
                   Profile
