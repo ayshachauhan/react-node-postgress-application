@@ -112,7 +112,7 @@ const templateSlice = createSlice({
     builder.addCase(deleteRecordAsync.fulfilled, (state) => {
       state.status = 'idle';
       state.successMessage = 'Record deleted successfully'; // Set success message
-      state.error = null;
+      state.error = '';
     });
 
     builder.addCase(deleteRecordAsync.rejected, (state, action) => {
