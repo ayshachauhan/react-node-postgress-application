@@ -48,9 +48,7 @@ export class UsersController {
 
   @Delete(':id')
   @UseInterceptors(NotFoundInterceptor)
-  async deleteUser(
-    @Param() { id }: { id: string; practiceId: string },
-  ): Promise<void> {
+  async deleteUser(@Param() { id }: { id: string }): Promise<void> {
     await this.usersService.deleteUser(id);
   }
 
