@@ -7,8 +7,8 @@ export interface MediaState {
   entities: Record<string, MediaInterface>;
   media: MediaInterface[];
   status: 'idle' | 'loading' | 'failed';
-  successMessage: string | null;
-  error: string | null;
+  successMessage: string;
+  error: string;
 }
 
 const initialState: MediaState = {
@@ -16,8 +16,8 @@ const initialState: MediaState = {
   entities: {},
   media: [],
   status: 'idle',
-  successMessage: null, // Initial value for success message
-  error: null,
+  successMessage: '', // Initial value for success message
+  error: '',
 };
 
 const mediaSlice = createSlice({
@@ -28,10 +28,10 @@ const mediaSlice = createSlice({
       state.media = [...state.media, action.payload];
     },
     clearSuccessMessage(state) {
-      state.successMessage = null;
+      state.successMessage = '';
     },
     clearErrorMessage(state) {
-      state.error = null;
+      state.error = '';
     },
   },
   extraReducers(builder) {

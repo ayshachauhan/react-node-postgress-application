@@ -10,9 +10,10 @@ export interface AuthState {
   isProcessing: boolean;
   entities: Record<string, UserInterface>;
   status: 'idle' | 'loading' | 'failed';
-  successMessage: string | null;
-  error: string | null;
+  successMessage: string;
+  error: string;
   isSuperAdmin: boolean;
+  azentiaSelectedPractice: string;
 }
 
 const initialState: AuthState = {
@@ -21,9 +22,10 @@ const initialState: AuthState = {
   isProcessing: false,
   entities: {},
   status: 'idle',
-  successMessage: null,
-  error: null,
+  successMessage: '',
+  error: '',
   isSuperAdmin: false,
+  azentiaSelectedPractice: '',
 };
 
 const authSlice = createSlice({
@@ -31,10 +33,10 @@ const authSlice = createSlice({
   initialState,
   reducers: {
     clearSuccessMessage(state) {
-      state.successMessage = null;
+      state.successMessage = '';
     },
     clearErrorMessage(state) {
-      state.error = null;
+      state.error = '';
     },
     logoutUser: (state) => {
       state.isAuthenticated = false;
@@ -48,7 +50,7 @@ const authSlice = createSlice({
     builder.addCase(loginUser.pending, (state) => {
       state.isProcessing = true;
       state.status = 'loading';
-      state.error = null;
+      state.error = '';
     });
     builder.addCase(loginUser.fulfilled, (state, action) => {
       state.status = 'idle';
@@ -60,7 +62,7 @@ const authSlice = createSlice({
         });
         state.isSuperAdmin = action.payload.is_super_admin;
       }
-      state.error = null;
+      state.error = '';
     });
 
     builder.addCase(loginUser.rejected, (state, action) => {
@@ -72,27 +74,32 @@ const authSlice = createSlice({
     builder.addCase(fetchLoggedInUser.pending, (state) => {
       state.isProcessing = true;
       state.status = 'loading';
-      state.error = null;
+      state.error = '';
     });
     builder.addCase(fetchLoggedInUser.fulfilled, (state, action) => {
       state.status = 'idle';
       state.isAuthenticated = true;
       state.user = action.payload;
-      state.error = null;
-      if (!localStorage.getItem('practiceId')) {
-        if (
-          state.user &&
-          state.user.userPractices &&
-          state.user.userPractices.length &&
-          state.user.userPractices[0].practice
-        ) {
+      state.error = '';
+      if (
+        state.user &&
+        state.user.userPractices &&
+        state.user.userPractices.length &&
+        state.user.userPractices[0].practice
+      ) {
+        if (!localStorage.getItem('practiceId')) {
           localStorage.setItem(
             'practiceId',
             state.user.userPractices[0].practice.id,
           );
-        } else {
+        }
+        state.azentiaSelectedPractice =
+          state.user.userPractices[0].practice.name;
+      } else {
+        if (!localStorage.getItem('practiceId')) {
           localStorage.setItem('practiceId', '');
         }
+        state.azentiaSelectedPractice = '';
       }
     });
 
@@ -122,28 +129,8 @@ export const selectIsAuthenticated = (state: State) =>
   state.auth.isAuthenticated;
 export const selectStatus = (state: State) => state.auth.status;
 export const selectError = (state: State) => state.auth.error;
-export const selectPractice = (state: State) => {
-  if (
-    state.auth.user &&
-    state.auth.user.userPractices &&
-    state.auth.user.userPractices.length &&
-    state.auth.user.userPractices[0].practice
-  ) {
-    return state.auth.user.userPractices[0].practice.id;
-  }
-  return null;
-};
-export const selectedPracticeName = (state: State) => {
-  if (
-    state.auth.user &&
-    state.auth.user.userPractices &&
-    state.auth.user.userPractices.length &&
-    state.auth.user.userPractices[0].practice
-  ) {
-    return state.auth.user.userPractices[0].practice.name;
-  }
-  return '';
-};
+export const selectedPracticeName = (state: State) =>
+  state.auth.azentiaSelectedPractice;
 export const userPractices = (state: State) => {
   if (
     state.auth.user &&

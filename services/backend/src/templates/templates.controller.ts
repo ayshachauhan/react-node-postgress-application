@@ -7,9 +7,11 @@ import {
   Patch,
   Post,
   UseGuards,
+  UseInterceptors,
   ValidationPipe,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { NotFoundInterceptor } from 'src/NotFoundInterceptor';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { TemplateEntity } from 'src/entities/templates.entity';
 import { TemplateCreateDto } from './dto/template.createDto';
@@ -24,6 +26,7 @@ export class TemplatesController {
   constructor(private readonly templateService: TemplatesService) {}
 
   @Get()
+  @UseInterceptors(NotFoundInterceptor)
   async findAll(
     @Param() { practiceId, userId }: { practiceId: string; userId: string },
   ): Promise<TemplateEntity[]> {
@@ -31,6 +34,7 @@ export class TemplatesController {
   }
 
   @Post()
+  @UseInterceptors(NotFoundInterceptor)
   async create(
     @Body(new ValidationPipe()) templateCreateDto: TemplateCreateDto,
     @Param() { practiceId, userId }: { practiceId: string; userId: string },
@@ -43,6 +47,7 @@ export class TemplatesController {
   }
 
   @Patch(':id')
+  @UseInterceptors(NotFoundInterceptor)
   async update(
     @Body(new ValidationPipe()) templatePatchDto: TemplatePatchDto,
     @Param()

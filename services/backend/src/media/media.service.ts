@@ -1,12 +1,5 @@
-import {
-  HttpException,
-  HttpStatus,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { PracticeEntity } from 'src/entities/practices.entity';
-import { PracticesService } from 'src/practices/practices.service';
 import { Repository } from 'typeorm';
 import { Video } from '../entities/media.entity';
 
@@ -15,16 +8,9 @@ export class MediaService {
   constructor(
     @InjectRepository(Video)
     private readonly videos: Repository<Video>,
-    @InjectRepository(PracticeEntity)
-    private readonly practice: Repository<PracticeEntity>,
-    private readonly practicesService: PracticesService,
   ) {}
 
   async getVideosByPracticeId(practiceId: string) {
-    const practiceEntity = await this.practicesService.findOne(practiceId);
-    if (!practiceEntity) {
-      throw new HttpException('Practice not found', HttpStatus.NOT_FOUND);
-    }
     return await this.videos.find({ where: { practiceId } });
   }
 
@@ -42,10 +28,6 @@ export class MediaService {
     practiceId: string,
     videoData: Partial<Video>,
   ): Promise<Video> {
-    const practice = await this.practice.findOne({ where: { id: practiceId } });
-    if (!practice) {
-      throw new NotFoundException('Practice not exists');
-    }
     const video = this.videos.create({ ...videoData, practiceId });
     return await this.videos.save(video);
   }

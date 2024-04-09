@@ -7,9 +7,11 @@ import {
   Patch,
   Post,
   UseGuards,
+  UseInterceptors,
   ValidationPipe,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { NotFoundInterceptor } from 'src/NotFoundInterceptor';
 import { AuthGuard } from '../auth/auth.guard';
 import { User } from '../entities/users.entity';
 import { CreateUserDto } from './dto/create.dto';
@@ -25,6 +27,7 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
+  @UseInterceptors(NotFoundInterceptor)
   create(
     @Body(new ValidationPipe()) createUserDto: CreateUserDto,
     @Param() { practiceId }: { practiceId: string },
@@ -33,6 +36,7 @@ export class UsersController {
   }
 
   @Get()
+  @UseInterceptors(NotFoundInterceptor)
   async getUsersByPractice(@Param('practiceId') practiceId: string) {
     return this.usersService.getUsersByPractice(practiceId);
   }
@@ -43,10 +47,11 @@ export class UsersController {
   }
 
   @Delete(':id')
+  @UseInterceptors(NotFoundInterceptor)
   async deleteUser(
-    @Param() { practiceId, id }: { id: string; practiceId: string },
+    @Param() { id }: { id: string; practiceId: string },
   ): Promise<void> {
-    await this.usersService.deleteUser(practiceId, id);
+    await this.usersService.deleteUser(id);
   }
 
   @Patch(':id')

@@ -21,8 +21,8 @@ export interface PracticeState {
   practices: PracticesGetInterface[];
   practiceInfo: PracticesGetInterface | EmptyObject;
   status: 'idle' | 'loading' | 'failed';
-  successMessage: string | null;
-  error: string | null;
+  successMessage: string;
+  error: string;
 }
 
 const initialState: PracticeState = {
@@ -31,8 +31,8 @@ const initialState: PracticeState = {
   practices: [],
   practiceInfo: {},
   status: 'idle',
-  successMessage: null,
-  error: null,
+  successMessage: '',
+  error: '',
 };
 
 const practiceSlice = createSlice({
@@ -43,10 +43,10 @@ const practiceSlice = createSlice({
       state.practices = [...state.practices, action.payload];
     },
     clearSuccessMessage(state) {
-      state.successMessage = null;
+      state.successMessage = '';
     },
     clearErrorMessage(state) {
-      state.error = null;
+      state.error = '';
     },
   },
   extraReducers(builder) {

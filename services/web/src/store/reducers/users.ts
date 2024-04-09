@@ -17,8 +17,8 @@ export interface UserState {
   users: User[];
   userInfo: User | EmptyObject;
   status: 'idle' | 'loading' | 'failed';
-  successMessage: string | null;
-  error: string | null;
+  successMessage: string;
+  error: string;
 }
 
 const initialState: UserState = {
@@ -27,8 +27,8 @@ const initialState: UserState = {
   users: [],
   userInfo: {},
   status: 'idle',
-  successMessage: null, // Initial value for success message
-  error: null,
+  successMessage: '',
+  error: '',
 };
 
 const userSlice = createSlice({
@@ -36,10 +36,10 @@ const userSlice = createSlice({
   initialState,
   reducers: {
     clearSuccessMessage(state) {
-      state.successMessage = null;
+      state.successMessage = '';
     },
     clearErrorMessage(state) {
-      state.error = null;
+      state.error = '';
     },
   },
   extraReducers(builder) {

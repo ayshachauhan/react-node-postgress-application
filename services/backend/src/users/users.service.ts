@@ -41,11 +41,6 @@ export class UsersService {
     const fullName = `${firstName}_${lastName}`;
     const hashedDefaultPassword = await bcrypt.hash(defaultUserPassword, 10);
 
-    const practiceEntity = await this.practicesService.findOne(practiceId);
-    if (!practiceEntity) {
-      throw new HttpException('Practice not found', HttpStatus.NOT_FOUND);
-    }
-
     const resultUser = await this.usersRepository.save({
       ...newUser,
       ...createUserDto,
@@ -76,10 +71,7 @@ export class UsersService {
   }
 
   async getUsersByPractice(practiceId: string): Promise<User[]> {
-    const practiceEntity = await this.practicesService.findOne(practiceId);
-    if (!practiceEntity) {
-      throw new HttpException('Practice not found', HttpStatus.NOT_FOUND);
-    }
+    await this.practicesService.findOne(practiceId);
 
     const usersByPractice =
       await this.userPracticeService.getUsersByPractice(practiceId);
@@ -89,12 +81,7 @@ export class UsersService {
     });
   }
 
-  async deleteUser(practiceId: string, id: string): Promise<void> {
-    const practiceEntity = await this.practicesService.findOne(practiceId);
-    if (!practiceEntity) {
-      throw new HttpException('Practice not found', HttpStatus.NOT_FOUND);
-    }
-
+  async deleteUser(id: string): Promise<void> {
     const userEntity = await this.getUserById(id);
     if (!userEntity) {
       throw new HttpException('user not found', HttpStatus.NOT_FOUND);

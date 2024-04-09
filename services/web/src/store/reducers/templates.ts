@@ -13,8 +13,8 @@ export interface TemplateState {
   entities: Record<string, string | undefined>;
   templates: GetTemplatesResponse[];
   status: 'idle' | 'loading' | 'failed';
-  successMessage: string | null;
-  error: string | null;
+  successMessage: string;
+  error: string;
 }
 
 const initialState: TemplateState = {
@@ -22,8 +22,8 @@ const initialState: TemplateState = {
   entities: {},
   templates: [],
   status: 'idle',
-  successMessage: null,
-  error: null,
+  successMessage: '',
+  error: '',
 };
 
 const templateSlice = createSlice({
@@ -31,10 +31,10 @@ const templateSlice = createSlice({
   initialState,
   reducers: {
     clearSuccessMessage(state) {
-      state.successMessage = null;
+      state.successMessage = '';
     },
     clearErrorMessage(state) {
-      state.error = null;
+      state.error = '';
     },
   },
   extraReducers(builder) {
