@@ -10,8 +10,3 @@ export interface PracticesGetInterface {
   dateCreated?: string;
   dateUpdated?: string;
 }
-
-// export interface adminInviteInterface {
-//   subject: string;
-
-// }
