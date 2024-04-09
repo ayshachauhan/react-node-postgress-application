@@ -43,6 +43,7 @@ export class PracticesService {
     dbPractices.forEach((element: PracticeEntity) => {
       const { id, name, code, status } = element;
       const dbUsersByPractice: User[] = element.users.sort((a, b) => {
+        // sorting on the basis of createdAt to get oldest admin in the for the practice. considering it the actual practice admin
         const timestampA = a.dateCreated.getTime();
         const timestampB = b.dateCreated.getTime();
 
