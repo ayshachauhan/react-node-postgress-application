@@ -1,5 +1,6 @@
 import Cookies from 'js-cookie';
 import { publicRuntimeConfig } from 'next.config';
+import { MediaInterface } from '.';
 
 export const getMedia = async (
   payloadData: { practiceId: string },
@@ -32,12 +33,7 @@ export const getMedia = async (
 };
 
 export const addMedia = async (
-  payloadData: {
-    name: string;
-    url: string;
-    urlEmbed: string;
-    practiceId: string;
-  },
+  payloadData: MediaInterface,
   { rejectWithValue },
 ) => {
   const { API_BASE_URL } = publicRuntimeConfig;
