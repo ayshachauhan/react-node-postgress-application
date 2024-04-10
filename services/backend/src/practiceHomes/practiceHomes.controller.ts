@@ -6,10 +6,13 @@ import {
   Param,
   Patch,
   Post,
+  Req,
   UseGuards,
+  UseInterceptors,
   ValidationPipe,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
 import { AuthGuard } from '../auth/auth.guard';
 import { PracticeHome } from '../entities/practiceHomes.entity';
 import { PracticeHomeCreateDto } from './dto/create.dto';
@@ -45,11 +48,16 @@ export class PracticeHomesController {
   }
 
   @Post()
+  @UseInterceptors(practiceNotFoundInterceptor)
   async create(
-    @Param('practiceId') practiceId: string,
+    @Req() request: Request,
     @Body(new ValidationPipe()) practiceHomeCreateDto: PracticeHomeCreateDto,
   ): Promise<PracticeHome> {
-    return this.practiceHomesService.create(practiceHomeCreateDto, practiceId);
+    const practiceEntity = request['practiceEntity'];
+    return this.practiceHomesService.create(
+      practiceHomeCreateDto,
+      practiceEntity,
+    );
   }
 
   @Patch(':id')
