@@ -13,7 +13,7 @@ import {
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { TemplateEntity } from 'src/entities/templates.entity';
-import { practiceNotFoundInterceptor } from 'src/practiceNotFoundInterceptor';
+import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
 import { TemplateCreateDto } from './dto/template.createDto';
 import { TemplatePatchDto } from './dto/template.patchDto';
 import { TemplatesService } from './templates.service';

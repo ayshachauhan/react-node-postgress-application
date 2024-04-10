@@ -11,7 +11,7 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { practiceNotFoundInterceptor } from 'src/practiceNotFoundInterceptor';
+import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
 import { AuthGuard } from '../auth/auth.guard';
 import { User } from '../entities/users.entity';
 import { CreateUserDto } from './dto/create.dto';

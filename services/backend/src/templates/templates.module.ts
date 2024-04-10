@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TemplateEntity } from 'src/entities/templates.entity';
-import { practiceNotFoundInterceptor } from 'src/practiceNotFoundInterceptor';
+import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
 import { PracticesModule } from 'src/practices/practices.module';
 import { UsersModule } from 'src/users/users.module';
 import { TemplatesController } from './templates.controller';
