@@ -17,7 +17,7 @@ import { TemplatesService } from './templates.service';
     TemplatesService,
     practiceNotFoundInterceptor,
     {
-      provide: 'NOT_FOUND_MESSAGE',
+      provide: 'PRACTICE_NOT_FOUND_MESSAGE',
       useValue: 'Practice not found',
     },
   ],

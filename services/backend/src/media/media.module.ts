@@ -14,7 +14,7 @@ import { MediaService } from './media.service';
     MediaService,
     practiceNotFoundInterceptor,
     {
-      provide: 'NOT_FOUND_MESSAGE',
+      provide: 'PRACTICE_NOT_FOUND_MESSAGE',
       useValue: 'Practice not found',
     },
   ],

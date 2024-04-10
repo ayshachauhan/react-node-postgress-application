@@ -6,15 +6,15 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
-import { PracticesService } from 'src/practices/practices.service';
+import { UsersService } from 'src/users/users.service';
 
 @Injectable()
-export class practiceNotFoundInterceptor<T>
+export class userNotFoundInterceptor<T>
   implements NestInterceptor<T | T[], T | T[]>
 {
   constructor(
-    private readonly practicesService: PracticesService,
-    @Inject('PRACTICE_NOT_FOUND_MESSAGE') private readonly errorMessage: string,
+    private readonly userService: UsersService,
+    @Inject('USER_NOT_FOUND_MESSAGE') private readonly errorMessage: string,
   ) {}
 
   async intercept(
@@ -22,12 +22,12 @@ export class practiceNotFoundInterceptor<T>
     next,
   ): Promise<Observable<T | T[]>> {
     const request = context.switchToHttp().getRequest();
-    const practiceId = request.params.practiceId;
-    const practiceEntity = await this.practicesService.findOne(practiceId);
-    if (!practiceEntity) {
+    const userId = request.params.userId;
+    const userEntity = await this.userService.getUserById(userId);
+    if (!userEntity) {
       throw new NotFoundException(this.errorMessage);
     }
-    request.practiceEntity = practiceEntity;
+    request.userEntity = userEntity;
     return next.handle();
   }
 }

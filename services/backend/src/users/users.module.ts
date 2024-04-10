@@ -17,7 +17,7 @@ import { UsersService } from './users.service';
     UsersService,
     practiceNotFoundInterceptor,
     {
-      provide: 'NOT_FOUND_MESSAGE',
+      provide: 'PRACTICE_NOT_FOUND_MESSAGE',
       useValue: 'Practice not found',
     },
   ],
