@@ -17,7 +17,7 @@ import { UserType } from 'src/enums/userType.enum';
 import { PracticesService } from 'src/practices/practices.service';
 import { TransporterService } from 'src/transporter';
 import { UserPracticesService } from 'src/userPractices/userPractices.services';
-import { SanitizedUser } from 'src/users/types';
+import { NewUserMailData, SanitizedUser } from 'src/users/types';
 import { DataSource, In, Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create.dto';
 import { UpdateUserDto } from './dto/update.dto';
@@ -40,6 +40,9 @@ export class UsersService {
 
   defaultUserPassword() {
     return this.configService.get(ENVIRONMENT_VARIABLES.DEFAULT_USER_PASSWORD);
+  }
+  getFrontEndBaseUrl() {
+    return this.configService.get(ENVIRONMENT_VARIABLES.FRONT_END_BASE_URL);
   }
 
   async create(
@@ -85,9 +88,10 @@ export class UsersService {
         text: 'text message',
       };
 
-      const mailData = {
-        signUpLink:
-          process.env.FRONT_END_BASE_URL + `/onboarding/user?${token}`,
+      const frontendBaseUrl: string = this.getFrontEndBaseUrl();
+
+      const mailData: NewUserMailData = {
+        signUpLink: frontendBaseUrl + `/onboarding/user?${token}`,
         practiceName: practiceEntity.name,
         fullName,
         defaultUserPassword: this.defaultUserPassword(),
