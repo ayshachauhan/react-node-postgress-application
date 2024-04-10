@@ -4,7 +4,7 @@ import { TemplateMessageType } from 'src/enums/templateMessageType.enum';
 import { PracticesService } from 'src/practices/practices.service';
 import { UsersService } from 'src/users/users.service';
 import { Repository } from 'typeorm';
-import { TemplateEntity } from '../entities/templates.entity';
+import { TemplateEntity } from '../entities/template/template.entity';
 
 @Injectable()
 export class TemplatesService {

@@ -1,13 +1,11 @@
-import { Meridiem } from 'src/enums/meridian';
-import { SurgeryType } from 'src/enums/surgeryType.enum';
-import { TemplateMessageType } from 'src/enums/templateMessageType.enum';
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
-import { BaseEntity } from './base.entity';
-import { PracticeEntity } from './practices.entity';
-import { User } from './users.entity';
+import { ITemplate, Meridiem, SurgeryType, TemplateMessageType } from '.';
+import { BaseEntity } from '../base.entity';
+import { PracticeEntity } from '../practice/practice.entity';
+import { User } from '../user/user.entity';
 
 @Entity('templates')
-export class TemplateEntity extends BaseEntity {
+export class TemplateEntity extends BaseEntity implements ITemplate {
   @ManyToOne(() => PracticeEntity)
   @JoinColumn({ name: 'practiceId' })
   practice: PracticeEntity;

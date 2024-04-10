@@ -1,6 +1,9 @@
 {
   "extends": "../../tsconfig.json",
   "include": ["./src"],
+  "paths": {
+    "@backend/*": ["./src/*"]
+  },
   "compilerOptions": {
     "outDir": "./dist",
     "baseUrl": "./",

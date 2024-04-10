@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { PracticeHome } from '../entities/practiceHomes.entity';
+import { PracticeHome } from '../entities/practiceHomes/practiceHomes.entity';
 import { PracticesService } from '../practices/practices.service';
 import { PracticeHomeCreateDto } from './dto/create.dto';
 import { PracticeHomePatchDto } from './dto/patch.dto';

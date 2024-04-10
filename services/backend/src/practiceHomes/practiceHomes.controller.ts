@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '../auth/auth.guard';
-import { PracticeHome } from '../entities/practiceHomes.entity';
+import { PracticeHome } from '../entities/practiceHomes/practiceHomes.entity';
 import { PracticeHomeCreateDto } from './dto/create.dto';
 import { PracticeHomePatchDto } from './dto/patch.dto';
 import { PracticeHomesService } from './practiceHomes.service';

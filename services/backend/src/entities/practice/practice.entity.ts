@@ -1,10 +1,10 @@
-import { PracticeStatus } from 'src/enums/status.enum';
 import { Column, Entity, JoinTable, ManyToMany } from 'typeorm';
-import { BaseEntity } from './base.entity';
-import { User } from './users.entity';
+import { IPractice, PracticeStatus } from '.';
+import { BaseEntity } from '../base.entity';
+import { User } from '../user/user.entity';
 
 @Entity('practices')
-export class PracticeEntity extends BaseEntity {
+export class PracticeEntity extends BaseEntity implements IPractice {
   @Column({ type: 'varchar' })
   name: string;
 

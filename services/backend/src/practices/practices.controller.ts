@@ -12,7 +12,7 @@ import {
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '../auth/auth.guard';
 import { SuperAdminGuard } from '../auth/superAdmin.guard';
-import { PracticeEntity } from '../entities/practices.entity';
+import { PracticeEntity } from '../entities/practice/practice.entity';
 import { PracticeCreateDto } from './dto/create.dto';
 import { PracticePatchDto } from './dto/patch.dto';
 import { PracticesService } from './practices.service';
