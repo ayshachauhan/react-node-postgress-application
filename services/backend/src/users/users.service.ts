@@ -9,7 +9,9 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
+import * as fs from 'fs';
 import Mail from 'nodemailer/lib/mailer';
+import * as path from 'path';
 import { User } from 'src/entities/users.entity';
 import { ENVIRONMENT_VARIABLES } from 'src/enums/environment.enums';
 import { PracticeStatus, UserStatus } from 'src/enums/status.enum';
@@ -21,7 +23,6 @@ import { NewUserMailData, SanitizedUser } from 'src/users/types';
 import { DataSource, In, Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create.dto';
 import { UpdateUserDto } from './dto/update.dto';
-import { inviteNewUserTemplate } from './emailTemplates/inviteNewUserTemplate';
 
 @Injectable()
 export class UsersService {
@@ -80,11 +81,18 @@ export class UsersService {
         ...newSanitzedUser,
       });
 
+      // Read the HTML file content
+      const htmlFilePath = path.join(
+        __dirname,
+        '../emailTemplates/inviteNewUserTemplate.html',
+      );
+      const htmlFileContent = fs.readFileSync(htmlFilePath, 'utf8');
+
       const mailOptions: Mail.Options = {
         to: resultUser.email,
         subject:
-          'Subject: Welcome to Practice Optimisation Dashboard - Complete Your Sign-up Process',
-        html: inviteNewUserTemplate,
+          'Subject: Welcome to Practice Optimization Dashboard - Complete Your Sign-up Process',
+        html: htmlFileContent,
         text: 'text message',
       };
 

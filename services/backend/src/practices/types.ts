@@ -10,3 +10,12 @@ export interface PracticesGetInterface {
   dateCreated?: string;
   dateUpdated?: string;
 }
+
+export type CreatePracticeInviteMailData = {
+  signUpLink: string;
+  practiceName: string;
+  userFirstName: string;
+  userLastName: string;
+  contactEmail: string;
+  contactPhone: string;
+};
