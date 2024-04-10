@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { UserInterface } from '@root/components/login/types';
 import { State } from '@root/store';
+import { getPracticeId } from '@utils/methods';
 import Cookies from 'js-cookie';
 import { GetUserResponse, getMe, login } from '../requests/login';
 
@@ -81,13 +82,14 @@ const authSlice = createSlice({
       state.isAuthenticated = true;
       state.user = action.payload;
       state.error = '';
+      const practiceId = getPracticeId();
       if (
         state.user &&
         state.user.userPractices &&
         state.user.userPractices.length &&
         state.user.userPractices[0].practice
       ) {
-        if (!localStorage.getItem('practiceId')) {
+        if (!practiceId) {
           localStorage.setItem(
             'practiceId',
             state.user.userPractices[0].practice.id,
@@ -96,7 +98,7 @@ const authSlice = createSlice({
         state.azentiaSelectedPractice =
           state.user.userPractices[0].practice.name;
       } else {
-        if (!localStorage.getItem('practiceId')) {
+        if (!practiceId) {
           localStorage.setItem('practiceId', '');
         }
         state.azentiaSelectedPractice = '';
