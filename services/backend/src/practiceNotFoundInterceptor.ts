@@ -9,7 +9,7 @@ import { Observable } from 'rxjs';
 import { PracticesService } from 'src/practices/practices.service';
 
 @Injectable()
-export class NotFoundInterceptor<T>
+export class practiceNotFoundInterceptor<T>
   implements NestInterceptor<T | T[], T | T[]>
 {
   constructor(

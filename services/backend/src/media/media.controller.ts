@@ -11,8 +11,8 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { NotFoundInterceptor } from 'src/NotFoundInterceptor';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { practiceNotFoundInterceptor } from 'src/practiceNotFoundInterceptor';
 import { CreateVideoDto } from './dtos/createVideo.dto';
 import { UpdateVideoDto } from './dtos/update.video.dto';
 import { MediaService } from './media.service';
@@ -25,20 +25,20 @@ export class MediaController {
   constructor(private mediaService: MediaService) {}
 
   @Get()
-  @UseInterceptors(NotFoundInterceptor)
+  @UseInterceptors(practiceNotFoundInterceptor)
   getVideosByPractice(@Param('practiceId') practiceId: string) {
     return this.mediaService.getVideosByPracticeId(practiceId);
   }
 
   @Get(':id')
-  @UseInterceptors(NotFoundInterceptor)
+  @UseInterceptors(practiceNotFoundInterceptor)
   getVideoById(@Param() params: { practiceId: string; id: string }) {
     const { practiceId, id } = params;
     return this.mediaService.getVideosById(practiceId, id);
   }
 
   @Post()
-  @UseInterceptors(NotFoundInterceptor)
+  @UseInterceptors(practiceNotFoundInterceptor)
   createVideo(
     @Param('practiceId') practiceId: string,
     @Body(new ValidationPipe()) videoData: CreateVideoDto,
@@ -47,7 +47,7 @@ export class MediaController {
   }
 
   @Delete(':id')
-  @UseInterceptors(NotFoundInterceptor)
+  @UseInterceptors(practiceNotFoundInterceptor)
   deleteVideoById(
     @Param('practiceId') practiceId: string,
     @Param('id') id: string,
@@ -56,7 +56,7 @@ export class MediaController {
   }
 
   @Patch(':id')
-  @UseInterceptors(NotFoundInterceptor)
+  @UseInterceptors(practiceNotFoundInterceptor)
   updateVideoByPracticeId(
     @Param('practiceId') practiceId: string,
     @Param('id') id: string,
