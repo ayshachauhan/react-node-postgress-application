@@ -12,7 +12,7 @@ export const getSurgeryTypes = async (
   try {
     const accessToken = Cookies.get('access_token');
     const response = await fetch(
-      `${API_BASE_URL}/practices/${payloadData.practiceId}/types`,
+      `${API_BASE_URL}/practices/${payloadData.practiceId}/surgery-types`,
       {
         method: 'GET',
         headers: {
@@ -37,7 +37,7 @@ export const addSurgeryType = async (
   try {
     const accessToken = Cookies.get('access_token');
     const response = await fetch(
-      `${API_BASE_URL}/practices/${payloadData.practiceId}/types`,
+      `${API_BASE_URL}/practices/${payloadData.practiceId}/surgery-types`,
       {
         method: 'POST',
         headers: {
@@ -64,7 +64,7 @@ export const deleteSurgeryType = async (
   try {
     const accessToken = Cookies.get('access_token');
     const response = await fetch(
-      `${API_BASE_URL}/practices/${payloadData.practiceId}/types/${payloadData.id}`,
+      `${API_BASE_URL}/practices/${payloadData.practiceId}/surgery-types/${payloadData.id}`,
       {
         method: 'DELETE',
         headers: {
@@ -103,7 +103,7 @@ export const getSurgeryTypeInfo = async (
   try {
     const accessToken = Cookies.get('access_token');
     const response = await fetch(
-      `${API_BASE_URL}/practices/${payloadData.practiceId}/types/${payloadData.id}`,
+      `${API_BASE_URL}/practices/${payloadData.practiceId}/surgery-types/${payloadData.id}`,
       {
         method: 'POST',
         headers: {
