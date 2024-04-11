@@ -2,24 +2,24 @@ import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { selectPractice } from '@root/store/reducers/auth';
-import { addRecordAsync } from '@root/store/reducers/practiceHomes';
-import { CreatePracticeHomeInterface } from '@root/store/requests/practiceHomes';
+import { addRecordAsync } from '@root/store/reducers/insuranceTypes';
+import { CreateInsuranceTypeInterface } from '@root/store/requests/insuranceTypes';
 import React, { useState } from 'react';
 
 const AddInsuranceType: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const dispatch = useAppDispatch();
-  const [practiceHome, setPracticeHome] = useState('');
+  const [insuranceType, setInsuranceType] = useState('');
   const practiceId = useAppSelector(selectPractice);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (practiceId) {
-      const practiceHomePayload: CreatePracticeHomeInterface = {
+      const insuranceTypePayload: CreateInsuranceTypeInterface = {
         practiceId,
-        name: practiceHome,
+        name: insuranceType,
       };
       try {
-        dispatch(addRecordAsync(practiceHomePayload));
+        dispatch(addRecordAsync(insuranceTypePayload));
         onClose();
       } catch (error) {
         onClose();
@@ -37,10 +37,10 @@ const AddInsuranceType: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           <div>
             <div>
               <TextInput
-                name="practiceHome"
-                value={practiceHome}
+                name="insuranceType"
+                value={insuranceType}
                 onChange={(value) => {
-                  setPracticeHome(value);
+                  setInsuranceType(value);
                 }}
                 required
               />
@@ -48,7 +48,7 @@ const AddInsuranceType: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             <div className="text-right align-bottom pt-4">
               <Button
                 kind="primary"
-                title="Add new practice home"
+                title="Add new insurance type"
                 type="submit"
                 width={189}
               />
