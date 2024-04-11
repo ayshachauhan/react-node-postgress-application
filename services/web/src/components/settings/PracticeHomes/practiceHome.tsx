@@ -1,7 +1,7 @@
 'use client';
-import AddPracticeHome from '@components/settings/PracticeHomes/addPracticeHome';
 import Button from '@root/components/Button';
 import { AddIcon, DeleteIcon } from '@root/components/Icons';
+import AddPracticeHome from '@root/components/settings/PracticeHomes/addPracticeHome1';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { selectPractice } from '@root/store/reducers/auth';
 import {
