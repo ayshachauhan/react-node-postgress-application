@@ -56,16 +56,6 @@ const Dashboard: React.FC = () => {
           },
         }}
       >
-        <ModalHeader
-          $style={{
-            fontSize: '1.25rem',
-            fontWeight: 700,
-            borderBottom: '1px solid rgba(244, 244, 245, 1)',
-            paddingBottom: '8px',
-          }}
-        >
-          Add Surgery
-        </ModalHeader>
         <ModalBody>
           <Form onClose={handleCloseAddModal} />
         </ModalBody>
