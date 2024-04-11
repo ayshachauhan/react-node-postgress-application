@@ -1,6 +1,6 @@
+import { PracticeStatus } from '@entities/index';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsOptional } from 'class-validator';
-import { PracticeStatus } from 'src/enums/status.enum';
 
 export class PracticeCreateDto {
   @IsNotEmpty({ message: 'Name is required' })

@@ -1,9 +1,9 @@
 'use client';
 import { IMedia } from '@backend/entities';
+import { UserType } from '@backend/entities/index';
 import Button from '@root/components/Button';
 import { AddIcon, PlayIcon } from '@root/components/Icons';
 import Form from '@root/components/media/addMedia.module';
-import { UserType } from '@root/enums/userType.enum';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { selectPractice, selectRecords } from '@root/store/reducers/auth';
 import {
