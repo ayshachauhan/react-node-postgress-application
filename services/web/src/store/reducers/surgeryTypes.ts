@@ -132,17 +132,17 @@ export const fetchListings = createAsyncThunk(
 );
 
 export const fetchSurgeryTypeInfo = createAsyncThunk(
-  'surgerTypes/fetchSurgeryTypeInfo',
+  'surgeryTypes/fetchSurgeryTypeInfo',
   getSurgeryTypeInfo,
 );
 
 export const addRecordAsync = createAsyncThunk(
-  'surgerTypes/addRecordAsync',
+  'surgeryTypes/addRecordAsync',
   addSurgeryType,
 );
 
 export const deleteRecordAsync = createAsyncThunk(
-  'surgerTypes/deleteRecordAsync',
+  'surgeryTypes/deleteRecordAsync',
   deleteSurgeryType,
 );
 
