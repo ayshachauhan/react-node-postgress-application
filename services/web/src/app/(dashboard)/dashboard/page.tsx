@@ -3,7 +3,7 @@ import DataTable, { ColumnConfig } from '@components/DataTable';
 import Button from '@root/components/Button';
 import { AddIcon } from '@root/components/Icons';
 import Form from '@root/components/dashboard/addSurgery.module';
-import { Modal, ModalBody, ModalHeader, ROLE, SIZE } from 'baseui/modal';
+import { Modal, ModalBody, ROLE, SIZE } from 'baseui/modal';
 import React, { useState } from 'react';
 
 const DUMMY_DATA = [
