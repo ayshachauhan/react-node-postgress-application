@@ -30,6 +30,7 @@ export const ENV_VARIABLES_SCHEMA: Record<ENVIRONMENT_VARIABLES, Joi.Schema> = {
   [ENVIRONMENT_VARIABLES.DEFAULT_USER_PASSWORD]: Joi.string()
     .optional()
     .default('Test@123'),
+  [ENVIRONMENT_VARIABLES.FRONT_END_BASE_URL]: Joi.string(),
 };
 
 export const ENV_VALIDATIONS = Joi.object(ENV_VARIABLES_SCHEMA);

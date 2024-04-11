@@ -12,6 +12,7 @@ import {
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '../auth/auth.guard';
 import { User } from '../entities/users.entity';
+import { ChangePasswordDto } from './dto/changePassword.dto';
 import { CreateUserDto } from './dto/create.dto';
 import { UpdateUserDto } from './dto/update.dto';
 import { SanitizedUser } from './types';
@@ -47,6 +48,14 @@ export class UsersController {
     @Param() { practiceId, id }: { id: string; practiceId: string },
   ): Promise<void> {
     await this.usersService.deleteUser(practiceId, id);
+  }
+
+  @Patch('change-password')
+  async changePassword(
+    @Body(new ValidationPipe()) changePasswordDto: ChangePasswordDto,
+    @Param('practiceId') practiceId: string,
+  ) {
+    return this.usersService.changePassword({ practiceId, changePasswordDto });
   }
 
   @Patch(':id')
