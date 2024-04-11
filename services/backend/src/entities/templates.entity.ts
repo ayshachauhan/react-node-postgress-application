@@ -37,7 +37,7 @@ export class TemplateEntity extends BaseEntity {
   })
   meridiem?: Meridiem;
 
-  @Column({ type: 'uuid', default: null, nullable: true })
+  @Column({ type: 'uuid' })
   surgeryType: string;
 
   @Column({ type: 'varchar' })

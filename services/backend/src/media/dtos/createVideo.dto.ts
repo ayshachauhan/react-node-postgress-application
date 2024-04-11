@@ -1,6 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty } from 'class-validator';
-import { SurgeryType } from 'src/enums/surgeryType.enum';
 
 export class CreateVideoDto {
   @IsNotEmpty()
@@ -13,7 +12,7 @@ export class CreateVideoDto {
 
   @IsNotEmpty()
   @ApiProperty()
-  surgeryType: SurgeryType;
+  surgeryType: string;
 
   @IsNotEmpty()
   @ApiProperty()

@@ -1,4 +1,3 @@
-import { SurgeryType } from 'src/enums/surgeryType.enum';
 import { Column, Entity } from 'typeorm';
 import { BaseEntity } from './base.entity';
 
@@ -16,6 +15,6 @@ export class Video extends BaseEntity {
   @Column({ type: 'varchar' })
   url: string;
 
-  @Column({ type: 'enum', enum: SurgeryType, default: SurgeryType.CATARACT })
-  surgeryType: SurgeryType;
+  @Column({ type: 'uuid' })
+  surgeryType: string;
 }

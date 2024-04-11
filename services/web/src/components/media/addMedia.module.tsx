@@ -1,17 +1,20 @@
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
-import { SurgeryType } from '@root/enums/surgeryType.enum';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { selectPractice } from '@root/store/reducers/auth';
 import { addRecordAsync } from '@root/store/reducers/media';
+import { fetchSurgeryTypes } from '@root/store/reducers/surgeryTypes';
 import { MediaInterface } from '@root/store/requests/media';
 import { Select } from 'baseui/select';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 const MediaPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
-  const surgeryTypeOptions = Object.keys(SurgeryType).map((key) => ({
-    label: SurgeryType[key as keyof typeof SurgeryType],
-    id: key,
+  const surgeryTypes = useAppSelector(
+    (state) => state.surgeryTypes.surgeryTypes,
+  );
+  const surgeryTypeOptions = Object.keys(surgeryTypes).map((key) => ({
+    label: surgeryTypes[key].name,
+    id: surgeryTypes[key].id,
   }));
   const practiceId = useAppSelector(selectPractice); // Select success message from Redux store
   const dispatch = useAppDispatch();
@@ -45,8 +48,14 @@ const MediaPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   };
 
   const handleSurgeryTypeChange = ({ value }) => {
-    setSurgeryType(value[0] ? value[0].label : null);
+    setSurgeryType(value[0] ? value[0].id : null);
   };
+
+  useEffect(() => {
+    if (practiceId !== null) {
+      dispatch(fetchSurgeryTypes({ practiceId: practiceId })); // Fetch listings from PostgreSQL database
+    }
+  }, [practiceId, dispatch]);
 
   return (
     <div>
