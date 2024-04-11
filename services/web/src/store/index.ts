@@ -2,6 +2,7 @@ import { configureStore } from '@reduxjs/toolkit';
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
 
 import authReducer from './reducers/auth';
+import insuranceTypesReducer from './reducers/insuranceTypes';
 import mediaReducer from './reducers/media';
 import practiceHomesReducer from './reducers/practiceHomes';
 import practicesReducer from './reducers/practices';
@@ -18,6 +19,7 @@ export const store = configureStore({
     templates: templatesReducer,
     surgeryTypes: surgeryTypeReducer,
     practiceHomes: practiceHomesReducer,
+    insuranceTypes: insuranceTypesReducer,
   },
 });
 
