@@ -16,7 +16,7 @@ import { AzentiaLogo } from '@utils/constants';
 import Cookies from 'js-cookie';
 import { useRouter, useSearchParams } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
-import { AlreadyOnboarded } from './completed.onboarding';
+import { AlreadyOnboarded } from './completedOnboarding';
 
 export default function PracticeOnboardPage() {
   const dispatch = useAppDispatch();

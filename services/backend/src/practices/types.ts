@@ -11,7 +11,11 @@ export interface PracticesGetInterface {
   dateUpdated?: string;
 }
 
-// export interface adminInviteInterface {
-//   subject: string;
-
-// }
+export type CreatePracticeInviteMailData = {
+  signUpLink: string;
+  practiceName: string;
+  userFirstName: string;
+  userLastName: string;
+  contactEmail: string;
+  contactPhone: string;
+};

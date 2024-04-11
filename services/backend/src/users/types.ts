@@ -15,3 +15,10 @@ export type SanitizedUser = {
   dateUpdated: Date;
   dateDeleted?: Date | undefined;
 };
+
+export type NewUserMailData = {
+  signUpLink: string;
+  practiceName: string;
+  fullName: string;
+  defaultUserPassword: string;
+};

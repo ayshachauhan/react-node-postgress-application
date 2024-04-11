@@ -5,10 +5,14 @@ import {
   Injectable,
   forwardRef,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
+import * as fs from 'fs';
 import Mail from 'nodemailer/lib/mailer';
+import * as path from 'path';
 import { User } from 'src/entities/users.entity';
+import { ENVIRONMENT_VARIABLES } from 'src/enums/environment.enums';
 import { TransporterService } from 'src/transporter';
 import { DataSource, Repository, UpdateResult } from 'typeorm';
 import { PracticeEntity } from '../entities/practices.entity';
@@ -16,8 +20,7 @@ import { UserStatus } from '../enums/status.enum';
 import { UserType } from '../enums/userType.enum';
 import { UsersService } from '../users/users.service';
 import { PracticeCreateDto } from './dto/create.dto';
-import { sendPracticeAdminInvite } from './emailTemplates/adminInvite';
-import { PracticesGetInterface } from './types';
+import { CreatePracticeInviteMailData, PracticesGetInterface } from './types';
 
 @Injectable()
 export class PracticesService {
@@ -29,7 +32,12 @@ export class PracticesService {
     private readonly transporterService: TransporterService,
     private dataSource: DataSource,
     private jwtService: JwtService,
+    private configService: ConfigService,
   ) {}
+
+  getFrontEndBaseUrl(): string | undefined {
+    return this.configService.get(ENVIRONMENT_VARIABLES.FRONT_END_BASE_URL);
+  }
 
   async findAll(): Promise<PracticesGetInterface[]> {
     const resultArray: PracticesGetInterface[] = [];
@@ -43,6 +51,7 @@ export class PracticesService {
     dbPractices.forEach((element: PracticeEntity) => {
       const { id, name, code, status } = element;
       const dbUsersByPractice: User[] = element.users.sort((a, b) => {
+        // sorting on the basis of createdAt to get oldest admin in the for the practice. considering it the actual practice admin
         const timestampA = a.dateCreated.getTime();
         const timestampB = b.dateCreated.getTime();
 
@@ -93,7 +102,7 @@ export class PracticesService {
     try {
       const newPractice: PracticeEntity = new PracticeEntity();
 
-      const practice = await this.practicesRepository.save({
+      const practice: PracticeEntity = await this.practicesRepository.save({
         ...newPractice,
         name,
         code,
@@ -114,29 +123,37 @@ export class PracticesService {
         practice.id,
       );
 
-      const token = this.jwtService.sign({
+      const token: string = this.jwtService.sign({
         ...newAdmin,
         practiceId: practice.id,
       });
 
+      const htmlFilePath: string = path.join(
+        __dirname,
+        '../emailTemplates/adminInvite.html',
+      );
+
+      const htmlFileContent: string = fs.readFileSync(htmlFilePath, 'utf8');
+
       const mailOptions: Mail.Options = {
         to: newAdmin.email,
         subject:
-          'Subject: Welcome to Pracice Optimiser Dashboard - Complete Your Sign-up Process',
-        html: sendPracticeAdminInvite,
+          'Subject: Welcome to Practice Optimizer Dashboard - Complete Your Sign-up Process',
+        html: htmlFileContent,
         text: 'text message',
       };
 
-      const mailData = {
-        signUpLink:
-          process.env.FRONT_END_BASE_URL +
-          `/onboarding/practice?token=${token}`,
+      const frontendBaseUrl: string | undefined = this.getFrontEndBaseUrl();
+
+      const mailData: CreatePracticeInviteMailData = {
+        signUpLink: frontendBaseUrl + `/onboarding/practice?token=${token}`,
         practiceName: practice.name,
         userFirstName: adminFirstName,
         userLastName: adminLastName,
         contactEmail: adminEmail,
         contactPhone: adminContactNumber,
       };
+
       await this.transporterService.sendEmail(mailOptions, mailData);
       await queryRunner.commitTransaction();
 
