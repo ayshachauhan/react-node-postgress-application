@@ -55,3 +55,11 @@ export interface EditUser {
   type: UserType;
   practiceId: string;
 }
+
+export interface ChangePasswordInterface {
+  email: string;
+  oldPassword: string;
+  confirmPassword: string;
+  newPassword: string;
+  practiceId: string;
+}

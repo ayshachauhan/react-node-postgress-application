@@ -5,10 +5,17 @@ export interface PracticesGetInterface {
   adminLastName?: string;
   adminEmail?: string;
   adminContactNumber?: string;
-  physicianEmail?: string;
-  physicianContactNumber?: string;
   status: string;
   code: string;
   dateCreated?: string;
   dateUpdated?: string;
 }
+
+export type CreatePracticeInviteMailData = {
+  signUpLink: string;
+  practiceName: string;
+  userFirstName: string;
+  userLastName: string;
+  contactEmail: string;
+  contactPhone: string;
+};

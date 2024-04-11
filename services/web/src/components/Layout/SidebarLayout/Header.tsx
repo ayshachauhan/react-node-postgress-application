@@ -1,7 +1,8 @@
 'use client';
 
 import Dropdown from '@root/components/Dropdown';
-import { useAppDispatch, useAppSelector } from '@root/store';
+import { AvatarIcon } from '@root/components/Icons';
+import { State, useAppDispatch, useAppSelector } from '@root/store';
 import {
   logoutUser,
   selectRecords,
@@ -9,20 +10,34 @@ import {
   userPractices,
 } from '@root/store/reducers/auth';
 import { getPracticeInfo } from '@root/store/reducers/practices';
+import { fetchListings } from '@root/store/reducers/users';
+import { User } from '@root/store/requests/users';
 import { getPracticeId } from '@utils/methods';
-import { Avatar } from 'baseui/avatar';
 import { ChevronDown } from 'baseui/icon';
 import { usePathname, useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 
+const SELECTED_DOCTOR_KEY: string = 'SELECTED_DOCTOR';
+
 const Header: React.FC = () => {
   const dispatch = useAppDispatch();
+  const getSelectedUserId: string | null =
+    localStorage.getItem(SELECTED_DOCTOR_KEY);
+
   const userInfo = useAppSelector(selectRecords);
+  const { users } = useAppSelector((state: State) => state.users);
+  const practiceId = getPracticeId();
+
+  const findSelectedUser = (userId: string): User | undefined =>
+    users.find((user) => user.id === userId);
+
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+
   const is_super_admin = userInfo ? userInfo.isSuperAdmin : false;
   const selectedUserBox = (
     <span className="inline-flex items-center gap-2">
-      <Avatar />
-      Dr. Shawan Lin
+      <AvatarIcon size={40}></AvatarIcon>
+      {selectedUser?.fullName ?? userInfo?.fullName}
       <ChevronDown />
     </span>
   );
@@ -36,9 +51,8 @@ const Header: React.FC = () => {
   }, [practiceName]);
 
   useEffect(() => {
-    const userPracticeId = getPracticeId();
-    if (userPracticeId) {
-      dispatch(getPracticeInfo({ id: userPracticeId })).then((action) => {
+    if (practiceId) {
+      dispatch(getPracticeInfo({ id: practiceId })).then((action) => {
         if (action.payload && action.payload.name) {
           setSelectedPractice(action.payload.name);
         }
@@ -53,11 +67,40 @@ const Header: React.FC = () => {
   const isDashboardPage = currentPath === '/dashboard';
   const handleLogout = () => {
     dispatch(logoutUser());
-    router.push('/login'); // Redirect to login page after logout
+    router.push('/login');
   };
+
+  /**
+   * @summary Handle Selection of user in dropdown
+   * @param userId
+   */
+  const handleUserSelect = (userId: string): void => {
+    const user = findSelectedUser(userId);
+
+    if (user) {
+      setSelectedUser(user);
+      localStorage.setItem(SELECTED_DOCTOR_KEY, user.id);
+    }
+  };
+
   const goToProfile = () => {
     router.push('/profile');
   };
+  const goToSettings = () => {
+    router.push('/settings');
+  };
+
+  useEffect(() => {
+    if (practiceId !== null) {
+      dispatch(fetchListings({ practiceId: practiceId }));
+    }
+  }, [dispatch, practiceId]);
+
+  useEffect(() => {
+    if (getSelectedUserId) {
+      setSelectedUser(findSelectedUser(getSelectedUserId) ?? null);
+    }
+  }, [users]);
 
   const handlePracticeChange = (practiceId: string, practiceName: string) => {
     setSelectedPractice(practiceName);
@@ -71,14 +114,16 @@ const Header: React.FC = () => {
         <div className="flex items-center justify-between">
           <div className="flex items-center">
             {!is_super_admin && isDashboardPage && (
-              <Dropdown position="bottomLeft" trigger={selectedUserBox}>
-                <Dropdown.Item id="profile" onClick={goToProfile}>
-                  Profile
-                </Dropdown.Item>
-                <Dropdown.Item id="setting">Settings</Dropdown.Item>
-                <Dropdown.Item id="logout" onClick={handleLogout}>
-                  Log out
-                </Dropdown.Item>
+              <Dropdown
+                position="bottomLeft"
+                trigger={selectedUserBox}
+                onSelect={handleUserSelect}
+              >
+                {users.map((user: User, index: number) => (
+                  <Dropdown.Item id={user.id} key={index}>
+                    {user.fullName}
+                  </Dropdown.Item>
+                ))}
               </Dropdown>
             )}
           </div>
@@ -116,14 +161,19 @@ const Header: React.FC = () => {
                 </>
               )}
             </div>
-            <Dropdown position="bottomRight" trigger={<Avatar />}>
+            <Dropdown
+              position="bottomRight"
+              trigger={<AvatarIcon size={40}></AvatarIcon>}
+            >
               {!is_super_admin && (
                 <Dropdown.Item id="profile" onClick={goToProfile}>
                   Profile
                 </Dropdown.Item>
               )}
               {!is_super_admin && (
-                <Dropdown.Item id="setting">Settings</Dropdown.Item>
+                <Dropdown.Item id="setting" onClick={goToSettings}>
+                  Settings
+                </Dropdown.Item>
               )}
               <Dropdown.Item id="logout" onClick={handleLogout}>
                 Log out

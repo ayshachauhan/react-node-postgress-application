@@ -19,9 +19,10 @@ import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 const Templates: React.FC = () => {
   const templates = useAppSelector((state) => state.templates.templates);
-
   const dispatch = useAppDispatch();
   const [templateId, setTemplateId] = useState<string | null>(null);
+  const [messageType, setMessageType] = useState<string | null>(null);
+  const [versionOffset, setVersionOffset] = useState<string | null>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const practiceId = getPracticeId();
@@ -33,14 +34,22 @@ const Templates: React.FC = () => {
     setIsAddModalOpen(true);
   };
 
-  const handleOpenUpdateModal = (Id: string): void => {
+  const handleOpenUpdateModal = (
+    Id: string,
+    MessageType: string,
+    versionOffset: string | null,
+  ): void => {
     setIsUpdateModalOpen(true);
     setTemplateId(Id);
+    setMessageType(MessageType);
+    setVersionOffset(versionOffset);
   };
 
   const handleCloseUpdateModal = (): void => {
     setIsUpdateModalOpen(false);
     setTemplateId(null);
+    setMessageType(null);
+    setVersionOffset(null);
   };
 
   const handleCloseAddModal = (): void => {
@@ -115,12 +124,18 @@ const Templates: React.FC = () => {
         }}
       >
         <ModalBody>
-          {templateId !== null && (
-            <TemplateUpdate
-              data={{ id: templateId }}
-              onClose={handleCloseUpdateModal}
-            />
-          )}
+          {templateId !== null &&
+            messageType !== null &&
+            versionOffset !== null && (
+              <TemplateUpdate
+                data={{
+                  id: templateId,
+                  messageType: messageType,
+                  versionOffset: versionOffset,
+                }}
+                onClose={handleCloseUpdateModal}
+              />
+            )}
         </ModalBody>
       </Modal>
     );
@@ -183,12 +198,8 @@ const Templates: React.FC = () => {
           <Button
             kind="secondary"
             title="Add New"
-            width={104}
-            height={38}
-            padding="8px 10px 8px 10px"
-            fontSize="14px"
             onClick={handleOpenAddModal}
-            startEnhancer={() => <AddIcon className="mt-2" size={18}></AddIcon>}
+            startEnhancer={() => <AddIcon className="mt-2" size={25}></AddIcon>}
           />
         </div>
       </div>
@@ -210,9 +221,14 @@ const Templates: React.FC = () => {
                           <span
                             key={i}
                             onClick={() =>
-                              ele.id && handleOpenUpdateModal(ele.id)
+                              ele.id &&
+                              handleOpenUpdateModal(
+                                ele.id,
+                                ele.messageType,
+                                ele.version,
+                              )
                             }
-                            className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1"
+                            className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1 cursor-pointer"
                           >
                             {ele.version}
                           </span>
@@ -227,9 +243,14 @@ const Templates: React.FC = () => {
                           <span
                             key={i}
                             onClick={() =>
-                              ele.id && handleOpenUpdateModal(ele.id)
+                              ele.id &&
+                              handleOpenUpdateModal(
+                                ele.id,
+                                ele.messageType,
+                                ele.version,
+                              )
                             }
-                            className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1"
+                            className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1 cursor-pointer"
                           >
                             {ele.version}
                           </span>
@@ -244,9 +265,14 @@ const Templates: React.FC = () => {
                           <span
                             key={i}
                             onClick={() =>
-                              ele.id && handleOpenUpdateModal(ele.id)
+                              ele.id &&
+                              handleOpenUpdateModal(
+                                ele.id,
+                                ele.messageType,
+                                ele.version,
+                              )
                             }
-                            className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1"
+                            className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1 cursor-pointer"
                           >
                             {ele.version}
                           </span>
@@ -261,11 +287,17 @@ const Templates: React.FC = () => {
                           <span
                             key={i}
                             onClick={() =>
-                              ele.id && handleOpenUpdateModal(ele.id)
+                              ele.id &&
+                              ele.dateOffset !== undefined &&
+                              handleOpenUpdateModal(
+                                ele.id,
+                                ele.messageType,
+                                ele.dateOffset,
+                              )
                             }
-                            className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1"
+                            className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1 cursor-pointer"
                           >
-                            {ele.version}
+                            {ele.dateOffset}
                           </span>
                         ))}
                     </p>
@@ -278,11 +310,17 @@ const Templates: React.FC = () => {
                           <span
                             key={i}
                             onClick={() =>
-                              ele.id && handleOpenUpdateModal(ele.id)
+                              ele.id &&
+                              ele.dateOffset !== undefined &&
+                              handleOpenUpdateModal(
+                                ele.id,
+                                ele.messageType,
+                                ele.dateOffset,
+                              )
                             }
-                            className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1"
+                            className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1 cursor-pointer"
                           >
-                            {ele.version}
+                            {ele.dateOffset}
                           </span>
                         ))}
                     </p>

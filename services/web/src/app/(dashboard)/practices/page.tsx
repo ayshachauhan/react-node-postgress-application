@@ -242,11 +242,8 @@ const Practice: React.FC = () => {
       </div>
       <hr className="h-px my-2.5 bg-gray-100 border-1 dark:bg-gray-700"></hr>
       <div className="text-gray-50 w-full  items-center  bg-gray-50 py-4 rounded-lg">
-        <div className="bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 grid grid-cols-12 rounded-lg w-auto">
+        <div className="bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 grid grid-cols-9 rounded-lg w-auto">
           <div className="font-bold text-white p-4 w-auto ">S. No.</div>
-          <div className="font-bold text-white p-4 w-auto  text-center">
-            Practice Code
-          </div>
           <div className="font-bold text-white p-4 w-auto text-center">
             Practice Name
           </div>
@@ -266,12 +263,6 @@ const Practice: React.FC = () => {
             Admin M. No.
           </div>
           <div className="font-bold text-white p-4 w-auto text-center">
-            Physician Email
-          </div>
-          <div className="font-bold text-white p-4 w-auto text-center">
-            Physician M. No.
-          </div>
-          <div className="font-bold text-white p-4 w-auto text-center">
             Status
           </div>
           <div className="font-bold text-white p-4 w-auto text-center">
@@ -282,9 +273,6 @@ const Practice: React.FC = () => {
             <React.Fragment key={data.id}>
               <div className="text-gray-900 bg-gray-50 pt-2 px-4 ">
                 {index + 1}.
-              </div>
-              <div className="text-gray-900 bg-gray-50 pt-2 px-4 text-center">
-                {data.code}
               </div>
               <div className="text-gray-900 bg-gray-50 pt-2 px-4 text-center">
                 {data.name}
@@ -304,22 +292,8 @@ const Practice: React.FC = () => {
               <div className="text-gray-900 bg-gray-50 pt-2 px-4 text-center">
                 {data.adminContactNumber}
               </div>
-              <div className="text-gray-900 bg-gray-50 pt-2 px-4 text-center">
-                {data.physicianEmail}
-              </div>
-              <div className="text-gray-900 bg-gray-50 pt-2 px-4 text-center">
-                {data.physicianContactNumber}
-              </div>
-              <div className="text-gray-900 bg-gray-50 pt-2 px-4 flex text-center items-center justify-center">
-                <div
-                  className={`rounded-md text-white px-3.5 ${
-                    data.status?.toString() === 'pending'
-                      ? 'bg-yellow-500'
-                      : data.status?.toString() === 'inactive'
-                        ? 'bg-red-500'
-                        : 'bg-green-500'
-                  }`}
-                >
+              <div className="text-gray-900 bg-gray-50  pt-2   px-4 flex text-center items-center justify-center">
+                <div className="bg-yellow-400 rounded-lg px-6">
                   {data.status?.toString()}
                 </div>
               </div>

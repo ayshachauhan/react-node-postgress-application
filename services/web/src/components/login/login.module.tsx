@@ -71,7 +71,7 @@ export default function LoginPage() {
           <form className="w-full" onSubmit={handleSubmit}>
             <input type="hidden" name="remember" defaultValue="true" />
             <div className="space-y-4">
-              <label htmlFor="email" className="text-black text-sm">
+              <label htmlFor="email" className="text-black text-sm font-normal">
                 User Name
               </label>
               <TextInput
@@ -83,7 +83,10 @@ export default function LoginPage() {
               <div className="space-y-4"></div>
             </div>
             <div className="space-y-4">
-              <label htmlFor="password" className="text-black text-sm">
+              <label
+                htmlFor="password"
+                className="text-black text-sm font-normal"
+              >
                 Password
               </label>
 

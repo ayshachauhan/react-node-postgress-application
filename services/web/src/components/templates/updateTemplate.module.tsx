@@ -15,6 +15,8 @@ import { Textarea } from 'baseui/textarea';
 import React, { useEffect, useState } from 'react';
 interface Data {
   id: string;
+  messageType: string;
+  versionOffset: string;
 }
 interface ChildProps {
   data: Data;
@@ -36,44 +38,52 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
   const userInfo = useAppSelector(selectRecords);
   const userId = userInfo?.id;
   const dispatch = useAppDispatch();
-  const practiceId = getPracticeId(); // Select user practice id
-  const templateInfo = useAppSelector((state) =>
-    data.id
-      ? state.templates.templates.find((ele) => {
-          let dataInfo;
-          for (const key in ele) {
-            if (!dataInfo && Array.isArray(ele[key])) {
-              if (!dataInfo) {
-                for (const info in ele[key]) {
-                  const arrayValue = ele[key][info];
-                  if (arrayValue.id == data.id) dataInfo = arrayValue;
-                }
-              }
+  const practiceId = getPracticeId();
+  const templateId = data.id;
+  const messageType = data.messageType;
+  const templateInfo = useAppSelector((state) => {
+    if (templateId && state.templates.templates) {
+      for (const template of state.templates.templates) {
+        for (const key in template) {
+          if (Array.isArray(template[key])) {
+            const foundItem = template[key].find(
+              (item) => item.id === templateId,
+            );
+            if (foundItem) {
+              return foundItem;
             }
           }
-          return dataInfo ? dataInfo : undefined;
-        })
-      : undefined,
-  );
+        }
+      }
+    }
+    return undefined;
+  });
 
-  const templateId = data.id;
+  const versionOffset = data.versionOffset;
 
   const [updatedTemplateInfo, setTemplateInfo] = useState<
     Partial<EditTemplate>
   >({});
   const [showTooltip, setShowTooltip] = useState(false);
 
-  const handleFileChange = (event) => {
-    // setTemplateInfo({ ...updatedTemplateInfo, emailAttachment: event.target.files[0] });
-    setTemplateInfo({
-      ...updatedTemplateInfo,
-      emailAttachment: event.target.files[0].name,
-    });
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+
+    if (file) {
+      setTemplateInfo((prevTemplateInfo) => ({
+        ...prevTemplateInfo,
+        emailAttachment: file.name,
+      }));
+    }
   };
-  const handleHtmlChange = (event) => {
+  const handleHtmlChange = (
+    event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>,
+  ) => {
     setTemplateInfo({ ...updatedTemplateInfo, emailBody: event.target.value });
   };
-  const handleMessageTextChange = (event) => {
+  const handleMessageTextChange = (
+    event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>,
+  ) => {
     setTemplateInfo({
       ...updatedTemplateInfo,
       messageText: event.target.value,
@@ -116,17 +126,25 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
   };
 
   useEffect(() => {
-    if (data.id && templateInfo) {
+    if (templateId && templateInfo) {
       setTemplateInfo(templateInfo);
     }
-  }, [data.id, templateInfo]);
+  }, [templateId, templateInfo]);
 
   return (
     <div>
       <form onSubmit={handleSubmit}>
         <div className="flex justify-between mt-10 items-center text-xl font-bold border-b border-gray-100 pb-2 text-black">
           <p>Write New Template</p>
-          <div className="flex items-center gap-5">
+          <div className="flex items-center gap-7">
+            <div className="flex flex-row items-center gap-1">
+              <label className="text-black text-sm font-normal">
+                Message Type:
+              </label>
+              <span className="text-black text-sm font-normal">
+                {messageType}({versionOffset})
+              </span>
+            </div>
             <div className="flex flex-row items-center gap-2">
               <label
                 htmlFor="surgeryType"
@@ -206,7 +224,7 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
                       }}
                     ></Checkbox>
                     {showTooltip && (
-                      <div className="absolute top-full left-1/2 transform -translate-x-1/2 bg-black bg-opacity-70 text-white p-2 rounded z-50">
+                      <div className="absolute top-full left-1/4 transform -translate-x-1/2 bg-black bg-opacity-70 text-white p-2 rounded z-50">
                         {updatedTemplateInfo?.active ? 'Enabled' : 'Disabled'}
                       </div>
                     )}
@@ -216,7 +234,10 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
               <div className="flex mt-5 justify-between gap-5">
                 <div className="w-1/2">
                   <div className="space-y-2">
-                    <label htmlFor="title" className="text-black text-sm">
+                    <label
+                      htmlFor="title"
+                      className="text-black text-sm font-normal"
+                    >
                       Email Subject
                     </label>
                     <TextInput
@@ -235,7 +256,10 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
                 </div>
                 <div className="w-1/2">
                   <div className="space-y-2">
-                    <label htmlFor="attachment" className="text-black text-sm">
+                    <label
+                      htmlFor="attachment"
+                      className="text-black text-sm font-normal"
+                    >
                       Email Attachment
                     </label>
                     <input type="file" onChange={handleFileChange} />
@@ -244,7 +268,10 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
               </div>
               <div className="mt-5">
                 <div className="space-y-2">
-                  <label htmlFor="emailBody" className="text-black text-sm">
+                  <label
+                    htmlFor="emailBody"
+                    className="text-black text-sm font-normal"
+                  >
                     Message
                   </label>
 

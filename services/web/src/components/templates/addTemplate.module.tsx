@@ -28,7 +28,7 @@ const TemplateAddPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
 
   const [surgeryType, setSurgeryType] = useState('');
   const [messageType, setMsgType] = useState('');
-  const [dateOffset, setDateOffset] = useState(0);
+  const [dateOffset, setDateOffset] = useState('');
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -40,11 +40,10 @@ const TemplateAddPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         dateOffset,
         messageType,
         surgeryType,
-        surgeryNumber: 0,
       };
       try {
         dispatch(addRecordAsync(data));
-        setDateOffset(0);
+        setDateOffset('0');
         setMsgType('');
         setSurgeryType('');
         onClose();
@@ -65,7 +64,7 @@ const TemplateAddPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     <div>
       <form onSubmit={handleSubmit}>
         <div className="space-y-4">
-          <label htmlFor="title" className="text-black text-sm">
+          <label htmlFor="title" className="text-black text-sm font-normal">
             Surgery Type
           </label>
           <Select
@@ -78,6 +77,7 @@ const TemplateAddPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 style: {
                   backgroundColor: 'rgba(250, 250, 250, 1)',
                   border: 'none',
+                  color: 'rgba(82, 82, 91, 1)',
                   boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
                 },
               },
@@ -89,7 +89,10 @@ const TemplateAddPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           <div className="space-y-4"></div>
         </div>
         <div className="space-y-4">
-          <label htmlFor="messageType" className="text-black text-sm">
+          <label
+            htmlFor="messageType"
+            className="text-black text-sm font-normal"
+          >
             Message Type
           </label>
           <Select
@@ -102,6 +105,7 @@ const TemplateAddPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 style: {
                   backgroundColor: 'rgba(250, 250, 250, 1)',
                   border: 'none',
+                  color: 'rgba(82, 82, 91, 1)',
                   boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
                 },
               },
@@ -113,15 +117,17 @@ const TemplateAddPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           <div className="space-y-4"></div>
         </div>
         <div className="space-y-4">
-          <label htmlFor="dateOffset" className="text-black text-sm">
+          <label
+            htmlFor="dateOffset"
+            className="text-black text-sm font-normal"
+          >
             Date Offset
           </label>
           <TextInput
             name="dateOffset"
             value={dateOffset}
-            type="number"
             onChange={(value) => {
-              setDateOffset(parseFloat(value));
+              setDateOffset(value);
             }}
             required
           />

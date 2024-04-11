@@ -73,8 +73,8 @@ export const sidebarItems: SideBarItem[] = [
   },
   {
     id: 'setting',
-    title: 'Setting',
-    path: '/setting',
+    title: 'Settings',
+    path: '/settings',
     permissions: ['admin'],
     Icon: SettingIcon,
   },

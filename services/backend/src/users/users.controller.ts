@@ -14,6 +14,7 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
 import { AuthGuard } from '../auth/auth.guard';
 import { User } from '../entities/users.entity';
+import { ChangePasswordDto } from './dto/changePassword.dto';
 import { CreateUserDto } from './dto/create.dto';
 import { UpdateUserDto } from './dto/update.dto';
 import { SanitizedUser } from './types';
@@ -50,6 +51,14 @@ export class UsersController {
   @UseInterceptors(practiceNotFoundInterceptor)
   async deleteUser(@Param() { id }: { id: string }): Promise<void> {
     await this.usersService.deleteUser(id);
+  }
+
+  @Patch('change-password')
+  async changePassword(
+    @Body(new ValidationPipe()) changePasswordDto: ChangePasswordDto,
+    @Param('practiceId') practiceId: string,
+  ) {
+    return this.usersService.changePassword({ practiceId, changePasswordDto });
   }
 
   @Patch(':id')

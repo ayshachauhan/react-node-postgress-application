@@ -1,5 +1,6 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { TransporterModule } from 'src/transporter';
 import { UserPracticesModule } from 'src/userPractices/userPractices.module';
 import { PracticeEntity } from '../entities/practices.entity';
 import { UsersModule } from '../users/users.module';
@@ -11,6 +12,7 @@ import { PracticesService } from './practices.service';
     TypeOrmModule.forFeature([PracticeEntity]),
     forwardRef(() => UsersModule),
     forwardRef(() => UserPracticesModule),
+    TransporterModule,
   ],
   providers: [PracticesService],
   controllers: [PracticesController],

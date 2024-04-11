@@ -14,7 +14,7 @@ export class PracticeEntity extends BaseEntity {
   @Column({
     type: 'enum',
     enum: PracticeStatus,
-    default: PracticeStatus.ACTIVE,
+    default: PracticeStatus.PENDING,
   })
   status: PracticeStatus;
 

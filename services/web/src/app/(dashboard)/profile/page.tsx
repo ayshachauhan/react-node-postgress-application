@@ -1,5 +1,6 @@
 'use client';
 import Button from '@root/components/Button';
+import { AvatarIcon } from '@root/components/Icons';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { selectRecords } from '@root/store/reducers/auth';
 import {
@@ -7,17 +8,16 @@ import {
   selectPracticeInfo,
 } from '@root/store/reducers/practices';
 import { getPracticeId } from '@utils/methods';
-import { Avatar } from 'baseui/avatar';
 import { useRouter } from 'next/navigation';
 import React, { useEffect } from 'react';
 
 const Profile: React.FC = () => {
   const dispatch = useAppDispatch();
-  const userInfo = useAppSelector(selectRecords); // Select success message from Redux store
+  const userInfo = useAppSelector(selectRecords);
   const userPracticeId = getPracticeId();
   useEffect(() => {
     if (userPracticeId) {
-      dispatch(getPracticeInfo({ id: userPracticeId })); // Fetch listings from PostgreSQL database
+      dispatch(getPracticeInfo({ id: userPracticeId }));
     }
   }, [userPracticeId, dispatch]);
   const practiceName = useAppSelector(selectPracticeInfo);
@@ -35,7 +35,7 @@ const Profile: React.FC = () => {
       <div className="flex mt-10 items-center">
         <div className="flex items-center justify-center shadow-lg w-44 h-44 bg-black-200 rounded-full  flex-shrink-0">
           {' '}
-          <Avatar />
+          <AvatarIcon size={40}></AvatarIcon>
         </div>
         <div className="w-full flex-grow">
           <p className="ml-4">
