@@ -1,4 +1,5 @@
 'use client';
+import { IMedia } from '@backend/entities';
 import Button from '@root/components/Button';
 import { AddIcon, PlayIcon } from '@root/components/Icons';
 import Form from '@root/components/media/addMedia.module';
@@ -20,7 +21,7 @@ import React, { useEffect, useState } from 'react';
 
 const Media: React.FC = () => {
   const dispatch = useAppDispatch();
-  const media = useAppSelector((state) => state.media.media);
+  const { entities } = useAppSelector((state) => state.media);
   const practiceId = useAppSelector(selectPractice); // Select success message from Redux store
   const [isFirstModalOpen, setIsFirstModalOpen] = useState(false);
   const [isSecondModalOpen, setIsSecondModalOpen] = useState(false);
@@ -32,6 +33,9 @@ const Media: React.FC = () => {
   const router = useRouter();
   const [videoId, setVideoId] = useState<string | null>(null);
   const userInfo = useAppSelector(selectRecords);
+
+  const media: IMedia[] = Object.values(entities);
+
   useEffect(() => {
     if (userInfo && userInfo?.type !== UserType.ADMIN) {
       // Perform the redirect inside the useEffect

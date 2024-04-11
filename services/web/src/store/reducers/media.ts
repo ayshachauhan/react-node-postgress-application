@@ -1,7 +1,6 @@
 import { IMedia } from '@backend/entities';
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { State } from '@root/store';
-import { indexBy } from '../../utils/index';
 import { addMedia, getMedia } from '../requests/media';
 import { EntitiesState, EntityLoadingState } from '../types';
 const initialState: EntitiesState<IMedia> = {
@@ -16,13 +15,10 @@ const mediaSlice = createSlice({
   name: 'media',
   initialState,
   reducers: {
-    addMediaItem(
-      { entities }: EntitiesState<IMedia>,
-      action: PayloadAction<IMedia>,
-    ) {
-      entities = {
-        ...entities,
-        ...indexBy('id', [action.payload]),
+    addMediaItem(state: EntitiesState<IMedia>, action: PayloadAction<IMedia>) {
+      state.entities = {
+        ...state.entities,
+        [action.payload.id]: action.payload,
       };
     },
     clearSuccessMessage(state) {
@@ -38,9 +34,10 @@ const mediaSlice = createSlice({
       state.status = EntityLoadingState.PENDING;
     });
 
-    builder.addCase(fetchListings.fulfilled, ({ status, entities }, action) => {
-      status = EntityLoadingState.SUCCEEDED;
-      entities = action.payload;
+    builder.addCase(fetchListings.fulfilled, (state, action) => {
+      state.status = EntityLoadingState.SUCCEEDED;
+      state.entities = action.payload;
+      state.processing = false;
     });
 
     builder.addCase(fetchListings.rejected, (state, action) => {
@@ -50,6 +47,7 @@ const mediaSlice = createSlice({
       } else {
         state.errorMessage = 'Failed to fetch videos';
       }
+      state.processing = false;
     });
 
     builder.addCase(addRecordAsync.pending, (state) => {
@@ -59,17 +57,22 @@ const mediaSlice = createSlice({
 
     builder.addCase(addRecordAsync.fulfilled, (state, action) => {
       state.status = EntityLoadingState.SUCCEEDED;
-      state.media = [...state.media, action.payload];
-      state.successMessage = 'Record added successfully'; // Set success message
+      state.entities = {
+        ...state.entities,
+        [action.payload.id]: action.payload,
+      };
+      state.successMessage = 'Record added successfully';
+      state.processing = false;
     });
 
     builder.addCase(addRecordAsync.rejected, (state, action) => {
-      state.status = 'failed';
+      state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
-        state.error = action.payload ?? 'Failed to add video';
+        state.errorMessage = action.payload ?? 'Failed to add video';
       } else {
-        state.error = 'Failed to add video';
+        state.errorMessage = 'Failed to add video';
       }
+      state.processing = false;
     });
   },
 });
