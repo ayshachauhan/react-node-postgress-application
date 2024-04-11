@@ -1,9 +1,6 @@
 import { PayloadAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { State } from '@root/store';
-import {
-  PracticeCreateInterface,
-  PracticesGetInterface,
-} from '@store/requests/practices';
+import { PracticesGetInterface } from '@store/requests/practices';
 
 import {
   addPractice,
@@ -17,7 +14,7 @@ type EmptyObject = Record<string, never>;
 
 export interface PracticeState {
   isProcessing: boolean;
-  entities: Record<string, PracticeCreateInterface>;
+  entities: Record<string, PracticesGetInterface>;
   practices: PracticesGetInterface[];
   practiceInfo: PracticesGetInterface | EmptyObject;
   status: 'idle' | 'loading' | 'failed';
@@ -39,7 +36,7 @@ const practiceSlice = createSlice({
   name: 'practices',
   initialState,
   reducers: {
-    addPracticeItem(state, action: PayloadAction<PracticeCreateInterface>) {
+    addPracticeItem(state, action: PayloadAction<PracticesGetInterface>) {
       state.practices = [...state.practices, action.payload];
     },
     clearSuccessMessage(state) {
