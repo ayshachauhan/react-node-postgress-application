@@ -92,21 +92,24 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
         <div className="flex flex-col">
           <div className="flex flex-row justify-between pt-4">
             <div className="space-y-2">
-              <label htmlFor="userName" className="text-black text-sm">
+              <label
+                htmlFor="userName"
+                className="text-black text-sm font-normal"
+              >
                 Username
               </label>
               <TextInput
                 name="userName"
-                value={updatedUserInfo?.userName}
+                value={updatedUserInfo?.userName || ''}
                 onChange={(value) => {
                   setUserInfo({ ...updatedUserInfo, userName: value });
                 }}
-                required
+                disabled={true}
               />
               <div className="space-y-2"></div>
             </div>
             <div className="space-y-2">
-              <label htmlFor="email" className="text-black text-sm">
+              <label htmlFor="email" className="text-black text-sm font-normal">
                 Email
               </label>
               <TextInput
@@ -115,14 +118,17 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
                 onChange={(value) => {
                   setUserInfo({ ...updatedUserInfo, email: value });
                 }}
-                required
+                disabled={true}
               />
               <div className="space-y-2"></div>
             </div>
           </div>
           <div className="flex flex-row justify-between pt-4">
             <div className="space-y-2">
-              <label htmlFor="firstName" className="text-black text-sm">
+              <label
+                htmlFor="firstName"
+                className="text-black text-sm font-normal"
+              >
                 First Name
               </label>
               <TextInput
@@ -136,7 +142,10 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
               <div className="space-y-2"></div>
             </div>
             <div className="space-y-2">
-              <label htmlFor="lastName" className="text-black text-sm">
+              <label
+                htmlFor="lastName"
+                className="text-black text-sm font-normal"
+              >
                 Last Name
               </label>
               <TextInput
@@ -152,7 +161,10 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
           </div>
           <div className="flex flex-row justify-between pt-4">
             <div className="space-y-2">
-              <label htmlFor="contactNumber" className="text-black text-sm">
+              <label
+                htmlFor="contactNumber"
+                className="text-black text-sm font-normal"
+              >
                 Contact No.
               </label>
               <TextInput
@@ -166,7 +178,7 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
               <div className="space-y-2"></div>
             </div>
             <div className="space-y-2">
-              <label htmlFor="url" className="text-black text-sm">
+              <label htmlFor="url" className="text-black text-sm font-normal">
                 User URL
               </label>
               <TextInput
@@ -182,7 +194,7 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
           </div>
           <div className="flex flex-row gap-6 pt-4">
             <div className="w-1/2 space-y-2">
-              <label htmlFor="type" className="text-black text-sm">
+              <label htmlFor="type" className="text-black text-sm font-normal">
                 Designation
               </label>
               <Select
@@ -193,6 +205,7 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
                     style: {
                       backgroundColor: 'rgba(250, 250, 250, 1)',
                       border: 'none',
+                      color: 'rgba(82, 82, 91, 1)',
                       boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)', // Add shadow CSS here
                     },
                   },
@@ -214,7 +227,10 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
               <div className="space-y-2"></div>
             </div>
             <div className="w-1/2 space-y-2">
-              <label htmlFor="status" className="text-black text-sm">
+              <label
+                htmlFor="status"
+                className="text-black text-sm font-normal"
+              >
                 Status
               </label>
               <Select
@@ -225,6 +241,7 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
                     style: {
                       backgroundColor: 'rgba(250, 250, 250, 1)',
                       border: 'none',
+                      color: 'rgba(82, 82, 91, 1)',
                       boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)', // Add shadow CSS here
                     },
                   },

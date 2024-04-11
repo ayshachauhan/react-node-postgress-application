@@ -1,11 +1,10 @@
 export interface DbTemplatesResponse {
   id: string;
   active: boolean;
-  dateOffset?: number;
+  dateOffset?: string;
   meridiem: string;
   messageType: string;
   surgeryType: string;
-  surgeryNumber: number;
   emailSubject?: string;
   emailBody?: string;
   emailAttachment?: string;
@@ -19,11 +18,10 @@ export interface CreateTemplateResponse {
   practiceId: string;
   userId?: string;
   active: boolean;
-  dateOffset?: number;
+  dateOffset?: string;
   meridiem?: string;
   messageType: string;
   surgeryType: string;
-  surgeryNumber: number;
   emailSubject?: string;
   emailBody?: string;
   emailAttachment?: string;
@@ -37,11 +35,10 @@ export interface EditTemplate {
   practiceId: string;
   userId: string;
   active: boolean;
-  dateOffset?: number;
+  dateOffset?: string;
   meridiem?: string;
   messageType?: string;
   surgeryType?: string;
-  surgeryNumber?: number;
   emailSubject?: string;
   emailBody?: string;
   emailAttachment?: string;

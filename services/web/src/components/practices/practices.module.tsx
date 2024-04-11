@@ -50,8 +50,8 @@ const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       <form onSubmit={handleSubmit}>
         <div className="flex flex-col">
           <div className="flex flex-row justify-between pt-4">
-            <div className="">
-              <label htmlFor="name" className="text-black text-sm">
+            <div className="space-y-2">
+              <label htmlFor="name" className="text-black text-sm font-normal">
                 Practice Name
               </label>
               <TextInput
@@ -118,10 +118,10 @@ const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 required
               />
             </div>
-            <div className="">
+            <div className="space-y-2">
               <label
                 htmlFor="adminContactNumber"
-                className="text-black text-sm"
+                className="text-black text-sm font-normal"
               >
                 Admin Contact No.
               </label>

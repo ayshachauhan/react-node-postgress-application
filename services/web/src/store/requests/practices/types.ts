@@ -25,4 +25,5 @@ export interface PracticesEditInterface {
   name: string;
   status: string;
   code: string;
+  photoUrl?: string;
 }

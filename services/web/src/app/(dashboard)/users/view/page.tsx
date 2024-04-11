@@ -1,11 +1,11 @@
 'use client';
+import { AvatarIcon } from '@root/components/Icons';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { selectPractice } from '@root/store/reducers/auth';
 import {
   getPracticeInfo,
   selectPracticeInfo,
 } from '@root/store/reducers/practices';
-import { Avatar } from 'baseui/avatar';
 import { useSearchParams } from 'next/navigation';
 import React, { useEffect } from 'react';
 const UserViewPage: React.FC = () => {
@@ -15,11 +15,10 @@ const UserViewPage: React.FC = () => {
   const userInfo = useAppSelector((state) =>
     state.users.users.find((user) => user.id === id),
   );
-
-  const userPracticeId = useAppSelector(selectPractice); // Select success message from Redux store
+  const userPracticeId = useAppSelector(selectPractice);
   useEffect(() => {
     if (userPracticeId) {
-      dispatch(getPracticeInfo({ id: userPracticeId })); // Fetch listings from PostgreSQL database
+      dispatch(getPracticeInfo({ id: userPracticeId }));
     }
   }, [userPracticeId, dispatch]);
   const practiceName = useAppSelector(selectPracticeInfo);
@@ -35,11 +34,7 @@ const UserViewPage: React.FC = () => {
             <div className="flex mt-10 items-center">
               <div className="flex items-center justify-center shadow-lg w-44 h-44 bg-black-200 rounded-full  flex-shrink-0">
                 {' '}
-                <Avatar
-                  name="John Doe"
-                  size="scale1400" // Set the size of the avatar
-                  src="https://example.com/avatar.jpg" // Replace with your avatar image URL
-                />
+                <AvatarIcon size={40}></AvatarIcon>
               </div>
               <div className="w-full flex-grow">
                 <p className="ml-4">

@@ -1,6 +1,7 @@
 'use client';
 
 import Dropdown from '@root/components/Dropdown';
+import { AvatarIcon } from '@root/components/Icons';
 import { State, useAppDispatch, useAppSelector } from '@root/store';
 import {
   logoutUser,
@@ -9,7 +10,6 @@ import {
 } from '@root/store/reducers/auth';
 import { fetchListings } from '@root/store/reducers/users';
 import { User } from '@root/store/requests/users';
-import { Avatar } from 'baseui/avatar';
 import { ChevronDown } from 'baseui/icon';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
@@ -32,7 +32,7 @@ const Header: React.FC = () => {
   const is_super_admin = userInfo ? userInfo.isSuperAdmin : false;
   const selectedUserBox = (
     <span className="inline-flex items-center gap-2">
-      <Avatar />
+      <AvatarIcon size={40}></AvatarIcon>
       {selectedUser?.fullName ?? userInfo?.fullName}
       <ChevronDown />
     </span>
@@ -42,7 +42,7 @@ const Header: React.FC = () => {
   const dispatch = useAppDispatch();
   const handleLogout = () => {
     dispatch(logoutUser());
-    router.push('/login'); // Redirect to login page after logout
+    router.push('/login');
   };
 
   /**
@@ -59,7 +59,7 @@ const Header: React.FC = () => {
   };
 
   const goToProfile = () => {
-    router.push('/profile'); // Redirect to login page after logout
+    router.push('/profile');
   };
 
   useEffect(() => {
@@ -95,7 +95,10 @@ const Header: React.FC = () => {
           </div>
 
           <div className="flex items-center justify-end">
-            <Dropdown position="bottomRight" trigger={<Avatar />}>
+            <Dropdown
+              position="bottomRight"
+              trigger={<AvatarIcon size={40}></AvatarIcon>}
+            >
               {!is_super_admin && (
                 <Dropdown.Item id="profile" onClick={goToProfile}>
                   Profile
