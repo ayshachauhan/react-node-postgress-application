@@ -37,8 +37,28 @@ const SurgeryPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     <div>
       <div className="px-6 border-r border-l border-b border-gray-100 pb-6 rounded-xl">
         <form onSubmit={handleSubmit}>
-          <div className="mt-8 text-xl pb-5 font-bold border-b border-gray-100 text-black w-full">
-            Add Surgery
+          <div className="flex mt-8">
+            <div className="text-xl pb-5 font-bold border-b border-gray-100 text-black w-full">
+              Add Surgery
+            </div>
+            <div>
+              <Select
+                required
+                overrides={{
+                  ControlContainer: {
+                    style: {
+                      backgroundColor: 'rgba(250, 250, 250, 1)',
+                      border: 'none',
+                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                      color: '#52525B',
+                    },
+                  },
+                  ClearIcon: {
+                    component: () => null,
+                  },
+                }}
+              />
+            </div>
           </div>
           <div className="flex gap-5 mt-4">
             <div className="space-y-4 flex-grow">
