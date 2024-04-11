@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Video } from 'src/entities/media/media.entity';
-import { PracticeEntity } from 'src/entities/practice/practice.entity';
+import { Video } from '@packages/entities/media';
+import { PracticeEntity } from '@packages/entities/practice';
 import { MediaController } from './media.controller';
 import { MediaService } from './media.service';
 

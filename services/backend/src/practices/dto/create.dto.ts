@@ -1,5 +1,5 @@
-import { PracticeStatus } from '@entities/index';
 import { ApiProperty } from '@nestjs/swagger';
+import { PracticeStatus } from '@packages/entities';
 import { IsNotEmpty, IsOptional } from 'class-validator';
 
 export class PracticeCreateDto {

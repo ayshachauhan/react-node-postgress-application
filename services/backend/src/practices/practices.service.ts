@@ -6,11 +6,9 @@ import {
   forwardRef,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from 'src/entities/user/user.entity';
+import { PracticeEntity } from '@packages/entities/practice';
+import { User, UserStatus, UserType } from '@packages/entities/user';
 import { DataSource, Repository, UpdateResult } from 'typeorm';
-import { PracticeEntity } from '../entities/practice/practice.entity';
-import { UserStatus } from '../enums/status.enum';
-import { UserType } from '../enums/userType.enum';
 import { UsersService } from '../users/users.service';
 import { PracticeCreateDto } from './dto/create.dto';
 import { PracticePatchDto } from './dto/patch.dto';

@@ -7,8 +7,8 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
+import { User } from '@packages/entities/user';
 import * as bcrypt from 'bcrypt';
-import { User } from 'src/entities/user/user.entity';
 import { ENVIRONMENT_VARIABLES } from 'src/enums/environment.enums';
 import { PracticesService } from 'src/practices/practices.service';
 import { UserPracticesService } from 'src/userPractices/userPractices.services';

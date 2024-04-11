@@ -1,6 +1,6 @@
 'use client';
-import { IMedia } from '@backend/entities';
-import { UserType } from '@backend/entities/index';
+import { IMedia } from '@packages/entities/media';
+import { UserType } from '@packages/entities/user';
 import Button from '@root/components/Button';
 import { AddIcon, PlayIcon } from '@root/components/Icons';
 import Form from '@root/components/media/addMedia.module';

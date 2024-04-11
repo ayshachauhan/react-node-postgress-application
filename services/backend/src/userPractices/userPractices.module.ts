@@ -1,6 +1,6 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UserPracticeEntity } from 'src/entities/user/userPractice.entity';
+import { UserPracticeEntity } from '@packages/entities/';
 import { PracticesModule } from 'src/practices/practices.module';
 import { UsersModule } from 'src/users/users.module';
 import { UserPracticesService } from './userPractices.services';

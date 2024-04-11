@@ -1,0 +1,39 @@
+{
+  "name": "@packages/entities",
+  "version": "1.0.0",
+  "description": "entities of azentia",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.js",
+  "files": [
+    "./dist/",
+    "!./dist/.tsbuildinfo"
+  ],
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    },
+    "./*": {
+      "import": "./dist/*/index.js",
+      "require": "./dist/*/index.js"
+    }
+  },
+  "typesVersions": {
+    "*": {
+      "*": [
+        "./dist/*/index.d.js",
+        "./dist/index.d.ts"
+      ]
+    }
+  },
+  "scripts": {
+    "build": "tsc -p ./tsconfig.json"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "class-validator": "^0.14.1",
+    "typeorm": "^0.3.20",
+    "typescript": "^5.4.5"
+  }
+}

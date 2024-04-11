@@ -24,8 +24,7 @@
       "@root/*": ["./src/*"],
       "@components/*": ["./src/components/*"],
       "@store/*": ["./src/store/*"],
-      "@utils/*": ["./src/utils/*"],
-      "@backend/*": ["../backend/src/*"]
+      "@utils/*": ["./src/utils/*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],

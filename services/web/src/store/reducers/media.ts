@@ -1,4 +1,4 @@
-import { IMedia } from '@backend/entities';
+import { IMedia } from '@packages/entities';
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { State } from '@root/store';
 import { addMedia, getMedia } from '../requests/media';

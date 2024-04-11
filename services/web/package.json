@@ -12,6 +12,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "@packages/entities": "^1.0.0",
     "@reduxjs/toolkit": "^2.2.1",
     "baseui": "0.0.0-next-f88694cb3",
     "body-parser": "^1.20.2",

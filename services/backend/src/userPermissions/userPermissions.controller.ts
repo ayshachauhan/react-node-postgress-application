@@ -7,7 +7,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { UserPermissionEntity } from 'src/entities/user/userPermission.entity';
+import { UserPermissionEntity } from '@packages/entities/user';
 import { AuthGuard } from '../auth/auth.guard';
 import { UserPermissionCreateDto } from './dto/userPermission.createDto';
 import { UserPermissionPatchDto } from './dto/userPermission.patchDto';

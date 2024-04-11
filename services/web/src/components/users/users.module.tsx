@@ -1,4 +1,5 @@
 'use client';
+import { UserType } from '@packages/entities';
 import Button from '@root/components/Button';
 import {
   AddIcon,
@@ -8,7 +9,6 @@ import {
 } from '@root/components/Icons';
 import Form from '@root/components/users/addUser.module';
 import EditUser from '@root/components/users/editUser.module';
-import { UserType } from '@root/enums/userType.enum';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { selectPractice, selectRecords } from '@root/store/reducers/auth';
 import {

@@ -1,5 +1,4 @@
-import { UserStatus } from 'src/enums/status.enum';
-import { UserType } from 'src/enums/userType.enum';
+import { UserStatus, UserType } from '@packages/entities/user';
 
 export type SanitizedUser = {
   fullName: string;
