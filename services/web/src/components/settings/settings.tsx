@@ -7,8 +7,12 @@ export default function SettingsPage() {
   return (
     <div>
       <div className="flex flex-row pt-4 justify-around align-middle">
-        <SurgeryTypePage />
-        <PracticeHomesPage />
+        <div>
+          <SurgeryTypePage />
+        </div>
+        <div className="px-4">
+          <PracticeHomesPage />
+        </div>
       </div>
     </div>
   );

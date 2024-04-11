@@ -6,7 +6,7 @@ import {
   deletePracticeHome,
   getPracticeHomeInfo,
   getPracticeHomes,
-} from '../requests/practiceHomes';
+} from '@store/requests/practiceHomes';
 
 type EmptyObject = Record<string, never>;
 
@@ -14,7 +14,7 @@ export interface practiceHomeState {
   isProcessing: boolean;
   entities: Record<string, PracticeHomeResponse>;
   practiceHomes: PracticeHomeResponse[];
-  SurgeryTypeInfo: PracticeHomeResponse | EmptyObject;
+  practiceHomeInfo: PracticeHomeResponse | EmptyObject;
   status: 'idle' | 'loading' | 'failed';
   successMessage: string | null;
   error: string | null;
@@ -24,7 +24,7 @@ const initialState: practiceHomeState = {
   isProcessing: false,
   entities: {},
   practiceHomes: [],
-  SurgeryTypeInfo: {},
+  practiceHomeInfo: {},
   status: 'idle',
   successMessage: null,
   error: null,
@@ -60,17 +60,17 @@ const practiceHomeSlice = createSlice({
         state.error = 'Failed to fetch users';
       }
     });
-    builder.addCase(fetchSurgeryTypeInfo.pending, (state) => {
+    builder.addCase(fetchPracticeHomeInfo.pending, (state) => {
       state.isProcessing = true;
       state.status = 'loading';
     });
 
-    builder.addCase(fetchSurgeryTypeInfo.fulfilled, (state, action) => {
+    builder.addCase(fetchPracticeHomeInfo.fulfilled, (state, action) => {
       state.status = 'idle';
-      state.SurgeryTypeInfo = action.payload;
+      state.practiceHomeInfo = action.payload;
     });
 
-    builder.addCase(fetchSurgeryTypeInfo.rejected, (state, action) => {
+    builder.addCase(fetchPracticeHomeInfo.rejected, (state, action) => {
       state.status = 'failed';
       if (typeof action.payload === 'string') {
         state.error = action.payload ?? 'Failed to fetch user info';
@@ -106,9 +106,9 @@ const practiceHomeSlice = createSlice({
 
     builder.addCase(deleteRecordAsync.fulfilled, (state, action) => {
       state.status = 'idle';
-      const deletedSurgeryTypeId = action?.meta?.arg?.id;
+      const deletedPracticeHomeId = action?.meta?.arg?.id;
       state.practiceHomes = state.practiceHomes.filter(
-        (type) => type.id !== deletedSurgeryTypeId,
+        (type) => type.id !== deletedPracticeHomeId,
       );
       state.successMessage = 'Record deleted successfully';
     });
@@ -131,8 +131,8 @@ export const fetchListings = createAsyncThunk(
   getPracticeHomes,
 );
 
-export const fetchSurgeryTypeInfo = createAsyncThunk(
-  'surgerTypes/fetchSurgeryTypeInfo',
+export const fetchPracticeHomeInfo = createAsyncThunk(
+  'surgerTypes/fetchPracticeHomeInfo',
   getPracticeHomeInfo,
 );
 

@@ -1,7 +1,7 @@
 'use client';
+import AddSurgeryType from '@components/settings/surgeryTypes/addSurgeryType';
 import Button from '@root/components/Button';
 import { AddIcon, DeleteIcon } from '@root/components/Icons';
-import AddSurgeryType from '@root/components/settings/surgeryTypes/AddSurgeryType';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { selectPractice } from '@root/store/reducers/auth';
 import {
