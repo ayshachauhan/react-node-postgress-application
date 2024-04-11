@@ -1,5 +1,4 @@
 import { Meridiem } from 'src/enums/meridian';
-import { SurgeryType } from 'src/enums/surgeryType.enum';
 import { TemplateMessageType } from 'src/enums/templateMessageType.enum';
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { BaseEntity } from './base.entity';
@@ -38,8 +37,8 @@ export class TemplateEntity extends BaseEntity {
   })
   meridiem?: Meridiem;
 
-  @Column({ type: 'enum', enum: SurgeryType, default: null, nullable: true })
-  surgeryType: SurgeryType;
+  @Column({ type: 'uuid', default: null, nullable: true })
+  surgeryType: string;
 
   @Column({ type: 'integer' })
   surgeryNumber: number;

@@ -1,8 +1,8 @@
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
-import { SurgeryType } from '@root/enums/surgeryType.enum';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { selectPractice, selectRecords } from '@root/store/reducers/auth';
+import { fetchListings } from '@root/store/reducers/surgeryTypes';
 import {
   deleteRecordAsync,
   updateRecordAsync,
@@ -21,11 +21,6 @@ interface ChildProps {
 }
 
 const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
-  const surgeryTypeOptions = Object.keys(SurgeryType).map((key) => ({
-    label: SurgeryType[key as keyof typeof SurgeryType],
-    id: key,
-  }));
-
   const handleSurgeryTypeChange = ({ value }) => {
     setTemplateInfo({
       ...updatedTemplateInfo,
@@ -89,6 +84,20 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
       }
     }
   };
+
+  useEffect(() => {
+    if (practiceId !== null) {
+      dispatch(fetchListings({ practiceId: practiceId })); // Fetch listings from PostgreSQL database
+    }
+  }, [practiceId, dispatch]);
+
+  const surgeryTypes = useAppSelector(
+    (state) => state.surgeryTypes.surgeryTypes,
+  );
+  const surgeryTypeOptions = Object.keys(surgeryTypes).map((key) => ({
+    label: surgeryTypes[key].name,
+    id: surgeryTypes[key].id,
+  }));
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

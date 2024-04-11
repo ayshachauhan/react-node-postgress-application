@@ -22,7 +22,7 @@ export const getSurgeryTypes = async (
       },
     );
     if (!response.ok) {
-      throw new Error('Failed to get templates');
+      throw new Error('Failed to get surgery types');
     }
     const data = await response.json();
     return data;
@@ -74,7 +74,7 @@ export const deleteSurgeryType = async (
       },
     );
     if (!response.ok) {
-      throw new Error('Failed to delete template');
+      throw new Error('Failed to delete surgery type');
     }
     const responseData = await response.text();
 

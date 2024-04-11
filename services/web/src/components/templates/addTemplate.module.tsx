@@ -1,20 +1,15 @@
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
-import { SurgeryType } from '@root/enums/surgeryType.enum';
 import { TemplateMessageType } from '@root/enums/templateMessageType.enum';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { selectPractice, selectRecords } from '@root/store/reducers/auth';
+import { fetchListings } from '@root/store/reducers/surgeryTypes';
 import { addRecordAsync } from '@root/store/reducers/templates';
 import { CreateTemplateResponse } from '@root/store/requests/templates';
 import { Select } from 'baseui/select';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 const TemplateAddPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
-  const surgeryTypeOptions = Object.keys(SurgeryType).map((key) => ({
-    label: SurgeryType[key as keyof typeof SurgeryType],
-    id: key,
-  }));
-
   const templateMessageTypeOptions = Object.keys(TemplateMessageType).map(
     (key) => ({
       label: key,
@@ -24,7 +19,13 @@ const TemplateAddPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const practiceId = useAppSelector(selectPractice);
   const userInfo = useAppSelector(selectRecords);
   const dispatch = useAppDispatch();
-
+  const surgeryTypes = useAppSelector(
+    (state) => state.surgeryTypes.surgeryTypes,
+  );
+  const surgeryTypeOptions = Object.keys(surgeryTypes).map((key) => ({
+    label: surgeryTypes[key].name,
+    id: surgeryTypes[key].id,
+  }));
   const [surgeryType, setSurgeryType] = useState('');
   const [messageType, setMsgType] = useState('');
   const [dateOffset, setDateOffset] = useState(0);
@@ -53,12 +54,18 @@ const TemplateAddPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     }
   };
   const handleSurgeryTypeChange = ({ value }) => {
-    setSurgeryType(value[0] ? value[0].label : null);
+    setSurgeryType(value[0] ? value[0].id : null);
   };
 
   const handleMsgTypeChange = ({ value }) => {
     setMsgType(value[0] ? value[0].label : null);
   };
+
+  useEffect(() => {
+    if (practiceId !== null) {
+      dispatch(fetchListings({ practiceId: practiceId })); // Fetch listings from PostgreSQL database
+    }
+  }, [practiceId, dispatch]);
 
   return (
     <div>
