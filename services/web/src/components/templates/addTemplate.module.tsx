@@ -3,7 +3,7 @@ import TextInput from '@root/components/TextInput';
 import { TemplateMessageType } from '@root/enums/templateMessageType.enum';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { selectPractice, selectRecords } from '@root/store/reducers/auth';
-import { fetchListings } from '@root/store/reducers/surgeryTypes';
+import { fetchSurgeryTypes } from '@root/store/reducers/surgeryTypes';
 import { addRecordAsync } from '@root/store/reducers/templates';
 import { CreateTemplateResponse } from '@root/store/requests/templates';
 import { Select } from 'baseui/select';
@@ -63,7 +63,7 @@ const TemplateAddPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
 
   useEffect(() => {
     if (practiceId !== null) {
-      dispatch(fetchListings({ practiceId: practiceId })); // Fetch listings from PostgreSQL database
+      dispatch(fetchSurgeryTypes({ practiceId: practiceId })); // Fetch listings from PostgreSQL database
     }
   }, [practiceId, dispatch]);
 

@@ -2,7 +2,7 @@ import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { selectPractice, selectRecords } from '@root/store/reducers/auth';
-import { fetchListings } from '@root/store/reducers/surgeryTypes';
+import { fetchSurgeryTypes } from '@root/store/reducers/surgeryTypes';
 import {
   deleteRecordAsync,
   updateRecordAsync,
@@ -24,7 +24,7 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
   const handleSurgeryTypeChange = ({ value }) => {
     setTemplateInfo({
       ...updatedTemplateInfo,
-      surgeryType: value[0] ? value[0].label : null,
+      surgeryType: value[0] ? value[0].id : null,
     });
   };
   const userInfo = useAppSelector(selectRecords);
@@ -87,7 +87,7 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
 
   useEffect(() => {
     if (practiceId !== null) {
-      dispatch(fetchListings({ practiceId: practiceId })); // Fetch listings from PostgreSQL database
+      dispatch(fetchSurgeryTypes({ practiceId: practiceId })); // Fetch listings from PostgreSQL database
     }
   }, [practiceId, dispatch]);
 
@@ -109,7 +109,8 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
         emailAttachment: updatedTemplateInfo.emailAttachment ?? '',
         emailBody: updatedTemplateInfo.emailBody ?? '',
         messageText: updatedTemplateInfo.messageText ?? '',
-        surgeryType: updatedTemplateInfo.surgeryType ?? SurgeryType.YAG,
+        surgeryType:
+          updatedTemplateInfo.surgeryType ?? surgeryTypeOptions[0].id,
         practiceId: practiceId,
         userId: userId,
         id: templateId,

@@ -12,7 +12,7 @@ import {
   clearErrorMessage,
   clearSuccessMessage,
   deleteRecordAsync,
-  fetchListings,
+  fetchSurgeryTypes,
   selectError,
   selectSuccessMessage,
 } from '@root/store/reducers/surgeryTypes';
@@ -44,7 +44,7 @@ export default function SurgeryTypePage() {
 
   useEffect(() => {
     if (practiceId !== null) {
-      dispatch(fetchListings({ practiceId: practiceId }));
+      dispatch(fetchSurgeryTypes({ practiceId: practiceId }));
       dispatch(getPracticeInfo({ id: practiceId }));
     }
   }, [practiceId, dispatch]);
