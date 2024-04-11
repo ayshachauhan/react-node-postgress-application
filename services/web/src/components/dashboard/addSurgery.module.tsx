@@ -1,16 +1,10 @@
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
-import { useAppDispatch, useAppSelector } from '@root/store';
-import { selectPractice } from '@root/store/reducers/auth';
-import { addRecordAsync } from '@root/store/reducers/surgery';
-import { SurgeryInterface } from '@root/store/requests/surgery';
 import { Checkbox } from 'baseui/checkbox';
 import { Select } from 'baseui/select';
 import React, { useState } from 'react';
 
 const SurgeryPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
-  const practiceId = useAppSelector(selectPractice);
-  const dispatch = useAppDispatch();
   const [name, setName] = useState('');
   const [url, setUrl] = useState('');
   const [urlEmbed, setUrlEmbed] = useState('');
@@ -19,26 +13,15 @@ const SurgeryPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (practiceId) {
-      const data: SurgeryInterface = { name, url, urlEmbed, practiceId };
-      try {
-        dispatch(addRecordAsync(data));
-        setName('');
-        setUrl('');
-        setUrlEmbed('');
-        onClose();
-      } catch (error) {
-        onClose();
-      }
-    }
+    onClose();
   };
 
   return (
     <div>
       <div className="px-6 border-r border-l border-b border-gray-100 pb-6 rounded-xl">
         <form onSubmit={handleSubmit}>
-          <div className="flex mt-8">
-            <div className="text-xl pb-5 font-bold border-b border-gray-100 text-black w-full">
+          <div className="flex mt-8 pb-5 border-b border-gray-100">
+            <div className="text-xl font-bold text-black w-full">
               Add Surgery
             </div>
             <div>
@@ -51,6 +34,7 @@ const SurgeryPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                       border: 'none',
                       boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
                       color: '#52525B',
+                      width: '250px', // Adjust the width as needed
                     },
                   },
                   ClearIcon: {
@@ -61,7 +45,7 @@ const SurgeryPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             </div>
           </div>
           <div className="flex gap-5 mt-4">
-            <div className="space-y-4 flex-grow">
+            <div className="space-y-4 flex-1">
               <label htmlFor="title" className="text-black text-sm">
                 First Name
               </label>
@@ -75,7 +59,7 @@ const SurgeryPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               />
               <div className="space-y-4"></div>
             </div>
-            <div className="space-y-4 flex-grow">
+            <div className="space-y-4 flex-1">
               <label htmlFor="url" className="text-black text-sm">
                 Last Name
               </label>
@@ -89,7 +73,7 @@ const SurgeryPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               />
               <div className="space-y-4"></div>
             </div>
-            <div className="space-y-4 flex-grow">
+            <div className="space-y-4 flex-1">
               <label htmlFor="urlEmbed" className="text-black text-sm">
                 MRN
               </label>
@@ -105,7 +89,7 @@ const SurgeryPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             </div>
           </div>
           <div className="flex gap-5">
-            <div className="space-y-4 flex-grow">
+            <div className="space-y-4 flex-1">
               <label htmlFor="title" className="text-black text-sm">
                 Email
               </label>
@@ -119,7 +103,7 @@ const SurgeryPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               />
               <div className="space-y-4"></div>
             </div>
-            <div className="space-y-4 flex-grow">
+            <div className="space-y-4 flex-1">
               <label htmlFor="url" className="text-black text-sm">
                 Phone Number
               </label>
@@ -133,7 +117,7 @@ const SurgeryPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               />
               <div className="space-y-4"></div>
             </div>
-            <div className="space-y-4 flex-grow">
+            <div className="space-y-4 flex-1">
               <label htmlFor="urlEmbed" className="text-black text-sm">
                 No Waitlist
               </label>
@@ -157,7 +141,7 @@ const SurgeryPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             </div>
           </div>
           <div className="flex gap-5">
-            <div className="space-y-4 flex-grow">
+            <div className="space-y-4 flex-1">
               <label htmlFor="title" className="text-black text-sm">
                 Referrer
               </label>
@@ -171,7 +155,7 @@ const SurgeryPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               />
               <div className="space-y-4"></div>
             </div>
-            <div className="space-y-4 flex-grow">
+            <div className="space-y-4 flex-1">
               <label htmlFor="url" className="text-black text-sm">
                 Home
               </label>
@@ -193,10 +177,32 @@ const SurgeryPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               />
               <div className="space-y-4"></div>
             </div>
-            <div className="space-y-4 flex-grow">
-              <label htmlFor="urlEmbed" className="text-black text-sm">
-                PCP (Check box if same)
-              </label>
+            <div className="space-y-4 flex-1">
+              <Checkbox
+                overrides={{
+                  Checkmark: {
+                    style: ({ $checked }) => ({
+                      backgroundColor: $checked
+                        ? 'rgba(59, 130, 246, 1)'
+                        : 'white',
+                      borderColor: $checked
+                        ? 'rgba(59, 130, 246, 1)'
+                        : 'rgba(161, 161, 170, 1)',
+                      borderRadius: '4px',
+                    }),
+                  },
+                }}
+                checked={checkboxes[0]}
+                onChange={(e) => {
+                  const target = e.target as HTMLInputElement;
+                  setCheckboxes([target.checked, checkboxes[1]]);
+                }}
+              >
+                <label htmlFor="urlEmbed" className="text-black text-sm">
+                  PCP (Check box if same)
+                </label>
+              </Checkbox>
+
               <TextInput
                 name="urlEmbed"
                 value={urlEmbed}
@@ -209,7 +215,7 @@ const SurgeryPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             </div>
           </div>
           <div className="flex gap-5">
-            <div className="space-y-4 flex-grow">
+            <div className="space-y-4 flex-1">
               <Checkbox
                 overrides={{
                   Checkmark: {
@@ -217,7 +223,9 @@ const SurgeryPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                       backgroundColor: $checked
                         ? 'rgba(59, 130, 246, 1)'
                         : 'white',
-                      borderColor: $checked ? 'rgba(59, 130, 246, 1)' : 'grey',
+                      borderColor: $checked
+                        ? 'rgba(59, 130, 246, 1)'
+                        : 'rgba(161, 161, 170, 1)',
                       borderRadius: '4px',
                     }),
                   },
@@ -237,7 +245,9 @@ const SurgeryPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                       backgroundColor: $checked
                         ? 'rgba(59, 130, 246, 1)'
                         : 'white',
-                      borderColor: $checked ? 'rgba(59, 130, 246, 1)' : 'grey',
+                      borderColor: $checked
+                        ? 'rgba(59, 130, 246, 1)'
+                        : 'rgba(161, 161, 170, 1)',
                       borderRadius: '4px',
                     }),
                   },
@@ -252,7 +262,7 @@ const SurgeryPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               </Checkbox>
               <div className="space-y-4"></div>
             </div>
-            <div className="space-y-4 flex-grow">
+            <div className="space-y-4 flex-1">
               <label htmlFor="url" className="text-black text-sm">
                 Insurance Type
               </label>
@@ -274,7 +284,7 @@ const SurgeryPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               />
               <div className="space-y-4"></div>
             </div>
-            <div className="space-y-4 flex-grow">
+            <div className="space-y-4 flex-1">
               <label htmlFor="urlEmbed" className="text-black text-sm">
                 Insurance Details
               </label>
@@ -306,12 +316,12 @@ const SurgeryPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         </form>
       </div>
       <div className="mt-6 flex gap-5">
-        <div className="px-6 border border-gray-100 pb-6 rounded-xl flex-grow w-4/12">
+        <div className="px-6 border border-gray-100 pb-6 rounded-xl flex-1 w-4/12">
           <div className="mt-8 text-xl pb-5 font-bold border-b border-gray-100 text-black w-full">
             Add Surgery
           </div>
           <div className="flex gap-5 mt-4">
-            <div className="space-y-4 flex-grow">
+            <div className="space-y-4 flex-1">
               <Select
                 required
                 overrides={{
@@ -330,7 +340,7 @@ const SurgeryPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               />
               <div className="space-y-4"></div>
             </div>
-            <div className="space-y-4 flex-grow">
+            <div className="space-y-4 flex-1">
               <Select
                 required
                 overrides={{
@@ -349,7 +359,7 @@ const SurgeryPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               />
               <div className="space-y-4"></div>
             </div>
-            <div className="space-y-4 flex-grow">
+            <div className="space-y-4 flex-1">
               <TextInput
                 name="url"
                 value={url}
@@ -363,7 +373,7 @@ const SurgeryPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             </div>
           </div>
           <div className="flex gap-5 mt-4">
-            <div className="space-y-4 flex-grow">
+            <div className="space-y-4 flex-1">
               <Select
                 required
                 overrides={{
@@ -382,7 +392,7 @@ const SurgeryPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               />
               <div className="space-y-4"></div>
             </div>
-            <div className="space-y-4 flex-grow">
+            <div className="space-y-4 flex-1">
               <Select
                 required
                 overrides={{
@@ -401,7 +411,7 @@ const SurgeryPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               />
               <div className="space-y-4"></div>
             </div>
-            <div className="space-y-4 flex-grow">
+            <div className="space-y-4 flex-1">
               <TextInput
                 name="url"
                 value={url}
@@ -445,7 +455,7 @@ const SurgeryPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                           : 'white',
                         borderColor: $checked
                           ? 'rgba(59, 130, 246, 1)'
-                          : 'grey',
+                          : 'rgba(161, 161, 170, 1)',
                         borderRadius: '4px',
                       }),
                     },
@@ -467,7 +477,7 @@ const SurgeryPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                           : 'white',
                         borderColor: $checked
                           ? 'rgba(59, 130, 246, 1)'
-                          : 'grey',
+                          : 'rgba(161, 161, 170, 1)',
                         borderRadius: '4px',
                       }),
                     },
@@ -489,7 +499,7 @@ const SurgeryPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                           : 'white',
                         borderColor: $checked
                           ? 'rgba(59, 130, 246, 1)'
-                          : 'grey',
+                          : 'rgba(161, 161, 170, 1)',
                         borderRadius: '4px',
                       }),
                     },
@@ -510,12 +520,12 @@ const SurgeryPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             <Button kind="primary" title="Add Surgery" width={189} />
           </div>
         </div>
-        <div className="px-6 border border-gray-100 pb-6 rounded-xl flex-grow w-4/12">
+        <div className="px-6 border border-gray-100 pb-6 rounded-xl flex-1 w-4/12">
           <div className="mt-8 text-xl pb-5 font-bold border-b border-gray-100 text-black w-full">
             Add Eval
           </div>
           <div className="flex gap-5 mt-4">
-            <div className="space-y-4 flex-grow">
+            <div className="space-y-4 flex-1">
               <Select
                 required
                 overrides={{
@@ -534,7 +544,7 @@ const SurgeryPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               />
               <div className="space-y-4"></div>
             </div>
-            <div className="space-y-4 flex-grow">
+            <div className="space-y-4 flex-1">
               <Select
                 required
                 overrides={{
@@ -553,7 +563,7 @@ const SurgeryPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               />
               <div className="space-y-4"></div>
             </div>
-            <div className="space-y-4 flex-grow">
+            <div className="space-y-4 flex-1">
               <TextInput
                 name="url"
                 value={url}
@@ -566,11 +576,11 @@ const SurgeryPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               <div className="space-y-4"></div>
             </div>
           </div>
-          <div className="flex gap-5 mt-4">
+          <div className="flex gap-5 mt-4 items-center">
             <label htmlFor="title" className="text-black text-sm">
               Eval Status:
             </label>
-            <div className="space-y-4 flex-grow">
+            <div className="space-y-4 flex-1">
               <Select
                 required
                 overrides={{
@@ -603,7 +613,13 @@ const SurgeryPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         </div>
       </div>
       <div className="text-right text-base mt-6">
-        <Button kind="primary" title="Cancel" width={189} />
+        <Button
+          kind="tertiary"
+          title="Cancel"
+          width={189}
+          backgroundColor="rgba(212, 212, 216, 1)"
+          color="black"
+        />
       </div>
     </div>
   );

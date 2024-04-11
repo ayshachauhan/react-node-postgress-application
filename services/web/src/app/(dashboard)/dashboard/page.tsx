@@ -46,6 +46,9 @@ const Dashboard: React.FC = () => {
           Dialog: {
             style: () => ({
               width: '1300px',
+              maxWidth: '90%',
+              maxHeight: '90vh',
+              overflowY: 'auto',
             }),
           },
           Root: {
