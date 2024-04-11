@@ -16,7 +16,7 @@ import { SurgeryTypesService } from './surgeryTypes.service';
 
 @ApiTags('SurgeryTypes')
 @ApiBearerAuth('normal')
-@Controller('practices/:practiceId/types')
+@Controller('practices/:practiceId/surgery-types')
 @UseGuards(AuthGuard)
 export class SurgeryTypesController {
   constructor(private readonly surgeryTypesService: SurgeryTypesService) {}
