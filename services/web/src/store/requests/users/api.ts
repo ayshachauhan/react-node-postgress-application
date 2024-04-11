@@ -1,12 +1,12 @@
 import Cookies from 'js-cookie';
 import { publicRuntimeConfig } from 'next.config';
-import { AddUser, EditUser } from '.';
+import { AddUser, ChangePasswordInterface, EditUser } from '.';
+const { API_BASE_URL } = publicRuntimeConfig;
 
 export const getUsers = async (
   payloadData: { practiceId: string },
   { rejectWithValue },
 ) => {
-  const { API_BASE_URL } = publicRuntimeConfig;
   try {
     const accessToken = Cookies.get('access_token');
     const response = await fetch(
@@ -39,7 +39,6 @@ export const getUserInfo = async (
   },
   { rejectWithValue },
 ) => {
-  const { API_BASE_URL } = publicRuntimeConfig;
   try {
     const accessToken = Cookies.get('access_token');
     const response = await fetch(
@@ -66,7 +65,6 @@ export const getUserInfo = async (
 };
 
 export const addUser = async (payloadData: AddUser, { rejectWithValue }) => {
-  const { API_BASE_URL } = publicRuntimeConfig;
   try {
     const accessToken = Cookies.get('access_token');
     const { practiceId, ...restPayload } = payloadData;
@@ -99,7 +97,6 @@ export const updateUser = async (
   payloadData: EditUser,
   { rejectWithValue },
 ) => {
-  const { API_BASE_URL } = publicRuntimeConfig;
   try {
     const accessToken = Cookies.get('access_token');
     const { practiceId, id, ...restPayload } = payloadData;
@@ -135,7 +132,6 @@ export const deleteUser = async (
   },
   { rejectWithValue },
 ) => {
-  const { API_BASE_URL } = publicRuntimeConfig;
   try {
     const accessToken = Cookies.get('access_token');
     const response = await fetch(
@@ -158,6 +154,38 @@ export const deleteUser = async (
       return; // Exit early or return a default value
     }
 
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    if (error instanceof Error) {
+      return rejectWithValue(error.message);
+    }
+    return rejectWithValue('An unknown error occurred');
+  }
+};
+
+export const changePassword = async (
+  payloadData: ChangePasswordInterface,
+  { rejectWithValue },
+) => {
+  try {
+    const accessToken = Cookies.get('access_token');
+    const { practiceId } = payloadData;
+
+    const response = await fetch(
+      `${API_BASE_URL}/practices/${practiceId}/users/change-password`,
+      {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify(payloadData),
+      },
+    );
+    if (!response.ok) {
+      throw new Error('Failed to change password.');
+    }
     const data = await response.json();
     return data;
   } catch (error) {

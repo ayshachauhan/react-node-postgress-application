@@ -18,10 +18,6 @@ export class TemplateCreateDto {
   @ApiProperty()
   surgeryType: string;
 
-  @IsNotEmpty({ message: 'surgery number is required' })
-  @ApiProperty()
-  surgeryNumber: string;
-
   @IsOptional()
   @ApiProperty()
   emailSubject: string;

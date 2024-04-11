@@ -81,7 +81,7 @@ const TextInput: React.FC<Props> = ({
           Input: {
             props: {
               style: {
-                color: fontColorOverride,
+                color: fontColorOverride ?? 'rgba(82, 82, 91, 1)',
                 backgroundColor: 'rgba(250, 250, 250, 1)',
               },
             },

@@ -251,7 +251,7 @@ export default function UserPage() {
           title="Add New"
           onClick={handleOpenModal}
           startEnhancer={() => <AddIcon className="mt-2" size={25}></AddIcon>}
-        />{' '}
+        />
       </div>
       <hr className="h-px my-2.5 bg-gray-100 border-1 dark:bg-gray-700"></hr>
       <div className="text-gray-50 w-full  items-center  bg-gray-50 py-4 rounded-lg">
@@ -296,8 +296,18 @@ export default function UserPage() {
               <div className="text-gray-900 bg-gray-50 pt-2 px-4">
                 {data.url}
               </div>
-              <div className="text-gray-900 bg-gray-50 pt-2 px-4">
-                {data.status}
+              <div className="text-gray-900 bg-gray-50 pt-2 px-4 flex text-center items-center justify-center">
+                <div
+                  className={`rounded-md text-white px-3.5 ${
+                    data.status?.toString() === 'pending'
+                      ? 'bg-yellow-500'
+                      : data.status?.toString() === 'inactive'
+                        ? 'bg-red-500'
+                        : 'bg-green-500'
+                  }`}
+                >
+                  {data.status?.toString()}
+                </div>
               </div>
               <div className="text-gray-900 bg-gray-50 pt-2 px-4 flex gap-4">
                 <div

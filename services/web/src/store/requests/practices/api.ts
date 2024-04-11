@@ -5,9 +5,9 @@ import {
 
 import Cookies from 'js-cookie';
 import { publicRuntimeConfig } from 'next.config';
+const { API_BASE_URL } = publicRuntimeConfig;
 
 export const getPractices = async (_, { rejectWithValue }) => {
-  const { API_BASE_URL } = publicRuntimeConfig;
   try {
     const accessToken = Cookies.get('access_token');
     const response = await fetch(`${API_BASE_URL}/practices`, {
@@ -36,7 +36,6 @@ export const getPracticeData = async (
   },
   { rejectWithValue },
 ) => {
-  const { API_BASE_URL } = publicRuntimeConfig;
   try {
     const accessToken = Cookies.get('access_token');
     const response = await fetch(
@@ -63,7 +62,6 @@ export const getPracticeData = async (
 };
 
 export const addPractice = async (payloadData: PracticeCreateInterface) => {
-  const { API_BASE_URL } = publicRuntimeConfig;
   try {
     const accessToken = Cookies.get('access_token');
     const response = await fetch(`${API_BASE_URL}/practices`, {
@@ -82,7 +80,6 @@ export const addPractice = async (payloadData: PracticeCreateInterface) => {
 };
 
 export const editPractice = async (payloadData: PracticesEditInterface) => {
-  const { API_BASE_URL } = publicRuntimeConfig;
   try {
     const { id } = payloadData;
     delete payloadData.id;
@@ -108,7 +105,6 @@ export const deletePractice = async (
   },
   { rejectWithValue },
 ) => {
-  const { API_BASE_URL } = publicRuntimeConfig;
   try {
     const accessToken = Cookies.get('access_token');
     const response = await fetch(
