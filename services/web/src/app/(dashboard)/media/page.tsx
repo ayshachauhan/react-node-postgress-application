@@ -163,7 +163,7 @@ const Media: React.FC = () => {
                   <PlayIcon></PlayIcon>
                 </div>
                 <div className="bg-black text-white rounded text-xs leading-[18px] absolute text-center border top-14 right-9 border-black py-1 px-1.5">
-                  Surgery Type
+                  {data?.surgeryType}
                 </div>
                 <div className="text-gray-900 pt-2 text-left">{data.name}</div>
               </div>

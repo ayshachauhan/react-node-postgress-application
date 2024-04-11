@@ -5,7 +5,7 @@ import { selectRecords } from '@root/store/reducers/auth';
 import { ChevronDown, ChevronRightSmall } from 'baseui/icon';
 import clsx from 'clsx';
 import Link from 'next/link';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { SideBarItem, filterSidebarItems, sidebarItems } from './types';
 
 const Sidebar: React.FC = () => {
@@ -21,6 +21,14 @@ const Sidebar: React.FC = () => {
   function handleSidebarItemClick(item: SideBarItem) {
     setActiveMenuItemId(item.id);
   }
+
+  useEffect(() => {
+    const currentPath = window.location.pathname;
+    const activeItem = sidebarItems.find((item) => currentPath === item.path);
+    if (activeItem) {
+      setActiveMenuItemId(activeItem.id);
+    }
+  }, []);
 
   return (
     <aside

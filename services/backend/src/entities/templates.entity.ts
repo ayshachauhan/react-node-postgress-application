@@ -40,9 +40,6 @@ export class TemplateEntity extends BaseEntity {
   @Column({ type: 'uuid', default: null, nullable: true })
   surgeryType: string;
 
-  @Column({ type: 'integer' })
-  surgeryNumber: number;
-
   @Column({ type: 'varchar' })
   emailSubject: string;
 

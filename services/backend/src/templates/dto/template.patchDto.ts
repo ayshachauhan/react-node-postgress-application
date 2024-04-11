@@ -20,10 +20,6 @@ export class TemplatePatchDto {
 
   @IsOptional()
   @ApiProperty()
-  surgeryNumber: string;
-
-  @IsOptional()
-  @ApiProperty()
   emailSubject: string;
 
   @IsOptional()

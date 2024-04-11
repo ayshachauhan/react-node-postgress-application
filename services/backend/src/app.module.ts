@@ -7,6 +7,7 @@ import { AuthModule } from './auth/auth.module';
 import { ENV_VALIDATIONS } from './enums/env-validation';
 import { ENVIRONMENT_VARIABLES } from './enums/environment.enums';
 import { HealthModule } from './healthz/health.module';
+import { InsuranceTypesModule } from './insuranceTypes/insuranceTypes.module';
 import { MediaModule } from './media/media.module';
 import { PermissionsModule } from './permissions/permissions.module';
 import { PracticeHomesModule } from './practiceHomes/practiceHomes.module';
@@ -106,6 +107,7 @@ import { UsersModule } from './users/users.module';
     UserPracticesModule,
     TemplatesModule,
     SurgeryTypesModule,
+    InsuranceTypesModule,
   ],
 })
 export class AppModule {}
