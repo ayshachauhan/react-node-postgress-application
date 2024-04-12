@@ -2,12 +2,13 @@ import { SurgeryType } from '@packages/entities';
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
 import { useAppDispatch, useAppSelector } from '@root/store';
-import { selectPractice, selectRecords } from '@root/store/reducers/auth';
+import { selectRecords } from '@root/store/reducers/auth';
 import {
   deleteRecordAsync,
   updateRecordAsync,
 } from '@root/store/reducers/templates';
 import { EditTemplate } from '@root/store/requests/templates';
+import { getPracticeId } from '@utils/methods';
 import { Checkbox, STYLE_TYPE } from 'baseui/checkbox';
 import { Select } from 'baseui/select';
 import { Textarea } from 'baseui/textarea';
@@ -37,7 +38,7 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
   const userInfo = useAppSelector(selectRecords);
   const userId = userInfo?.id;
   const dispatch = useAppDispatch();
-  const practiceId = useAppSelector(selectPractice);
+  const practiceId = getPracticeId();
   const templateId = data.id;
   const messageType = data.messageType;
   const templateInfo = useAppSelector((state) => {
@@ -65,17 +66,24 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
   >({});
   const [showTooltip, setShowTooltip] = useState(false);
 
-  const handleFileChange = (event) => {
-    // setTemplateInfo({ ...updatedTemplateInfo, emailAttachment: event.target.files[0] });
-    setTemplateInfo({
-      ...updatedTemplateInfo,
-      emailAttachment: event.target.files[0].name,
-    });
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+
+    if (file) {
+      setTemplateInfo((prevTemplateInfo) => ({
+        ...prevTemplateInfo,
+        emailAttachment: file.name,
+      }));
+    }
   };
-  const handleHtmlChange = (event) => {
+  const handleHtmlChange = (
+    event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>,
+  ) => {
     setTemplateInfo({ ...updatedTemplateInfo, emailBody: event.target.value });
   };
-  const handleMessageTextChange = (event) => {
+  const handleMessageTextChange = (
+    event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>,
+  ) => {
     setTemplateInfo({
       ...updatedTemplateInfo,
       messageText: event.target.value,

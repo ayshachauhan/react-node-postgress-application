@@ -2,10 +2,9 @@ import { UserStatus, UserType } from '@packages/entities';
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
 import { useAppDispatch, useAppSelector } from '@root/store';
-import { selectPractice } from '@root/store/reducers/auth';
 import { updateRecordAsync } from '@root/store/reducers/users';
 import { EditUser } from '@root/store/requests/users';
-import { generateFullName } from '@utils/methods';
+import { generateFullName, getPracticeId } from '@utils/methods';
 import { Select } from 'baseui/select';
 import React, { useEffect, useState } from 'react';
 interface Data {
@@ -25,7 +24,7 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
     id: key,
   }));
   const dispatch = useAppDispatch();
-  const practiceId = useAppSelector(selectPractice); // Select user practice id
+  const practiceId = getPracticeId(); // Select user practice id
   const userInfo = useAppSelector((state) =>
     data.id ? state.users.users.find(({ id }) => id === data.id) : undefined,
   );

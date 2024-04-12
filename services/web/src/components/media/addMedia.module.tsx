@@ -1,10 +1,10 @@
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
 import { SurgeryType } from '@root/enums/surgeryType.enum';
-import { useAppDispatch, useAppSelector } from '@root/store';
-import { selectPractice } from '@root/store/reducers/auth';
+import { useAppDispatch } from '@root/store';
 import { addRecordAsync } from '@root/store/reducers/media';
 import { MediaInterface } from '@root/store/requests/media';
+import { getPracticeId } from '@utils/methods';
 import { Select } from 'baseui/select';
 import React, { useState } from 'react';
 
@@ -13,7 +13,7 @@ const MediaPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     label: SurgeryType[key as keyof typeof SurgeryType],
     id: key,
   }));
-  const practiceId = useAppSelector(selectPractice); // Select success message from Redux store
+  const practiceId = getPracticeId();
   const dispatch = useAppDispatch();
   const [name, setName] = useState('');
   const [url, setUrl] = useState('');

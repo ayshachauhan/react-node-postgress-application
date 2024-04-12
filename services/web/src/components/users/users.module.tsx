@@ -10,7 +10,7 @@ import {
 import Form from '@root/components/users/addUser.module';
 import EditUser from '@root/components/users/editUser.module';
 import { useAppDispatch, useAppSelector } from '@root/store';
-import { selectPractice, selectRecords } from '@root/store/reducers/auth';
+import { selectRecords } from '@root/store/reducers/auth';
 import {
   getPracticeInfo,
   selectPracticeInfo,
@@ -23,6 +23,7 @@ import {
   selectError,
   selectSuccessMessage,
 } from '@root/store/reducers/users';
+import { getPracticeId } from '@utils/methods';
 import {
   Modal,
   ModalBody,
@@ -38,16 +39,18 @@ export default function UserPage() {
   const [showModal, setShowModal] = useState(false); // State to manage modal visibility
   const dispatch = useAppDispatch();
   const users = useAppSelector((state) => state.users.users);
+  const userInfo = useAppSelector(selectRecords); // Select success message from Redux store
+  const filteredUsers = users.filter((user) => user.id !== userInfo?.id);
   const [userId, setUserId] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const practiceId = useAppSelector(selectPractice); // Select success message from Redux store
+  const practiceId = getPracticeId(); // Select success message from Redux store
   const [showErrorMessage, setShowErrorMessage] = useState(false);
   const successMessage = useAppSelector(selectSuccessMessage); // Select success message from Redux store
   const errorMessage = useAppSelector(selectError); // Select error message from Redux store
   const router = useRouter();
-  const userInfo = useAppSelector(selectRecords); // Select success message from Redux store
+
   useEffect(() => {
     if (userInfo && userInfo?.type !== UserType.ADMIN) {
       // Perform the redirect inside the useEffect
@@ -267,7 +270,7 @@ export default function UserPage() {
           <div className="font-bold text-white p-4">User URL</div>
           <div className="font-bold text-white p-4">Status</div>
           <div className="font-bold text-white p-4">Action</div>
-          {users.map((data, index) => (
+          {filteredUsers.map((data, index) => (
             <React.Fragment key={data.id}>
               <div className="text-gray-900 bg-gray-50 pt-2 px-4">
                 {index + 1}

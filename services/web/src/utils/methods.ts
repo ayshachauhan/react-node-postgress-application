@@ -24,3 +24,8 @@ export function generateFullName(firstName: string, lastName: string): string {
     return '';
   }
 }
+
+export function getPracticeId() {
+  const practiceId = localStorage.getItem('practiceId');
+  return practiceId;
+}

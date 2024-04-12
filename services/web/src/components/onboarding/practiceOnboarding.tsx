@@ -2,7 +2,7 @@
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
 import { useAppDispatch, useAppSelector } from '@root/store';
-import { fetchLoggedInUser, selectPractice } from '@root/store/reducers/auth';
+import { fetchLoggedInUser } from '@root/store/reducers/auth';
 import { getPracticeInfo } from '@root/store/reducers/practices';
 import {
   changePasswordAsync,
@@ -13,6 +13,7 @@ import {
 } from '@root/store/reducers/users';
 import { ChangePasswordInterface } from '@root/store/requests/users';
 import { AzentiaLogo } from '@utils/constants';
+import { getPracticeId } from '@utils/methods';
 import Cookies from 'js-cookie';
 import { useRouter, useSearchParams } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
@@ -26,7 +27,7 @@ export default function PracticeOnboardPage() {
   const successMessage = useAppSelector(selectSuccessMessage);
   const errorMessage = useAppSelector(selectError);
   const [showErrorMessage, setShowErrorMessage] = useState(false);
-  const practiceId = useAppSelector(selectPractice);
+  const practiceId = getPracticeId();
   const practiceInfo = useAppSelector((state) => state.practices.practiceInfo);
   const userInfo = useAppSelector((state) => state.auth.user);
   const router = useRouter();

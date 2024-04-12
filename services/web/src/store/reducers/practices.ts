@@ -18,8 +18,8 @@ export interface PracticeState {
   practices: PracticesGetInterface[];
   practiceInfo: PracticesGetInterface | EmptyObject;
   status: 'idle' | 'loading' | 'failed';
-  successMessage: string | null;
-  error: string | null;
+  successMessage: string;
+  error: string;
 }
 
 const initialState: PracticeState = {
@@ -28,8 +28,8 @@ const initialState: PracticeState = {
   practices: [],
   practiceInfo: {},
   status: 'idle',
-  successMessage: null,
-  error: null,
+  successMessage: '',
+  error: '',
 };
 
 const practiceSlice = createSlice({
@@ -40,10 +40,10 @@ const practiceSlice = createSlice({
       state.practices = [...state.practices, action.payload];
     },
     clearSuccessMessage(state) {
-      state.successMessage = null;
+      state.successMessage = '';
     },
     clearErrorMessage(state) {
-      state.error = null;
+      state.error = '';
     },
   },
   extraReducers(builder) {
@@ -54,6 +54,11 @@ const practiceSlice = createSlice({
 
     builder.addCase(fetchListings.fulfilled, (state, action) => {
       state.status = 'idle';
+      if (action.payload.length === 0) {
+        state.error = 'No records found';
+      } else {
+        state.error = '';
+      }
       state.practices = action.payload;
     });
 
@@ -64,6 +69,7 @@ const practiceSlice = createSlice({
       } else {
         state.error = 'Failed to fetch practices';
       }
+      state.practices = [];
     });
     builder.addCase(getPracticeInfo.pending, (state) => {
       state.isProcessing = true;

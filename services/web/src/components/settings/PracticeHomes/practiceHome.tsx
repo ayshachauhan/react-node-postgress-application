@@ -3,7 +3,6 @@ import Button from '@root/components/Button';
 import { AddIcon, DeleteIcon } from '@root/components/Icons';
 import AddPracticeHome from '@root/components/settings/PracticeHomes/addPracticeHome';
 import { useAppDispatch, useAppSelector } from '@root/store';
-import { selectPractice } from '@root/store/reducers/auth';
 import {
   clearErrorMessage,
   clearSuccessMessage,
@@ -16,6 +15,7 @@ import {
   getPracticeInfo,
   selectPracticeInfo,
 } from '@root/store/reducers/practices';
+import { getPracticeId } from '@utils/methods';
 import {
   Modal,
   ModalBody,
@@ -32,7 +32,7 @@ export default function PracticeHomesPage() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const practiceId = useAppSelector(selectPractice);
+  const practiceId = getPracticeId();
   const practiceName = useAppSelector(selectPracticeInfo);
   const practiceHomes = useAppSelector(
     (state) => state.practiceHomes.practiceHomes,

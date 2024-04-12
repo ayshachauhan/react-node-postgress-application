@@ -5,24 +5,28 @@ import { AvatarIcon } from '@root/components/Icons';
 import { State, useAppDispatch, useAppSelector } from '@root/store';
 import {
   logoutUser,
-  selectPractice,
   selectRecords,
+  selectedPracticeName,
+  userPractices,
 } from '@root/store/reducers/auth';
+import { getPracticeInfo } from '@root/store/reducers/practices';
 import { fetchListings } from '@root/store/reducers/users';
 import { User } from '@root/store/requests/users';
+import { getPracticeId } from '@utils/methods';
 import { ChevronDown } from 'baseui/icon';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 
 const SELECTED_DOCTOR_KEY: string = 'SELECTED_DOCTOR';
 
 const Header: React.FC = () => {
+  const dispatch = useAppDispatch();
   const getSelectedUserId: string | null =
     localStorage.getItem(SELECTED_DOCTOR_KEY);
 
   const userInfo = useAppSelector(selectRecords);
   const { users } = useAppSelector((state: State) => state.users);
-  const practiceId = useAppSelector(selectPractice);
+  const practiceId = getPracticeId();
 
   const findSelectedUser = (userId: string): User | undefined =>
     users.find((user) => user.id === userId);
@@ -38,8 +42,29 @@ const Header: React.FC = () => {
     </span>
   );
 
+  const [selectedPractice, setSelectedPractice] = useState<string>('');
+  const practiceName = useAppSelector(selectedPracticeName);
+
+  useEffect(() => {
+    const defaultPracticeName = practiceName;
+    setSelectedPractice(defaultPracticeName);
+  }, [practiceName]);
+
+  useEffect(() => {
+    if (practiceId) {
+      dispatch(getPracticeInfo({ id: practiceId })).then((action) => {
+        if (action.payload && action.payload.name) {
+          setSelectedPractice(action.payload.name);
+        }
+      });
+    }
+  }, [dispatch]);
+
+  const userPracticesList = useAppSelector(userPractices);
+
   const router = useRouter();
-  const dispatch = useAppDispatch();
+  const currentPath = usePathname();
+  const isDashboardPage = currentPath === '/dashboard';
   const handleLogout = () => {
     dispatch(logoutUser());
     router.push('/login');
@@ -61,6 +86,9 @@ const Header: React.FC = () => {
   const goToProfile = () => {
     router.push('/profile');
   };
+  const goToSettings = () => {
+    router.push('/settings');
+  };
 
   useEffect(() => {
     if (practiceId !== null) {
@@ -74,12 +102,18 @@ const Header: React.FC = () => {
     }
   }, [users]);
 
+  const handlePracticeChange = (practiceId: string, practiceName: string) => {
+    setSelectedPractice(practiceName);
+    localStorage.setItem('practiceId', practiceId);
+    router.refresh();
+  };
+
   return (
     <nav className="fixed top-0 right-0 z-40 bg-white shadow-md w-[calc(100%-16rem)] h-[68px]">
       <div className="px-5 py-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
-            {!is_super_admin && (
+            {!is_super_admin && isDashboardPage && (
               <Dropdown
                 position="bottomLeft"
                 trigger={selectedUserBox}
@@ -94,7 +128,39 @@ const Header: React.FC = () => {
             )}
           </div>
 
-          <div className="flex items-center justify-end">
+          <div className="flex items-center gap-7 justify-end">
+            <div className="flex items-center">
+              {!is_super_admin && (
+                <>
+                  <div>Practice Name:</div>
+                  <Dropdown
+                    position="bottomLeft"
+                    trigger={
+                      <span className="inline-flex items-center gap-2 font-bold">
+                        &nbsp;&nbsp;&nbsp;
+                        {selectedPractice}
+                        <ChevronDown />
+                      </span>
+                    }
+                  >
+                    {userPracticesList.map((item) => (
+                      <Dropdown.Item
+                        key={item.practice.id}
+                        id={item.practice.id}
+                        onClick={() =>
+                          handlePracticeChange(
+                            item.practice.id,
+                            item.practice.name,
+                          )
+                        }
+                      >
+                        {item.practice.name}
+                      </Dropdown.Item>
+                    ))}
+                  </Dropdown>
+                </>
+              )}
+            </div>
             <Dropdown
               position="bottomRight"
               trigger={<AvatarIcon size={40}></AvatarIcon>}
@@ -105,7 +171,9 @@ const Header: React.FC = () => {
                 </Dropdown.Item>
               )}
               {!is_super_admin && (
-                <Dropdown.Item id="setting">Settings</Dropdown.Item>
+                <Dropdown.Item id="setting" onClick={goToSettings}>
+                  Settings
+                </Dropdown.Item>
               )}
               <Dropdown.Item id="logout" onClick={handleLogout}>
                 Log out

@@ -1,8 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { PracticeHome } from '@packages/entities';
+import { PracticeEntity, PracticeHome } from '@packages/entities';
 import { Repository } from 'typeorm';
-import { PracticesService } from '../practices/practices.service';
 import { PracticeHomeCreateDto } from './dto/create.dto';
 import { PracticeHomePatchDto } from './dto/patch.dto';
 
@@ -11,7 +10,6 @@ export class PracticeHomesService {
   constructor(
     @InjectRepository(PracticeHome)
     private practiceHomesRepository: Repository<PracticeHome>,
-    private readonly practicesService: PracticesService,
   ) {}
 
   async getPracticeHomesByPractice(
@@ -40,14 +38,9 @@ export class PracticeHomesService {
 
   async create(
     { name }: PracticeHomeCreateDto,
-    practiceId: string,
+    practiceEntity: PracticeEntity,
   ): Promise<PracticeHome> {
     const newPracticeHome: PracticeHome = new PracticeHome();
-
-    const practiceEntity = await this.practicesService.findOne(practiceId);
-    if (!practiceEntity) {
-      throw new HttpException('Practice not found', HttpStatus.NOT_FOUND);
-    }
 
     return await this.practiceHomesRepository.save({
       ...newPracticeHome,

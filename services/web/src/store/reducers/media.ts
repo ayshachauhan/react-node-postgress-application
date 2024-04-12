@@ -1,14 +1,24 @@
 import { IMedia } from '@packages/entities';
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { State } from '@root/store';
-import { addMedia, getMedia } from '../requests/media';
-import { EntitiesState, EntityLoadingState } from '../types';
-const initialState: EntitiesState<IMedia> = {
+import { addMedia, getMedia, MediaInterface } from '../requests/media';
+
+export interface MediaState {
+  isProcessing: boolean;
+  entities: Record<string, MediaInterface>;
+  media: MediaInterface[];
+  status: 'idle' | 'loading' | 'failed';
+  successMessage: string;
+  error: string;
+}
+
+const initialState: MediaState = {
+  isProcessing: false,
   entities: {},
-  status: EntityLoadingState.IDLE,
-  processing: false,
-  successMessage: undefined,
-  errorMessage: undefined,
+  media: [],
+  status: 'idle',
+  successMessage: '', // Initial value for success message
+  error: '',
 };
 
 const mediaSlice = createSlice({
@@ -22,10 +32,10 @@ const mediaSlice = createSlice({
       };
     },
     clearSuccessMessage(state) {
-      state.successMessage = undefined;
+      state.successMessage = '';
     },
     clearErrorMessage(state) {
-      state.errorMessage = undefined;
+      state.error = '';
     },
   },
   extraReducers(builder) {
@@ -35,9 +45,13 @@ const mediaSlice = createSlice({
     });
 
     builder.addCase(fetchListings.fulfilled, (state, action) => {
-      state.status = EntityLoadingState.SUCCEEDED;
-      state.entities = action.payload;
-      state.processing = false;
+      state.status = 'idle';
+      if (action.payload.length === 0) {
+        state.error = 'No records found';
+      } else {
+        state.error = '';
+      }
+      state.media = action.payload;
     });
 
     builder.addCase(fetchListings.rejected, (state, action) => {
@@ -47,7 +61,7 @@ const mediaSlice = createSlice({
       } else {
         state.errorMessage = 'Failed to fetch videos';
       }
-      state.processing = false;
+      state.media = [];
     });
 
     builder.addCase(addRecordAsync.pending, (state) => {

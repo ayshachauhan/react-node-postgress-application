@@ -3,7 +3,6 @@ import Button from '@root/components/Button';
 import { AddIcon, DeleteIcon } from '@root/components/Icons';
 import AddSurgeryType from '@root/components/settings/surgeryTypes/addSurgeryType';
 import { useAppDispatch, useAppSelector } from '@root/store';
-import { selectPractice } from '@root/store/reducers/auth';
 import {
   getPracticeInfo,
   selectPracticeInfo,
@@ -16,6 +15,7 @@ import {
   selectError,
   selectSuccessMessage,
 } from '@root/store/reducers/surgeryTypes';
+import { getPracticeId } from '@utils/methods';
 import {
   Modal,
   ModalBody,
@@ -32,7 +32,7 @@ export default function SurgeryTypePage() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const practiceId = useAppSelector(selectPractice);
+  const practiceId = getPracticeId();
   const practiceName = useAppSelector(selectPracticeInfo);
   const surgeryTypes = useAppSelector(
     (state) => state.surgeryTypes.surgeryTypes,
