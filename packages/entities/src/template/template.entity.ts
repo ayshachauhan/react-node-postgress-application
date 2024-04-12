@@ -1,8 +1,13 @@
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
-import { ITemplate, Meridiem, SurgeryType, TemplateMessageType } from '.';
 import { BaseEntity } from '../base.entity';
 import { PracticeEntity } from '../practice/practice.entity';
 import { User } from '../user/user.entity';
+import {
+  ITemplate,
+  Meridiem,
+  SurgeryType,
+  TemplateMessageType,
+} from './template.interface';
 
 @Entity('templates')
 export class TemplateEntity extends BaseEntity implements ITemplate {
