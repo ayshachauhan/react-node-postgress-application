@@ -14,7 +14,7 @@ export class TemplateCreateDto {
   @ApiProperty()
   meridiem: string;
 
-  @IsNotEmpty({ message: 'surgeryTypeId is required' })
+  @IsNotEmpty({ message: 'surgeryType is required' })
   @ApiProperty()
   surgeryTypeId: string;
 

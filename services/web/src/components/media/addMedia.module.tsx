@@ -4,7 +4,7 @@ import { useAppDispatch, useAppSelector } from '@root/store';
 import { selectPractice } from '@root/store/reducers/auth';
 import { addRecordAsync } from '@root/store/reducers/media';
 import { fetchSurgeryTypes } from '@root/store/reducers/surgeryTypes';
-import { MediaInterface } from '@root/store/requests/media';
+import { MediaPostInterface } from '@root/store/requests/media';
 import { Select } from 'baseui/select';
 import React, { useEffect, useState } from 'react';
 
@@ -21,26 +21,26 @@ const MediaPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const [name, setName] = useState('');
   const [url, setUrl] = useState('');
   const [urlEmbed, setUrlEmbed] = useState('');
-  const [surgeryType, setSurgeryType] = useState('');
+  const [surgeryTypeId, setsurgeryTypeId] = useState('');
 
   // Function to handle form submission
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (practiceId) {
-      const data: MediaInterface = {
+      const data: MediaPostInterface = {
         name,
         url,
         urlEmbed,
         practiceId,
-        surgeryType,
+        surgeryTypeId,
       };
       try {
         dispatch(addRecordAsync(data));
         setName('');
         setUrl('');
         setUrlEmbed('');
-        setSurgeryType('');
-        onClose(); // Close the modal after form submission
+        setsurgeryTypeId('');
+        onClose();
       } catch (error) {
         onClose();
       }
@@ -48,7 +48,7 @@ const MediaPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   };
 
   const handleSurgeryTypeChange = ({ value }) => {
-    setSurgeryType(value[0] ? value[0].id : null);
+    setsurgeryTypeId(value[0] ? value[0].id : null);
   };
 
   useEffect(() => {
@@ -109,7 +109,9 @@ const MediaPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           <Select
             options={surgeryTypeOptions}
             onChange={handleSurgeryTypeChange}
-            value={surgeryType ? [{ label: surgeryType, id: surgeryType }] : []}
+            value={
+              surgeryTypeId ? [{ label: surgeryTypeId, id: surgeryTypeId }] : []
+            }
             required
             overrides={{
               ControlContainer: {

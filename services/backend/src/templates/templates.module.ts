@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TemplateEntity } from 'src/entities/templates.entity';
 import { PracticesModule } from 'src/practices/practices.module';
+import { SurgeryTypesModule } from 'src/surgeryTypes/surgeryTypes.module';
 import { UsersModule } from 'src/users/users.module';
 import { TemplatesController } from './templates.controller';
 import { TemplatesService } from './templates.service';
@@ -10,9 +11,8 @@ import { TemplatesService } from './templates.service';
   imports: [
     TypeOrmModule.forFeature([TemplateEntity]),
     PracticesModule,
-    // forwardRef(() => PracticesModule),
     UsersModule,
-    // forwardRef(() => SurgeryTypesModule),
+    SurgeryTypesModule,
   ],
   providers: [TemplatesService],
   controllers: [TemplatesController],

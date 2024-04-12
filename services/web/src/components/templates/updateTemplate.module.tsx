@@ -24,10 +24,10 @@ interface ChildProps {
 
 const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
   const handleSurgeryTypeChange = ({ value }) => {
-    console.log(value);
+    const selectedSurgeryType = value[0];
     setTemplateInfo({
       ...updatedTemplateInfo,
-      surgeryType: value[0] ? value[0].id : null,
+      surgeryType: selectedSurgeryType,
     });
   };
   const userInfo = useAppSelector(selectRecords);
@@ -68,10 +68,12 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
       emailAttachment: event.target.files[0].name,
     });
   };
-  const handleHtmlChange = (event) => {
+  const handleHtmlChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     setTemplateInfo({ ...updatedTemplateInfo, emailBody: event.target.value });
   };
-  const handleMessageTextChange = (event) => {
+  const handleMessageTextChange = (
+    event: React.ChangeEvent<HTMLTextAreaElement>,
+  ) => {
     setTemplateInfo({
       ...updatedTemplateInfo,
       messageText: event.target.value,
@@ -91,7 +93,7 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
 
   useEffect(() => {
     if (practiceId !== null) {
-      dispatch(fetchSurgeryTypes({ practiceId: practiceId })); // Fetch listings from PostgreSQL database
+      dispatch(fetchSurgeryTypes({ practiceId: practiceId }));
     }
   }, [practiceId, dispatch]);
 
