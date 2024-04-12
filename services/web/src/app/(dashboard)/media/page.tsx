@@ -4,7 +4,7 @@ import { AddIcon, PlayIcon } from '@root/components/Icons';
 import Form from '@root/components/media/addMedia.module';
 import { UserType } from '@root/enums/userType.enum';
 import { useAppDispatch, useAppSelector } from '@root/store';
-import { selectPractice, selectRecords } from '@root/store/reducers/auth';
+import { selectRecords } from '@root/store/reducers/auth';
 import {
   clearErrorMessage,
   clearSuccessMessage,
@@ -12,7 +12,7 @@ import {
   selectError,
   selectSuccessMessage,
 } from '@root/store/reducers/media';
-import { extractVideoId, getImageUrl } from '@utils/methods';
+import { extractVideoId, getImageUrl, getPracticeId } from '@utils/methods';
 import { Modal, ModalBody, ModalHeader, ROLE, SIZE } from 'baseui/modal';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
@@ -21,7 +21,7 @@ import React, { useEffect, useState } from 'react';
 const Media: React.FC = () => {
   const dispatch = useAppDispatch();
   const media = useAppSelector((state) => state.media.media);
-  const practiceId = useAppSelector(selectPractice); // Select success message from Redux store
+  const practiceId = getPracticeId();
   const [isFirstModalOpen, setIsFirstModalOpen] = useState(false);
   const [isSecondModalOpen, setIsSecondModalOpen] = useState(false);
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);

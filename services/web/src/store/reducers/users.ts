@@ -18,8 +18,8 @@ export interface UserState {
   users: User[];
   userInfo: User | EmptyObject;
   status: 'idle' | 'loading' | 'failed';
-  successMessage: string | null;
-  error: string | null;
+  successMessage: string;
+  error: string;
 }
 
 const initialState: UserState = {
@@ -28,8 +28,8 @@ const initialState: UserState = {
   users: [],
   userInfo: {},
   status: 'idle',
-  successMessage: null, // Initial value for success message
-  error: null,
+  successMessage: '',
+  error: '',
 };
 
 const userSlice = createSlice({
@@ -37,10 +37,10 @@ const userSlice = createSlice({
   initialState,
   reducers: {
     clearSuccessMessage(state) {
-      state.successMessage = null;
+      state.successMessage = '';
     },
     clearErrorMessage(state) {
-      state.error = null;
+      state.error = '';
     },
   },
   extraReducers(builder) {
@@ -51,6 +51,11 @@ const userSlice = createSlice({
 
     builder.addCase(fetchListings.fulfilled, (state, action) => {
       state.status = 'idle';
+      if (action.payload.length === 0) {
+        state.error = 'No records found';
+      } else {
+        state.error = '';
+      }
       state.users = action.payload;
     });
 
@@ -61,6 +66,7 @@ const userSlice = createSlice({
       } else {
         state.error = 'Failed to fetch users';
       }
+      state.users = [];
     });
     builder.addCase(fetchUserInfo.pending, (state) => {
       state.isProcessing = true;

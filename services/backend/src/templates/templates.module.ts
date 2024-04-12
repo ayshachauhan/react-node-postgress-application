@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TemplateEntity } from 'src/entities/templates.entity';
+import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
 import { PracticesModule } from 'src/practices/practices.module';
 import { SurgeryTypesModule } from 'src/surgeryTypes/surgeryTypes.module';
 import { UsersModule } from 'src/users/users.module';
@@ -14,7 +15,14 @@ import { TemplatesService } from './templates.service';
     UsersModule,
     SurgeryTypesModule,
   ],
-  providers: [TemplatesService],
+  providers: [
+    TemplatesService,
+    practiceNotFoundInterceptor,
+    {
+      provide: 'PRACTICE_NOT_FOUND_MESSAGE',
+      useValue: 'Practice not found',
+    },
+  ],
   controllers: [TemplatesController],
   exports: [TemplatesService],
 })

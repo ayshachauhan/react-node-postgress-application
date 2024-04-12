@@ -1,6 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { PracticeEntity } from 'src/entities/practices.entity';
 import { SurgeryTypeEntity } from 'src/entities/surgeryTypes.entity';
 import { Repository } from 'typeorm';
 import { Video } from '../entities/media.entity';
@@ -10,8 +9,6 @@ export class MediaService {
   constructor(
     @InjectRepository(Video)
     private readonly videos: Repository<Video>,
-    @InjectRepository(PracticeEntity)
-    private readonly practice: Repository<PracticeEntity>,
     @InjectRepository(SurgeryTypeEntity)
     private readonly surgeryType: Repository<SurgeryTypeEntity>,
   ) {}
@@ -37,10 +34,6 @@ export class MediaService {
     practiceId: string,
     videoData: { surgeryTypeId: string } & Partial<Video>,
   ): Promise<Video> {
-    const practice = await this.practice.findOne({ where: { id: practiceId } });
-    if (!practice) {
-      throw new NotFoundException('Practice not exists');
-    }
     const surgeryType = await this.surgeryType.findOne({
       where: { id: videoData.surgeryTypeId },
     });

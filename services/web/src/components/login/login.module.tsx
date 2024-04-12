@@ -2,17 +2,24 @@
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
 import { useAppDispatch, useAppSelector } from '@root/store';
-import { loginUser, selectError } from '@root/store/reducers/auth';
+import {
+  clearErrorMessage,
+  clearSuccessMessage,
+  loginUser,
+  selectError,
+  selectSuccessMessage,
+} from '@root/store/reducers/auth';
 import { AzentiaLogo } from '@utils/constants';
 import { useRouter } from 'next/navigation';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 export default function LoginPage() {
   const dispatch = useAppDispatch();
   const [email, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const router = useRouter();
-  const error = useAppSelector(selectError); // Select success message from Redux store
+  const error = useAppSelector(selectError);
+  const successMessage = useAppSelector(selectSuccessMessage);
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
@@ -30,6 +37,26 @@ export default function LoginPage() {
       console.log(error);
     }
   };
+
+  useEffect(() => {
+    let timer;
+    if (successMessage) {
+      timer = setTimeout(() => {
+        dispatch(clearSuccessMessage());
+      }, 2000);
+    }
+    if (error) {
+      timer = setTimeout(() => {
+        dispatch(clearErrorMessage());
+      }, 2000);
+    }
+    return () => {
+      if (timer) {
+        clearTimeout(timer);
+      }
+    };
+  }, [successMessage, error, dispatch]);
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-white py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full items-center shadow-xl rounded-2xl justify-center py-8">
@@ -85,7 +112,9 @@ export default function LoginPage() {
             </div>
           </form>
           {error && <div className="text-red-700">{error}</div>}{' '}
-          {/* Display error message if present */}
+          {successMessage && (
+            <div className="text-green-700">{successMessage}</div>
+          )}
         </div>
       </div>
     </div>

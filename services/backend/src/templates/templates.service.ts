@@ -18,6 +18,7 @@ export class TemplatesService {
   ) {}
 
   async findAll(practiceId: string, userId: string): Promise<TemplateEntity[]> {
+    await this.practiceService.findOne(practiceId);
     return await this.templateRepository.find({
       where: { practice: { id: practiceId }, surgeon: { id: userId } },
       relations: ['surgeryType'],
@@ -41,9 +42,6 @@ export class TemplatesService {
     }
 
     const practiceEntity = await this.practiceService.findOne(practiceId);
-    if (!practiceEntity) {
-      throw new HttpException('Practice not found', HttpStatus.NOT_FOUND);
-    }
 
     const surgeryTypeEntity = await this.surgeryTypeService.getSurgeryTypeById(
       templateCreateDto.surgeryTypeId,
@@ -81,9 +79,7 @@ export class TemplatesService {
     }
 
     const practiceEntity = await this.practiceService.findOne(practiceId);
-    if (!practiceEntity) {
-      throw new HttpException('Practice not found', HttpStatus.NOT_FOUND);
-    }
+
     if (templatePatchDto.messageType) {
       templatePatchDto.messageType =
         TemplateMessageType[templatePatchDto.messageType];

@@ -2,10 +2,11 @@ import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
 import { TemplateMessageType } from '@root/enums/templateMessageType.enum';
 import { useAppDispatch, useAppSelector } from '@root/store';
-import { selectPractice, selectRecords } from '@root/store/reducers/auth';
+import { selectRecords } from '@root/store/reducers/auth';
 import { fetchSurgeryTypes } from '@root/store/reducers/surgeryTypes';
 import { addRecordAsync } from '@root/store/reducers/templates';
 import { CreateTemplateResponse } from '@root/store/requests/templates';
+import { getPracticeId } from '@utils/methods';
 import { Select } from 'baseui/select';
 import React, { useEffect, useState } from 'react';
 
@@ -16,7 +17,7 @@ const TemplateAddPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       id: TemplateMessageType[key as keyof typeof TemplateMessageType],
     }),
   );
-  const practiceId = useAppSelector(selectPractice);
+  const practiceId = getPracticeId();
   const userInfo = useAppSelector(selectRecords);
   const dispatch = useAppDispatch();
   const surgeryTypes = useAppSelector(

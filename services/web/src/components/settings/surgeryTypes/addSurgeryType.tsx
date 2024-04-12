@@ -1,15 +1,15 @@
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
-import { useAppDispatch, useAppSelector } from '@root/store';
-import { selectPractice } from '@root/store/reducers/auth';
+import { useAppDispatch } from '@root/store';
 import { addRecordAsync } from '@root/store/reducers/surgeryTypes';
 import { createSurgeryTypeInterface } from '@root/store/requests/surgeryTypes';
+import { getPracticeId } from '@utils/methods';
 import React, { useState } from 'react';
 
 const AddSurgeryType: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const dispatch = useAppDispatch();
   const [surgeryType, setSurgeryType] = useState('');
-  const practiceId = useAppSelector(selectPractice);
+  const practiceId = getPracticeId();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

@@ -2,18 +2,19 @@
 import Button from '@root/components/Button';
 import { AvatarIcon } from '@root/components/Icons';
 import { useAppDispatch, useAppSelector } from '@root/store';
-import { selectPractice, selectRecords } from '@root/store/reducers/auth';
+import { selectRecords } from '@root/store/reducers/auth';
 import {
   getPracticeInfo,
   selectPracticeInfo,
 } from '@root/store/reducers/practices';
+import { getPracticeId } from '@utils/methods';
 import { useRouter } from 'next/navigation';
 import React, { useEffect } from 'react';
 
 const Profile: React.FC = () => {
   const dispatch = useAppDispatch();
   const userInfo = useAppSelector(selectRecords);
-  const userPracticeId = useAppSelector(selectPractice);
+  const userPracticeId = getPracticeId();
   useEffect(() => {
     if (userPracticeId) {
       dispatch(getPracticeInfo({ id: userPracticeId }));
