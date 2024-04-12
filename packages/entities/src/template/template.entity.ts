@@ -39,9 +39,6 @@ export class TemplateEntity extends BaseEntity implements ITemplate {
   @Column({ type: 'enum', enum: SurgeryType, default: null, nullable: true })
   surgeryType: SurgeryType;
 
-  @Column({ type: 'integer' })
-  surgeryNumber: number;
-
   @Column({ type: 'varchar' })
   emailSubject: string;
 

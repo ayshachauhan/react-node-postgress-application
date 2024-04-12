@@ -15,6 +15,7 @@ const PracticeEditModule: React.FC<{
   const dispatch = useAppDispatch();
   const [name, setName] = useState(initialValues.name);
   const [status, setStatus] = useState(initialValues.status);
+  const [photoUrl, setPhotoUrl] = useState(initialValues.photoUrl);
   const practiceStatusOptions = Object.keys(PracticeStatus).map((key) => ({
     label: PracticeStatus[key as keyof typeof PracticeStatus],
     id: key,
@@ -32,12 +33,14 @@ const PracticeEditModule: React.FC<{
       id: initialValues.id,
       name,
       status,
+      photoUrl,
       code: initialValues.code,
     };
     try {
       dispatch(updateRecordAsync(data));
       setName('');
       setStatus('');
+      setPhotoUrl('');
       onClose();
     } catch (error) {
       onClose();
@@ -49,8 +52,8 @@ const PracticeEditModule: React.FC<{
       <form onSubmit={handleSubmit}>
         <div className="flex flex-col">
           <div className="flex flex-row gap-7 pt-4">
-            <div className="">
-              <label htmlFor="name" className="text-black text-sm">
+            <div className="space-y-2">
+              <label htmlFor="name" className="text-black text-sm font-normal">
                 Practice Name
               </label>
               <TextInput
@@ -62,8 +65,11 @@ const PracticeEditModule: React.FC<{
                 required
               />
             </div>
-            <div className="flex flex-col">
-              <label htmlFor="status" className="text-black text-sm">
+            <div className="flex flex-col space-y-2 w-1/2">
+              <label
+                htmlFor="status"
+                className="text-black text-sm font-normal"
+              >
                 Status
               </label>
               <Select
@@ -76,6 +82,7 @@ const PracticeEditModule: React.FC<{
                     style: {
                       backgroundColor: 'rgba(250, 250, 250, 1)',
                       border: 'none',
+                      color: 'rgba(82, 82, 91, 1)',
                       boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)', // Add shadow CSS here
                     },
                   },
@@ -88,15 +95,18 @@ const PracticeEditModule: React.FC<{
           </div>
 
           <div className="flex flex-row justify-between pt-4">
-            <div className="">
-              <label htmlFor="status" className="text-black text-sm">
+            <div className="space-y-2">
+              <label
+                htmlFor="photoUrl"
+                className="text-black text-sm font-normal"
+              >
                 Practice Photo
               </label>
               <TextInput
-                name="practicePhoto"
-                value=""
+                name="photoUrl"
+                value={photoUrl}
                 onChange={(value) => {
-                  setStatus(value);
+                  setPhotoUrl(value);
                 }}
               />
             </div>

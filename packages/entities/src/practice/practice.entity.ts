@@ -14,7 +14,7 @@ export class PracticeEntity extends BaseEntity implements IPractice {
   @Column({
     type: 'enum',
     enum: PracticeStatus,
-    default: PracticeStatus.ACTIVE,
+    default: PracticeStatus.PENDING,
   })
   status: PracticeStatus;
 

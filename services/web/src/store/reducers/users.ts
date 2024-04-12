@@ -3,6 +3,7 @@ import { State } from '@root/store';
 import {
   User,
   addUser,
+  changePassword,
   deleteUser,
   getUserInfo,
   getUsers,
@@ -88,7 +89,7 @@ const userSlice = createSlice({
     builder.addCase(addRecordAsync.fulfilled, (state, action) => {
       state.status = 'idle';
       state.users = [...state.users, action.payload];
-      state.successMessage = 'Record added successfully'; // Set success message
+      state.successMessage = 'Record added successfully';
     });
 
     builder.addCase(addRecordAsync.rejected, (state, action) => {
@@ -116,7 +117,7 @@ const userSlice = createSlice({
       });
 
       state.users = updatedUsers;
-      state.successMessage = 'Record updated successfully'; // Set success message
+      state.successMessage = 'Record updated successfully';
     });
 
     builder.addCase(updateRecordAsync.rejected, (state, action) => {
@@ -137,7 +138,7 @@ const userSlice = createSlice({
       state.status = 'idle';
       const deletetedUserId = action?.meta?.arg?.id;
       state.users = state.users.filter((user) => user.id !== deletetedUserId);
-      state.successMessage = 'Record deleted successfully'; // Set success message
+      state.successMessage = 'Record deleted successfully';
     });
 
     builder.addCase(deleteRecordAsync.rejected, (state, action) => {
@@ -146,6 +147,25 @@ const userSlice = createSlice({
         state.error = action.payload ?? 'Failed to delete user';
       } else {
         state.error = 'Failed to delete user';
+      }
+    });
+
+    builder.addCase(changePasswordAsync.pending, (state) => {
+      state.isProcessing = true;
+      state.status = 'loading';
+    });
+
+    builder.addCase(changePasswordAsync.fulfilled, (state) => {
+      state.status = 'idle';
+      state.successMessage = 'Password changed successfully';
+    });
+
+    builder.addCase(changePasswordAsync.rejected, (state, action) => {
+      state.status = 'failed';
+      if (typeof action.payload === 'string') {
+        state.error = action.payload ?? 'Failed to change password';
+      } else {
+        state.error = 'Failed to change password';
       }
     });
   },
@@ -171,9 +191,14 @@ export const updateRecordAsync = createAsyncThunk(
   updateUser,
 );
 
+export const changePasswordAsync = createAsyncThunk(
+  'users/changePasswordAsync',
+  changePassword,
+);
+
 export const selectRecords = (state: State) => state.users;
 export const selectStatus = (state: State) => state.users.status;
 export const selectError = (state: State) => state.users.error;
 export const selectSuccessMessage = (state: State) =>
-  state.users.successMessage; // Export selectSuccessMessage selector
+  state.users.successMessage;
 export default userSlice.reducer;

@@ -5,7 +5,7 @@ import { selectRecords } from '@root/store/reducers/auth';
 import { ChevronDown, ChevronRightSmall } from 'baseui/icon';
 import clsx from 'clsx';
 import Link from 'next/link';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { SideBarItem, filterSidebarItems, sidebarItems } from './types';
 
 const Sidebar: React.FC = () => {
@@ -22,6 +22,14 @@ const Sidebar: React.FC = () => {
     setActiveMenuItemId(item.id);
   }
 
+  useEffect(() => {
+    const currentPath = window.location.pathname;
+    const activeItem = sidebarItems.find((item) => currentPath === item.path);
+    if (activeItem) {
+      setActiveMenuItemId(activeItem.id);
+    }
+  }, []);
+
   return (
     <aside
       aria-label="Sidebar"
@@ -36,7 +44,10 @@ const Sidebar: React.FC = () => {
       <div className="h-full px-3 py-4 overflow-y-auto">
         <ul className="space-y-2 font-medium">
           {filteredSidebarItems.map(({ Icon, ...item }) => (
-            <li key={item.id}>
+            <li
+              key={item.id}
+              className={item.id == 'setting' ? 'absolute bottom-5' : ''}
+            >
               <Link
                 href={item.path}
                 onClick={() => handleSidebarItemClick({ ...item, Icon })}
