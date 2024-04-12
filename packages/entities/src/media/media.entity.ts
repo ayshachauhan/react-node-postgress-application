@@ -1,6 +1,6 @@
-import { SurgeryType } from 'src/enums/surgeryType.enum';
 import { Column, Entity } from 'typeorm';
 import { BaseEntity } from '../base.entity';
+import { SurgeryType } from '../template/template.interface';
 import { IMedia } from './media.interface';
 
 @Entity('videos')

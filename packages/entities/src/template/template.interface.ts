@@ -10,7 +10,6 @@ export interface ITemplate extends BaseEntity {
   dateOffset: number;
   meridiem?: Meridiem;
   surgeryType: SurgeryType;
-  surgeryNumber: number;
   emailSubject: string;
   emailBody: string;
   emailAttachment: string;

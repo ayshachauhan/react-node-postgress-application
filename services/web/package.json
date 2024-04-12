@@ -12,7 +12,6 @@
     "start": "next start"
   },
   "dependencies": {
-    "@packages/entities": "^1.0.0",
     "@reduxjs/toolkit": "^2.2.1",
     "baseui": "0.0.0-next-f88694cb3",
     "body-parser": "^1.20.2",
@@ -24,7 +23,8 @@
     "react-dom": "^18",
     "react-redux": "^9.1.0",
     "styletron-engine-monolithic": "^1.0.0",
-    "styletron-react": "^6.1.1"
+    "styletron-react": "^6.1.1",
+    "@packages/entities": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^20",

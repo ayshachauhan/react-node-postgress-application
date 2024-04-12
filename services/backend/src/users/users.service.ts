@@ -8,6 +8,7 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
+import { PracticeStatus } from '@packages/entities/practice';
 import { User, UserStatus, UserType } from '@packages/entities/user';
 import * as bcrypt from 'bcrypt';
 import * as fs from 'fs';
@@ -21,7 +22,6 @@ import { NewUserMailData, SanitizedUser } from 'src/users/types';
 import { DataSource, In, Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create.dto';
 import { UpdateUserDto } from './dto/update.dto';
-import { PracticeStatus } from '@packages/entities';
 
 @Injectable()
 export class UsersService {

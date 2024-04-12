@@ -9,8 +9,8 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { PracticeHome } from '@packages/entities/practiceHomes';
 import { AuthGuard } from '../auth/auth.guard';
-import { PracticeHome } from '../entities/practiceHomes.entity';
 import { CreateSurgeryTypeDto } from './dto/createSurgery.dto';
 import { SurgeryTypesService } from './surgeryTypes.service';
 

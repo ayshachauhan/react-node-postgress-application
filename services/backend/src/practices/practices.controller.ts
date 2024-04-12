@@ -10,7 +10,7 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { PracticeEntity } from '@packages/entities';
+import { PracticeEntity } from '@packages/entities/practice';
 import { AuthGuard } from '../auth/auth.guard';
 import { SuperAdminGuard } from '../auth/superAdmin.guard';
 import { PracticeCreateDto } from './dto/create.dto';

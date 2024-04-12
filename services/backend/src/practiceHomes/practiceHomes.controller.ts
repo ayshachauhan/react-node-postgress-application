@@ -12,7 +12,7 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { PracticeHome } from '@packages/entities';
+import { PracticeHome } from '@packages/entities/practiceHomes';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
 import { AuthGuard } from '../auth/auth.guard';
 import { PracticeHomeCreateDto } from './dto/create.dto';

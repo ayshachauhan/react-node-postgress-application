@@ -10,11 +10,11 @@
   ],
   "exports": {
     ".": {
-      "import": "./dist/index.js",
+      "import": "./src/index.ts",
       "require": "./dist/index.js"
     },
     "./*": {
-      "import": "./dist/*/index.js",
+      "import": "./src/*/index.ts",
       "require": "./dist/*/index.js"
     }
   },
@@ -31,9 +31,11 @@
   },
   "author": "",
   "license": "ISC",
-  "devDependencies": {
+  "dependencies": {
     "class-validator": "^0.14.1",
-    "typeorm": "^0.3.20",
+    "typeorm": "^0.3.20"
+  },
+  "devDependencies": {
     "typescript": "^5.4.5"
   }
 }

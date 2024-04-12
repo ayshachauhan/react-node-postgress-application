@@ -1,6 +1,6 @@
-import { SurgeryType } from '@packages/entities';
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
+import { SurgeryType } from '@root/enums/surgeryType.enum';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { selectRecords } from '@root/store/reducers/auth';
 import {

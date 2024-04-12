@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { PracticeStatus } from '@packages/entities';
+import { PracticeStatus } from '@packages/entities/practice';
 import { IsOptional } from 'class-validator';
 
 export class PracticePatchDto {

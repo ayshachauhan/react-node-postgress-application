@@ -1,6 +1,7 @@
-import { UserStatus, UserType } from '@packages/entities';
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
+import { UserStatus } from '@root/enums/status.enum';
+import { UserType } from '@root/enums/userType.enum';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { updateRecordAsync } from '@root/store/reducers/users';
 import { EditUser } from '@root/store/requests/users';
