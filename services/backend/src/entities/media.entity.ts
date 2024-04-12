@@ -1,5 +1,6 @@
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { BaseEntity } from './base.entity';
+import { SurgeryTypeEntity } from './surgeryTypes.entity';
 
 @Entity('videos')
 export class Video extends BaseEntity {
@@ -15,6 +16,7 @@ export class Video extends BaseEntity {
   @Column({ type: 'varchar' })
   url: string;
 
-  @Column({ type: 'uuid' })
-  surgeryType: string;
+  @ManyToOne(() => SurgeryTypeEntity)
+  @JoinColumn({ name: 'surgeryTypeId' })
+  surgeryType: SurgeryTypeEntity;
 }

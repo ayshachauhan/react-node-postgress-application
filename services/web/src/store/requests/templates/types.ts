@@ -14,6 +14,12 @@ export interface DbTemplatesResponse {
   version: string;
 }
 
+export interface SurgeryType {
+  id: string;
+  practiceId: string;
+  name: string;
+}
+
 export interface CreateTemplateResponse {
   practiceId: string;
   userId?: string;
@@ -21,7 +27,7 @@ export interface CreateTemplateResponse {
   dateOffset?: string;
   meridiem?: string;
   messageType: string;
-  surgeryType: string;
+  surgeryTypeId: string;
   emailSubject?: string;
   emailBody?: string;
   emailAttachment?: string;
@@ -38,7 +44,7 @@ export interface EditTemplate {
   dateOffset?: string;
   meridiem?: string;
   messageType?: string;
-  surgeryType?: string;
+  surgeryType?: SurgeryType;
   emailSubject?: string;
   emailBody?: string;
   emailAttachment?: string;
@@ -48,7 +54,8 @@ export interface EditTemplate {
 }
 
 export interface GetTemplatesResponse {
-  surgeryType: string;
+  surgeryType: SurgeryType;
+  surgeryTypeName?: string;
   booking?: DbTemplatesResponse[];
   pcp?: DbTemplatesResponse[];
   preop?: DbTemplatesResponse[];

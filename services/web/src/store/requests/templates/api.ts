@@ -29,7 +29,7 @@ export const getTemplates = async (
 
     const modifiedDataObject = {};
     data.forEach((element) => {
-      const surgeryType: string = element.surgeryType;
+      const surgeryType: string = element.surgeryType.name;
       const messageType: string = element.messageType;
       if (modifiedDataObject[surgeryType]) {
         if (modifiedDataObject[surgeryType][messageType]) {
@@ -40,7 +40,7 @@ export const getTemplates = async (
       } else {
         modifiedDataObject[surgeryType] = {
           [messageType]: [element],
-          surgeryType,
+          surgeryTypeName: surgeryType,
         };
       }
     });

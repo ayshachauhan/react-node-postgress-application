@@ -10,6 +10,7 @@ export class SurgeryTypesService {
   constructor(
     @InjectRepository(SurgeryTypeEntity)
     private surgeryTypeRepository: Repository<SurgeryTypeEntity>,
+    // @Inject(forwardRef(() => PracticesService))
     private readonly practicesService: PracticesService,
   ) {}
 

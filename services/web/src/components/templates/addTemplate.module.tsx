@@ -26,7 +26,7 @@ const TemplateAddPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     label: surgeryTypes[key].name,
     id: surgeryTypes[key].id,
   }));
-  const [surgeryType, setSurgeryType] = useState('');
+  const [surgeryTypeId, setsurgeryTypeId] = useState('');
   const [messageType, setMsgType] = useState('');
   const [dateOffset, setDateOffset] = useState('');
 
@@ -39,13 +39,13 @@ const TemplateAddPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         active: true,
         dateOffset,
         messageType,
-        surgeryType,
+        surgeryTypeId,
       };
       try {
         dispatch(addRecordAsync(data));
         setDateOffset('0');
         setMsgType('');
-        setSurgeryType('');
+        setsurgeryTypeId('');
         onClose();
       } catch (error) {
         onClose();
@@ -53,7 +53,7 @@ const TemplateAddPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     }
   };
   const handleSurgeryTypeChange = ({ value }) => {
-    setSurgeryType(value[0] ? value[0].id : null);
+    setsurgeryTypeId(value[0] ? value[0].id : null);
   };
 
   const handleMsgTypeChange = ({ value }) => {
@@ -76,7 +76,9 @@ const TemplateAddPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           <Select
             options={surgeryTypeOptions}
             onChange={handleSurgeryTypeChange}
-            value={surgeryType ? [{ label: surgeryType, id: surgeryType }] : []}
+            value={
+              surgeryTypeId ? [{ label: surgeryTypeId, id: surgeryTypeId }] : []
+            }
             required
             overrides={{
               ControlContainer: {

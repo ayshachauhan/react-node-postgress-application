@@ -10,7 +10,9 @@ import { TemplatesService } from './templates.service';
   imports: [
     TypeOrmModule.forFeature([TemplateEntity]),
     PracticesModule,
+    // forwardRef(() => PracticesModule),
     UsersModule,
+    // forwardRef(() => SurgeryTypesModule),
   ],
   providers: [TemplatesService],
   controllers: [TemplatesController],

@@ -3,6 +3,7 @@ import { TemplateMessageType } from 'src/enums/templateMessageType.enum';
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { BaseEntity } from './base.entity';
 import { PracticeEntity } from './practices.entity';
+import { SurgeryTypeEntity } from './surgeryTypes.entity';
 import { User } from './users.entity';
 
 @Entity('templates')
@@ -37,8 +38,9 @@ export class TemplateEntity extends BaseEntity {
   })
   meridiem?: Meridiem;
 
-  @Column({ type: 'uuid' })
-  surgeryType: string;
+  @ManyToOne(() => SurgeryTypeEntity)
+  @JoinColumn({ name: 'surgeryTypeId' })
+  surgeryType: SurgeryTypeEntity;
 
   @Column({ type: 'varchar' })
   emailSubject: string;

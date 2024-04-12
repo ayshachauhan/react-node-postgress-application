@@ -5,7 +5,7 @@ export class ChangeVideosSurgeryTypeType1712870045039
 {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
-      'ALTER TABLE videos ADD COLUMN "surgeryType" UUID DEFAULT uuid_generate_v4()',
+      'ALTER TABLE videos ADD COLUMN "surgeryType" UUID DEFAULT uuid_generate_v4() NOT NULL',
     );
 
     await queryRunner.query(`

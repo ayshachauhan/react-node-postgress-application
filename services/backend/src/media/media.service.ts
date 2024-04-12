@@ -14,7 +14,12 @@ export class MediaService {
   ) {}
 
   async getVideosByPracticeId(practiceId: string) {
-    return await this.videos.find({ where: { practiceId } });
+    const abc = await this.videos.find({
+      where: { practiceId },
+      relations: ['surgeryType'],
+    });
+    console.log(abc);
+    return abc;
   }
 
   async getVideosById(practiceId: string, videoId: string): Promise<Video> {

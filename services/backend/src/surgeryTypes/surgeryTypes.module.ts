@@ -7,6 +7,7 @@ import { SurgeryTypesService } from './surgeryTypes.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([SurgeryTypeEntity]), PracticesModule],
+  // imports: [TypeOrmModule.forFeature([SurgeryTypeEntity]),  forwardRef(() => PracticesModule)],
   providers: [SurgeryTypesService],
   controllers: [SurgeryTypesController],
 })

@@ -24,6 +24,7 @@ interface ChildProps {
 
 const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
   const handleSurgeryTypeChange = ({ value }) => {
+    console.log(value);
     setTemplateInfo({
       ...updatedTemplateInfo,
       surgeryType: value[0] ? value[0].id : null,
@@ -162,8 +163,8 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
                     updatedTemplateInfo?.surgeryType
                       ? [
                           {
-                            label: updatedTemplateInfo.surgeryType,
-                            id: updatedTemplateInfo.surgeryType,
+                            label: updatedTemplateInfo.surgeryType?.name,
+                            id: updatedTemplateInfo.surgeryType?.id,
                           },
                         ]
                       : []

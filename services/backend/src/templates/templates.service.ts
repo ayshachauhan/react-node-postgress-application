@@ -2,6 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TemplateMessageType } from 'src/enums/templateMessageType.enum';
 import { PracticesService } from 'src/practices/practices.service';
+// import { SurgeryTypesService } from 'src/surgeryTypes/surgeryTypes.service';
 import { UsersService } from 'src/users/users.service';
 import { Repository } from 'typeorm';
 import { TemplateEntity } from '../entities/templates.entity';
@@ -11,13 +12,17 @@ export class TemplatesService {
   constructor(
     @InjectRepository(TemplateEntity)
     private templateRepository: Repository<TemplateEntity>,
+    // @Inject(forwardRef(() => PracticesService))
     private practiceService: PracticesService,
     private userService: UsersService,
+    // @Inject(forwardRef(() => SurgeryTypesService))
+    // private surgeryTypeService: SurgeryTypesService,
   ) {}
 
   async findAll(practiceId: string, userId: string): Promise<TemplateEntity[]> {
     return await this.templateRepository.find({
       where: { practice: { id: practiceId }, surgeon: { id: userId } },
+      relations: ['surgeryType'],
     });
   }
 
@@ -41,6 +46,10 @@ export class TemplatesService {
     if (!practiceEntity) {
       throw new HttpException('Practice not found', HttpStatus.NOT_FOUND);
     }
+    // const surgeryTypeEntity = await this.surgeryTypeService.getSurgeryTypeById(templateCreateDto.surgeryTypeId, practiceId);
+    // if (!surgeryTypeEntity) {
+    //   throw new HttpException('Surgery type not found', HttpStatus.NOT_FOUND);
+    // }
     templateCreateDto.messageType =
       TemplateMessageType[templateCreateDto.messageType];
 
