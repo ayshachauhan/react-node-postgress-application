@@ -1,8 +1,8 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserPermissionEntity } from 'src/entities/userPermissions.entity';
+import { User } from 'src/entities/users.entity';
 import { PermissionsService } from 'src/permissions/permissions.service';
-import { UsersService } from 'src/users/users.service';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -11,7 +11,6 @@ export class UserPermissionsService {
     @InjectRepository(UserPermissionEntity)
     private userPermissionRepository: Repository<UserPermissionEntity>,
     private readonly permissionService: PermissionsService,
-    private readonly userService: UsersService,
   ) {}
 
   async remove(id: string): Promise<void> {
@@ -20,13 +19,11 @@ export class UserPermissionsService {
     });
   }
 
-  async create({ userId, permissionId }): Promise<UserPermissionEntity> {
+  async create(
+    { permissionId },
+    userEntity: User,
+  ): Promise<UserPermissionEntity> {
     const newUserPermission: UserPermissionEntity = new UserPermissionEntity();
-
-    const userEntity = await this.userService.getUserById(userId);
-    if (!userEntity) {
-      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
-    }
 
     const permissionEntity =
       await this.permissionService.getPermissionById(permissionId);
@@ -46,11 +43,6 @@ export class UserPermissionsService {
     userId,
     permissionId,
   }): Promise<UserPermissionEntity | null> {
-    const userEntity = await this.userService.getUserById(userId);
-    if (!userEntity) {
-      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
-    }
-
     const permissionEntity =
       await this.permissionService.getPermissionById(permissionId);
     if (!permissionEntity) {

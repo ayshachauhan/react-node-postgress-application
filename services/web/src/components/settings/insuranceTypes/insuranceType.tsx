@@ -3,7 +3,6 @@ import AddPracticeHome from '@components/settings/insuranceTypes/addInsuranceTyp
 import Button from '@root/components/Button';
 import { AddIcon, DeleteIcon } from '@root/components/Icons';
 import { useAppDispatch, useAppSelector } from '@root/store';
-import { selectPractice } from '@root/store/reducers/auth';
 import {
   clearErrorMessage,
   clearSuccessMessage,
@@ -16,6 +15,7 @@ import {
   getPracticeInfo,
   selectPracticeInfo,
 } from '@root/store/reducers/practices';
+import { getPracticeId } from '@utils/methods';
 import {
   Modal,
   ModalBody,
@@ -32,7 +32,7 @@ export default function InsuranceTypePage() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const practiceId = useAppSelector(selectPractice);
+  const practiceId = getPracticeId();
   const practiceName = useAppSelector(selectPracticeInfo);
   const insuranceTypes = useAppSelector(
     (state) => state.insuranceTypes.insuranceTypes,

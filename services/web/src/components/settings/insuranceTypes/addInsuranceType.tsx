@@ -1,15 +1,15 @@
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
-import { useAppDispatch, useAppSelector } from '@root/store';
-import { selectPractice } from '@root/store/reducers/auth';
+import { useAppDispatch } from '@root/store';
 import { addRecordAsync } from '@root/store/reducers/insuranceTypes';
 import { CreateInsuranceTypeInterface } from '@root/store/requests/insuranceTypes';
+import { getPracticeId } from '@utils/methods';
 import React, { useState } from 'react';
 
 const AddInsuranceType: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const dispatch = useAppDispatch();
   const [insuranceType, setInsuranceType] = useState('');
-  const practiceId = useAppSelector(selectPractice);
+  const practiceId = getPracticeId();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

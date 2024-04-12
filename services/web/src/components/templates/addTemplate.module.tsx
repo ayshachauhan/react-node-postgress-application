@@ -3,9 +3,10 @@ import TextInput from '@root/components/TextInput';
 import { SurgeryType } from '@root/enums/surgeryType.enum';
 import { TemplateMessageType } from '@root/enums/templateMessageType.enum';
 import { useAppDispatch, useAppSelector } from '@root/store';
-import { selectPractice, selectRecords } from '@root/store/reducers/auth';
+import { selectRecords } from '@root/store/reducers/auth';
 import { addRecordAsync } from '@root/store/reducers/templates';
 import { CreateTemplateResponse } from '@root/store/requests/templates';
+import { getPracticeId } from '@utils/methods';
 import { Select } from 'baseui/select';
 import React, { useState } from 'react';
 
@@ -21,7 +22,7 @@ const TemplateAddPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       id: TemplateMessageType[key as keyof typeof TemplateMessageType],
     }),
   );
-  const practiceId = useAppSelector(selectPractice);
+  const practiceId = getPracticeId();
   const userInfo = useAppSelector(selectRecords);
   const dispatch = useAppDispatch();
 
