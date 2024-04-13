@@ -1,11 +1,16 @@
 export { default as AddIcon } from './Add';
 export { default as AddReferrerIcon } from './AddReferrerIcon';
+export { default as AvatarIcon } from './Avatar';
 export { default as DashboardIcon } from './Dashboard';
+export { default as DeleteIcon } from './Delete';
+export { default as EditIcon } from './Edit';
 export { default as HistoryIcon } from './History';
 export { default as MediaIcon } from './Media';
 export { default as MessageIcon } from './Message';
 export { default as PlayIcon } from './Play';
+export { default as SearchIcon } from './Search';
 export { default as SettingIcon } from './Setting';
 export { default as StethoscopeIcon } from './Stethoscope';
 export { default as TemplateIcon } from './Template';
 export { default as UsersIcon } from './Users';
+export { default as ViewIcon } from './View';

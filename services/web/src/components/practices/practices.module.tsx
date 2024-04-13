@@ -1,46 +1,147 @@
 'use client';
-import { useAppDispatch, useAppSelector } from '@root/store';
-import { fetchListings } from '@root/store/reducers/practices';
-import React, { useEffect } from 'react';
+import Button from '@root/components/Button';
+import TextInput from '@root/components/TextInput';
+import { useAppDispatch } from '@root/store';
+import { addRecordAsync } from '@root/store/reducers/practices';
+import { PracticeCreateInterface } from '@store/requests/practices';
+import React, { useState } from 'react';
 
-export default function PracticePage() {
+const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const dispatch = useAppDispatch();
-  const practices = useAppSelector((state) => state.practices.practices);
+  const [name, setName] = useState('');
+  const [adminFirstName, setAdminFirstName] = useState('');
+  const [adminLastName, setAdminLastName] = useState('');
+  const [adminEmail, setAdminEmail] = useState('');
+  const [adminContactNumber, setAdminContactNumber] = useState('');
+  const generateRandomCode = () => {
+    const min = 100000; // Minimum value for a 6-digit code
+    const max = 999999; // Maximum value for a 6-digit code
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  };
+  const [code, setCode] = useState(generateRandomCode().toString());
 
-  useEffect(() => {
-    dispatch(fetchListings()); // Fetch listings from PostgreSQL database
-  }, [dispatch]);
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    const data: PracticeCreateInterface = {
+      name,
+      adminFirstName,
+      adminLastName,
+      adminEmail,
+      adminContactNumber,
+      code,
+    };
+    try {
+      dispatch(addRecordAsync(data));
+      setName('');
+      setAdminFirstName('');
+      setAdminLastName('');
+      setAdminEmail('');
+      setAdminContactNumber('');
+      setCode('');
+      onClose();
+    } catch (error) {
+      onClose();
+    }
+  };
 
   return (
-    <div className="mt-4">
-      <div className="flex justify-between border-gray-400">
-        <span className="text-xl">All Practices</span>
-      </div>
-      <hr className="h-px my-2.5 bg-gray-100 border-1 dark:bg-gray-700"></hr>
-      <div className="text-gray-50 w-full  items-center  bg-gray-50 py-4 rounded-lg">
-        <div className="bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 grid grid-cols-4 rounded-lg">
-          <div className="font-bold text-white p-4">S. No.</div>
-          <div className="font-bold text-white p-4">Practice</div>
-          <div className="font-bold text-white p-4">Create Date</div>
-          <div className="font-bold text-white p-4">Update Date</div>
-          {practices.map((data, index) => (
-            <React.Fragment key={data.id}>
-              <div className="text-gray-900 bg-gray-50 pt-2 px-4">
-                {index + 1}
-              </div>
-              <div className="text-gray-900 bg-gray-50 pt-2 px-4">
-                {data.name}
-              </div>
-              <div className="text-gray-900 bg-gray-50 pt-2 px-4">
-                {data.dateCreated?.toString()}
-              </div>
-              <div className="text-gray-900 bg-gray-50 pt-2 px-4">
-                {data.dateCreated?.toString()}
-              </div>
-            </React.Fragment>
-          ))}
+    <div>
+      <form onSubmit={handleSubmit}>
+        <div className="flex flex-col">
+          <div className="flex flex-row justify-between pt-4">
+            <div className="space-y-2">
+              <label htmlFor="name" className="text-black text-sm font-normal">
+                Practice Name
+              </label>
+              <TextInput
+                name="practiceName"
+                value={name}
+                onChange={(value) => {
+                  setName(value);
+                }}
+                required
+              />
+            </div>
+            <div className="">
+              <label htmlFor="status" className="text-black text-sm">
+                Practice Photo
+              </label>
+              <TextInput
+                name="practicePhoto"
+                value=""
+                onChange={(value) => {
+                  setCode(value);
+                }}
+              />
+            </div>
+          </div>
+          <div className="flex flex-row justify-between pt-4">
+            <div className="">
+              <label htmlFor="adminFirstName" className="text-black text-sm">
+                First Name
+              </label>
+              <TextInput
+                name="adminFirstName"
+                value={adminFirstName}
+                onChange={(value) => {
+                  setAdminFirstName(value);
+                }}
+                required
+              />
+            </div>
+            <div className="">
+              <label htmlFor="adminLastName" className="text-black text-sm">
+                Last Name
+              </label>
+              <TextInput
+                name="adminLastName"
+                value={adminLastName}
+                onChange={(value) => {
+                  setAdminLastName(value);
+                }}
+                required
+              />
+            </div>
+          </div>
+          <div className="flex flex-row justify-between pt-4">
+            <div className="">
+              <label htmlFor="adminEmail" className="text-black text-sm">
+                Admin Email
+              </label>
+              <TextInput
+                name="adminEmail"
+                value={adminEmail}
+                onChange={(value) => {
+                  setAdminEmail(value);
+                }}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <label
+                htmlFor="adminContactNumber"
+                className="text-black text-sm font-normal"
+              >
+                Admin Contact No.
+              </label>
+              <TextInput
+                name="adminContactNumber"
+                value={adminContactNumber}
+                onChange={(value) => {
+                  setAdminContactNumber(value);
+                }}
+                required
+              />
+            </div>
+          </div>
+          <div className="text-right text-base pt-4">
+            <Button kind="primary" title="Add new practice" width={189} />
+          </div>
         </div>
-      </div>
+      </form>
     </div>
   );
-}
+};
+
+export default PracticePage;

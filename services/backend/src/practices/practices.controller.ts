@@ -16,6 +16,7 @@ import { PracticeEntity } from '../entities/practices.entity';
 import { PracticeCreateDto } from './dto/create.dto';
 import { PracticePatchDto } from './dto/patch.dto';
 import { PracticesService } from './practices.service';
+import { PracticesGetInterface } from './types';
 
 @ApiTags('Practcies')
 @Controller('practices')
@@ -25,7 +26,7 @@ export class PracticesController {
   @Get()
   @ApiBearerAuth('superadmin')
   @UseGuards(SuperAdminGuard)
-  async findAll(): Promise<PracticeEntity[]> {
+  async findAll(): Promise<PracticesGetInterface[]> {
     return this.practiceService.findAll();
   }
 
@@ -53,8 +54,8 @@ export class PracticesController {
   }
 
   @Patch(':id')
-  @ApiBearerAuth('normal')
-  @UseGuards(AuthGuard)
+  @ApiBearerAuth('superadmin')
+  @UseGuards(SuperAdminGuard)
   async update(
     @Param('id') id: string,
     @Body() practicePatchDto: PracticePatchDto,

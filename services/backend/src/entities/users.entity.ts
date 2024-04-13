@@ -1,7 +1,8 @@
 import { UserStatus } from 'src/enums/status.enum';
 import { UserType } from 'src/enums/userType.enum';
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, JoinTable, ManyToMany } from 'typeorm';
 import { BaseEntity } from './base.entity';
+import { PracticeEntity } from './practices.entity';
 
 @Entity('users')
 export class User extends BaseEntity {
@@ -39,4 +40,15 @@ export class User extends BaseEntity {
     default: UserType.EMPLOYEE,
   })
   type: UserType;
+
+  @Column({ type: 'varchar' })
+  contactNumber: string;
+
+  @ManyToMany(() => PracticeEntity)
+  @JoinTable({
+    name: 'user_practices',
+    joinColumn: { name: 'userId', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'practiceId', referencedColumnName: 'id' },
+  })
+  practices: PracticeEntity[];
 }

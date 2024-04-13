@@ -40,9 +40,9 @@ export const sidebarItems: SideBarItem[] = [
     path: '/users',
     permissions: ['admin'],
     Icon: UsersIcon,
-    child: [
-      { id: 'test', title: 'Add User', path: 'test', permissions: ['admin'] },
-    ],
+    // child: [
+    //   { id: 'test', title: 'Add User', path: 'test', permissions: ['admin'] },
+    // ],
   },
   {
     id: 'templates',
@@ -81,8 +81,8 @@ export const sidebarItems: SideBarItem[] = [
   },
   {
     id: 'setting',
-    title: 'Setting',
-    path: '/setting',
+    title: 'Settings',
+    path: '/settings',
     permissions: ['admin'],
     Icon: SettingIcon,
   },

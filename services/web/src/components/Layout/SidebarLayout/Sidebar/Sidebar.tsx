@@ -1,17 +1,17 @@
 'use client';
 
-import { State, useAppSelector } from '@root/store';
+import { useAppSelector } from '@root/store';
+import { selectRecords } from '@root/store/reducers/auth';
 import { ChevronDown, ChevronRightSmall } from 'baseui/icon';
 import clsx from 'clsx';
 import Link from 'next/link';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { SideBarItem, filterSidebarItems, sidebarItems } from './types';
 
 const Sidebar: React.FC = () => {
   const [activeMenuItemId, setActiveMenuItemId] = useState<string>('');
-  const is_super_admin = useAppSelector(
-    (state: State) => state.auth.isSuperAdmin,
-  );
+  const userInfo = useAppSelector(selectRecords);
+  const is_super_admin = userInfo ? userInfo.isSuperAdmin : false;
   const userType = is_super_admin ? 'super_admin' : 'admin';
   const filteredSidebarItems: SideBarItem[] = filterSidebarItems(
     userType,
@@ -21,6 +21,14 @@ const Sidebar: React.FC = () => {
   function handleSidebarItemClick(item: SideBarItem) {
     setActiveMenuItemId(item.id);
   }
+
+  useEffect(() => {
+    const currentPath = window.location.pathname;
+    const activeItem = sidebarItems.find((item) => currentPath === item.path);
+    if (activeItem) {
+      setActiveMenuItemId(activeItem.id);
+    }
+  }, []);
 
   return (
     <aside
@@ -36,7 +44,10 @@ const Sidebar: React.FC = () => {
       <div className="h-full px-3 py-4 overflow-y-auto">
         <ul className="space-y-2 font-medium">
           {filteredSidebarItems.map(({ Icon, ...item }) => (
-            <li key={item.id}>
+            <li
+              key={item.id}
+              className={item.id == 'setting' ? 'absolute bottom-5' : ''}
+            >
               <Link
                 href={item.path}
                 onClick={() => handleSidebarItemClick({ ...item, Icon })}

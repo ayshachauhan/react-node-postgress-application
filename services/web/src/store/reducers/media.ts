@@ -1,15 +1,14 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { MediaInterface } from '@root/components/media/types';
 import { State } from '@root/store';
-import { addMedia, getMedia } from '../requests/media';
+import { addMedia, getMedia, MediaInterface } from '../requests/media';
 
 export interface MediaState {
   isProcessing: boolean;
   entities: Record<string, MediaInterface>;
   media: MediaInterface[];
   status: 'idle' | 'loading' | 'failed';
-  successMessage: string | null;
-  error: string | null;
+  successMessage: string;
+  error: string;
 }
 
 const initialState: MediaState = {
@@ -17,8 +16,8 @@ const initialState: MediaState = {
   entities: {},
   media: [],
   status: 'idle',
-  successMessage: null, // Initial value for success message
-  error: null,
+  successMessage: '', // Initial value for success message
+  error: '',
 };
 
 const mediaSlice = createSlice({
@@ -29,10 +28,10 @@ const mediaSlice = createSlice({
       state.media = [...state.media, action.payload];
     },
     clearSuccessMessage(state) {
-      state.successMessage = null;
+      state.successMessage = '';
     },
     clearErrorMessage(state) {
-      state.error = null;
+      state.error = '';
     },
   },
   extraReducers(builder) {
@@ -43,6 +42,11 @@ const mediaSlice = createSlice({
 
     builder.addCase(fetchListings.fulfilled, (state, action) => {
       state.status = 'idle';
+      if (action.payload.length === 0) {
+        state.error = 'No records found';
+      } else {
+        state.error = '';
+      }
       state.media = action.payload;
     });
 
@@ -53,6 +57,7 @@ const mediaSlice = createSlice({
       } else {
         state.error = 'Failed to fetch videos';
       }
+      state.media = [];
     });
 
     builder.addCase(addRecordAsync.pending, (state) => {

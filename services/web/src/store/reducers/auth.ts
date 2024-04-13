@@ -1,18 +1,20 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { UserInterface } from '@root/components/login/types';
 import { State } from '@root/store';
+import { getPracticeId } from '@utils/methods';
 import Cookies from 'js-cookie';
-import { User, getMe, login } from '../requests/login';
+import { GetUserResponse, getMe, login } from '../requests/login';
 
 export interface AuthState {
   isAuthenticated: boolean;
-  user: User | null;
+  user: GetUserResponse | null;
   isProcessing: boolean;
   entities: Record<string, UserInterface>;
   status: 'idle' | 'loading' | 'failed';
-  successMessage: string | null;
-  error: string | null;
+  successMessage: string;
+  error: string;
   isSuperAdmin: boolean;
+  azentiaSelectedPractice: string;
 }
 
 const initialState: AuthState = {
@@ -21,9 +23,10 @@ const initialState: AuthState = {
   isProcessing: false,
   entities: {},
   status: 'idle',
-  successMessage: null, // Initial value for success message
-  error: null,
+  successMessage: '',
+  error: '',
   isSuperAdmin: false,
+  azentiaSelectedPractice: '',
 };
 
 const authSlice = createSlice({
@@ -31,35 +34,36 @@ const authSlice = createSlice({
   initialState,
   reducers: {
     clearSuccessMessage(state) {
-      state.successMessage = null;
+      state.successMessage = '';
     },
     clearErrorMessage(state) {
-      state.error = null;
+      state.error = '';
     },
     logoutUser: (state) => {
       state.isAuthenticated = false;
       state.user = null;
       state.isSuperAdmin = false;
-      Cookies.remove('access_token'); // Remove access token from cookies on logout
+      Cookies.remove('access_token');
+      localStorage.removeItem('practiceId');
     },
   },
   extraReducers(builder) {
     builder.addCase(loginUser.pending, (state) => {
       state.isProcessing = true;
       state.status = 'loading';
-      state.error = null;
+      state.error = '';
     });
     builder.addCase(loginUser.fulfilled, (state, action) => {
       state.status = 'idle';
       state.isAuthenticated = true;
-      state.successMessage = 'User logged in successfully'; // Set success message
+      state.successMessage = 'User logged in successfully';
       if (action.payload) {
         Cookies.set('access_token', action.payload.access_token, {
           expires: 1,
         });
         state.isSuperAdmin = action.payload.is_super_admin;
       }
-      state.error = null;
+      state.error = '';
     });
 
     builder.addCase(loginUser.rejected, (state, action) => {
@@ -71,14 +75,34 @@ const authSlice = createSlice({
     builder.addCase(fetchLoggedInUser.pending, (state) => {
       state.isProcessing = true;
       state.status = 'loading';
-      state.error = null;
+      state.error = '';
     });
     builder.addCase(fetchLoggedInUser.fulfilled, (state, action) => {
       state.status = 'idle';
       state.isAuthenticated = true;
       state.user = action.payload;
-      state.user = action.payload;
-      state.error = null;
+      state.error = '';
+      const practiceId = getPracticeId();
+      if (
+        state.user &&
+        state.user.userPractices &&
+        state.user.userPractices.length &&
+        state.user.userPractices[0].practice
+      ) {
+        if (!practiceId) {
+          localStorage.setItem(
+            'practiceId',
+            state.user.userPractices[0].practice.id,
+          );
+        }
+        state.azentiaSelectedPractice =
+          state.user.userPractices[0].practice.name;
+      } else {
+        if (!practiceId) {
+          localStorage.setItem('practiceId', '');
+        }
+        state.azentiaSelectedPractice = '';
+      }
     });
 
     builder.addCase(fetchLoggedInUser.rejected, (state, action) => {
@@ -107,16 +131,18 @@ export const selectIsAuthenticated = (state: State) =>
   state.auth.isAuthenticated;
 export const selectStatus = (state: State) => state.auth.status;
 export const selectError = (state: State) => state.auth.error;
-export const selectPractice = (state: State) => {
+export const selectedPracticeName = (state: State) =>
+  state.auth.azentiaSelectedPractice;
+export const userPractices = (state: State) => {
   if (
     state.auth.user &&
-    state.auth.user.userPractices.length &&
-    state.auth.user.userPractices[0].practice
+    state.auth.user.userPractices &&
+    state.auth.user.userPractices.length
   ) {
-    return state.auth.user.userPractices[0].practice.id;
+    return state.auth.user.userPractices;
   }
-  return null;
+  return [];
 };
-export const selectSuccessMessage = (state: State) => state.auth.successMessage; // Export selectSuccessMessage selecto
+export const selectSuccessMessage = (state: State) => state.auth.successMessage;
 
 export default authSlice.reducer;

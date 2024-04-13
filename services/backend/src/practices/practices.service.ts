@@ -5,14 +5,22 @@ import {
   Injectable,
   forwardRef,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, UpdateResult } from 'typeorm';
+import * as fs from 'fs';
+import Mail from 'nodemailer/lib/mailer';
+import * as path from 'path';
+import { User } from 'src/entities/users.entity';
+import { ENVIRONMENT_VARIABLES } from 'src/enums/environment.enums';
+import { TransporterService } from 'src/transporter';
+import { DataSource, Repository, UpdateResult } from 'typeorm';
 import { PracticeEntity } from '../entities/practices.entity';
 import { UserStatus } from '../enums/status.enum';
 import { UserType } from '../enums/userType.enum';
 import { UsersService } from '../users/users.service';
 import { PracticeCreateDto } from './dto/create.dto';
-import { PracticePatchDto } from './dto/patch.dto';
+import { CreatePracticeInviteMailData, PracticesGetInterface } from './types';
 
 @Injectable()
 export class PracticesService {
@@ -21,10 +29,54 @@ export class PracticesService {
     private practicesRepository: Repository<PracticeEntity>,
     @Inject(forwardRef(() => UsersService))
     private readonly userService: UsersService,
+    private readonly transporterService: TransporterService,
+    private dataSource: DataSource,
+    private jwtService: JwtService,
+    private configService: ConfigService,
   ) {}
 
-  async findAll(): Promise<PracticeEntity[]> {
-    return await this.practicesRepository.find();
+  getFrontEndBaseUrl(): string | undefined {
+    return this.configService.get(ENVIRONMENT_VARIABLES.FRONT_END_BASE_URL);
+  }
+
+  async findAll(): Promise<PracticesGetInterface[]> {
+    const resultArray: PracticesGetInterface[] = [];
+    const dbPractices = await this.practicesRepository.find({
+      relations: ['users'],
+      order: {
+        name: 'ASC',
+      },
+    });
+
+    dbPractices.forEach((element: PracticeEntity) => {
+      const { id, name, code, status } = element;
+      const dbUsersByPractice: User[] = element.users.sort((a, b) => {
+        // sorting on the basis of createdAt to get oldest admin in the for the practice. considering it the actual practice admin
+        const timestampA = a.dateCreated.getTime();
+        const timestampB = b.dateCreated.getTime();
+
+        if (timestampA < timestampB) {
+          return -1;
+        } else if (timestampA > timestampB) {
+          return 1;
+        } else {
+          return 0;
+        }
+      });
+
+      const adminUser = dbUsersByPractice.find((ele) => ele.type === 'admin');
+      const finalPractice: PracticesGetInterface = { id, name, code, status };
+
+      if (adminUser) {
+        finalPractice.adminFirstName = adminUser.firstName;
+        finalPractice.adminLastName = adminUser.lastName;
+        finalPractice.adminEmail = adminUser.email;
+        finalPractice.adminContactNumber = adminUser.contactNumber;
+      }
+      resultArray.push(finalPractice);
+    });
+
+    return resultArray;
   }
 
   async findOne(id: string): Promise<PracticeEntity | null> {
@@ -34,35 +86,87 @@ export class PracticesService {
   async remove(id: string): Promise<void> {
     await this.practicesRepository.softDelete(id);
   }
+  async create({
+    name,
+    adminEmail,
+    adminContactNumber,
+    adminFirstName,
+    adminLastName,
+    code,
+  }: PracticeCreateDto): Promise<PracticeEntity> {
+    // initiating transaction as multiple table operations are in queue
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
 
-  async create({ name, email }: PracticeCreateDto): Promise<PracticeEntity> {
-    const newPractice: PracticeEntity = new PracticeEntity();
+    try {
+      const newPractice: PracticeEntity = new PracticeEntity();
 
-    const practice = await this.practicesRepository.save({
-      ...newPractice,
-      name,
-    });
+      const practice: PracticeEntity = await this.practicesRepository.save({
+        ...newPractice,
+        name,
+        code,
+      });
 
-    await this.userService.create(
-      {
-        firstName: 'admin',
-        lastName: 'admin',
-        email,
-        userName: `${name}_${email}`,
-        status: UserStatus.ACTIVE,
-        type: UserType.ADMIN,
-        url: '',
-      },
-      practice.id,
-    );
+      // creating admin user
+      const newAdmin = await this.userService.create(
+        {
+          firstName: adminFirstName,
+          lastName: adminLastName,
+          email: adminEmail,
+          userName: `${adminEmail}`,
+          status: UserStatus.ACTIVE,
+          type: UserType.ADMIN,
+          url: '',
+          contactNumber: adminContactNumber,
+        },
+        practice.id,
+      );
 
-    return practice;
+      const token: string = this.jwtService.sign({
+        ...newAdmin,
+        practiceId: practice.id,
+      });
+
+      const htmlFilePath: string = path.join(
+        __dirname,
+        '../emailTemplates/adminInvite.html',
+      );
+
+      const htmlFileContent: string = fs.readFileSync(htmlFilePath, 'utf8');
+
+      const mailOptions: Mail.Options = {
+        to: newAdmin.email,
+        subject:
+          'Subject: Welcome to Practice Optimizer Dashboard - Complete Your Sign-up Process',
+        html: htmlFileContent,
+        text: 'text message',
+      };
+
+      const frontendBaseUrl: string | undefined = this.getFrontEndBaseUrl();
+
+      const mailData: CreatePracticeInviteMailData = {
+        signUpLink: frontendBaseUrl + `/onboarding/practice?token=${token}`,
+        practiceName: practice.name,
+        userFirstName: adminFirstName,
+        userLastName: adminLastName,
+        contactEmail: adminEmail,
+        contactPhone: adminContactNumber,
+      };
+
+      await this.transporterService.sendEmail(mailOptions, mailData);
+      await queryRunner.commitTransaction();
+
+      return practice;
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
   }
 
-  async update(
-    id: string,
-    practicePatchDto: PracticePatchDto,
-  ): Promise<PracticeEntity | null> {
+  async update(id: string, practicePatchDto): Promise<PracticeEntity | null> {
     const updateResult: UpdateResult = await this.practicesRepository.update(
       id,
       practicePatchDto,
