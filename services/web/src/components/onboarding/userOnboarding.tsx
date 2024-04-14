@@ -13,7 +13,7 @@ import {
 } from '@root/store/reducers/users';
 import { ChangePasswordInterface } from '@root/store/requests/users';
 import { AzentiaLogo } from '@utils/constants';
-import { getPracticeId } from '@utils/methods';
+import { getPracticeId } from '@utils/index';
 import Cookies from 'js-cookie';
 import { useRouter, useSearchParams } from 'next/navigation';
 import React, { useEffect, useState } from 'react';

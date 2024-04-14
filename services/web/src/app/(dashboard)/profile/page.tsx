@@ -7,7 +7,7 @@ import {
   getPracticeInfo,
   selectPracticeInfo,
 } from '@root/store/reducers/practices';
-import { getPracticeId } from '@utils/methods';
+import { getPracticeId } from '@utils/index';
 import { useRouter } from 'next/navigation';
 import React, { useEffect } from 'react';
 

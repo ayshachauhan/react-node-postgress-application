@@ -12,7 +12,7 @@ import {
   selectError,
   selectSuccessMessage,
 } from '@root/store/reducers/media';
-import { extractVideoId, getImageUrl, getPracticeId } from '@utils/methods';
+import { extractVideoId, getImageUrl, getPracticeId } from '@utils/index';
 import { Modal, ModalBody, ModalHeader, ROLE, SIZE } from 'baseui/modal';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';

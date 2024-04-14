@@ -15,7 +15,7 @@ import {
   selectError,
   selectSuccessMessage,
 } from '@root/store/reducers/surgeryTypes';
-import { getPracticeId } from '@utils/methods';
+import { getPracticeId } from '@utils/index';
 import {
   Modal,
   ModalBody,

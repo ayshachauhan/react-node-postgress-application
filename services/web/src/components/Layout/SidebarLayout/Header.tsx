@@ -12,7 +12,7 @@ import {
 import { getPracticeInfo } from '@root/store/reducers/practices';
 import { fetchListings } from '@root/store/reducers/users';
 import { User } from '@root/store/requests/users';
-import { getPracticeId } from '@utils/methods';
+import { getPracticeId } from '@utils/index';
 import { ChevronDown } from 'baseui/icon';
 import { usePathname, useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
@@ -47,7 +47,7 @@ const Header: React.FC = () => {
 
   useEffect(() => {
     const defaultPracticeName = practiceName;
-    setSelectedPractice(defaultPracticeName);
+    setSelectedPractice(defaultPracticeName!);
   }, [practiceName]);
 
   useEffect(() => {

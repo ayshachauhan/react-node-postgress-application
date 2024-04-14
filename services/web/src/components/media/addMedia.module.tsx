@@ -4,7 +4,7 @@ import { SurgeryType } from '@root/enums/surgeryType.enum';
 import { useAppDispatch } from '@root/store';
 import { addRecordAsync } from '@root/store/reducers/media';
 import { MediaInterface } from '@root/store/requests/media';
-import { getPracticeId } from '@utils/methods';
+import { getPracticeId } from '@utils/index';
 import { Select } from 'baseui/select';
 import React, { useState } from 'react';
 

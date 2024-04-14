@@ -1,3 +1,18 @@
+export function indexBy<K extends keyof T, T>(
+  key: K,
+  array: T[],
+): Record<string, T> {
+  return array.reduce((acc: Record<string, T>, element: T) => {
+    acc[String(element[key])] = element;
+    return acc;
+  }, {});
+}
+
+export function getPracticeId() {
+  const practiceId = localStorage.getItem('practiceId');
+  return practiceId;
+}
+
 export function extractVideoId(url: string): string {
   const regExp =
     /^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
@@ -23,9 +38,4 @@ export function generateFullName(firstName: string, lastName: string): string {
   } else {
     return '';
   }
-}
-
-export function getPracticeId() {
-  const practiceId = localStorage.getItem('practiceId');
-  return practiceId;
 }

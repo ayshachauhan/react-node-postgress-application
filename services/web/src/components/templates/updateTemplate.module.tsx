@@ -8,7 +8,7 @@ import {
   updateRecordAsync,
 } from '@root/store/reducers/templates';
 import { EditTemplate } from '@root/store/requests/templates';
-import { getPracticeId } from '@utils/methods';
+import { getPracticeId } from '@utils/index';
 import { Checkbox, STYLE_TYPE } from 'baseui/checkbox';
 import { Select } from 'baseui/select';
 import { Textarea } from 'baseui/textarea';

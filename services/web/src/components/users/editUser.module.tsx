@@ -5,7 +5,7 @@ import { UserType } from '@root/enums/userType.enum';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { updateRecordAsync } from '@root/store/reducers/users';
 import { EditUser } from '@root/store/requests/users';
-import { generateFullName, getPracticeId } from '@utils/methods';
+import { generateFullName, getPracticeId } from '@utils/index';
 import { Select } from 'baseui/select';
 import React, { useEffect, useState } from 'react';
 interface Data {

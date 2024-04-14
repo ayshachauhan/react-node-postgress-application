@@ -6,7 +6,7 @@ import {
   selectPracticeInfo,
 } from '@root/store/reducers/practices';
 import { fetchListings } from '@root/store/reducers/users';
-import { getPracticeId } from '@utils/methods';
+import { getPracticeId } from '@utils/index';
 import { useSearchParams } from 'next/navigation';
 import React, { useEffect } from 'react';
 
