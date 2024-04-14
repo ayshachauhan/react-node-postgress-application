@@ -5,17 +5,6 @@ import { getPracticeId } from '../../utils/index';
 import { getMe, login } from '../requests/login';
 import { AuthState, EntityLoadingState } from '../types';
 
-// export interface AuthState {
-//   isAuthenticated: boolean;
-//   user: GetUserResponse | null;
-//   isProcessing: boolean;
-//   status: 'idle' | 'loading' | 'failed';
-//   successMessage: string;
-//   error: string;
-//   isSuperAdmin: boolean;
-//   azentiaSelectedPractice: string;
-// }
-
 const initialState: AuthState = {
   isAuthenticated: false,
   processing: false,

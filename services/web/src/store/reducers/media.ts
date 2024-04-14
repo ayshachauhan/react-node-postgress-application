@@ -1,6 +1,5 @@
 import { IMedia } from '@packages/entities/media';
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { State } from '@root/store';
 import { indexBy } from '@root/utils/index';
 import { addMedia, getMedia } from '../requests/media';
 import { EntitiesState, EntityLoadingState } from '../types';
@@ -89,11 +88,5 @@ export const addRecordAsync = createAsyncThunk(
   'media/addRecordAsync',
   addMedia,
 );
-
-export const selectRecords = (state: State) => state.media;
-export const selectStatus = (state: State) => state.media.status;
-export const selectError = (state: State) => state.media.errorMessage;
-export const selectSuccessMessage = (state: State) =>
-  state.media.successMessage; // Export selectSuccessMessage selector
 
 export default mediaSlice.reducer;

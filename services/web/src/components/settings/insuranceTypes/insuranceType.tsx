@@ -10,10 +10,7 @@ import {
   deleteRecordAsync,
   fetchListings,
 } from '@root/store/reducers/insuranceTypes';
-import {
-  getPracticeInfo,
-  selectPracticeInfo,
-} from '@root/store/reducers/practices';
+import { getPracticeInfo } from '@root/store/reducers/practices';
 import { getPracticeId } from '@utils/index';
 import {
   Modal,
@@ -32,7 +29,9 @@ export default function InsuranceTypePage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const practiceId = getPracticeId();
-  const practiceName = useAppSelector(selectPracticeInfo);
+  const practiceName = useAppSelector(
+    (state) => state.practices.practiceInfo?.name,
+  );
   const insuranceTypes: IInsuranceType[] = useAppSelector((state) =>
     Object.values(state.insuranceTypes.entities),
   );

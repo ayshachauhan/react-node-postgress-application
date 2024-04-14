@@ -11,10 +11,7 @@ import Form from '@root/components/users/addUser.module';
 import EditUser from '@root/components/users/editUser.module';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { selectRecords } from '@root/store/reducers/auth';
-import {
-  getPracticeInfo,
-  selectPracticeInfo,
-} from '@root/store/reducers/practices';
+import { getPracticeInfo } from '@root/store/reducers/practices';
 import {
   clearErrorMessage,
   clearSuccessMessage,
@@ -92,7 +89,9 @@ export default function UserPage() {
       dispatch(getPracticeInfo({ id: practiceId })); // Fetch listings from PostgreSQL database
     }
   }, [practiceId, dispatch]);
-  const practiceName = useAppSelector(selectPracticeInfo);
+  const practiceName = useAppSelector(
+    (state) => state.practices.practiceInfo?.name,
+  );
 
   const onConfirmDelete = (): void => {
     const id = userId;

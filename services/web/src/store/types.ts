@@ -1,6 +1,7 @@
-import { IInsuranceType } from '@packages/entities';
+import { IInsuranceType, IPracticeHomes } from '@packages/entities';
 import { IUser } from '@packages/entities/user';
 import { GetUserResponse } from './requests/login/types';
+import { PracticesGetInterface } from './requests/practices';
 
 export enum EntityLoadingState {
   IDLE = 'idle',
@@ -26,4 +27,10 @@ export type AuthState = Omit<EntitiesState<IUser>, 'entities'> & {
 
 export type InsuranceTypeState = EntitiesState<IInsuranceType> & {
   insuranceTypeInfo: IInsuranceType | null;
+};
+
+export type PracticeHomeState = EntitiesState<IPracticeHomes>;
+
+export type PracticeState = EntitiesState<PracticesGetInterface> & {
+  practiceInfo: PracticesGetInterface | null;
 };

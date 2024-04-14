@@ -103,10 +103,10 @@ const insuranceTypesSlice = createSlice({
       const deletedSurgeryTypeId = action?.meta?.arg?.id;
       const {
         // eslint-disable-next-line
-        [deletedSurgeryTypeId]: deletedIntegration,
-        ...remainingIntegrations
+        [deletedSurgeryTypeId]: deletedInsuranceType,
+        ...remainingRecord
       } = state.entities;
-      state.entities = remainingIntegrations;
+      state.entities = remainingRecord;
       state.successMessage = 'Record deleted successfully';
     });
 

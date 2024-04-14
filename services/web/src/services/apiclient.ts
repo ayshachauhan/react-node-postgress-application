@@ -68,10 +68,10 @@ export class ApiService {
     );
   }
 
-  async patch(path: string, data: Record<string, unknown>): Promise<Response> {
+  async patch<T>(path: string, data: T): Promise<Response> {
     return await fetch(
       this.getUrl(path),
-      this.getRequestConfig({ method: 'PATCH', body: data }),
+      this.getRequestConfig<T>({ method: 'PATCH', body: data }),
     );
   }
 }

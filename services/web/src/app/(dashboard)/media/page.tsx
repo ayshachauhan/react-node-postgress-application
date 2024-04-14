@@ -9,8 +9,6 @@ import {
   clearErrorMessage,
   clearSuccessMessage,
   fetchListings,
-  selectError,
-  selectSuccessMessage,
 } from '@root/store/reducers/media';
 import { extractVideoId, getImageUrl, getPracticeId } from '@utils/index';
 import { Modal, ModalBody, ModalHeader, ROLE, SIZE } from 'baseui/modal';
@@ -25,8 +23,10 @@ const Media: React.FC = () => {
   const [isFirstModalOpen, setIsFirstModalOpen] = useState(false);
   const [isSecondModalOpen, setIsSecondModalOpen] = useState(false);
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
-  const successMessage = useAppSelector(selectSuccessMessage); // Select success message from Redux store
-  const errorMessage = useAppSelector(selectError); // Select error message from Redux store
+  const { successMessage, errorMessage } = useAppSelector((state) => ({
+    successMessage: state.media.successMessage,
+    errorMessage: state.media.errorMessage,
+  })); // Select success message from Redux store
   const [showModal, setShowModal] = useState(false); // State to manage modal visibility
   const [showErrorMessage, setShowErrorMessage] = useState(false);
   const router = useRouter();

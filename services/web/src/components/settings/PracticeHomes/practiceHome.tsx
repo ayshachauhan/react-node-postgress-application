@@ -8,13 +8,8 @@ import {
   clearSuccessMessage,
   deleteRecordAsync,
   fetchListings,
-  selectError,
-  selectSuccessMessage,
 } from '@root/store/reducers/practiceHomes';
-import {
-  getPracticeInfo,
-  selectPracticeInfo,
-} from '@root/store/reducers/practices';
+import { getPracticeInfo } from '@root/store/reducers/practices';
 import { getPracticeId } from '@utils/index';
 import {
   Modal,
@@ -33,14 +28,18 @@ export default function PracticeHomesPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const practiceId = getPracticeId();
-  const practiceName = useAppSelector(selectPracticeInfo);
-  const practiceHomes = useAppSelector(
-    (state) => state.practiceHomes.practiceHomes,
+  const practiceName = useAppSelector(
+    (state) => state.practices.practiceInfo?.name,
+  );
+  const practiceHomes = useAppSelector((state) =>
+    Object.values(state.practiceHomes.entities),
   );
   const [practiceHomeId, setPracticeHomeId] = useState('');
   const [showErrorMessage, setShowErrorMessage] = useState(false);
-  const successMessage = useAppSelector(selectSuccessMessage);
-  const errorMessage = useAppSelector(selectError);
+  const { successMessage, errorMessage } = useAppSelector((state) => ({
+    successMessage: state.practiceHomes.successMessage,
+    errorMessage: state.practiceHomes.errorMessage,
+  }));
 
   useEffect(() => {
     if (practiceId !== null) {
