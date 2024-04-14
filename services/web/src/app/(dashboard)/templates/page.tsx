@@ -1,9 +1,9 @@
 'use client';
+import { UserType } from '@packages/entities/user';
 import Button from '@root/components/Button';
 import { AddIcon } from '@root/components/Icons';
 import Form from '@root/components/templates/addTemplate.module';
 import TemplateUpdate from '@root/components/templates/updateTemplate.module';
-import { UserType } from '@root/enums/userType.enum';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { selectRecords } from '@root/store/reducers/auth';
 import {

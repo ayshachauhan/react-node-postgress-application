@@ -1,9 +1,9 @@
 'use client';
 import { AddIcon, DeleteIcon, EditIcon } from '@components/Icons';
 import AddPracticeForm from '@components/practices/practices.module';
+import { UserType } from '@packages/entities/user';
 import Button from '@root/components/Button';
 import PracticeEditModule from '@root/components/practices/editPractice.module';
-import { UserType } from '@root/enums/userType.enum';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { selectRecords } from '@root/store/reducers/auth';
 import {

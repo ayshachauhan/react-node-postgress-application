@@ -1,5 +1,4 @@
-import { UserStatus } from '@root/enums/status.enum';
-import { UserType } from '@root/enums/userType.enum';
+import { UserStatus, UserType } from '@packages/entities/user';
 
 export interface User {
   id: string;

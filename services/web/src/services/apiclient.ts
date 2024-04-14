@@ -1,9 +1,9 @@
 import { publicRuntimeConfig } from 'next.config';
 import { COOKIES, getCookie } from './cookies';
 
-export type RequestConfig = {
+export type RequestConfig<T> = {
   method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
-  body?: Record<string, unknown>;
+  body?: T;
   headers?: Record<string, unknown>;
 };
 
@@ -17,7 +17,11 @@ export class ApiService {
     return getCookie(COOKIES.ACCESS_TOKEN);
   }
 
-  getRequestConfig({ method, body, headers }: RequestConfig): RequestInit {
+  getRequestConfig<T>({
+    method,
+    body,
+    headers,
+  }: RequestConfig<T>): RequestInit {
     const requestConfig: RequestInit = {
       method,
       body: JSON.stringify(body),
@@ -43,10 +47,10 @@ export class ApiService {
     );
   }
 
-  async post(path: string, data: Record<string, unknown>): Promise<Response> {
+  async post<T>(path: string, data: T): Promise<Response> {
     return await fetch(
       this.getUrl(path),
-      this.getRequestConfig({ method: 'POST', body: data }),
+      this.getRequestConfig<T>({ method: 'POST', body: data }),
     );
   }
 

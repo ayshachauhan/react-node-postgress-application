@@ -1,8 +1,8 @@
 'use client';
+import { UserType } from '@packages/entities/user';
 import Button from '@root/components/Button';
 import { AddIcon, PlayIcon } from '@root/components/Icons';
 import Form from '@root/components/media/addMedia.module';
-import { UserType } from '@root/enums/userType.enum';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { selectRecords } from '@root/store/reducers/auth';
 import {
@@ -20,7 +20,7 @@ import React, { useEffect, useState } from 'react';
 
 const Media: React.FC = () => {
   const dispatch = useAppDispatch();
-  const media = useAppSelector((state) => state.media.media);
+  const media = useAppSelector((state) => state.media.entities);
   const practiceId = getPracticeId();
   const [isFirstModalOpen, setIsFirstModalOpen] = useState(false);
   const [isSecondModalOpen, setIsSecondModalOpen] = useState(false);
@@ -141,7 +141,7 @@ const Media: React.FC = () => {
       </div>
       <hr className="h-px my-2.5 bg-gray-100 border-1 dark:bg-gray-700"></hr>
       <div className="flex flex-wrap gap-6">
-        {media.map((data) => (
+        {Object.values(media).map((data) => (
           <React.Fragment key={data.id}>
             {/* <GeneralCard
                     id={this.props.id}
