@@ -1,5 +1,6 @@
 'use client';
 import AddPracticeHome from '@components/settings/insuranceTypes/addInsuranceType';
+import { IInsuranceType } from '@packages/entities';
 import Button from '@root/components/Button';
 import { AddIcon, DeleteIcon } from '@root/components/Icons';
 import { useAppDispatch, useAppSelector } from '@root/store';
@@ -8,8 +9,6 @@ import {
   clearSuccessMessage,
   deleteRecordAsync,
   fetchListings,
-  selectError,
-  selectSuccessMessage,
 } from '@root/store/reducers/insuranceTypes';
 import {
   getPracticeInfo,
@@ -34,13 +33,15 @@ export default function InsuranceTypePage() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const practiceId = getPracticeId();
   const practiceName = useAppSelector(selectPracticeInfo);
-  const insuranceTypes = useAppSelector(
-    (state) => state.insuranceTypes.insuranceTypes,
+  const insuranceTypes: IInsuranceType[] = useAppSelector((state) =>
+    Object.values(state.insuranceTypes.entities),
   );
   const [insuranceTypeId, setInsuranceTypeId] = useState('');
   const [showErrorMessage, setShowErrorMessage] = useState(false);
-  const successMessage = useAppSelector(selectSuccessMessage);
-  const errorMessage = useAppSelector(selectError);
+  const { successMessage, errorMessage } = useAppSelector((state) => ({
+    successMessage: state.insuranceTypes.successMessage,
+    errorMessage: state.insuranceTypes.errorMessage,
+  }));
 
   useEffect(() => {
     if (practiceId !== null) {

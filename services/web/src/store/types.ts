@@ -1,3 +1,4 @@
+import { IInsuranceType } from '@packages/entities';
 import { IUser } from '@packages/entities/user';
 import { GetUserResponse } from './requests/login/types';
 
@@ -21,4 +22,8 @@ export type AuthState = Omit<EntitiesState<IUser>, 'entities'> & {
   isAuthenticated: boolean;
   isSuperAdmin: boolean;
   azentiaSelectedPractice?: string;
+};
+
+export type InsuranceTypeState = EntitiesState<IInsuranceType> & {
+  insuranceTypeInfo: IInsuranceType | null;
 };

@@ -1,33 +1,20 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { State } from '@root/store';
+import { indexBy } from '@root/utils/index';
 import {
-  InsuranceTypeResponse,
   addInsuranceType,
   deleteInsuranceType,
   getInsuranceTypeInfo,
   getInsuranceTypes,
 } from '../requests/insuranceTypes';
-
-type EmptyObject = Record<string, never>;
-
-export interface InsuranceTypeState {
-  isProcessing: boolean;
-  entities: Record<string, InsuranceTypeResponse>;
-  insuranceTypes: InsuranceTypeResponse[];
-  insuranceTypeInfo: InsuranceTypeResponse | EmptyObject;
-  status: 'idle' | 'loading' | 'failed';
-  successMessage: string | null;
-  error: string | null;
-}
+import { EntityLoadingState, InsuranceTypeState } from '../types';
 
 const initialState: InsuranceTypeState = {
-  isProcessing: false,
+  processing: false,
   entities: {},
-  insuranceTypes: [],
-  insuranceTypeInfo: {},
-  status: 'idle',
-  successMessage: null,
-  error: null,
+  status: EntityLoadingState.IDLE,
+  successMessage: undefined,
+  errorMessage: undefined,
+  insuranceTypeInfo: null,
 };
 
 const insuranceTypesSlice = createSlice({
@@ -35,90 +22,100 @@ const insuranceTypesSlice = createSlice({
   initialState,
   reducers: {
     clearSuccessMessage(state) {
-      state.successMessage = null;
+      state.successMessage = undefined;
     },
     clearErrorMessage(state) {
-      state.error = null;
+      state.errorMessage = undefined;
     },
   },
   extraReducers(builder) {
     builder.addCase(fetchListings.pending, (state) => {
-      state.isProcessing = true;
-      state.status = 'loading';
+      state.processing = true;
+      state.status = EntityLoadingState.PENDING;
     });
 
     builder.addCase(fetchListings.fulfilled, (state, action) => {
-      state.status = 'idle';
-      state.insuranceTypes = action.payload;
+      state.status = EntityLoadingState.SUCCEEDED;
+      state.entities = {
+        ...state.entities,
+        ...indexBy('id', action.payload),
+      };
     });
 
     builder.addCase(fetchListings.rejected, (state, action) => {
-      state.status = 'failed';
+      state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
-        state.error = action.payload ?? 'Failed to fetch users';
+        state.errorMessage = action.payload ?? 'Failed to fetch users';
       } else {
-        state.error = 'Failed to fetch users';
+        state.errorMessage = 'Failed to fetch users';
       }
+      state.processing = false;
     });
     builder.addCase(fetchSurgeryTypeInfo.pending, (state) => {
-      state.isProcessing = true;
-      state.status = 'loading';
+      state.processing = true;
+      state.status = EntityLoadingState.PENDING;
     });
 
     builder.addCase(fetchSurgeryTypeInfo.fulfilled, (state, action) => {
-      state.status = 'idle';
+      state.status = EntityLoadingState.SUCCEEDED;
       state.insuranceTypeInfo = action.payload;
     });
 
     builder.addCase(fetchSurgeryTypeInfo.rejected, (state, action) => {
-      state.status = 'failed';
+      state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
-        state.error = action.payload ?? 'Failed to fetch user info';
+        state.errorMessage = action.payload ?? 'Failed to fetch user info';
       } else {
-        state.error = 'Failed to fetch surgery type info';
+        state.errorMessage = 'Failed to fetch surgery type info';
       }
     });
 
     builder.addCase(addRecordAsync.pending, (state) => {
-      state.isProcessing = true;
-      state.status = 'loading';
+      state.processing = true;
+      state.status = EntityLoadingState.PENDING;
     });
 
     builder.addCase(addRecordAsync.fulfilled, (state, action) => {
-      state.status = 'idle';
-      state.insuranceTypes = [...state.insuranceTypes, action.payload];
+      state.status = EntityLoadingState.SUCCEEDED;
+      state.entities = {
+        ...state.entities,
+        ...{ [action.payload.id]: action.payload },
+      };
       state.successMessage = 'Record added successfully';
     });
 
     builder.addCase(addRecordAsync.rejected, (state, action) => {
-      state.status = 'failed';
+      state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
-        state.error = action.payload ?? 'Failed to add surgery type';
+        state.errorMessage = action.payload ?? 'Failed to add surgery type';
       } else {
-        state.error = 'Failed to add surgery type';
+        state.errorMessage = 'Failed to add surgery type';
       }
     });
 
     builder.addCase(deleteRecordAsync.pending, (state) => {
-      state.isProcessing = true;
-      state.status = 'loading';
+      state.processing = true;
+      state.status = EntityLoadingState.PENDING;
     });
 
     builder.addCase(deleteRecordAsync.fulfilled, (state, action) => {
-      state.status = 'idle';
+      state.status = EntityLoadingState.SUCCEEDED;
       const deletedSurgeryTypeId = action?.meta?.arg?.id;
-      state.insuranceTypes = state.insuranceTypes.filter(
-        (type) => type.id !== deletedSurgeryTypeId,
-      );
+      const {
+        // eslint-disable-next-line
+        [deletedSurgeryTypeId]: deletedIntegration,
+        ...remainingIntegrations
+      } = state.entities;
+      state.entities = remainingIntegrations;
       state.successMessage = 'Record deleted successfully';
     });
 
     builder.addCase(deleteRecordAsync.rejected, (state, action) => {
-      state.status = 'failed';
+      state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
-        state.error = action.payload ?? 'Failed to delete surgery type';
+        state.errorMessage = action.payload ?? 'Failed to delete surgery type';
       } else {
-        state.error = 'Failed to delete surgery type';
+        state.errorMessage = 'Failed to delete surgery type';
       }
     });
   },
@@ -146,9 +143,4 @@ export const deleteRecordAsync = createAsyncThunk(
   deleteInsuranceType,
 );
 
-export const selectRecords = (state: State) => state.insuranceTypes;
-export const selectStatus = (state: State) => state.insuranceTypes.status;
-export const selectError = (state: State) => state.insuranceTypes.error;
-export const selectSuccessMessage = (state: State) =>
-  state.insuranceTypes.successMessage;
 export default insuranceTypesSlice.reducer;

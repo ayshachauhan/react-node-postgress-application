@@ -1,59 +1,62 @@
-import Cookies from 'js-cookie';
-import { publicRuntimeConfig } from 'next.config';
+import { IInsuranceType } from '@packages/entities/insuranceType';
+import { ApiService } from '@root/services/apiclient';
 import { CreateInsuranceTypeInterface } from '.';
-const { API_BASE_URL } = publicRuntimeConfig;
 
+const apiClient = new ApiService();
+
+/**
+ * @summary Get Insurance type
+ * @param payloadData
+ * @param param1
+ * @returns IInsuranceType
+ */
 export const getInsuranceTypes = async (
   payloadData: {
     practiceId: string;
   },
   { rejectWithValue },
-) => {
+): Promise<IInsuranceType[]> => {
   try {
-    const accessToken = Cookies.get('access_token');
-    const response = await fetch(
-      `${API_BASE_URL}/practices/${payloadData.practiceId}/insurance-types`,
-      {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        },
-      },
+    const response: Response = await apiClient.get(
+      `/practices/${payloadData.practiceId}/insurance-types`,
     );
     if (!response.ok) {
       throw new Error('Failed to get templates');
     }
-    const data = await response.json();
+    const data: IInsuranceType[] = await response.json();
     return data;
   } catch (error) {
     return rejectWithValue(error);
   }
 };
 
+/**
+ *
+ * @param payloadData
+ * @returns IInsuranceType
+ */
 export const addInsuranceType = async (
   payloadData: CreateInsuranceTypeInterface,
-) => {
+  { rejectWithValue },
+): Promise<IInsuranceType> => {
   try {
-    const accessToken = Cookies.get('access_token');
-    const response = await fetch(
-      `${API_BASE_URL}/practices/${payloadData.practiceId}/insurance-types`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify(payloadData),
-      },
+    const response = await apiClient.post(
+      `/practices/${payloadData.practiceId}/insurance-types`,
+      payloadData,
     );
-    const data = await response.json();
+    const data: IInsuranceType = await response.json();
     return data;
   } catch (error) {
-    return error;
+    return rejectWithValue(error);
   }
 };
 
+/**
+ * Delete Insurance type
+ * @param payloadData
+ * @param param1
+ * @returns
+ */
 export const deleteInsuranceType = async (
   payloadData: {
     practiceId: string;
@@ -62,16 +65,8 @@ export const deleteInsuranceType = async (
   { rejectWithValue },
 ) => {
   try {
-    const accessToken = Cookies.get('access_token');
-    const response = await fetch(
-      `${API_BASE_URL}/practices/${payloadData.practiceId}/insurance-types/${payloadData.id}`,
-      {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        },
-      },
+    const response = await apiClient.delete(
+      `/practices/${payloadData.practiceId}/insurance-types/${payloadData.id}`,
     );
     if (!response.ok) {
       throw new Error('Failed to delete template');
@@ -99,21 +94,12 @@ export const getInsuranceTypeInfo = async (
     id: string;
   },
   { rejectWithValue },
-) => {
+): Promise<IInsuranceType> => {
   try {
-    const accessToken = Cookies.get('access_token');
-    const response = await fetch(
-      `${API_BASE_URL}/practices/${payloadData.practiceId}/insurance-types/${payloadData.id}`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify(payloadData),
-      },
+    const response: Response = await apiClient.get(
+      `/practices/${payloadData.practiceId}/insurance-types/${payloadData.id}`,
     );
-    const data = await response.json();
+    const data: IInsuranceType = await response.json();
     return data;
   } catch (error) {
     return rejectWithValue(error);
