@@ -1,7 +1,7 @@
-import { BaseEntity } from '../base.entity';
+import { IBaseEntity } from '../base.interface';
 import { IPractice } from '../practice';
 
-export interface IUser extends BaseEntity {
+export interface IUser extends IBaseEntity {
   email: string;
   password: string;
   userName: string;

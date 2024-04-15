@@ -1,5 +1,5 @@
-import { BaseEntity } from '../base.entity';
+import { IBaseEntity } from '../base.interface';
 
-export interface IPermission extends BaseEntity {
+export interface IPermission extends IBaseEntity {
   name: string;
 }
