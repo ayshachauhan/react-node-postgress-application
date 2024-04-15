@@ -1,4 +1,10 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+  forwardRef,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { SurgeryTypeEntity } from 'src/entities/surgeryTypes.entity';
 import { Repository } from 'typeorm';
@@ -10,6 +16,7 @@ export class SurgeryTypesService {
   constructor(
     @InjectRepository(SurgeryTypeEntity)
     private surgeryTypeRepository: Repository<SurgeryTypeEntity>,
+    @Inject(forwardRef(() => PracticesService))
     private readonly practicesService: PracticesService,
   ) {}
 

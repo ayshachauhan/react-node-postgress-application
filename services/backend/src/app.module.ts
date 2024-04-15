@@ -6,9 +6,11 @@ import { LoggerModule } from 'nestjs-pino';
 import { AuthModule } from './auth/auth.module';
 import { ENV_VALIDATIONS } from './enums/env-validation';
 import { ENVIRONMENT_VARIABLES } from './enums/environment.enums';
+import { EvalsModule } from './evals/evals.module';
 import { HealthModule } from './healthz/health.module';
 import { InsuranceTypesModule } from './insuranceTypes/insuranceTypes.module';
 import { MediaModule } from './media/media.module';
+import { PatientsModule } from './patients/patients.module';
 import { PermissionsModule } from './permissions/permissions.module';
 import { PracticeHomesModule } from './practiceHomes/practiceHomes.module';
 import { PracticesModule } from './practices/practices.module';
@@ -108,6 +110,8 @@ import { UsersModule } from './users/users.module';
     TemplatesModule,
     SurgeryTypesModule,
     InsuranceTypesModule,
+    PatientsModule,
+    EvalsModule,
   ],
 })
 export class AppModule {}

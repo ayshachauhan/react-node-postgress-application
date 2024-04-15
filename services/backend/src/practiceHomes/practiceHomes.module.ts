@@ -17,5 +17,6 @@ import { PracticeHomesService } from './practiceHomes.service';
     },
   ],
   controllers: [PracticeHomesController],
+  exports: [PracticeHomesService],
 })
 export class PracticeHomesModule {}
