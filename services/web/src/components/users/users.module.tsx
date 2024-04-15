@@ -17,8 +17,6 @@ import {
   clearSuccessMessage,
   deleteRecordAsync,
   fetchListings,
-  selectError,
-  selectSuccessMessage,
 } from '@root/store/reducers/users';
 import { getPracticeId } from '@utils/index';
 import {
@@ -35,7 +33,7 @@ import React, { useEffect, useState } from 'react';
 export default function UserPage() {
   const [showModal, setShowModal] = useState(false); // State to manage modal visibility
   const dispatch = useAppDispatch();
-  const users = useAppSelector((state) => state.users.users);
+  const users = useAppSelector((state) => Object.values(state.users.entities));
   const userInfo = useAppSelector(selectRecords); // Select success message from Redux store
   const filteredUsers = users.filter((user) => user.id !== userInfo?.id);
   const [userId, setUserId] = useState<string | null>(null);
@@ -44,8 +42,10 @@ export default function UserPage() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const practiceId = getPracticeId(); // Select success message from Redux store
   const [showErrorMessage, setShowErrorMessage] = useState(false);
-  const successMessage = useAppSelector(selectSuccessMessage); // Select success message from Redux store
-  const errorMessage = useAppSelector(selectError); // Select error message from Redux store
+  const { successMessage, errorMessage } = useAppSelector((state) => ({
+    successMessage: state.users.successMessage,
+    errorMessage: state.users.errorMessage,
+  }));
   const router = useRouter();
 
   useEffect(() => {

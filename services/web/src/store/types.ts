@@ -34,3 +34,9 @@ export type PracticeHomeState = EntitiesState<IPracticeHomes>;
 export type PracticeState = EntitiesState<PracticesGetInterface> & {
   practiceInfo: PracticesGetInterface | null;
 };
+
+export type SanitizedUser = Omit<IUser, 'password'>;
+
+export type UserState = EntitiesState<SanitizedUser> & {
+  userInfo: SanitizedUser | null;
+};

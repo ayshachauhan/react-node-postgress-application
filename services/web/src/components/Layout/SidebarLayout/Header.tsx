@@ -11,7 +11,7 @@ import {
 } from '@root/store/reducers/auth';
 import { getPracticeInfo } from '@root/store/reducers/practices';
 import { fetchListings } from '@root/store/reducers/users';
-import { User } from '@root/store/requests/users';
+import { SanitizedUser } from '@root/store/types';
 import { getPracticeId } from '@utils/index';
 import { ChevronDown } from 'baseui/icon';
 import { usePathname, useRouter } from 'next/navigation';
@@ -25,13 +25,15 @@ const Header: React.FC = () => {
     localStorage.getItem(SELECTED_DOCTOR_KEY);
 
   const userInfo = useAppSelector(selectRecords);
-  const { users } = useAppSelector((state: State) => state.users);
+  const { entities } = useAppSelector((state: State) => state.users);
   const practiceId = getPracticeId();
 
-  const findSelectedUser = (userId: string): User | undefined =>
-    users.find((user) => user.id === userId);
+  const users: SanitizedUser[] = Object.values(entities);
 
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const findSelectedUser = (userId: string): SanitizedUser | undefined =>
+    Object.values(entities).find((user) => user.id === userId);
+
+  const [selectedUser, setSelectedUser] = useState<SanitizedUser | null>(null);
 
   const is_super_admin = userInfo ? userInfo.isSuperAdmin : false;
   const selectedUserBox = (
@@ -119,7 +121,7 @@ const Header: React.FC = () => {
                 trigger={selectedUserBox}
                 onSelect={handleUserSelect}
               >
-                {users.map((user: User, index: number) => (
+                {users.map((user: SanitizedUser, index: number) => (
                   <Dropdown.Item id={user.id} key={index}>
                     {user.fullName}
                   </Dropdown.Item>

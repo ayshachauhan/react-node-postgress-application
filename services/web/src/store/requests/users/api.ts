@@ -1,28 +1,27 @@
-import Cookies from 'js-cookie';
-import { publicRuntimeConfig } from 'next.config';
+import { IUser } from '@packages/entities/user';
+import { ApiService } from '@root/services/apiclient';
+import { SanitizedUser } from '@root/store/types';
 import { AddUser, ChangePasswordInterface, EditUser } from '.';
-const { API_BASE_URL } = publicRuntimeConfig;
 
+const apiClient = new ApiService();
+
+/**
+ * @param payloadData
+ * @param param1
+ * @returns All Users by practiceid
+ */
 export const getUsers = async (
   payloadData: { practiceId: string },
   { rejectWithValue },
-) => {
+): Promise<SanitizedUser[]> => {
   try {
-    const accessToken = Cookies.get('access_token');
-    const response = await fetch(
-      `${API_BASE_URL}/practices/${payloadData.practiceId}/users`,
-      {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        },
-      },
+    const response: Response = await apiClient.get(
+      `/practices/${payloadData.practiceId}/users`,
     );
     if (!response.ok) {
       throw new Error('Failed to fetch users');
     }
-    const data = await response.json();
+    const data: IUser[] = await response.json();
     return data;
   } catch (error) {
     if (error instanceof Error) {
@@ -32,29 +31,26 @@ export const getUsers = async (
   }
 };
 
+/**
+ * @param payloadData
+ * @param param1
+ * @returns Get user Info By Id
+ */
 export const getUserInfo = async (
   payloadData: {
     id: string;
     practiceId: string;
   },
   { rejectWithValue },
-) => {
+): Promise<SanitizedUser> => {
   try {
-    const accessToken = Cookies.get('access_token');
-    const response = await fetch(
-      `${API_BASE_URL}/practices/${payloadData.practiceId}/users/${payloadData.id}`,
-      {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        },
-      },
+    const response = await apiClient.get(
+      `/practices/${payloadData.practiceId}/users/${payloadData.id}`,
     );
     if (!response.ok) {
       throw new Error('Failed to fetch user');
     }
-    const data = await response.json();
+    const data: SanitizedUser = await response.json();
     return data;
   } catch (error) {
     if (error instanceof Error) {
@@ -64,26 +60,27 @@ export const getUserInfo = async (
   }
 };
 
-export const addUser = async (payloadData: AddUser, { rejectWithValue }) => {
+/**
+ *
+ * @param payloadData
+ * @param param1
+ * @returns
+ */
+export const addUser = async (
+  payloadData: AddUser,
+  { rejectWithValue },
+): Promise<SanitizedUser> => {
   try {
-    const accessToken = Cookies.get('access_token');
     const { practiceId, ...restPayload } = payloadData;
     const sanitizedPayload = { ...restPayload };
-    const response = await fetch(
-      `${API_BASE_URL}/practices/${practiceId}/users`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify(sanitizedPayload),
-      },
+    const response = await apiClient.post(
+      `/practices/${practiceId}/users`,
+      sanitizedPayload,
     );
     if (!response.ok) {
       throw new Error('Failed to add user');
     }
-    const data = await response.json();
+    const data: SanitizedUser = await response.json();
     return data;
   } catch (error) {
     if (error instanceof Error) {
@@ -93,29 +90,28 @@ export const addUser = async (payloadData: AddUser, { rejectWithValue }) => {
   }
 };
 
+/**
+ * @summary Update user
+ * @param payloadData
+ * @param param1
+ * @returns
+ * @note ToDO: Need to udpate types as we are getting santized respones back
+ */
 export const updateUser = async (
   payloadData: EditUser,
   { rejectWithValue },
-) => {
+): Promise<SanitizedUser> => {
   try {
-    const accessToken = Cookies.get('access_token');
     const { practiceId, id, ...restPayload } = payloadData;
     const sanitizedPayload = { ...restPayload };
-    const response = await fetch(
-      `${API_BASE_URL}/practices/${practiceId}/users/${id}`,
-      {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify(sanitizedPayload),
-      },
+    const response = await apiClient.patch(
+      `/practices/${practiceId}/users/${id}`,
+      sanitizedPayload,
     );
     if (!response.ok) {
       throw new Error('Failed to update user');
     }
-    const data = await response.json();
+    const data: SanitizedUser = await response.json();
     return data;
   } catch (error) {
     if (error instanceof Error) {
@@ -133,16 +129,8 @@ export const deleteUser = async (
   { rejectWithValue },
 ) => {
   try {
-    const accessToken = Cookies.get('access_token');
-    const response = await fetch(
-      `${API_BASE_URL}/practices/${payloadData.practiceId}/users/${payloadData.id}`,
-      {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        },
-      },
+    const response = await apiClient.delete(
+      `/practices/${payloadData.practiceId}/users/${payloadData.id}`,
     );
     if (!response.ok) {
       throw new Error('Failed to delete user');
@@ -164,29 +152,27 @@ export const deleteUser = async (
   }
 };
 
+/**
+ *
+ * @param payloadData
+ * @param param1
+ * @returns
+ */
 export const changePassword = async (
   payloadData: ChangePasswordInterface,
   { rejectWithValue },
-) => {
+): Promise<SanitizedUser> => {
   try {
-    const accessToken = Cookies.get('access_token');
     const { practiceId } = payloadData;
 
-    const response = await fetch(
-      `${API_BASE_URL}/practices/${practiceId}/users/change-password`,
-      {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify(payloadData),
-      },
+    const response = await apiClient.patch(
+      `/practices/${practiceId}/users/change-password`,
+      payloadData,
     );
     if (!response.ok) {
       throw new Error('Failed to change password.');
     }
-    const data = await response.json();
+    const data: SanitizedUser = await response.json();
     return data;
   } catch (error) {
     if (error instanceof Error) {

@@ -1,4 +1,5 @@
 import { useAppSelector } from '@root/store';
+import { SanitizedUser } from '@root/store/types';
 import React from 'react';
 
 interface Data {
@@ -9,7 +10,11 @@ interface ChildProps {
 }
 const UserInfoPage: React.FC<ChildProps> = ({ data }) => {
   const userInfo = useAppSelector((state) =>
-    data.id ? state.users.users.find(({ id }) => id === data.id) : undefined,
+    data.id
+      ? Object.values(state.users.entities).find(
+          ({ id }: SanitizedUser) => id === data.id,
+        )
+      : undefined,
   );
 
   return (

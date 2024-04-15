@@ -4,6 +4,7 @@ import TextInput from '@root/components/TextInput';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { updateRecordAsync } from '@root/store/reducers/users';
 import { EditUser } from '@root/store/requests/users';
+import { SanitizedUser } from '@root/store/types';
 import { generateFullName, getPracticeId } from '@utils/index';
 import { Select } from 'baseui/select';
 import React, { useEffect, useState } from 'react';
@@ -26,7 +27,11 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
   const dispatch = useAppDispatch();
   const practiceId = getPracticeId(); // Select user practice id
   const userInfo = useAppSelector((state) =>
-    data.id ? state.users.users.find(({ id }) => id === data.id) : undefined,
+    data.id
+      ? Object.values(state.users.entities).find(
+          ({ id }: SanitizedUser) => id === data.id,
+        )
+      : undefined,
   );
   const userId = data.id;
 
