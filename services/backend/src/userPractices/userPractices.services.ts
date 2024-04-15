@@ -6,7 +6,7 @@ import {
   forwardRef,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { UserPracticeEntity } from 'src/entities/userPractices.entity';
+import { UserPracticeEntity } from '@packages/entities/user';
 import { PracticesService } from 'src/practices/practices.service';
 import { UsersService } from 'src/users/users.service';
 import { Repository } from 'typeorm';

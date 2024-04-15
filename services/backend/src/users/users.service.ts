@@ -8,14 +8,13 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
+import { PracticeStatus } from '@packages/entities/practice';
+import { User, UserStatus, UserType } from '@packages/entities/user';
 import * as bcrypt from 'bcrypt';
 import * as fs from 'fs';
 import Mail from 'nodemailer/lib/mailer';
 import * as path from 'path';
-import { User } from 'src/entities/users.entity';
 import { ENVIRONMENT_VARIABLES } from 'src/enums/environment.enums';
-import { PracticeStatus, UserStatus } from 'src/enums/status.enum';
-import { UserType } from 'src/enums/userType.enum';
 import { PracticesService } from 'src/practices/practices.service';
 import { TransporterService } from 'src/transporter';
 import { UserPracticesService } from 'src/userPractices/userPractices.services';

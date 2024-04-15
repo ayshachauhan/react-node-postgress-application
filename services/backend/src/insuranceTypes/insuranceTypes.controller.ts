@@ -9,7 +9,7 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { InsuranceTypeEntity } from 'src/entities/insuranceTypes.entity';
+import { InsuranceTypeEntity } from '@packages/entities/insuranceType';
 import { AuthGuard } from '../auth/auth.guard';
 import { CreateInsuranceTypeDto } from './dto/createInsuranceType.dto';
 import { InsuranceTypesService } from './insuranceTypes.service';

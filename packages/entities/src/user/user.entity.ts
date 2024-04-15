@@ -1,11 +1,10 @@
-import { UserStatus } from 'src/enums/status.enum';
-import { UserType } from 'src/enums/userType.enum';
 import { Column, Entity, JoinTable, ManyToMany } from 'typeorm';
-import { BaseEntity } from './base.entity';
-import { PracticeEntity } from './practices.entity';
+import { BaseEntity } from '../base.entity';
+import { PracticeEntity } from '../practice/practice.entity';
+import { IUser, UserStatus, UserType } from './user.interface';
 
 @Entity('users')
-export class User extends BaseEntity {
+export class User extends BaseEntity implements IUser {
   @Column({ type: 'varchar' })
   email: string;
 

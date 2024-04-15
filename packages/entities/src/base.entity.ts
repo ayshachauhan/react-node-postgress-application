@@ -5,10 +5,11 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { IBaseEntity } from './base.interface';
 
 export const CREATE = 'CREATE';
 
-export abstract class BaseEntity {
+export abstract class BaseEntity implements IBaseEntity {
   @IsEmpty({ groups: [CREATE] })
   @PrimaryGeneratedColumn('uuid')
   id: string;

@@ -1,4 +1,4 @@
-import { User } from '../entities/users.entity';
+import { User } from '@packages/entities/user';
 
 export type SanitizedUser = Omit<User, 'password'> & {
   isSuperAdmin: false;

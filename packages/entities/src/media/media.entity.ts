@@ -1,9 +1,10 @@
-import { SurgeryType } from 'src/enums/surgeryType.enum';
 import { Column, Entity } from 'typeorm';
-import { BaseEntity } from './base.entity';
+import { BaseEntity } from '../base.entity';
+import { SurgeryType } from '../template/template.interface';
+import { IMedia } from './media.interface';
 
 @Entity('videos')
-export class Video extends BaseEntity {
+export class Video extends BaseEntity implements IMedia {
   @Column({ type: 'uuid' })
   practiceId: string;
 
