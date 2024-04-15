@@ -1,12 +1,10 @@
 'use client';
 import { AvatarIcon } from '@root/components/Icons';
 import { useAppDispatch, useAppSelector } from '@root/store';
-import {
-  getPracticeInfo,
-  selectPracticeInfo,
-} from '@root/store/reducers/practices';
+import { getPracticeInfo } from '@root/store/reducers/practices';
 import { fetchListings } from '@root/store/reducers/users';
-import { getPracticeId } from '@utils/methods';
+import { SanitizedUser } from '@root/store/types';
+import { getPracticeId } from '@utils/index';
 import { useSearchParams } from 'next/navigation';
 import React, { useEffect } from 'react';
 
@@ -29,11 +27,15 @@ const UserViewPage: React.FC = () => {
     }
   }, [userPracticeId, dispatch]);
 
-  const userInfo = useAppSelector((state) =>
-    state.users.users.find((user) => user.id === id),
+  const userInfo: SanitizedUser | undefined = useAppSelector((state) =>
+    Object.values(state.users.entities).find(
+      (user: SanitizedUser) => user.id === id,
+    ),
   );
 
-  const practiceName = useAppSelector(selectPracticeInfo);
+  const practiceName = useAppSelector(
+    (state) => state.practices.practiceInfo?.name,
+  );
   return (
     <div id="__next" className="mt-4">
       <div className="flex justify-between border-gray-400">

@@ -10,11 +10,11 @@
   ],
   "exports": {
     ".": {
-      "import": "./src/index.ts",
+      "import": "./dist/index.js",
       "require": "./dist/index.js"
     },
     "./*": {
-      "import": "./src/*/index.ts",
+      "import": "./dist/*/index.js",
       "require": "./dist/*/index.js"
     },
     "./index.browser": "./src/index.browser.ts"

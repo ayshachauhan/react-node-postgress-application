@@ -8,12 +8,10 @@ import {
   changePasswordAsync,
   clearErrorMessage,
   clearSuccessMessage,
-  selectError,
-  selectSuccessMessage,
 } from '@root/store/reducers/users';
 import { ChangePasswordInterface } from '@root/store/requests/users';
 import { AzentiaLogo } from '@utils/constants';
-import { getPracticeId } from '@utils/methods';
+import { getPracticeId } from '@utils/index';
 import Cookies from 'js-cookie';
 import { useRouter, useSearchParams } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
@@ -24,8 +22,10 @@ export default function PracticeOnboardPage() {
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const successMessage = useAppSelector(selectSuccessMessage);
-  const errorMessage = useAppSelector(selectError);
+  const { successMessage, errorMessage } = useAppSelector((state) => ({
+    successMessage: state.users.successMessage,
+    errorMessage: state.users.errorMessage,
+  }));
   const [showErrorMessage, setShowErrorMessage] = useState(false);
   const practiceId = getPracticeId();
   const practiceInfo = useAppSelector((state) => state.practices.practiceInfo);
@@ -53,7 +53,6 @@ export default function PracticeOnboardPage() {
     }
   }, []);
 
-  const error = useAppSelector(selectError);
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (practiceId && userInfo) {
@@ -179,7 +178,9 @@ export default function PracticeOnboardPage() {
                   />
                 </div>
               </form>
-              {error && <div className="text-red-700">{error}</div>}{' '}
+              {errorMessage && (
+                <div className="text-red-700">{errorMessage}</div>
+              )}{' '}
               {showErrorMessage && (
                 <div className="text-red-700">{errorMessage}</div>
               )}

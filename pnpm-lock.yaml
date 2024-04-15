@@ -97,7 +97,7 @@ importers:
         specifier: ^10.0.2
         version: 10.0.2(@nestjs/common@10.3.7)(@nestjs/core@10.3.7)(reflect-metadata@0.2.2)(rxjs@7.8.1)(typeorm@0.3.20)
       '@packages/entities':
-        specifier: ^1.0.0
+        specifier: workspace:*
         version: link:../../packages/entities
       bcrypt:
         specifier: ^5.1.1
@@ -222,7 +222,7 @@ importers:
         version: 2.2.3(react-redux@9.1.0)(react@18.2.0)
       baseui:
         specifier: 0.0.0-next-f88694cb3
-        version: 0.0.0-next-f88694cb3(@types/react@18.2.77)(react-dom@18.2.0)(react@18.2.0)(styletron-react@6.1.1)
+        version: 0.0.0-next-f88694cb3(@types/react@18.2.78)(react-dom@18.2.0)(react@18.2.0)(styletron-react@6.1.1)
       body-parser:
         specifier: ^1.20.2
         version: 1.20.2
@@ -246,20 +246,23 @@ importers:
         version: 18.2.0(react@18.2.0)
       react-redux:
         specifier: ^9.1.0
-        version: 9.1.0(@types/react@18.2.77)(react@18.2.0)(redux@5.0.1)
+        version: 9.1.0(@types/react@18.2.78)(react@18.2.0)(redux@5.0.1)
       styletron-engine-monolithic:
         specifier: ^1.0.0
         version: 1.0.0
       styletron-react:
         specifier: ^6.1.1
         version: 6.1.1(react@18.2.0)
+      typeorm:
+        specifier: ^0.3.20
+        version: 0.3.20(pg@8.11.5)(ts-node@10.9.2)
     devDependencies:
       '@types/node':
         specifier: ^20
         version: 20.12.7
       '@types/react':
         specifier: ^18
-        version: 18.2.77
+        version: 18.2.78
       '@types/react-dom':
         specifier: ^18
         version: 18.2.25
@@ -2073,7 +2076,7 @@ packages:
     dependencies:
       immer: 10.0.4
       react: 18.2.0
-      react-redux: 9.1.0(@types/react@18.2.77)(react@18.2.0)(redux@5.0.1)
+      react-redux: 9.1.0(@types/react@18.2.78)(react@18.2.0)(redux@5.0.1)
       redux: 5.0.1
       redux-thunk: 3.1.0(redux@5.0.1)
       reselect: 5.1.0
@@ -2476,13 +2479,13 @@ packages:
         integrity: sha512-o/V48vf4MQh7juIKZU2QGDfli6p1+OOi5oXx36Hffpc9adsHeXjVp8rHuPkjd8VT8sOJ2Zp05HR7CdpGTIUFUA==,
       }
     dependencies:
-      '@types/react': 18.2.77
+      '@types/react': 18.2.78
     dev: true
 
-  /@types/react@18.2.77:
+  /@types/react@18.2.78:
     resolution:
       {
-        integrity: sha512-CUT9KUUF+HytDM7WiXKLF9qUSg4tGImwy4FXTlfEDPEkkNUzJ7rVFolYweJ9fS1ljoIaP7M7Rdjc5eUm/Yu5AA==,
+        integrity: sha512-qOwdPnnitQY4xKlKayt42q5W5UQrSHjgoXNVEtxeqdITJ99k4VXJOP3vt8Rkm9HmgJpH50UNU+rlqfkfWOqp0A==,
       }
     dependencies:
       '@types/prop-types': 15.7.12
@@ -3536,7 +3539,7 @@ packages:
         integrity: sha512-AKpaYlHn8t4SVbOHCy+b5+KKgvR4vrsD8vbvrbiQJps7fKDTkjkDry6ji0rUJjC0kzbNePLwzxq8iypo41qeWA==,
       }
 
-  /baseui@0.0.0-next-f88694cb3(@types/react@18.2.77)(react-dom@18.2.0)(react@18.2.0)(styletron-react@6.1.1):
+  /baseui@0.0.0-next-f88694cb3(@types/react@18.2.78)(react-dom@18.2.0)(react@18.2.0)(styletron-react@6.1.1):
     resolution:
       {
         integrity: sha512-F45BN2WKfdfAHrm2tBNKSWngTp/uMuikt9JWRzp/OBgAnIT4+as5D/uwE3QjvB0xaQuBuAD5jQq/eMhigIxBvg==,
@@ -3565,7 +3568,7 @@ packages:
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
       react-dropzone: 9.0.0(react@18.2.0)
-      react-focus-lock: 2.11.2(@types/react@18.2.77)(react@18.2.0)
+      react-focus-lock: 2.11.3(@types/react@18.2.78)(react@18.2.0)
       react-hook-form: 7.51.3(react@18.2.0)
       react-input-mask: 2.0.4(react-dom@18.2.0)(react@18.2.0)
       react-is: 17.0.2
@@ -3573,7 +3576,7 @@ packages:
       react-movable: 3.2.0(react-dom@18.2.0)(react@18.2.0)
       react-multi-ref: 1.0.1
       react-range: 1.8.14(react-dom@18.2.0)(react@18.2.0)
-      react-uid: 2.3.0(@types/react@18.2.77)(react@18.2.0)
+      react-uid: 2.3.0(@types/react@18.2.78)(react@18.2.0)
       react-virtualized: 9.22.5(react-dom@18.2.0)(react@18.2.0)
       react-virtualized-auto-sizer: 1.0.2(react-dom@18.2.0)(react@18.2.0)
       react-window: 1.8.5(react-dom@18.2.0)(react@18.2.0)
@@ -3693,7 +3696,7 @@ packages:
     hasBin: true
     dependencies:
       caniuse-lite: 1.0.30001609
-      electron-to-chromium: 1.4.735
+      electron-to-chromium: 1.4.736
       node-releases: 2.0.14
       update-browserslist-db: 1.0.13(browserslist@4.23.0)
     dev: true
@@ -5097,10 +5100,10 @@ packages:
         integrity: sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow==,
       }
 
-  /electron-to-chromium@1.4.735:
+  /electron-to-chromium@1.4.736:
     resolution:
       {
-        integrity: sha512-pkYpvwg8VyOTQAeBqZ7jsmpCjko1Qc6We1ZtZCjRyYbT5v4AIUKDy5cQTRotQlSSZmMr8jqpEt6JtOj5k7lR7A==,
+        integrity: sha512-Rer6wc3ynLelKNM4lOCg7/zPQj8tPOCB2hzD32PX9wd3hgRRi9MxEbmkFCokzcEhRVMiOVLjnL9ig9cefJ+6+Q==,
       }
     dev: true
 
@@ -6175,7 +6178,7 @@ packages:
       dezalgo: 1.0.4
       hexoid: 1.0.0
       once: 1.4.0
-      qs: 6.12.0
+      qs: 6.12.1
     dev: true
 
   /forwarded@0.2.0:
@@ -9908,10 +9911,10 @@ packages:
     dependencies:
       side-channel: 1.0.6
 
-  /qs@6.12.0:
+  /qs@6.12.1:
     resolution:
       {
-        integrity: sha512-trVZiI6RMOkO476zLGaBIzszOdFPnCCXHPG9kn0yuS1uz6xdVxPfZdB3vUig9pxPFDM9BRAgz/YUIVQ1/vuiUg==,
+        integrity: sha512-zWmv4RSuB9r2mYQw3zxQuHWeU+42aKi1wWig/j4ele4ygELZ7PEO6MM7rim9oAQH2A5MWfsAVf/jPvTPgCbvUQ==,
       }
     engines: { node: '>=0.6' }
     dependencies:
@@ -10008,10 +10011,10 @@ packages:
       react: 18.2.0
     dev: false
 
-  /react-focus-lock@2.11.2(@types/react@18.2.77)(react@18.2.0):
+  /react-focus-lock@2.11.3(@types/react@18.2.78)(react@18.2.0):
     resolution:
       {
-        integrity: sha512-DDTbEiov0+RthESPVSTIdAWPPKic+op3sCcP+icbMRobvQNt7LuAlJ3KoarqQv5sCgKArru3kXmlmFTa27/CdQ==,
+        integrity: sha512-CfWYS86y6KvAIGxYzO1/HlWI2zGON9Fa3L2xfREDGMNFAtYj3m/ZRvnsMH4H75dj5FpgDy2LWA1Vyx+twV80vw==,
       }
     peerDependencies:
       '@types/react': ^16.8.0 || ^17.0.0 || ^18.0.0
@@ -10021,13 +10024,13 @@ packages:
         optional: true
     dependencies:
       '@babel/runtime': 7.24.4
-      '@types/react': 18.2.77
+      '@types/react': 18.2.78
       focus-lock: 1.3.5
       prop-types: 15.8.1
       react: 18.2.0
       react-clientside-effect: 1.2.6(react@18.2.0)
-      use-callback-ref: 1.3.2(@types/react@18.2.77)(react@18.2.0)
-      use-sidecar: 1.1.2(@types/react@18.2.77)(react@18.2.0)
+      use-callback-ref: 1.3.2(@types/react@18.2.78)(react@18.2.0)
+      use-sidecar: 1.1.2(@types/react@18.2.78)(react@18.2.0)
     dev: false
 
   /react-hook-form@7.51.3(react@18.2.0):
@@ -10139,7 +10142,7 @@ packages:
       react-dom: 18.2.0(react@18.2.0)
     dev: false
 
-  /react-redux@9.1.0(@types/react@18.2.77)(react@18.2.0)(redux@5.0.1):
+  /react-redux@9.1.0(@types/react@18.2.78)(react@18.2.0)(redux@5.0.1):
     resolution:
       {
         integrity: sha512-6qoDzIO+gbrza8h3hjMA9aq4nwVFCKFtY2iLxCtVT38Swyy2C/dJCGBXHeHLtx6qlg/8qzc2MrhOeduf5K32wQ==,
@@ -10157,14 +10160,14 @@ packages:
       redux:
         optional: true
     dependencies:
-      '@types/react': 18.2.77
+      '@types/react': 18.2.78
       '@types/use-sync-external-store': 0.0.3
       react: 18.2.0
       redux: 5.0.1
       use-sync-external-store: 1.2.0(react@18.2.0)
     dev: false
 
-  /react-uid@2.3.0(@types/react@18.2.77)(react@18.2.0):
+  /react-uid@2.3.0(@types/react@18.2.78)(react@18.2.0):
     resolution:
       {
         integrity: sha512-tsPZ77GR0pISGYmpCLHAbZTabKXZ7zBniKPVqVMMfnXFyo39zq5g/psIlD5vLTKkjQEhWOO8JhqcHnxkwNu6eA==,
@@ -10177,7 +10180,7 @@ packages:
       '@types/react':
         optional: true
     dependencies:
-      '@types/react': 18.2.77
+      '@types/react': 18.2.78
       react: 18.2.0
       tslib: 1.14.1
     dev: false
@@ -11235,7 +11238,7 @@ packages:
       formidable: 2.1.2
       methods: 1.1.2
       mime: 2.6.0
-      qs: 6.12.0
+      qs: 6.12.1
       semver: 7.6.0
     transitivePeerDependencies:
       - supports-color
@@ -12090,7 +12093,7 @@ packages:
       punycode: 2.3.1
     dev: true
 
-  /use-callback-ref@1.3.2(@types/react@18.2.77)(react@18.2.0):
+  /use-callback-ref@1.3.2(@types/react@18.2.78)(react@18.2.0):
     resolution:
       {
         integrity: sha512-elOQwe6Q8gqZgDA8mrh44qRTQqpIHDcZ3hXTLjBe1i4ph8XpNJnO+aQf3NaG+lriLopI4HMx9VjQLfPQ6vhnoA==,
@@ -12103,12 +12106,12 @@ packages:
       '@types/react':
         optional: true
     dependencies:
-      '@types/react': 18.2.77
+      '@types/react': 18.2.78
       react: 18.2.0
       tslib: 2.3.1
     dev: false
 
-  /use-sidecar@1.1.2(@types/react@18.2.77)(react@18.2.0):
+  /use-sidecar@1.1.2(@types/react@18.2.78)(react@18.2.0):
     resolution:
       {
         integrity: sha512-epTbsLuzZ7lPClpz2TyryBfztm7m+28DlEv2ZCQ3MDr5ssiwyOwGH/e5F9CkfWjJ1t4clvI58yF822/GUkjjhw==,
@@ -12121,7 +12124,7 @@ packages:
       '@types/react':
         optional: true
     dependencies:
-      '@types/react': 18.2.77
+      '@types/react': 18.2.78
       detect-node-es: 1.1.0
       react: 18.2.0
       tslib: 2.3.1

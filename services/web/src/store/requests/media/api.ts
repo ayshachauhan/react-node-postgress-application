@@ -1,28 +1,31 @@
-import Cookies from 'js-cookie';
-import { publicRuntimeConfig } from 'next.config';
-import { MediaInterface } from '.';
+import { IMedia } from '@packages/entities/index.browser';
+import { ApiService } from '@root/services/apiclient';
+import { IMediaDTO } from './types';
 
+const apiClient = new ApiService();
+
+/**
+ * @summary Get Media by PracticeId
+ * @param payloadData
+ * @param param1
+ * @returns Media object as a response
+ */
 export const getMedia = async (
   payloadData: { practiceId: string },
   { rejectWithValue },
-) => {
-  const { API_BASE_URL } = publicRuntimeConfig;
+): Promise<IMedia[]> => {
   try {
-    const accessToken = Cookies.get('access_token');
-    const response = await fetch(
-      `${API_BASE_URL}/practices/${payloadData.practiceId}/videos`,
-      {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        },
-      },
+    const response: Response = await apiClient.get(
+      `/practices/${payloadData.practiceId}/videos`,
     );
+
     if (!response.ok) {
       throw new Error('Failed to fetch videos');
     }
-    const data = await response.json();
+
+    const data: IMedia[] = await response.json();
+    console.log(data, 'datdget');
+
     return data;
   } catch (error) {
     if (error instanceof Error) {
@@ -32,28 +35,26 @@ export const getMedia = async (
   }
 };
 
+/**
+ * @summary Add Media for a practice
+ * @param payloadData
+ * @param param1
+ * @returns IMedia
+ */
 export const addMedia = async (
-  payloadData: MediaInterface,
+  payloadData: IMediaDTO,
   { rejectWithValue },
-) => {
-  const { API_BASE_URL } = publicRuntimeConfig;
+): Promise<IMedia> => {
   try {
-    const accessToken = Cookies.get('access_token');
-    const response = await fetch(
-      `${API_BASE_URL}/practices/${payloadData.practiceId}/videos`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify(payloadData),
-      },
+    const response: Response = await apiClient.post(
+      `/practices/${payloadData.practiceId}/videos`,
+      payloadData,
     );
     if (!response.ok) {
       throw new Error('Failed to add video');
     }
-    const data = await response.json();
+    const data: IMedia = await response.json();
+    console.log(data, 'datapost');
     return data;
   } catch (error) {
     if (error instanceof Error) {

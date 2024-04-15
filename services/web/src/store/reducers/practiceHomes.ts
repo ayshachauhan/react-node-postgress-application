@@ -1,33 +1,19 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { State } from '@root/store';
+import { indexBy } from '@root/utils/index';
 import {
-  PracticeHomeResponse,
   addPracticeHome,
   deletePracticeHome,
   getPracticeHomeInfo,
   getPracticeHomes,
 } from '@store/requests/practiceHomes';
+import { EntityLoadingState, PracticeHomeState } from '../types';
 
-type EmptyObject = Record<string, never>;
-
-export interface practiceHomeState {
-  isProcessing: boolean;
-  entities: Record<string, PracticeHomeResponse>;
-  practiceHomes: PracticeHomeResponse[];
-  practiceHomeInfo: PracticeHomeResponse | EmptyObject;
-  status: 'idle' | 'loading' | 'failed';
-  successMessage: string | null;
-  error: string | null;
-}
-
-const initialState: practiceHomeState = {
-  isProcessing: false,
+const initialState: PracticeHomeState = {
+  processing: false,
   entities: {},
-  practiceHomes: [],
-  practiceHomeInfo: {},
-  status: 'idle',
-  successMessage: null,
-  error: null,
+  status: EntityLoadingState.IDLE,
+  successMessage: undefined,
+  errorMessage: undefined,
 };
 
 const practiceHomeSlice = createSlice({
@@ -35,91 +21,88 @@ const practiceHomeSlice = createSlice({
   initialState,
   reducers: {
     clearSuccessMessage(state) {
-      state.successMessage = null;
+      state.successMessage = undefined;
     },
     clearErrorMessage(state) {
-      state.error = null;
+      state.errorMessage = undefined;
     },
   },
   extraReducers(builder) {
     builder.addCase(fetchListings.pending, (state) => {
-      state.isProcessing = true;
-      state.status = 'loading';
+      state.processing = true;
+      state.status = EntityLoadingState.PENDING;
     });
 
     builder.addCase(fetchListings.fulfilled, (state, action) => {
-      state.status = 'idle';
-      state.practiceHomes = action.payload;
+      state.status = EntityLoadingState.SUCCEEDED;
+      state.entities = {
+        ...state.entities,
+        ...indexBy('id', action.payload),
+      };
+      state.processing = false;
     });
 
     builder.addCase(fetchListings.rejected, (state, action) => {
-      state.status = 'failed';
+      state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
-        state.error = action.payload ?? 'Failed to fetch users';
+        state.errorMessage = action.payload ?? 'Failed to fetch users';
       } else {
-        state.error = 'Failed to fetch users';
+        state.errorMessage = 'Failed to fetch users';
       }
-    });
-    builder.addCase(fetchPracticeHomeInfo.pending, (state) => {
-      state.isProcessing = true;
-      state.status = 'loading';
-    });
-
-    builder.addCase(fetchPracticeHomeInfo.fulfilled, (state, action) => {
-      state.status = 'idle';
-      state.practiceHomeInfo = action.payload;
-    });
-
-    builder.addCase(fetchPracticeHomeInfo.rejected, (state, action) => {
-      state.status = 'failed';
-      if (typeof action.payload === 'string') {
-        state.error = action.payload ?? 'Failed to fetch user info';
-      } else {
-        state.error = 'Failed to fetch practice home info';
-      }
+      state.processing = false;
     });
 
     builder.addCase(addRecordAsync.pending, (state) => {
-      state.isProcessing = true;
-      state.status = 'loading';
+      state.processing = true;
+      state.status = EntityLoadingState.PENDING;
     });
 
     builder.addCase(addRecordAsync.fulfilled, (state, action) => {
-      state.status = 'idle';
-      state.practiceHomes = [...state.practiceHomes, action.payload];
+      state.status = EntityLoadingState.SUCCEEDED;
+      state.entities = {
+        ...state.entities,
+        ...{ [action.payload.id]: action.payload },
+      };
       state.successMessage = 'Record added successfully';
+      state.processing = false;
     });
 
     builder.addCase(addRecordAsync.rejected, (state, action) => {
-      state.status = 'failed';
+      state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
-        state.error = action.payload ?? 'Failed to add practice home';
+        state.errorMessage = action.payload ?? 'Failed to add practice home';
       } else {
-        state.error = 'Failed to add practice home';
+        state.errorMessage = 'Failed to add practice home';
       }
+      state.processing = false;
     });
 
     builder.addCase(deleteRecordAsync.pending, (state) => {
-      state.isProcessing = true;
-      state.status = 'loading';
+      state.processing = true;
+      state.status = EntityLoadingState.PENDING;
     });
 
     builder.addCase(deleteRecordAsync.fulfilled, (state, action) => {
-      state.status = 'idle';
+      state.status = EntityLoadingState.SUCCEEDED;
       const deletedPracticeHomeId = action?.meta?.arg?.id;
-      state.practiceHomes = state.practiceHomes.filter(
-        (type) => type.id !== deletedPracticeHomeId,
-      );
+      const {
+        // eslint-disable-next-line
+        [deletedPracticeHomeId]: deletedPracticeHome,
+        ...remainingPracticeHomes
+      } = state.entities;
+      state.entities = remainingPracticeHomes;
       state.successMessage = 'Record deleted successfully';
+      state.processing = false;
     });
 
     builder.addCase(deleteRecordAsync.rejected, (state, action) => {
-      state.status = 'failed';
+      state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
-        state.error = action.payload ?? 'Failed to delete practice home';
+        state.errorMessage = action.payload ?? 'Failed to delete practice home';
       } else {
-        state.error = 'Failed to delete practice home';
+        state.errorMessage = 'Failed to delete practice home';
       }
+      state.processing = false;
     });
   },
 });
@@ -146,9 +129,4 @@ export const deleteRecordAsync = createAsyncThunk(
   deletePracticeHome,
 );
 
-export const selectRecords = (state: State) => state.practiceHomes;
-export const selectStatus = (state: State) => state.practiceHomes.status;
-export const selectError = (state: State) => state.practiceHomes.error;
-export const selectSuccessMessage = (state: State) =>
-  state.practiceHomes.successMessage;
 export default practiceHomeSlice.reducer;

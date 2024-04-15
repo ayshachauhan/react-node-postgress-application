@@ -1,18 +1,16 @@
 'use client';
+import { UserType } from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import { AddIcon, PlayIcon } from '@root/components/Icons';
 import Form from '@root/components/media/addMedia.module';
-import { UserType } from '@root/enums/userType.enum';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { selectRecords } from '@root/store/reducers/auth';
 import {
   clearErrorMessage,
   clearSuccessMessage,
   fetchListings,
-  selectError,
-  selectSuccessMessage,
 } from '@root/store/reducers/media';
-import { extractVideoId, getImageUrl, getPracticeId } from '@utils/methods';
+import { extractVideoId, getImageUrl, getPracticeId } from '@utils/index';
 import { Modal, ModalBody, ModalHeader, ROLE, SIZE } from 'baseui/modal';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
@@ -20,13 +18,15 @@ import React, { useEffect, useState } from 'react';
 
 const Media: React.FC = () => {
   const dispatch = useAppDispatch();
-  const media = useAppSelector((state) => state.media.media);
+  const media = useAppSelector((state) => state.media.entities);
   const practiceId = getPracticeId();
   const [isFirstModalOpen, setIsFirstModalOpen] = useState(false);
   const [isSecondModalOpen, setIsSecondModalOpen] = useState(false);
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
-  const successMessage = useAppSelector(selectSuccessMessage); // Select success message from Redux store
-  const errorMessage = useAppSelector(selectError); // Select error message from Redux store
+  const { successMessage, errorMessage } = useAppSelector((state) => ({
+    successMessage: state.media.successMessage,
+    errorMessage: state.media.errorMessage,
+  })); // Select success message from Redux store
   const [showModal, setShowModal] = useState(false); // State to manage modal visibility
   const [showErrorMessage, setShowErrorMessage] = useState(false);
   const router = useRouter();
@@ -141,7 +141,7 @@ const Media: React.FC = () => {
       </div>
       <hr className="h-px my-2.5 bg-gray-100 border-1 dark:bg-gray-700"></hr>
       <div className="flex flex-wrap gap-6">
-        {media.map((data) => (
+        {Object.values(media).map((data) => (
           <React.Fragment key={data.id}>
             {/* <GeneralCard
                     id={this.props.id}

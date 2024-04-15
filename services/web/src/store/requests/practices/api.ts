@@ -1,26 +1,29 @@
+import { IPractice } from '@packages/entities';
+import { ApiService } from '@root/services/apiclient';
 import {
   PracticeCreateInterface,
   PracticesEditInterface,
+  PracticesGetInterface,
 } from '@store/requests/practices';
 
-import Cookies from 'js-cookie';
-import { publicRuntimeConfig } from 'next.config';
-const { API_BASE_URL } = publicRuntimeConfig;
+const apiClient = new ApiService();
 
-export const getPractices = async (_, { rejectWithValue }) => {
+/**
+ * Get Practices
+ * @param _
+ * @param param1
+ * @returns
+ */
+export const getPractices = async (
+  _,
+  { rejectWithValue },
+): Promise<PracticesGetInterface[]> => {
   try {
-    const accessToken = Cookies.get('access_token');
-    const response = await fetch(`${API_BASE_URL}/practices`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
+    const response: Response = await apiClient.get(`/practices`);
     if (!response.ok) {
       throw new Error('Failed to get practices');
     }
-    const data = await response.json();
+    const data: PracticesGetInterface[] = await response.json();
     return data;
   } catch (error) {
     if (error instanceof Error) {
@@ -30,6 +33,12 @@ export const getPractices = async (_, { rejectWithValue }) => {
   }
 };
 
+/**
+ *
+ * @param payloadData
+ * @param param1
+ * @returns
+ */
 export const getPracticeData = async (
   payloadData: {
     id: string;
@@ -37,17 +46,7 @@ export const getPracticeData = async (
   { rejectWithValue },
 ) => {
   try {
-    const accessToken = Cookies.get('access_token');
-    const response = await fetch(
-      `${API_BASE_URL}/practices/${payloadData.id}`,
-      {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        },
-      },
-    );
+    const response = await apiClient.get(`/practices/${payloadData.id}`);
     if (!response.ok) {
       throw new Error('Failed to get practice data');
     }
@@ -61,44 +60,52 @@ export const getPracticeData = async (
   }
 };
 
-export const addPractice = async (payloadData: PracticeCreateInterface) => {
+/**
+ *
+ * @param payloadData
+ * @param param1
+ * @returns
+ */
+export const addPractice = async (
+  payloadData: PracticeCreateInterface,
+  { rejectWithValue },
+): Promise<IPractice> => {
   try {
-    const accessToken = Cookies.get('access_token');
-    const response = await fetch(`${API_BASE_URL}/practices`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${accessToken}`,
-      },
-      body: JSON.stringify(payloadData),
-    });
-    const data = await response.json();
+    const response = await apiClient.post(`/practices`, payloadData);
+    const data: IPractice = await response.json();
     return data;
   } catch (error) {
-    return error;
+    return rejectWithValue(error);
   }
 };
 
-export const editPractice = async (payloadData: PracticesEditInterface) => {
+/**
+ *
+ * @param payloadData
+ * @param param1
+ * @returns
+ */
+export const editPractice = async (
+  payloadData: PracticesEditInterface,
+  { rejectWithValue },
+) => {
   try {
     const { id } = payloadData;
     delete payloadData.id;
-    const accessToken = Cookies.get('access_token');
-    const response = await fetch(`${API_BASE_URL}/practices/${id}`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${accessToken}`,
-      },
-      body: JSON.stringify(payloadData),
-    });
+    const response = await apiClient.patch(`/practices/${id}`, payloadData);
     const data = await response.json();
     return data;
   } catch (error) {
-    return error;
+    return rejectWithValue(error);
   }
 };
 
+/**
+ *
+ * @param payloadData
+ * @param param1
+ * @returns
+ */
 export const deletePractice = async (
   payloadData: {
     id: string;
@@ -106,17 +113,7 @@ export const deletePractice = async (
   { rejectWithValue },
 ) => {
   try {
-    const accessToken = Cookies.get('access_token');
-    const response = await fetch(
-      `${API_BASE_URL}/practices/${payloadData.id}`,
-      {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        },
-      },
-    );
+    const response = await apiClient.delete(`/practices/${payloadData.id}`);
     if (!response.ok) {
       throw new Error('Failed to delete practice');
     }
