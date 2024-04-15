@@ -1,8 +1,8 @@
 import { IUser } from '.';
-import { BaseEntity } from '../base.entity';
+import { IBaseEntity } from '../base.interface';
 import { IPractice } from '../practice';
 
-export interface IUserPractice extends BaseEntity {
+export interface IUserPractice extends IBaseEntity {
   user: IUser;
   practice: IPractice;
 }

@@ -16,7 +16,8 @@
     "./*": {
       "import": "./dist/*/index.js",
       "require": "./dist/*/index.js"
-    }
+    },
+    "./index.browser": "./src/index.browser.ts"
   },
   "typesVersions": {
     "*": {

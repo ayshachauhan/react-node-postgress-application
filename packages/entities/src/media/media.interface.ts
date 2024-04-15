@@ -1,7 +1,7 @@
-import { BaseEntity } from '../base.entity';
+import { IBaseEntity } from '../base.interface';
 import { SurgeryType } from '../template/template.interface';
 
-export interface IMedia extends BaseEntity {
+export interface IMedia extends IBaseEntity {
   name: string;
   urlEmbed: string;
   url: string;
