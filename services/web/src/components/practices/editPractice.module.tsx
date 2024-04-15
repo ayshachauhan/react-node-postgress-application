@@ -1,5 +1,5 @@
 'use client';
-import { PracticeStatus } from '@packages/entities/practice';
+import { PracticeStatus } from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
 import { useAppDispatch } from '@root/store';

@@ -1,5 +1,5 @@
 'use client';
-import { UserType } from '@packages/entities/user';
+import { UserType } from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import { AddIcon, PlayIcon } from '@root/components/Icons';
 import Form from '@root/components/media/addMedia.module';

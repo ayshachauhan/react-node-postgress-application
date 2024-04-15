@@ -1,4 +1,4 @@
-import { IMedia } from '@packages/entities/media';
+import { IMedia } from '@packages/entities/index.browser';
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { indexBy } from '@root/utils/index';
 import { addMedia, getMedia } from '../requests/media';

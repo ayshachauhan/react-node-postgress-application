@@ -1,5 +1,5 @@
 import { IInsuranceType, IPracticeHomes } from '@packages/entities';
-import { IUser } from '@packages/entities/user';
+import { IUser } from '@packages/entities/index.browser';
 import { GetUserResponse } from './requests/login/types';
 import { PracticesGetInterface } from './requests/practices';
 

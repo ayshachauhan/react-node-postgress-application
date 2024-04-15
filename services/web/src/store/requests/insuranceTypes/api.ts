@@ -1,4 +1,4 @@
-import { IInsuranceType } from '@packages/entities/insuranceType';
+import { IInsuranceType } from '@packages/entities/index.browser';
 import { ApiService } from '@root/services/apiclient';
 import { CreateInsuranceTypeInterface } from '.';
 

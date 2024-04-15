@@ -1,4 +1,7 @@
-import { SurgeryType, TemplateMessageType } from '@packages/entities/template';
+import {
+  SurgeryType,
+  TemplateMessageType,
+} from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
 import { useAppDispatch, useAppSelector } from '@root/store';

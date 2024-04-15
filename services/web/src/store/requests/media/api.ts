@@ -1,4 +1,4 @@
-import { IMedia } from '@packages/entities/media';
+import { IMedia } from '@packages/entities/index.browser';
 import { ApiService } from '@root/services/apiclient';
 import { IMediaDTO } from './types';
 

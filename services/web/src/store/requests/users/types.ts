@@ -1,4 +1,4 @@
-import { UserStatus, UserType } from '@packages/entities/user';
+import { UserStatus, UserType } from '@packages/entities/index.browser';
 
 export interface User {
   id: string;

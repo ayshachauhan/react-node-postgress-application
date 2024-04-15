@@ -1,4 +1,4 @@
-import { IUser } from '@packages/entities/user';
+import { IUser } from '@packages/entities/index.browser';
 import { ApiService } from '@root/services/apiclient';
 import { SanitizedUser } from '@root/store/types';
 import { AddUser, ChangePasswordInterface, EditUser } from '.';
