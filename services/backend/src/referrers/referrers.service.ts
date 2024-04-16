@@ -23,7 +23,7 @@ export class ReferrersService {
     return await this.referrers.save(video);
   }
   async deleteReferrer(practiceId: string, id: string): Promise<void> {
-    this.referrers.softDelete({
+    await this.referrers.softDelete({
       id,
       practiceId,
     });
@@ -52,13 +52,18 @@ export class ReferrersService {
     return this.referrers.save(updatedVideo);
   }
 
-  async getReferrer(practiceId: string, page: string, limit: string) {
+  // async getReferrer(practiceId: string, page: string, limit: string) { //commenting this code to be implemented in future
+  async getReferrer(practiceId: string) {
+    /* commenting this code to be implemented in future
     const numberOfRecords = parseInt(limit);
     const skip = (parseInt(page) - 1) * numberOfRecords;
+    */
     const referrers = await this.referrers.find({
       where: { practiceId },
+      /* commenting this code to be implemented in future
       skip,
       take: numberOfRecords,
+      */
     });
 
     return referrers;

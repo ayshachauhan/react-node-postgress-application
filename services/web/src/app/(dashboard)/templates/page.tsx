@@ -188,7 +188,7 @@ const Templates: React.FC = () => {
   }, [successMessage, errorMessage, dispatch]);
 
   return (
-    <div id="__next" className="mt-4">
+    <div className="mt-4">
       <div className="flex justify-between border-gray-400">
         <span className="text-2xl font-medium">Template Engine </span>
         <div className="text-green-700">{successMessage}</div>

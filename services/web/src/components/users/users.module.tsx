@@ -244,7 +244,7 @@ export default function UserPage() {
   };
 
   return (
-    <div id="__next" className="mt-4">
+    <div className="mt-4">
       <div className="flex justify-between border-gray-400">
         <span className="text-xl font-bold">Users</span>
         {showModal && <div className="text-green-700">{successMessage}</div>}
@@ -299,7 +299,7 @@ export default function UserPage() {
               <div className="text-gray-900 bg-gray-50 pt-2 px-4">
                 {data.url}
               </div>
-              <div className="text-gray-900 bg-gray-50 pt-2 px-4 flex text-center items-center justify-center">
+              <div className="text-gray-900 bg-gray-50 pt-2 px-4 flex text-center items-center">
                 <div
                   className={`rounded-md text-white px-3.5 ${
                     data.status?.toString() === 'pending'

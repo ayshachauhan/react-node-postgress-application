@@ -15,6 +15,6 @@ export class Referrers extends BaseEntity {
   @Column({ type: 'varchar' })
   email: string;
 
-  @Column({ type: 'enum', enum: ['PCP', 'ORTHO', 'SURGEON'] })
+  @Column({ type: 'enum', enum: ['PCP', 'Ortho', 'Surgeon'] })
   referrerType: string;
 }

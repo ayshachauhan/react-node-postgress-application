@@ -3,8 +3,8 @@ import { IsEnum, IsNotEmpty, IsOptional } from 'class-validator';
 
 export enum ReferrerTypeEnum {
   PCP = 'PCP',
-  ORTHO = 'ORTHO',
-  SURGEON = 'SURGEON',
+  ORTHO = 'Ortho',
+  SURGEON = 'Surgeon',
 }
 
 export class CreateReferrerDto {

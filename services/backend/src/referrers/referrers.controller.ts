@@ -6,7 +6,7 @@ import {
   Param,
   Patch,
   Post,
-  Query,
+  // Query, //commenting this code to be implemented in future
   UseGuards,
   ValidationPipe,
 } from '@nestjs/common';
@@ -48,9 +48,12 @@ export class ReferrersController {
   @Get()
   getReferrer(
     @Param('practiceId') practiceId: string,
+    /* commenting this code to be implemented in future
     @Query('limit') limit: string,
     @Query('page') page: string,
+    */
   ) {
-    return this.referrerService.getReferrer(practiceId, page, limit);
+    // return this.referrerService.getReferrer(practiceId, page, limit); //commenting this code to be implemented in future
+    return this.referrerService.getReferrer(practiceId);
   }
 }

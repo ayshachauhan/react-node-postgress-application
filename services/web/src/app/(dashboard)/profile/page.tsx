@@ -26,7 +26,7 @@ const Profile: React.FC = () => {
     router.back();
   };
   return (
-    <div id="__next" className="mt-4">
+    <div className="mt-4">
       <div className="flex justify-between border-gray-400">
         <span className="text-xl font-bold">Profile</span>
         <Button kind="primary" title="Go Back" onClick={handleGoBack}></Button>
