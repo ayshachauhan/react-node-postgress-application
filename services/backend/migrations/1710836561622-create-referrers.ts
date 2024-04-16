@@ -36,7 +36,7 @@ export class CreateReferrers1710836561622 implements MigrationInterface {
           {
             name: 'referrerType',
             type: 'enum',
-            enum: ['PCP', 'Ortho', 'Surgeon'],
+            enum: ['PCP', 'Ophtho', 'Optom', 'Specialist'],
             isNullable: false,
           },
           {

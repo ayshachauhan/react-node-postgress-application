@@ -1,9 +1,9 @@
 'use client';
+import { UserType } from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import { AddIcon, DeleteIcon } from '@root/components/Icons';
 import Form from '@root/components/referrer/addReferrer.module';
 import ReferedPatients from '@root/components/referrer/referedPatients.module';
-import { UserType } from '@root/enums/userType.enum';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { selectRecords } from '@root/store/reducers/auth';
 import {
@@ -14,7 +14,7 @@ import {
   selectError,
   selectSuccessMessage,
 } from '@root/store/reducers/referrer';
-import { generateFullName, getPracticeId } from '@utils/methods';
+import { generateFullName, getPracticeId } from '@utils/index';
 import {
   Modal,
   ModalBody,

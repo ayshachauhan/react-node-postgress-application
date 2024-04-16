@@ -1,8 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { PracticeEntity } from '@packages/entities/practice';
+import { Referrers } from '@packages/entities/referrer';
 import { Repository } from 'typeorm';
-import { PracticeEntity } from '../entities/practices.entity';
-import { Referrers } from '../entities/referrers.entity';
 @Injectable()
 export class ReferrersService {
   constructor(

@@ -4,7 +4,7 @@ import { ReferrerType } from '@root/enums/referrerType.enum';
 import { useAppDispatch } from '@root/store';
 import { addRecordAsync } from '@root/store/reducers/referrer';
 import { AddReferrer } from '@root/store/requests/referrers';
-import { getPracticeId } from '@utils/methods';
+import { getPracticeId } from '@utils/index';
 import { Select } from 'baseui/select';
 import { useState } from 'react';
 import TextInput from '../TextInput/TextInput';
@@ -77,6 +77,7 @@ const AddReferrerForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 name="lastName"
                 value={lastName}
                 onChange={(value) => setLastName(value)}
+                required
               />
             </div>
           </div>

@@ -12,7 +12,8 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from 'src/auth/auth.guard';
-import { CreateReferrerDto, updateReferrerDto } from './dtos/createReferrer';
+import { CreateReferrerDto } from './dtos/referrer.createDto';
+import { updateReferrerDto } from './dtos/referrer.updateDto';
 import { ReferrersService } from './referrers.service';
 
 @ApiTags('Referrers')

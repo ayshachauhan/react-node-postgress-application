@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { PracticeEntity } from 'src/entities/practices.entity';
-import { Referrers } from 'src/entities/referrers.entity';
+import { PracticeEntity } from '@packages/entities/practice';
+import { Referrers } from '@packages/entities/referrer';
 import { ReferrersController } from './referrers.controller';
 import { ReferrersService } from './referrers.service';
 

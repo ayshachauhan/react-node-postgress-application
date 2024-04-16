@@ -1,5 +1,6 @@
 export enum ReferrerType {
   PCP = 'PCP',
-  ORTHO = 'Ortho',
-  SURGEON = 'Surgeon',
+  OPHTHO = 'Ophtho',
+  OPTOM = 'Optom',
+  SPECIALIST = 'Specialist',
 }
