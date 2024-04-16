@@ -1,7 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { UserPermissionEntity } from 'src/entities/userPermissions.entity';
-import { User } from 'src/entities/users.entity';
+import { User, UserPermissionEntity } from '@packages/entities/user';
 import { PermissionsService } from 'src/permissions/permissions.service';
 import { Repository } from 'typeorm';
 

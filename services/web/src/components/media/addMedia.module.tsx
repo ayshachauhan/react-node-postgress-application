@@ -1,10 +1,10 @@
+import { SurgeryType } from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
-import { SurgeryType } from '@root/enums/surgeryType.enum';
 import { useAppDispatch } from '@root/store';
 import { addRecordAsync } from '@root/store/reducers/media';
-import { MediaInterface } from '@root/store/requests/media';
-import { getPracticeId } from '@utils/methods';
+import { IMediaDTO } from '@root/store/requests/media/types';
+import { getPracticeId } from '@utils/index';
 import { Select } from 'baseui/select';
 import React, { useState } from 'react';
 
@@ -18,13 +18,13 @@ const MediaPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const [name, setName] = useState('');
   const [url, setUrl] = useState('');
   const [urlEmbed, setUrlEmbed] = useState('');
-  const [surgeryType, setSurgeryType] = useState('');
+  const [surgeryType, setSurgeryType] = useState<SurgeryType>();
 
   // Function to handle form submission
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (practiceId) {
-      const data: MediaInterface = {
+    if (practiceId && surgeryType) {
+      const data: IMediaDTO = {
         name,
         url,
         urlEmbed,
@@ -36,7 +36,7 @@ const MediaPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         setName('');
         setUrl('');
         setUrlEmbed('');
-        setSurgeryType('');
+        setSurgeryType(undefined);
         onClose(); // Close the modal after form submission
       } catch (error) {
         onClose();

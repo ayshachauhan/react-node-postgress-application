@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Video } from '@packages/entities/media';
 import { Repository } from 'typeorm';
-import { Video } from '../entities/media.entity';
 
 @Injectable()
 export class MediaService {

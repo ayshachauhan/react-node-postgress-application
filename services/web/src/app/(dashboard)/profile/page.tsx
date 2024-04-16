@@ -3,11 +3,8 @@ import Button from '@root/components/Button';
 import { AvatarIcon } from '@root/components/Icons';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { selectRecords } from '@root/store/reducers/auth';
-import {
-  getPracticeInfo,
-  selectPracticeInfo,
-} from '@root/store/reducers/practices';
-import { getPracticeId } from '@utils/methods';
+import { getPracticeInfo } from '@root/store/reducers/practices';
+import { getPracticeId } from '@utils/index';
 import { useRouter } from 'next/navigation';
 import React, { useEffect } from 'react';
 
@@ -20,7 +17,9 @@ const Profile: React.FC = () => {
       dispatch(getPracticeInfo({ id: userPracticeId }));
     }
   }, [userPracticeId, dispatch]);
-  const practiceName = useAppSelector(selectPracticeInfo);
+  const practiceName = useAppSelector(
+    (state) => state.practices.practiceInfo?.name,
+  );
   const router = useRouter();
   const handleGoBack = () => {
     router.back();

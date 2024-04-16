@@ -1,8 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { UserStatus, UserType } from '@packages/entities/user';
 import { IsNotEmpty, IsOptional } from 'class-validator';
-import { UserStatus } from 'src/enums/status.enum';
-
-import { UserType } from 'src/enums/userType.enum';
 
 export class CreateUserDto {
   @IsNotEmpty({ message: 'First name is required' })

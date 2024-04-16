@@ -3,7 +3,7 @@ import TextInput from '@root/components/TextInput';
 import { useAppDispatch } from '@root/store';
 import { addRecordAsync } from '@root/store/reducers/insuranceTypes';
 import { CreateInsuranceTypeInterface } from '@root/store/requests/insuranceTypes';
-import { getPracticeId } from '@utils/methods';
+import { getPracticeId } from '@utils/index';
 import React, { useState } from 'react';
 
 const AddInsuranceType: React.FC<{ onClose: () => void }> = ({ onClose }) => {

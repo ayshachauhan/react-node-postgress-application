@@ -1,11 +1,10 @@
+import { UserStatus, UserType } from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
-import { UserStatus } from '@root/enums/status.enum';
-import { UserType } from '@root/enums/userType.enum';
 import { useAppDispatch } from '@root/store';
 import { addRecordAsync } from '@root/store/reducers/users';
 import { AddUser } from '@root/store/requests/users';
-import { generateFullName, getPracticeId } from '@utils/methods';
+import { generateFullName, getPracticeId } from '@utils/index';
 import { Select } from 'baseui/select';
 import React, { useState } from 'react';
 

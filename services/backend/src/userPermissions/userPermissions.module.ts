@@ -1,6 +1,6 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UserPermissionEntity } from 'src/entities/userPermissions.entity';
+import { UserPermissionEntity } from '@packages/entities/user';
 import { userNotFoundInterceptor } from 'src/interceptors/userNotFoundInterceptor';
 import { PermissionsModule } from 'src/permissions/permissions.module';
 import { PracticesModule } from 'src/practices/practices.module';

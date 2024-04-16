@@ -1,10 +1,6 @@
-export interface MediaInterface {
-  id?: string;
-  name: string;
-  urlEmbed: string;
-  url: string;
-  surgeryType: string;
-  practiceId: string;
-  dateCreated?: Date;
-  dateUpdated?: Date;
-}
+import { IMedia } from '@packages/entities';
+
+export type IMediaDTO = Pick<
+  IMedia,
+  'name' | 'url' | 'urlEmbed' | 'practiceId' | 'surgeryType'
+>;

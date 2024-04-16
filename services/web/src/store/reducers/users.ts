@@ -1,7 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { State } from '@root/store';
+import { indexBy } from '@root/utils/index';
 import {
-  User,
   addUser,
   changePassword,
   deleteUser,
@@ -9,27 +8,15 @@ import {
   getUsers,
   updateUser,
 } from '../requests/users';
-
-type EmptyObject = Record<string, never>;
-
-export interface UserState {
-  isProcessing: boolean;
-  entities: Record<string, User>;
-  users: User[];
-  userInfo: User | EmptyObject;
-  status: 'idle' | 'loading' | 'failed';
-  successMessage: string;
-  error: string;
-}
+import { EntityLoadingState, UserState } from '../types';
 
 const initialState: UserState = {
-  isProcessing: false,
+  processing: false,
   entities: {},
-  users: [],
-  userInfo: {},
-  status: 'idle',
-  successMessage: '',
-  error: '',
+  userInfo: null,
+  status: EntityLoadingState.IDLE,
+  successMessage: undefined,
+  errorMessage: undefined,
 };
 
 const userSlice = createSlice({
@@ -37,141 +24,148 @@ const userSlice = createSlice({
   initialState,
   reducers: {
     clearSuccessMessage(state) {
-      state.successMessage = '';
+      state.successMessage = undefined;
     },
     clearErrorMessage(state) {
-      state.error = '';
+      state.errorMessage = undefined;
     },
   },
   extraReducers(builder) {
     builder.addCase(fetchListings.pending, (state) => {
-      state.isProcessing = true;
-      state.status = 'loading';
+      state.processing = true;
+      state.status = EntityLoadingState.PENDING;
     });
 
     builder.addCase(fetchListings.fulfilled, (state, action) => {
-      state.status = 'idle';
+      state.status = EntityLoadingState.SUCCEEDED;
       if (action.payload.length === 0) {
-        state.error = 'No records found';
+        state.errorMessage = 'No records found';
       } else {
-        state.error = '';
+        state.errorMessage = undefined;
       }
-      state.users = action.payload;
+      state.entities = {
+        ...state.entities,
+        ...indexBy('id', action.payload),
+      };
     });
 
     builder.addCase(fetchListings.rejected, (state, action) => {
-      state.status = 'failed';
+      state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
-        state.error = action.payload ?? 'Failed to fetch users';
+        state.errorMessage = action.payload ?? 'Failed to fetch users';
       } else {
-        state.error = 'Failed to fetch users';
+        state.errorMessage = 'Failed to fetch users';
       }
-      state.users = [];
+      state.processing = false;
     });
     builder.addCase(fetchUserInfo.pending, (state) => {
-      state.isProcessing = true;
-      state.status = 'loading';
+      state.processing = true;
+      state.status = EntityLoadingState.PENDING;
     });
 
     builder.addCase(fetchUserInfo.fulfilled, (state, action) => {
-      state.status = 'idle';
+      state.status = EntityLoadingState.SUCCEEDED;
       state.userInfo = action.payload;
     });
 
     builder.addCase(fetchUserInfo.rejected, (state, action) => {
-      state.status = 'failed';
+      state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
-        state.error = action.payload ?? 'Failed to fetch user info';
+        state.errorMessage = action.payload ?? 'Failed to fetch user info';
       } else {
-        state.error = 'Failed to fetch user info';
+        state.errorMessage = 'Failed to fetch user info';
       }
     });
 
     builder.addCase(addRecordAsync.pending, (state) => {
-      state.isProcessing = true;
-      state.status = 'loading';
+      state.processing = true;
+      state.status = EntityLoadingState.PENDING;
     });
 
     builder.addCase(addRecordAsync.fulfilled, (state, action) => {
-      state.status = 'idle';
-      state.users = [...state.users, action.payload];
+      state.status = EntityLoadingState.SUCCEEDED;
+      state.entities = {
+        ...state.entities,
+        ...{ [action.payload.id]: action.payload },
+      };
       state.successMessage = 'Record added successfully';
     });
 
     builder.addCase(addRecordAsync.rejected, (state, action) => {
-      state.status = 'failed';
+      state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
-        state.error = action.payload ?? 'Failed to add user';
+        state.errorMessage = action.payload ?? 'Failed to add user';
       } else {
-        state.error = 'Failed to add user';
+        state.errorMessage = 'Failed to add user';
       }
     });
 
     builder.addCase(updateRecordAsync.pending, (state) => {
-      state.isProcessing = true;
-      state.status = 'loading';
+      state.processing = true;
+      state.status = EntityLoadingState.PENDING;
     });
 
     builder.addCase(updateRecordAsync.fulfilled, (state, action) => {
-      state.status = 'idle';
-      const updatedUser = action.payload;
-      const updatedUsers = state.users.map((user) => {
-        if (user.id === updatedUser.id) {
-          return updatedUser; // Replace the user with updated user data
-        }
-        return user; // Otherwise, return the original user
-      });
+      state.status = EntityLoadingState.SUCCEEDED;
 
-      state.users = updatedUsers;
+      state.entities = {
+        ...state.entities,
+        ...{ [action.payload.id]: action.payload },
+      };
       state.successMessage = 'Record updated successfully';
     });
 
     builder.addCase(updateRecordAsync.rejected, (state, action) => {
-      state.status = 'failed';
+      state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
-        state.error = action.payload ?? 'Failed to update user';
+        state.errorMessage = action.payload ?? 'Failed to update user';
       } else {
-        state.error = 'Failed to update user';
+        state.errorMessage = 'Failed to update user';
       }
     });
 
     builder.addCase(deleteRecordAsync.pending, (state) => {
-      state.isProcessing = true;
-      state.status = 'loading';
+      state.processing = true;
+      state.status = EntityLoadingState.PENDING;
     });
 
     builder.addCase(deleteRecordAsync.fulfilled, (state, action) => {
-      state.status = 'idle';
+      state.status = EntityLoadingState.SUCCEEDED;
       const deletetedUserId = action?.meta?.arg?.id;
-      state.users = state.users.filter((user) => user.id !== deletetedUserId);
+      const {
+        // eslint-disable-next-line
+        [deletetedUserId]: deletedUser,
+        ...remainingUsers
+      } = state.entities;
+      state.entities = remainingUsers;
       state.successMessage = 'Record deleted successfully';
     });
 
     builder.addCase(deleteRecordAsync.rejected, (state, action) => {
-      state.status = 'failed';
+      state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
-        state.error = action.payload ?? 'Failed to delete user';
+        state.errorMessage = action.payload ?? 'Failed to delete user';
       } else {
-        state.error = 'Failed to delete user';
+        state.errorMessage = 'Failed to delete user';
       }
     });
 
     builder.addCase(changePasswordAsync.pending, (state) => {
-      state.isProcessing = true;
-      state.status = 'loading';
+      state.processing = true;
+      state.status = EntityLoadingState.PENDING;
     });
 
     builder.addCase(changePasswordAsync.fulfilled, (state) => {
-      state.status = 'idle';
+      state.status = EntityLoadingState.SUCCEEDED;
       state.successMessage = 'Password changed successfully';
     });
 
     builder.addCase(changePasswordAsync.rejected, (state, action) => {
-      state.status = 'failed';
+      state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
-        state.error = action.payload ?? 'Failed to change password';
+        state.errorMessage = action.payload ?? 'Failed to change password';
       } else {
-        state.error = 'Failed to change password';
+        state.errorMessage = 'Failed to change password';
       }
     });
   },
@@ -202,9 +196,4 @@ export const changePasswordAsync = createAsyncThunk(
   changePassword,
 );
 
-export const selectRecords = (state: State) => state.users;
-export const selectStatus = (state: State) => state.users.status;
-export const selectError = (state: State) => state.users.error;
-export const selectSuccessMessage = (state: State) =>
-  state.users.successMessage;
 export default userSlice.reducer;
