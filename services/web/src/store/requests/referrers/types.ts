@@ -1,4 +1,4 @@
-import { ReferrerType } from '@root/enums/referrerType.enum';
+import { ReferrerType } from '@packages/entities/index.browser';
 
 export interface Referrer {
   id: string;
