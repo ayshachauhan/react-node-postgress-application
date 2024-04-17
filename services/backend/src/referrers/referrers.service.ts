@@ -48,18 +48,9 @@ export class ReferrersService {
     return this.referrers.save(updatedReferrer);
   }
 
-  // async getReferrer(practiceId: string, page: string, limit: string) { //commenting this code to be implemented in future
   async getReferrer(practiceId: string) {
-    /* commenting this code to be implemented in future
-    const numberOfRecords = parseInt(limit);
-    const skip = (parseInt(page) - 1) * numberOfRecords;
-    */
     const referrers = await this.referrers.find({
       where: { practiceId },
-      /* commenting this code to be implemented in future
-      skip,
-      take: numberOfRecords,
-      */
     });
     return referrers;
   }
