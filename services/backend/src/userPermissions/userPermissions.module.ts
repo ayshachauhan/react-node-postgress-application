@@ -15,14 +15,7 @@ import { UserPermissionsService } from './userPermissions.service';
     PracticesModule,
     PermissionsModule,
   ],
-  providers: [
-    UserPermissionsService,
-    userNotFoundInterceptor,
-    {
-      provide: 'USER_NOT_FOUND_MESSAGE',
-      useValue: 'User not found',
-    },
-  ],
+  providers: [UserPermissionsService, userNotFoundInterceptor],
   controllers: [UserPermissionsController],
 })
 export class UserPermissionsModule {}

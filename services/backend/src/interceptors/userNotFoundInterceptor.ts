@@ -1,6 +1,5 @@
 import {
   ExecutionContext,
-  Inject,
   Injectable,
   NestInterceptor,
   NotFoundException,
@@ -12,10 +11,7 @@ import { UsersService } from 'src/users/users.service';
 export class userNotFoundInterceptor<T>
   implements NestInterceptor<T | T[], T | T[]>
 {
-  constructor(
-    private readonly userService: UsersService,
-    @Inject('USER_NOT_FOUND_MESSAGE') private readonly errorMessage: string,
-  ) {}
+  constructor(private readonly userService: UsersService) {}
 
   async intercept(
     context: ExecutionContext,
@@ -25,7 +21,7 @@ export class userNotFoundInterceptor<T>
     const userId = request.params.userId;
     const userEntity = await this.userService.getUserById(userId);
     if (!userEntity) {
-      throw new NotFoundException(this.errorMessage);
+      throw new NotFoundException('User not found');
     }
     request.userEntity = userEntity;
     return next.handle();
