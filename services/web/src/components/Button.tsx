@@ -10,6 +10,8 @@ export type Props = Partial<ButtonProps> & {
   padding?: string;
   fontSize?: string;
   style?: React.CSSProperties;
+  backgroundColor?: string;
+  color?: string;
 };
 
 const Button: React.FC<Props> = ({
@@ -19,13 +21,15 @@ const Button: React.FC<Props> = ({
   padding,
   fontSize,
   style,
+  backgroundColor,
+  color,
   kind = 'primary',
   ...props
 }) => {
   return (
     <BaseButton
       {...props}
-      style={style}
+      style={{ ...style, backgroundColor, color }}
       overrides={{
         Root: {
           style: {
@@ -33,6 +37,8 @@ const Button: React.FC<Props> = ({
             height: height ? `${height}px` : '',
             padding: padding || '',
             fontSize: fontSize || '',
+            backgroundColor: backgroundColor || '',
+            color: color !== undefined ? color : 'white',
           },
           props: {
             className: clsx({
@@ -47,6 +53,8 @@ const Button: React.FC<Props> = ({
             height: height ? `${height}px` : '',
             padding: padding || '',
             fontSize: fontSize || '',
+            backgroundColor: backgroundColor || '',
+            color: color !== undefined ? color : 'white',
           }),
           props: {
             className: clsx({

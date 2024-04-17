@@ -1,83 +1,85 @@
+import { IMedia } from '@packages/entities/index.browser';
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { State } from '@root/store';
-import { addMedia, getMedia, MediaInterface } from '../requests/media';
+import { indexBy } from '@root/utils/index';
+import { addMedia, getMedia } from '../requests/media';
+import { EntitiesState, EntityLoadingState } from '../types';
 
-export interface MediaState {
-  isProcessing: boolean;
-  entities: Record<string, MediaInterface>;
-  media: MediaInterface[];
-  status: 'idle' | 'loading' | 'failed';
-  successMessage: string;
-  error: string;
-}
-
-const initialState: MediaState = {
-  isProcessing: false,
+const initialState: EntitiesState<IMedia> = {
+  processing: false,
   entities: {},
-  media: [],
-  status: 'idle',
-  successMessage: '', // Initial value for success message
-  error: '',
+  status: EntityLoadingState.IDLE,
+  successMessage: undefined,
+  errorMessage: undefined,
 };
 
 const mediaSlice = createSlice({
   name: 'media',
   initialState,
   reducers: {
-    addMediaItem(state, action: PayloadAction<MediaInterface>) {
-      state.media = [...state.media, action.payload];
+    addMediaItem(state, action: PayloadAction<IMedia>) {
+      state.entities = {
+        ...state.entities,
+        ...{ [action.payload.id]: action.payload },
+      };
     },
     clearSuccessMessage(state) {
-      state.successMessage = '';
+      state.successMessage = undefined;
     },
     clearErrorMessage(state) {
-      state.error = '';
+      state.errorMessage = undefined;
     },
   },
   extraReducers(builder) {
     builder.addCase(fetchListings.pending, (state) => {
-      state.isProcessing = true;
-      state.status = 'loading';
+      state.processing = true;
+      state.status = EntityLoadingState.PENDING;
     });
 
     builder.addCase(fetchListings.fulfilled, (state, action) => {
-      state.status = 'idle';
+      state.status = EntityLoadingState.SUCCEEDED;
       if (action.payload.length === 0) {
-        state.error = 'No records found';
+        state.errorMessage = 'No records found';
       } else {
-        state.error = '';
+        state.errorMessage = undefined;
       }
-      state.media = action.payload;
+      state.entities = {
+        ...state.entities,
+        ...indexBy('id', action.payload),
+      };
     });
 
     builder.addCase(fetchListings.rejected, (state, action) => {
-      state.status = 'failed';
+      state.status = EntityLoadingState.FAILED;
+      state.processing = false;
       if (typeof action.payload === 'string') {
-        state.error = action.payload ?? 'Failed to fetch videos';
+        state.errorMessage = action.payload ?? 'Failed to fetch videos';
       } else {
-        state.error = 'Failed to fetch videos';
+        state.errorMessage = 'Failed to fetch videos';
       }
-      state.media = [];
     });
 
     builder.addCase(addRecordAsync.pending, (state) => {
-      state.isProcessing = true;
-      state.status = 'loading';
+      state.processing = true;
+      state.status = EntityLoadingState.PENDING;
     });
 
     builder.addCase(addRecordAsync.fulfilled, (state, action) => {
-      state.status = 'idle';
-      state.media = [...state.media, action.payload];
-      state.successMessage = 'Record added successfully'; // Set success message
+      state.status = EntityLoadingState.SUCCEEDED;
+      state.entities = {
+        ...state.entities,
+        ...{ [action.payload.id]: action.payload },
+      };
+      state.successMessage = 'Record added successfully';
     });
 
     builder.addCase(addRecordAsync.rejected, (state, action) => {
-      state.status = 'failed';
+      state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
-        state.error = action.payload ?? 'Failed to add video';
+        state.errorMessage = action.payload ?? 'Failed to add video';
       } else {
-        state.error = 'Failed to add video';
+        state.errorMessage = 'Failed to add video';
       }
+      state.processing = false;
     });
   },
 });
@@ -91,11 +93,5 @@ export const addRecordAsync = createAsyncThunk(
   'media/addRecordAsync',
   addMedia,
 );
-
-export const selectRecords = (state: State) => state.media;
-export const selectStatus = (state: State) => state.media.status;
-export const selectError = (state: State) => state.media.error;
-export const selectSuccessMessage = (state: State) =>
-  state.media.successMessage; // Export selectSuccessMessage selector
 
 export default mediaSlice.reducer;

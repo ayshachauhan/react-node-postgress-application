@@ -1,0 +1,53 @@
+import { Column, Entity, JoinTable, ManyToMany } from 'typeorm';
+import { BaseEntity } from '../base.entity';
+import { PracticeEntity } from '../practice/practice.entity';
+import { IUser, UserStatus, UserType } from './user.interface';
+
+@Entity('users')
+export class User extends BaseEntity implements IUser {
+  @Column({ type: 'varchar' })
+  email: string;
+
+  @Column({ type: 'varchar' })
+  password: string;
+
+  @Column({ type: 'varchar' })
+  userName: string;
+
+  @Column({ type: 'varchar' })
+  firstName: string;
+
+  @Column({ type: 'varchar' })
+  lastName: string;
+
+  @Column({ type: 'varchar' })
+  fullName: string;
+
+  @Column({ type: 'varchar' })
+  url: string;
+
+  @Column({
+    type: 'enum',
+    enum: UserStatus,
+    default: UserStatus.ACTIVE,
+  })
+  status: UserStatus;
+
+  @Column({
+    type: 'enum',
+    enum: UserType,
+    default: UserType.EMPLOYEE,
+  })
+  type: UserType;
+
+  @Column({ type: 'varchar' })
+  contactNumber: string;
+
+  @ManyToMany(() => PracticeEntity)
+  @JoinTable({
+    name: 'user_practices',
+    joinColumn: { name: 'userId', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'practiceId', referencedColumnName: 'id' },
+  })
+  practices: PracticeEntity[];
+}

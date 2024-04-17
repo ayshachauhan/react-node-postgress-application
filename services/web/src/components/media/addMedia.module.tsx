@@ -3,8 +3,8 @@ import TextInput from '@root/components/TextInput';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { addRecordAsync } from '@root/store/reducers/media';
 import { fetchSurgeryTypes } from '@root/store/reducers/surgeryTypes';
-import { MediaPostInterface } from '@root/store/requests/media';
-import { getPracticeId } from '@utils/methods';
+import { IMediaDTO } from '@root/store/requests/media/types';
+import { getPracticeId } from '@utils/index';
 import { Select } from 'baseui/select';
 import React, { useEffect, useState } from 'react';
 
@@ -23,11 +23,10 @@ const MediaPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const [urlEmbed, setUrlEmbed] = useState('');
   const [surgeryTypeId, setsurgeryTypeId] = useState('');
 
-  // Function to handle form submission
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (practiceId) {
-      const data: MediaPostInterface = {
+      const data: IMediaDTO = {
         name,
         url,
         urlEmbed,
@@ -53,7 +52,7 @@ const MediaPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
 
   useEffect(() => {
     if (practiceId !== null) {
-      dispatch(fetchSurgeryTypes({ practiceId: practiceId })); // Fetch listings from PostgreSQL database
+      dispatch(fetchSurgeryTypes({ practiceId: practiceId }));
     }
   }, [practiceId, dispatch]);
 

@@ -1,12 +1,12 @@
+import { TemplateMessageType } from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
-import { TemplateMessageType } from '@root/enums/templateMessageType.enum';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { selectRecords } from '@root/store/reducers/auth';
 import { fetchSurgeryTypes } from '@root/store/reducers/surgeryTypes';
 import { addRecordAsync } from '@root/store/reducers/templates';
 import { CreateTemplateResponse } from '@root/store/requests/templates';
-import { getPracticeId } from '@utils/methods';
+import { getPracticeId } from '@utils/index';
 import { Select } from 'baseui/select';
 import React, { useEffect, useState } from 'react';
 

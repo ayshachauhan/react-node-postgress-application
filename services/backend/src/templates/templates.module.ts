@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { TemplateEntity } from 'src/entities/templates.entity';
+import { TemplateEntity } from '@packages/entities/template';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
 import { PracticesModule } from 'src/practices/practices.module';
 import { SurgeryTypesModule } from 'src/surgeryTypes/surgeryTypes.module';

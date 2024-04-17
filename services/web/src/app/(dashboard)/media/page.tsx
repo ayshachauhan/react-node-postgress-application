@@ -1,18 +1,16 @@
 'use client';
+import { UserType } from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import { AddIcon, PlayIcon } from '@root/components/Icons';
 import Form from '@root/components/media/addMedia.module';
-import { UserType } from '@root/enums/userType.enum';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { selectRecords } from '@root/store/reducers/auth';
 import {
   clearErrorMessage,
   clearSuccessMessage,
   fetchListings,
-  selectError,
-  selectSuccessMessage,
 } from '@root/store/reducers/media';
-import { extractVideoId, getImageUrl, getPracticeId } from '@utils/methods';
+import { extractVideoId, getImageUrl, getPracticeId } from '@utils/index';
 import { Modal, ModalBody, ModalHeader, ROLE, SIZE } from 'baseui/modal';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
@@ -20,21 +18,22 @@ import React, { useEffect, useState } from 'react';
 
 const Media: React.FC = () => {
   const dispatch = useAppDispatch();
-  const media = useAppSelector((state) => state.media.media);
+  const media = useAppSelector((state) => Object.values(state.media.entities));
   const practiceId = getPracticeId();
   const [isFirstModalOpen, setIsFirstModalOpen] = useState(false);
   const [isSecondModalOpen, setIsSecondModalOpen] = useState(false);
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
-  const successMessage = useAppSelector(selectSuccessMessage); // Select success message from Redux store
-  const errorMessage = useAppSelector(selectError); // Select error message from Redux store
-  const [showModal, setShowModal] = useState(false); // State to manage modal visibility
+  const { successMessage, errorMessage } = useAppSelector((state) => ({
+    successMessage: state.media.successMessage,
+    errorMessage: state.media.errorMessage,
+  }));
+  const [showModal, setShowModal] = useState(false);
   const [showErrorMessage, setShowErrorMessage] = useState(false);
   const router = useRouter();
   const [videoId, setVideoId] = useState<string | null>(null);
   const userInfo = useAppSelector(selectRecords);
   useEffect(() => {
     if (userInfo && userInfo?.type !== UserType.ADMIN) {
-      // Perform the redirect inside the useEffect
       router.push('practices');
     }
   }, [userInfo, router]);
@@ -53,6 +52,7 @@ const Media: React.FC = () => {
   };
 
   const handleOpenSecondModal = (): void => {
+    console.log('xx');
     setIsSecondModalOpen(true);
     setIsFirstModalOpen(false);
   };
@@ -99,7 +99,7 @@ const Media: React.FC = () => {
 
   useEffect(() => {
     if (practiceId !== null) {
-      dispatch(fetchListings({ practiceId: practiceId })); // Fetch listings from PostgreSQL database
+      dispatch(fetchListings({ practiceId: practiceId }));
     }
   }, [practiceId, dispatch]);
 
@@ -109,15 +109,15 @@ const Media: React.FC = () => {
       setShowModal(true);
       timer = setTimeout(() => {
         setShowModal(false);
-        dispatch(clearSuccessMessage()); // Clear success message
-      }, 2000); // Hide modal after 2 seconds
+        dispatch(clearSuccessMessage());
+      }, 2000);
     }
     if (errorMessage) {
       setShowErrorMessage(true);
       timer = setTimeout(() => {
         setShowErrorMessage(false);
-        dispatch(clearErrorMessage()); // Clear error message
-      }, 2000); // Hide modal after 2 seconds
+        dispatch(clearErrorMessage());
+      }, 2000);
     }
     return () => {
       if (timer) {
@@ -141,7 +141,7 @@ const Media: React.FC = () => {
       </div>
       <hr className="h-px my-2.5 bg-gray-100 border-1 dark:bg-gray-700"></hr>
       <div className="flex flex-wrap gap-6">
-        {media.map((data) => (
+        {Object.values(media).map((data) => (
           <React.Fragment key={data.id}>
             {/* <GeneralCard
                     id={this.props.id}
@@ -154,7 +154,7 @@ const Media: React.FC = () => {
                   alt="External image description"
                   width={265}
                   height={208}
-                  style={{ width: '265px', height: '208px' }} // Set the width using inline style
+                  style={{ width: '265px', height: '208px' }}
                 />
                 <div
                   className="bg-black absolute text-center transform -translate-x-1/2 -translate-y-1/2 border top-32 left-1/2 text-white rounded-full flex justify-center items-center p-2 border-black w-14 h-14 pointer"
@@ -185,18 +185,18 @@ const Media: React.FC = () => {
                 style: ({ $theme }) => ({
                   outline: `${$theme.colors.warning200} solid`,
                   backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                  padding: 0, // Set padding to zero for modal container
-                  margin: 0, // Set margin to zero for modal container
+                  padding: 0,
+                  margin: 0,
                 }),
               },
               Close: {
                 style: {
-                  display: 'none', // Hide the close icon
+                  display: 'none',
                 },
               },
               Dialog: {
                 style: {
-                  width: 'auto', // Adjust the width as needed
+                  width: 'auto',
                 },
               },
             }}
@@ -206,7 +206,7 @@ const Media: React.FC = () => {
                 <div
                   style={{
                     position: 'relative',
-                    width: 800, // Use a percentage of the viewport width or a fixed width in pixels
+                    width: 800,
                     height: 600,
                     paddingBottom: '56.25%',
                     overflow: 'hidden',

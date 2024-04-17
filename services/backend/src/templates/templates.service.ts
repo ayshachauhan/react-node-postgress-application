@@ -1,11 +1,13 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { TemplateMessageType } from 'src/enums/templateMessageType.enum';
+import {
+  TemplateEntity,
+  TemplateMessageType,
+} from '@packages/entities/template';
 import { PracticesService } from 'src/practices/practices.service';
 import { SurgeryTypesService } from 'src/surgeryTypes/surgeryTypes.service';
 import { UsersService } from 'src/users/users.service';
 import { Repository } from 'typeorm';
-import { TemplateEntity } from '../entities/templates.entity';
 
 @Injectable()
 export class TemplatesService {

@@ -1,3 +1,4 @@
+import { SurgeryType } from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
 import { useAppDispatch, useAppSelector } from '@root/store';
@@ -8,7 +9,7 @@ import {
   updateRecordAsync,
 } from '@root/store/reducers/templates';
 import { EditTemplate } from '@root/store/requests/templates';
-import { getPracticeId } from '@utils/methods';
+import { getPracticeId } from '@utils/index';
 import { Checkbox, STYLE_TYPE } from 'baseui/checkbox';
 import { Select } from 'baseui/select';
 import { Textarea } from 'baseui/textarea';

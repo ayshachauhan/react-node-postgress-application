@@ -1,7 +1,7 @@
 'use client';
+import { PracticeStatus } from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
-import { PracticeStatus } from '@root/enums/status.enum';
 import { useAppDispatch } from '@root/store';
 import { updateRecordAsync } from '@root/store/reducers/practices';
 import { PracticesEditInterface } from '@store/requests/practices';
