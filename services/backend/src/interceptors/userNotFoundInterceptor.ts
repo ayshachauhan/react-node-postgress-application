@@ -8,7 +8,7 @@ import { Observable } from 'rxjs';
 import { UsersService } from 'src/users/users.service';
 
 @Injectable()
-export class userNotFoundInterceptor<T>
+export class UserNotFoundInterceptor<T>
   implements NestInterceptor<T | T[], T | T[]>
 {
   constructor(private readonly userService: UsersService) {}

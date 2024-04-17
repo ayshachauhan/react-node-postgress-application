@@ -1,14 +1,14 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PracticeHome } from '@packages/entities/practiceHomes';
-import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
+import { PracticeNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
 import { PracticesModule } from 'src/practices/practices.module';
 import { PracticeHomesController } from './practiceHomes.controller';
 import { PracticeHomesService } from './practiceHomes.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([PracticeHome]), PracticesModule],
-  providers: [PracticeHomesService, practiceNotFoundInterceptor],
+  providers: [PracticeHomesService, PracticeNotFoundInterceptor],
   controllers: [PracticeHomesController],
 })
 export class PracticeHomesModule {}

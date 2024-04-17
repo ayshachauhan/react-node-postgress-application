@@ -1,7 +1,7 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from '@packages/entities/user';
-import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
+import { PracticeNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
 import { PracticesModule } from 'src/practices/practices.module';
 import { UserPracticesModule } from 'src/userPractices/userPractices.module';
 import { UsersController } from './users.controller';
@@ -13,7 +13,7 @@ import { UsersService } from './users.service';
     forwardRef(() => PracticesModule),
     forwardRef(() => UserPracticesModule),
   ],
-  providers: [UsersService, practiceNotFoundInterceptor],
+  providers: [UsersService, PracticeNotFoundInterceptor],
   controllers: [UsersController],
   exports: [UsersService],
 })
