@@ -13,14 +13,7 @@ import { TemplatesService } from './templates.service';
     PracticesModule,
     UsersModule,
   ],
-  providers: [
-    TemplatesService,
-    practiceNotFoundInterceptor,
-    {
-      provide: 'PRACTICE_NOT_FOUND_MESSAGE',
-      useValue: 'Practice not found',
-    },
-  ],
+  providers: [TemplatesService, practiceNotFoundInterceptor],
   controllers: [TemplatesController],
   exports: [TemplatesService],
 })

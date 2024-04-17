@@ -1,9 +1,8 @@
 'use client';
-import { ReferrerType } from '@packages/entities/index.browser';
+import { IReferrer, ReferrerType } from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import { useAppDispatch } from '@root/store';
 import { addRecordAsync } from '@root/store/reducers/referrer';
-import { AddReferrer } from '@root/store/requests/referrers';
 import { getPracticeId } from '@utils/index';
 import { Select } from 'baseui/select';
 import { useState } from 'react';
@@ -26,10 +25,11 @@ const AddReferrerForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     setReferrerType(value[0] ? value[0].label : null);
   };
 
+  type AddReferrerDto = Omit<IReferrer, 'dateCreated' | 'dateUpdated' | 'id'>;
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (practiceId) {
-      const referrerPayloadData: AddReferrer = {
+      const referrerPayloadData: AddReferrerDto = {
         practiceId,
         email,
         firstName,

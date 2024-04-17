@@ -1,10 +1,8 @@
 'use client';
-import { IReferrer } from '@packages/entities';
-import { ReferrerType } from '@packages/entities/index.browser';
+import { IReferrer, ReferrerType } from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { updateRecordAsync } from '@root/store/reducers/referrer';
-import { EditReferrer } from '@root/store/requests/referrers';
 import { getPracticeId } from '@utils/index';
 import { Select } from 'baseui/select';
 import { useEffect, useState } from 'react';
@@ -26,9 +24,9 @@ const EditReferrerForm: React.FC<ChildProps> = ({ data, onClose }) => {
   }));
   const referrerId = data.id;
 
-  const [updatedReferrerInfo, setReferrerInfo] = useState<
-    Partial<EditReferrer>
-  >({});
+  const [updatedReferrerInfo, setReferrerInfo] = useState<Partial<IReferrer>>(
+    {},
+  );
 
   const handlereferrerTypeChange = (params) => {
     const { label } = params.option;

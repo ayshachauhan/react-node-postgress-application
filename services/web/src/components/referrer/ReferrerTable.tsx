@@ -2,9 +2,9 @@
 import { UserType } from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import { AddIcon, DeleteIcon, EditIcon } from '@root/components/Icons';
-import AddReferrerForm from '@root/components/referrer/addReferrer.module';
-import EditReferrer from '@root/components/referrer/editReferrer.module';
-import ReferedPatients from '@root/components/referrer/referedPatients.module';
+import AddReferrerForm from '@root/components/referrer/AddReferrer';
+import EditReferrer from '@root/components/referrer/EditReferrer';
+import ReferedPatients from '@root/components/referrer/ReferedPatients';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { selectRecords } from '@root/store/reducers/auth';
 import {

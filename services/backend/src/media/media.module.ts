@@ -10,13 +10,6 @@ import { MediaService } from './media.service';
 @Module({
   imports: [TypeOrmModule.forFeature([Video, PracticeEntity]), PracticesModule],
   controllers: [MediaController],
-  providers: [
-    MediaService,
-    practiceNotFoundInterceptor,
-    {
-      provide: 'PRACTICE_NOT_FOUND_MESSAGE',
-      useValue: 'Practice not found',
-    },
-  ],
+  providers: [MediaService, practiceNotFoundInterceptor],
 })
 export class MediaModule {}

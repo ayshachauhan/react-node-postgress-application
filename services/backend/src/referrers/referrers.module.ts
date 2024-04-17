@@ -13,13 +13,6 @@ import { ReferrersService } from './referrers.service';
     PracticesModule,
   ],
   controllers: [ReferrersController],
-  providers: [
-    ReferrersService,
-    practiceNotFoundInterceptor,
-    {
-      provide: 'PRACTICE_NOT_FOUND_MESSAGE',
-      useValue: 'Practice not found',
-    },
-  ],
+  providers: [ReferrersService, practiceNotFoundInterceptor],
 })
 export class ReferrersModule {}
