@@ -16,3 +16,12 @@ export interface AddReferrer {
   referrerType: ReferrerType;
   practiceId: string;
 }
+
+export interface EditReferrer {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email?: string;
+  referrerType: ReferrerType;
+  practiceId: string;
+}

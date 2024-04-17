@@ -1,8 +1,9 @@
 'use client';
 import { UserType } from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
-import { AddIcon, DeleteIcon } from '@root/components/Icons';
-import Form from '@root/components/referrer/addReferrer.module';
+import { AddIcon, DeleteIcon, EditIcon } from '@root/components/Icons';
+import AddReferrerForm from '@root/components/referrer/addReferrer.module';
+import EditReferrer from '@root/components/referrer/editReferrer.module';
 import ReferedPatients from '@root/components/referrer/referedPatients.module';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { selectRecords } from '@root/store/reducers/auth';
@@ -11,8 +12,6 @@ import {
   clearSuccessMessage,
   deleteRecordAsync,
   fetchListings,
-  selectError,
-  selectSuccessMessage,
 } from '@root/store/reducers/referrer';
 import { generateFullName, getPracticeId } from '@utils/index';
 import {
@@ -36,15 +35,20 @@ export default function ReferrerTable() {
   const handleOpenModal = (): void => {
     setIsModalOpen(true);
   };
-  const referrers = useAppSelector((state) => state.referrers.referrers);
+  const referrers = useAppSelector((state) =>
+    Object.values(state.referrers.entities),
+  );
   const [showModal, setShowModal] = useState(false);
   const userInfo = useAppSelector(selectRecords);
-  const errorMessage = useAppSelector(selectError);
   const [showErrorMessage, setShowErrorMessage] = useState(false);
-  const successMessage = useAppSelector(selectSuccessMessage);
+  const { successMessage, errorMessage } = useAppSelector((state) => ({
+    successMessage: state.referrers.successMessage,
+    errorMessage: state.referrers.errorMessage,
+  }));
   const [referrerId, setReferrerId] = useState<string | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isListModalOpen, setIsListModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const handleOpenDeleteModal = (Id: string): void => {
     setIsDeleteModalOpen(true);
     setReferrerId(Id);
@@ -61,6 +65,16 @@ export default function ReferrerTable() {
     setIsListModalOpen(false);
     setReferrerId(null);
   };
+  const handleOpenEditModal = (Id: string): void => {
+    setIsModalOpen(false);
+    setIsEditModalOpen(true);
+    setIsDeleteModalOpen(false);
+    setReferrerId(Id);
+  };
+  const handleCloseEditModal = (): void => {
+    setIsEditModalOpen(false);
+    setReferrerId(null);
+  };
   const onConfirmDelete = (): void => {
     const id = referrerId;
     if (practiceId && id) {
@@ -74,6 +88,39 @@ export default function ReferrerTable() {
       }
     }
     setReferrerId(null);
+  };
+  const ReferrerEditModal = () => {
+    return (
+      <Modal
+        isOpen={isEditModalOpen}
+        onClose={handleCloseEditModal}
+        closeable
+        animate
+        autoFocus
+        size={SIZE.default}
+        role={ROLE.dialog}
+        overrides={{
+          Root: {
+            style: ({ $theme }) => ({
+              outline: `${$theme.colors.warning200} solid`,
+              backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            }),
+          },
+        }}
+      >
+        <ModalHeader $style={{ fontSize: '1.25rem', fontWeight: 700 }}>
+          Edit Referrer
+        </ModalHeader>
+        <ModalBody>
+          {referrerId !== null && (
+            <EditReferrer
+              data={{ id: referrerId }}
+              onClose={handleCloseEditModal}
+            />
+          )}
+        </ModalBody>
+      </Modal>
+    );
   };
   const ReferrerDeleteModal = () => {
     return (
@@ -136,7 +183,7 @@ export default function ReferrerTable() {
           Add New Referrer
         </ModalHeader>
         <ModalBody>
-          <Form onClose={handleCloseModal} />
+          <AddReferrerForm onClose={handleCloseModal} />
         </ModalBody>
       </Modal>
     );
@@ -255,7 +302,13 @@ export default function ReferrerTable() {
               <div className="text-gray-900 bg-gray-50 pt-2 px-4 flex-1">
                 {data?.email}
               </div>
-              <div className="text-gray-900 bg-gray-50 pt-2 px-4 flex-1">
+              <div className="text-gray-900 bg-gray-50 pt-2 px-4 flex-1 flex gap-4">
+                <div
+                  onClick={() => data.id && handleOpenEditModal(data.id)}
+                  className="cursor-pointer"
+                >
+                  <EditIcon className="mt-2"></EditIcon>
+                </div>
                 <div
                   onClick={() => data.id && handleOpenDeleteModal(data.id)}
                   className="cursor-pointer"
@@ -270,6 +323,7 @@ export default function ReferrerTable() {
       <ReferrerAddModal />
       <ReferrerDeleteModal />
       <ReferedListModal />
+      <ReferrerEditModal />
     </div>
   );
 }

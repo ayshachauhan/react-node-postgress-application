@@ -1,33 +1,21 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { State } from '@root/store';
+import { indexBy } from '@root/utils/index';
 import {
-  Referrer,
   addReferrer,
   deleteReferrer,
   getReferrerInfo,
   getReferrers,
+  updateReferrer,
 } from '../requests/referrers';
-
-type EmptyObject = Record<string, never>;
-
-export interface ReferrerState {
-  isProcessing: boolean;
-  entities: Record<string, Referrer>;
-  referrers: Referrer[];
-  referrerInfo: Referrer | EmptyObject;
-  status: 'idle' | 'loading' | 'failed';
-  successMessage: string;
-  error: string;
-}
+import { EntityLoadingState, ReferrerState } from '../types';
 
 const initialState: ReferrerState = {
-  isProcessing: false,
+  processing: false,
   entities: {},
-  referrers: [],
-  referrerInfo: {},
-  status: 'idle',
-  successMessage: '',
-  error: '',
+  referrerInfo: null,
+  status: EntityLoadingState.IDLE,
+  successMessage: undefined,
+  errorMessage: undefined,
 };
 
 const referrerSlice = createSlice({
@@ -35,96 +23,130 @@ const referrerSlice = createSlice({
   initialState,
   reducers: {
     clearSuccessMessage(state) {
-      state.successMessage = '';
+      state.successMessage = undefined;
     },
     clearErrorMessage(state) {
-      state.error = '';
+      state.errorMessage = undefined;
     },
   },
   extraReducers(builder) {
     builder.addCase(fetchListings.pending, (state) => {
-      state.isProcessing = true;
-      state.status = 'loading';
+      state.processing = true;
+      state.status = EntityLoadingState.PENDING;
     });
 
     builder.addCase(fetchListings.fulfilled, (state, action) => {
-      state.status = 'idle';
+      state.status = EntityLoadingState.SUCCEEDED;
       if (action.payload.length === 0) {
-        state.error = 'No records found';
+        state.errorMessage = 'No records found';
       } else {
-        state.error = '';
+        state.errorMessage = undefined;
       }
-      state.referrers = action.payload;
+      state.entities = {
+        ...state.entities,
+        ...indexBy('id', action.payload),
+      };
     });
 
     builder.addCase(fetchListings.rejected, (state, action) => {
-      state.status = 'failed';
+      state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
-        state.error = action.payload ?? 'Failed to fetch referrers';
+        state.errorMessage = action.payload ?? 'Failed to fetch referrers';
       } else {
-        state.error = 'Failed to fetch referrers';
+        state.errorMessage = 'Failed to fetch referrers';
       }
-      state.referrers = [];
+      state.processing = false;
     });
+
     builder.addCase(fetchReferrerInfo.pending, (state) => {
-      state.isProcessing = true;
-      state.status = 'loading';
+      state.processing = true;
+      state.status = EntityLoadingState.PENDING;
     });
 
     builder.addCase(fetchReferrerInfo.fulfilled, (state, action) => {
-      state.status = 'idle';
+      state.status = EntityLoadingState.SUCCEEDED;
       state.referrerInfo = action.payload;
     });
 
     builder.addCase(fetchReferrerInfo.rejected, (state, action) => {
-      state.status = 'failed';
+      state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
-        state.error = action.payload ?? 'Failed to fetch referrer info';
+        state.errorMessage = action.payload ?? 'Failed to fetch referrer info';
       } else {
-        state.error = 'Failed to fetch referrer info';
+        state.errorMessage = 'Failed to fetch referrer info';
       }
     });
 
     builder.addCase(addRecordAsync.pending, (state) => {
-      state.isProcessing = true;
-      state.status = 'loading';
+      state.processing = true;
+      state.status = EntityLoadingState.PENDING;
     });
 
     builder.addCase(addRecordAsync.fulfilled, (state, action) => {
-      state.status = 'idle';
-      state.referrers = [...state.referrers, action.payload];
+      state.status = EntityLoadingState.SUCCEEDED;
+      state.entities = {
+        ...state.entities,
+        ...{ [action.payload.id]: action.payload },
+      };
       state.successMessage = 'Record added successfully';
     });
 
     builder.addCase(addRecordAsync.rejected, (state, action) => {
-      state.status = 'failed';
+      state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
-        state.error = action.payload ?? 'Failed to add referrer';
+        state.errorMessage = action.payload ?? 'Failed to add referrer';
       } else {
-        state.error = 'Failed to add referrer';
+        state.errorMessage = 'Failed to add referrer';
       }
     });
 
     builder.addCase(deleteRecordAsync.pending, (state) => {
-      state.isProcessing = true;
-      state.status = 'loading';
+      state.processing = true;
+      state.status = EntityLoadingState.PENDING;
     });
 
     builder.addCase(deleteRecordAsync.fulfilled, (state, action) => {
-      state.status = 'idle';
+      state.status = EntityLoadingState.SUCCEEDED;
       const deletetedReferrerId = action?.meta?.arg?.id;
-      state.referrers = state.referrers.filter(
-        (referrer) => referrer.id !== deletetedReferrerId,
-      );
+      const {
+        // eslint-disable-next-line
+        [deletetedReferrerId]: deletedReferrer,
+        ...remainingReferrers
+      } = state.entities;
+      state.entities = remainingReferrers;
       state.successMessage = 'Record deleted successfully';
     });
 
     builder.addCase(deleteRecordAsync.rejected, (state, action) => {
-      state.status = 'failed';
+      state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
-        state.error = action.payload ?? 'Failed to delete referrer';
+        state.errorMessage = action.payload ?? 'Failed to delete referrer';
       } else {
-        state.error = 'Failed to delete referrer';
+        state.errorMessage = 'Failed to delete referrer';
+      }
+    });
+
+    builder.addCase(updateRecordAsync.pending, (state) => {
+      state.processing = true;
+      state.status = EntityLoadingState.PENDING;
+    });
+
+    builder.addCase(updateRecordAsync.fulfilled, (state, action) => {
+      state.status = EntityLoadingState.SUCCEEDED;
+
+      state.entities = {
+        ...state.entities,
+        ...{ [action.payload.id]: action.payload },
+      };
+      state.successMessage = 'Record updated successfully';
+    });
+
+    builder.addCase(updateRecordAsync.rejected, (state, action) => {
+      state.status = EntityLoadingState.FAILED;
+      if (typeof action.payload === 'string') {
+        state.errorMessage = action.payload ?? 'Failed to update referrer';
+      } else {
+        state.errorMessage = 'Failed to update referrer';
       }
     });
   },
@@ -151,9 +173,9 @@ export const deleteRecordAsync = createAsyncThunk(
   deleteReferrer,
 );
 
-export const selectRecords = (state: State) => state.referrers;
-export const selectStatus = (state: State) => state.referrers.status;
-export const selectError = (state: State) => state.referrers.error;
-export const selectSuccessMessage = (state: State) =>
-  state.referrers.successMessage;
+export const updateRecordAsync = createAsyncThunk(
+  'referrers/updateRecordAsync',
+  updateReferrer,
+);
+
 export default referrerSlice.reducer;

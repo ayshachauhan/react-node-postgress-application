@@ -1,49 +1,74 @@
 'use client';
+import { IReferrer } from '@packages/entities';
 import { ReferrerType } from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
-import { useAppDispatch } from '@root/store';
-import { addRecordAsync } from '@root/store/reducers/referrer';
-import { AddReferrer } from '@root/store/requests/referrers';
+import { useAppDispatch, useAppSelector } from '@root/store';
+import { updateRecordAsync } from '@root/store/reducers/referrer';
+import { EditReferrer } from '@root/store/requests/referrers';
 import { getPracticeId } from '@utils/index';
 import { Select } from 'baseui/select';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import TextInput from '../TextInput/TextInput';
 
-const AddReferrerForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
+interface Data {
+  id: string;
+}
+interface ChildProps {
+  data: Data;
+  onClose: () => void;
+}
+const EditReferrerForm: React.FC<ChildProps> = ({ data, onClose }) => {
   const dispatch = useAppDispatch();
   const practiceId = getPracticeId();
   const referrerTypeOptions = Object.keys(ReferrerType).map((key) => ({
     label: ReferrerType[key as keyof typeof ReferrerType],
     id: key,
   }));
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [email, setEmail] = useState('');
-  const [referrerType, setReferrerType] = useState<ReferrerType>(
-    ReferrerType.PCP,
-  );
-  const handlereferrerTypeChange = ({ value }) => {
-    setReferrerType(value[0] ? value[0].label : null);
+  const referrerId = data.id;
+
+  const [updatedReferrerInfo, setReferrerInfo] = useState<
+    Partial<EditReferrer>
+  >({});
+
+  const handlereferrerTypeChange = (params) => {
+    const { label } = params.option;
+    setReferrerInfo({ ...updatedReferrerInfo, referrerType: label });
   };
+
+  const referrerInfo = useAppSelector((state) =>
+    data.id
+      ? Object.values(state.referrers.entities).find(
+          ({ id }: IReferrer) => id === data.id,
+        )
+      : undefined,
+  );
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (practiceId) {
-      const referrerPayloadData: AddReferrer = {
-        practiceId,
-        email,
-        firstName,
-        lastName,
-        referrerType,
+    if (practiceId && referrerId) {
+      const referrerPayloadData = {
+        ...updatedReferrerInfo,
+        firstName: updatedReferrerInfo.firstName ?? '',
+        lastName: updatedReferrerInfo.lastName ?? '',
+        email: updatedReferrerInfo.email ?? '',
+        referrerType: updatedReferrerInfo.referrerType ?? ReferrerType.PCP,
+        practiceId: practiceId,
+        id: referrerId,
       };
       try {
-        dispatch(addRecordAsync(referrerPayloadData));
+        dispatch(updateRecordAsync(referrerPayloadData));
         onClose();
       } catch (error) {
         onClose();
       }
     }
   };
+
+  useEffect(() => {
+    if (data.id && referrerInfo) {
+      setReferrerInfo(referrerInfo);
+    }
+  }, [data.id, referrerInfo]);
 
   return (
     <>
@@ -59,8 +84,10 @@ const AddReferrerForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               </label>
               <TextInput
                 name="firstName"
-                value={firstName}
-                onChange={(value) => setFirstName(value)}
+                value={updatedReferrerInfo?.firstName || ''}
+                onChange={(value) => {
+                  setReferrerInfo({ ...updatedReferrerInfo, firstName: value });
+                }}
                 required
               />
             </div>
@@ -75,8 +102,10 @@ const AddReferrerForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               </label>
               <TextInput
                 name="lastName"
-                value={lastName}
-                onChange={(value) => setLastName(value)}
+                value={updatedReferrerInfo?.lastName || ''}
+                onChange={(value) => {
+                  setReferrerInfo({ ...updatedReferrerInfo, lastName: value });
+                }}
                 required
               />
             </div>
@@ -93,8 +122,13 @@ const AddReferrerForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 options={referrerTypeOptions}
                 onChange={handlereferrerTypeChange}
                 value={
-                  referrerType
-                    ? [{ label: referrerType, id: referrerType }]
+                  updatedReferrerInfo?.referrerType
+                    ? [
+                        {
+                          label: updatedReferrerInfo.referrerType,
+                          id: updatedReferrerInfo.referrerType,
+                        },
+                      ]
                     : []
                 }
                 required
@@ -121,13 +155,15 @@ const AddReferrerForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               </label>
               <TextInput
                 name="email"
-                value={email}
-                onChange={(value) => setEmail(value)}
+                value={updatedReferrerInfo?.email || ''}
+                onChange={(value) => {
+                  setReferrerInfo({ ...updatedReferrerInfo, email: value });
+                }}
               />
             </div>
           </div>
           <div className="text-right text-base pt-4">
-            <Button kind="primary" title="Add new Referrer" width={189} />
+            <Button kind="primary" title="Update Referrer" width={189} />
           </div>
         </form>
       </div>
@@ -135,4 +171,4 @@ const AddReferrerForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   );
 };
 
-export default AddReferrerForm;
+export default EditReferrerForm;

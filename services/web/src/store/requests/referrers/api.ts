@@ -1,28 +1,26 @@
-import Cookies from 'js-cookie';
-import { publicRuntimeConfig } from 'next.config';
-import { AddReferrer } from '.';
-const { API_BASE_URL } = publicRuntimeConfig;
+import { IReferrer } from '@packages/entities/index.browser';
+import { ApiService } from '@root/services/apiclient';
+import { AddReferrer, EditReferrer } from '.';
 
+const apiClient = new ApiService();
+
+/**
+ * @param payloadData
+ * @param param1
+ * @returns All Referrers by practiceid
+ */
 export const getReferrers = async (
   payloadData: { practiceId: string },
   { rejectWithValue },
 ) => {
   try {
-    const accessToken = Cookies.get('access_token');
-    const response = await fetch(
-      `${API_BASE_URL}/practices/${payloadData.practiceId}/referrer`,
-      {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        },
-      },
+    const response: Response = await apiClient.get(
+      `/practices/${payloadData.practiceId}/referrer`,
     );
     if (!response.ok) {
       throw new Error('Failed to fetch referrers');
     }
-    const data = await response.json();
+    const data: IReferrer[] = await response.json();
     return data;
   } catch (error) {
     if (error instanceof Error) {
@@ -32,6 +30,11 @@ export const getReferrers = async (
   }
 };
 
+/**
+ * @param payloadData
+ * @param param1
+ * @returns Get referrer Info By Id
+ */
 export const getReferrerInfo = async (
   payloadData: {
     id: string;
@@ -40,21 +43,13 @@ export const getReferrerInfo = async (
   { rejectWithValue },
 ) => {
   try {
-    const accessToken = Cookies.get('access_token');
-    const response = await fetch(
-      `${API_BASE_URL}/practices/${payloadData.practiceId}/referrer/${payloadData.id}`,
-      {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        },
-      },
+    const response = await apiClient.get(
+      `/practices/${payloadData.practiceId}/referrer/${payloadData.id}`,
     );
     if (!response.ok) {
       throw new Error('Failed to fetch referrer');
     }
-    const data = await response.json();
+    const data: IReferrer = await response.json();
     return data;
   } catch (error) {
     if (error instanceof Error) {
@@ -64,29 +59,27 @@ export const getReferrerInfo = async (
   }
 };
 
+/**
+ *
+ * @param payloadData
+ * @param param1
+ * @returns
+ */
 export const addReferrer = async (
   payloadData: AddReferrer,
   { rejectWithValue },
 ) => {
   try {
-    const accessToken = Cookies.get('access_token');
     const { practiceId, ...restPayload } = payloadData;
     const sanitizedPayload = { ...restPayload };
-    const response = await fetch(
-      `${API_BASE_URL}/practices/${practiceId}/referrer`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify(sanitizedPayload),
-      },
+    const response = await apiClient.post(
+      `/practices/${practiceId}/referrer`,
+      sanitizedPayload,
     );
     if (!response.ok) {
       throw new Error('Failed to add referrer');
     }
-    const data = await response.json();
+    const data: IReferrer = await response.json();
     return data;
   } catch (error) {
     if (error instanceof Error) {
@@ -104,16 +97,8 @@ export const deleteReferrer = async (
   { rejectWithValue },
 ) => {
   try {
-    const accessToken = Cookies.get('access_token');
-    const response = await fetch(
-      `${API_BASE_URL}/practices/${payloadData.practiceId}/referrer/${payloadData.id}`,
-      {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        },
-      },
+    const response = await apiClient.delete(
+      `/practices/${payloadData.practiceId}/referrer/${payloadData.id}`,
     );
     if (!response.ok) {
       throw new Error('Failed to delete referrer');
@@ -125,6 +110,36 @@ export const deleteReferrer = async (
     }
 
     const data = await response.json();
+    return data;
+  } catch (error) {
+    if (error instanceof Error) {
+      return rejectWithValue(error.message);
+    }
+    return rejectWithValue('An unknown error occurred');
+  }
+};
+
+/**
+ * @summary Update referrer
+ * @param payloadData
+ * @param param1
+ * @returns
+ */
+export const updateReferrer = async (
+  payloadData: EditReferrer,
+  { rejectWithValue },
+) => {
+  try {
+    const { practiceId, id, ...restPayload } = payloadData;
+    const sanitizedPayload = { ...restPayload };
+    const response = await apiClient.patch(
+      `/practices/${payloadData.practiceId}/referrer/${payloadData.id}`,
+      sanitizedPayload,
+    );
+    if (!response.ok) {
+      throw new Error('Failed to update referrer');
+    }
+    const data: EditReferrer = await response.json();
     return data;
   } catch (error) {
     if (error instanceof Error) {
