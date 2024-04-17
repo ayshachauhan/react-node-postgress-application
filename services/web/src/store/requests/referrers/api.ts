@@ -133,7 +133,7 @@ export const updateReferrer = async (
     const { practiceId, id, ...restPayload } = payloadData;
     const sanitizedPayload = { ...restPayload };
     const response = await apiClient.patch(
-      `/practices/${payloadData.practiceId}/referrer/${payloadData.id}`,
+      `/practices/${practiceId}/referrer/${id}`,
       sanitizedPayload,
     );
     if (!response.ok) {
