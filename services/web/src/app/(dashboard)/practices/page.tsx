@@ -1,9 +1,9 @@
 'use client';
 import { AddIcon, DeleteIcon, EditIcon } from '@components/Icons';
 import AddPracticeForm from '@components/practices/practices.module';
+import { UserType } from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import PracticeEditModule from '@root/components/practices/editPractice.module';
-import { UserType } from '@root/enums/userType.enum';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { selectRecords } from '@root/store/reducers/auth';
 import {
@@ -11,8 +11,6 @@ import {
   clearSuccessMessage,
   deleteRecordAsync,
   fetchListings,
-  selectError,
-  selectSuccessMessage,
 } from '@root/store/reducers/practices';
 import { PracticesEditInterface } from '@store/requests/practices';
 import {
@@ -28,7 +26,9 @@ import React, { useEffect, useState } from 'react';
 
 const Practice: React.FC = () => {
   const dispatch = useAppDispatch();
-  const practices = useAppSelector((state) => state.practices.practices);
+  const practices = useAppSelector((state) =>
+    Object.values(state.practices.entities),
+  );
   const [practiceId, setPracticeId] = useState<string | null>(null);
   const [editExistingValues, setEditExistingValue] =
     useState<PracticesEditInterface>({
@@ -41,8 +41,11 @@ const Practice: React.FC = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const successMessage = useAppSelector(selectSuccessMessage);
-  const errorMessage = useAppSelector(selectError);
+  const { successMessage, errorMessage } = useAppSelector((state) => ({
+    successMessage: state.practices.successMessage,
+    errorMessage: state.practices.errorMessage,
+  }));
+
   const [showErrorMessage, setShowErrorMessage] = useState(false);
   const router = useRouter();
   const userInfo = useAppSelector(selectRecords);

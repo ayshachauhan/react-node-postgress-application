@@ -1,59 +1,62 @@
-import Cookies from 'js-cookie';
-import { publicRuntimeConfig } from 'next.config';
+import { IPracticeHomes } from '@packages/entities';
+import { ApiService } from '@root/services/apiclient';
 import { CreatePracticeHomeInterface } from '.';
-const { API_BASE_URL } = publicRuntimeConfig;
 
+const apiClient = new ApiService();
+
+/**
+ * Get Practice homes by practice id
+ * @param payloadData
+ * @param param1
+ * @returns IPracticeHomes[]
+ */
 export const getPracticeHomes = async (
   payloadData: {
     practiceId: string;
   },
   { rejectWithValue },
-) => {
+): Promise<IPracticeHomes[]> => {
   try {
-    const accessToken = Cookies.get('access_token');
-    const response = await fetch(
-      `${API_BASE_URL}/practices/${payloadData.practiceId}/homes`,
-      {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        },
-      },
+    const response: Response = await apiClient.get(
+      `/practices/${payloadData.practiceId}/homes`,
     );
     if (!response.ok) {
       throw new Error('Failed to get templates');
     }
-    const data = await response.json();
+    const data: IPracticeHomes[] = await response.json();
     return data;
   } catch (error) {
     return rejectWithValue(error);
   }
 };
 
+/**
+ * Add practice Hone
+ * @param payloadData
+ * @returns
+ */
 export const addPracticeHome = async (
   payloadData: CreatePracticeHomeInterface,
-) => {
+  { rejectWithValue },
+): Promise<IPracticeHomes> => {
   try {
-    const accessToken = Cookies.get('access_token');
-    const response = await fetch(
-      `${API_BASE_URL}/practices/${payloadData.practiceId}/homes`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify(payloadData),
-      },
+    const response: Response = await apiClient.post(
+      `/practices/${payloadData.practiceId}/homes`,
+      payloadData,
     );
-    const data = await response.json();
+    const data: IPracticeHomes = await response.json();
     return data;
   } catch (error) {
-    return error;
+    return rejectWithValue(error);
   }
 };
 
+/**
+ *
+ * @param payloadData
+ * @param param1
+ * @returns
+ */
 export const deletePracticeHome = async (
   payloadData: {
     practiceId: string;
@@ -62,16 +65,8 @@ export const deletePracticeHome = async (
   { rejectWithValue },
 ) => {
   try {
-    const accessToken = Cookies.get('access_token');
-    const response = await fetch(
-      `${API_BASE_URL}/practices/${payloadData.practiceId}/homes/${payloadData.id}`,
-      {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        },
-      },
+    const response = await apiClient.delete(
+      `/practices/${payloadData.practiceId}/homes/${payloadData.id}`,
     );
     if (!response.ok) {
       throw new Error('Failed to delete template');
@@ -93,6 +88,12 @@ export const deletePracticeHome = async (
   }
 };
 
+/**
+ *
+ * @param payloadData
+ * @param param1
+ * @returns
+ */
 export const getPracticeHomeInfo = async (
   payloadData: {
     practiceId: string;
@@ -101,17 +102,8 @@ export const getPracticeHomeInfo = async (
   { rejectWithValue },
 ) => {
   try {
-    const accessToken = Cookies.get('access_token');
-    const response = await fetch(
-      `${API_BASE_URL}/practices/${payloadData.practiceId}/homes/${payloadData.id}`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify(payloadData),
-      },
+    const response: Response = await apiClient.get(
+      `/practices/${payloadData.practiceId}/homes/${payloadData.id}`,
     );
     const data = await response.json();
     return data;

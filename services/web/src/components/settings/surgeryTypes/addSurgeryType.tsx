@@ -3,7 +3,7 @@ import TextInput from '@root/components/TextInput';
 import { useAppDispatch } from '@root/store';
 import { addRecordAsync } from '@root/store/reducers/surgeryTypes';
 import { createSurgeryTypeInterface } from '@root/store/requests/surgeryTypes';
-import { getPracticeId } from '@utils/methods';
+import { getPracticeId } from '@utils/index';
 import React, { useState } from 'react';
 
 const AddSurgeryType: React.FC<{ onClose: () => void }> = ({ onClose }) => {

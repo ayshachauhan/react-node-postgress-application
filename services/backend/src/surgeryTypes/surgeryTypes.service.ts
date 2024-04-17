@@ -6,7 +6,7 @@ import {
   forwardRef,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { SurgeryTypeEntity } from 'src/entities/surgeryTypes.entity';
+import { SurgeryTypeEntity } from '@packages/entities/surgeryType';
 import { Repository } from 'typeorm';
 import { PracticesService } from '../practices/practices.service';
 import { CreateSurgeryTypeDto } from './dto/createSurgery.dto';

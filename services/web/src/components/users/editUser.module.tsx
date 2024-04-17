@@ -1,11 +1,11 @@
+import { UserStatus, UserType } from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
-import { UserStatus } from '@root/enums/status.enum';
-import { UserType } from '@root/enums/userType.enum';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { updateRecordAsync } from '@root/store/reducers/users';
 import { EditUser } from '@root/store/requests/users';
-import { generateFullName, getPracticeId } from '@utils/methods';
+import { SanitizedUser } from '@root/store/types';
+import { generateFullName, getPracticeId } from '@utils/index';
 import { Select } from 'baseui/select';
 import React, { useEffect, useState } from 'react';
 interface Data {
@@ -27,7 +27,11 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
   const dispatch = useAppDispatch();
   const practiceId = getPracticeId(); // Select user practice id
   const userInfo = useAppSelector((state) =>
-    data.id ? state.users.users.find(({ id }) => id === data.id) : undefined,
+    data.id
+      ? Object.values(state.users.entities).find(
+          ({ id }: SanitizedUser) => id === data.id,
+        )
+      : undefined,
   );
   const userId = data.id;
 

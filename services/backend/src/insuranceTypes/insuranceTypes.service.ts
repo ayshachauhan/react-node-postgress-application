@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { InsuranceTypeEntity } from 'src/entities/insuranceTypes.entity';
+import { InsuranceTypeEntity } from '@packages/entities/insuranceType';
 import { Repository } from 'typeorm';
 import { PracticesService } from '../practices/practices.service';
 import { CreateInsuranceTypeDto } from './dto/createInsuranceType.dto';

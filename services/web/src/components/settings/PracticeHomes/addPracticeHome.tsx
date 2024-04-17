@@ -3,7 +3,7 @@ import TextInput from '@root/components/TextInput';
 import { useAppDispatch } from '@root/store';
 import { addRecordAsync } from '@root/store/reducers/practiceHomes';
 import { CreatePracticeHomeInterface } from '@root/store/requests/practiceHomes';
-import { getPracticeId } from '@utils/methods';
+import { getPracticeId } from '@utils/index';
 import React, { useState } from 'react';
 
 const AddPracticeHome: React.FC<{ onClose: () => void }> = ({ onClose }) => {

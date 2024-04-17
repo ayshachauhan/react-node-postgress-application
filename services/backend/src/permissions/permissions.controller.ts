@@ -1,6 +1,6 @@
 import { Controller, Get } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { PermissionEntity } from 'src/entities/permissions.entity';
+import { PermissionEntity } from '@packages/entities/permission';
 import { PermissionsService } from './permissions.service';
 
 @ApiTags('Permissions')
