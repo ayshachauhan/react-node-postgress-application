@@ -6,8 +6,6 @@ import {
   clearErrorMessage,
   clearSuccessMessage,
   deleteRecordAsync,
-  selectError,
-  selectSuccessMessage,
 } from '@root/store/reducers/referrer';
 import { getPracticeId } from '@utils/index';
 import {
@@ -23,9 +21,11 @@ import React, { useEffect, useState } from 'react';
 const ReferedPatients: React.FC = () => {
   const practiceId = getPracticeId();
   const [showModal, setShowModal] = useState(false);
-  const errorMessage = useAppSelector(selectError);
   const [showErrorMessage, setShowErrorMessage] = useState(false);
-  const successMessage = useAppSelector(selectSuccessMessage);
+  const { successMessage, errorMessage } = useAppSelector((state) => ({
+    successMessage: state.referrers.successMessage,
+    errorMessage: state.referrers.errorMessage,
+  }));
   const [referrerId, setReferrerId] = useState<string | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
