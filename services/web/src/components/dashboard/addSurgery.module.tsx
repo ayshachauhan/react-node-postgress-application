@@ -1,18 +1,100 @@
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
+import { useAppDispatch } from '@root/store';
+import { addRecordAsync } from '@root/store/reducers/evals';
+import { CreateEvalInterface } from '@root/store/requests/evals';
+import { getPracticeId } from '@utils/methods';
 import { Checkbox } from 'baseui/checkbox';
 import { Select } from 'baseui/select';
 import React, { useState } from 'react';
 
-const SurgeryPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
-  const [name, setName] = useState('');
-  const [url, setUrl] = useState('');
-  const [urlEmbed, setUrlEmbed] = useState('');
+const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
+  onClose,
+  items,
+}) => {
+  const dispatch = useAppDispatch();
+  const practiceId = getPracticeId();
+  const { practiceHomesList, surgeryTypesList, insuranceTypesList } = items;
+
+  const practiceHomesOptions = Object.keys(practiceHomesList).map((key) => ({
+    label: practiceHomesList[key].name,
+    id: practiceHomesList[key].id,
+  }));
+
+  const surgeryTypeOptions = Object.keys(surgeryTypesList).map((key) => ({
+    label: surgeryTypesList[key].name,
+    id: surgeryTypesList[key].id,
+  }));
+
+  const insuranceTypesOptions = Object.keys(insuranceTypesList).map((key) => ({
+    label: insuranceTypesList[key].name,
+    id: insuranceTypesList[key].id,
+  }));
+
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [email, setEmail] = useState('');
+  const [mrn, setMrn] = useState('');
+  const [surgeryTypeId, setSurgeryTypeId] = useState('');
+  const [insuranceDetails, setInsuranceDetails] = useState('');
+  const [insuranceTypeId, setInsuranceTypeId] = useState<string>('');
+  const [practiceHomeId, setPracticeHomeId] = useState<string>('');
+  const [date, setDate] = useState('');
+  const [pcp, setPcp] = useState('');
+  const [referrer, setReferrer] = useState('');
+  const [notes, setNotes] = useState('');
 
   const [checkboxes, setCheckboxes] = React.useState([true, false]);
 
+  const handleSurgeryTypeChange = ({ value }) => {
+    setSurgeryTypeId(value[0] ? value[0].id : null);
+  };
+  const handlePracticeHomeChange = ({ value }) => {
+    setPracticeHomeId(value[0] ? value[0].id : null);
+  };
+  const handleInsuranceTypeChange = ({ value }) => {
+    setInsuranceTypeId(value[0] ? value[0].id : null);
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (practiceId) {
+      const payload: CreateEvalInterface = {
+        firstName,
+        lastName,
+        email,
+        date,
+        phoneNumber,
+        mrn,
+        practiceHomeId,
+        surgeryTypeId,
+        insuranceDetails,
+        insuranceTypeId,
+        practiceId,
+        pcp,
+        referrer,
+      };
+      try {
+        dispatch(addRecordAsync(payload));
+        setFirstName('');
+        setLastName('');
+        setMrn('');
+        setPhoneNumber('');
+        setEmail('');
+        setSurgeryTypeId('');
+        setPracticeHomeId('');
+        setInsuranceDetails('');
+        setInsuranceTypeId('');
+        setDate('');
+        setPcp('');
+        setReferrer('');
+        setNotes('');
+        onClose();
+      } catch (error) {
+        onClose();
+      }
+    }
     onClose();
   };
 
@@ -26,7 +108,7 @@ const SurgeryPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             </div>
             <div>
               <Select
-                required
+                // required
                 overrides={{
                   ControlContainer: {
                     style: {
@@ -46,42 +128,42 @@ const SurgeryPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           </div>
           <div className="flex gap-5 mt-4">
             <div className="space-y-4 flex-1">
-              <label htmlFor="title" className="text-black text-sm">
+              <label htmlFor="firstName" className="text-black text-sm">
                 First Name
               </label>
               <TextInput
                 name="name"
-                value={name}
+                value={firstName}
                 onChange={(value) => {
-                  setName(value);
+                  setFirstName(value);
                 }}
                 required
               />
               <div className="space-y-4"></div>
             </div>
             <div className="space-y-4 flex-1">
-              <label htmlFor="url" className="text-black text-sm">
+              <label htmlFor="lastName" className="text-black text-sm">
                 Last Name
               </label>
               <TextInput
-                name="url"
-                value={url}
+                name="lastName"
+                value={lastName}
                 onChange={(value) => {
-                  setUrl(value);
+                  setLastName(value);
                 }}
                 required
               />
               <div className="space-y-4"></div>
             </div>
             <div className="space-y-4 flex-1">
-              <label htmlFor="urlEmbed" className="text-black text-sm">
+              <label htmlFor="mrn" className="text-black text-sm">
                 MRN
               </label>
               <TextInput
-                name="urlEmbed"
-                value={urlEmbed}
+                name="mrn"
+                value={mrn}
                 onChange={(value) => {
-                  setUrlEmbed(value);
+                  setMrn(value);
                 }}
                 required
               />
@@ -90,28 +172,28 @@ const SurgeryPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           </div>
           <div className="flex gap-5">
             <div className="space-y-4 flex-1">
-              <label htmlFor="title" className="text-black text-sm">
+              <label htmlFor="email" className="text-black text-sm">
                 Email
               </label>
               <TextInput
-                name="name"
-                value={name}
+                name="email"
+                value={email}
                 onChange={(value) => {
-                  setName(value);
+                  setEmail(value);
                 }}
                 required
               />
               <div className="space-y-4"></div>
             </div>
             <div className="space-y-4 flex-1">
-              <label htmlFor="url" className="text-black text-sm">
+              <label htmlFor="phoneNumber" className="text-black text-sm">
                 Phone Number
               </label>
               <TextInput
-                name="url"
-                value={url}
+                name="phoneNumber"
+                value={phoneNumber}
                 onChange={(value) => {
-                  setUrl(value);
+                  setPhoneNumber(value);
                 }}
                 required
               />
@@ -119,47 +201,54 @@ const SurgeryPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             </div>
             <div className="space-y-4 flex-1">
               <label htmlFor="urlEmbed" className="text-black text-sm">
-                No Waitlist
+                No Wait list
               </label>
               <Select
-                required
-                overrides={{
-                  ControlContainer: {
-                    style: {
-                      backgroundColor: 'rgba(250, 250, 250, 1)',
-                      border: 'none',
-                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-                      color: '#52525B',
-                    },
-                  },
-                  ClearIcon: {
-                    component: () => null,
-                  },
-                }}
+              // required
+              // overrides={{
+              //   ControlContainer: {
+              //     style: {
+              //       backgroundColor: 'rgba(250, 250, 250, 1)',
+              //       border: 'none',
+              //       boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+              //       color: '#52525B',
+              //     },
+              //   },
+              //   ClearIcon: {
+              //     component: () => null,
+              //   },
+              // }}
               />
               <div className="space-y-4"></div>
             </div>
           </div>
           <div className="flex gap-5">
             <div className="space-y-4 flex-1">
-              <label htmlFor="title" className="text-black text-sm">
+              <label htmlFor="referrer" className="text-black text-sm">
                 Referrer
               </label>
               <TextInput
-                name="name"
-                value={name}
+                name="referrer"
+                value={referrer}
                 onChange={(value) => {
-                  setName(value);
+                  setReferrer(value);
                 }}
-                required
+                // required
               />
               <div className="space-y-4"></div>
             </div>
             <div className="space-y-4 flex-1">
-              <label htmlFor="url" className="text-black text-sm">
+              <label htmlFor="practiceHome" className="text-black text-sm">
                 Home
               </label>
               <Select
+                options={practiceHomesOptions}
+                onChange={handlePracticeHomeChange}
+                value={
+                  practiceHomeId
+                    ? [{ label: practiceHomeId, id: practiceHomeId }]
+                    : []
+                }
                 required
                 overrides={{
                   ControlContainer: {
@@ -198,18 +287,18 @@ const SurgeryPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                   setCheckboxes([target.checked, checkboxes[1]]);
                 }}
               >
-                <label htmlFor="urlEmbed" className="text-black text-sm">
+                <label htmlFor="pcp" className="text-black text-sm">
                   PCP (Check box if same)
                 </label>
               </Checkbox>
 
               <TextInput
-                name="urlEmbed"
-                value={urlEmbed}
+                name="pcp"
+                value={pcp}
                 onChange={(value) => {
-                  setUrlEmbed(value);
+                  setPcp(value);
                 }}
-                required
+                // required
               />
               <div className="space-y-4"></div>
             </div>
@@ -267,7 +356,14 @@ const SurgeryPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 Insurance Type
               </label>
               <Select
-                required
+                options={insuranceTypesOptions}
+                onChange={handleInsuranceTypeChange}
+                value={
+                  insuranceTypeId
+                    ? [{ label: insuranceTypeId, id: insuranceTypeId }]
+                    : []
+                }
+                // required
                 overrides={{
                   ControlContainer: {
                     style: {
@@ -285,38 +381,36 @@ const SurgeryPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               <div className="space-y-4"></div>
             </div>
             <div className="space-y-4 flex-1">
-              <label htmlFor="urlEmbed" className="text-black text-sm">
+              <label htmlFor="insuranceDetails" className="text-black text-sm">
                 Insurance Details
               </label>
               <TextInput
-                name="urlEmbed"
-                value={urlEmbed}
+                name="insuranceDetails"
+                value={insuranceDetails}
                 onChange={(value) => {
-                  setUrlEmbed(value);
+                  setInsuranceDetails(value);
                 }}
-                required
+                // required
               />
               <div className="space-y-4"></div>
             </div>
           </div>
           <div>
-            <label htmlFor="urlEmbed" className="text-black text-sm">
+            <label htmlFor="notes" className="text-black text-sm">
               Notes
             </label>
             <TextInput
-              name="urlEmbed"
-              value={urlEmbed}
+              name="notes"
+              value={notes}
               onChange={(value) => {
-                setUrlEmbed(value);
+                setNotes(value);
               }}
-              required
             />
             <div className="space-y-4"></div>
           </div>
-        </form>
-      </div>
-      <div className="mt-6 flex gap-5">
-        <div className="px-6 border border-gray-100 pb-6 rounded-xl flex-1 w-4/12">
+
+          <div className="mt-6 flex gap-5">
+            {/* <div className="px-6 border border-gray-100 pb-6 rounded-xl flex-1 w-4/12">
           <div className="mt-8 text-xl pb-5 font-bold border-b border-gray-100 text-black w-full">
             Add Surgery
           </div>
@@ -519,98 +613,110 @@ const SurgeryPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           <div className="text-left text-base mt-4">
             <Button kind="primary" title="Add Surgery" width={189} />
           </div>
-        </div>
-        <div className="px-6 border border-gray-100 pb-6 rounded-xl flex-1 w-4/12">
-          <div className="mt-8 text-xl pb-5 font-bold border-b border-gray-100 text-black w-full">
-            Add Eval
-          </div>
-          <div className="flex gap-5 mt-4">
-            <div className="space-y-4 flex-1">
-              <Select
-                required
-                overrides={{
-                  ControlContainer: {
-                    style: {
-                      backgroundColor: 'rgba(250, 250, 250, 1)',
-                      border: 'none',
-                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-                      color: '#52525B',
-                    },
-                  },
-                  ClearIcon: {
-                    component: () => null,
-                  },
-                }}
-              />
-              <div className="space-y-4"></div>
+        </div> */}
+            <div className="px-6 border border-gray-100 pb-6 rounded-xl flex-1 w-4/12">
+              <div className="mt-8 text-xl pb-5 font-bold border-b border-gray-100 text-black w-full">
+                Add Eval
+              </div>
+              <div className="flex gap-5 mt-4">
+                <div className="space-y-4 flex-1">
+                  <Select
+                    // required
+                    overrides={{
+                      ControlContainer: {
+                        style: {
+                          backgroundColor: 'rgba(250, 250, 250, 1)',
+                          border: 'none',
+                          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                          color: '#52525B',
+                        },
+                      },
+                      ClearIcon: {
+                        component: () => null,
+                      },
+                    }}
+                  />
+                  <div className="space-y-4"></div>
+                </div>
+                <div className="space-y-4 flex-1">
+                  {/* <label htmlFor="practiceHome" className="text-black text-sm">
+                Home
+              </label> */}
+                  <Select
+                    options={surgeryTypeOptions}
+                    onChange={handleSurgeryTypeChange}
+                    value={
+                      surgeryTypeId
+                        ? [{ label: surgeryTypeId, id: surgeryTypeId }]
+                        : []
+                    }
+                    required
+                    overrides={{
+                      ControlContainer: {
+                        style: {
+                          backgroundColor: 'rgba(250, 250, 250, 1)',
+                          border: 'none',
+                          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                          color: '#52525B',
+                        },
+                      },
+                      ClearIcon: {
+                        component: () => null,
+                      },
+                    }}
+                  />
+                  <div className="space-y-4"></div>
+                </div>
+                <div className="space-y-4 flex-1">
+                  <TextInput
+                    name="url"
+                    value={date}
+                    onChange={(value) => {
+                      setDate(value);
+                    }}
+                    placeholder="Eval Date"
+                    required
+                  />
+                  <div className="space-y-4"></div>
+                </div>
+              </div>
+              <div className="flex gap-5 mt-4 items-center">
+                <label htmlFor="title" className="text-black text-sm">
+                  Eval Status:
+                </label>
+                <div className="space-y-4 flex-1">
+                  <Select
+                    // required
+                    overrides={{
+                      ControlContainer: {
+                        style: {
+                          backgroundColor: 'rgba(250, 250, 250, 1)',
+                          border: 'none',
+                          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                          color: '#52525B',
+                        },
+                      },
+                      ClearIcon: {
+                        component: () => null,
+                      },
+                    }}
+                  />
+                  <div className="space-y-4"></div>
+                </div>
+              </div>
+              <div className="flex gap-5 mt-4 justify-end">
+                <Button kind="secondary" title="Today" />
+                <Button kind="secondary" title="+1" />
+                <Button kind="secondary" title="+3" />
+                <Button kind="secondary" title="+6" />
+                <Button kind="secondary" title="+12" />
+              </div>
+              <div className="text-left text-base mt-6">
+                <Button kind="primary" title="Add Eval" width={189} />
+              </div>
             </div>
-            <div className="space-y-4 flex-1">
-              <Select
-                required
-                overrides={{
-                  ControlContainer: {
-                    style: {
-                      backgroundColor: 'rgba(250, 250, 250, 1)',
-                      border: 'none',
-                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-                      color: '#52525B',
-                    },
-                  },
-                  ClearIcon: {
-                    component: () => null,
-                  },
-                }}
-              />
-              <div className="space-y-4"></div>
-            </div>
-            <div className="space-y-4 flex-1">
-              <TextInput
-                name="url"
-                value={url}
-                onChange={(value) => {
-                  setUrl(value);
-                }}
-                placeholder="Eval Date"
-                required
-              />
-              <div className="space-y-4"></div>
-            </div>
           </div>
-          <div className="flex gap-5 mt-4 items-center">
-            <label htmlFor="title" className="text-black text-sm">
-              Eval Status:
-            </label>
-            <div className="space-y-4 flex-1">
-              <Select
-                required
-                overrides={{
-                  ControlContainer: {
-                    style: {
-                      backgroundColor: 'rgba(250, 250, 250, 1)',
-                      border: 'none',
-                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-                      color: '#52525B',
-                    },
-                  },
-                  ClearIcon: {
-                    component: () => null,
-                  },
-                }}
-              />
-              <div className="space-y-4"></div>
-            </div>
-          </div>
-          <div className="flex gap-5 mt-4 justify-end">
-            <Button kind="secondary" title="Today" />
-            <Button kind="secondary" title="+1" />
-            <Button kind="secondary" title="+3" />
-            <Button kind="secondary" title="+6" />
-            <Button kind="secondary" title="+12" />
-          </div>
-          <div className="text-left text-base mt-6">
-            <Button kind="primary" title="Add Eval" width={189} />
-          </div>
-        </div>
+        </form>
       </div>
       <div className="text-right text-base mt-6">
         <Button

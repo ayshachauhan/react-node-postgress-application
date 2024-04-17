@@ -3,35 +3,49 @@ import DataTable, { ColumnConfig } from '@components/DataTable';
 import Button from '@root/components/Button';
 import { AddIcon } from '@root/components/Icons';
 import Form from '@root/components/dashboard/addSurgery.module';
+import { useAppDispatch, useAppSelector } from '@root/store';
+import { fetchListings } from '@root/store/reducers/evals';
+import { fetchListings as fetchInsuranceTypesList } from '@root/store/reducers/insuranceTypes';
+import { fetchListings as fetchPracticeHomesListing } from '@root/store/reducers/practiceHomes';
+import { fetchListings as fetchSurgeryTypesListing } from '@root/store/reducers/surgeryTypes';
+import { InsuranceTypeResponse } from '@root/store/requests/insuranceTypes';
+import { PracticeHomeResponse } from '@root/store/requests/practiceHomes';
+import { SurgeryTypeResponse } from '@root/store/requests/surgeryTypes';
+import { getPracticeId } from '@root/utils/methods';
 import { Modal, ModalBody, ROLE, SIZE } from 'baseui/modal';
-import React, { useState } from 'react';
-
-const DUMMY_DATA = [
-  { name: 'Marlyn', age: 10 },
-  { name: 'Luther', age: 15 },
-  { name: 'Kiera', age: 13 },
-  { name: 'Edna', age: 20 },
-  { name: 'Soraya', age: 18 },
-  { name: 'Dorris', age: 32 },
-  { name: 'Astrid', age: 26 },
-  { name: 'Wendie', age: 17 },
-  { name: 'Marna', age: 11 },
-  { name: 'Malka', age: 14 },
-  { name: 'Jospeh', age: 10 },
-  { name: 'Roselee', age: 12 },
-  { name: 'Justine', age: 35 },
-  { name: 'Marlon', age: 30 },
-  { name: 'Mellissa', age: 32 },
-  { name: 'Fausto', age: 21 },
-  { name: 'Alfredia', age: 22 },
-  { name: 'Abel', age: 18 },
-  { name: 'Winford', age: 19 },
-  { name: 'Neil', age: 27 },
-];
+import React, { useEffect, useState } from 'react';
 
 const Dashboard: React.FC = () => {
+  const dispatch = useAppDispatch();
+  const practiceId = getPracticeId();
+
+  useEffect(() => {
+    if (practiceId) {
+      dispatch(fetchListings({ practiceId }));
+      dispatch(fetchInsuranceTypesList({ practiceId }));
+      dispatch(fetchPracticeHomesListing({ practiceId }));
+      dispatch(fetchSurgeryTypesListing({ practiceId }));
+    }
+  }, [practiceId, dispatch]);
+
+  const practiceHomesList: PracticeHomeResponse[] = useAppSelector(
+    (state) => state.practiceHomes.practiceHomes,
+  );
+
+  const surgeryTypesList: SurgeryTypeResponse[] = useAppSelector(
+    (state) => state.surgeryTypes.surgeryTypes,
+  );
+
+  const insuranceTypesList: InsuranceTypeResponse[] = useAppSelector(
+    (state) => state.insuranceTypes.insuranceTypes,
+  );
+
+  // const evalsList: EvalResponse[] = useAppSelector(
+  //   (state) => state.evals.evals,
+  // );
+
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  console.log(isAddModalOpen, 2);
+
   const FormModal = () => {
     return (
       <Modal
@@ -60,7 +74,10 @@ const Dashboard: React.FC = () => {
         }}
       >
         <ModalBody>
-          <Form onClose={handleCloseAddModal} />
+          <Form
+            onClose={handleCloseAddModal}
+            items={{ practiceHomesList, surgeryTypesList, insuranceTypesList }}
+          />
         </ModalBody>
       </Modal>
     );
@@ -72,19 +89,48 @@ const Dashboard: React.FC = () => {
   const handleOpenAddModal = (): void => {
     setIsAddModalOpen(true);
   };
-  const columnConfig: ColumnConfig<{ name: string; age: number }>[] = [
-    { title: 'Name', accessor: 'name', id: 'name' },
-    { title: 'Age', accessor: 'age', id: 'age' },
+  const columnConfig: ColumnConfig<{
+    mrn: string;
+    firstName: string;
+    lastName: string;
+    phoneNumber: string;
+    email: string;
+    date: string;
+    practiceHome: string;
+    surgeryType: string;
+    insuranceDetails: string;
+    insuranceType: string;
+    practiceId: string;
+    pcp: string;
+    referrer: string;
+  }>[] = [
+    { title: 'First Name', accessor: 'firstName', id: 'firstName' },
+    { title: 'Last Name', accessor: 'lastName', id: 'lastName' },
+    { title: 'MRN', accessor: 'mrn', id: 'mrn' },
+    { title: 'Email', accessor: 'email', id: 'email' },
+    { title: 'Phone Number', accessor: 'phoneNumber', id: 'phoneNumber' },
+    { title: 'Date', accessor: 'date', id: 'date' },
+    { title: 'Home', accessor: 'practiceHome', id: 'practiceHome' },
+    { title: 'Surgery Type', accessor: 'surgeryType', id: 'surgeryType' },
+    {
+      title: 'Insurance Details',
+      accessor: 'insuranceDetails',
+      id: 'insuranceDetails',
+    },
+    { title: 'Insurance Type', accessor: 'insuranceType', id: 'insuranceType' },
+    { title: 'Pcp Type', accessor: 'pcp', id: 'pcp' },
+    { title: 'Referrer Type', accessor: 'referrer', id: 'referrer' },
   ];
 
   return (
     <div id="__next" className="mt-4">
       <div className="flex justify-between border-gray-400">
         <span className="text-xl font-bold">Dashboard </span>
-        <div className="flex w-2/6 justify-between">
+        <div className="flex justify-between">
           <div className="flex ml-5"></div>
           <Button
             kind="secondary"
+            f
             title="Add New"
             onClick={handleOpenAddModal}
             startEnhancer={() => <AddIcon className="mt-2" size={25}></AddIcon>}
@@ -92,7 +138,7 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
       <hr className="h-px my-2.5 px-0 mx-0 bg-gray-100 border-1 dark:bg-gray-700"></hr>
-      <div style={{ height: '500px', width: '400px' }}>
+      <div style={{ height: '500px' }}>
         <DataTable data={DUMMY_DATA} columns={columnConfig} />
       </div>
       <FormModal />

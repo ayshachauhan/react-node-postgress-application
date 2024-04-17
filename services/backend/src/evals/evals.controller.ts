@@ -30,6 +30,12 @@ export class EvalsController {
     return this.evalService.findAll();
   }
 
+  @Get(':id')
+  @UseInterceptors(practiceNotFoundInterceptor)
+  async getEvalById(@Param('id') id: string): Promise<EvalEntity | null> {
+    return await this.evalService.getEvalById(id);
+  }
+
   @Post()
   @UseInterceptors(practiceNotFoundInterceptor)
   async create(
