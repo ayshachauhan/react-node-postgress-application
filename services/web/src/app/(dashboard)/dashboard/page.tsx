@@ -31,7 +31,6 @@ const DUMMY_DATA = [
 
 const Dashboard: React.FC = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  console.log(isAddModalOpen, 2);
   const FormModal = () => {
     return (
       <Modal

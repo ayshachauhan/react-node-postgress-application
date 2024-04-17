@@ -19,7 +19,7 @@ import { CreateReferrerDto } from './dtos/referrer.createDto';
 import { updateReferrerDto } from './dtos/referrer.updateDto';
 import { ReferrersService } from './referrers.service';
 
-@ApiTags('Referrers')
+@ApiTags('referrers')
 @ApiBearerAuth('normal')
 @Controller('/practices/:practiceId/referrer')
 @UseGuards(AuthGuard)
