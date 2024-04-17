@@ -3,7 +3,7 @@ import TextInput from '@root/components/TextInput';
 import { useAppDispatch } from '@root/store';
 import { addRecordAsync } from '@root/store/reducers/evals';
 import { CreateEvalInterface } from '@root/store/requests/evals';
-import { getPracticeId } from '@utils/methods';
+import { getPracticeId } from '@utils/index';
 import { Checkbox } from 'baseui/checkbox';
 import { Select } from 'baseui/select';
 import React, { useState } from 'react';

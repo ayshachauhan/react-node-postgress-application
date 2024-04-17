@@ -1,6 +1,6 @@
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
-import { BaseEntity } from './base.entity';
-import { PracticeEntity } from './practices.entity';
+import { BaseEntity } from '../base.entity';
+import { PracticeEntity } from '../practice';
 
 @Entity('patients')
 export class PatientEntity extends BaseEntity {

@@ -1,9 +1,9 @@
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
-import { BaseEntity } from './base.entity';
-import { InsuranceTypeEntity } from './insuranceTypes.entity';
-import { PatientEntity } from './patients.entity';
-import { PracticeHome } from './practiceHomes.entity';
-import { SurgeryTypeEntity } from './surgeryTypes.entity';
+import { BaseEntity } from '../base.entity';
+import { InsuranceTypeEntity } from '../insuranceType';
+import { PatientEntity } from '../patient';
+import { PracticeHome } from '../practiceHomes';
+import { SurgeryTypeEntity } from '../surgeryType';
 
 @Entity('evals')
 export class EvalEntity extends BaseEntity {

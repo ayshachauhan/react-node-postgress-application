@@ -1,13 +1,13 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { EvalEntity } from 'src/entities/eval.entity';
+import { EvalEntity } from '@packages/entities/eval';
+import { EvalsController } from 'src/evals/evals.controller';
+import { EvalsService } from 'src/evals/evals.service';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
 import { PatientsModule } from 'src/patients/patients.module';
 import { PracticeHomesModule } from 'src/practiceHomes/practiceHomes.module';
 import { PracticesModule } from 'src/practices/practices.module';
 import { SurgeryTypesModule } from 'src/surgeryTypes/surgeryTypes.module';
-import { EvalsController } from './evals.controller';
-import { EvalsService } from './evals.service';
 
 @Module({
   imports: [

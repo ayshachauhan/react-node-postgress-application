@@ -9,3 +9,4 @@ export * from './template/template.interface';
 export * from './user/user.interface';
 export * from './user/userPermission.interface';
 export * from './user/userPractice.interface';
+// export * from './eval/eval.interface';

@@ -1,7 +1,7 @@
 import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { EvalEntity } from 'src/entities/eval.entity';
-import { PatientEntity } from 'src/entities/patients.entity';
+import { EvalEntity } from '@packages/entities/eval';
+import { PatientEntity } from '@packages/entities/patient';
 import { PatientsService } from 'src/patients/patients.service';
 import { PracticeHomesService } from 'src/practiceHomes/practiceHomes.service';
 import { PracticesService } from 'src/practices/practices.service';

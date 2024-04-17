@@ -1,5 +1,7 @@
 'use client';
 import DataTable, { ColumnConfig } from '@components/DataTable';
+import { IInsuranceType, IPracticeHomes } from '@packages/entities';
+import { ISurgeryType } from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import { AddIcon } from '@root/components/Icons';
 import Form from '@root/components/dashboard/addSurgery.module';
@@ -8,10 +10,7 @@ import { fetchListings } from '@root/store/reducers/evals';
 import { fetchListings as fetchInsuranceTypesList } from '@root/store/reducers/insuranceTypes';
 import { fetchListings as fetchPracticeHomesListing } from '@root/store/reducers/practiceHomes';
 import { fetchListings as fetchSurgeryTypesListing } from '@root/store/reducers/surgeryTypes';
-import { InsuranceTypeResponse } from '@root/store/requests/insuranceTypes';
-import { PracticeHomeResponse } from '@root/store/requests/practiceHomes';
-import { SurgeryTypeResponse } from '@root/store/requests/surgeryTypes';
-import { getPracticeId } from '@root/utils/methods';
+import { getPracticeId } from '@root/utils';
 import { Modal, ModalBody, ROLE, SIZE } from 'baseui/modal';
 import React, { useEffect, useState } from 'react';
 
@@ -28,16 +27,16 @@ const Dashboard: React.FC = () => {
     }
   }, [practiceId, dispatch]);
 
-  const practiceHomesList: PracticeHomeResponse[] = useAppSelector(
-    (state) => state.practiceHomes.practiceHomes,
+  const practiceHomesList: IPracticeHomes[] = useAppSelector((state) =>
+    Object.values(state.practiceHomes.entities),
   );
 
-  const surgeryTypesList: SurgeryTypeResponse[] = useAppSelector(
-    (state) => state.surgeryTypes.surgeryTypes,
+  const surgeryTypesList: ISurgeryType[] = useAppSelector((state) =>
+    Object.values(state.surgeryTypes.entities),
   );
 
-  const insuranceTypesList: InsuranceTypeResponse[] = useAppSelector(
-    (state) => state.insuranceTypes.insuranceTypes,
+  const insuranceTypesList: IInsuranceType[] = useAppSelector((state) =>
+    Object.values(state.insuranceTypes.entities),
   );
 
   // const evalsList: EvalResponse[] = useAppSelector(
@@ -130,7 +129,6 @@ const Dashboard: React.FC = () => {
           <div className="flex ml-5"></div>
           <Button
             kind="secondary"
-            f
             title="Add New"
             onClick={handleOpenAddModal}
             startEnhancer={() => <AddIcon className="mt-2" size={25}></AddIcon>}

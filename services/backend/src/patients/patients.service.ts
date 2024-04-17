@@ -1,10 +1,9 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { PatientEntity } from 'src/entities/patients.entity';
-import { PracticeEntity } from 'src/entities/practices.entity';
-
+import { PatientEntity } from '@packages/entities/patient';
+import { PracticeEntity } from '@packages/entities/practice';
+import { CreatePatientDto } from 'src/patients/dto/createPatient.dto';
 import { Repository } from 'typeorm';
-import { CreatePatientDto } from './dto/createPatient.dto';
 
 @Injectable()
 export class PatientsService {

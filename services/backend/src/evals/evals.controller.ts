@@ -11,11 +11,11 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { EvalEntity } from '@packages/entities/eval';
 import { AuthGuard } from 'src/auth/auth.guard';
-import { EvalEntity } from 'src/entities/eval.entity';
+import { CreateEvalDto } from 'src/evals/dto/createEval.dto';
+import { EvalsService } from 'src/evals/evals.service';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
-import { CreateEvalDto } from './dto/createEval.dto';
-import { EvalsService } from './evals.service';
 
 @ApiTags('Evals')
 @ApiBearerAuth('normal')

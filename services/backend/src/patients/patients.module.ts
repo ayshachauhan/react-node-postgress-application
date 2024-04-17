@@ -1,8 +1,8 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { PatientEntity } from 'src/entities/patients.entity';
+import { PatientEntity } from '@packages/entities/patient';
+import { PatientsService } from 'src/patients/patients.service';
 import { PracticesModule } from 'src/practices/practices.module';
-import { PatientsService } from './patients.service';
 
 @Module({
   imports: [
