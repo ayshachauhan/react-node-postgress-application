@@ -29,4 +29,8 @@ export class CreatePatientDto {
   @IsOptional()
   @ApiProperty()
   referrer: string;
+
+  @IsOptional()
+  @ApiProperty()
+  details: string;
 }

@@ -1,6 +1,8 @@
 export * from './base.interface';
+export * from './eval/eval.interface';
 export * from './insuranceType/insuranceType.interface';
 export * from './media/media.interface';
+export * from './patient/patient.interface';
 export * from './permission/permission.interface';
 export * from './practice/practice.interface';
 export * from './practiceHomes/practiceHomes.interface';
@@ -9,4 +11,3 @@ export * from './template/template.interface';
 export * from './user/user.interface';
 export * from './user/userPermission.interface';
 export * from './user/userPractice.interface';
-// export * from './eval/eval.interface';

@@ -33,8 +33,8 @@ export default function SurgeryTypePage() {
   const practiceName = useAppSelector(
     (state) => state.practices.practiceInfo?.name,
   );
-  const surgeryTypes = useAppSelector(
-    (state) => state.surgeryTypes.surgeryTypes,
+  const surgeryTypes = useAppSelector((state) =>
+    Object.values(state.surgeryTypes.entities),
   );
   const [surgeryTypeId, setSurgeryTypeId] = useState('');
   const [showErrorMessage, setShowErrorMessage] = useState(false);

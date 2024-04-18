@@ -3,7 +3,7 @@ import {
   IPracticeHomes,
   ISurgeryType,
 } from '@packages/entities';
-import { IUser } from '@packages/entities/index.browser';
+import { IEval, IUser } from '@packages/entities/index.browser';
 import { PracticesGetInterface } from 'src/store/requests/practices';
 import { GetUserResponse } from './requests/login/types';
 
@@ -35,6 +35,10 @@ export type InsuranceTypeState = EntitiesState<IInsuranceType> & {
 
 export type SurgeryTypeState = EntitiesState<ISurgeryType> & {
   surgeryTypeInfo: IInsuranceType | null;
+};
+
+export type EvalState = EntitiesState<IEval> & {
+  evalInfo: IEval | null;
 };
 
 export type PracticeHomeState = EntitiesState<IPracticeHomes>;

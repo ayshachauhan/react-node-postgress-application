@@ -31,4 +31,7 @@ export class PatientEntity extends BaseEntity {
 
   @Column({ type: 'varchar' })
   referrer: string;
+
+  @Column({ type: 'varchar' })
+  details: string;
 }

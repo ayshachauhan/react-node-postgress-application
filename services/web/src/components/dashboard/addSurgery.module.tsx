@@ -5,6 +5,7 @@ import { addRecordAsync } from '@root/store/reducers/evals';
 import { CreateEvalInterface } from '@root/store/requests/evals';
 import { getPracticeId } from '@utils/index';
 import { Checkbox } from 'baseui/checkbox';
+import { DatePicker } from 'baseui/datepicker';
 import { Select } from 'baseui/select';
 import React, { useState } from 'react';
 
@@ -40,7 +41,7 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
   const [insuranceDetails, setInsuranceDetails] = useState('');
   const [insuranceTypeId, setInsuranceTypeId] = useState<string>('');
   const [practiceHomeId, setPracticeHomeId] = useState<string>('');
-  const [date, setDate] = useState('');
+  const [date, setDate] = useState<Date>(new Date());
   const [pcp, setPcp] = useState('');
   const [referrer, setReferrer] = useState('');
   const [notes, setNotes] = useState('');
@@ -86,7 +87,6 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
         setPracticeHomeId('');
         setInsuranceDetails('');
         setInsuranceTypeId('');
-        setDate('');
         setPcp('');
         setReferrer('');
         setNotes('');
@@ -639,9 +639,6 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
                   <div className="space-y-4"></div>
                 </div>
                 <div className="space-y-4 flex-1">
-                  {/* <label htmlFor="practiceHome" className="text-black text-sm">
-                Home
-              </label> */}
                   <Select
                     options={surgeryTypeOptions}
                     onChange={handleSurgeryTypeChange}
@@ -668,12 +665,9 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
                   <div className="space-y-4"></div>
                 </div>
                 <div className="space-y-4 flex-1">
-                  <TextInput
-                    name="url"
+                  <DatePicker
                     value={date}
-                    onChange={(value) => {
-                      setDate(value);
-                    }}
+                    onChange={({ date }) => setDate(date)}
                     placeholder="Eval Date"
                     required
                   />

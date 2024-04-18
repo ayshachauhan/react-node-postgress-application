@@ -26,6 +26,6 @@ export class EvalEntity extends BaseEntity {
   @Column({ type: 'varchar' })
   insuranceDetails: string;
 
-  @Column({ type: 'varchar' })
-  date: string;
+  @Column()
+  date: Date;
 }

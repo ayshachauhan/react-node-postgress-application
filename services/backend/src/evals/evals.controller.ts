@@ -26,8 +26,10 @@ export class EvalsController {
 
   @Get()
   @UseInterceptors(practiceNotFoundInterceptor)
-  async findAll(): Promise<EvalEntity[]> {
-    return this.evalService.findAll();
+  async findAll(
+    @Param() { practiceId }: { practiceId: string },
+  ): Promise<EvalEntity[]> {
+    return this.evalService.findAll(practiceId);
   }
 
   @Get(':id')
@@ -40,7 +42,7 @@ export class EvalsController {
   @UseInterceptors(practiceNotFoundInterceptor)
   async create(
     @Body(new ValidationPipe()) createEvalDto: CreateEvalDto,
-    @Param() { practiceId }: { practiceId: string; userId: string },
+    @Param() { practiceId }: { practiceId: string },
   ): Promise<EvalEntity> {
     return this.evalService.create({
       createEvalDto,

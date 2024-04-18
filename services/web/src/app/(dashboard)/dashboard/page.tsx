@@ -1,7 +1,7 @@
 'use client';
 import DataTable, { ColumnConfig } from '@components/DataTable';
 import { IInsuranceType, IPracticeHomes } from '@packages/entities';
-import { ISurgeryType } from '@packages/entities/index.browser';
+import { IEval, ISurgeryType } from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import { AddIcon } from '@root/components/Icons';
 import Form from '@root/components/dashboard/addSurgery.module';
@@ -39,9 +39,24 @@ const Dashboard: React.FC = () => {
     Object.values(state.insuranceTypes.entities),
   );
 
-  // const evalsList: EvalResponse[] = useAppSelector(
-  //   (state) => state.evals.evals,
-  // );
+  const evalsList: IEval[] = useAppSelector((state) =>
+    Object.values(state.evals.entities),
+  );
+
+  const modifyEvalList = evalsList.map((ele) => ({
+    firstName: ele.patient.firstName,
+    lastName: ele.patient.lastName,
+    mrn: ele.patient.mrn,
+    email: ele.patient.email,
+    phoneNumber: ele.patient.phoneNumber,
+    date: ele.date,
+    surgeryTypeName: ele.surgeryType.name,
+    practiceHomeName: ele.practiceHome.name,
+    insuranceDetails: ele.insuranceDetails,
+    insuranceTypeName: ele.insuranceType ? ele.insuranceType?.name : '',
+    pcp: '',
+    referrer: '',
+  }));
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
@@ -94,12 +109,12 @@ const Dashboard: React.FC = () => {
     lastName: string;
     phoneNumber: string;
     email: string;
-    date: string;
-    practiceHome: string;
-    surgeryType: string;
+    date: Date;
+    practiceHomeName: string;
+    surgeryTypeName: string;
     insuranceDetails: string;
-    insuranceType: string;
-    practiceId: string;
+    insuranceTypeName: string;
+    // practiceId: string;
     pcp: string;
     referrer: string;
   }>[] = [
@@ -109,16 +124,25 @@ const Dashboard: React.FC = () => {
     { title: 'Email', accessor: 'email', id: 'email' },
     { title: 'Phone Number', accessor: 'phoneNumber', id: 'phoneNumber' },
     { title: 'Date', accessor: 'date', id: 'date' },
-    { title: 'Home', accessor: 'practiceHome', id: 'practiceHome' },
-    { title: 'Surgery Type', accessor: 'surgeryType', id: 'surgeryType' },
+    { title: 'Home', accessor: 'practiceHomeName', id: 'practiceHomeName' },
+    {
+      title: 'Surgery Type',
+      accessor: 'surgeryTypeName',
+      id: 'surgeryTypeName',
+    },
+    {
+      title: 'Insurance Type',
+      accessor: 'insuranceTypeName',
+      id: 'insuranceTypeName',
+    },
     {
       title: 'Insurance Details',
       accessor: 'insuranceDetails',
       id: 'insuranceDetails',
     },
-    { title: 'Insurance Type', accessor: 'insuranceType', id: 'insuranceType' },
-    { title: 'Pcp Type', accessor: 'pcp', id: 'pcp' },
-    { title: 'Referrer Type', accessor: 'referrer', id: 'referrer' },
+
+    { title: 'Pcp', accessor: 'pcp', id: 'pcp' },
+    { title: 'Referrer', accessor: 'referrer', id: 'referrer' },
   ];
 
   return (
@@ -137,7 +161,7 @@ const Dashboard: React.FC = () => {
       </div>
       <hr className="h-px my-2.5 px-0 mx-0 bg-gray-100 border-1 dark:bg-gray-700"></hr>
       <div style={{ height: '500px' }}>
-        <DataTable data={DUMMY_DATA} columns={columnConfig} />
+        <DataTable data={modifyEvalList} columns={columnConfig} />
       </div>
       <FormModal />
     </div>

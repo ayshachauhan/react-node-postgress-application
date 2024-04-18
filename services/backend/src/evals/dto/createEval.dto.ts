@@ -18,9 +18,13 @@ export class CreateEvalDto {
   @ApiProperty()
   insuranceDetails: string;
 
+  @IsOptional()
+  @ApiProperty()
+  details: string;
+
   @IsNotEmpty({ message: 'eval date is required' })
   @ApiProperty()
-  date: string;
+  date: Date;
 
   @IsNotEmpty({ message: 'mrn is required' })
   @ApiProperty()

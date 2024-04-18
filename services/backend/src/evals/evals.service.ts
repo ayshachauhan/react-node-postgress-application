@@ -6,7 +6,7 @@ import { PatientsService } from 'src/patients/patients.service';
 import { PracticeHomesService } from 'src/practiceHomes/practiceHomes.service';
 import { PracticesService } from 'src/practices/practices.service';
 import { SurgeryTypesService } from 'src/surgeryTypes/surgeryTypes.service';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 
 @Injectable()
 export class EvalsService {
@@ -23,8 +23,20 @@ export class EvalsService {
     private practiceHomesService: PracticeHomesService,
   ) {}
 
-  async findAll(): Promise<EvalEntity[]> {
-    return await this.evalRepository.find({});
+  async findAll(practiceId: string): Promise<EvalEntity[]> {
+    const dbPracticeHomesByPractice =
+      await this.practiceHomesService.getPracticeHomesByPractice(practiceId);
+
+    const dbEvalsByPractice = await this.evalRepository.find({
+      where: {
+        practiceHome: {
+          id: In(dbPracticeHomesByPractice.map((ele) => ele.id)),
+        },
+      },
+      relations: ['practiceHome', 'surgeryType', 'patient', 'insuranceType'],
+    });
+
+    return dbEvalsByPractice;
   }
 
   async getEvalById(id: string): Promise<EvalEntity | null> {
