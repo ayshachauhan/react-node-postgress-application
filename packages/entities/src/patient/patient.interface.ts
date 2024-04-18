@@ -1,3 +1,4 @@
+import { IReferrer } from 'src/referrer';
 import { IBaseEntity } from '../base.interface';
 import { IPractice } from '../practice';
 export interface IPatient extends IBaseEntity {
@@ -8,6 +9,6 @@ export interface IPatient extends IBaseEntity {
   phoneNumber: string;
   email: string;
   pcp?: string;
-  referrer?: string;
+  referrer?: IReferrer;
   details?: string;
 }

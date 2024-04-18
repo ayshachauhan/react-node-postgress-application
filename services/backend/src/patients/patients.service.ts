@@ -1,8 +1,15 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+  forwardRef,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PatientEntity } from '@packages/entities/patient';
 import { PracticeEntity } from '@packages/entities/practice';
 import { CreatePatientDto } from 'src/patients/dto/createPatient.dto';
+import { ReferrersService } from 'src/referrers/referrers.service';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -10,6 +17,8 @@ export class PatientsService {
   constructor(
     @InjectRepository(PatientEntity)
     private patientRepository: Repository<PatientEntity>,
+    @Inject(forwardRef(() => ReferrersService))
+    private referrerService: ReferrersService,
   ) {}
 
   async remove(patientId: string): Promise<void> {
@@ -25,11 +34,16 @@ export class PatientsService {
     if (!practiceEntity) {
       throw new HttpException('practice not found', HttpStatus.NOT_FOUND);
     }
-    console.log(createPatientDto);
+
+    const referrerEntity = await this.referrerService.getReferrerById(
+      practiceEntity.id,
+      createPatientDto.referrerId,
+    );
 
     return await this.patientRepository.save({
       ...newPatient,
       practice: practiceEntity,
+      referrer: referrerEntity,
       ...createPatientDto,
     });
   }

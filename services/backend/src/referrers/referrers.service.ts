@@ -25,7 +25,7 @@ export class ReferrersService {
     });
   }
 
-  private async getReferrerById(
+  async getReferrerById(
     practiceId: string,
     referrerId: string,
   ): Promise<Referrers> {

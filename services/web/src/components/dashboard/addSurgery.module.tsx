@@ -17,7 +17,12 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
   const dispatch = useAppDispatch();
   const practiceId = getPracticeId();
   const router = useRouter();
-  const { practiceHomesList, surgeryTypesList, insuranceTypesList } = items;
+  const {
+    practiceHomesList,
+    surgeryTypesList,
+    insuranceTypesList,
+    referrersList,
+  } = items;
 
   const practiceHomesOptions = Object.keys(practiceHomesList).map((key) => ({
     label: practiceHomesList[key].name,
@@ -34,6 +39,11 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
     id: insuranceTypesList[key].id,
   }));
 
+  const referrersOptions = Object.keys(referrersList).map((key) => ({
+    label: referrersList[key].firstName + ' ' + referrersList[key].lastName,
+    id: referrersList[key].id,
+  }));
+
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -43,9 +53,9 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
   const [insuranceDetails, setInsuranceDetails] = useState('');
   const [insuranceTypeId, setInsuranceTypeId] = useState<string>('');
   const [practiceHomeId, setPracticeHomeId] = useState<string>('');
+  const [referrerId, setReferrerId] = useState<string>('');
   const [date, setDate] = useState<Date>(new Date());
   const [pcp, setPcp] = useState('');
-  const [referrer, setReferrer] = useState('');
   const [notes, setNotes] = useState('');
   const [checkboxes, setCheckboxes] = React.useState([true, false]);
 
@@ -57,6 +67,9 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
   };
   const handleInsuranceTypeChange = ({ value }) => {
     setInsuranceTypeId(value[0] ? value[0].id : null);
+  };
+  const handleReferrerChange = ({ value }) => {
+    setReferrerId(value[0] ? value[0].id : null);
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -75,7 +88,7 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
         insuranceTypeId,
         practiceId,
         pcp,
-        referrer,
+        referrer: referrerId,
         details: notes,
       };
       try {
@@ -90,7 +103,7 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
         setInsuranceDetails('');
         setInsuranceTypeId('');
         setPcp('');
-        setReferrer('');
+        setReferrerId('');
         setNotes('');
         onClose();
       } catch (error) {
@@ -231,13 +244,25 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
               <label htmlFor="referrer" className="text-black text-sm">
                 Referrer
               </label>
-              <TextInput
-                name="referrer"
-                value={referrer}
-                onChange={(value) => {
-                  setReferrer(value);
+              <Select
+                options={referrersOptions}
+                onChange={handleReferrerChange}
+                value={
+                  referrerId ? [{ label: referrerId, id: referrerId }] : []
+                }
+                overrides={{
+                  ControlContainer: {
+                    style: {
+                      backgroundColor: 'rgba(250, 250, 250, 1)',
+                      border: 'none',
+                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                      color: '#52525B',
+                    },
+                  },
+                  ClearIcon: {
+                    component: () => null,
+                  },
                 }}
-                // required
               />
               <div className="space-y-4"></div>
             </div>

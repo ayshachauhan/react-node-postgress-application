@@ -1,6 +1,6 @@
 'use client';
 import DataTable, { ColumnConfig } from '@components/DataTable';
-import { IInsuranceType, IPracticeHomes } from '@packages/entities';
+import { IInsuranceType, IPracticeHomes, IReferrer } from '@packages/entities';
 import { IEval, ISurgeryType } from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import { AddIcon } from '@root/components/Icons';
@@ -9,6 +9,7 @@ import { useAppDispatch, useAppSelector } from '@root/store';
 import { fetchListings } from '@root/store/reducers/evals';
 import { fetchListings as fetchInsuranceTypesList } from '@root/store/reducers/insuranceTypes';
 import { fetchListings as fetchPracticeHomesListing } from '@root/store/reducers/practiceHomes';
+import { fetchListings as fetchReferrerList } from '@root/store/reducers/referrer';
 import { fetchListings as fetchSurgeryTypesListing } from '@root/store/reducers/surgeryTypes';
 import { getPracticeId } from '@root/utils';
 import { Modal, ModalBody, ROLE, SIZE } from 'baseui/modal';
@@ -24,6 +25,7 @@ const Dashboard: React.FC = () => {
       dispatch(fetchInsuranceTypesList({ practiceId }));
       dispatch(fetchPracticeHomesListing({ practiceId }));
       dispatch(fetchSurgeryTypesListing({ practiceId }));
+      dispatch(fetchReferrerList({ practiceId }));
     }
   }, [practiceId, dispatch]);
 
@@ -41,6 +43,10 @@ const Dashboard: React.FC = () => {
 
   const evalsList: IEval[] = useAppSelector((state) =>
     Object.values(state.evals.entities),
+  );
+
+  const referrersList: IReferrer[] = useAppSelector((state) =>
+    Object.values(state.referrers.entities),
   );
 
   const modifyEvalList = evalsList.map((ele) => ({
@@ -91,7 +97,12 @@ const Dashboard: React.FC = () => {
         <ModalBody>
           <Form
             onClose={handleCloseAddModal}
-            items={{ practiceHomesList, surgeryTypesList, insuranceTypesList }}
+            items={{
+              practiceHomesList,
+              surgeryTypesList,
+              insuranceTypesList,
+              referrersList,
+            }}
           />
         </ModalBody>
       </Modal>
