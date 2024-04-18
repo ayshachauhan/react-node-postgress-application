@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { EvalEntity } from '@packages/entities/eval';
 import { EvalsController } from 'src/evals/evals.controller';
 import { EvalsService } from 'src/evals/evals.service';
+import { InsuranceTypesModule } from 'src/insuranceTypes/insuranceTypes.module';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
 import { PatientsModule } from 'src/patients/patients.module';
 import { PracticeHomesModule } from 'src/practiceHomes/practiceHomes.module';
@@ -16,6 +17,7 @@ import { SurgeryTypesModule } from 'src/surgeryTypes/surgeryTypes.module';
     forwardRef(() => PatientsModule),
     forwardRef(() => SurgeryTypesModule),
     forwardRef(() => PracticeHomesModule),
+    forwardRef(() => InsuranceTypesModule),
   ],
   providers: [
     practiceNotFoundInterceptor,

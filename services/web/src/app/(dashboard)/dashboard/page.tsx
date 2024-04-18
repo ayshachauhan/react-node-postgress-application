@@ -160,7 +160,7 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
       <hr className="h-px my-2.5 px-0 mx-0 bg-gray-100 border-1 dark:bg-gray-700"></hr>
-      <div style={{ height: '500px' }}>
+      <div style={{}}>
         <DataTable data={modifyEvalList} columns={columnConfig} />
       </div>
       <FormModal />
