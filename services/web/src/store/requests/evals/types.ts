@@ -12,6 +12,7 @@ export interface CreateEvalInterface {
   phoneNumber: string;
   pcp?: string;
   referrer?: string;
+  details?: string;
 }
 
 export interface EvalResponse {

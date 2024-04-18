@@ -7,6 +7,7 @@ import { getPracticeId } from '@utils/index';
 import { Checkbox } from 'baseui/checkbox';
 import { DatePicker } from 'baseui/datepicker';
 import { Select } from 'baseui/select';
+import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 
 const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
@@ -15,6 +16,7 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
 }) => {
   const dispatch = useAppDispatch();
   const practiceId = getPracticeId();
+  const router = useRouter();
   const { practiceHomesList, surgeryTypesList, insuranceTypesList } = items;
 
   const practiceHomesOptions = Object.keys(practiceHomesList).map((key) => ({
@@ -45,7 +47,6 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
   const [pcp, setPcp] = useState('');
   const [referrer, setReferrer] = useState('');
   const [notes, setNotes] = useState('');
-
   const [checkboxes, setCheckboxes] = React.useState([true, false]);
 
   const handleSurgeryTypeChange = ({ value }) => {
@@ -75,6 +76,7 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
         practiceId,
         pcp,
         referrer,
+        details: notes,
       };
       try {
         dispatch(addRecordAsync(payload));
@@ -90,11 +92,14 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
         setPcp('');
         setReferrer('');
         setNotes('');
+
         onClose();
       } catch (error) {
         onClose();
       }
     }
+
+    router.refresh();
     onClose();
   };
 

@@ -70,11 +70,10 @@ const evalsSlice = createSlice({
       state.status = EntityLoadingState.PENDING;
     });
 
-    builder.addCase(addRecordAsync.fulfilled, (state, action) => {
+    builder.addCase(addRecordAsync.fulfilled, (state) => {
       state.status = EntityLoadingState.SUCCEEDED;
       state.entities = {
         ...state.entities,
-        ...{ [action.payload.id]: action.payload },
       };
       state.successMessage = 'Record added successfully';
     });

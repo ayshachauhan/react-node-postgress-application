@@ -56,6 +56,7 @@ const Dashboard: React.FC = () => {
     insuranceTypeName: ele.insuranceType ? ele.insuranceType?.name : '',
     pcp: '',
     referrer: '',
+    details: ele.patient.details ? ele.patient.details : '',
   }));
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -114,7 +115,7 @@ const Dashboard: React.FC = () => {
     surgeryTypeName: string;
     insuranceDetails: string;
     insuranceTypeName: string;
-    // practiceId: string;
+    details: string;
     pcp: string;
     referrer: string;
   }>[] = [
@@ -143,6 +144,7 @@ const Dashboard: React.FC = () => {
 
     { title: 'Pcp', accessor: 'pcp', id: 'pcp' },
     { title: 'Referrer', accessor: 'referrer', id: 'referrer' },
+    { title: 'Notes', accessor: 'details', id: 'details' },
   ];
 
   return (

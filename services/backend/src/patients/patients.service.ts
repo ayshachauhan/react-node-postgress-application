@@ -25,6 +25,7 @@ export class PatientsService {
     if (!practiceEntity) {
       throw new HttpException('practice not found', HttpStatus.NOT_FOUND);
     }
+    console.log(createPatientDto);
 
     return await this.patientRepository.save({
       ...newPatient,
