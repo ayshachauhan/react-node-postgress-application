@@ -1,7 +1,7 @@
-import { Referrers } from 'src/referrer';
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { BaseEntity } from '../base.entity';
 import { PracticeEntity } from '../practice';
+import { Referrers } from '../referrer';
 
 @Entity('patients')
 export class PatientEntity extends BaseEntity {
