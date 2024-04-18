@@ -1,2 +1,2 @@
 export * from './eval.entity';
-// export * from './eval.interface';
+export * from './eval.interface';

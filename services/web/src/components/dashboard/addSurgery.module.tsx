@@ -92,7 +92,6 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
         setPcp('');
         setReferrer('');
         setNotes('');
-
         onClose();
       } catch (error) {
         onClose();

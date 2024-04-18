@@ -1,6 +1,5 @@
 import {
   ExecutionContext,
-  Inject,
   Injectable,
   NestInterceptor,
   NotFoundException,
@@ -12,10 +11,7 @@ import { PracticesService } from 'src/practices/practices.service';
 export class practiceNotFoundInterceptor<T>
   implements NestInterceptor<T | T[], T | T[]>
 {
-  constructor(
-    private readonly practicesService: PracticesService,
-    @Inject('PRACTICE_NOT_FOUND_MESSAGE') private readonly errorMessage: string,
-  ) {}
+  constructor(private readonly practicesService: PracticesService) {}
 
   async intercept(
     context: ExecutionContext,
@@ -25,7 +21,7 @@ export class practiceNotFoundInterceptor<T>
     const practiceId = request.params.practiceId;
     const practiceEntity = await this.practicesService.findOne(practiceId);
     if (!practiceEntity) {
-      throw new NotFoundException(this.errorMessage);
+      throw new NotFoundException('Practice not found');
     }
     request.practiceEntity = practiceEntity;
     return next.handle();

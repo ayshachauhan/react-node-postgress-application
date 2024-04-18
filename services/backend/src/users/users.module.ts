@@ -13,14 +13,7 @@ import { UsersService } from './users.service';
     forwardRef(() => PracticesModule),
     forwardRef(() => UserPracticesModule),
   ],
-  providers: [
-    UsersService,
-    practiceNotFoundInterceptor,
-    {
-      provide: 'PRACTICE_NOT_FOUND_MESSAGE',
-      useValue: 'Practice not found',
-    },
-  ],
+  providers: [UsersService, practiceNotFoundInterceptor],
   controllers: [UsersController],
   exports: [UsersService],
 })

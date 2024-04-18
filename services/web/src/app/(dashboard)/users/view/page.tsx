@@ -37,7 +37,7 @@ const UserViewPage: React.FC = () => {
     (state) => state.practices.practiceInfo?.name,
   );
   return (
-    <div id="__next" className="mt-4">
+    <div className="mt-4">
       <div className="flex justify-between border-gray-400">
         <span className="text-xl font-bold">User Information</span>
       </div>

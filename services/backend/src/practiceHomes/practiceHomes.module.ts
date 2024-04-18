@@ -8,14 +8,7 @@ import { PracticeHomesService } from './practiceHomes.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([PracticeHome]), PracticesModule],
-  providers: [
-    PracticeHomesService,
-    practiceNotFoundInterceptor,
-    {
-      provide: 'PRACTICE_NOT_FOUND_MESSAGE',
-      useValue: 'Practice not found',
-    },
-  ],
+  providers: [PracticeHomesService, practiceNotFoundInterceptor],
   controllers: [PracticeHomesController],
   exports: [PracticeHomesService],
 })
