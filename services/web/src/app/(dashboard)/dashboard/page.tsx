@@ -11,7 +11,7 @@ import { fetchListings as fetchInsuranceTypesList } from '@root/store/reducers/i
 import { fetchListings as fetchPracticeHomesListing } from '@root/store/reducers/practiceHomes';
 import { fetchListings as fetchReferrerList } from '@root/store/reducers/referrer';
 import { fetchListings as fetchSurgeryTypesListing } from '@root/store/reducers/surgeryTypes';
-import { getPracticeId } from '@root/utils';
+import { getPracticeId, toFullName } from '@root/utils';
 import { Modal, ModalBody, ROLE, SIZE } from 'baseui/modal';
 import React, { useEffect, useState } from 'react';
 
@@ -61,7 +61,7 @@ const Dashboard: React.FC = () => {
     insuranceDetails: ele.insuranceDetails,
     insuranceTypeName: ele.insuranceType ? ele.insuranceType?.name : '',
     pcp: '',
-    referrer: '',
+    referrer: ele.patient.referrer ? toFullName(ele.patient.referrer) : '',
     details: ele.patient.details ? ele.patient.details : '',
   }));
 

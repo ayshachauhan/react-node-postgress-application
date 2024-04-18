@@ -39,3 +39,13 @@ export function generateFullName(firstName: string, lastName: string): string {
     return '';
   }
 }
+
+export function toFullName({
+  firstName,
+  lastName,
+}: {
+  firstName: string;
+  lastName: string;
+}) {
+  return generateFullName(firstName, lastName);
+}

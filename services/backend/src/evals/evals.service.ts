@@ -50,7 +50,13 @@ export class EvalsService {
           id: In(dbPracticeHomesByPractice.map((ele) => ele.id)),
         },
       },
-      relations: ['practiceHome', 'surgeryType', 'patient', 'insuranceType'],
+      relations: [
+        'practiceHome',
+        'surgeryType',
+        'patient',
+        'insuranceType',
+        'patient.referrer',
+      ],
     });
 
     return dbEvalsByPractice;
