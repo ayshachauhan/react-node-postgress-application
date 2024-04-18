@@ -12,6 +12,7 @@ import { MediaModule } from './media/media.module';
 import { PermissionsModule } from './permissions/permissions.module';
 import { PracticeHomesModule } from './practiceHomes/practiceHomes.module';
 import { PracticesModule } from './practices/practices.module';
+import { ReferrersModule } from './referrers/referrers.module';
 import { SurgeryTypesModule } from './surgeryTypes/surgeryTypes.module';
 import { TemplatesModule } from './templates/templates.module';
 import { TransporterModule } from './transporter';
@@ -105,6 +106,7 @@ import { UsersModule } from './users/users.module';
     PermissionsModule,
     UserPermissionsModule,
     UserPracticesModule,
+    ReferrersModule,
     TemplatesModule,
     SurgeryTypesModule,
     InsuranceTypesModule,

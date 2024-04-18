@@ -24,7 +24,6 @@ export const getMedia = async (
     }
 
     const data: IMedia[] = await response.json();
-    console.log(data, 'datdget');
 
     return data;
   } catch (error) {
@@ -54,7 +53,6 @@ export const addMedia = async (
       throw new Error('Failed to add video');
     }
     const data: IMedia = await response.json();
-    console.log(data, 'datapost');
     return data;
   } catch (error) {
     if (error instanceof Error) {

@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { UserPermissionEntity } from '@packages/entities/user';
-import { userNotFoundInterceptor } from 'src/interceptors/userNotFoundInterceptor';
+import { UserNotFoundInterceptor } from 'src/interceptors/userNotFoundInterceptor';
 import { AuthGuard } from '../auth/auth.guard';
 import { UserPermissionCreateDto } from './dto/userPermission.createDto';
 import { UserPermissionPatchDto } from './dto/userPermission.patchDto';
@@ -29,7 +29,7 @@ export class UserPermissionsController {
   }
 
   @Post()
-  @UseInterceptors(userNotFoundInterceptor)
+  @UseInterceptors(UserNotFoundInterceptor)
   async create(
     @Req() request: Request,
     @Param() userPermissionCreateDto: UserPermissionCreateDto,
@@ -42,7 +42,7 @@ export class UserPermissionsController {
   }
 
   @Patch(':id')
-  @UseInterceptors(userNotFoundInterceptor)
+  @UseInterceptors(UserNotFoundInterceptor)
   async update(
     @Param() userPermissionPatchDto: UserPermissionPatchDto,
   ): Promise<UserPermissionEntity | null> {
