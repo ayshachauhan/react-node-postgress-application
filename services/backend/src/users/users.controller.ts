@@ -12,7 +12,7 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { User } from '@packages/entities/user';
-import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
+import { PracticeNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
 import { AuthGuard } from '../auth/auth.guard';
 import { ChangePasswordDto } from './dto/changePassword.dto';
 import { CreateUserDto } from './dto/create.dto';
@@ -28,7 +28,7 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
-  @UseInterceptors(practiceNotFoundInterceptor)
+  @UseInterceptors(PracticeNotFoundInterceptor)
   create(
     @Body(new ValidationPipe()) createUserDto: CreateUserDto,
     @Param() { practiceId }: { practiceId: string },
@@ -37,7 +37,7 @@ export class UsersController {
   }
 
   @Get()
-  @UseInterceptors(practiceNotFoundInterceptor)
+  @UseInterceptors(PracticeNotFoundInterceptor)
   async getUsersByPractice(@Param('practiceId') practiceId: string) {
     return this.usersService.getUsersByPractice(practiceId);
   }
@@ -48,7 +48,7 @@ export class UsersController {
   }
 
   @Delete(':id')
-  @UseInterceptors(practiceNotFoundInterceptor)
+  @UseInterceptors(PracticeNotFoundInterceptor)
   async deleteUser(@Param() { id }: { id: string }): Promise<void> {
     await this.usersService.deleteUser(id);
   }

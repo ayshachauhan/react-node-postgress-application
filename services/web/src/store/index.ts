@@ -6,6 +6,7 @@ import insuranceTypesReducer from './reducers/insuranceTypes';
 import mediaReducer from './reducers/media';
 import practiceHomesReducer from './reducers/practiceHomes';
 import practicesReducer from './reducers/practices';
+import referrersReducer from './reducers/referrer';
 import surgeryTypeReducer from './reducers/surgeryTypes';
 import templatesReducer from './reducers/templates';
 import usersReducer from './reducers/users';
@@ -20,6 +21,7 @@ export const store = configureStore({
     surgeryTypes: surgeryTypeReducer,
     practiceHomes: practiceHomesReducer,
     insuranceTypes: insuranceTypesReducer,
+    referrers: referrersReducer,
   },
 });
 

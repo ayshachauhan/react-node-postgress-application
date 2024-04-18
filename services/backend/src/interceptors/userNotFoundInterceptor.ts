@@ -1,6 +1,5 @@
 import {
   ExecutionContext,
-  Inject,
   Injectable,
   NestInterceptor,
   NotFoundException,
@@ -9,13 +8,10 @@ import { Observable } from 'rxjs';
 import { UsersService } from 'src/users/users.service';
 
 @Injectable()
-export class userNotFoundInterceptor<T>
+export class UserNotFoundInterceptor<T>
   implements NestInterceptor<T | T[], T | T[]>
 {
-  constructor(
-    private readonly userService: UsersService,
-    @Inject('USER_NOT_FOUND_MESSAGE') private readonly errorMessage: string,
-  ) {}
+  constructor(private readonly userService: UsersService) {}
 
   async intercept(
     context: ExecutionContext,
@@ -25,7 +21,7 @@ export class userNotFoundInterceptor<T>
     const userId = request.params.userId;
     const userEntity = await this.userService.getUserById(userId);
     if (!userEntity) {
-      throw new NotFoundException(this.errorMessage);
+      throw new NotFoundException('User not found');
     }
     request.userEntity = userEntity;
     return next.handle();
