@@ -14,5 +14,6 @@ import { ReferrersService } from './referrers.service';
   ],
   controllers: [ReferrersController],
   providers: [ReferrersService, practiceNotFoundInterceptor],
+  exports: [ReferrersService],
 })
 export class ReferrersModule {}
