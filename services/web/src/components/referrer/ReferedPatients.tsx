@@ -1,5 +1,4 @@
 'use client';
-import Button from '@root/components/Button';
 import { DeleteIcon } from '@root/components/Icons';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import {
@@ -8,15 +7,8 @@ import {
   deleteRecordAsync,
 } from '@root/store/reducers/referrer';
 import { getPracticeId } from '@utils/index';
-import {
-  Modal,
-  ModalBody,
-  ModalFooter,
-  ModalHeader,
-  ROLE,
-  SIZE,
-} from 'baseui/modal';
 import React, { useEffect, useState } from 'react';
+import DeleteReferredPatientModal from './DeleteReferredPatientModal';
 
 const ReferedPatients: React.FC = () => {
   const practiceId = getPracticeId();
@@ -47,39 +39,6 @@ const ReferedPatients: React.FC = () => {
       }
     }
     setReferrerId(null);
-  };
-  const ReferedPatientDeleteModal = () => {
-    return (
-      <Modal
-        isOpen={isDeleteModalOpen}
-        onClose={handleCloseDeleteModal}
-        closeable
-        animate
-        autoFocus
-        size={SIZE.default}
-        role={ROLE.dialog}
-        overrides={{
-          Root: {
-            style: ({ $theme }) => ({
-              outline: `${$theme.colors.warning200} solid`,
-              backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            }),
-          },
-        }}
-      >
-        <ModalHeader $style={{ fontSize: '1.25rem', fontWeight: 700 }}>
-          Confirm Deletion
-        </ModalHeader>
-        <ModalBody>
-          Are you sure you want to delete this referred patient?
-        </ModalBody>
-        <ModalFooter>
-          <Button kind="primary" title="Delete" onClick={onConfirmDelete}>
-            Delete
-          </Button>
-        </ModalFooter>
-      </Modal>
-    );
   };
   const dispatch = useAppDispatch();
   useEffect(() => {
@@ -124,22 +83,22 @@ const ReferedPatients: React.FC = () => {
           <div className="font-bold text-white px-2 py-4 flex-1">Action</div>
         </div>
         <div className="flex">
-          <div className="text-gray-900 bg-gray-50 pt-2 px-4 flex-1">
+          <div className="text-gray-900 bg-gray-50 pt-2 px-2 flex-1">
             Harris Benjamin
           </div>
-          <div className="text-gray-900 bg-gray-50 pt-2 px-4 flex-1">
+          <div className="text-gray-900 bg-gray-50 pt-2 px-2 flex-1">
             03/11/2024
           </div>
-          <div className="text-gray-900 bg-gray-50 pt-2 px-4 flex-1">
+          <div className="text-gray-900 bg-gray-50 pt-2 px-2 flex-1">
             04/17/2024
           </div>
-          <div className="text-gray-900 bg-gray-50 pt-2 px-4 flex-1">
+          <div className="text-gray-900 bg-gray-50 pt-2 px-2 flex-1">
             Standard
           </div>
-          <div className="text-gray-900 bg-gray-50 pt-2 px-4 flex-1">
+          <div className="text-gray-900 bg-gray-50 pt-2 px-2 flex-1">
             Billing
           </div>
-          <div className="text-gray-900 bg-gray-50 pt-2 px-4 flex-1">
+          <div className="text-gray-900 bg-gray-50 pt-2 px-2 flex-1">
             <div
               onClick={() => handleOpenDeleteModal()}
               className="cursor-pointer"
@@ -149,7 +108,11 @@ const ReferedPatients: React.FC = () => {
           </div>
         </div>
       </div>
-      <ReferedPatientDeleteModal />
+      <DeleteReferredPatientModal
+        onConfirmDelete={onConfirmDelete}
+        isDeleteModalOpen={isDeleteModalOpen}
+        handleCloseDeleteModal={handleCloseDeleteModal}
+      />
     </div>
   );
 };

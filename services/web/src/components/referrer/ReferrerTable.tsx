@@ -2,9 +2,9 @@
 import { UserType } from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import { AddIcon, DeleteIcon, EditIcon } from '@root/components/Icons';
-import AddReferrerForm from '@root/components/referrer/AddReferrer';
-import EditReferrer from '@root/components/referrer/EditReferrer';
-import ReferedPatients from '@root/components/referrer/ReferedPatients';
+import AddReferrerModal from '@root/components/referrer/AddReferrerModal';
+import EditReferrerModal from '@root/components/referrer/EditReferrerModal';
+import ReferredListModal from '@root/components/referrer/ReferredListModal';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { selectRecords } from '@root/store/reducers/auth';
 import {
@@ -14,16 +14,9 @@ import {
   fetchListings,
 } from '@root/store/reducers/referrer';
 import { generateFullName, getPracticeId } from '@utils/index';
-import {
-  Modal,
-  ModalBody,
-  ModalFooter,
-  ModalHeader,
-  ROLE,
-  SIZE,
-} from 'baseui/modal';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
+import DeleteReferrerModal from './DeleteReferrerModal';
 
 export default function ReferrerTable() {
   const router = useRouter();
@@ -89,145 +82,6 @@ export default function ReferrerTable() {
     }
     setReferrerId(null);
   };
-  const ReferrerEditModal = () => {
-    return (
-      <Modal
-        isOpen={isEditModalOpen}
-        onClose={handleCloseEditModal}
-        closeable
-        animate
-        autoFocus
-        size={SIZE.default}
-        role={ROLE.dialog}
-        overrides={{
-          Root: {
-            style: ({ $theme }) => ({
-              outline: `${$theme.colors.warning200} solid`,
-              backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            }),
-          },
-        }}
-      >
-        <ModalHeader $style={{ fontSize: '1.25rem', fontWeight: 700 }}>
-          Edit Referrer
-        </ModalHeader>
-        <ModalBody>
-          {referrerId !== null && (
-            <EditReferrer
-              data={{ id: referrerId }}
-              onClose={handleCloseEditModal}
-            />
-          )}
-        </ModalBody>
-      </Modal>
-    );
-  };
-  const ReferrerDeleteModal = () => {
-    return (
-      <Modal
-        isOpen={isDeleteModalOpen}
-        onClose={handleCloseDeleteModal}
-        closeable
-        animate
-        autoFocus
-        size={SIZE.default}
-        role={ROLE.dialog}
-        overrides={{
-          Root: {
-            style: ({ $theme }) => ({
-              outline: `${$theme.colors.warning200} solid`,
-              backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            }),
-          },
-        }}
-      >
-        <ModalHeader $style={{ fontSize: '1.25rem', fontWeight: 700 }}>
-          Confirm Deletion
-        </ModalHeader>
-        <ModalBody>Are you sure you want to delete this referrer?</ModalBody>
-        <ModalFooter>
-          <Button kind="primary" title="Delete" onClick={onConfirmDelete}>
-            Delete
-          </Button>
-        </ModalFooter>
-      </Modal>
-    );
-  };
-  const ReferrerAddModal = () => {
-    return (
-      <Modal
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-        closeable
-        animate
-        autoFocus
-        size={SIZE.default}
-        role={ROLE.dialog}
-        overrides={{
-          Root: {
-            style: ({ $theme }) => ({
-              outline: `${$theme.colors.warning200} solid`,
-              backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            }),
-          },
-        }}
-      >
-        <ModalHeader
-          $style={{
-            fontSize: '1.25rem',
-            fontWeight: 700,
-            borderBottom: '1px solid rgba(244, 244, 245, 1)',
-            paddingBottom: '8px',
-          }}
-        >
-          Add New Referrer
-        </ModalHeader>
-        <ModalBody>
-          <AddReferrerForm onClose={handleCloseModal} />
-        </ModalBody>
-      </Modal>
-    );
-  };
-  const ReferedListModal = () => {
-    return (
-      <Modal
-        isOpen={isListModalOpen}
-        onClose={handleCloseListModal}
-        closeable
-        animate
-        autoFocus
-        size={SIZE.default}
-        role={ROLE.dialog}
-        overrides={{
-          Dialog: {
-            style: () => ({
-              width: '800px',
-            }),
-          },
-          Root: {
-            style: ({ $theme }) => ({
-              outline: `${$theme.colors.warning200} solid`,
-              backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            }),
-          },
-        }}
-      >
-        <ModalHeader
-          $style={{
-            fontSize: '1.25rem',
-            fontWeight: 700,
-            borderBottom: '1px solid rgba(244, 244, 245, 1)',
-            paddingBottom: '8px',
-          }}
-        >
-          Referred Patients
-        </ModalHeader>
-        <ModalBody>
-          <ReferedPatients />
-        </ModalBody>
-      </Modal>
-    );
-  };
   const dispatch = useAppDispatch();
   useEffect(() => {
     if (userInfo && userInfo?.type !== UserType.ADMIN) {
@@ -288,7 +142,7 @@ export default function ReferrerTable() {
           <React.Fragment key={data.id}>
             <div className="flex">
               <div
-                className="text-blue-600 underline decoration-solid cursor-pointer bg-gray-50 pt-2 px-4 flex-1"
+                className="text-blue-600 hover:text-blue-800 visited:text-purple-600 decoration-solid cursor-pointer bg-gray-50 pt-2 px-4 flex-1"
                 onClick={() => data.id && handleOpenListModal(data.id)}
               >
                 {data ? generateFullName(data.firstName, data.lastName) : null}
@@ -320,10 +174,24 @@ export default function ReferrerTable() {
           </React.Fragment>
         ))}
       </div>
-      <ReferrerAddModal />
-      <ReferrerDeleteModal />
-      <ReferedListModal />
-      <ReferrerEditModal />
+      <AddReferrerModal
+        isModalOpen={isModalOpen}
+        handleCloseModal={handleCloseModal}
+      />
+      <DeleteReferrerModal
+        onConfirmDelete={onConfirmDelete}
+        isDeleteModalOpen={isDeleteModalOpen}
+        handleCloseDeleteModal={handleCloseDeleteModal}
+      />
+      <ReferredListModal
+        isListModalOpen={isListModalOpen}
+        handleCloseListModal={handleCloseListModal}
+      />
+      <EditReferrerModal
+        isEditModalOpen={isEditModalOpen}
+        handleCloseEditModal={handleCloseEditModal}
+        referrerId={referrerId}
+      />
     </div>
   );
 }

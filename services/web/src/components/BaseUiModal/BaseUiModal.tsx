@@ -1,20 +1,40 @@
-import {
-  Modal,
-  ModalBody,
-  ModalButton,
-  ModalFooter,
-  ModalHeader,
-} from 'baseui/modal';
+import { Modal, ModalBody, ModalHeader } from 'baseui/modal';
 import React from 'react';
 
-const BaseUIModal = ({ isOpen, onClose, title, footerTerm, children }) => {
+const BaseUIModal = ({
+  isOpen,
+  onClose,
+  title,
+  children,
+  additionalOverrides = {},
+}) => {
+  const defaultOverrides = {
+    Root: {
+      style: ({ $theme }) => ({
+        outline: `${$theme.colors.warning200} solid`,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      }),
+    },
+  };
+
+  const combinedOverrides = {
+    ...defaultOverrides,
+    ...additionalOverrides,
+  };
+
   return (
-    <Modal onClose={onClose} isOpen={isOpen}>
-      <ModalHeader>{title}</ModalHeader>
+    <Modal onClose={onClose} isOpen={isOpen} overrides={combinedOverrides}>
+      <ModalHeader
+        $style={{
+          fontSize: '1.25rem',
+          fontWeight: 700,
+          borderBottom: '1px solid rgba(244, 244, 245, 1)',
+          paddingBottom: '8px',
+        }}
+      >
+        {title}
+      </ModalHeader>
       <ModalBody>{children}</ModalBody>
-      <ModalFooter>
-        <ModalButton onClick={onClose}>{footerTerm}</ModalButton>
-      </ModalFooter>
     </Modal>
   );
 };
