@@ -2,6 +2,7 @@ import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
 import { EVAL_EYE_TYPE } from '@root/enums/evalEyeType.enum';
 import { EVAL_STATUS } from '@root/enums/evalStatus.enum';
+import { SURGERY_EYE_TYPE } from '@root/enums/surgeryEyeType.enum';
 import { useAppDispatch } from '@root/store';
 import { addRecordAsync } from '@root/store/reducers/evals';
 import { CreateEvalInterface } from '@root/store/requests/evals';
@@ -52,6 +53,11 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
     id: key,
   }));
 
+  const surgeryEyeTypeOptions = Object.keys(SURGERY_EYE_TYPE).map((key) => ({
+    label: key,
+    id: key,
+  }));
+
   const evalStatusOption = Object.keys(EVAL_STATUS).map((key) => ({
     label: key,
     id: key,
@@ -68,7 +74,6 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
   }));
 
   const defaultUser = usersList.find((ele) => ele.id === getSelectedUserId);
-  console.log(defaultUser);
 
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -81,9 +86,11 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
   const [practiceHomeId, setPracticeHomeId] = useState<string>('');
   const [evalEyeType, setEvalEyeType] = useState<string>('');
   const [evalStatus, setEvalStatus] = useState<string>('');
+  const [surgeryEyeType, setSurgeryEyeType] = useState<string>('');
   const [referrerId, setReferrerId] = useState<string>('');
   const [doctorId, setDoctorId] = useState<string>('');
   const [date, setDate] = useState<Date>(new Date());
+  const [surgeryDate, SetSurgeryDate] = useState<Date>(new Date());
   const [pcp, setPcp] = useState('');
   const [notes, setNotes] = useState('');
   const [checkboxes, setCheckboxes] = React.useState([true, false]);
@@ -108,6 +115,10 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
 
   const handleEvalEyeTypeChange = ({ value }) => {
     setEvalEyeType(value[0] ? value[0].id : null);
+  };
+
+  const handleSurgeryEyeTypeChange = ({ value }) => {
+    setSurgeryEyeType(value[0] ? value[0].id : null);
   };
 
   const handleDoctorChange = ({ value }) => {
@@ -153,6 +164,7 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
         setEvalStatus('');
         setEvalEyeType('');
         setDoctorId('');
+        setSurgeryEyeType('');
         onClose();
       } catch (error) {
         onClose();
@@ -500,51 +512,61 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
               <div className="flex gap-5 mt-4">
                 <div className="space-y-4 flex-1">
                   <Select
-                  // required
-                  // overrides={{
-                  //   ControlContainer: {
-                  //     style: {
-                  //       backgroundColor: 'rgba(250, 250, 250, 1)',
-                  //       border: 'none',
-                  //       boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-                  //       color: '#52525B',
-                  //     },
-                  //   },
-                  //   ClearIcon: {
-                  //     component: () => null,
-                  //   },
-                  // }}
+                    options={surgeryEyeTypeOptions}
+                    onChange={handleSurgeryEyeTypeChange}
+                    value={
+                      surgeryEyeType
+                        ? [{ label: surgeryEyeType, id: surgeryEyeType }]
+                        : []
+                    }
+                    overrides={{
+                      ControlContainer: {
+                        style: {
+                          backgroundColor: 'rgba(250, 250, 250, 1)',
+                          border: 'none',
+                          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                          color: '#52525B',
+                        },
+                      },
+                      ClearIcon: {
+                        component: () => null,
+                      },
+                    }}
                   />
                   <div className="space-y-4"></div>
                 </div>
                 <div className="space-y-4 flex-1">
                   <Select
-                  // required
-                  // overrides={{
-                  //   ControlContainer: {
-                  //     style: {
-                  //       backgroundColor: 'rgba(250, 250, 250, 1)',
-                  //       border: 'none',
-                  //       boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-                  //       color: '#52525B',
-                  //     },
-                  //   },
-                  //   ClearIcon: {
-                  //     component: () => null,
-                  //   },
-                  // }}
+                    options={surgeryTypeOptions}
+                    onChange={handleSurgeryTypeChange}
+                    value={
+                      surgeryTypeId
+                        ? [{ label: surgeryTypeId, id: surgeryTypeId }]
+                        : []
+                    }
+                    required
+                    overrides={{
+                      ControlContainer: {
+                        style: {
+                          backgroundColor: 'rgba(250, 250, 250, 1)',
+                          border: 'none',
+                          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                          color: '#52525B',
+                        },
+                      },
+                      ClearIcon: {
+                        component: () => null,
+                      },
+                    }}
                   />
                   <div className="space-y-4"></div>
                 </div>
                 <div className="space-y-4 flex-1">
-                  <TextInput
-                    name="url"
-                    value={url}
-                    onChange={(value) => {
-                      setUrl(value);
-                    }}
-                    // required
-                    placeholder="Date"
+                  <DatePicker
+                    value={surgeryDate}
+                    onChange={({ date }) => SetSurgeryDate(date)}
+                    placeholder="Surgery Date"
+                    required
                   />
                   <div className="space-y-4"></div>
                 </div>
@@ -595,7 +617,6 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
                     onChange={(value) => {
                       setUrl(value);
                     }}
-                    // required
                     placeholder="Date"
                   />
                   <div className="space-y-4"></div>
