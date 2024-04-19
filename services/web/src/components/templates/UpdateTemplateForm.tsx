@@ -6,6 +6,7 @@ import { selectRecords } from '@root/store/reducers/auth';
 import { fetchSurgeryTypes } from '@root/store/reducers/surgeryTypes';
 import {
   deleteRecordAsync,
+  fetchListings,
   updateRecordAsync,
 } from '@root/store/reducers/templates';
 import { getPracticeId } from '@utils/index';
@@ -38,8 +39,9 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
   const templateId = data.id;
   const messageType = data.messageType;
   const templateInfo = useAppSelector((state) => {
-    if (templateId && state.templates.templates) {
-      for (const template of state.templates.templates) {
+    const templates = Object.values(state.templates.entities);
+    if (templateId && templates) {
+      for (const template of templates) {
         for (const key in template) {
           if (Array.isArray(template[key])) {
             const foundItem = template[key].find(
@@ -94,6 +96,19 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
       }
     }
   };
+
+  useEffect(() => {
+    if (practiceId && userId) {
+      const formattedPracticeId = practiceId ?? '';
+      const formattedUserId = userId ?? '';
+      dispatch(
+        fetchListings({
+          practiceId: formattedPracticeId,
+          userId: formattedUserId,
+        }),
+      );
+    }
+  }, [practiceId, userId, dispatch]);
 
   useEffect(() => {
     if (practiceId !== null) {

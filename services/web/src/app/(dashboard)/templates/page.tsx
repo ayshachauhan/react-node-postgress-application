@@ -10,23 +10,27 @@ import {
   clearErrorMessage,
   clearSuccessMessage,
   fetchListings,
-  selectError,
-  selectSuccessMessage,
 } from '@root/store/reducers/templates';
 import { getPracticeId } from '@utils/index';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 const Templates: React.FC = () => {
-  const templates = useAppSelector((state) => state.templates.templates);
+  const templates = useAppSelector((state) =>
+    Object.values(state.templates.entities),
+  );
   const dispatch = useAppDispatch();
   const [templateId, setTemplateId] = useState<string | null>(null);
   const [messageType, setMessageType] = useState<string | null>(null);
-  const [versionOffset, setVersionOffset] = useState<string | null>(null);
+  const [versionOffset, setVersionOffset] = useState<string | number | null>(
+    null,
+  );
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const practiceId = getPracticeId();
-  const successMessage = useAppSelector(selectSuccessMessage);
-  const errorMessage = useAppSelector(selectError);
+  const { successMessage, errorMessage } = useAppSelector((state) => ({
+    successMessage: state.templates.successMessage,
+    errorMessage: state.templates.errorMessage,
+  }));
   const [showErrorMessage, setShowErrorMessage] = useState(false);
   const router = useRouter();
   const handleOpenAddModal = (): void => {
@@ -36,7 +40,7 @@ const Templates: React.FC = () => {
   const handleOpenUpdateModal = (
     Id: string,
     MessageType: string,
-    versionOffset: string | null,
+    versionOffset: string | number | null,
   ): void => {
     setIsUpdateModalOpen(true);
     setTemplateId(Id);

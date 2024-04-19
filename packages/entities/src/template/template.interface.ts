@@ -18,6 +18,7 @@ export interface ITemplate extends IBaseEntity {
   email2ndCataract: string;
   messageText: string;
   version: string;
+  surgeryTypeName?: string;
 }
 
 export enum TemplateMessageType {
@@ -64,4 +65,15 @@ export interface ITemplateUpdate {
   email1stCataract?: string;
   email2ndCataract?: string;
   messageText?: string;
+}
+
+export interface GetTemplatesResponse {
+  surgeryType: ISurgeryType;
+  surgeryTypeName?: string;
+  booking?: ITemplate[];
+  pcp?: ITemplate[];
+  preop?: ITemplate[];
+  postop?: ITemplate[];
+  referrer?: ITemplate[];
+  evaluation?: ITemplate[];
 }

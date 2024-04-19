@@ -1,4 +1,9 @@
-import { IInsuranceType, IPracticeHomes, IReferrer } from '@packages/entities';
+import {
+  GetTemplatesResponse,
+  IInsuranceType,
+  IPracticeHomes,
+  IReferrer,
+} from '@packages/entities';
 import { IUser } from '@packages/entities/index.browser';
 import { GetUserResponse } from './requests/login/types';
 import { PracticesGetInterface } from './requests/practices';
@@ -43,4 +48,8 @@ export type UserState = EntitiesState<SanitizedUser> & {
 
 export type ReferrerState = EntitiesState<IReferrer> & {
   referrerInfo: IReferrer | null;
+};
+
+export type TemplateState = EntitiesState<GetTemplatesResponse> & {
+  templateInfo: GetTemplatesResponse | null;
 };

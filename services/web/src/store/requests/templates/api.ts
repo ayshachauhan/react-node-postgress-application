@@ -1,29 +1,28 @@
 import {
+  ITemplate,
   ITemplateRequest,
   ITemplateUpdate,
 } from '@packages/entities/index.browser';
-import Cookies from 'js-cookie';
-import { publicRuntimeConfig } from 'next.config';
-const { API_BASE_URL } = publicRuntimeConfig;
+import { ApiService } from '@root/services/apiclient';
 
+const apiClient = new ApiService();
+
+/**
+ * @summary Get Templates by PracticeId
+ * @param payloadData
+ * @param param1
+ * @returns template object as a response
+ */
 export const getTemplates = async (
   payloadData: {
     practiceId: string;
     userId?: string;
   },
   { rejectWithValue },
-) => {
+): Promise<ITemplate[]> => {
   try {
-    const accessToken = Cookies.get('access_token');
-    const response = await fetch(
-      `${API_BASE_URL}/practices/${payloadData.practiceId}/users/${payloadData.userId}/templates`,
-      {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        },
-      },
+    const response: Response = await apiClient.get(
+      `/practices/${payloadData.practiceId}/users/${payloadData.userId}/templates`,
     );
     if (!response.ok) {
       throw new Error('Failed to get templates');
@@ -31,7 +30,7 @@ export const getTemplates = async (
     const data = await response.json();
 
     const modifiedDataObject = {};
-    data.forEach((element) => {
+    data.forEach((element: ITemplate) => {
       const surgeryType: string = element.surgeryType.name;
       const messageType: string = element.messageType;
       if (modifiedDataObject[surgeryType]) {
@@ -54,46 +53,51 @@ export const getTemplates = async (
   }
 };
 
-export const addTemplate = async (payloadData: ITemplateRequest) => {
+/**
+ * @summary Add template for a practice
+ * @param payloadData
+ * @param param1
+ * @returns ITemplate
+ */
+export const addTemplate = async (
+  payloadData: ITemplateRequest,
+  { rejectWithValue },
+): Promise<ITemplate> => {
   try {
-    const accessToken = Cookies.get('access_token');
-    const response = await fetch(
-      `${API_BASE_URL}/practices/${payloadData.practiceId}/users/${payloadData.userId}/templates`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify(payloadData),
-      },
+    const response: Response = await apiClient.post(
+      `/practices/${payloadData.practiceId}/users/${payloadData.userId}/templates`,
+      payloadData,
     );
-    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error('Failed to add template');
+    }
+    const data: ITemplate = await response.json();
     return data;
   } catch (error) {
-    return error;
+    if (error instanceof Error) {
+      return rejectWithValue(error.message);
+    }
+    return rejectWithValue('An unknown error occurred');
   }
 };
 
+/**
+ * @summary Update template
+ * @param payloadData
+ * @param param1
+ * @returns  template object as a response
+ */
 export const updateTemplate = async (
   payloadData: ITemplateUpdate,
   { rejectWithValue },
 ) => {
-  const { API_BASE_URL } = publicRuntimeConfig;
   try {
-    const accessToken = Cookies.get('access_token');
     const { practiceId, userId, id, ...restPayload } = payloadData;
     const sanitizedPayload = { ...restPayload };
-    const response = await fetch(
-      `${API_BASE_URL}/practices/${practiceId}/users/${userId}/templates/${id}`,
-      {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify(sanitizedPayload),
-      },
+    const response = await apiClient.patch(
+      `/practices/${practiceId}/users/${userId}/templates/${id}`,
+      sanitizedPayload,
     );
     if (!response.ok) {
       throw new Error('Failed to update template');
@@ -116,18 +120,9 @@ export const deleteTemplate = async (
   },
   { rejectWithValue },
 ) => {
-  const { API_BASE_URL } = publicRuntimeConfig;
   try {
-    const accessToken = Cookies.get('access_token');
-    const response = await fetch(
-      `${API_BASE_URL}/practices/${payloadData.practiceId}/users/${payloadData.userId}/templates/${payloadData.id}`,
-      {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        },
-      },
+    const response = await apiClient.delete(
+      `/practices/${payloadData.practiceId}/users/${payloadData.userId}/templates/${payloadData.id}`,
     );
     if (!response.ok) {
       throw new Error('Failed to delete template');
