@@ -21,7 +21,6 @@ export interface ITemplate extends IBaseEntity {
 }
 
 export enum TemplateMessageType {
-  EVALUATION = 'evaluation',
   BOOKING = 'booking',
   REFERRER = 'referrer',
   PCP = 'pcp',
@@ -32,4 +31,37 @@ export enum TemplateMessageType {
 export enum Meridiem {
   AM = 'AM',
   PM = 'PM',
+}
+
+export interface ITemplateRequest {
+  practiceId: string;
+  userId?: string;
+  active: boolean;
+  dateOffset?: number;
+  meridiem?: string;
+  messageType: string;
+  surgeryTypeId: string;
+  emailSubject?: string;
+  emailBody?: string;
+  emailAttachment?: string;
+  email1stCataract?: string;
+  email2ndCataract?: string;
+  messageText?: string;
+}
+
+export interface ITemplateUpdate {
+  id: string;
+  practiceId: string;
+  userId: string;
+  active: boolean;
+  dateOffset?: number;
+  meridiem?: string;
+  messageType?: string;
+  surgeryType?: ISurgeryType;
+  emailSubject?: string;
+  emailBody?: string;
+  emailAttachment?: string;
+  email1stCataract?: string;
+  email2ndCataract?: string;
+  messageText?: string;
 }
