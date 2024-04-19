@@ -15,6 +15,7 @@ import { In, Repository } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 import { ENVIRONMENT_VARIABLES } from 'src/enums/environment.enums';
 import { InsuranceTypesService } from 'src/insuranceTypes/insuranceTypes.service';
+import { UsersService } from 'src/users/users.service';
 import { PatientMailData } from './types';
 
 @Injectable()
@@ -32,6 +33,8 @@ export class EvalsService {
     private practiceHomesService: PracticeHomesService,
     @Inject(forwardRef(() => InsuranceTypesService))
     private insuranceTypesService: InsuranceTypesService,
+    @Inject(forwardRef(() => UsersService))
+    private userService: UsersService,
     private readonly configService: ConfigService,
     private readonly transporterService: TransporterService,
   ) {}
@@ -56,6 +59,7 @@ export class EvalsService {
         'patient',
         'insuranceType',
         'patient.referrer',
+        'doctor',
       ],
     });
 
@@ -90,6 +94,10 @@ export class EvalsService {
         practiceId,
       );
 
+    const doctorEntity = await this.userService.getUserById(
+      createEvalDto.doctorId,
+    );
+
     const resultEval = await this.evalRepository.save({
       ...newEval,
       ...createEvalDto,
@@ -98,6 +106,7 @@ export class EvalsService {
       surgeryType: surgeryTypeEntity,
       practiceHome: practiceHomeEntity,
       insuranceType: insuranceTypeEntity,
+      doctor: doctorEntity,
     });
 
     // Read the HTML file content

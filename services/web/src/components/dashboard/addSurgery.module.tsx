@@ -5,7 +5,7 @@ import { EVAL_STATUS } from '@root/enums/evalStatus.enum';
 import { useAppDispatch } from '@root/store';
 import { addRecordAsync } from '@root/store/reducers/evals';
 import { CreateEvalInterface } from '@root/store/requests/evals';
-import { getPracticeId } from '@utils/index';
+import { getPracticeId, toFullName } from '@utils/index';
 import { Checkbox } from 'baseui/checkbox';
 import { DatePicker } from 'baseui/datepicker';
 import { Select } from 'baseui/select';
@@ -16,14 +16,20 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
   onClose,
   items,
 }) => {
+  const SELECTED_DOCTOR_KEY: string = 'SELECTED_DOCTOR';
   const dispatch = useAppDispatch();
   const practiceId = getPracticeId();
   const router = useRouter();
+
+  const getSelectedUserId: string | null =
+    localStorage.getItem(SELECTED_DOCTOR_KEY);
+
   const {
     practiceHomesList,
     surgeryTypesList,
     insuranceTypesList,
     referrersList,
+    usersList,
   } = items;
 
   const practiceHomesOptions = Object.keys(practiceHomesList).map((key) => ({
@@ -52,9 +58,17 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
   }));
 
   const referrersOptions = Object.keys(referrersList).map((key) => ({
-    label: referrersList[key].firstName + ' ' + referrersList[key].lastName,
+    label: toFullName(referrersList[key]),
     id: referrersList[key].id,
   }));
+
+  const usersOptions = usersList.map((key) => ({
+    label: toFullName(key),
+    id: key.id,
+  }));
+
+  const defaultUser = usersList.find((ele) => ele.id === getSelectedUserId);
+  console.log(defaultUser);
 
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -68,6 +82,7 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
   const [evalEyeType, setEvalEyeType] = useState<string>('');
   const [evalStatus, setEvalStatus] = useState<string>('');
   const [referrerId, setReferrerId] = useState<string>('');
+  const [doctorId, setDoctorId] = useState<string>('');
   const [date, setDate] = useState<Date>(new Date());
   const [pcp, setPcp] = useState('');
   const [notes, setNotes] = useState('');
@@ -95,6 +110,10 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
     setEvalEyeType(value[0] ? value[0].id : null);
   };
 
+  const handleDoctorChange = ({ value }) => {
+    setDoctorId(value[0] ? value[0].id : null);
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (practiceId) {
@@ -110,6 +129,7 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
         insuranceDetails,
         insuranceTypeId,
         practiceId,
+        doctorId,
         pcp,
         referrer: referrerId,
         details: notes,
@@ -132,6 +152,7 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
         setNotes('');
         setEvalStatus('');
         setEvalEyeType('');
+        setDoctorId('');
         onClose();
       } catch (error) {
         onClose();
@@ -152,7 +173,13 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
             </div>
             <div>
               <Select
-                // required
+                options={usersOptions}
+                onChange={handleDoctorChange}
+                value={
+                  doctorId
+                    ? [{ label: doctorId, id: doctorId }]
+                    : [{ label: toFullName(defaultUser), id: defaultUser.id }]
+                }
                 overrides={{
                   ControlContainer: {
                     style: {

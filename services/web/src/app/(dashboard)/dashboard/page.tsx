@@ -11,6 +11,8 @@ import { fetchListings as fetchInsuranceTypesList } from '@root/store/reducers/i
 import { fetchListings as fetchPracticeHomesListing } from '@root/store/reducers/practiceHomes';
 import { fetchListings as fetchReferrerList } from '@root/store/reducers/referrer';
 import { fetchListings as fetchSurgeryTypesListing } from '@root/store/reducers/surgeryTypes';
+import { fetchListings as fetchUsersList } from '@root/store/reducers/users';
+import { SanitizedUser } from '@root/store/types';
 import { getPracticeId, toFullName } from '@root/utils';
 import { Modal, ModalBody, ROLE, SIZE } from 'baseui/modal';
 import React, { useEffect, useState } from 'react';
@@ -26,6 +28,7 @@ const Dashboard: React.FC = () => {
       dispatch(fetchPracticeHomesListing({ practiceId }));
       dispatch(fetchSurgeryTypesListing({ practiceId }));
       dispatch(fetchReferrerList({ practiceId }));
+      dispatch(fetchUsersList({ practiceId }));
     }
   }, [practiceId, dispatch]);
 
@@ -47,6 +50,10 @@ const Dashboard: React.FC = () => {
 
   const referrersList: IReferrer[] = useAppSelector((state) =>
     Object.values(state.referrers.entities),
+  );
+
+  const usersList: SanitizedUser[] = useAppSelector((state) =>
+    Object.values(state.users.entities),
   );
 
   const modifyEvalList = evalsList.map((ele) => ({
@@ -102,6 +109,7 @@ const Dashboard: React.FC = () => {
               surgeryTypesList,
               insuranceTypesList,
               referrersList,
+              usersList,
             }}
           />
         </ModalBody>

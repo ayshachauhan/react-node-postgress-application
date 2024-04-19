@@ -15,6 +15,7 @@ export interface CreateEvalInterface {
   details?: string;
   status: string;
   eye: string;
+  doctorId: string;
 }
 
 export interface EvalResponse {

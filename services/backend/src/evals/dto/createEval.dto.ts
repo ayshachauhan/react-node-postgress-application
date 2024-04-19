@@ -61,4 +61,8 @@ export class CreateEvalDto {
   @IsNotEmpty()
   @ApiProperty()
   status: string;
+
+  @IsNotEmpty()
+  @ApiProperty()
+  doctorId: string;
 }

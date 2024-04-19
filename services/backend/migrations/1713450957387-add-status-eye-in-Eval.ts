@@ -10,11 +10,21 @@ export class AddStatusEyeInEval1713450957387 implements MigrationInterface {
         isNullable: false,
       }),
     );
+
     await queryRunner.addColumn(
       'evals',
       new TableColumn({
         name: 'eye',
         type: 'varchar',
+        isNullable: false,
+      }),
+    );
+
+    await queryRunner.addColumn(
+      'evals',
+      new TableColumn({
+        name: 'doctorId',
+        type: 'uuid',
         isNullable: false,
       }),
     );

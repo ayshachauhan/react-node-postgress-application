@@ -4,6 +4,7 @@ import { InsuranceTypeEntity } from '../insuranceType';
 import { PatientEntity } from '../patient';
 import { PracticeHome } from '../practiceHomes';
 import { SurgeryTypeEntity } from '../surgeryType';
+import { User } from '../user';
 
 @Entity('evals')
 export class EvalEntity extends BaseEntity {
@@ -22,6 +23,10 @@ export class EvalEntity extends BaseEntity {
   @ManyToOne(() => InsuranceTypeEntity)
   @JoinColumn({ name: 'insuranceTypeId' })
   insuranceType: InsuranceTypeEntity;
+
+  @ManyToOne(() => User)
+  @JoinColumn({ name: 'doctorId' })
+  doctor: User;
 
   @Column({ type: 'varchar' })
   insuranceDetails: string;

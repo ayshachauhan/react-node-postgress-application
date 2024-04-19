@@ -27,3 +27,7 @@ export enum UserStatus {
   INACTIVE = 'inactive',
   PENDING = 'pending',
 }
+
+export type ISanitizedUser = Omit<IUser, 'password'> & {
+  isSuperAdmin: false;
+};

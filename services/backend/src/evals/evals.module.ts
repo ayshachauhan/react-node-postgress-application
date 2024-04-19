@@ -9,6 +9,7 @@ import { PatientsModule } from 'src/patients/patients.module';
 import { PracticeHomesModule } from 'src/practiceHomes/practiceHomes.module';
 import { PracticesModule } from 'src/practices/practices.module';
 import { SurgeryTypesModule } from 'src/surgeryTypes/surgeryTypes.module';
+import { UsersModule } from 'src/users/users.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { SurgeryTypesModule } from 'src/surgeryTypes/surgeryTypes.module';
     forwardRef(() => SurgeryTypesModule),
     forwardRef(() => PracticeHomesModule),
     forwardRef(() => InsuranceTypesModule),
+    forwardRef(() => UsersModule),
   ],
   providers: [
     practiceNotFoundInterceptor,
