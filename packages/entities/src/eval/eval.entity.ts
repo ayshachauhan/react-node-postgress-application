@@ -28,4 +28,10 @@ export class EvalEntity extends BaseEntity {
 
   @Column()
   date: Date;
+
+  @Column()
+  status: string;
+
+  @Column()
+  eye: string;
 }

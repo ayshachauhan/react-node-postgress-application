@@ -53,4 +53,12 @@ export class CreateEvalDto {
   @IsOptional()
   @ApiProperty()
   referrer: string;
+
+  @IsNotEmpty()
+  @ApiProperty()
+  eye: string;
+
+  @IsNotEmpty()
+  @ApiProperty()
+  status: string;
 }

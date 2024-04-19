@@ -13,6 +13,8 @@ export interface CreateEvalInterface {
   pcp?: string;
   referrer?: string;
   details?: string;
+  status: string;
+  eye: string;
 }
 
 export interface EvalResponse {

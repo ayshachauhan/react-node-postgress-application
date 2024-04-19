@@ -1,5 +1,7 @@
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
+import { EVAL_EYE_TYPE } from '@root/enums/evalEyeType.enum';
+import { EVAL_STATUS } from '@root/enums/evalStatus.enum';
 import { useAppDispatch } from '@root/store';
 import { addRecordAsync } from '@root/store/reducers/evals';
 import { CreateEvalInterface } from '@root/store/requests/evals';
@@ -39,6 +41,16 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
     id: insuranceTypesList[key].id,
   }));
 
+  const evalEyeTypeOptions = Object.keys(EVAL_EYE_TYPE).map((key) => ({
+    label: key,
+    id: key,
+  }));
+
+  const evalStatusOption = Object.keys(EVAL_STATUS).map((key) => ({
+    label: key,
+    id: key,
+  }));
+
   const referrersOptions = Object.keys(referrersList).map((key) => ({
     label: referrersList[key].firstName + ' ' + referrersList[key].lastName,
     id: referrersList[key].id,
@@ -53,11 +65,14 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
   const [insuranceDetails, setInsuranceDetails] = useState('');
   const [insuranceTypeId, setInsuranceTypeId] = useState<string>('');
   const [practiceHomeId, setPracticeHomeId] = useState<string>('');
+  const [evalEyeType, setEvalEyeType] = useState<string>('');
+  const [evalStatus, setEvalStatus] = useState<string>('');
   const [referrerId, setReferrerId] = useState<string>('');
   const [date, setDate] = useState<Date>(new Date());
   const [pcp, setPcp] = useState('');
   const [notes, setNotes] = useState('');
   const [checkboxes, setCheckboxes] = React.useState([true, false]);
+  const [url, setUrl] = useState('');
 
   const handleSurgeryTypeChange = ({ value }) => {
     setSurgeryTypeId(value[0] ? value[0].id : null);
@@ -70,6 +85,14 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
   };
   const handleReferrerChange = ({ value }) => {
     setReferrerId(value[0] ? value[0].id : null);
+  };
+
+  const handleEvalStatusChange = ({ value }) => {
+    setEvalStatus(value[0] ? value[0].id : null);
+  };
+
+  const handleEvalEyeTypeChange = ({ value }) => {
+    setEvalEyeType(value[0] ? value[0].id : null);
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -90,6 +113,8 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
         pcp,
         referrer: referrerId,
         details: notes,
+        status: evalStatus,
+        eye: evalEyeType,
       };
       try {
         dispatch(addRecordAsync(payload));
@@ -105,6 +130,8 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
         setPcp('');
         setReferrerId('');
         setNotes('');
+        setEvalStatus('');
+        setEvalEyeType('');
         onClose();
       } catch (error) {
         onClose();
@@ -381,7 +408,7 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
               <div className="space-y-4"></div>
             </div>
             <div className="space-y-4 flex-1">
-              <label htmlFor="url" className="text-black text-sm">
+              <label htmlFor="insuranceType" className="text-black text-sm">
                 Insurance Type
               </label>
               <Select
@@ -439,210 +466,210 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
           </div>
 
           <div className="mt-6 flex gap-5">
-            {/* <div className="px-6 border border-gray-100 pb-6 rounded-xl flex-1 w-4/12">
-          <div className="mt-8 text-xl pb-5 font-bold border-b border-gray-100 text-black w-full">
-            Add Surgery
-          </div>
-          <div className="flex gap-5 mt-4">
-            <div className="space-y-4 flex-1">
-              <Select
-                required
-                overrides={{
-                  ControlContainer: {
-                    style: {
-                      backgroundColor: 'rgba(250, 250, 250, 1)',
-                      border: 'none',
-                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-                      color: '#52525B',
-                    },
-                  },
-                  ClearIcon: {
-                    component: () => null,
-                  },
-                }}
-              />
-              <div className="space-y-4"></div>
-            </div>
-            <div className="space-y-4 flex-1">
-              <Select
-                required
-                overrides={{
-                  ControlContainer: {
-                    style: {
-                      backgroundColor: 'rgba(250, 250, 250, 1)',
-                      border: 'none',
-                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-                      color: '#52525B',
-                    },
-                  },
-                  ClearIcon: {
-                    component: () => null,
-                  },
-                }}
-              />
-              <div className="space-y-4"></div>
-            </div>
-            <div className="space-y-4 flex-1">
-              <TextInput
-                name="url"
-                value={url}
-                onChange={(value) => {
-                  setUrl(value);
-                }}
-                required
-                placeholder="Date"
-              />
-              <div className="space-y-4"></div>
-            </div>
-          </div>
-          <div className="flex gap-5 mt-4">
-            <div className="space-y-4 flex-1">
-              <Select
-                required
-                overrides={{
-                  ControlContainer: {
-                    style: {
-                      backgroundColor: 'rgba(250, 250, 250, 1)',
-                      border: 'none',
-                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-                      color: '#52525B',
-                    },
-                  },
-                  ClearIcon: {
-                    component: () => null,
-                  },
-                }}
-              />
-              <div className="space-y-4"></div>
-            </div>
-            <div className="space-y-4 flex-1">
-              <Select
-                required
-                overrides={{
-                  ControlContainer: {
-                    style: {
-                      backgroundColor: 'rgba(250, 250, 250, 1)',
-                      border: 'none',
-                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-                      color: '#52525B',
-                    },
-                  },
-                  ClearIcon: {
-                    component: () => null,
-                  },
-                }}
-              />
-              <div className="space-y-4"></div>
-            </div>
-            <div className="space-y-4 flex-1">
-              <TextInput
-                name="url"
-                value={url}
-                onChange={(value) => {
-                  setUrl(value);
-                }}
-                required
-                placeholder="Date"
-              />
-              <div className="space-y-4"></div>
-            </div>
-          </div>
-          <div className="flex gap-5 mt-4">
-            <div className="space-y-4 w-6/12">
-              <Select
-                required
-                overrides={{
-                  ControlContainer: {
-                    style: {
-                      backgroundColor: 'rgba(250, 250, 250, 1)',
-                      border: 'none',
-                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-                      color: '#52525B',
-                    },
-                  },
-                  ClearIcon: {
-                    component: () => null,
-                  },
-                }}
-              />
-              <div className="space-y-4"></div>
-            </div>
-            <div className="space-y-4 w-4/12">
-              <div className="flex gap-5">
-                <Checkbox
-                  overrides={{
-                    Checkmark: {
-                      style: ({ $checked }) => ({
-                        backgroundColor: $checked
-                          ? 'rgba(59, 130, 246, 1)'
-                          : 'white',
-                        borderColor: $checked
-                          ? 'rgba(59, 130, 246, 1)'
-                          : 'rgba(161, 161, 170, 1)',
-                        borderRadius: '4px',
-                      }),
-                    },
-                  }}
-                  checked={checkboxes[0]}
-                  onChange={(e) => {
-                    const target = e.target as HTMLInputElement;
-                    setCheckboxes([target.checked, checkboxes[1]]);
-                  }}
-                >
-                  AM
-                </Checkbox>
-                <Checkbox
-                  overrides={{
-                    Checkmark: {
-                      style: ({ $checked }) => ({
-                        backgroundColor: $checked
-                          ? 'rgba(59, 130, 246, 1)'
-                          : 'white',
-                        borderColor: $checked
-                          ? 'rgba(59, 130, 246, 1)'
-                          : 'rgba(161, 161, 170, 1)',
-                        borderRadius: '4px',
-                      }),
-                    },
-                  }}
-                  checked={checkboxes[1]}
-                  onChange={(e) => {
-                    const target = e.target as HTMLInputElement;
-                    setCheckboxes([checkboxes[0], target.checked]);
-                  }}
-                >
-                  Femto
-                </Checkbox>
-                <Checkbox
-                  overrides={{
-                    Checkmark: {
-                      style: ({ $checked }) => ({
-                        backgroundColor: $checked
-                          ? 'rgba(59, 130, 246, 1)'
-                          : 'white',
-                        borderColor: $checked
-                          ? 'rgba(59, 130, 246, 1)'
-                          : 'rgba(161, 161, 170, 1)',
-                        borderRadius: '4px',
-                      }),
-                    },
-                  }}
-                  checked={checkboxes[1]}
-                  onChange={(e) => {
-                    const target = e.target as HTMLInputElement;
-                    setCheckboxes([checkboxes[0], target.checked]);
-                  }}
-                >
-                  ORA
-                </Checkbox>
+            <div className="px-6 border border-gray-100 pb-6 rounded-xl flex-1 w-4/12">
+              <div className="mt-8 text-xl pb-5 font-bold border-b border-gray-100 text-black w-full">
+                Add Surgery
               </div>
-              <div className="space-y-4"></div>
+              <div className="flex gap-5 mt-4">
+                <div className="space-y-4 flex-1">
+                  <Select
+                  // required
+                  // overrides={{
+                  //   ControlContainer: {
+                  //     style: {
+                  //       backgroundColor: 'rgba(250, 250, 250, 1)',
+                  //       border: 'none',
+                  //       boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                  //       color: '#52525B',
+                  //     },
+                  //   },
+                  //   ClearIcon: {
+                  //     component: () => null,
+                  //   },
+                  // }}
+                  />
+                  <div className="space-y-4"></div>
+                </div>
+                <div className="space-y-4 flex-1">
+                  <Select
+                  // required
+                  // overrides={{
+                  //   ControlContainer: {
+                  //     style: {
+                  //       backgroundColor: 'rgba(250, 250, 250, 1)',
+                  //       border: 'none',
+                  //       boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                  //       color: '#52525B',
+                  //     },
+                  //   },
+                  //   ClearIcon: {
+                  //     component: () => null,
+                  //   },
+                  // }}
+                  />
+                  <div className="space-y-4"></div>
+                </div>
+                <div className="space-y-4 flex-1">
+                  <TextInput
+                    name="url"
+                    value={url}
+                    onChange={(value) => {
+                      setUrl(value);
+                    }}
+                    // required
+                    placeholder="Date"
+                  />
+                  <div className="space-y-4"></div>
+                </div>
+              </div>
+              <div className="flex gap-5 mt-4">
+                <div className="space-y-4 flex-1">
+                  <Select
+                  // required
+                  // overrides={{
+                  //   ControlContainer: {
+                  //     style: {
+                  //       backgroundColor: 'rgba(250, 250, 250, 1)',
+                  //       border: 'none',
+                  //       boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                  //       color: '#52525B',
+                  //     },
+                  //   },
+                  //   ClearIcon: {
+                  //     component: () => null,
+                  //   },
+                  // }}
+                  />
+                  <div className="space-y-4"></div>
+                </div>
+                <div className="space-y-4 flex-1">
+                  <Select
+                  // required
+                  // overrides={{
+                  //   ControlContainer: {
+                  //     style: {
+                  //       backgroundColor: 'rgba(250, 250, 250, 1)',
+                  //       border: 'none',
+                  //       boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                  //       color: '#52525B',
+                  //     },
+                  //   },
+                  //   ClearIcon: {
+                  //     component: () => null,
+                  //   },
+                  // }}
+                  />
+                  <div className="space-y-4"></div>
+                </div>
+                <div className="space-y-4 flex-1">
+                  <TextInput
+                    name="url"
+                    value={url}
+                    onChange={(value) => {
+                      setUrl(value);
+                    }}
+                    // required
+                    placeholder="Date"
+                  />
+                  <div className="space-y-4"></div>
+                </div>
+              </div>
+              <div className="flex gap-5 mt-4">
+                <div className="space-y-4 w-6/12">
+                  <Select
+                  // required
+                  // overrides={{
+                  //   ControlContainer: {
+                  //     style: {
+                  //       backgroundColor: 'rgba(250, 250, 250, 1)',
+                  //       border: 'none',
+                  //       boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                  //       color: '#52525B',
+                  //     },
+                  //   },
+                  //   ClearIcon: {
+                  //     component: () => null,
+                  //   },
+                  // }}
+                  />
+                  <div className="space-y-4"></div>
+                </div>
+                <div className="space-y-4 w-4/12">
+                  <div className="flex gap-5">
+                    <Checkbox
+                      overrides={{
+                        Checkmark: {
+                          style: ({ $checked }) => ({
+                            backgroundColor: $checked
+                              ? 'rgba(59, 130, 246, 1)'
+                              : 'white',
+                            borderColor: $checked
+                              ? 'rgba(59, 130, 246, 1)'
+                              : 'rgba(161, 161, 170, 1)',
+                            borderRadius: '4px',
+                          }),
+                        },
+                      }}
+                      checked={checkboxes[0]}
+                      onChange={(e) => {
+                        const target = e.target as HTMLInputElement;
+                        setCheckboxes([target.checked, checkboxes[1]]);
+                      }}
+                    >
+                      AM
+                    </Checkbox>
+                    <Checkbox
+                      overrides={{
+                        Checkmark: {
+                          style: ({ $checked }) => ({
+                            backgroundColor: $checked
+                              ? 'rgba(59, 130, 246, 1)'
+                              : 'white',
+                            borderColor: $checked
+                              ? 'rgba(59, 130, 246, 1)'
+                              : 'rgba(161, 161, 170, 1)',
+                            borderRadius: '4px',
+                          }),
+                        },
+                      }}
+                      checked={checkboxes[1]}
+                      onChange={(e) => {
+                        const target = e.target as HTMLInputElement;
+                        setCheckboxes([checkboxes[0], target.checked]);
+                      }}
+                    >
+                      Femto
+                    </Checkbox>
+                    <Checkbox
+                      overrides={{
+                        Checkmark: {
+                          style: ({ $checked }) => ({
+                            backgroundColor: $checked
+                              ? 'rgba(59, 130, 246, 1)'
+                              : 'white',
+                            borderColor: $checked
+                              ? 'rgba(59, 130, 246, 1)'
+                              : 'rgba(161, 161, 170, 1)',
+                            borderRadius: '4px',
+                          }),
+                        },
+                      }}
+                      checked={checkboxes[1]}
+                      onChange={(e) => {
+                        const target = e.target as HTMLInputElement;
+                        setCheckboxes([checkboxes[0], target.checked]);
+                      }}
+                    >
+                      ORA
+                    </Checkbox>
+                  </div>
+                  <div className="space-y-4"></div>
+                </div>
+              </div>
+              <div className="text-left text-base mt-4">
+                <Button kind="primary" title="Add Surgery" width={189} />
+              </div>
             </div>
-          </div>
-          <div className="text-left text-base mt-4">
-            <Button kind="primary" title="Add Surgery" width={189} />
-          </div>
-        </div> */}
             <div className="px-6 border border-gray-100 pb-6 rounded-xl flex-1 w-4/12">
               <div className="mt-8 text-xl pb-5 font-bold border-b border-gray-100 text-black w-full">
                 Add Eval
@@ -650,7 +677,14 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
               <div className="flex gap-5 mt-4">
                 <div className="space-y-4 flex-1">
                   <Select
-                    // required
+                    options={evalEyeTypeOptions}
+                    onChange={handleEvalEyeTypeChange}
+                    value={
+                      evalEyeType
+                        ? [{ label: evalEyeType, id: evalEyeType }]
+                        : []
+                    }
+                    required
                     overrides={{
                       ControlContainer: {
                         style: {
@@ -709,7 +743,11 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
                 </label>
                 <div className="space-y-4 flex-1">
                   <Select
-                    // required
+                    options={evalStatusOption}
+                    onChange={handleEvalStatusChange}
+                    value={
+                      evalStatus ? [{ label: evalStatus, id: evalStatus }] : []
+                    }
                     overrides={{
                       ControlContainer: {
                         style: {
