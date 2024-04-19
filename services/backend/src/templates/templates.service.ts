@@ -103,10 +103,11 @@ export class TemplatesService {
     await this.templateRepository.softDelete(id);
   }
 
-  async createVersion({ messageType, surgeryType }): Promise<string> {
+  async createVersion({ messageType, surgeryTypeId }): Promise<string> {
     const dbTemplates = await this.templateRepository.find({
-      where: { messageType, surgeryType },
+      where: { messageType, surgeryType: { id: surgeryTypeId } },
       order: { dateCreated: 'DESC' },
+      relations: ['surgeryType'],
     });
 
     // if combination exists then increment the version and return V1 if new entry
