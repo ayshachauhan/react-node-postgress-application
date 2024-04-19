@@ -63,6 +63,8 @@ export class EvalsService {
       ],
     });
 
+    dbEvalsByPractice.forEach((ele) => (ele.doctor.password = ''));
+
     return dbEvalsByPractice;
   }
 
