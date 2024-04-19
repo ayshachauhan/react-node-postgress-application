@@ -2,7 +2,8 @@
 import { UserType } from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import { AddIcon, PlayIcon } from '@root/components/Icons';
-import Form from '@root/components/media/addMedia.module';
+import AddMediaModal from '@root/components/media/AddMediaModal';
+import PlayVideoModal from '@root/components/media/PlayVideoModal';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { selectRecords } from '@root/store/reducers/auth';
 import {
@@ -11,7 +12,6 @@ import {
   fetchListings,
 } from '@root/store/reducers/media';
 import { extractVideoId, getImageUrl, getPracticeId } from '@utils/index';
-import { Modal, ModalBody, ModalHeader, ROLE, SIZE } from 'baseui/modal';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
@@ -52,49 +52,12 @@ const Media: React.FC = () => {
   };
 
   const handleOpenSecondModal = (): void => {
-    console.log('xx');
     setIsSecondModalOpen(true);
     setIsFirstModalOpen(false);
   };
 
   const handleCloseSecondModal = (): void => {
     setIsSecondModalOpen(false);
-  };
-
-  const FormModal = () => {
-    return (
-      <Modal
-        isOpen={isSecondModalOpen}
-        onClose={handleCloseSecondModal}
-        closeable
-        animate
-        autoFocus
-        size={SIZE.default}
-        role={ROLE.dialog}
-        overrides={{
-          Root: {
-            style: ({ $theme }) => ({
-              outline: `${$theme.colors.warning200} solid`,
-              backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            }),
-          },
-        }}
-      >
-        <ModalHeader
-          $style={{
-            fontSize: '1.25rem',
-            fontWeight: 700,
-            borderBottom: '1px solid rgba(244, 244, 245, 1)',
-            paddingBottom: '8px',
-          }}
-        >
-          Add a Video
-        </ModalHeader>
-        <ModalBody>
-          <Form onClose={handleCloseSecondModal} />
-        </ModalBody>
-      </Modal>
-    );
   };
 
   useEffect(() => {
@@ -127,7 +90,7 @@ const Media: React.FC = () => {
   }, [successMessage, errorMessage, dispatch]);
 
   return (
-    <div id="__next" className="mt-4">
+    <div className="mt-4">
       <div className="flex justify-between border-gray-400">
         <span className="text-xl font-bold">Media</span>
         {showModal && <div className="text-green-700">{successMessage}</div>}
@@ -172,66 +135,18 @@ const Media: React.FC = () => {
         ))}
       </div>
       <div>
-        {videoId && (
-          <Modal
-            isOpen={isFirstModalOpen}
-            onClose={handleCloseFirstModal}
-            animate
-            autoFocus
-            size={SIZE.default}
-            role={ROLE.dialog}
-            overrides={{
-              Root: {
-                style: ({ $theme }) => ({
-                  outline: `${$theme.colors.warning200} solid`,
-                  backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                  padding: 0,
-                  margin: 0,
-                }),
-              },
-              Close: {
-                style: {
-                  display: 'none',
-                },
-              },
-              Dialog: {
-                style: {
-                  width: 'auto',
-                },
-              },
-            }}
-          >
-            <ModalBody>
-              {isVideoLoaded && (
-                <div
-                  style={{
-                    position: 'relative',
-                    width: 800,
-                    height: 600,
-                    paddingBottom: '56.25%',
-                    overflow: 'hidden',
-                  }}
-                >
-                  <iframe
-                    src={`https://www.youtube.com/embed/${videoId}?autoplay=1`}
-                    title="YouTube video player"
-                    className="rounded-lg"
-                    allow="autoplay; fullscreen"
-                    style={{
-                      position: 'absolute',
-                      top: 0,
-                      left: 0,
-                      width: '100%',
-                      height: '100%',
-                    }}
-                  ></iframe>
-                </div>
-              )}
-            </ModalBody>
-          </Modal>
+        {videoId && isVideoLoaded && (
+          <PlayVideoModal
+            isFirstModalOpen={isFirstModalOpen}
+            handleCloseFirstModal={handleCloseFirstModal}
+            videoId={videoId}
+          />
         )}
       </div>
-      <FormModal />
+      <AddMediaModal
+        isSecondModalOpen={isSecondModalOpen}
+        handleCloseSecondModal={handleCloseSecondModal}
+      />
     </div>
   );
 };

@@ -8,3 +8,11 @@ export interface IMedia extends IBaseEntity {
   practiceId: string;
   surgeryType: ISurgeryType;
 }
+
+export type IMediaRequest = {
+  name: string;
+  urlEmbed: string;
+  url: string;
+  practiceId: string;
+  surgeryTypeId: string;
+};

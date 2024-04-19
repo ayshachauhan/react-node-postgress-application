@@ -1,3 +1,4 @@
+import { ITemplateUpdate } from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
 import { useAppDispatch, useAppSelector } from '@root/store';
@@ -7,7 +8,6 @@ import {
   deleteRecordAsync,
   updateRecordAsync,
 } from '@root/store/reducers/templates';
-import { EditTemplate } from '@root/store/requests/templates';
 import { getPracticeId } from '@utils/index';
 import { Checkbox, STYLE_TYPE } from 'baseui/checkbox';
 import { Select } from 'baseui/select';
@@ -58,7 +58,7 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
   const versionOffset = data.versionOffset;
 
   const [updatedTemplateInfo, setTemplateInfo] = useState<
-    Partial<EditTemplate>
+    Partial<ITemplateUpdate>
   >({});
   const [showTooltip, setShowTooltip] = useState(false);
 

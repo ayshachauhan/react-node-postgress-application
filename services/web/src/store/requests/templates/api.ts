@@ -1,6 +1,9 @@
+import {
+  ITemplateRequest,
+  ITemplateUpdate,
+} from '@packages/entities/index.browser';
 import Cookies from 'js-cookie';
 import { publicRuntimeConfig } from 'next.config';
-import { CreateTemplateResponse, EditTemplate } from '.';
 const { API_BASE_URL } = publicRuntimeConfig;
 
 export const getTemplates = async (
@@ -51,7 +54,7 @@ export const getTemplates = async (
   }
 };
 
-export const addTemplate = async (payloadData: CreateTemplateResponse) => {
+export const addTemplate = async (payloadData: ITemplateRequest) => {
   try {
     const accessToken = Cookies.get('access_token');
     const response = await fetch(
@@ -73,7 +76,7 @@ export const addTemplate = async (payloadData: CreateTemplateResponse) => {
 };
 
 export const updateTemplate = async (
-  payloadData: EditTemplate,
+  payloadData: ITemplateUpdate,
   { rejectWithValue },
 ) => {
   const { API_BASE_URL } = publicRuntimeConfig;
@@ -131,9 +134,8 @@ export const deleteTemplate = async (
     }
     const responseData = await response.text();
 
-    // Check if response body is empty
     if (!responseData.trim()) {
-      return; // Exit early or return a default value
+      return;
     }
 
     const data = await response.json();

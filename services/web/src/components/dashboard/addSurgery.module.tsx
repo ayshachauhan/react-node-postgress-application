@@ -614,11 +614,14 @@ const SurgeryPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       </div>
       <div className="text-right text-base mt-6">
         <Button
+          type="button"
           kind="tertiary"
           title="Cancel"
           width={189}
-          backgroundColor="rgba(212, 212, 216, 1)"
-          color="black"
+          style={{
+            backgroundColor: 'rgba(212, 212, 216, 1)',
+            color: 'black',
+          }}
         />
       </div>
     </div>

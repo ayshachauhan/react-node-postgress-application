@@ -2,8 +2,8 @@
 import { UserType } from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import { AddIcon } from '@root/components/Icons';
-import Form from '@root/components/templates/addTemplate.module';
-import TemplateUpdate from '@root/components/templates/updateTemplate.module';
+import AddTemplateModal from '@root/components/templates/AddTemplateModal';
+import UpdateTemplateModal from '@root/components/templates/UpdateTemplateModal';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { selectRecords } from '@root/store/reducers/auth';
 import {
@@ -14,7 +14,6 @@ import {
   selectSuccessMessage,
 } from '@root/store/reducers/templates';
 import { getPracticeId } from '@utils/index';
-import { Modal, ModalBody, ModalHeader, ROLE, SIZE } from 'baseui/modal';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 const Templates: React.FC = () => {
@@ -63,85 +62,8 @@ const Templates: React.FC = () => {
     }
   }, [userInfo, router]);
 
-  const FormModal = () => {
-    return (
-      <Modal
-        isOpen={isAddModalOpen}
-        onClose={handleCloseAddModal}
-        closeable
-        animate
-        autoFocus
-        size={SIZE.default}
-        role={ROLE.dialog}
-        overrides={{
-          Root: {
-            style: ({ $theme }) => ({
-              outline: `${$theme.colors.warning200} solid`,
-              backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            }),
-          },
-        }}
-      >
-        <ModalHeader
-          $style={{
-            fontSize: '1.25rem',
-            fontWeight: 700,
-            borderBottom: '1px solid rgba(244, 244, 245, 1)',
-            paddingBottom: '8px',
-          }}
-        >
-          Add New Template
-        </ModalHeader>
-        <ModalBody>
-          <Form onClose={handleCloseAddModal} />
-        </ModalBody>
-      </Modal>
-    );
-  };
-
-  const TemplateUpdateModal = () => {
-    return (
-      <Modal
-        isOpen={isUpdateModalOpen}
-        onClose={handleCloseUpdateModal}
-        closeable
-        animate
-        autoFocus
-        size={SIZE.default}
-        role={ROLE.dialog}
-        overrides={{
-          Dialog: {
-            style: () => ({
-              width: '1300px',
-            }),
-          },
-          Root: {
-            style: ({ $theme }) => ({
-              outline: `${$theme.colors.warning200} solid`,
-              backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            }),
-          },
-        }}
-      >
-        <ModalBody>
-          {templateId !== null &&
-            messageType !== null &&
-            versionOffset !== null && (
-              <TemplateUpdate
-                data={{
-                  id: templateId,
-                  messageType: messageType,
-                  versionOffset: versionOffset,
-                }}
-                onClose={handleCloseUpdateModal}
-              />
-            )}
-        </ModalBody>
-      </Modal>
-    );
-  };
   useEffect(() => {
-    if (practiceId !== null && userId !== null) {
+    if (practiceId && userId) {
       const formattedPracticeId = practiceId ?? '';
       const formattedUserId = userId ?? '';
       dispatch(
@@ -155,7 +77,7 @@ const Templates: React.FC = () => {
 
   useEffect(() => {
     if (successMessage) {
-      if (practiceId !== null && userId !== null) {
+      if (practiceId && userId) {
         dispatch(
           fetchListings({
             practiceId,
@@ -188,7 +110,7 @@ const Templates: React.FC = () => {
   }, [successMessage, errorMessage, dispatch]);
 
   return (
-    <div id="__next" className="mt-4">
+    <div className="mt-4">
       <div className="flex justify-between border-gray-400">
         <span className="text-2xl font-medium">Template Engine </span>
         <div className="text-green-700">{successMessage}</div>
@@ -331,8 +253,17 @@ const Templates: React.FC = () => {
           </React.Fragment>
         ))}
       </div>
-      <FormModal />
-      <TemplateUpdateModal />
+      <AddTemplateModal
+        isAddModalOpen={isAddModalOpen}
+        handleCloseAddModal={handleCloseAddModal}
+      />
+      <UpdateTemplateModal
+        isUpdateModalOpen={isUpdateModalOpen}
+        handleCloseUpdateModal={handleCloseUpdateModal}
+        templateId={templateId}
+        messageType={messageType}
+        versionOffset={versionOffset}
+      />
     </div>
   );
 };

@@ -1,9 +1,9 @@
+import { IMediaRequest } from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { addRecordAsync } from '@root/store/reducers/media';
 import { fetchSurgeryTypes } from '@root/store/reducers/surgeryTypes';
-import { IMediaDTO } from '@root/store/requests/media/types';
 import { getPracticeId } from '@utils/index';
 import { Select } from 'baseui/select';
 import React, { useEffect, useState } from 'react';
@@ -26,7 +26,7 @@ const MediaPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (practiceId) {
-      const data: IMediaDTO = {
+      const data: IMediaRequest = {
         name,
         url,
         urlEmbed,
@@ -128,7 +128,7 @@ const MediaPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           />
           <div className="space-y-2"></div>
         </div>
-        <div className="text-right text-base">
+        <div className="text-right text-base pt-4">
           <Button kind="primary" title="Add new video" width={189} />
         </div>
       </form>
