@@ -7,6 +7,7 @@ export * from './permission';
 export * from './practice';
 export * from './practiceHomes';
 export * from './referrer';
+export * from './surgery';
 export * from './surgeryType';
 export * from './template';
 export * from './user';
