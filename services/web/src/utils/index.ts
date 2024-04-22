@@ -49,3 +49,14 @@ export function toFullName({
 }) {
   return generateFullName(firstName, lastName);
 }
+
+export function usDateFormatter(date: Date): string {
+  const myDateWithoutTime: string = String(date).split('T')[0];
+  const splitDate: string[] = myDateWithoutTime.split('-');
+  const formattedDateSplit: string[] = [];
+  formattedDateSplit[0] = splitDate[1];
+  formattedDateSplit[1] = splitDate[2];
+  formattedDateSplit[2] = splitDate[0];
+
+  return formattedDateSplit.join('/');
+}

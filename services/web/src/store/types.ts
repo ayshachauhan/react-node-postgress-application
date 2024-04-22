@@ -3,6 +3,7 @@ import {
   IInsuranceType,
   IPracticeHomes,
   IReferrer,
+  ISurgery,
   ISurgeryType,
   IUser,
 } from '@packages/entities';
@@ -43,6 +44,10 @@ export type SurgeryTypeState = EntitiesState<ISurgeryType> & {
 
 export type EvalState = EntitiesState<IEval> & {
   evalInfo: IEval | null;
+};
+
+export type SurgeryState = EntitiesState<ISurgery> & {
+  surgeryInfo: ISurgery | null;
 };
 
 export type PracticeHomeState = EntitiesState<IPracticeHomes>;

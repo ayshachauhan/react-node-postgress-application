@@ -62,7 +62,7 @@ export class CreateSurgeryDto {
   @ApiProperty()
   lensType: string;
 
-  @IsNotEmpty()
+  @IsNotEmpty({ message: 'doctorId is required' })
   @ApiProperty()
   doctorId: string;
 }
