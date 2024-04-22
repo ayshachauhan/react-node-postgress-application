@@ -13,6 +13,7 @@ import { TransporterService } from 'src/transporter';
 import { In, Repository } from 'typeorm';
 
 import { ConfigService } from '@nestjs/config';
+import { InsuranceTypeEntity } from '@packages/entities';
 import { ENVIRONMENT_VARIABLES } from 'src/enums/environment.enums';
 import { InsuranceTypesService } from 'src/insuranceTypes/insuranceTypes.service';
 import { UsersService } from 'src/users/users.service';
@@ -84,11 +85,15 @@ export class EvalsService {
       practiceId,
     );
 
-    const insuranceTypeEntity =
-      await this.insuranceTypesService.getInsuranceTypeById(
-        createEvalDto.insuranceTypeId,
-        practiceId,
-      );
+    let insuranceTypeEntity: InsuranceTypeEntity | null =
+      new InsuranceTypeEntity();
+    if (createEvalDto.insuranceTypeId) {
+      insuranceTypeEntity =
+        await this.insuranceTypesService.getInsuranceTypeById(
+          createEvalDto.insuranceTypeId,
+          practiceId,
+        );
+    }
 
     const practiceHomeEntity =
       await this.practiceHomesService.getPracticeHomeById(

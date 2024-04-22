@@ -45,13 +45,13 @@ export default function PracticeOnboardPage() {
       }
 
       const isPracticeInfoEmpty =
-        Object.getOwnPropertyNames(practiceInfo).length === 0;
+        practiceInfo && Object.getOwnPropertyNames(practiceInfo).length === 0;
 
       if (isPracticeInfoEmpty && practiceId) {
         dispatch(getPracticeInfo({ id: practiceId }));
       }
     }
-  }, []);
+  }, [practiceId]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
