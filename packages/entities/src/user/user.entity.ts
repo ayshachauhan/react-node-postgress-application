@@ -29,7 +29,7 @@ export class User extends BaseEntity implements IUser {
   @Column({
     type: 'enum',
     enum: UserStatus,
-    default: UserStatus.ACTIVE,
+    default: UserStatus.PENDING,
   })
   status: UserStatus;
 

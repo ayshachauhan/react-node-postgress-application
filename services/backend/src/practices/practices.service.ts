@@ -113,7 +113,7 @@ export class PracticesService {
           lastName: adminLastName,
           email: adminEmail,
           userName: `${adminEmail}`,
-          status: UserStatus.ACTIVE,
+          status: UserStatus.PENDING,
           type: UserType.ADMIN,
           url: '',
           contactNumber: adminContactNumber,
