@@ -119,7 +119,7 @@ export class SurgeryService {
     const htmlFileContent = fs.readFileSync(htmlFilePath, 'utf8');
     const mailOptions: Mail.Options = {
       to: createSurgeryDto.email,
-      subject: 'Subject: Eval/surgery registered',
+      subject: 'Eval/surgery registered',
       html: htmlFileContent,
       text: 'text message',
     };

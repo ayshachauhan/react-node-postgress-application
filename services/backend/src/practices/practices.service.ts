@@ -136,7 +136,7 @@ export class PracticesService {
       const mailOptions: Mail.Options = {
         to: newAdmin.email,
         subject:
-          'Subject: Welcome to Practice Optimizer Dashboard - Complete Your Sign-up Process',
+          'Welcome to Practice Optimizer Dashboard - Complete Your Sign-up Process',
         html: htmlFileContent,
         text: 'text message',
       };

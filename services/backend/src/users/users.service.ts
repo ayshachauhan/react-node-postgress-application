@@ -90,7 +90,7 @@ export class UsersService {
       const mailOptions: Mail.Options = {
         to: resultUser.email,
         subject:
-          'Subject: Welcome to Practice Optimization Dashboard - Complete Your Sign-up Process',
+          'Welcome to Practice Optimization Dashboard - Complete Your Sign-up Process',
         html: htmlFileContent,
         text: 'text message',
       };
