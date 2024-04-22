@@ -1,19 +1,25 @@
 'use client';
 import DataTable, { ColumnConfig } from '@components/DataTable';
-import { IInsuranceType, IPracticeHomes, IReferrer } from '@packages/entities';
+import {
+  IInsuranceType,
+  IPracticeHomes,
+  IReferrer,
+  ISurgery,
+} from '@packages/entities';
 import { IEval, ISurgeryType } from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import { AddIcon } from '@root/components/Icons';
 import Form from '@root/components/dashboard/addSurgery.module';
 import { useAppDispatch, useAppSelector } from '@root/store';
-import { fetchListings } from '@root/store/reducers/evals';
+import { fetchListings as fetchEvalsList } from '@root/store/reducers/evals';
 import { fetchListings as fetchInsuranceTypesList } from '@root/store/reducers/insuranceTypes';
 import { fetchListings as fetchPracticeHomesListing } from '@root/store/reducers/practiceHomes';
 import { fetchListings as fetchReferrerList } from '@root/store/reducers/referrer';
+import { fetchListings as fetchSurgeryList } from '@root/store/reducers/surgery';
 import { fetchListings as fetchSurgeryTypesListing } from '@root/store/reducers/surgeryTypes';
 import { fetchListings as fetchUsersList } from '@root/store/reducers/users';
 import { SanitizedUser } from '@root/store/types';
-import { getPracticeId, toFullName } from '@root/utils';
+import { getPracticeId, toFullName, usDateFormatter } from '@root/utils';
 import { Modal, ModalBody, ROLE, SIZE } from 'baseui/modal';
 import React, { useEffect, useState } from 'react';
 
@@ -23,7 +29,8 @@ const Dashboard: React.FC = () => {
 
   useEffect(() => {
     if (practiceId) {
-      dispatch(fetchListings({ practiceId }));
+      dispatch(fetchEvalsList({ practiceId }));
+      dispatch(fetchSurgeryList({ practiceId }));
       dispatch(fetchInsuranceTypesList({ practiceId }));
       dispatch(fetchPracticeHomesListing({ practiceId }));
       dispatch(fetchSurgeryTypesListing({ practiceId }));
@@ -44,10 +51,6 @@ const Dashboard: React.FC = () => {
     Object.values(state.insuranceTypes.entities),
   );
 
-  const evalsList: IEval[] = useAppSelector((state) =>
-    Object.values(state.evals.entities),
-  );
-
   const referrersList: IReferrer[] = useAppSelector((state) =>
     Object.values(state.referrers.entities),
   );
@@ -56,21 +59,39 @@ const Dashboard: React.FC = () => {
     Object.values(state.users.entities),
   );
 
-  const modifyEvalList = evalsList.map((ele) => ({
-    firstName: ele.patient.firstName,
-    lastName: ele.patient.lastName,
-    mrn: ele.patient.mrn,
-    email: ele.patient.email,
-    phoneNumber: ele.patient.phoneNumber,
-    date: ele.date,
-    surgeryTypeName: ele.surgeryType.name,
-    practiceHomeName: ele.practiceHome.name,
-    insuranceDetails: ele.insuranceDetails,
-    insuranceTypeName: ele.insuranceType ? ele.insuranceType?.name : '',
-    pcp: '',
-    referrer: ele.patient.referrer ? toFullName(ele.patient.referrer) : '',
-    details: ele.patient.details ? ele.patient.details : '',
-  }));
+  const evalsList: IEval[] = useAppSelector((state) =>
+    Object.values(state.evals.entities),
+  );
+
+  const surgeryList: ISurgery[] = useAppSelector((state) =>
+    Object.values(state.surgeries.entities),
+  );
+
+  console.log(surgeryList);
+  const mergedList = [...evalsList, ...surgeryList];
+  const modifyEvalList = mergedList
+    .map((ele, index) => {
+      const viewData = {
+        firstName: ele.patient.firstName,
+        lastName: ele.patient.lastName,
+        mrn: ele.patient.mrn,
+        email: ele.patient.email,
+        phoneNumber: ele.patient.phoneNumber,
+        date: usDateFormatter(ele.date),
+        surgeryTypeName: ele.surgeryType.name,
+        practiceHomeName: ele.practiceHome.name,
+        insuranceDetails: ele.insuranceDetails,
+        insuranceTypeName: ele.insuranceType ? ele.insuranceType?.name : '',
+        pcp: '',
+        referrer: ele.patient.referrer ? toFullName(ele.patient.referrer) : '',
+        details: ele.patient.details ? ele.patient.details : '',
+        eye: ele.eye,
+        index: index + 1,
+      };
+
+      return viewData;
+    })
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
@@ -129,7 +150,7 @@ const Dashboard: React.FC = () => {
     lastName: string;
     phoneNumber: string;
     email: string;
-    date: Date;
+    date: string;
     practiceHomeName: string;
     surgeryTypeName: string;
     insuranceDetails: string;
@@ -137,12 +158,16 @@ const Dashboard: React.FC = () => {
     details: string;
     pcp: string;
     referrer: string;
+    index: number;
+    eye: string;
   }>[] = [
+    { title: 'S. No.', accessor: 'index', id: 'index' },
     { title: 'First Name', accessor: 'firstName', id: 'firstName' },
     { title: 'Last Name', accessor: 'lastName', id: 'lastName' },
     { title: 'MRN', accessor: 'mrn', id: 'mrn' },
     { title: 'Email', accessor: 'email', id: 'email' },
     { title: 'Phone Number', accessor: 'phoneNumber', id: 'phoneNumber' },
+    { title: 'Eye', accessor: 'eye', id: 'eye' },
     { title: 'Date', accessor: 'date', id: 'date' },
     { title: 'Home', accessor: 'practiceHomeName', id: 'practiceHomeName' },
     {
