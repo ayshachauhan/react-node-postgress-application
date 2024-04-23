@@ -4,10 +4,10 @@ import {
   TemplateEntity,
   TemplateMessageType,
 } from '@packages/entities/template';
-import { PracticesService } from 'src/practices/practices.service';
-import { SurgeryTypesService } from 'src/surgeryTypes/surgeryTypes.service';
-import { UsersService } from 'src/users/users.service';
 import { Repository } from 'typeorm';
+import { PracticesService } from '../practices/practices.service';
+import { SurgeryTypesService } from '../surgeryTypes/surgeryTypes.service';
+import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class TemplatesService {

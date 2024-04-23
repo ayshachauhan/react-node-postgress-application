@@ -9,7 +9,7 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { PracticeHome } from '@packages/entities/practiceHomes';
+import { PracticeHomesEntity } from '@packages/entities/practiceHomes';
 import { AuthGuard } from '../auth/auth.guard';
 import { CreateSurgeryTypeDto } from './dto/createSurgery.dto';
 import { SurgeryTypesService } from './surgeryTypes.service';
@@ -24,14 +24,14 @@ export class SurgeryTypesController {
   @Get()
   async getSurgeryTypeByPractice(
     @Param('practiceId') practiceId: string,
-  ): Promise<PracticeHome[]> {
+  ): Promise<PracticeHomesEntity[]> {
     return this.surgeryTypesService.getSurgeryTypeByPractice(practiceId);
   }
 
   @Get(':id')
   async getSurgeryTypeById(
     @Param() { practiceId, id }: { practiceId: string; id: string },
-  ): Promise<PracticeHome | null> {
+  ): Promise<PracticeHomesEntity | null> {
     return this.surgeryTypesService.getSurgeryTypeById(id, practiceId);
   }
 
@@ -46,7 +46,7 @@ export class SurgeryTypesController {
   async create(
     @Param('practiceId') practiceId: string,
     @Body(new ValidationPipe()) practiceHomeCreateDto: CreateSurgeryTypeDto,
-  ): Promise<PracticeHome> {
+  ): Promise<PracticeHomesEntity> {
     return this.surgeryTypesService.create(practiceHomeCreateDto, practiceId);
   }
 }

@@ -2,7 +2,7 @@ import { SurgeryTypeEntity } from '@packages/entities/surgeryType';
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { BaseEntity } from '../base.entity';
 import { PracticeEntity } from '../practice/practice.entity';
-import { User } from '../user/user.entity';
+import { UserEntity } from '../user/user.entity';
 import { ITemplate, Meridiem, TemplateMessageType } from './template.interface';
 
 @Entity('templates')
@@ -11,9 +11,9 @@ export class TemplateEntity extends BaseEntity implements ITemplate {
   @JoinColumn({ name: 'practiceId' })
   practice: PracticeEntity;
 
-  @ManyToOne(() => User)
+  @ManyToOne(() => UserEntity)
   @JoinColumn({ name: 'surgeonId' })
-  surgeon: User;
+  surgeon: UserEntity;
 
   @Column({ type: 'boolean', default: false })
   active: boolean;

@@ -11,4 +11,12 @@ export class SurgeryTypeEntity extends BaseEntity implements ISurgeryType {
 
   @Column({ type: 'varchar' })
   name: string;
+
+  bodyPart: string;
+
+  facility: string;
+
+  options: Record<string, string>;
+
+  checkList: Record<string, string>;
 }

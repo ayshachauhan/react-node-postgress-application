@@ -4,7 +4,7 @@ import { BaseEntity } from '../base.entity';
 import { PracticeEntity } from '../practice/practice.entity';
 
 @Entity('practice_homes')
-export class PracticeHome extends BaseEntity implements IPracticeHomes {
+export class PracticeHomesEntity extends BaseEntity implements IPracticeHomes {
   @ManyToOne(() => PracticeEntity)
   @JoinColumn({ name: 'practiceId' })
   practice: PracticeEntity;

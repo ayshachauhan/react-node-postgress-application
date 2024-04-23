@@ -13,8 +13,8 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { AuthGuard } from 'src/auth/auth.guard';
-import { PracticeNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
+import { AuthGuard } from '../auth/auth.guard';
+import { PracticeNotFoundInterceptor } from '../interceptors/practiceNotFoundInterceptor';
 import { CreateReferrerDto } from './dtos/referrer.createDto';
 import { updateReferrerDto } from './dtos/referrer.updateDto';
 import { ReferrersService } from './referrers.service';

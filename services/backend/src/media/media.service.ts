@@ -1,14 +1,14 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Video } from '@packages/entities/media';
+import { VideoEntity } from '@packages/entities/media';
 import { SurgeryTypeEntity } from '@packages/entities/surgeryType';
 import { Repository } from 'typeorm';
 
 @Injectable()
 export class MediaService {
   constructor(
-    @InjectRepository(Video)
-    private readonly videos: Repository<Video>,
+    @InjectRepository(VideoEntity)
+    private readonly videos: Repository<VideoEntity>,
     @InjectRepository(SurgeryTypeEntity)
     private readonly surgeryType: Repository<SurgeryTypeEntity>,
   ) {}
@@ -20,7 +20,10 @@ export class MediaService {
     });
   }
 
-  async getVideosById(practiceId: string, videoId: string): Promise<Video> {
+  async getVideosById(
+    practiceId: string,
+    videoId: string,
+  ): Promise<VideoEntity> {
     const video = await this.videos.findOne({
       where: { id: videoId, practiceId },
     });
@@ -32,8 +35,8 @@ export class MediaService {
 
   async createVideo(
     practiceId: string,
-    videoData: { surgeryTypeId: string } & Partial<Video>,
-  ): Promise<Video> {
+    videoData: { surgeryTypeId: string } & Partial<VideoEntity>,
+  ): Promise<VideoEntity> {
     const surgeryType = await this.surgeryType.findOne({
       where: { id: videoData.surgeryTypeId },
     });
@@ -47,8 +50,8 @@ export class MediaService {
   async updateVideo(
     practiceId: string,
     videoId: string,
-    videoData: Partial<Video>,
-  ): Promise<Video | undefined> {
+    videoData: Partial<VideoEntity>,
+  ): Promise<VideoEntity | undefined> {
     const video = await this.getVideosById(practiceId, videoId);
     const updatedVideo = this.videos.merge(video, videoData);
     return this.videos.save(updatedVideo);

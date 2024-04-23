@@ -4,7 +4,7 @@ import { BaseEntity } from '../base.entity';
 import { ReferrerType } from '../referrer/referrrer.interface';
 
 @Entity('referrers')
-export class Referrers extends BaseEntity implements IReferrer {
+export class ReferrersEntity extends BaseEntity implements IReferrer {
   @Column({ type: 'uuid' })
   practiceId: string;
 
