@@ -1,6 +1,6 @@
-import { SurgeryTypeEntity } from '@packages/entities/surgeryType';
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { BaseEntity } from '../base.entity';
+import { SurgeryTypeEntity } from '../surgeryType';
 import { IMedia } from './media.interface';
 
 @Entity('videos')

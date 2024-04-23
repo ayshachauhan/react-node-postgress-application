@@ -1,7 +1,11 @@
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { BaseEntity } from '../base.entity';
 import { PracticeEntity } from '../practice';
-import { ISurgeryType } from './surgeryType.interface';
+import {
+  ISurgeryType,
+  SurgeryChecklist,
+  SurgeryOptions,
+} from './surgeryType.interface';
 
 @Entity('surgery_types')
 export class SurgeryTypeEntity extends BaseEntity implements ISurgeryType {
@@ -12,11 +16,21 @@ export class SurgeryTypeEntity extends BaseEntity implements ISurgeryType {
   @Column({ type: 'varchar' })
   name: string;
 
-  bodyPart: string;
+  @Column('varchar', {
+    array: true,
+    default: '{}',
+  })
+  bodyPart: string[];
 
-  facility: string;
+  @Column('varchar', {
+    array: true,
+    default: '{}',
+  })
+  facility: string[];
 
-  options: Record<string, string>;
+  @Column('jsonb')
+  options: SurgeryOptions;
 
-  checkList: Record<string, string>;
+  @Column('jsonb')
+  checkList: SurgeryChecklist;
 }

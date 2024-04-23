@@ -1,6 +1,6 @@
-import { IReferrer } from '@packages/entities/referrer';
 import { Column, Entity } from 'typeorm';
 import { BaseEntity } from '../base.entity';
+import { IReferrer } from '../referrer';
 import { ReferrerType } from '../referrer/referrrer.interface';
 
 @Entity('referrers')

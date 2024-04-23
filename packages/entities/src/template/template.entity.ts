@@ -1,7 +1,7 @@
-import { SurgeryTypeEntity } from '@packages/entities/surgeryType';
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { BaseEntity } from '../base.entity';
 import { PracticeEntity } from '../practice/practice.entity';
+import { SurgeryTypeEntity } from '../surgeryType';
 import { UserEntity } from '../user/user.entity';
 import { ITemplate, Meridiem, TemplateMessageType } from './template.interface';
 
