@@ -11,7 +11,7 @@ export interface CreateEvalInterface {
   email: string;
   phoneNumber: string;
   pcp?: string;
-  referrer?: string;
+  referrerId?: string;
   details?: string;
   status: string;
   eye: string;
@@ -32,5 +32,5 @@ export interface EvalResponse {
   email: string;
   phoneNumber: string;
   pcp?: string;
-  referrer?: string;
+  referrerId?: string;
 }

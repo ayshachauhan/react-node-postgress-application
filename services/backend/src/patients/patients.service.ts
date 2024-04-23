@@ -6,12 +6,13 @@ import {
   forwardRef,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Referrers } from '@packages/entities';
+import { ReferrerType, Referrers } from '@packages/entities';
 import { PatientEntity } from '@packages/entities/patient';
 import { PracticeEntity } from '@packages/entities/practice';
 import { CreatePatientDto } from 'src/patients/dto/createPatient.dto';
 import { ReferrersService } from 'src/referrers/referrers.service';
 import { Repository } from 'typeorm';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class PatientsService {
@@ -38,10 +39,21 @@ export class PatientsService {
 
     let referrerEntity = new Referrers();
     if (createPatientDto.referrerId) {
-      referrerEntity = await this.referrerService.getReferrerById(
-        practiceEntity.id,
-        createPatientDto.referrerId,
-      );
+      try {
+        uuidv4(createPatientDto.referrerId);
+        referrerEntity = await this.referrerService.getReferrerById(
+          practiceEntity.id,
+          createPatientDto.referrerId,
+        );
+      } catch (error) {
+        referrerEntity = await this.referrerService.createReferrer(
+          practiceEntity.id,
+          {
+            email: createPatientDto.referrerId,
+            referrerType: ReferrerType.PCP,
+          },
+        );
+      }
     }
 
     return await this.patientRepository.save({

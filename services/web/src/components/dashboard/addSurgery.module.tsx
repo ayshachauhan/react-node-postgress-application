@@ -65,7 +65,11 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
   }));
 
   const referrersOptions = Object.keys(referrersList).map((key) => ({
-    label: toFullName(referrersList[key]),
+    label:
+      referrersList[key].email +
+      (referrersList[key].firstName
+        ? ` (${toFullName(referrersList[key])})`
+        : ''),
     id: referrersList[key].id,
   }));
 
@@ -160,7 +164,7 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
             practiceId,
             doctorId,
             pcp,
-            referrer: referrerId,
+            referrerId,
             details: notes,
             status: evalStatus,
             eye: evalEyeType,
@@ -353,11 +357,12 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
                 Referrer
               </label>
               <Select
-                options={referrersOptions}
+                creatable
                 onChange={handleReferrerChange}
                 value={
                   referrerId ? [{ label: referrerId, id: referrerId }] : []
                 }
+                options={referrersOptions}
                 overrides={{
                   ControlContainer: {
                     style: {
