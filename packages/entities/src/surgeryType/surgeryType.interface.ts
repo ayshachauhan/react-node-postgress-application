@@ -18,4 +18,19 @@ export type SurgeryChecklist = {
   };
 };
 
-export type SurgeryOptions = {};
+export type SurgeryOptionAllowedList = {
+  name: string;
+  professionalPricing: number;
+  hospitalPricing: number;
+};
+
+export type SurgeryOptions = {
+  [key: string]: {
+    type: string;
+    label: string;
+    default: string;
+    required: string;
+    allowedValues: [];
+    count: number;
+  };
+};
