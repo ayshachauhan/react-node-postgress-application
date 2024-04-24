@@ -8,8 +8,14 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
-import { PracticeStatus } from '@packages/entities/practice';
-import { User, UserStatus, UserType } from '@packages/entities/user';
+import {
+  IPractice,
+  IUser,
+  PracticeStatus,
+  User,
+  UserStatus,
+  UserType,
+} from '@packages/entities';
 import * as bcrypt from 'bcrypt';
 import * as fs from 'fs';
 import Mail from 'nodemailer/lib/mailer';
@@ -49,7 +55,6 @@ export class UsersService {
     createUserDto: CreateUserDto,
     practiceId: string,
   ): Promise<SanitizedUser> {
-    const newUser: User = new User();
     const { firstName, lastName } = createUserDto;
     const fullName = `${firstName}_${lastName}`;
     const hashedDefaultPassword = await bcrypt.hash(
@@ -67,52 +72,47 @@ export class UsersService {
         throw new HttpException('Practice not found', HttpStatus.NOT_FOUND);
       }
 
-      const resultUser = await this.usersRepository.save({
-        ...newUser,
-        ...createUserDto,
-        fullName,
-        password: hashedDefaultPassword,
-      });
-
-      const newSanitzedUser = this.sanitizeUser(resultUser);
-
-      const token = this.jwtService.sign({
-        ...newSanitzedUser,
-      });
-
-      // Read the HTML file content
-      const htmlFilePath = path.join(
-        __dirname,
-        '../emailTemplates/inviteNewUserTemplate.html',
+      const existingUser: IUser | null = await this.getUserByEmail(
+        createUserDto.email,
       );
-      const htmlFileContent = fs.readFileSync(htmlFilePath, 'utf8');
 
-      const mailOptions: Mail.Options = {
-        to: resultUser.email,
-        subject:
-          'Welcome to Practice Optimization Dashboard - Complete Your Sign-up Process',
-        html: htmlFileContent,
-        text: 'text message',
-      };
+      let newUser: IUser = new User();
 
-      const frontendBaseUrl: string = this.getFrontEndBaseUrl();
+      if (!existingUser) {
+        newUser = await this.usersRepository.save({
+          ...newUser,
+          ...createUserDto,
+          fullName,
+          password: hashedDefaultPassword,
+        });
 
-      const mailData: NewUserMailData = {
-        signUpLink: frontendBaseUrl + `/onboarding/user?${token}`,
-        practiceName: practiceEntity.name,
-        fullName,
-        defaultUserPassword: this.defaultUserPassword(),
-      };
+        await this.sendNewUserMail({ newUser, fullName, practiceEntity });
+      } else {
+        const emailExists = existingUser.practices.find(
+          (ele) => ele.id == practiceId,
+        );
+        if (emailExists) {
+          throw new HttpException(
+            'user for this email already exists',
+            HttpStatus.UNPROCESSABLE_ENTITY,
+          );
+        }
 
-      await this.transporterService.sendEmail(mailOptions, mailData);
+        newUser = existingUser;
+        await this.sendNewPracticeMailToExistingUser({
+          newUser,
+          fullName,
+          practiceEntity,
+        });
+      }
 
       await this.userPracticeService.create({
-        userId: resultUser.id,
+        userId: newUser.id,
         practiceId,
       });
 
       await queryRunner.commitTransaction();
-      return this.sanitizeUser(resultUser);
+      return this.sanitizeUser(newUser);
     } catch (error) {
       await queryRunner.rollbackTransaction();
       throw error;
@@ -242,5 +242,87 @@ export class UsersService {
     }
 
     throw new HttpException(`error while updating`, HttpStatus.NOT_ACCEPTABLE);
+  }
+
+  async sendNewUserMail({
+    newUser,
+    fullName,
+    practiceEntity,
+  }: {
+    newUser: IUser;
+    fullName: string;
+    practiceEntity: IPractice;
+  }): Promise<void> {
+    const frontendBaseUrl: string = this.getFrontEndBaseUrl();
+    const newSanitizedUser = this.sanitizeUser(newUser);
+    const token = this.jwtService.sign({
+      ...newSanitizedUser,
+    });
+
+    // Read the HTML file content
+    const htmlFilePath = path.join(
+      __dirname,
+      '../emailTemplates/inviteNewUserTemplate.html',
+    );
+    const htmlFileContent = fs.readFileSync(htmlFilePath, 'utf8');
+
+    const mailOptions: Mail.Options = {
+      to: newSanitizedUser.email,
+      subject:
+        'Welcome to Practice Optimization Dashboard - Complete Your Sign-up Process',
+      html: htmlFileContent,
+      text: 'text message',
+    };
+
+    const mailData: NewUserMailData = {
+      signUpLink: frontendBaseUrl + `/onboarding/user?${token}`,
+      practiceName: practiceEntity.name,
+      fullName,
+      defaultUserPassword: this.defaultUserPassword(),
+    };
+
+    await this.transporterService.sendEmail(mailOptions, mailData);
+  }
+
+  async sendNewPracticeMailToExistingUser({
+    newUser,
+    fullName,
+    practiceEntity,
+  }: {
+    newUser: IUser;
+    fullName: string;
+    practiceEntity: IPractice;
+  }): Promise<void> {
+    const frontendBaseUrl: string = this.getFrontEndBaseUrl();
+
+    // Read the HTML file content
+    const htmlFilePath = path.join(
+      __dirname,
+      '../emailTemplates/newPracticeMailToExistingUser.html',
+    );
+    const htmlFileContent = fs.readFileSync(htmlFilePath, 'utf8');
+
+    const mailOptions: Mail.Options = {
+      to: newUser.email,
+      subject: 'Welcome to Practice Optimization Dashboard',
+      html: htmlFileContent,
+      text: 'text message',
+    };
+
+    const mailData: NewUserMailData = {
+      signUpLink: frontendBaseUrl + `/login`,
+      practiceName: practiceEntity.name,
+      fullName,
+      defaultUserPassword: this.defaultUserPassword(),
+    };
+
+    await this.transporterService.sendEmail(mailOptions, mailData);
+  }
+
+  async getUserByEmail(email: string): Promise<User | null> {
+    return await this.usersRepository.findOne({
+      where: { email },
+      relations: ['practices'],
+    });
   }
 }

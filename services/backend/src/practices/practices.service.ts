@@ -9,7 +9,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PracticeEntity } from '@packages/entities/practice';
-import { User, UserStatus, UserType } from '@packages/entities/user';
+import { User, UserType } from '@packages/entities/user';
 import * as fs from 'fs';
 import Mail from 'nodemailer/lib/mailer';
 import * as path from 'path';
@@ -113,7 +113,6 @@ export class PracticesService {
           lastName: adminLastName,
           email: adminEmail,
           userName: `${adminEmail}`,
-          status: UserStatus.PENDING,
           type: UserType.ADMIN,
           url: '',
           contactNumber: adminContactNumber,
