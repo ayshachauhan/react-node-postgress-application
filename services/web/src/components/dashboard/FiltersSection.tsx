@@ -2,7 +2,7 @@ import DataTable, { ColumnConfig } from '@components/DataTable';
 import { HomeIcon, RoundIcon } from '@root/components/Icons';
 import { Input } from 'baseui/input';
 import { Select } from 'baseui/select';
-import React, { ReactNode, useState } from 'react';
+import React, { useState } from 'react';
 import {
   CopyIcon,
   DeleteIcon,
@@ -45,14 +45,21 @@ const FiltersSection: React.FC = () => {
       lens: 'Standard',
       implant: 'D1234',
       calcs: '5/6PC',
+      auth: '5/6PC',
+      hospital: '5/6PC',
+      prof: '5/6PC',
+      insurance: '5/6PC',
+      details: 5.2,
+      hp: '5/6PC',
+      consent: '5/6PC',
       action: actionIcons,
     },
     {
       date: '2/29',
       home: 'w',
-      age: 15,
+      age: 10,
       round: <RoundIcon />,
-      status: 'Pending',
+      status: 'Book',
       firstName: 'Wilson',
       lastName: 'Victoria',
       mrn: '3231',
@@ -64,14 +71,21 @@ const FiltersSection: React.FC = () => {
       lens: 'Standard',
       implant: 'D1234',
       calcs: '5/6PC',
+      auth: '5/6PC',
+      hospital: '5/6PC',
+      prof: '5/6PC',
+      insurance: '5/6PC',
+      details: 5.2,
+      hp: '5/6PC',
+      consent: '5/6PC',
       action: actionIcons,
     },
     {
       date: '2/29',
       home: 'w',
-      age: 13,
+      age: 10,
       round: <RoundIcon />,
-      status: 'Cancel',
+      status: 'Book',
       firstName: 'Wilson',
       lastName: 'Victoria',
       mrn: '3231',
@@ -83,14 +97,21 @@ const FiltersSection: React.FC = () => {
       lens: 'Standard',
       implant: 'D1234',
       calcs: '5/6PC',
+      auth: '5/6PC',
+      hospital: '5/6PC',
+      prof: '5/6PC',
+      insurance: '5/6PC',
+      details: 5.2,
+      hp: '5/6PC',
+      consent: '5/6PC',
       action: actionIcons,
     },
     {
       date: '2/29',
       home: 'w',
-      age: 20,
+      age: 10,
       round: <RoundIcon />,
-      status: 'Confirm',
+      status: 'Book',
       firstName: 'Wilson',
       lastName: 'Victoria',
       mrn: '3231',
@@ -102,6 +123,13 @@ const FiltersSection: React.FC = () => {
       lens: 'Standard',
       implant: 'D1234',
       calcs: '5/6PC',
+      auth: '5/6PC',
+      hospital: '5/6PC',
+      prof: '5/6PC',
+      insurance: '5/6PC',
+      details: 5.2,
+      hp: '5/6PC',
+      consent: '5/6PC',
       action: actionIcons,
     },
   ];
@@ -171,10 +199,10 @@ const FiltersSection: React.FC = () => {
 
   const columnConfig: ColumnConfig<{
     date: string;
-    age: number;
-    round: ReactNode;
-    status: string;
     home: string;
+    age: number;
+    round: React.JSX.Element;
+    status: string;
     firstName: string;
     lastName: string;
     mrn: string;
@@ -186,7 +214,14 @@ const FiltersSection: React.FC = () => {
     lens: string;
     implant: string;
     calcs: string;
-    action: ReactNode;
+    hospital: string;
+    prof: string;
+    hp: string;
+    consent: string;
+    auth: string;
+    insurance: string;
+    details: number;
+    action: React.JSX.Element;
   }>[] = [
     { title: 'Date', accessor: 'date', id: 'date' },
     { title: <HomeIcon />, accessor: 'home', id: 'home' },
@@ -212,15 +247,19 @@ const FiltersSection: React.FC = () => {
     { title: 'ORA', accessor: 'ora', id: 'ora' },
     { title: 'Lens', accessor: 'lens', id: 'lens' },
     { title: 'Implant', accessor: 'implant', id: 'implant' },
-    { title: 'Details', id: 'age', accessor: (row) => appendAddSign(row.age) },
+    {
+      title: 'Details',
+      id: 'details',
+      accessor: (row) => appendAddSign(row.details),
+    },
     { title: '#', accessor: 'age', id: 'age' },
     { title: 'Calcs', accessor: 'calcs', id: 'calcs' },
-    { title: 'Auth', accessor: 'calcs', id: 'calcs' },
-    { title: 'H&P', accessor: 'calcs', id: 'calcs' },
-    { title: 'Consent', accessor: 'calcs', id: 'calcs' },
-    { title: 'Prof', accessor: 'calcs', id: 'calcs' },
-    { title: 'Hospital', accessor: 'age', id: 'age' },
-    { title: 'Insurance', accessor: 'age', id: 'age' },
+    { title: 'Auth', accessor: 'auth', id: 'auth' },
+    { title: 'H&P', accessor: 'hp', id: 'hp' },
+    { title: 'Consent', accessor: 'consent', id: 'consent' },
+    { title: 'Prof', accessor: 'prof', id: 'prof' },
+    { title: 'Hospital', accessor: 'hospital', id: 'hospital' },
+    { title: 'Insurance', accessor: 'insurance', id: 'insurance' },
     { title: 'Action', accessor: 'action', id: 'action' },
   ];
 
