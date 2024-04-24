@@ -12,11 +12,14 @@ import React from 'react';
 
 export type ColumnConfig<T extends object> = {
   id: string;
-  title: string;
+  title: string | React.ReactNode;
   accessor: keyof T | ((row: T) => JSX.Element | string);
   Component?: React.ComponentType<{ row: T }>;
   sortable?: boolean;
   width?: number;
+  cellStyle?:
+    | React.CSSProperties
+    | ((cellValue: number) => React.CSSProperties);
 };
 
 type Props<T extends object> = {
@@ -36,10 +39,26 @@ function DataTable<T extends object>({ data, columns }: Props<T>) {
     const colValue =
       typeof accessor === 'function' ? accessor(row) : row[accessor];
 
+    let style: React.CSSProperties = {};
+    if (typeof column.cellStyle === 'function') {
+      style = column.cellStyle(colValue as number);
+    } else {
+      style = column.cellStyle || {};
+    }
+
+    type StyleObject = {
+      [key: string]: string | number;
+    };
+
+    const maxWidthStyle: StyleObject = {
+      maxWidth: column.width ? `${column.width}px` : 'initial',
+      ...style,
+    };
+
     return (
       <StyledCell
         key={`row-${rowIndex}-col-${id as string}`}
-        $style={{ maxWidth: column.width ? `${column.width}px` : 'initial' }}
+        $style={maxWidthStyle}
       >
         {Component ? <Component row={row} /> : <>{colValue}</>}
       </StyledCell>
@@ -60,8 +79,13 @@ function DataTable<T extends object>({ data, columns }: Props<T>) {
 
       <StyledBody className="data-table_body">
         {dataToRender.map((row, rowIndex) => {
+          const isLastRow = rowIndex === dataToRender.length - 1;
           return (
-            <StyledRow key={`row-${rowIndex}`} className="data-table_body-row">
+            <StyledRow
+              key={`row-${rowIndex}`}
+              className="data-table_body-row"
+              style={{ borderBottom: isLastRow ? 'none' : undefined }}
+            >
               {columns.map((cell) => renderTableCell(row, cell, rowIndex))}
             </StyledRow>
           );

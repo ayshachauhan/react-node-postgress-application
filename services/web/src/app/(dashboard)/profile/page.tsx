@@ -26,11 +26,11 @@ const Profile: React.FC = () => {
   };
   return (
     <div className="mt-4">
-      <div className="flex justify-between border-gray-400">
+      <div className="flex justify-between border-gray-400 items-center">
         <span className="text-xl font-bold">Profile</span>
         <Button kind="primary" title="Go Back" onClick={handleGoBack}></Button>
       </div>
-      <hr className="h-px my-2.5 bg-gray-100 border-1 dark:bg-gray-700"></hr>
+      <hr className="h-px my-2.5 bg-gray-100 border-1 border-gray-100"></hr>
       <div className="flex mt-10 items-center">
         <div className="flex items-center justify-center shadow-lg w-44 h-44 bg-black-200 rounded-full  flex-shrink-0">
           {' '}
@@ -41,7 +41,7 @@ const Profile: React.FC = () => {
             <span className="font-bold">{userInfo?.fullName}</span> (
             {userInfo?.type})
           </p>
-          <hr className="h-px my-2.5 bg-gray-100 border-1 dark:bg-gray-700"></hr>
+          <hr className="h-px my-2.5 bg-gray-100 border-1 border-gray-100"></hr>
         </div>
       </div>
       <div className="flex flex-wrap gap-20 ml-64 mt-4">

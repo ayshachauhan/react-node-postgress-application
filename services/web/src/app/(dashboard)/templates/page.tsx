@@ -189,7 +189,7 @@ const Templates: React.FC = () => {
 
   return (
     <div className="mt-4">
-      <div className="flex justify-between border-gray-400">
+      <div className="flex justify-between border-gray-400 items-center">
         <span className="text-2xl font-medium">Template Engine </span>
         <div className="text-green-700">{successMessage}</div>
         {showErrorMessage && <div className="text-red-700">{errorMessage}</div>}
@@ -203,7 +203,7 @@ const Templates: React.FC = () => {
           />
         </div>
       </div>
-      <hr className="h-px my-2.5 px-0 mx-0 bg-gray-100 border-1 dark:bg-gray-700"></hr>
+      <hr className="h-px my-2.5 px-0 mx-0 bg-gray-100 border-1 border-gray-100"></hr>
       <div className="flex flex-wrap gap-7">
         {templates.map((data, i) => (
           <React.Fragment key={i}>
