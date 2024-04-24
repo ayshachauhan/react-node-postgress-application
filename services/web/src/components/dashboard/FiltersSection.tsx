@@ -376,7 +376,7 @@ const FiltersSection: React.FC = () => {
                 </p>
                 <p>
                   <span className="font-bold">AM: </span>
-                  <span>NA</span>
+                  <span>N/A</span>
                 </p>
                 <p>
                   <span className="font-bold">Femto: </span>
