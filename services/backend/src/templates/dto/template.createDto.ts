@@ -16,7 +16,7 @@ export class TemplateCreateDto {
 
   @IsNotEmpty({ message: 'surgeryType is required' })
   @ApiProperty()
-  surgeryType: string;
+  surgeryTypeId: string;
 
   @IsOptional()
   @ApiProperty()

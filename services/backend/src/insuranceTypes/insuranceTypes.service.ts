@@ -1,4 +1,10 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+  forwardRef,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { InsuranceTypeEntity } from '@packages/entities/insuranceType';
 import { Repository } from 'typeorm';
@@ -10,6 +16,7 @@ export class InsuranceTypesService {
   constructor(
     @InjectRepository(InsuranceTypeEntity)
     private insuranceTypeRepository: Repository<InsuranceTypeEntity>,
+    @Inject(forwardRef(() => PracticesService))
     private readonly practicesService: PracticesService,
   ) {}
 

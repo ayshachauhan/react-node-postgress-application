@@ -8,30 +8,26 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
-import { PracticeStatus } from '@packages/entities/practice';
-import { User, UserStatus, UserType } from '@packages/entities/user';
+import { PracticeEntity, PracticeStatus } from '@packages/entities/practice';
+import { UserEntity, UserStatus, UserType } from '@packages/entities/user';
 import * as bcrypt from 'bcrypt';
-import * as fs from 'fs';
 import Mail from 'nodemailer/lib/mailer';
-import * as path from 'path';
 import { ENVIRONMENT_VARIABLES } from 'src/enums/environment.enums';
 import { PracticesService } from 'src/practices/practices.service';
 import { TransporterService } from 'src/transporter';
-import { UserPracticesService } from 'src/userPractices/userPractices.services';
+import { SystemTemplates } from 'src/transporter/transporter.types';
 import { NewUserMailData, SanitizedUser } from 'src/users/types';
-import { DataSource, In, Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create.dto';
 import { UpdateUserDto } from './dto/update.dto';
 
 @Injectable()
 export class UsersService {
   constructor(
-    @InjectRepository(User)
-    private usersRepository: Repository<User>,
+    @InjectRepository(UserEntity)
+    private usersRepository: Repository<UserEntity>,
     @Inject(forwardRef(() => PracticesService))
     private readonly practicesService: PracticesService,
-    @Inject(forwardRef(() => UserPracticesService))
-    private readonly userPracticeService: UserPracticesService,
     private readonly configService: ConfigService,
     private readonly transporterService: TransporterService,
     private jwtService: JwtService,
@@ -49,7 +45,6 @@ export class UsersService {
     createUserDto: CreateUserDto,
     practiceId: string,
   ): Promise<SanitizedUser> {
-    const newUser: User = new User();
     const { firstName, lastName } = createUserDto;
     const fullName = `${firstName}_${lastName}`;
     const hashedDefaultPassword = await bcrypt.hash(
@@ -67,12 +62,14 @@ export class UsersService {
         throw new HttpException('Practice not found', HttpStatus.NOT_FOUND);
       }
 
-      const resultUser = await this.usersRepository.save({
-        ...newUser,
+      const newUser: UserEntity = this.usersRepository.create({
         ...createUserDto,
         fullName,
         password: hashedDefaultPassword,
+        practices: [practiceEntity],
       });
+
+      const resultUser = await this.usersRepository.save(newUser);
 
       const newSanitzedUser = this.sanitizeUser(resultUser);
 
@@ -80,18 +77,10 @@ export class UsersService {
         ...newSanitzedUser,
       });
 
-      // Read the HTML file content
-      const htmlFilePath = path.join(
-        __dirname,
-        '../emailTemplates/inviteNewUserTemplate.html',
-      );
-      const htmlFileContent = fs.readFileSync(htmlFilePath, 'utf8');
-
       const mailOptions: Mail.Options = {
         to: resultUser.email,
         subject:
           'Subject: Welcome to Practice Optimization Dashboard - Complete Your Sign-up Process',
-        html: htmlFileContent,
         text: 'text message',
       };
 
@@ -104,12 +93,11 @@ export class UsersService {
         defaultUserPassword: this.defaultUserPassword(),
       };
 
-      await this.transporterService.sendEmail(mailOptions, mailData);
-
-      await this.userPracticeService.create({
-        userId: resultUser.id,
-        practiceId,
-      });
+      await this.transporterService.sendSystemEmails(
+        mailOptions,
+        mailData,
+        SystemTemplates.INVITE_NEW_USER_TEMPLATE,
+      );
 
       await queryRunner.commitTransaction();
       return this.sanitizeUser(resultUser);
@@ -121,29 +109,26 @@ export class UsersService {
     }
   }
 
-  async findUserByEmail(email: string): Promise<User | null> {
+  async findUserByEmail(email: string): Promise<UserEntity | null> {
     const existingUser = await this.usersRepository.findOne({
       where: { email },
     });
 
-    return existingUser ? existingUser : null;
+    return existingUser;
   }
 
-  async getUserById(id: string): Promise<User | null> {
-    return await this.usersRepository.findOne({
+  async getUserById(id: string): Promise<UserEntity | null> {
+    return this.usersRepository.findOne({
       where: { id },
+      relations: ['practices'],
     });
   }
 
-  async getUsersByPractice(practiceId: string): Promise<User[]> {
-    await this.practicesService.findOne(practiceId);
+  async getUsersByPractice(practiceId: string): Promise<UserEntity[]> {
+    const practice: PracticeEntity | null =
+      await this.practicesService.findOne(practiceId);
 
-    const usersByPractice =
-      await this.userPracticeService.getUsersByPractice(practiceId);
-
-    return await this.usersRepository.find({
-      where: { id: In(usersByPractice.map((ele) => ele.user?.id)) },
-    });
+    return practice?.users ?? [];
   }
 
   async deleteUser(id: string): Promise<void> {
@@ -184,7 +169,7 @@ export class UsersService {
     return null;
   }
 
-  sanitizeUser(user: User): SanitizedUser {
+  sanitizeUser(user: UserEntity): SanitizedUser {
     const { password, ...sanitizedUser } = user;
     password && password;
     return {

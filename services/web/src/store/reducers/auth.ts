@@ -70,20 +70,11 @@ const authSlice = createSlice({
       state.user = action.payload;
       state.errorMessage = undefined;
       const practiceId = getPracticeId();
-      if (
-        state.user &&
-        state.user.userPractices &&
-        state.user.userPractices.length &&
-        state.user.userPractices[0].practice
-      ) {
+      if (state.user && state.user.practices && state.user.practices.length) {
         if (!practiceId) {
-          localStorage.setItem(
-            'practiceId',
-            state.user.userPractices[0].practice.id,
-          );
+          localStorage.setItem('practiceId', state.user.practices[0].id);
         }
-        state.azentiaSelectedPractice =
-          state.user.userPractices[0].practice.name;
+        state.azentiaSelectedPractice = state.user.practices[0].name;
       } else {
         if (!practiceId) {
           localStorage.setItem('practiceId', '');

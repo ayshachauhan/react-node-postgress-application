@@ -1,8 +1,8 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User, UserPermissionEntity } from '@packages/entities/user';
-import { PermissionsService } from 'src/permissions/permissions.service';
+import { UserEntity, UserPermissionEntity } from '@packages/entities/user';
 import { Repository } from 'typeorm';
+import { PermissionsService } from '../permissions/permissions.service';
 
 @Injectable()
 export class UserPermissionsService {
@@ -20,7 +20,7 @@ export class UserPermissionsService {
 
   async create(
     { permissionId },
-    userEntity: User,
+    userEntity: UserEntity,
   ): Promise<UserPermissionEntity> {
     const newUserPermission: UserPermissionEntity = new UserPermissionEntity();
 

@@ -24,16 +24,18 @@ const BaseUIModal = ({
 
   return (
     <Modal onClose={onClose} isOpen={isOpen} overrides={combinedOverrides}>
-      <ModalHeader
-        $style={{
-          fontSize: '1.25rem',
-          fontWeight: 700,
-          borderBottom: '1px solid rgba(244, 244, 245, 1)',
-          paddingBottom: '8px',
-        }}
-      >
-        {title}
-      </ModalHeader>
+      {title && (
+        <ModalHeader
+          $style={{
+            fontSize: '1.25rem',
+            fontWeight: 700,
+            borderBottom: '1px solid rgba(244, 244, 245, 1)',
+            paddingBottom: '8px',
+          }}
+        >
+          {title}
+        </ModalHeader>
+      )}
       <ModalBody>{children}</ModalBody>
     </Modal>
   );

@@ -5,7 +5,7 @@ export interface IPractice extends IBaseEntity {
   name: string;
   code: string;
   status: PracticeStatus;
-  photoUrl: string;
+  photoUrl?: string;
   users: IUser[];
 }
 

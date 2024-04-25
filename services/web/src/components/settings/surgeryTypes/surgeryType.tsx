@@ -8,7 +8,7 @@ import {
   clearErrorMessage,
   clearSuccessMessage,
   deleteRecordAsync,
-  fetchListings,
+  fetchListings as fetchSurgeryTypes,
   selectError,
   selectSuccessMessage,
 } from '@root/store/reducers/surgeryTypes';
@@ -33,8 +33,8 @@ export default function SurgeryTypePage() {
   const practiceName = useAppSelector(
     (state) => state.practices.practiceInfo?.name,
   );
-  const surgeryTypes = useAppSelector(
-    (state) => state.surgeryTypes.surgeryTypes,
+  const surgeryTypes = useAppSelector((state) =>
+    Object.values(state.surgeryTypes.entities),
   );
   const [surgeryTypeId, setSurgeryTypeId] = useState('');
   const [showErrorMessage, setShowErrorMessage] = useState(false);
@@ -43,7 +43,7 @@ export default function SurgeryTypePage() {
 
   useEffect(() => {
     if (practiceId !== null) {
-      dispatch(fetchListings({ practiceId: practiceId }));
+      dispatch(fetchSurgeryTypes({ practiceId: practiceId }));
       dispatch(getPracticeInfo({ id: practiceId }));
     }
   }, [practiceId, dispatch]);
