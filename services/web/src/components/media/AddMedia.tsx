@@ -1,43 +1,45 @@
-import { SurgeryType } from '@packages/entities/index.browser';
+import { IMediaRequest } from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
-import { useAppDispatch } from '@root/store';
+import { useAppDispatch, useAppSelector } from '@root/store';
 import { addRecordAsync } from '@root/store/reducers/media';
-import { IMediaDTO } from '@root/store/requests/media/types';
+import { fetchSurgeryTypes } from '@root/store/reducers/surgeryTypes';
 import { getPracticeId } from '@utils/index';
 import { Select } from 'baseui/select';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 const MediaPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
-  const surgeryTypeOptions = Object.keys(SurgeryType).map((key) => ({
-    label: SurgeryType[key as keyof typeof SurgeryType],
-    id: key,
+  const surgeryTypes = useAppSelector(
+    (state) => state.surgeryTypes.surgeryTypes,
+  );
+  const surgeryTypeOptions = Object.keys(surgeryTypes).map((key) => ({
+    label: surgeryTypes[key].name,
+    id: surgeryTypes[key].id,
   }));
   const practiceId = getPracticeId();
   const dispatch = useAppDispatch();
   const [name, setName] = useState('');
   const [url, setUrl] = useState('');
   const [urlEmbed, setUrlEmbed] = useState('');
-  const [surgeryType, setSurgeryType] = useState<SurgeryType>();
+  const [surgeryTypeId, setsurgeryTypeId] = useState('');
 
-  // Function to handle form submission
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (practiceId && surgeryType) {
-      const data: IMediaDTO = {
+    if (practiceId) {
+      const data: IMediaRequest = {
         name,
         url,
         urlEmbed,
         practiceId,
-        surgeryType,
+        surgeryTypeId,
       };
       try {
         dispatch(addRecordAsync(data));
         setName('');
         setUrl('');
         setUrlEmbed('');
-        setSurgeryType(undefined);
-        onClose(); // Close the modal after form submission
+        setsurgeryTypeId('');
+        onClose();
       } catch (error) {
         onClose();
       }
@@ -45,8 +47,14 @@ const MediaPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   };
 
   const handleSurgeryTypeChange = ({ value }) => {
-    setSurgeryType(value[0] ? value[0].label : null);
+    setsurgeryTypeId(value[0] ? value[0].id : null);
   };
+
+  useEffect(() => {
+    if (practiceId !== null) {
+      dispatch(fetchSurgeryTypes({ practiceId: practiceId }));
+    }
+  }, [practiceId, dispatch]);
 
   return (
     <div>
@@ -100,7 +108,9 @@ const MediaPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           <Select
             options={surgeryTypeOptions}
             onChange={handleSurgeryTypeChange}
-            value={surgeryType ? [{ label: surgeryType, id: surgeryType }] : []}
+            value={
+              surgeryTypeId ? [{ label: surgeryTypeId, id: surgeryTypeId }] : []
+            }
             required
             overrides={{
               ControlContainer: {
@@ -118,7 +128,7 @@ const MediaPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           />
           <div className="space-y-2"></div>
         </div>
-        <div className="text-right text-base">
+        <div className="text-right text-base pt-4">
           <Button kind="primary" title="Add new video" width={189} />
         </div>
       </form>

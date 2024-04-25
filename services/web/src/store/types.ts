@@ -1,4 +1,5 @@
 import {
+  GetTemplatesResponse,
   IEval,
   IInsuranceType,
   IPracticeHomes,
@@ -9,7 +10,6 @@ import {
 } from '@packages/entities';
 import {} from '@packages/entities/index.browser';
 import { PracticesGetInterface } from 'src/store/requests/practices';
-
 import { GetUserResponse } from './requests/login/types';
 
 export enum EntityLoadingState {
@@ -64,4 +64,8 @@ export type UserState = EntitiesState<SanitizedUser> & {
 
 export type ReferrerState = EntitiesState<IReferrer> & {
   referrerInfo: IReferrer | null;
+};
+
+export type TemplateState = EntitiesState<GetTemplatesResponse> & {
+  templateInfo: GetTemplatesResponse | null;
 };

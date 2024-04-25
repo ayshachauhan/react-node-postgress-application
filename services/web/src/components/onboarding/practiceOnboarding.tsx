@@ -55,9 +55,9 @@ export default function PracticeOnboardPage() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (practiceId && userInfo) {
+    if (userInfo && userInfo.practices) {
       const payload: ChangePasswordInterface = {
-        practiceId,
+        practiceId: userInfo.practices[0].id,
         email: userInfo?.email,
         confirmPassword,
         oldPassword,

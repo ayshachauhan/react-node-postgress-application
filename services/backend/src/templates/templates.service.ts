@@ -4,9 +4,10 @@ import {
   TemplateEntity,
   TemplateMessageType,
 } from '@packages/entities/template';
-import { PracticesService } from 'src/practices/practices.service';
-import { UsersService } from 'src/users/users.service';
 import { Repository } from 'typeorm';
+import { PracticesService } from '../practices/practices.service';
+import { SurgeryTypesService } from '../surgeryTypes/surgeryTypes.service';
+import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class TemplatesService {
@@ -15,12 +16,14 @@ export class TemplatesService {
     private templateRepository: Repository<TemplateEntity>,
     private practiceService: PracticesService,
     private userService: UsersService,
+    private surgeryTypeService: SurgeryTypesService,
   ) {}
 
   async findAll(practiceId: string, userId: string): Promise<TemplateEntity[]> {
     await this.practiceService.findOne(practiceId);
     return await this.templateRepository.find({
       where: { practice: { id: practiceId }, surgeon: { id: userId } },
+      relations: ['surgeryType'],
     });
   }
 
@@ -42,6 +45,15 @@ export class TemplatesService {
 
     const practiceEntity = await this.practiceService.findOne(practiceId);
 
+    const surgeryTypeEntity = await this.surgeryTypeService.getSurgeryTypeById(
+      templateCreateDto.surgeryTypeId,
+      practiceId,
+    );
+
+    if (!surgeryTypeEntity) {
+      throw new HttpException('Surgery type not found', HttpStatus.NOT_FOUND);
+    }
+
     templateCreateDto.messageType =
       TemplateMessageType[templateCreateDto.messageType];
 
@@ -50,6 +62,7 @@ export class TemplatesService {
       ...templateCreateDto,
       practice: practiceEntity,
       surgeon: surgeonEntity,
+      surgeryType: surgeryTypeEntity, // Ensure surgeryType is included
       version: await this.createVersion(templateCreateDto),
     });
   }
@@ -90,10 +103,11 @@ export class TemplatesService {
     await this.templateRepository.softDelete(id);
   }
 
-  async createVersion({ messageType, surgeryType }): Promise<string> {
+  async createVersion({ messageType, surgeryTypeId }): Promise<string> {
     const dbTemplates = await this.templateRepository.find({
-      where: { messageType, surgeryType },
+      where: { messageType, surgeryType: { id: surgeryTypeId } },
       order: { dateCreated: 'DESC' },
+      relations: ['surgeryType'],
     });
 
     // if combination exists then increment the version and return V1 if new entry

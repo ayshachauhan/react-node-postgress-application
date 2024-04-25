@@ -1,10 +1,10 @@
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { BaseEntity } from '../base.entity';
-import { SurgeryType } from '../template/template.interface';
+import { SurgeryTypeEntity } from '../surgeryType';
 import { IMedia } from './media.interface';
 
 @Entity('videos')
-export class Video extends BaseEntity implements IMedia {
+export class VideoEntity extends BaseEntity implements IMedia {
   @Column({ type: 'uuid' })
   practiceId: string;
 
@@ -17,6 +17,7 @@ export class Video extends BaseEntity implements IMedia {
   @Column({ type: 'varchar' })
   url: string;
 
-  @Column({ type: 'enum', enum: SurgeryType, default: SurgeryType.CATARACT })
-  surgeryType: SurgeryType;
+  @ManyToOne(() => SurgeryTypeEntity)
+  @JoinColumn({ name: 'surgeryTypeId' })
+  surgeryType: SurgeryTypeEntity;
 }

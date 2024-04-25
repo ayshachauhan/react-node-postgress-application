@@ -11,7 +11,7 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { User } from '@packages/entities/user';
+import { UserEntity } from '@packages/entities/user';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
 import { AuthGuard } from '../auth/auth.guard';
 import { ChangePasswordDto } from './dto/changePassword.dto';
@@ -43,7 +43,9 @@ export class UsersController {
   }
 
   @Get(':id')
-  async getUserById(@Param() { id }: { id: string }): Promise<User | null> {
+  async getUserById(
+    @Param() { id }: { id: string },
+  ): Promise<UserEntity | null> {
     return this.usersService.getUserById(id);
   }
 

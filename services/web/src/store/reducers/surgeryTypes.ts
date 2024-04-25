@@ -125,7 +125,7 @@ export const { clearSuccessMessage, clearErrorMessage } =
   surgeryTypeSlice.actions;
 
 export const fetchListings = createAsyncThunk(
-  'surgeryTypes/fetchListings',
+  'surgeryTypes/fetchSurgeryTypes',
   getSurgeryTypes,
 );
 
