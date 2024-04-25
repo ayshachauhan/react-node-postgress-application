@@ -10,8 +10,8 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { UserPermissionEntity } from '@packages/entities/user';
-import { UserNotFoundInterceptor } from 'src/interceptors/userNotFoundInterceptor';
 import { AuthGuard } from '../auth/auth.guard';
+import { UserNotFoundInterceptor } from '../interceptors/userNotFoundInterceptor';
 import { UserPermissionCreateDto } from './dto/userPermission.createDto';
 import { UserPermissionPatchDto } from './dto/userPermission.patchDto';
 import { UserPermissionsService } from './userPermissions.service';

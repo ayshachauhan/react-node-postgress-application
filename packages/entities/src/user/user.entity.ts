@@ -4,7 +4,7 @@ import { PracticeEntity } from '../practice/practice.entity';
 import { IUser, UserStatus, UserType } from './user.interface';
 
 @Entity('users')
-export class User extends BaseEntity implements IUser {
+export class UserEntity extends BaseEntity implements IUser {
   @Column({ type: 'varchar' })
   email: string;
 
@@ -29,7 +29,7 @@ export class User extends BaseEntity implements IUser {
   @Column({
     type: 'enum',
     enum: UserStatus,
-    default: UserStatus.ACTIVE,
+    default: UserStatus.PENDING,
   })
   status: UserStatus;
 

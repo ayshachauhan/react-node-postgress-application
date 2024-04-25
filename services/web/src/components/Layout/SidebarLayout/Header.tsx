@@ -34,6 +34,9 @@ const Header: React.FC = () => {
     Object.values(entities).find((user) => user.id === userId);
 
   const [selectedUser, setSelectedUser] = useState<SanitizedUser | null>(null);
+  if (!localStorage.getItem(SELECTED_DOCTOR_KEY) && userInfo && userInfo.id) {
+    localStorage.setItem(SELECTED_DOCTOR_KEY, userInfo.id);
+  }
 
   const is_super_admin = userInfo ? userInfo.isSuperAdmin : false;
   const selectedUserBox = (

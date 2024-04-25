@@ -148,7 +148,6 @@ const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 onChange={(value) => {
                   setUrl(value);
                 }}
-                required
               />
             </div>
           </div>

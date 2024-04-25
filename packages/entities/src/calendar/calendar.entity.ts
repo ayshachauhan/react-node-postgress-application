@@ -2,7 +2,7 @@ import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { BaseEntity } from '../base.entity';
 import { PracticeEntity } from '../practice/practice.entity';
 import { SurgeryTypeEntity } from '../surgeryType';
-import { User } from '../user';
+import { UserEntity } from '../user';
 import { ICalendar } from './calendar.interface';
 @Entity('calendars')
 export class CalendarEntity extends BaseEntity implements ICalendar {
@@ -23,7 +23,7 @@ export class CalendarEntity extends BaseEntity implements ICalendar {
   @Column({ type: 'integer', default: 14 })
   maxSlots: number;
 
-  @ManyToOne(() => User)
+  @ManyToOne(() => UserEntity)
   @JoinColumn({ name: 'userId' })
-  user: User;
+  user: UserEntity;
 }

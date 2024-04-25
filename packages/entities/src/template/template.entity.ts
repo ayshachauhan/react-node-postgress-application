@@ -1,13 +1,9 @@
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { BaseEntity } from '../base.entity';
 import { PracticeEntity } from '../practice/practice.entity';
-import { User } from '../user/user.entity';
-import {
-  ITemplate,
-  Meridiem,
-  SurgeryType,
-  TemplateMessageType,
-} from './template.interface';
+import { SurgeryTypeEntity } from '../surgeryType';
+import { UserEntity } from '../user/user.entity';
+import { ITemplate, Meridiem, TemplateMessageType } from './template.interface';
 
 @Entity('templates')
 export class TemplateEntity extends BaseEntity implements ITemplate {
@@ -15,9 +11,9 @@ export class TemplateEntity extends BaseEntity implements ITemplate {
   @JoinColumn({ name: 'practiceId' })
   practice: PracticeEntity;
 
-  @ManyToOne(() => User)
+  @ManyToOne(() => UserEntity)
   @JoinColumn({ name: 'surgeonId' })
-  surgeon: User;
+  surgeon: UserEntity;
 
   @Column({ type: 'boolean', default: false })
   active: boolean;
@@ -41,27 +37,28 @@ export class TemplateEntity extends BaseEntity implements ITemplate {
   })
   meridiem?: Meridiem;
 
-  @Column({ type: 'enum', enum: SurgeryType, default: null, nullable: true })
-  surgeryType: SurgeryType;
+  @ManyToOne(() => SurgeryTypeEntity)
+  @JoinColumn({ name: 'surgeryTypeId' })
+  surgeryType: SurgeryTypeEntity;
 
-  @Column({ type: 'varchar' })
+  @Column({ type: 'varchar', nullable: true })
   emailSubject: string;
 
-  @Column({ type: 'varchar' })
+  @Column({ type: 'varchar', nullable: true })
   emailBody: string;
 
-  @Column({ type: 'varchar' })
+  @Column({ type: 'varchar', nullable: true })
   emailAttachment: string;
 
-  @Column({ type: 'varchar' })
+  @Column({ type: 'varchar', nullable: true })
   email1stCataract: string;
 
-  @Column({ type: 'varchar' })
+  @Column({ type: 'varchar', nullable: true })
   email2ndCataract: string;
 
-  @Column({ type: 'varchar' })
+  @Column({ type: 'varchar', nullable: true })
   messageText: string;
 
-  @Column({ type: 'varchar' })
+  @Column({ type: 'varchar', nullable: true })
   version: string;
 }
