@@ -1,11 +1,9 @@
 'use client';
-import { UserType } from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import { AddIcon, PlayIcon } from '@root/components/Icons';
 import AddMediaModal from '@root/components/media/AddMediaModal';
 import PlayVideoModal from '@root/components/media/PlayVideoModal';
 import { useAppDispatch, useAppSelector } from '@root/store';
-import { selectRecords } from '@root/store/reducers/auth';
 import {
   clearErrorMessage,
   clearSuccessMessage,
@@ -13,7 +11,6 @@ import {
 } from '@root/store/reducers/media';
 import { extractVideoId, getImageUrl, getPracticeId } from '@utils/index';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 
 const Media: React.FC = () => {
@@ -29,14 +26,7 @@ const Media: React.FC = () => {
   }));
   const [showModal, setShowModal] = useState(false);
   const [showErrorMessage, setShowErrorMessage] = useState(false);
-  const router = useRouter();
   const [videoId, setVideoId] = useState<string | null>(null);
-  const userInfo = useAppSelector(selectRecords);
-  useEffect(() => {
-    if (userInfo && userInfo?.type !== UserType.ADMIN) {
-      router.push('practices');
-    }
-  }, [userInfo, router]);
 
   const handleOpenFirstModal = (videoId: string): void => {
     setVideoId(videoId);
