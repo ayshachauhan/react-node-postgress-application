@@ -87,7 +87,7 @@ export class UsersService {
       const frontendBaseUrl: string = this.getFrontEndBaseUrl();
 
       const mailData: NewUserMailData = {
-        signUpLink: frontendBaseUrl + `/onboarding/user?${token}`,
+        signUpLink: frontendBaseUrl + `/onboarding/user?token=${token}`,
         practiceName: practiceEntity.name,
         fullName,
         defaultUserPassword: this.defaultUserPassword(),
