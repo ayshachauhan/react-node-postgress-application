@@ -1,3 +1,5 @@
+import { IPractice } from '@packages/entities';
+
 export interface User {
   id: string;
   userName: string;
@@ -26,6 +28,7 @@ export interface GetUserResponse {
   email: string;
   isSuperAdmin: string;
   userPractices: UserPractice[];
+  practices?: IPractice[];
 }
 
 export interface UserPractice {

@@ -45,7 +45,7 @@ export default function PracticeOnboardPage() {
       }
 
       const isPracticeInfoEmpty =
-        Object.getOwnPropertyNames(practiceInfo).length === 0;
+        practiceInfo && Object.getOwnPropertyNames(practiceInfo).length === 0;
 
       if (isPracticeInfoEmpty && practiceId) {
         dispatch(getPracticeInfo({ id: practiceId }));
@@ -55,9 +55,9 @@ export default function PracticeOnboardPage() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (practiceId && userInfo) {
+    if (userInfo && userInfo.practices) {
       const payload: ChangePasswordInterface = {
-        practiceId,
+        practiceId: userInfo.practices[0].id,
         email: userInfo?.email,
         confirmPassword,
         oldPassword,

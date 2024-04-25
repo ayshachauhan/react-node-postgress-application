@@ -42,17 +42,17 @@ const surgeryTypeSlice = createSlice({
     },
   },
   extraReducers(builder) {
-    builder.addCase(fetchListings.pending, (state) => {
+    builder.addCase(fetchSurgeryTypes.pending, (state) => {
       state.isProcessing = true;
       state.status = 'loading';
     });
 
-    builder.addCase(fetchListings.fulfilled, (state, action) => {
+    builder.addCase(fetchSurgeryTypes.fulfilled, (state, action) => {
       state.status = 'idle';
       state.surgeryTypes = action.payload;
     });
 
-    builder.addCase(fetchListings.rejected, (state, action) => {
+    builder.addCase(fetchSurgeryTypes.rejected, (state, action) => {
       state.status = 'failed';
       if (typeof action.payload === 'string') {
         state.error = action.payload ?? 'Failed to fetch users';
@@ -126,8 +126,8 @@ const surgeryTypeSlice = createSlice({
 export const { clearSuccessMessage, clearErrorMessage } =
   surgeryTypeSlice.actions;
 
-export const fetchListings = createAsyncThunk(
-  'surgeryTypes/fetchListings',
+export const fetchSurgeryTypes = createAsyncThunk(
+  'surgeryTypes/fetchSurgeryTypes',
   getSurgeryTypes,
 );
 

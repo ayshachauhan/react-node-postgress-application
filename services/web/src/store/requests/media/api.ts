@@ -1,6 +1,5 @@
-import { IMedia } from '@packages/entities/index.browser';
+import { IMedia, IMediaRequest } from '@packages/entities/index.browser';
 import { ApiService } from '@root/services/apiclient';
-import { IMediaDTO } from './types';
 
 const apiClient = new ApiService();
 
@@ -41,7 +40,7 @@ export const getMedia = async (
  * @returns IMedia
  */
 export const addMedia = async (
-  payloadData: IMediaDTO,
+  payloadData: IMediaRequest,
   { rejectWithValue },
 ): Promise<IMedia> => {
   try {

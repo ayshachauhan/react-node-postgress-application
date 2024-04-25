@@ -1,13 +1,14 @@
-import { SurgeryType } from '@packages/entities/index.browser';
+import { ITemplateUpdate } from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { selectRecords } from '@root/store/reducers/auth';
+import { fetchSurgeryTypes } from '@root/store/reducers/surgeryTypes';
 import {
   deleteRecordAsync,
+  fetchListings,
   updateRecordAsync,
 } from '@root/store/reducers/templates';
-import { EditTemplate } from '@root/store/requests/templates';
 import { getPracticeId } from '@utils/index';
 import { Checkbox, STYLE_TYPE } from 'baseui/checkbox';
 import { Select } from 'baseui/select';
@@ -24,15 +25,11 @@ interface ChildProps {
 }
 
 const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
-  const surgeryTypeOptions = Object.keys(SurgeryType).map((key) => ({
-    label: SurgeryType[key as keyof typeof SurgeryType],
-    id: key,
-  }));
-
   const handleSurgeryTypeChange = ({ value }) => {
+    const selectedSurgeryType = value[0];
     setTemplateInfo({
       ...updatedTemplateInfo,
-      surgeryType: value[0] ? value[0].label : null,
+      surgeryType: selectedSurgeryType,
     });
   };
   const userInfo = useAppSelector(selectRecords);
@@ -42,8 +39,9 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
   const templateId = data.id;
   const messageType = data.messageType;
   const templateInfo = useAppSelector((state) => {
-    if (templateId && state.templates.templates) {
-      for (const template of state.templates.templates) {
+    const templates = Object.values(state.templates.entities);
+    if (templateId && templates) {
+      for (const template of templates) {
         for (const key in template) {
           if (Array.isArray(template[key])) {
             const foundItem = template[key].find(
@@ -62,7 +60,7 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
   const versionOffset = data.versionOffset;
 
   const [updatedTemplateInfo, setTemplateInfo] = useState<
-    Partial<EditTemplate>
+    Partial<ITemplateUpdate>
   >({});
   const [showTooltip, setShowTooltip] = useState(false);
 
@@ -76,13 +74,11 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
       }));
     }
   };
-  const handleHtmlChange = (
-    event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>,
-  ) => {
+  const handleHtmlChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     setTemplateInfo({ ...updatedTemplateInfo, emailBody: event.target.value });
   };
   const handleMessageTextChange = (
-    event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>,
+    event: React.ChangeEvent<HTMLTextAreaElement>,
   ) => {
     setTemplateInfo({
       ...updatedTemplateInfo,
@@ -101,6 +97,33 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
     }
   };
 
+  useEffect(() => {
+    if (practiceId && userId) {
+      const formattedPracticeId = practiceId ?? '';
+      const formattedUserId = userId ?? '';
+      dispatch(
+        fetchListings({
+          practiceId: formattedPracticeId,
+          userId: formattedUserId,
+        }),
+      );
+    }
+  }, [practiceId, userId, dispatch]);
+
+  useEffect(() => {
+    if (practiceId !== null) {
+      dispatch(fetchSurgeryTypes({ practiceId: practiceId }));
+    }
+  }, [practiceId, dispatch]);
+
+  const surgeryTypes = useAppSelector(
+    (state) => state.surgeryTypes.surgeryTypes,
+  );
+  const surgeryTypeOptions = Object.keys(surgeryTypes).map((key) => ({
+    label: surgeryTypes[key].name,
+    id: surgeryTypes[key].id,
+  }));
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (templateId && practiceId && userId) {
@@ -111,7 +134,8 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
         emailAttachment: updatedTemplateInfo.emailAttachment ?? '',
         emailBody: updatedTemplateInfo.emailBody ?? '',
         messageText: updatedTemplateInfo.messageText ?? '',
-        surgeryType: updatedTemplateInfo.surgeryType ?? SurgeryType.YAG,
+        surgeryType:
+          updatedTemplateInfo.surgeryType ?? surgeryTypeOptions[0].id,
         practiceId: practiceId,
         userId: userId,
         id: templateId,
@@ -160,8 +184,8 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
                     updatedTemplateInfo?.surgeryType
                       ? [
                           {
-                            label: updatedTemplateInfo.surgeryType,
-                            id: updatedTemplateInfo.surgeryType,
+                            label: updatedTemplateInfo.surgeryType?.name,
+                            id: updatedTemplateInfo.surgeryType?.id,
                           },
                         ]
                       : []

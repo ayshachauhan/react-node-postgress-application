@@ -9,13 +9,12 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PracticeEntity } from '@packages/entities/practice';
-import { User, UserStatus, UserType } from '@packages/entities/user';
-import * as fs from 'fs';
+import { UserEntity, UserStatus, UserType } from '@packages/entities/user';
 import Mail from 'nodemailer/lib/mailer';
-import * as path from 'path';
-import { ENVIRONMENT_VARIABLES } from 'src/enums/environment.enums';
-import { TransporterService } from 'src/transporter';
+import { SystemTemplates } from 'src/transporter/transporter.types';
 import { DataSource, Repository, UpdateResult } from 'typeorm';
+import { ENVIRONMENT_VARIABLES } from '../enums/environment.enums';
+import { TransporterService } from '../transporter';
 import { UsersService } from '../users/users.service';
 import { PracticeCreateDto } from './dto/create.dto';
 import { CreatePracticeInviteMailData, PracticesGetInterface } from './types';
@@ -48,7 +47,7 @@ export class PracticesService {
 
     dbPractices.forEach((element: PracticeEntity) => {
       const { id, name, code, status } = element;
-      const dbUsersByPractice: User[] = element.users.sort((a, b) => {
+      const dbUsersByPractice: UserEntity[] = element.users.sort((a, b) => {
         // sorting on the basis of createdAt to get oldest admin in the for the practice. considering it the actual practice admin
         const timestampA = a.dateCreated.getTime();
         const timestampB = b.dateCreated.getTime();
@@ -78,12 +77,16 @@ export class PracticesService {
   }
 
   async findOne(id: string): Promise<PracticeEntity | null> {
-    return await this.practicesRepository.findOneBy({ id });
+    return await this.practicesRepository.findOne({
+      where: { id },
+      relations: ['users'],
+    });
   }
 
   async remove(id: string): Promise<void> {
     await this.practicesRepository.softDelete(id);
   }
+
   async create({
     name,
     adminEmail,
@@ -98,13 +101,13 @@ export class PracticesService {
     await queryRunner.startTransaction();
 
     try {
-      const newPractice: PracticeEntity = new PracticeEntity();
-
-      const practice: PracticeEntity = await this.practicesRepository.save({
-        ...newPractice,
+      const newPractice: PracticeEntity = this.practicesRepository.create({
         name,
         code,
       });
+
+      const practice: PracticeEntity =
+        await this.practicesRepository.save(newPractice);
 
       // creating admin user
       const newAdmin = await this.userService.create(
@@ -126,19 +129,10 @@ export class PracticesService {
         practiceId: practice.id,
       });
 
-      const htmlFilePath: string = path.join(
-        __dirname,
-        '../emailTemplates/adminInvite.html',
-      );
-
-      const htmlFileContent: string = fs.readFileSync(htmlFilePath, 'utf8');
-
       const mailOptions: Mail.Options = {
         to: newAdmin.email,
         subject:
           'Subject: Welcome to Practice Optimizer Dashboard - Complete Your Sign-up Process',
-        html: htmlFileContent,
-        text: 'text message',
       };
 
       const frontendBaseUrl: string | undefined = this.getFrontEndBaseUrl();
@@ -152,7 +146,11 @@ export class PracticesService {
         contactPhone: adminContactNumber,
       };
 
-      await this.transporterService.sendEmail(mailOptions, mailData);
+      await this.transporterService.sendSystemEmails(
+        mailOptions,
+        mailData,
+        SystemTemplates.ADMIN_INVITE,
+      );
       await queryRunner.commitTransaction();
 
       return practice;

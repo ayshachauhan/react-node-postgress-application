@@ -12,9 +12,9 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { PracticeHome } from '@packages/entities/practiceHomes';
-import { PracticeNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
+import { PracticeHomesEntity } from '@packages/entities/practiceHomes';
 import { AuthGuard } from '../auth/auth.guard';
+import { PracticeNotFoundInterceptor } from '../interceptors/practiceNotFoundInterceptor';
 import { PracticeHomeCreateDto } from './dto/create.dto';
 import { PracticeHomePatchDto } from './dto/patch.dto';
 import { PracticeHomesService } from './practiceHomes.service';
@@ -29,14 +29,14 @@ export class PracticeHomesController {
   @Get()
   async getPracticeHomesByPractice(
     @Param('practiceId') practiceId: string,
-  ): Promise<PracticeHome[]> {
+  ): Promise<PracticeHomesEntity[]> {
     return this.practiceHomesService.getPracticeHomesByPractice(practiceId);
   }
 
   @Get(':id')
   async getPracticeHomeById(
     @Param() { practiceId, id }: { practiceId: string; id: string },
-  ): Promise<PracticeHome | null> {
+  ): Promise<PracticeHomesEntity | null> {
     return this.practiceHomesService.getPracticeHomeById(id, practiceId);
   }
 
@@ -52,7 +52,7 @@ export class PracticeHomesController {
   async create(
     @Req() request: Request,
     @Body(new ValidationPipe()) practiceHomeCreateDto: PracticeHomeCreateDto,
-  ): Promise<PracticeHome> {
+  ): Promise<PracticeHomesEntity> {
     const practiceEntity = request['practiceEntity'];
     return this.practiceHomesService.create(
       practiceHomeCreateDto,
@@ -64,7 +64,7 @@ export class PracticeHomesController {
   async update(
     @Param() { practiceId, id }: { practiceId: string; id: string },
     @Body() practiceHomePatchDto: PracticeHomePatchDto,
-  ): Promise<PracticeHome | null> {
+  ): Promise<PracticeHomesEntity | null> {
     return this.practiceHomesService.update(
       id,
       practiceHomePatchDto,

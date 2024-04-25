@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { UserPracticesService } from 'src/userPractices/userPractices.services';
 import { ENVIRONMENT_VARIABLES } from '../enums/environment.enums';
 import { UsersService } from '../users/users.service';
 import { SanitizedUser, SuperAdminUser } from './types';
@@ -13,7 +12,6 @@ export class AuthService {
     private usersService: UsersService,
     private jwtService: JwtService,
     private configService: ConfigService,
-    private userPracticeService: UserPracticesService,
   ) {}
 
   async validateUser(
@@ -71,7 +69,7 @@ export class AuthService {
   }
 
   async setUserPractices(payloadUser): Promise<void> {
-    payloadUser['userPractices'] =
-      await this.userPracticeService.getPracticesByUser(payloadUser.id);
+    const user = await this.usersService.getUserById(payloadUser.id);
+    payloadUser['practices'] = user?.practices;
   }
 }
