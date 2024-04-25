@@ -28,9 +28,9 @@ export class SurgeryTypeEntity extends BaseEntity implements ISurgeryType {
   })
   facility: string[];
 
-  @Column('jsonb')
+  @Column({ type: 'jsonb', nullable: true })
   options: SurgeryOptions;
 
-  @Column('jsonb')
+  @Column({ type: 'jsonb', nullable: true })
   checkList: SurgeryChecklist;
 }

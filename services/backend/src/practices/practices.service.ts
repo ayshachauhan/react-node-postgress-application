@@ -77,7 +77,10 @@ export class PracticesService {
   }
 
   async findOne(id: string): Promise<PracticeEntity | null> {
-    return await this.practicesRepository.findOneBy({ id });
+    return await this.practicesRepository.findOne({
+      where: { id },
+      relations: ['users'],
+    });
   }
 
   async remove(id: string): Promise<void> {

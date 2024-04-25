@@ -13,7 +13,6 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { SurgeryTypeEntity } from '@packages/entities';
-import { RequestWithData } from 'src/types';
 import { AuthGuard } from '../auth/auth.guard';
 import { PracticeNotFoundInterceptor } from '../interceptors/practiceNotFoundInterceptor';
 import {
@@ -58,10 +57,12 @@ export class SurgeryTypesController {
 
   @Post()
   async create(
-    @Req() request: RequestWithData,
+    @Req() request: Request,
     @Body(new ValidationPipe()) dto: CreateSurgeryTypeDto,
   ): Promise<SurgeryTypeEntity> {
-    return this.surgeryTypesService.create(dto, request.data.practice);
+    const practiceEntity = request['practiceEntity'];
+
+    return this.surgeryTypesService.create(dto, practiceEntity);
   }
 
   @Patch(':id/facility')

@@ -70,6 +70,6 @@ export class AuthService {
 
   async setUserPractices(payloadUser): Promise<void> {
     const user = await this.usersService.getUserById(payloadUser.id);
-    payloadUser['userPractices'] = user?.practices;
+    payloadUser['practices'] = user?.practices;
   }
 }

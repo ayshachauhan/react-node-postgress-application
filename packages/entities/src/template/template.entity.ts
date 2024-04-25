@@ -41,24 +41,24 @@ export class TemplateEntity extends BaseEntity implements ITemplate {
   @JoinColumn({ name: 'surgeryTypeId' })
   surgeryType: SurgeryTypeEntity;
 
-  @Column({ type: 'varchar' })
+  @Column({ type: 'varchar', nullable: true })
   emailSubject: string;
 
-  @Column({ type: 'varchar' })
+  @Column({ type: 'varchar', nullable: true })
   emailBody: string;
 
-  @Column({ type: 'varchar' })
+  @Column({ type: 'varchar', nullable: true })
   emailAttachment: string;
 
-  @Column({ type: 'varchar' })
+  @Column({ type: 'varchar', nullable: true })
   email1stCataract: string;
 
-  @Column({ type: 'varchar' })
+  @Column({ type: 'varchar', nullable: true })
   email2ndCataract: string;
 
-  @Column({ type: 'varchar' })
+  @Column({ type: 'varchar', nullable: true })
   messageText: string;
 
-  @Column({ type: 'varchar' })
+  @Column({ type: 'varchar', nullable: true })
   version: string;
 }
