@@ -154,14 +154,13 @@ const Dashboard: React.FC = () => {
             style: () => ({
               width: '1300px',
               maxWidth: '90%',
-              maxHeight: '90vh',
-              overflowY: 'auto',
             }),
           },
           Root: {
             style: ({ $theme }) => ({
               outline: `${$theme.colors.warning200} solid`,
               backgroundColor: 'rgba(0, 0, 0, 0.5)',
+              zIndex: 100,
             }),
           },
         }}
