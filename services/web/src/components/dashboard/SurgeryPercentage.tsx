@@ -35,40 +35,46 @@ const SurgeryPercentage: React.FC = () => {
   };
 
   const columnConfig: ColumnConfig<{ name: string; age: number }>[] = [
-    { title: 'Surgery', accessor: 'name', id: 'name' },
+    { title: 'Surgery', accessor: 'name', id: 'name', width: 100 },
     {
       title: '1',
       id: 'age',
+      width: 40,
       cellStyle: maxCellStyle,
       accessor: (row) => appendPercentageSign(row.age),
     },
     {
       title: '2',
       id: 'age',
+      width: 40,
       cellStyle: maxCellStyle,
       accessor: (row) => appendPercentageSign(row.age),
     },
     {
       title: '3',
       id: 'age',
+      width: 40,
       cellStyle: maxCellStyle,
       accessor: (row) => appendPercentageSign(row.age),
     },
     {
       title: '6',
       id: 'age',
+      width: 40,
       cellStyle: maxCellStyle,
       accessor: (row) => appendPercentageSign(row.age),
     },
     {
       title: '12',
       id: 'age',
+      width: 40,
       cellStyle: maxCellStyle,
       accessor: (row) => appendPercentageSign(row.age),
     },
     {
       title: 'All',
       id: 'age',
+      width: 40,
       cellStyle: maxCellStyle,
       accessor: (row) => appendPercentageSign(row.age),
     },
@@ -80,8 +86,10 @@ const SurgeryPercentage: React.FC = () => {
         Surgery Percentage
         <hr className="h-px my-2.5 bg-gray-100 border-1 border-gray-100"></hr>
       </div>
-      <div className="mt-2 text-xs">
-        <DataTable data={DUMMY_DATA} columns={columnConfig} />
+      <div className="overflow-x-auto">
+        <div className="mt-2 text-xs">
+          <DataTable data={DUMMY_DATA} columns={columnConfig} />
+        </div>
       </div>
     </div>
   );

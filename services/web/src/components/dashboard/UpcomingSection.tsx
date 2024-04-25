@@ -56,18 +56,19 @@ const UpcomingSection: React.FC = () => {
   };
 
   const columnConfig: ColumnConfig<{ name: string; age: number }>[] = [
-    { title: 'T', accessor: 'age', id: 'age' },
+    { title: 'T', accessor: 'age', id: 'age', width: 50 },
     {
       title: 'Date',
       accessor: 'name',
       id: 'name',
-      cellStyle: { whiteSpace: 'nowrap' },
+      width: 100,
     },
-    { title: 'Now', accessor: 'age', id: 'age' },
-    { title: 'Max', accessor: 'age', id: 'age' },
+    { title: 'Now', accessor: 'age', id: 'age', width: 50 },
+    { title: 'Max', accessor: 'age', id: 'age', width: 50 },
     {
       title: '',
       id: 'age',
+      width: 50,
       cellStyle: maxCellStyle,
       accessor: (row) => appendAddSign(row.age),
     },

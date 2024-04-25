@@ -14,9 +14,9 @@ const DUMMY_DATA = [
 
 const UsersListing: React.FC = () => {
   const columnConfig: ColumnConfig<{ name: string; age: number }>[] = [
-    { title: 'User', accessor: 'name', id: 'name' },
-    { title: 'Day', accessor: 'age', id: 'age' },
-    { title: 'Month', accessor: 'age', id: 'age' },
+    { title: 'User', accessor: 'name', id: 'name', width: 70 },
+    { title: 'Day', accessor: 'age', id: 'age', width: 50 },
+    { title: 'Month', accessor: 'age', id: 'age', width: 50 },
   ];
 
   return (

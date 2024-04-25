@@ -30,6 +30,13 @@ type Props<T extends object> = {
 function DataTable<T extends object>({ data, columns }: Props<T>) {
   const dataToRender = data;
 
+  const getWidthStyles = (col) => {
+    return {
+      maxWidth: col.width ? `${col.width}px` : 'initial',
+      width: col.width ? `${col.width}px` : 'initial',
+    };
+  };
+
   const renderTableCell = (
     row: T,
     column: ColumnConfig<T>,
@@ -51,7 +58,7 @@ function DataTable<T extends object>({ data, columns }: Props<T>) {
     };
 
     const maxWidthStyle: StyleObject = {
-      maxWidth: column.width ? `${column.width}px` : 'initial',
+      ...getWidthStyles(column),
       ...style,
     };
 
@@ -73,6 +80,7 @@ function DataTable<T extends object>({ data, columns }: Props<T>) {
             key={`head-${column.id}`}
             title={column.title}
             direction={null}
+            overrides={{ HeadCell: { style: getWidthStyles(column) } }}
           />
         ))}
       </StyledHead>
