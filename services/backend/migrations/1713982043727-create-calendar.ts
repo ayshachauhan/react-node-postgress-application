@@ -14,6 +14,11 @@ export class CreateCalendar1713982043727 implements MigrationInterface {
             default: 'uuid_generate_v4()',
           },
           {
+            name: 'practiceId',
+            type: 'uuid',
+            isNullable: false,
+          },
+          {
             name: 'userId',
             type: 'uuid',
             isNullable: false,
@@ -57,6 +62,12 @@ export class CreateCalendar1713982043727 implements MigrationInterface {
           },
         ],
         foreignKeys: [
+          {
+            columnNames: ['practiceId'],
+            referencedTableName: 'practices',
+            referencedColumnNames: ['id'],
+            onDelete: 'CASCADE',
+          },
           {
             columnNames: ['surgeryTypeId'],
             referencedTableName: 'surgery_types',
