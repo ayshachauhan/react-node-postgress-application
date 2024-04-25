@@ -2,9 +2,9 @@ import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { BaseEntity } from '../base.entity';
 import { InsuranceTypeEntity } from '../insuranceType';
 import { PatientEntity } from '../patient';
-import { PracticeHome } from '../practiceHomes';
+import { PracticeHomesEntity } from '../practiceHomes';
 import { SurgeryTypeEntity } from '../surgeryType';
-import { User } from '../user';
+import { UserEntity } from '../user';
 
 @Entity('surgeries')
 export class SurgeryEntity extends BaseEntity {
@@ -16,17 +16,17 @@ export class SurgeryEntity extends BaseEntity {
   @JoinColumn({ name: 'patientId' })
   patient: PatientEntity;
 
-  @ManyToOne(() => PracticeHome)
+  @ManyToOne(() => PracticeHomesEntity)
   @JoinColumn({ name: 'practiceHomeId' })
-  practiceHome: PracticeHome;
+  practiceHome: PracticeHomesEntity;
 
   @ManyToOne(() => InsuranceTypeEntity)
   @JoinColumn({ name: 'insuranceTypeId' })
   insuranceType: InsuranceTypeEntity;
 
-  @ManyToOne(() => User)
+  @ManyToOne(() => UserEntity)
   @JoinColumn({ name: 'doctorId' })
-  doctor: User;
+  doctor: UserEntity;
 
   @Column({ type: 'varchar' })
   insuranceDetails: string;

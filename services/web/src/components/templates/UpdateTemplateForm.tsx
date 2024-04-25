@@ -3,7 +3,7 @@ import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { selectRecords } from '@root/store/reducers/auth';
-import { fetchSurgeryTypes } from '@root/store/reducers/surgeryTypes';
+import { fetchListings as fetchSurgeryTypes } from '@root/store/reducers/surgeryTypes';
 import {
   deleteRecordAsync,
   fetchListings,
@@ -116,9 +116,7 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
     }
   }, [practiceId, dispatch]);
 
-  const surgeryTypes = useAppSelector(
-    (state) => state.surgeryTypes.surgeryTypes,
-  );
+  const surgeryTypes = useAppSelector((state) => state.surgeryTypes.entities);
   const surgeryTypeOptions = Object.keys(surgeryTypes).map((key) => ({
     label: surgeryTypes[key].name,
     id: surgeryTypes[key].id,
@@ -134,8 +132,9 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
         emailAttachment: updatedTemplateInfo.emailAttachment ?? '',
         emailBody: updatedTemplateInfo.emailBody ?? '',
         messageText: updatedTemplateInfo.messageText ?? '',
-        surgeryType:
-          updatedTemplateInfo.surgeryType ?? surgeryTypeOptions[0].id,
+        surgeryTypeId: updatedTemplateInfo.surgeryType
+          ? updatedTemplateInfo.surgeryType.id
+          : surgeryTypeOptions[0].id,
         practiceId: practiceId,
         userId: userId,
         id: templateId,

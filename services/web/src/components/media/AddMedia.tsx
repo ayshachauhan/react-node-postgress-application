@@ -3,15 +3,13 @@ import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { addRecordAsync } from '@root/store/reducers/media';
-import { fetchSurgeryTypes } from '@root/store/reducers/surgeryTypes';
+import { fetchListings as fetchSurgeryTypes } from '@root/store/reducers/surgeryTypes';
 import { getPracticeId } from '@utils/index';
 import { Select } from 'baseui/select';
 import React, { useEffect, useState } from 'react';
 
 const MediaPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
-  const surgeryTypes = useAppSelector(
-    (state) => state.surgeryTypes.surgeryTypes,
-  );
+  const surgeryTypes = useAppSelector((state) => state.surgeryTypes.entities);
   const surgeryTypeOptions = Object.keys(surgeryTypes).map((key) => ({
     label: surgeryTypes[key].name,
     id: surgeryTypes[key].id,

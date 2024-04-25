@@ -8,7 +8,7 @@ import {
   clearErrorMessage,
   clearSuccessMessage,
   deleteRecordAsync,
-  fetchSurgeryTypes,
+  fetchListings as fetchSurgeryTypes,
   selectError,
   selectSuccessMessage,
 } from '@root/store/reducers/surgeryTypes';
