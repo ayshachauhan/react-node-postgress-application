@@ -2,8 +2,8 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PracticeEntity } from '@packages/entities/practice';
 import { ReferrersEntity } from '@packages/entities/referrer';
-import { PracticeNotFoundInterceptor } from '../interceptors/practiceNotFoundInterceptor';
-import { PracticesModule } from '../practices/practices.module';
+import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
+import { PracticesModule } from 'src/practices/practices.module';
 import { ReferrersController } from './referrers.controller';
 import { ReferrersService } from './referrers.service';
 
@@ -13,6 +13,7 @@ import { ReferrersService } from './referrers.service';
     PracticesModule,
   ],
   controllers: [ReferrersController],
-  providers: [ReferrersService, PracticeNotFoundInterceptor],
+  providers: [ReferrersService, practiceNotFoundInterceptor],
+  exports: [ReferrersService],
 })
 export class ReferrersModule {}

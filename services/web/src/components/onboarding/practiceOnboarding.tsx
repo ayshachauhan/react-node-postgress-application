@@ -51,7 +51,7 @@ export default function PracticeOnboardPage() {
         dispatch(getPracticeInfo({ id: practiceId }));
       }
     }
-  }, []);
+  }, [practiceId]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

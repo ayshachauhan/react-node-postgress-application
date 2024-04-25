@@ -8,7 +8,7 @@ import { Observable } from 'rxjs';
 import { PracticesService } from '../practices/practices.service';
 
 @Injectable()
-export class PracticeNotFoundInterceptor<T>
+export class practiceNotFoundInterceptor<T>
   implements NestInterceptor<T | T[], T | T[]>
 {
   constructor(private readonly practicesService: PracticesService) {}

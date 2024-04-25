@@ -1,12 +1,16 @@
 import {
   GetTemplatesResponse,
+  IEval,
   IInsuranceType,
   IPracticeHomes,
   IReferrer,
+  ISurgery,
+  ISurgeryType,
+  IUser,
 } from '@packages/entities';
-import { IUser } from '@packages/entities/index.browser';
+import {} from '@packages/entities/index.browser';
+import { PracticesGetInterface } from 'src/store/requests/practices';
 import { GetUserResponse } from './requests/login/types';
-import { PracticesGetInterface } from './requests/practices';
 
 export enum EntityLoadingState {
   IDLE = 'idle',
@@ -32,6 +36,18 @@ export type AuthState = Omit<EntitiesState<IUser>, 'entities'> & {
 
 export type InsuranceTypeState = EntitiesState<IInsuranceType> & {
   insuranceTypeInfo: IInsuranceType | null;
+};
+
+export type SurgeryTypeState = EntitiesState<ISurgeryType> & {
+  surgeryTypeInfo: IInsuranceType | null;
+};
+
+export type EvalState = EntitiesState<IEval> & {
+  evalInfo: IEval | null;
+};
+
+export type SurgeryState = EntitiesState<ISurgery> & {
+  surgeryInfo: ISurgery | null;
 };
 
 export type PracticeHomeState = EntitiesState<IPracticeHomes>;

@@ -13,8 +13,8 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { AuthGuard } from '../auth/auth.guard';
-import { PracticeNotFoundInterceptor } from '../interceptors/practiceNotFoundInterceptor';
+import { AuthGuard } from 'src/auth/auth.guard';
+import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
 import { CreateReferrerDto } from './dtos/referrer.createDto';
 import { updateReferrerDto } from './dtos/referrer.updateDto';
 import { ReferrersService } from './referrers.service';
@@ -27,7 +27,7 @@ export class ReferrersController {
   constructor(private referrerService: ReferrersService) {}
 
   @Post()
-  @UseInterceptors(PracticeNotFoundInterceptor)
+  @UseInterceptors(practiceNotFoundInterceptor)
   createReferrer(
     @Param('practiceId') practiceId: string,
     @Body(new ValidationPipe()) referrerData: CreateReferrerDto,

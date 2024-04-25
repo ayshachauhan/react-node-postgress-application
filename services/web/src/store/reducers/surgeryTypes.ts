@@ -1,33 +1,21 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { State } from '@root/store';
+import { indexBy } from '@root/utils';
 import {
-  SurgeryTypeResponse,
   addSurgeryType,
   deleteSurgeryType,
   getSurgeryTypeInfo,
   getSurgeryTypes,
-} from '../requests/surgeryTypes';
-
-type EmptyObject = Record<string, never>;
-
-export interface SurgeryTypeState {
-  isProcessing: boolean;
-  entities: Record<string, SurgeryTypeResponse>;
-  surgeryTypes: SurgeryTypeResponse[];
-  SurgeryTypeInfo: SurgeryTypeResponse | EmptyObject;
-  status: 'idle' | 'loading' | 'failed';
-  successMessage: string | null;
-  error: string | null;
-}
+} from 'src/store/requests/surgeryTypes';
+import { EntityLoadingState, SurgeryTypeState } from 'src/store/types';
 
 const initialState: SurgeryTypeState = {
-  isProcessing: false,
+  processing: false,
   entities: {},
-  surgeryTypes: [],
-  SurgeryTypeInfo: {},
-  status: 'idle',
-  successMessage: null,
-  error: null,
+  status: EntityLoadingState.IDLE,
+  successMessage: undefined,
+  errorMessage: undefined,
+  surgeryTypeInfo: null,
 };
 
 const surgeryTypeSlice = createSlice({
@@ -35,90 +23,100 @@ const surgeryTypeSlice = createSlice({
   initialState,
   reducers: {
     clearSuccessMessage(state) {
-      state.successMessage = null;
+      state.successMessage = undefined;
     },
     clearErrorMessage(state) {
-      state.error = null;
+      state.errorMessage = undefined;
     },
   },
   extraReducers(builder) {
-    builder.addCase(fetchSurgeryTypes.pending, (state) => {
-      state.isProcessing = true;
-      state.status = 'loading';
+    builder.addCase(fetchListings.pending, (state) => {
+      state.processing = true;
+      state.status = EntityLoadingState.PENDING;
     });
 
-    builder.addCase(fetchSurgeryTypes.fulfilled, (state, action) => {
-      state.status = 'idle';
-      state.surgeryTypes = action.payload;
+    builder.addCase(fetchListings.fulfilled, (state, action) => {
+      state.status = EntityLoadingState.SUCCEEDED;
+      state.entities = {
+        ...state.entities,
+        ...indexBy('id', action.payload),
+      };
     });
 
-    builder.addCase(fetchSurgeryTypes.rejected, (state, action) => {
-      state.status = 'failed';
+    builder.addCase(fetchListings.rejected, (state, action) => {
+      state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
-        state.error = action.payload ?? 'Failed to fetch users';
+        state.errorMessage = action.payload ?? 'Failed to fetch surgery types';
       } else {
-        state.error = 'Failed to fetch users';
+        state.errorMessage = 'Failed to fetch surgery types';
       }
     });
     builder.addCase(fetchSurgeryTypeInfo.pending, (state) => {
-      state.isProcessing = true;
-      state.status = 'loading';
+      state.processing = true;
+      state.status = EntityLoadingState.PENDING;
     });
 
     builder.addCase(fetchSurgeryTypeInfo.fulfilled, (state, action) => {
-      state.status = 'idle';
-      state.SurgeryTypeInfo = action.payload;
+      state.status = EntityLoadingState.SUCCEEDED;
+      state.surgeryTypeInfo = action.payload;
     });
 
     builder.addCase(fetchSurgeryTypeInfo.rejected, (state, action) => {
-      state.status = 'failed';
+      state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
-        state.error = action.payload ?? 'Failed to fetch user info';
+        state.errorMessage =
+          action.payload ?? 'Failed to fetch surgery type info';
       } else {
-        state.error = 'Failed to fetch surgery type info';
+        state.errorMessage = 'Failed to fetch surgery type info';
       }
     });
 
     builder.addCase(addRecordAsync.pending, (state) => {
-      state.isProcessing = true;
-      state.status = 'loading';
+      state.processing = true;
+      state.status = EntityLoadingState.PENDING;
     });
 
     builder.addCase(addRecordAsync.fulfilled, (state, action) => {
-      state.status = 'idle';
-      state.surgeryTypes = [...state.surgeryTypes, action.payload];
+      state.status = EntityLoadingState.SUCCEEDED;
+      state.entities = {
+        ...state.entities,
+        ...{ [action.payload.id]: action.payload },
+      };
       state.successMessage = 'Record added successfully';
     });
 
     builder.addCase(addRecordAsync.rejected, (state, action) => {
-      state.status = 'failed';
+      state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
-        state.error = action.payload ?? 'Failed to add surgery type';
+        state.errorMessage = action.payload ?? 'Failed to add surgery type';
       } else {
-        state.error = 'Failed to add surgery type';
+        state.errorMessage = 'Failed to add surgery type';
       }
     });
 
     builder.addCase(deleteRecordAsync.pending, (state) => {
-      state.isProcessing = true;
-      state.status = 'loading';
+      state.processing = true;
+      state.status = EntityLoadingState.PENDING;
     });
 
     builder.addCase(deleteRecordAsync.fulfilled, (state, action) => {
-      state.status = 'idle';
+      state.status = EntityLoadingState.SUCCEEDED;
       const deletedSurgeryTypeId = action?.meta?.arg?.id;
-      state.surgeryTypes = state.surgeryTypes.filter(
-        (type) => type.id !== deletedSurgeryTypeId,
-      );
+      const {
+        // eslint-disable-next-line
+        [deletedSurgeryTypeId]: deletedInsuranceType,
+        ...remainingRecord
+      } = state.entities;
+      state.entities = remainingRecord;
       state.successMessage = 'Record deleted successfully';
     });
 
     builder.addCase(deleteRecordAsync.rejected, (state, action) => {
-      state.status = 'failed';
+      state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
-        state.error = action.payload ?? 'Failed to delete surgery type';
+        state.errorMessage = action.payload ?? 'Failed to delete surgery type';
       } else {
-        state.error = 'Failed to delete surgery type';
+        state.errorMessage = 'Failed to delete surgery type';
       }
     });
   },
@@ -126,7 +124,7 @@ const surgeryTypeSlice = createSlice({
 export const { clearSuccessMessage, clearErrorMessage } =
   surgeryTypeSlice.actions;
 
-export const fetchSurgeryTypes = createAsyncThunk(
+export const fetchListings = createAsyncThunk(
   'surgeryTypes/fetchSurgeryTypes',
   getSurgeryTypes,
 );
@@ -148,7 +146,7 @@ export const deleteRecordAsync = createAsyncThunk(
 
 export const selectRecords = (state: State) => state.surgeryTypes;
 export const selectStatus = (state: State) => state.surgeryTypes.status;
-export const selectError = (state: State) => state.surgeryTypes.error;
+export const selectError = (state: State) => state.surgeryTypes.errorMessage;
 export const selectSuccessMessage = (state: State) =>
   state.surgeryTypes.successMessage;
 export default surgeryTypeSlice.reducer;

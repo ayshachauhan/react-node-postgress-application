@@ -1,13 +1,16 @@
 import { Module } from '@nestjs/common';
 import { AuthModule } from './auth/auth.module';
+import { EvalsModule } from './evals/evals.module';
 import { HealthModule } from './healthz/health.module';
 import { createInfraModuleProviders } from './infra.module.provider';
 import { InsuranceTypesModule } from './insuranceTypes/insuranceTypes.module';
 import { MediaModule } from './media/media.module';
+import { PatientsModule } from './patients/patients.module';
 import { PermissionsModule } from './permissions/permissions.module';
 import { PracticeHomesModule } from './practiceHomes/practiceHomes.module';
 import { PracticesModule } from './practices/practices.module';
 import { ReferrersModule } from './referrers/referrers.module';
+import { SurgeryModule } from './surgery/surgery.module';
 import { SurgeryTypesModule } from './surgeryTypes/surgeryTypes.module';
 import { TemplatesModule } from './templates/templates.module';
 import { UserPermissionsModule } from './userPermissions/userPermissions.module';
@@ -31,6 +34,9 @@ import { UsersModule } from './users/users.module';
     TemplatesModule,
     SurgeryTypesModule,
     InsuranceTypesModule,
+    PatientsModule,
+    EvalsModule,
+    SurgeryModule,
   ],
 })
 export class AppModule {}

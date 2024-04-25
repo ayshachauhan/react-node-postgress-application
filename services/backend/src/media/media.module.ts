@@ -3,8 +3,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { VideoEntity } from '@packages/entities/media';
 import { PracticeEntity } from '@packages/entities/practice';
 import { SurgeryTypeEntity } from '@packages/entities/surgeryType';
-import { PracticeNotFoundInterceptor } from '../interceptors/practiceNotFoundInterceptor';
-import { PracticesModule } from '../practices/practices.module';
+import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
+import { PracticesModule } from 'src/practices/practices.module';
 import { MediaController } from './media.controller';
 import { MediaService } from './media.service';
 
@@ -14,6 +14,6 @@ import { MediaService } from './media.service';
     PracticesModule,
   ],
   controllers: [MediaController],
-  providers: [MediaService, PracticeNotFoundInterceptor],
+  providers: [MediaService, practiceNotFoundInterceptor],
 })
 export class MediaModule {}

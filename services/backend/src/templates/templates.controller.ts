@@ -12,8 +12,8 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { TemplateEntity } from '@packages/entities/template';
-import { AuthGuard } from '../auth/auth.guard';
-import { PracticeNotFoundInterceptor } from '../interceptors/practiceNotFoundInterceptor';
+import { AuthGuard } from 'src/auth/auth.guard';
+import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
 import { TemplateCreateDto } from './dto/template.createDto';
 import { TemplatePatchDto } from './dto/template.patchDto';
 import { TemplatesService } from './templates.service';
@@ -26,7 +26,7 @@ export class TemplatesController {
   constructor(private readonly templateService: TemplatesService) {}
 
   @Get()
-  @UseInterceptors(PracticeNotFoundInterceptor)
+  @UseInterceptors(practiceNotFoundInterceptor)
   async findAll(
     @Param() { practiceId, userId }: { practiceId: string; userId: string },
   ): Promise<TemplateEntity[]> {
@@ -34,7 +34,7 @@ export class TemplatesController {
   }
 
   @Post()
-  @UseInterceptors(PracticeNotFoundInterceptor)
+  @UseInterceptors(practiceNotFoundInterceptor)
   async create(
     @Body(new ValidationPipe()) templateCreateDto: TemplateCreateDto,
     @Param() { practiceId, userId }: { practiceId: string; userId: string },
@@ -47,7 +47,7 @@ export class TemplatesController {
   }
 
   @Patch(':id')
-  @UseInterceptors(PracticeNotFoundInterceptor)
+  @UseInterceptors(practiceNotFoundInterceptor)
   async update(
     @Body(new ValidationPipe()) templatePatchDto: TemplatePatchDto,
     @Param()

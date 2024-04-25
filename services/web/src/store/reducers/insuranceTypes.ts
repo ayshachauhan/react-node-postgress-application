@@ -5,8 +5,8 @@ import {
   deleteInsuranceType,
   getInsuranceTypeInfo,
   getInsuranceTypes,
-} from '../requests/insuranceTypes';
-import { EntityLoadingState, InsuranceTypeState } from '../types';
+} from 'src/store/requests/insuranceTypes';
+import { EntityLoadingState, InsuranceTypeState } from 'src/store/types';
 
 const initialState: InsuranceTypeState = {
   processing: false,
@@ -45,23 +45,24 @@ const insuranceTypesSlice = createSlice({
     builder.addCase(fetchListings.rejected, (state, action) => {
       state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
-        state.errorMessage = action.payload ?? 'Failed to fetch users';
+        state.errorMessage =
+          action.payload ?? 'Failed to fetch insurance types';
       } else {
-        state.errorMessage = 'Failed to fetch users';
+        state.errorMessage = 'Failed to fetch insurance types';
       }
       state.processing = false;
     });
-    builder.addCase(fetchSurgeryTypeInfo.pending, (state) => {
+    builder.addCase(fetchInsuranceTypeInfo.pending, (state) => {
       state.processing = true;
       state.status = EntityLoadingState.PENDING;
     });
 
-    builder.addCase(fetchSurgeryTypeInfo.fulfilled, (state, action) => {
+    builder.addCase(fetchInsuranceTypeInfo.fulfilled, (state, action) => {
       state.status = EntityLoadingState.SUCCEEDED;
       state.insuranceTypeInfo = action.payload;
     });
 
-    builder.addCase(fetchSurgeryTypeInfo.rejected, (state, action) => {
+    builder.addCase(fetchInsuranceTypeInfo.rejected, (state, action) => {
       state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
         state.errorMessage = action.payload ?? 'Failed to fetch user info';
@@ -87,9 +88,9 @@ const insuranceTypesSlice = createSlice({
     builder.addCase(addRecordAsync.rejected, (state, action) => {
       state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
-        state.errorMessage = action.payload ?? 'Failed to add surgery type';
+        state.errorMessage = action.payload ?? 'Failed to add insurance type';
       } else {
-        state.errorMessage = 'Failed to add surgery type';
+        state.errorMessage = 'Failed to add insurance type';
       }
     });
 
@@ -100,10 +101,10 @@ const insuranceTypesSlice = createSlice({
 
     builder.addCase(deleteRecordAsync.fulfilled, (state, action) => {
       state.status = EntityLoadingState.SUCCEEDED;
-      const deletedSurgeryTypeId = action?.meta?.arg?.id;
+      const deleteInsuranceTypeId = action?.meta?.arg?.id;
       const {
         // eslint-disable-next-line
-        [deletedSurgeryTypeId]: deletedInsuranceType,
+        [deleteInsuranceTypeId]: deletedInsuranceType,
         ...remainingRecord
       } = state.entities;
       state.entities = remainingRecord;
@@ -113,9 +114,10 @@ const insuranceTypesSlice = createSlice({
     builder.addCase(deleteRecordAsync.rejected, (state, action) => {
       state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
-        state.errorMessage = action.payload ?? 'Failed to delete surgery type';
+        state.errorMessage =
+          action.payload ?? 'Failed to delete insurance type';
       } else {
-        state.errorMessage = 'Failed to delete surgery type';
+        state.errorMessage = 'Failed to delete insurance type';
       }
     });
   },
@@ -128,8 +130,8 @@ export const fetchListings = createAsyncThunk(
   getInsuranceTypes,
 );
 
-export const fetchSurgeryTypeInfo = createAsyncThunk(
-  'insuranceTypes/fetchSurgeryTypeInfo',
+export const fetchInsuranceTypeInfo = createAsyncThunk(
+  'insuranceTypes/fetchInsuranceTypeInfo',
   getInsuranceTypeInfo,
 );
 

@@ -59,6 +59,7 @@ export interface ITemplateUpdate {
   meridiem?: string;
   messageType?: string;
   surgeryType?: ISurgeryType;
+  surgeryTypeId?: string;
   emailSubject?: string;
   emailBody?: string;
   emailAttachment?: string;

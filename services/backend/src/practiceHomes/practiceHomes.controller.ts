@@ -13,8 +13,8 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { PracticeHomesEntity } from '@packages/entities/practiceHomes';
+import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
 import { AuthGuard } from '../auth/auth.guard';
-import { PracticeNotFoundInterceptor } from '../interceptors/practiceNotFoundInterceptor';
 import { PracticeHomeCreateDto } from './dto/create.dto';
 import { PracticeHomePatchDto } from './dto/patch.dto';
 import { PracticeHomesService } from './practiceHomes.service';
@@ -48,7 +48,7 @@ export class PracticeHomesController {
   }
 
   @Post()
-  @UseInterceptors(PracticeNotFoundInterceptor)
+  @UseInterceptors(practiceNotFoundInterceptor)
   async create(
     @Req() request: Request,
     @Body(new ValidationPipe()) practiceHomeCreateDto: PracticeHomeCreateDto,
