@@ -12,13 +12,14 @@ import {
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CalendarEntity } from '@packages/entities';
 import { AuthGuard } from 'src/auth/auth.guard';
-import { PracticeNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
+import { practiceNotFoundInterceptor } from '../interceptors/practiceNotFoundInterceptor';
 import { CalendarService } from './calendar.service';
-import { CreateCalendarDto } from './dto/calendar.dto';
+import { CreateCalendarDto, UpdateCalendarDto } from './dto/calendar.dto';
 import type {
   CreateCalendarParams,
   GetCalendarByIdParams,
   GetCalendarsParams,
+  UpdateCalendarParams,
 } from './types';
 
 @ApiTags('Calendar')
@@ -29,7 +30,7 @@ export class CalendarController {
   constructor(private calendarService: CalendarService) {}
 
   @Get()
-  @UseInterceptors(PracticeNotFoundInterceptor)
+  @UseInterceptors(practiceNotFoundInterceptor)
   getCalendars(
     @Param()
     params: GetCalendarsParams,
@@ -38,7 +39,7 @@ export class CalendarController {
   }
 
   @Get(':id')
-  @UseInterceptors(PracticeNotFoundInterceptor)
+  @UseInterceptors(practiceNotFoundInterceptor)
   getCalendarById(
     @Param() params: GetCalendarByIdParams,
   ): Promise<CalendarEntity> {
@@ -46,7 +47,7 @@ export class CalendarController {
   }
 
   @Post()
-  @UseInterceptors(PracticeNotFoundInterceptor)
+  @UseInterceptors(practiceNotFoundInterceptor)
   createCalendar(
     @Param() params: CreateCalendarParams,
     @Body(new ValidationPipe()) calendarDTO: CreateCalendarDto,
@@ -54,13 +55,12 @@ export class CalendarController {
     return this.calendarService.createCalendar(params, calendarDTO);
   }
 
-  // @Patch(':id')
-  // @UseInterceptors(PracticeNotFoundInterceptor)
-  // updateCalendarByPracticeId(
-  //   @Param('practiceId') practiceId: string,
-  //   @Param('id') id: string,
-  //   @Body(new ValidationPipe()) videoData: UpdateVideoDto,
-  // ) {
-  //   return this.calendarService.updateCalendar(practiceId, id, videoData);
-  // }
+  @Patch(':id')
+  @UseInterceptors(practiceNotFoundInterceptor)
+  updateCalendarByPracticeId(
+    @Param() params: UpdateCalendarParams,
+    @Body(new ValidationPipe()) updateDTO: UpdateCalendarDto,
+  ) {
+    return this.calendarService.updateCalendar(params, updateDTO);
+  }
 }

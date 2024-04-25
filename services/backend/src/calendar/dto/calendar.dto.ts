@@ -16,3 +16,15 @@ export class CreateCalendarDto {
   @Min(0)
   maxSlots: number;
 }
+
+export class UpdateCalendarDto {
+  @IsNotEmpty()
+  @ApiProperty()
+  availableSlots: number;
+
+  @IsNotEmpty()
+  @ApiProperty()
+  @Max(14)
+  @Min(0)
+  maxSlots: number;
+}

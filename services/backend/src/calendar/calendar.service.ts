@@ -1,10 +1,16 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  NotFoundException,
+  forwardRef,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { UserEntity } from '@packages/entities/*';
 import { CalendarEntity } from '@packages/entities/calendar';
-import { Video } from '@packages/entities/media';
 import { Repository } from 'typeorm';
 import { PracticesService } from '../practices/practices.service';
-import { CreateCalendarDto } from './dto/calendar.dto';
+import { SurgeryTypesService } from '../surgeryTypes/surgeryTypes.service';
+import { CreateCalendarDto, UpdateCalendarDto } from './dto/calendar.dto';
 import {
   CreateCalendarParams,
   GetCalendarByIdParams,
@@ -15,8 +21,11 @@ import {
 export class CalendarService {
   constructor(
     @InjectRepository(CalendarEntity)
-    private readonly calendarRepo: Repository<CalendarEntity>,
+    private calendarRepo: Repository<CalendarEntity>,
+    @Inject(forwardRef(() => PracticesService))
     private practiceService: PracticesService,
+    @Inject(forwardRef(() => SurgeryTypesService))
+    private surgeryTypeService: SurgeryTypesService,
   ) {}
 
   /**
@@ -43,9 +52,9 @@ export class CalendarService {
   }
 
   /**
-   *
+   * Get calendar by calendarid
    * @param params
-   * @returns
+   * @returns CalendarEntity
    */
   async getCalendarById(
     params: GetCalendarByIdParams,
@@ -59,30 +68,52 @@ export class CalendarService {
     return response;
   }
 
+  /**
+   * Create Calendar
+   * @param param0
+   * @param dto
+   * @returns
+   */
   async createCalendar(
     { practiceId, userId, surgeryTypeId }: CreateCalendarParams,
     dto: CreateCalendarDto,
-  ): Promise<Video> {
+  ): Promise<> {
     const practiceEntity = await this.practiceService.findOne(practiceId);
 
-    const video = this.calendarRepo.create({
+    const userEntity = practiceEntity?.users.find(
+      (user: UserEntity) => user.id === userId,
+    );
+
+    const surgeryTypeEntity = await this.surgeryTypeService.getSurgeryTypeById(
+      surgeryTypeId,
+      practiceId,
+    );
+
+    return await this.calendarRepo.save({
+      ...dto,
       practice: practiceEntity,
-      surgeryType: 
+      surgeryType: surgeryTypeEntity,
+      user: userEntity,
     });
-    return await this.calendarRepo.save(video);
   }
 
   async updateCalendar(
-    practiceId: string,
-    videoId: string,
-    videoData: Partial<Video>,
-  ): Promise<Video | undefined> {
-    const video = await this.getcalendarRepoById(practiceId, videoId);
-    const updatedVideo = this.calendarRepo.merge(video, videoData);
-    return this.calendarRepo.save(updatedVideo);
-  }
+    { practiceId, userId, surgeryTypeId, id }: CreateCalendarParams,
+    { maxSlots, availableSlots }: UpdateCalendarDto,
+  ): Promise<CalendarEntity> {
+    const practiceEntity = await this.practiceService.findOne(practiceId);
 
-  async deleteCalendar(practiceId: string, videoId: string): Promise<void> {
-    await this.calendarRepo.softDelete({ id: videoId, practiceId });
+    const userEntity = practiceEntity?.users.find(
+      (user: UserEntity) => user.id === userId,
+    );
+
+    const surgeryTypeEntity = await this.surgeryTypeService.getSurgeryTypeById(
+      surgeryTypeId,
+      practiceId,
+    );
+    const updateCalendar = await this.calendarRepo.update(id, {
+      maxSlots,
+      availableSlots,
+    });
   }
 }
