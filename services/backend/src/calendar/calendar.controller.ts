@@ -60,7 +60,7 @@ export class CalendarController {
   updateCalendarByPracticeId(
     @Param() params: UpdateCalendarParams,
     @Body(new ValidationPipe()) updateDTO: UpdateCalendarDto,
-  ) {
+  ): Promise<CalendarEntity | null> {
     return this.calendarService.updateCalendar(params, updateDTO);
   }
 }

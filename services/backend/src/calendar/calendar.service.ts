@@ -15,6 +15,7 @@ import {
   CreateCalendarParams,
   GetCalendarByIdParams,
   GetCalendarsParams,
+  UpdateCalendarParams,
 } from './types';
 
 @Injectable()
@@ -97,23 +98,21 @@ export class CalendarService {
     });
   }
 
+  /**
+   * Update the calendar's available and maximum slots
+   * @param param0
+   * @param param1
+   * @returns CalendarEntity | null
+   */
   async updateCalendar(
-    { practiceId, userId, surgeryTypeId, id }: CreateCalendarParams,
+    { id }: UpdateCalendarParams,
     { maxSlots, availableSlots }: UpdateCalendarDto,
-  ): Promise<CalendarEntity> {
-    const practiceEntity = await this.practiceService.findOne(practiceId);
-
-    const userEntity = practiceEntity?.users.find(
-      (user: UserEntity) => user.id === userId,
-    );
-
-    const surgeryTypeEntity = await this.surgeryTypeService.getSurgeryTypeById(
-      surgeryTypeId,
-      practiceId,
-    );
-    const updateCalendar = await this.calendarRepo.update(id, {
+  ): Promise<CalendarEntity | null> {
+    await this.calendarRepo.update(id, {
       maxSlots,
       availableSlots,
     });
+
+    return await this.calendarRepo.findOne(id);
   }
 }
