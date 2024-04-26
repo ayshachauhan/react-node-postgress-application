@@ -1,12 +1,10 @@
 'use client';
-import { UserType } from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import { AddIcon, DeleteIcon, EditIcon } from '@root/components/Icons';
 import AddReferrerModal from '@root/components/referrer/AddReferrerModal';
 import EditReferrerModal from '@root/components/referrer/EditReferrerModal';
 import ReferredListModal from '@root/components/referrer/ReferredListModal';
 import { useAppDispatch, useAppSelector } from '@root/store';
-import { selectRecords } from '@root/store/reducers/auth';
 import {
   clearErrorMessage,
   clearSuccessMessage,
@@ -14,12 +12,10 @@ import {
   fetchListings,
 } from '@root/store/reducers/referrer';
 import { generateFullName, getPracticeId } from '@utils/index';
-import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import DeleteReferrerModal from './DeleteReferrerModal';
 
 export default function ReferrerTable() {
-  const router = useRouter();
   const practiceId = getPracticeId();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const handleCloseModal = (): void => {
@@ -32,7 +28,6 @@ export default function ReferrerTable() {
     Object.values(state.referrers.entities),
   );
   const [showModal, setShowModal] = useState(false);
-  const userInfo = useAppSelector(selectRecords);
   const [showErrorMessage, setShowErrorMessage] = useState(false);
   const { successMessage, errorMessage } = useAppSelector((state) => ({
     successMessage: state.referrers.successMessage,
@@ -83,11 +78,6 @@ export default function ReferrerTable() {
     setReferrerId(null);
   };
   const dispatch = useAppDispatch();
-  useEffect(() => {
-    if (userInfo && userInfo?.type !== UserType.ADMIN) {
-      router.push('practices');
-    }
-  }, [userInfo, router]);
 
   useEffect(() => {
     if (practiceId !== null) {
