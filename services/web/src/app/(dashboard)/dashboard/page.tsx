@@ -160,7 +160,6 @@ const Dashboard: React.FC = () => {
             style: ({ $theme }) => ({
               outline: `${$theme.colors.warning200} solid`,
               backgroundColor: 'rgba(0, 0, 0, 0.5)',
-              zIndex: 100,
             }),
           },
         }}
