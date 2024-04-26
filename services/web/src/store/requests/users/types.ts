@@ -36,7 +36,6 @@ export interface AddUser {
   fullName: string;
   email: string;
   url: string;
-  status: UserStatus;
   type: UserType;
   practiceId: string;
 }
