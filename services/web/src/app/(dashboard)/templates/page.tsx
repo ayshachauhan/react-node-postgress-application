@@ -1,5 +1,4 @@
 'use client';
-import { UserType } from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import { AddIcon } from '@root/components/Icons';
 import AddTemplateModal from '@root/components/templates/AddTemplateModal';
@@ -12,7 +11,6 @@ import {
   fetchListings,
 } from '@root/store/reducers/templates';
 import { getPracticeId } from '@utils/index';
-import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 const Templates: React.FC = () => {
   const templates = useAppSelector((state) =>
@@ -32,7 +30,6 @@ const Templates: React.FC = () => {
     errorMessage: state.templates.errorMessage,
   }));
   const [showErrorMessage, setShowErrorMessage] = useState(false);
-  const router = useRouter();
   const handleOpenAddModal = (): void => {
     setIsAddModalOpen(true);
   };
@@ -60,11 +57,6 @@ const Templates: React.FC = () => {
   };
   const userInfo = useAppSelector(selectRecords);
   const userId = userInfo?.id;
-  useEffect(() => {
-    if (userInfo && userInfo?.type !== UserType.ADMIN) {
-      router.push('practices');
-    }
-  }, [userInfo, router]);
 
   useEffect(() => {
     if (practiceId && userId) {

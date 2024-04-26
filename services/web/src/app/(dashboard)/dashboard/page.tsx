@@ -154,8 +154,6 @@ const Dashboard: React.FC = () => {
             style: () => ({
               width: '1300px',
               maxWidth: '90%',
-              maxHeight: '90vh',
-              overflowY: 'auto',
             }),
           },
           Root: {

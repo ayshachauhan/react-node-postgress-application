@@ -1,5 +1,4 @@
 'use client';
-import { UserType } from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import {
   AddIcon,
@@ -47,13 +46,6 @@ export default function UserPage() {
     errorMessage: state.users.errorMessage,
   }));
   const router = useRouter();
-
-  useEffect(() => {
-    if (userInfo && userInfo?.type !== UserType.ADMIN) {
-      // Perform the redirect inside the useEffect
-      router.push('practices');
-    }
-  }, [userInfo, router]);
 
   useEffect(() => {
     if (practiceId !== null) {
