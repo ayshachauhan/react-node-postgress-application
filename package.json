@@ -6,7 +6,7 @@
   "packageManager": "pnpm@8.10.5",
   "private": true,
   "scripts": {
-    "turbo": "./node_modules/turbo/bin/turbo",
+    "turbo": "node ./node_modules/turbo/bin/turbo",
     "start:dev": "dotenv -e .env -- pnpm turbo start:dev",
     "start:prod": "dotenv -e .env -- pnpm turbo start:prod",
     "build": "dotenv -e .env -- pnpm turbo build",

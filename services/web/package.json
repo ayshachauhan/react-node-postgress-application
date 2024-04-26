@@ -8,7 +8,7 @@
     "lint": "next lint",
     "lint:fix": "next lint --fix",
     "start:dev": "node server.js",
-    "build": "NODE_ENV=production next build",
+    "build": "SET NODE_ENV=production next build",
     "start": "next start"
   },
   "dependencies": {
