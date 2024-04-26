@@ -34,4 +34,8 @@ export class CreateUserDto {
   @IsNotEmpty({ message: 'contact number is required' })
   @ApiProperty()
   contactNumber: string;
+
+  @IsOptional()
+  @ApiProperty()
+  permissionIds: string[];
 }

@@ -13,6 +13,7 @@ import { UserEntity, UserStatus, UserType } from '@packages/entities/user';
 import * as bcrypt from 'bcrypt';
 import Mail from 'nodemailer/lib/mailer';
 import { ENVIRONMENT_VARIABLES } from 'src/enums/environment.enums';
+import { PermissionsService } from 'src/permissions/permissions.service';
 import { PracticesService } from 'src/practices/practices.service';
 import { TransporterService } from 'src/transporter';
 import { SystemTemplates } from 'src/transporter/transporter.types';
@@ -28,6 +29,7 @@ export class UsersService {
     private usersRepository: Repository<UserEntity>,
     @Inject(forwardRef(() => PracticesService))
     private readonly practicesService: PracticesService,
+    private readonly permissionsService: PermissionsService,
     private readonly configService: ConfigService,
     private readonly transporterService: TransporterService,
     private jwtService: JwtService,
@@ -46,6 +48,7 @@ export class UsersService {
     practiceId: string,
   ): Promise<SanitizedUser> {
     const { firstName, lastName } = createUserDto;
+    const { permissionIds } = createUserDto;
     const fullName = `${firstName}_${lastName}`;
     const hashedDefaultPassword = await bcrypt.hash(
       this.defaultUserPassword(),
@@ -62,11 +65,15 @@ export class UsersService {
         throw new HttpException('Practice not found', HttpStatus.NOT_FOUND);
       }
 
+      const permissionEntities =
+        await this.permissionsService.getPermissionByIds(permissionIds);
+
       const newUser: UserEntity = this.usersRepository.create({
         ...createUserDto,
         fullName,
         password: hashedDefaultPassword,
         practices: [practiceEntity],
+        permissions: permissionEntities || [],
       });
 
       const resultUser = await this.usersRepository.save(newUser);

@@ -1,7 +1,7 @@
 import { IUser } from '@packages/entities/index.browser';
 import { ApiService } from '@root/services/apiclient';
 import { SanitizedUser } from '@root/store/types';
-import { AddUser, ChangePasswordInterface, EditUser } from '.';
+import { ChangePasswordInterface, EditUser } from '.';
 
 const apiClient = new ApiService();
 
@@ -67,7 +67,15 @@ export const getUserInfo = async (
  * @returns
  */
 export const addUser = async (
-  payloadData: AddUser,
+  payloadData: Omit<
+    IUser,
+    | 'password'
+    | 'practices'
+    | 'id'
+    | 'dateCreated'
+    | 'dateUpdated'
+    | 'permissions'
+  >,
   { rejectWithValue },
 ): Promise<SanitizedUser> => {
   try {
