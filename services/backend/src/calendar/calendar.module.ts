@@ -2,7 +2,7 @@ import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CalendarController } from './calendar.controller';
 
-import { CalendarEntity } from '@packages/entities/*';
+import { CalendarEntity } from '@packages/entities';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
 import { PracticesModule } from '../practices/practices.module';
 import { SurgeryTypesModule } from '../surgeryTypes/surgeryTypes.module';
