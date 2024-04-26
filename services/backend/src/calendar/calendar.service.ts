@@ -78,7 +78,7 @@ export class CalendarService {
   async createCalendar(
     { practiceId, userId, surgeryTypeId }: CreateCalendarParams,
     dto: CreateCalendarDto,
-  ): Promise<> {
+  ): Promise<CalendarEntity> {
     const practiceEntity = await this.practiceService.findOne(practiceId);
 
     const userEntity = practiceEntity?.users.find(
@@ -90,12 +90,15 @@ export class CalendarService {
       practiceId,
     );
 
-    return await this.calendarRepo.save({
+    //TODO: need to check why we need to add the ! operator here, giving typeerror whithout them
+    const calendar = this.calendarRepo.create({
       ...dto,
-      practice: practiceEntity,
-      surgeryType: surgeryTypeEntity,
-      user: userEntity,
+      practice: practiceEntity!,
+      surgeryType: surgeryTypeEntity!,
+      user: userEntity!,
     });
+
+    return this.calendarRepo.save(calendar);
   }
 
   /**
@@ -113,6 +116,6 @@ export class CalendarService {
       availableSlots,
     });
 
-    return await this.calendarRepo.findOne(id);
+    return await this.calendarRepo.findOne({ where: { id } });
   }
 }

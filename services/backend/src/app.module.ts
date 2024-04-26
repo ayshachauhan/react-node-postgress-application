@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { AuthModule } from './auth/auth.module';
+import { CalendarModule } from './calendar/calendar.module';
 import { EvalsModule } from './evals/evals.module';
 import { HealthModule } from './healthz/health.module';
 import { createInfraModuleProviders } from './infra.module.provider';
@@ -37,6 +38,7 @@ import { UsersModule } from './users/users.module';
     PatientsModule,
     EvalsModule,
     SurgeryModule,
+    CalendarModule,
   ],
 })
 export class AppModule {}

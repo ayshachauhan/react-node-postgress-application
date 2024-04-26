@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, Max, Min } from 'class-validator';
+import { IsNotEmpty, IsOptional, Max, Min } from 'class-validator';
 
 export class CreateCalendarDto {
   @IsNotEmpty()
@@ -18,13 +18,13 @@ export class CreateCalendarDto {
 }
 
 export class UpdateCalendarDto {
-  @IsNotEmpty()
+  @IsOptional()
   @ApiProperty()
-  availableSlots: number;
+  availableSlots?: number;
 
-  @IsNotEmpty()
+  @IsOptional()
   @ApiProperty()
   @Max(14)
   @Min(0)
-  maxSlots: number;
+  maxSlots?: number;
 }

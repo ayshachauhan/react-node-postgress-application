@@ -22,6 +22,7 @@ import type {
   UpdateCalendarParams,
 } from './types';
 
+@UseInterceptors(practiceNotFoundInterceptor)
 @ApiTags('Calendar')
 @ApiBearerAuth('normal')
 @Controller('/practices/:practiceId/users/:userId/:surgeryTypeId/calendar')
@@ -30,7 +31,6 @@ export class CalendarController {
   constructor(private calendarService: CalendarService) {}
 
   @Get()
-  @UseInterceptors(practiceNotFoundInterceptor)
   getCalendars(
     @Param()
     params: GetCalendarsParams,
@@ -39,7 +39,6 @@ export class CalendarController {
   }
 
   @Get(':id')
-  @UseInterceptors(practiceNotFoundInterceptor)
   getCalendarById(
     @Param() params: GetCalendarByIdParams,
   ): Promise<CalendarEntity> {
@@ -47,16 +46,14 @@ export class CalendarController {
   }
 
   @Post()
-  @UseInterceptors(practiceNotFoundInterceptor)
   createCalendar(
     @Param() params: CreateCalendarParams,
     @Body(new ValidationPipe()) calendarDTO: CreateCalendarDto,
-  ) {
+  ): Promise<CalendarEntity> {
     return this.calendarService.createCalendar(params, calendarDTO);
   }
 
   @Patch(':id')
-  @UseInterceptors(practiceNotFoundInterceptor)
   updateCalendarByPracticeId(
     @Param() params: UpdateCalendarParams,
     @Body(new ValidationPipe()) updateDTO: UpdateCalendarDto,
