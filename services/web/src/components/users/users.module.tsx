@@ -6,8 +6,8 @@ import {
   EditIcon,
   ViewIcon,
 } from '@root/components/Icons';
-import Form from '@root/components/users/addUser.module';
-import EditUser from '@root/components/users/editUser.module';
+import AddUserModal from '@root/components/users/AddUserModal';
+import EditUserModal from '@root/components/users/EditUserModal';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { selectRecords } from '@root/store/reducers/auth';
 import { getPracticeInfo } from '@root/store/reducers/practices';
@@ -137,71 +137,6 @@ export default function UserPage() {
     setUserId(null);
   };
 
-  const UserAddModal = () => {
-    return (
-      <Modal
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-        closeable
-        animate
-        autoFocus
-        size={SIZE.default}
-        role={ROLE.dialog}
-        overrides={{
-          Root: {
-            style: ({ $theme }) => ({
-              outline: `${$theme.colors.warning200} solid`,
-              backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            }),
-          },
-        }}
-      >
-        <ModalHeader
-          $style={{
-            fontSize: '1.25rem',
-            fontWeight: 700,
-            borderBottom: '1px solid rgba(244, 244, 245, 1)',
-            paddingBottom: '8px',
-          }}
-        >
-          Add New User
-        </ModalHeader>
-        <ModalBody>
-          <Form onClose={handleCloseModal} />
-        </ModalBody>
-      </Modal>
-    );
-  };
-  const UserEditModal = () => {
-    return (
-      <Modal
-        isOpen={isEditModalOpen}
-        onClose={handleCloseEditModal}
-        closeable
-        animate
-        autoFocus
-        size={SIZE.default}
-        role={ROLE.dialog}
-        overrides={{
-          Root: {
-            style: ({ $theme }) => ({
-              outline: `${$theme.colors.warning200} solid`,
-              backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            }),
-          },
-        }}
-      >
-        <ModalHeader $style={{ fontSize: '1.25rem', fontWeight: 700 }}>
-          Edit User
-        </ModalHeader>
-        <ModalBody>
-          {userId !== null && (
-            <EditUser data={{ id: userId }} onClose={handleCloseEditModal} />
-          )}
-        </ModalBody>
-      </Modal>
-    );
-  };
   const UserDeleteModal = () => {
     return (
       <Modal
@@ -248,27 +183,20 @@ export default function UserPage() {
         />
       </div>
       <hr className="h-px my-2.5 bg-gray-100 border-1 dark:bg-gray-700"></hr>
-      <div className="text-gray-50 w-full  items-center  bg-gray-50 py-4 rounded-lg">
+      <div className="text-gray-50 w-full  items-center  bg-gray-50 py-4 rounded-lg text-sm">
         <div className="bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 grid grid-cols-10 rounded-lg">
-          <div className="font-bold text-white p-4">S. No.</div>
-          {/* <div className="font-bold text-white p-4">Location</div> */}
           <div className="font-bold text-white p-4">Username</div>
           <div className="font-bold text-white p-4">Email</div>
           <div className="font-bold text-white p-4">Practice Name</div>
           <div className="font-bold text-white p-4">Display Name</div>
           <div className="font-bold text-white p-4">Contact No.</div>
           <div className="font-bold text-white p-4">Designation</div>
-          <div className="font-bold text-white p-4">User URL</div>
+          <div className="font-bold text-white p-4">Permissions</div>
+          <div className="font-bold text-white p-4">Social Media URL</div>
           <div className="font-bold text-white p-4">Status</div>
           <div className="font-bold text-white p-4">Action</div>
-          {filteredUsers.map((data, index) => (
+          {filteredUsers.map((data) => (
             <React.Fragment key={data.id}>
-              <div className="text-gray-900 bg-gray-50 pt-2 px-4">
-                {index + 1}
-              </div>
-              {/* <div className="text-gray-900 bg-gray-50 pt-2 px-4">
-                
-              </div> */}
               <div className="text-gray-900 bg-gray-50 pt-2 px-4">
                 {data.userName}
               </div>
@@ -283,6 +211,9 @@ export default function UserPage() {
               </div>
               <div className="text-gray-900 bg-gray-50 pt-2 px-4">
                 {data.contactNumber}
+              </div>
+              <div className="text-gray-900 bg-gray-50 pt-2 px-4">
+                {data.type}
               </div>
               <div className="text-gray-900 bg-gray-50 pt-2 px-4">
                 {data.type}
@@ -327,8 +258,15 @@ export default function UserPage() {
           ))}
         </div>
       </div>
-      <UserAddModal />
-      <UserEditModal />
+      <AddUserModal
+        isModalOpen={isModalOpen}
+        handleCloseModal={handleCloseModal}
+      />
+      <EditUserModal
+        isEditModalOpen={isEditModalOpen}
+        handleCloseEditModal={handleCloseEditModal}
+        userId={userId}
+      />
       <UserDeleteModal />
     </div>
   );

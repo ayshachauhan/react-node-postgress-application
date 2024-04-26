@@ -4,19 +4,30 @@ import { AvatarIcon } from '@root/components/Icons';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { selectRecords } from '@root/store/reducers/auth';
 import { getPracticeInfo } from '@root/store/reducers/practices';
+import { fetchListings as fetchPermissions } from '@root/store/reducers/userPermissions';
 import { getPracticeId } from '@utils/index';
+import { Checkbox } from 'baseui/checkbox';
 import { useRouter } from 'next/navigation';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
 const Profile: React.FC = () => {
   const dispatch = useAppDispatch();
+  const permissions = useAppSelector((state) =>
+    Object.values(state.permissions.entities),
+  );
   const userInfo = useAppSelector(selectRecords);
   const userPracticeId = getPracticeId();
+  const [checkboxes] = useState(() => Array(permissions.length).fill(false));
   useEffect(() => {
     if (userPracticeId) {
       dispatch(getPracticeInfo({ id: userPracticeId }));
     }
   }, [userPracticeId, dispatch]);
+
+  useEffect(() => {
+    dispatch(fetchPermissions(undefined));
+  }, []);
+
   const practiceName = useAppSelector(
     (state) => state.practices.practiceInfo?.name,
   );
@@ -86,6 +97,42 @@ const Profile: React.FC = () => {
             <span className="font-bold">Practice Name</span>{' '}
             <span>: {practiceName}</span>
           </p>
+        </div>
+      </div>
+      <div className="ml-64 mt-6">
+        <span className="font-bold">Permissions </span>
+        <div className="grid grid-cols-3 gap-3.5 mt-2">
+          {permissions.map((label, index) => (
+            <Checkbox
+              key={index}
+              checked={checkboxes[index]}
+              overrides={{
+                Checkmark: {
+                  style: ({ $checked }) => ({
+                    backgroundColor: $checked
+                      ? 'rgba(34, 197, 94, 1)'
+                      : 'white',
+                    borderColor: $checked
+                      ? 'rgba(34, 197, 94, 1)'
+                      : 'rgba(113, 113, 122, 1)',
+                    width: '15px',
+                    height: '15px',
+                    marginTop: '7px',
+                    marginRight: '0px',
+                    borderRadius: '2px',
+                    borderWidth: '2px',
+                  }),
+                },
+              }}
+            >
+              <label
+                htmlFor={`checkbox-${index}`}
+                className="text-black text-sm font-normal"
+              >
+                <span className="truncate">{label.name}</span>
+              </label>
+            </Checkbox>
+          ))}
         </div>
       </div>
     </div>
