@@ -3,11 +3,11 @@ import { IInsuranceType, IPracticeHomes, IReferrer } from '@packages/entities';
 import { ISurgeryType } from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import { AddIcon } from '@root/components/Icons';
+import Form from '@root/components/dashboard/AddSurgery';
 import FiltersSection from '@root/components/dashboard/FiltersSection';
 import SurgeryPercentage from '@root/components/dashboard/SurgeryPercentage';
 import UpcomingSection from '@root/components/dashboard/UpcomingSection';
 import UsersListing from '@root/components/dashboard/UsersListing';
-import Form from '@root/components/dashboard/addSurgery.module';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import {
   clearSuccessMessage as clearEvalSuccessMessage,
@@ -27,7 +27,7 @@ import { getPracticeId } from '@root/utils';
 import { Modal, ModalBody, ROLE, SIZE } from 'baseui/modal';
 
 import React, { useEffect, useState } from 'react';
-const IndexPage: React.FC = () => {
+const DashboardPage: React.FC = () => {
   const dispatch = useAppDispatch();
   const practiceId = getPracticeId();
   const { successMessage: addSurgerySuccessMessage } = useAppSelector(
@@ -227,4 +227,4 @@ const IndexPage: React.FC = () => {
   );
 };
 
-export default IndexPage;
+export default DashboardPage;

@@ -1,5 +1,5 @@
-import IndexPage from '@components/dashboard/IndexPage';
+import DashboardPage from '@components/dashboard/DashboardPage';
 
 export default function index() {
-  return <IndexPage />;
+  return <DashboardPage />;
 }

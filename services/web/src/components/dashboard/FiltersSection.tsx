@@ -12,28 +12,36 @@ import {
   StarIcon,
   ViewIcon,
 } from '../Icons';
+import DeleteFilterModal from './DeleteFilterModal';
 
 const FiltersSection: React.FC = () => {
   const actionIcons = (
     <div style={{ display: 'flex' }}>
       <StarIcon style={{ marginRight: '8px', cursor: 'pointer' }} />
-      <CopyIcon style={{ marginRight: '8px', cursor: 'pointer' }} />
+      <CopyIcon
+        style={{ marginRight: '8px', cursor: 'pointer' }}
+        onClick={() => handleCloneClick(1)}
+      />
       <DisplayIcon style={{ marginRight: '8px', cursor: 'pointer' }} />
       <ViewIcon
         style={{ marginRight: '8px', cursor: 'pointer' }}
         onClick={() => handleViewClick(1)}
       />
       <EditIcon style={{ marginRight: '8px', cursor: 'pointer' }} />
-      <DeleteIcon />
+      <DeleteIcon
+        style={{ cursor: 'pointer' }}
+        onClick={() => handleOpenDeleteModal()}
+      />
     </div>
   );
+
   const SURGERY_DATA = [
     {
       date: '2/29',
       home: 'w',
       age: 10,
       round: <RoundIcon />,
-      status: 'Book',
+      status: 'Booked',
       firstName: 'Wilson',
       lastName: 'Victoria',
       mrn: '3231567',
@@ -59,7 +67,7 @@ const FiltersSection: React.FC = () => {
       home: 'w',
       age: 10,
       round: <RoundIcon />,
-      status: 'Book',
+      status: 'Booked',
       firstName: 'Wilson',
       lastName: 'Victoria',
       mrn: '3231567',
@@ -85,7 +93,7 @@ const FiltersSection: React.FC = () => {
       home: 'w',
       age: 10,
       round: <RoundIcon />,
-      status: 'Book',
+      status: 'Booked',
       firstName: 'Wilson',
       lastName: 'Victoria',
       mrn: '3231567',
@@ -111,7 +119,7 @@ const FiltersSection: React.FC = () => {
       home: 'w',
       age: 10,
       round: <RoundIcon />,
-      status: 'Book',
+      status: 'Booked',
       firstName: 'Wilson',
       lastName: 'Victoria',
       mrn: '3231567',
@@ -144,7 +152,7 @@ const FiltersSection: React.FC = () => {
 
   const maxCellStyle = (cellValue: string | number) => {
     const isRed = cellValue === 'Cancel';
-    const isBlue = cellValue === 'Book';
+    const isBlue = cellValue === 'Booked';
     const isYellow = cellValue === 'Pending';
     const isGreen = cellValue === 'Confirm';
 
@@ -189,6 +197,28 @@ const FiltersSection: React.FC = () => {
     }
   };
 
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
+  const handleOpenDeleteModal = (): void => {
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleCloneClick = (rowIndex: number) => {
+    console.log(rowIndex, 2);
+    setSelectedRow(selectedRow === rowIndex ? null : rowIndex);
+  };
+
+  const handleCloseDeleteModal = (): void => {
+    setIsDeleteModalOpen(false);
+  };
+
+  const onConfirmDelete = (): void => {
+    try {
+      setIsDeleteModalOpen(false);
+    } catch (error) {
+      console.log(error);
+    }
+  };
   const columnConfig: ColumnConfig<{
     date: string;
     home: string;
@@ -489,6 +519,11 @@ const FiltersSection: React.FC = () => {
         <div className="text-xs">
           <DataTable data={SURGERY_DATA} columns={columnConfig} />
         </div>
+        <DeleteFilterModal
+          onConfirmDelete={onConfirmDelete}
+          isDeleteModalOpen={isDeleteModalOpen}
+          handleCloseDeleteModal={handleCloseDeleteModal}
+        />
       </div>
     </div>
   );
