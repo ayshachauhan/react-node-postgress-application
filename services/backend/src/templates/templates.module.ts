@@ -1,8 +1,9 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TemplateEntity } from '@packages/entities/template';
-import { PracticeNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
+import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
 import { PracticesModule } from 'src/practices/practices.module';
+import { SurgeryTypesModule } from 'src/surgeryTypes/surgeryTypes.module';
 import { UsersModule } from 'src/users/users.module';
 import { TemplatesController } from './templates.controller';
 import { TemplatesService } from './templates.service';
@@ -12,8 +13,9 @@ import { TemplatesService } from './templates.service';
     TypeOrmModule.forFeature([TemplateEntity]),
     PracticesModule,
     UsersModule,
+    SurgeryTypesModule,
   ],
-  providers: [TemplatesService, PracticeNotFoundInterceptor],
+  providers: [TemplatesService, practiceNotFoundInterceptor],
   controllers: [TemplatesController],
   exports: [TemplatesService],
 })

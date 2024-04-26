@@ -38,6 +38,7 @@ const userSlice = createSlice({
 
     builder.addCase(fetchListings.fulfilled, (state, action) => {
       state.status = EntityLoadingState.SUCCEEDED;
+      state.entities = {};
       if (action.payload.length === 0) {
         state.errorMessage = 'No records found';
       } else {

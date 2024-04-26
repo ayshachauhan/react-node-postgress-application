@@ -97,7 +97,7 @@ importers:
         specifier: ^10.0.2
         version: 10.0.2(@nestjs/common@10.3.3)(@nestjs/core@10.3.3)(reflect-metadata@0.2.1)(rxjs@7.8.1)(typeorm@0.3.20)
       '@packages/entities':
-        specifier: workspace:*
+        specifier: workspace:entities
         version: link:../../packages/entities
       bcrypt:
         specifier: ^5.1.1
@@ -144,6 +144,9 @@ importers:
       typeorm:
         specifier: ^0.3.20
         version: 0.3.20(pg@8.11.3)(ts-node@10.9.1)
+      uuid:
+        specifier: ^9.0.1
+        version: 9.0.1
     devDependencies:
       '@nestjs/cli':
         specifier: ^10.0.0
@@ -215,7 +218,7 @@ importers:
   services/web:
     dependencies:
       '@packages/entities':
-        specifier: workspace:*
+        specifier: workspace:entities
         version: link:../../packages/entities
       '@reduxjs/toolkit':
         specifier: ^2.2.1
@@ -235,6 +238,9 @@ importers:
       joi:
         specifier: ^17.12.2
         version: 17.12.2
+      lodash:
+        specifier: ^4.17.21
+        version: 4.17.21
       next:
         specifier: 14.1.0
         version: 14.1.0(react-dom@18.2.0)(react@18.2.0)

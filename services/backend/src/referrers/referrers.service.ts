@@ -1,19 +1,19 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Referrers } from '@packages/entities/referrer';
+import { ReferrersEntity } from '@packages/entities/referrer';
 import { ILike, Repository } from 'typeorm';
 
 @Injectable()
 export class ReferrersService {
   constructor(
-    @InjectRepository(Referrers)
-    private readonly referrers: Repository<Referrers>,
+    @InjectRepository(ReferrersEntity)
+    private readonly referrers: Repository<ReferrersEntity>,
   ) {}
 
   async createReferrer(
     practiceId: string,
-    referrerData: Partial<Referrers>,
-  ): Promise<Referrers> {
+    referrerData: Partial<ReferrersEntity>,
+  ): Promise<ReferrersEntity> {
     const referrer = this.referrers.create({ ...referrerData, practiceId });
     return await this.referrers.save(referrer);
   }
@@ -25,10 +25,10 @@ export class ReferrersService {
     });
   }
 
-  private async getReferrerById(
+  async getReferrerById(
     practiceId: string,
     referrerId: string,
-  ): Promise<Referrers> {
+  ): Promise<ReferrersEntity> {
     const referrer = await this.referrers.findOne({
       where: { id: referrerId, practiceId },
     });
@@ -41,8 +41,8 @@ export class ReferrersService {
   async updateReferrer(
     practiceId: string,
     referrerId: string,
-    referrerData: Partial<Referrers>,
-  ): Promise<Referrers | undefined> {
+    referrerData: Partial<ReferrersEntity>,
+  ): Promise<ReferrersEntity | undefined> {
     const referrer = await this.getReferrerById(practiceId, referrerId);
     const updatedReferrer = this.referrers.merge(referrer, referrerData);
     return this.referrers.save(updatedReferrer);
@@ -58,7 +58,7 @@ export class ReferrersService {
   async getReferrerByName(
     practiceId: string,
     keyword: string,
-  ): Promise<Referrers[]> {
+  ): Promise<ReferrersEntity[]> {
     const referrers = await this.referrers.find({
       where: [
         { firstName: ILike(`%${keyword}%`), practiceId: practiceId },
