@@ -81,6 +81,7 @@ export class UsersService {
           ...createUserDto,
           fullName,
           password: hashedDefaultPassword,
+          practices: [practiceEntity],
         });
 
         await this.sendNewUserMail({ newUser, fullName, practiceEntity });
@@ -94,6 +95,11 @@ export class UsersService {
             HttpStatus.UNPROCESSABLE_ENTITY,
           );
         }
+
+        existingUser.practices.push(practiceEntity);
+        await this.usersRepository.save({
+          ...existingUser,
+        });
 
         newUser = existingUser;
         await this.sendNewPracticeMailToExistingUser({
