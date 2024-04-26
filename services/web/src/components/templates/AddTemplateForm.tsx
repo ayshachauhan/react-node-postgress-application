@@ -1,23 +1,18 @@
 import {
-  SurgeryType,
+  ITemplateRequest,
   TemplateMessageType,
 } from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { selectRecords } from '@root/store/reducers/auth';
+import { fetchListings as fetchSurgeryTypes } from '@root/store/reducers/surgeryTypes';
 import { addRecordAsync } from '@root/store/reducers/templates';
-import { CreateTemplateResponse } from '@root/store/requests/templates';
 import { getPracticeId } from '@utils/index';
 import { Select } from 'baseui/select';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
-const TemplateAddPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
-  const surgeryTypeOptions = Object.keys(SurgeryType).map((key) => ({
-    label: SurgeryType[key as keyof typeof SurgeryType],
-    id: key,
-  }));
-
+const AddTemplateForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const templateMessageTypeOptions = Object.keys(TemplateMessageType).map(
     (key) => ({
       label: key,
@@ -27,27 +22,31 @@ const TemplateAddPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const practiceId = getPracticeId();
   const userInfo = useAppSelector(selectRecords);
   const dispatch = useAppDispatch();
-
-  const [surgeryType, setSurgeryType] = useState('');
+  const surgeryTypes = useAppSelector((state) => state.surgeryTypes.entities);
+  const surgeryTypeOptions = Object.keys(surgeryTypes).map((key) => ({
+    label: surgeryTypes[key].name,
+    id: surgeryTypes[key].id,
+  }));
+  const [surgeryTypeId, setsurgeryTypeId] = useState('');
   const [messageType, setMsgType] = useState('');
-  const [dateOffset, setDateOffset] = useState('');
+  const [dateOffset, setDateOffset] = useState<number>(0);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (practiceId && userInfo) {
-      const data: CreateTemplateResponse = {
+      const data: ITemplateRequest = {
         practiceId,
         userId: userInfo.id,
         active: true,
         dateOffset,
         messageType,
-        surgeryType,
+        surgeryTypeId,
       };
       try {
         dispatch(addRecordAsync(data));
-        setDateOffset('0');
+        setDateOffset(0);
         setMsgType('');
-        setSurgeryType('');
+        setsurgeryTypeId('');
         onClose();
       } catch (error) {
         onClose();
@@ -55,12 +54,23 @@ const TemplateAddPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     }
   };
   const handleSurgeryTypeChange = ({ value }) => {
-    setSurgeryType(value[0] ? value[0].label : null);
+    setsurgeryTypeId(value[0] ? value[0].id : null);
+  };
+
+  const handleInputChange = (value: string) => {
+    const inputValue = Number(value);
+    setDateOffset(inputValue);
   };
 
   const handleMsgTypeChange = ({ value }) => {
     setMsgType(value[0] ? value[0].label : null);
   };
+
+  useEffect(() => {
+    if (practiceId !== null) {
+      dispatch(fetchSurgeryTypes({ practiceId: practiceId })); // Fetch listings from PostgreSQL database
+    }
+  }, [practiceId, dispatch]);
 
   return (
     <div>
@@ -72,7 +82,9 @@ const TemplateAddPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           <Select
             options={surgeryTypeOptions}
             onChange={handleSurgeryTypeChange}
-            value={surgeryType ? [{ label: surgeryType, id: surgeryType }] : []}
+            value={
+              surgeryTypeId ? [{ label: surgeryTypeId, id: surgeryTypeId }] : []
+            }
             required
             overrides={{
               ControlContainer: {
@@ -127,10 +139,9 @@ const TemplateAddPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           </label>
           <TextInput
             name="dateOffset"
-            value={dateOffset}
-            onChange={(value) => {
-              setDateOffset(value);
-            }}
+            type="number"
+            value={dateOffset.toString()}
+            onChange={handleInputChange}
             required
           />
         </div>
@@ -142,4 +153,4 @@ const TemplateAddPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   );
 };
 
-export default TemplateAddPage;
+export default AddTemplateForm;

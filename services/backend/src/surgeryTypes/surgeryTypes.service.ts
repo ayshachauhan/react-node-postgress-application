@@ -1,14 +1,12 @@
-import {
-  HttpException,
-  HttpStatus,
-  Inject,
-  Injectable,
-  forwardRef,
-} from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { SurgeryTypeEntity } from '@packages/entities/surgeryType';
+import { PracticeEntity } from '@packages/entities/*';
+import {
+  SurgeryChecklist,
+  SurgeryOptions,
+  SurgeryTypeEntity,
+} from '@packages/entities/surgeryType';
 import { Repository } from 'typeorm';
-import { PracticesService } from '../practices/practices.service';
 import { CreateSurgeryTypeDto } from './dto/createSurgery.dto';
 
 @Injectable()
@@ -16,8 +14,6 @@ export class SurgeryTypesService {
   constructor(
     @InjectRepository(SurgeryTypeEntity)
     private surgeryTypeRepository: Repository<SurgeryTypeEntity>,
-    @Inject(forwardRef(() => PracticesService))
-    private readonly practicesService: PracticesService,
   ) {}
 
   async getSurgeryTypeByPractice(
@@ -46,19 +42,92 @@ export class SurgeryTypesService {
 
   async create(
     { name }: CreateSurgeryTypeDto,
-    practiceId: string,
+    practice: PracticeEntity,
   ): Promise<SurgeryTypeEntity> {
     const newPracticeHome: SurgeryTypeEntity = new SurgeryTypeEntity();
 
-    const practiceEntity = await this.practicesService.findOne(practiceId);
-    if (!practiceEntity) {
-      throw new HttpException('Practice not found', HttpStatus.NOT_FOUND);
-    }
-
     return await this.surgeryTypeRepository.save({
       ...newPracticeHome,
-      practice: practiceEntity,
+      practice,
       name,
     });
+  }
+
+  async addBodyPart(
+    id: string,
+    bodyPart: string,
+  ): Promise<SurgeryTypeEntity | null> {
+    const surgeryType: SurgeryTypeEntity | null =
+      await this.surgeryTypeRepository.findOne({ where: { id: id } });
+
+    if (!surgeryType) {
+      throw new HttpException('Surgery type not found', HttpStatus.NOT_FOUND);
+    }
+
+    await this.surgeryTypeRepository.update(surgeryType.id, {
+      bodyPart: [...surgeryType.bodyPart, bodyPart],
+    });
+
+    return this.surgeryTypeRepository.findOne({ where: { id: id } });
+  }
+
+  async addFacility(
+    id: string,
+    facility: string,
+  ): Promise<SurgeryTypeEntity | null> {
+    const surgeryType: SurgeryTypeEntity | null =
+      await this.surgeryTypeRepository.findOne({ where: { id: id } });
+
+    if (!surgeryType) {
+      throw new HttpException('Surgery type not found', HttpStatus.NOT_FOUND);
+    }
+
+    await this.surgeryTypeRepository.update(surgeryType.id, {
+      facility: [...surgeryType.facility, facility],
+    });
+
+    return this.surgeryTypeRepository.findOne({ where: { id: id } });
+  }
+
+  async addChecklist(
+    id: string,
+    checklist: SurgeryChecklist,
+  ): Promise<SurgeryTypeEntity | null> {
+    const surgeryType: SurgeryTypeEntity | null =
+      await this.surgeryTypeRepository.findOne({ where: { id: id } });
+
+    if (!surgeryType) {
+      throw new HttpException('Surgery type not found', HttpStatus.NOT_FOUND);
+    }
+
+    await this.surgeryTypeRepository.update(surgeryType.id, {
+      checkList: {
+        ...surgeryType.checkList,
+        ...checklist,
+      },
+    });
+
+    return this.surgeryTypeRepository.findOne({ where: { id: id } });
+  }
+
+  async addSurgeryOption(
+    id: string,
+    option: SurgeryOptions,
+  ): Promise<SurgeryTypeEntity | null> {
+    const surgeryType: SurgeryTypeEntity | null =
+      await this.surgeryTypeRepository.findOne({ where: { id: id } });
+
+    if (!surgeryType) {
+      throw new HttpException('Surgery type not found', HttpStatus.NOT_FOUND);
+    }
+
+    await this.surgeryTypeRepository.update(surgeryType.id, {
+      checkList: {
+        ...surgeryType.options,
+        ...option,
+      },
+    });
+
+    return this.surgeryTypeRepository.findOne({ where: { id: id } });
   }
 }

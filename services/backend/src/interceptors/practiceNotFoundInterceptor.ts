@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
-import { PracticesService } from 'src/practices/practices.service';
+import { PracticesService } from '../practices/practices.service';
 
 @Injectable()
 export class practiceNotFoundInterceptor<T>

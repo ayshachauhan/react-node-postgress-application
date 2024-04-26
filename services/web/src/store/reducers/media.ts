@@ -8,7 +8,7 @@ const initialState: EntitiesState<IMedia> = {
   processing: false,
   entities: {},
   status: EntityLoadingState.IDLE,
-  successMessage: undefined, // Initial value for success message
+  successMessage: undefined,
   errorMessage: undefined,
 };
 
@@ -36,11 +36,17 @@ const mediaSlice = createSlice({
     });
 
     builder.addCase(fetchListings.fulfilled, (state, action) => {
-      state.status = EntityLoadingState.IDLE;
+      state.status = EntityLoadingState.SUCCEEDED;
+      state.entities = {};
       if (action.payload.length === 0) {
         state.errorMessage = 'No records found';
+      } else {
+        state.errorMessage = undefined;
       }
-      state.entities = { ...state.entities, ...indexBy('id', action.payload) };
+      state.entities = {
+        ...state.entities,
+        ...indexBy('id', action.payload),
+      };
     });
 
     builder.addCase(fetchListings.rejected, (state, action) => {
@@ -64,7 +70,7 @@ const mediaSlice = createSlice({
         ...state.entities,
         ...{ [action.payload.id]: action.payload },
       };
-      state.successMessage = 'Record added successfully'; // Set success message
+      state.successMessage = 'Record added successfully';
     });
 
     builder.addCase(addRecordAsync.rejected, (state, action) => {

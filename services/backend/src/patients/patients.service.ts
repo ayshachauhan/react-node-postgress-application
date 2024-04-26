@@ -6,7 +6,7 @@ import {
   forwardRef,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ReferrerType, Referrers } from '@packages/entities';
+import { ReferrerType, ReferrersEntity } from '@packages/entities';
 import { PatientEntity } from '@packages/entities/patient';
 import { PracticeEntity } from '@packages/entities/practice';
 import { CreatePatientDto } from 'src/patients/dto/createPatient.dto';
@@ -37,7 +37,7 @@ export class PatientsService {
       throw new HttpException('practice not found', HttpStatus.NOT_FOUND);
     }
 
-    let referrerEntity = new Referrers();
+    let referrerEntity = new ReferrersEntity();
     if (createPatientDto.referrerId) {
       try {
         uuidv4(createPatientDto.referrerId);

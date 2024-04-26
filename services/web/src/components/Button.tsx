@@ -29,41 +29,26 @@ const Button: React.FC<Props> = ({
   return (
     <BaseButton
       {...props}
-      style={{ ...style, backgroundColor, color }}
       overrides={{
         Root: {
-          style: {
+          style: ({ $theme }) => ({
             width: width ? `${width}px` : '',
             height: height ? `${height}px` : '',
             padding: padding || '',
             fontSize: fontSize || '',
-            backgroundColor: backgroundColor || '',
-            color: color !== undefined ? color : 'white',
-          },
-          props: {
-            className: clsx({
-              'btn-primary': kind === KIND.primary,
-              'btn-secondary': kind === KIND.secondary,
-            }),
-          },
-        },
-        BaseButton: {
-          style: () => ({
-            width: width ? `${width}px` : '',
-            height: height ? `${height}px` : '',
-            padding: padding || '',
-            fontSize: fontSize || '',
-            backgroundColor: backgroundColor || '',
-            color: color !== undefined ? color : 'white',
+            backgroundColor: backgroundColor || $theme.colors.buttonPrimaryFill,
+            color: color || $theme.colors.buttonPrimaryText,
           }),
           props: {
             className: clsx({
               'btn-primary': kind === KIND.primary,
               'btn-secondary': kind === KIND.secondary,
+              'btn-tertiary': kind === KIND.tertiary,
             }),
           },
         },
       }}
+      style={style}
     >
       {title}
     </BaseButton>

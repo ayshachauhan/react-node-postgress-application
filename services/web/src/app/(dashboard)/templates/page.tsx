@@ -2,32 +2,35 @@
 import { UserType } from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import { AddIcon } from '@root/components/Icons';
-import Form from '@root/components/templates/addTemplate.module';
-import TemplateUpdate from '@root/components/templates/updateTemplate.module';
+import AddTemplateModal from '@root/components/templates/AddTemplateModal';
+import UpdateTemplateModal from '@root/components/templates/UpdateTemplateModal';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { selectRecords } from '@root/store/reducers/auth';
 import {
   clearErrorMessage,
   clearSuccessMessage,
   fetchListings,
-  selectError,
-  selectSuccessMessage,
 } from '@root/store/reducers/templates';
 import { getPracticeId } from '@utils/index';
-import { Modal, ModalBody, ModalHeader, ROLE, SIZE } from 'baseui/modal';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 const Templates: React.FC = () => {
-  const templates = useAppSelector((state) => state.templates.templates);
+  const templates = useAppSelector((state) =>
+    Object.values(state.templates.entities),
+  );
   const dispatch = useAppDispatch();
   const [templateId, setTemplateId] = useState<string | null>(null);
   const [messageType, setMessageType] = useState<string | null>(null);
-  const [versionOffset, setVersionOffset] = useState<string | null>(null);
+  const [versionOffset, setVersionOffset] = useState<string | number | null>(
+    null,
+  );
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const practiceId = getPracticeId();
-  const successMessage = useAppSelector(selectSuccessMessage);
-  const errorMessage = useAppSelector(selectError);
+  const { successMessage, errorMessage } = useAppSelector((state) => ({
+    successMessage: state.templates.successMessage,
+    errorMessage: state.templates.errorMessage,
+  }));
   const [showErrorMessage, setShowErrorMessage] = useState(false);
   const router = useRouter();
   const handleOpenAddModal = (): void => {
@@ -37,7 +40,7 @@ const Templates: React.FC = () => {
   const handleOpenUpdateModal = (
     Id: string,
     MessageType: string,
-    versionOffset: string | null,
+    versionOffset: string | number | null,
   ): void => {
     setIsUpdateModalOpen(true);
     setTemplateId(Id);
@@ -63,85 +66,8 @@ const Templates: React.FC = () => {
     }
   }, [userInfo, router]);
 
-  const FormModal = () => {
-    return (
-      <Modal
-        isOpen={isAddModalOpen}
-        onClose={handleCloseAddModal}
-        closeable
-        animate
-        autoFocus
-        size={SIZE.default}
-        role={ROLE.dialog}
-        overrides={{
-          Root: {
-            style: ({ $theme }) => ({
-              outline: `${$theme.colors.warning200} solid`,
-              backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            }),
-          },
-        }}
-      >
-        <ModalHeader
-          $style={{
-            fontSize: '1.25rem',
-            fontWeight: 700,
-            borderBottom: '1px solid rgba(244, 244, 245, 1)',
-            paddingBottom: '8px',
-          }}
-        >
-          Add New Template
-        </ModalHeader>
-        <ModalBody>
-          <Form onClose={handleCloseAddModal} />
-        </ModalBody>
-      </Modal>
-    );
-  };
-
-  const TemplateUpdateModal = () => {
-    return (
-      <Modal
-        isOpen={isUpdateModalOpen}
-        onClose={handleCloseUpdateModal}
-        closeable
-        animate
-        autoFocus
-        size={SIZE.default}
-        role={ROLE.dialog}
-        overrides={{
-          Dialog: {
-            style: () => ({
-              width: '1300px',
-            }),
-          },
-          Root: {
-            style: ({ $theme }) => ({
-              outline: `${$theme.colors.warning200} solid`,
-              backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            }),
-          },
-        }}
-      >
-        <ModalBody>
-          {templateId !== null &&
-            messageType !== null &&
-            versionOffset !== null && (
-              <TemplateUpdate
-                data={{
-                  id: templateId,
-                  messageType: messageType,
-                  versionOffset: versionOffset,
-                }}
-                onClose={handleCloseUpdateModal}
-              />
-            )}
-        </ModalBody>
-      </Modal>
-    );
-  };
   useEffect(() => {
-    if (practiceId !== null && userId !== null) {
+    if (practiceId && userId) {
       const formattedPracticeId = practiceId ?? '';
       const formattedUserId = userId ?? '';
       dispatch(
@@ -155,7 +81,7 @@ const Templates: React.FC = () => {
 
   useEffect(() => {
     if (successMessage) {
-      if (practiceId !== null && userId !== null) {
+      if (practiceId && userId) {
         dispatch(
           fetchListings({
             practiceId,
@@ -209,7 +135,7 @@ const Templates: React.FC = () => {
           <React.Fragment key={i}>
             <div className="rounded-lg shadow-md w-[370px] h-292 relative">
               <div className="text-white py-2.5 text-center bg-gradient-to-r from-primary-light to-primary-dark uppercase rounded-t-lg font-bold">
-                {data.surgeryType}
+                {data?.surgeryTypeName}
               </div>
               <div className="rounded-lg" style={{ height: '245px' }}>
                 <div className="grid grid-rows-5 h-full p-2">
@@ -331,8 +257,17 @@ const Templates: React.FC = () => {
           </React.Fragment>
         ))}
       </div>
-      <FormModal />
-      <TemplateUpdateModal />
+      <AddTemplateModal
+        isAddModalOpen={isAddModalOpen}
+        handleCloseAddModal={handleCloseAddModal}
+      />
+      <UpdateTemplateModal
+        isUpdateModalOpen={isUpdateModalOpen}
+        handleCloseUpdateModal={handleCloseUpdateModal}
+        templateId={templateId}
+        messageType={messageType}
+        versionOffset={versionOffset}
+      />
     </div>
   );
 };

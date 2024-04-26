@@ -11,33 +11,30 @@ import { InjectRepository } from '@nestjs/typeorm';
 import {
   IPractice,
   IUser,
+  PracticeEntity,
   PracticeStatus,
-  User,
+  UserEntity,
   UserStatus,
   UserType,
 } from '@packages/entities';
 import * as bcrypt from 'bcrypt';
-import * as fs from 'fs';
 import Mail from 'nodemailer/lib/mailer';
-import * as path from 'path';
 import { ENVIRONMENT_VARIABLES } from 'src/enums/environment.enums';
 import { PracticesService } from 'src/practices/practices.service';
 import { TransporterService } from 'src/transporter';
-import { UserPracticesService } from 'src/userPractices/userPractices.services';
+import { SystemTemplates } from 'src/transporter/transporter.types';
 import { NewUserMailData, SanitizedUser } from 'src/users/types';
-import { DataSource, In, Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create.dto';
 import { UpdateUserDto } from './dto/update.dto';
 
 @Injectable()
 export class UsersService {
   constructor(
-    @InjectRepository(User)
-    private usersRepository: Repository<User>,
+    @InjectRepository(UserEntity)
+    private usersRepository: Repository<UserEntity>,
     @Inject(forwardRef(() => PracticesService))
     private readonly practicesService: PracticesService,
-    @Inject(forwardRef(() => UserPracticesService))
-    private readonly userPracticeService: UserPracticesService,
     private readonly configService: ConfigService,
     private readonly transporterService: TransporterService,
     private jwtService: JwtService,
@@ -72,11 +69,11 @@ export class UsersService {
         throw new HttpException('Practice not found', HttpStatus.NOT_FOUND);
       }
 
-      const existingUser: IUser | null = await this.getUserByEmail(
+      const existingUser: UserEntity | null = await this.getUserByEmail(
         createUserDto.email,
       );
 
-      let newUser: IUser = new User();
+      let newUser: UserEntity = new UserEntity();
 
       if (!existingUser) {
         newUser = await this.usersRepository.save({
@@ -93,7 +90,7 @@ export class UsersService {
         );
         if (emailExists) {
           throw new HttpException(
-            'user for this email already exists',
+            'User for this email already exists',
             HttpStatus.UNPROCESSABLE_ENTITY,
           );
         }
@@ -106,11 +103,6 @@ export class UsersService {
         });
       }
 
-      await this.userPracticeService.create({
-        userId: newUser.id,
-        practiceId,
-      });
-
       await queryRunner.commitTransaction();
       return this.sanitizeUser(newUser);
     } catch (error) {
@@ -121,29 +113,26 @@ export class UsersService {
     }
   }
 
-  async findUserByEmail(email: string): Promise<User | null> {
+  async findUserByEmail(email: string): Promise<UserEntity | null> {
     const existingUser = await this.usersRepository.findOne({
       where: { email },
     });
 
-    return existingUser ? existingUser : null;
+    return existingUser;
   }
 
-  async getUserById(id: string): Promise<User | null> {
-    return await this.usersRepository.findOne({
+  async getUserById(id: string): Promise<UserEntity | null> {
+    return this.usersRepository.findOne({
       where: { id },
+      relations: ['practices'],
     });
   }
 
-  async getUsersByPractice(practiceId: string): Promise<User[]> {
-    await this.practicesService.findOne(practiceId);
+  async getUsersByPractice(practiceId: string): Promise<UserEntity[]> {
+    const practice: PracticeEntity | null =
+      await this.practicesService.findOne(practiceId);
 
-    const usersByPractice =
-      await this.userPracticeService.getUsersByPractice(practiceId);
-
-    return await this.usersRepository.find({
-      where: { id: In(usersByPractice.map((ele) => ele.user?.id)) },
-    });
+    return practice?.users ?? [];
   }
 
   async deleteUser(id: string): Promise<void> {
@@ -184,7 +173,7 @@ export class UsersService {
     return null;
   }
 
-  sanitizeUser(user: User): SanitizedUser {
+  sanitizeUser(user: UserEntity): SanitizedUser {
     const { password, ...sanitizedUser } = user;
     password && password;
     return {
@@ -249,7 +238,7 @@ export class UsersService {
     fullName,
     practiceEntity,
   }: {
-    newUser: IUser;
+    newUser: UserEntity;
     fullName: string;
     practiceEntity: IPractice;
   }): Promise<void> {
@@ -260,17 +249,11 @@ export class UsersService {
     });
 
     // Read the HTML file content
-    const htmlFilePath = path.join(
-      __dirname,
-      '../emailTemplates/inviteNewUserTemplate.html',
-    );
-    const htmlFileContent = fs.readFileSync(htmlFilePath, 'utf8');
 
     const mailOptions: Mail.Options = {
       to: newSanitizedUser.email,
       subject:
         'Welcome to Practice Optimization Dashboard - Complete Your Sign-up Process',
-      html: htmlFileContent,
       text: 'text message',
     };
 
@@ -281,7 +264,11 @@ export class UsersService {
       defaultUserPassword: this.defaultUserPassword(),
     };
 
-    await this.transporterService.sendEmail(mailOptions, mailData);
+    await this.transporterService.sendSystemEmails(
+      mailOptions,
+      mailData,
+      SystemTemplates.INVITE_NEW_USER_TEMPLATE,
+    );
   }
 
   async sendNewPracticeMailToExistingUser({
@@ -295,17 +282,9 @@ export class UsersService {
   }): Promise<void> {
     const frontendBaseUrl: string = this.getFrontEndBaseUrl();
 
-    // Read the HTML file content
-    const htmlFilePath = path.join(
-      __dirname,
-      '../emailTemplates/newPracticeMailToExistingUser.html',
-    );
-    const htmlFileContent = fs.readFileSync(htmlFilePath, 'utf8');
-
     const mailOptions: Mail.Options = {
       to: newUser.email,
       subject: 'Welcome to Practice Optimization Dashboard',
-      html: htmlFileContent,
       text: 'text message',
     };
 
@@ -316,10 +295,14 @@ export class UsersService {
       defaultUserPassword: this.defaultUserPassword(),
     };
 
-    await this.transporterService.sendEmail(mailOptions, mailData);
+    await this.transporterService.sendSystemEmails(
+      mailOptions,
+      mailData,
+      SystemTemplates.NEW_PRACTICE_MAIL_TO_EXISTING_USER,
+    );
   }
 
-  async getUserByEmail(email: string): Promise<User | null> {
+  async getUserByEmail(email: string): Promise<UserEntity | null> {
     return await this.usersRepository.findOne({
       where: { email },
       relations: ['practices'],

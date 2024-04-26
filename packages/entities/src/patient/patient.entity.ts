@@ -1,7 +1,7 @@
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { BaseEntity } from '../base.entity';
 import { PracticeEntity } from '../practice';
-import { Referrers } from '../referrer';
+import { ReferrersEntity } from '../referrer';
 
 @Entity('patients')
 export class PatientEntity extends BaseEntity {
@@ -9,9 +9,9 @@ export class PatientEntity extends BaseEntity {
   @JoinColumn({ name: 'practiceId' })
   practice: PracticeEntity;
 
-  @ManyToOne(() => Referrers)
+  @ManyToOne(() => ReferrersEntity)
   @JoinColumn({ name: 'referrerId' })
-  referrer: Referrers;
+  referrer: ReferrersEntity;
 
   @Column({ type: 'varchar' })
   mrn: string;

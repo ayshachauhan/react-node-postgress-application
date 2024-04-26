@@ -22,3 +22,10 @@ export interface AsyncModuleOptions extends Pick<ModuleMetadata, 'imports'> {
   // eslint-disable-next-line
   imports?: any[];
 }
+
+export enum SystemTemplates {
+  INVITE_NEW_USER_TEMPLATE = 'inviteNewUserTemplate',
+  ADMIN_INVITE = 'adminInvite',
+  NEW_PRACTICE_MAIL_TO_EXISTING_USER = 'newPracticeMailToExistingUser',
+  NOTIFY_PATIENT = 'notifyPatient',
+}
