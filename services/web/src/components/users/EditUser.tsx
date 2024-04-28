@@ -1,11 +1,11 @@
-import { UserStatus, UserType } from '@packages/entities/index.browser';
+import { IUser, UserStatus, UserType } from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { updateRecordAsync } from '@root/store/reducers/users';
-import { EditUser } from '@root/store/requests/users';
 import { SanitizedUser } from '@root/store/types';
 import { generateFullName, getPracticeId } from '@utils/index';
+import { Checkbox } from 'baseui/checkbox';
 import { Select } from 'baseui/select';
 import React, { useEffect, useState } from 'react';
 interface Data {
@@ -24,7 +24,45 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
     label: UserStatus[key as keyof typeof UserStatus],
     id: key,
   }));
+
+  interface Permission {
+    id: string;
+  }
+
+  const isChecked = (permissionsArray: Permission[], id: string): boolean => {
+    return permissionsArray.some((permission) => permission.id === id);
+  };
+
   const dispatch = useAppDispatch();
+  const permissions = useAppSelector((state) =>
+    Object.values(state.permissions.entities),
+  );
+  const [checkboxes, setCheckboxes] = useState(() =>
+    Array(permissions.length).fill(false),
+  );
+
+  const handleCheckboxChange = (index: number) => {
+    const updatedCheckboxes = [...checkboxes];
+    updatedCheckboxes[index] = !updatedCheckboxes[index];
+    setCheckboxes(updatedCheckboxes);
+    const selectedIds = getSelectedCheckboxIds(); // Get selected permission ids
+    // Update the permissions property in updatedUserInfo state
+    setUserInfo({ ...updatedUserInfo, permissions: selectedIds });
+  };
+
+  const getSelectedCheckboxIds = (): string[] => {
+    const selectedIds = permissions.reduce(
+      (selectedIds: string[], _, index) => {
+        if (checkboxes[index]) {
+          selectedIds.push(permissions[index].id);
+        }
+        return selectedIds;
+      },
+      [],
+    );
+    return selectedIds;
+  };
+
   const practiceId = getPracticeId(); // Select user practice id
   const userInfo = useAppSelector((state) =>
     data.id
@@ -35,7 +73,19 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
   );
   const userId = data.id;
 
-  const [updatedUserInfo, setUserInfo] = useState<Partial<EditUser>>({});
+  const [updatedUserInfo, setUserInfo] = useState<Partial<IUser>>({});
+
+  useEffect(() => {
+    if (updatedUserInfo?.permissions) {
+      const updatedCheckboxes = permissions.map(
+        (permission) =>
+          updatedUserInfo.permissions?.some(
+            (updatedPermission) => updatedPermission.id === permission.id,
+          ) ?? false,
+      );
+      setCheckboxes(updatedCheckboxes);
+    }
+  }, [updatedUserInfo?.permissions]);
 
   const handleStatusChange = (params) => {
     const { label } = params.option;
@@ -55,12 +105,14 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (updatedUserInfo.firstName && updatedUserInfo.lastName) {
+    const selectedUserPermissions = getSelectedCheckboxIds();
+    let updatedPayloadData = { ...updatedUserInfo };
+    if (updatedPayloadData.firstName && updatedPayloadData.lastName) {
       const fullName = generateFullName(
-        updatedUserInfo.firstName,
-        updatedUserInfo.lastName,
+        updatedPayloadData.firstName,
+        updatedPayloadData.lastName,
       );
-      updatedUserInfo.fullName = fullName;
+      updatedPayloadData = { ...updatedPayloadData, fullName };
     }
     if (userId && practiceId) {
       const userPayloadData = {
@@ -69,13 +121,14 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
         firstName: updatedUserInfo.firstName ?? '',
         lastName: updatedUserInfo.lastName ?? '',
         contactNumber: updatedUserInfo.contactNumber ?? '',
-        fullName: updatedUserInfo.fullName ?? '',
+        fullName: updatedPayloadData.fullName ?? '',
         email: updatedUserInfo.email ?? '',
         url: updatedUserInfo.url ?? '',
         status: updatedUserInfo.status ?? UserStatus.INACTIVE,
         type: updatedUserInfo.type ?? UserType.EMPLOYEE,
         practiceId: practiceId,
         id: userId,
+        permissionIds: selectedUserPermissions,
       };
       if ('password' in userPayloadData) {
         delete userPayloadData.password;
@@ -93,8 +146,8 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
     <div>
       <form onSubmit={handleSubmit}>
         <div className="flex flex-col">
-          <div className="flex flex-row justify-between pt-4">
-            <div className="space-y-2">
+          <div className="flex flex-row justify-between pt-4 gap-7">
+            <div className="w-1/2 space-y-2">
               <label
                 htmlFor="userName"
                 className="text-black text-sm font-normal"
@@ -109,9 +162,9 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
                 }}
                 disabled={true}
               />
-              <div className="space-y-2"></div>
+              <div className="w-1/2 space-y-2"></div>
             </div>
-            <div className="space-y-2">
+            <div className="w-1/2 space-y-2">
               <label htmlFor="email" className="text-black text-sm font-normal">
                 Email
               </label>
@@ -123,11 +176,11 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
                 }}
                 disabled={true}
               />
-              <div className="space-y-2"></div>
+              <div className="w-1/2 space-y-2"></div>
             </div>
           </div>
-          <div className="flex flex-row justify-between pt-4">
-            <div className="space-y-2">
+          <div className="flex flex-row justify-between pt-4 gap-7">
+            <div className="w-1/2 space-y-2">
               <label
                 htmlFor="firstName"
                 className="text-black text-sm font-normal"
@@ -142,9 +195,9 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
                 }}
                 required
               />
-              <div className="space-y-2"></div>
+              <div className="w-1/2 space-y-2"></div>
             </div>
-            <div className="space-y-2">
+            <div className="w-1/2 space-y-2">
               <label
                 htmlFor="lastName"
                 className="text-black text-sm font-normal"
@@ -159,11 +212,11 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
                 }}
                 required
               />
-              <div className="space-y-2"></div>
+              <div className="w-1/2 space-y-2"></div>
             </div>
           </div>
-          <div className="flex flex-row justify-between pt-4">
-            <div className="space-y-2">
+          <div className="flex flex-row justify-between pt-4 gap-7">
+            <div className="w-1/2 space-y-2">
               <label
                 htmlFor="contactNumber"
                 className="text-black text-sm font-normal"
@@ -178,9 +231,9 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
                 }}
                 required
               />
-              <div className="space-y-2"></div>
+              <div className="w-1/2 space-y-2"></div>
             </div>
-            <div className="space-y-2">
+            <div className="w-1/2 space-y-2">
               <label htmlFor="url" className="text-black text-sm font-normal">
                 User URL
               </label>
@@ -192,10 +245,10 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
                 }}
                 required
               />
-              <div className="space-y-2"></div>
+              <div className="w-1/2 space-y-2"></div>
             </div>
           </div>
-          <div className="flex flex-row gap-6 pt-4">
+          <div className="flex flex-row gap-6 pt-4 gap-7">
             <div className="w-1/2 space-y-2">
               <label htmlFor="type" className="text-black text-sm font-normal">
                 Designation
@@ -227,7 +280,7 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
                     : []
                 }
               />
-              <div className="space-y-2"></div>
+              <div className="w-1/2 space-y-2"></div>
             </div>
             <div className="w-1/2 space-y-2">
               <label
@@ -263,7 +316,55 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
                     : []
                 }
               />
-              <div className="space-y-2"></div>
+              <div className="w-1/2 space-y-2"></div>
+            </div>
+          </div>
+          <div className="flex flex-row gap-6 pt-4 gap-7">
+            <div className="w-1/2 space-y-2 flex flex-col">
+              <label
+                htmlFor="permissions"
+                className="text-black text-sm font-normal"
+              >
+                Permissions
+              </label>
+              <div className="grid grid-cols-3 gap-3.5">
+                {permissions.map((label, index) => (
+                  <Checkbox
+                    key={index}
+                    checked={
+                      updatedUserInfo?.permissions
+                        ? isChecked(updatedUserInfo.permissions, label.id)
+                        : false
+                    }
+                    onChange={() => handleCheckboxChange(index)}
+                    overrides={{
+                      Checkmark: {
+                        style: ({ $checked }) => ({
+                          backgroundColor: $checked
+                            ? 'rgba(34, 197, 94, 1)'
+                            : 'white',
+                          borderColor: $checked
+                            ? 'rgba(34, 197, 94, 1)'
+                            : 'rgba(113, 113, 122, 1)',
+                          width: '15px',
+                          height: '15px',
+                          marginTop: '7px',
+                          marginRight: '0px',
+                          borderRadius: '2px',
+                          borderWidth: '2px',
+                        }),
+                      },
+                    }}
+                  >
+                    <label
+                      htmlFor={`checkbox-${index}`}
+                      className="text-black text-xs"
+                    >
+                      <span className="truncate">{label.name}</span>
+                    </label>
+                  </Checkbox>
+                ))}
+              </div>
             </div>
           </div>
         </div>

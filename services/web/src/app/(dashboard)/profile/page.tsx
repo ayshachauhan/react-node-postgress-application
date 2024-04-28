@@ -5,10 +5,11 @@ import { useAppDispatch, useAppSelector } from '@root/store';
 import { selectRecords } from '@root/store/reducers/auth';
 import { getPracticeInfo } from '@root/store/reducers/practices';
 import { fetchListings as fetchPermissions } from '@root/store/reducers/userPermissions';
+import { SanitizedUser } from '@root/store/types';
 import { getPracticeId } from '@utils/index';
 import { Checkbox } from 'baseui/checkbox';
 import { useRouter } from 'next/navigation';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 
 const Profile: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -16,8 +17,22 @@ const Profile: React.FC = () => {
     Object.values(state.permissions.entities),
   );
   const userInfo = useAppSelector(selectRecords);
+  const profileUserInfo = useAppSelector((state) =>
+    userInfo?.id
+      ? Object.values(state.users.entities).find(
+          ({ id }: SanitizedUser) => id === userInfo?.id,
+        )
+      : undefined,
+  );
   const userPracticeId = getPracticeId();
-  const [checkboxes] = useState(() => Array(permissions.length).fill(false));
+
+  interface Permission {
+    id: string;
+  }
+
+  const isChecked = (permissionsArray: Permission[], id: string): boolean => {
+    return permissionsArray.some((permission) => permission.id === id);
+  };
   useEffect(() => {
     if (userPracticeId) {
       dispatch(getPracticeInfo({ id: userPracticeId }));
@@ -105,7 +120,11 @@ const Profile: React.FC = () => {
           {permissions.map((label, index) => (
             <Checkbox
               key={index}
-              checked={checkboxes[index]}
+              checked={
+                profileUserInfo?.permissions
+                  ? isChecked(profileUserInfo.permissions, label.id)
+                  : false
+              }
               overrides={{
                 Checkmark: {
                   style: ({ $checked }) => ({

@@ -35,8 +35,10 @@ const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   };
 
   const handleCheckboxChange = (index: number) => {
+    console.log('Checkbox changed at index:', index);
     const updatedCheckboxes = [...checkboxes];
     updatedCheckboxes[index] = !updatedCheckboxes[index];
+    console.log('Updated checkboxes:', updatedCheckboxes);
     setCheckboxes(updatedCheckboxes);
   };
 

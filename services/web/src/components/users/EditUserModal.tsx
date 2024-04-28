@@ -7,7 +7,14 @@ const EditUserModal = ({ isEditModalOpen, handleCloseEditModal, userId }) => {
     <BaseUIModal
       isOpen={isEditModalOpen}
       onClose={handleCloseEditModal}
-      title="Edit Referrer"
+      title="Edit User"
+      additionalOverrides={{
+        Dialog: {
+          style: {
+            width: '900px',
+          },
+        },
+      }}
     >
       {userId !== null && (
         <EditUser data={{ id: userId }} onClose={handleCloseEditModal} />
