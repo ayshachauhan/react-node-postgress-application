@@ -2,6 +2,7 @@ import { configureStore } from '@reduxjs/toolkit';
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
 
 import authReducer from './reducers/auth';
+import calendarReducer from './reducers/calendar';
 import evalsReducer from './reducers/evals';
 import insuranceTypesReducer from './reducers/insuranceTypes';
 import mediaReducer from './reducers/media';
@@ -26,6 +27,7 @@ export const store = configureStore({
     evals: evalsReducer,
     referrers: referrersReducer,
     surgeries: surgeryReducer,
+    calendars: calendarReducer,
   },
 });
 

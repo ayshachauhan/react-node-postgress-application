@@ -1,0 +1,21 @@
+export type CalendarsPayload = {
+  practiceId: string;
+  surgeryTypeId?: string;
+  userId: string;
+};
+
+export type GetCalendarsPayload = CalendarsPayload;
+
+export type CreateCalendarPayload = {
+  maxSlots: number;
+  availableSlots: number;
+  date: Date;
+} & CalendarsPayload;
+
+export type GetCalendarByIdPayload = { id: string } & CalendarsPayload;
+
+export type UpdateCalendarPayload = {
+  maxSlots: number;
+  availableSlots: number;
+  id: string;
+} & CalendarsPayload;

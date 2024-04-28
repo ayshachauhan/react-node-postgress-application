@@ -12,12 +12,11 @@ import {
 import { getPracticeInfo } from '@root/store/reducers/practices';
 import { fetchListings } from '@root/store/reducers/users';
 import { SanitizedUser } from '@root/store/types';
-import { getPracticeId } from '@utils/index';
+import { SELECTED_DOCTOR_KEY, getPracticeId } from '@utils/index';
 import { ChevronDown } from 'baseui/icon';
 import { usePathname, useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 
-const SELECTED_DOCTOR_KEY: string = 'SELECTED_DOCTOR';
 
 const Header: React.FC = () => {
   const dispatch = useAppDispatch();

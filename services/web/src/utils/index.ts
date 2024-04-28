@@ -13,6 +13,12 @@ export function getPracticeId() {
   return practiceId;
 }
 
+export const SELECTED_DOCTOR_KEY: string = 'SELECTED_DOCTOR';
+
+export function getUserId(): string | null {
+  return localStorage.getItem(SELECTED_DOCTOR_KEY);
+}
+
 export function extractVideoId(url: string): string {
   const regExp =
     /^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
