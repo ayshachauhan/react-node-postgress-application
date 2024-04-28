@@ -3,11 +3,15 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import {
+  CalendarEntity,
+  EvalEntity,
   InsuranceTypeEntity,
+  PatientEntity,
   PermissionEntity,
   PracticeEntity,
   PracticeHomesEntity,
   ReferrersEntity,
+  SurgeryEntity,
   SurgeryTypeEntity,
   TemplateEntity,
   UserEntity,
@@ -84,6 +88,10 @@ export const createInfraModuleProviders = (): Array<
           TemplateEntity,
           UserEntity,
           UserPermissionEntity,
+          CalendarEntity,
+          SurgeryEntity,
+          PatientEntity,
+          EvalEntity,
         ],
         synchronize: true,
       }),

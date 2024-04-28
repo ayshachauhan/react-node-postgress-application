@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { UserStatus, UserType } from '@packages/entities/user';
+import { UserType } from '@packages/entities/user';
 import { IsNotEmpty, IsOptional } from 'class-validator';
 
 export class CreateUserDto {
@@ -18,10 +18,6 @@ export class CreateUserDto {
   @IsNotEmpty({ message: 'userName is required.' })
   @ApiProperty()
   userName: string;
-
-  @IsNotEmpty({ message: 'Status is required.' })
-  @ApiProperty()
-  status: UserStatus;
 
   @IsNotEmpty({ message: 'userType is required.' })
   @ApiProperty()
