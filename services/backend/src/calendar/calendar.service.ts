@@ -1,4 +1,6 @@
 import {
+  HttpException,
+  HttpStatus,
   Inject,
   Injectable,
   NotFoundException,
@@ -49,6 +51,7 @@ export class CalendarService {
           id: surgeryTypeId,
         },
       },
+      relations: ['practice', 'surgeryType', 'user'],
     });
   }
 
@@ -62,6 +65,7 @@ export class CalendarService {
   ): Promise<CalendarEntity> {
     const response: CalendarEntity | null = await this.calendarRepo.findOne({
       where: { id: params.id },
+      relations: ['practice', 'surgeryType', 'user'],
     });
     if (!response) {
       throw new NotFoundException('Calendar does not exists');
@@ -90,7 +94,14 @@ export class CalendarService {
       practiceId,
     );
 
-    //TODO: need to check why we need to add the ! operator here, giving typeerror whithout them
+    if (dto.maxSlots < dto.availableSlots) {
+      throw new HttpException(
+        'MaxSlots should be greater than or equal to available slots',
+        HttpStatus.FORBIDDEN,
+      );
+    }
+
+    //TODO: need to check why we need to add the ! operator here, giving typeerror whithout them about DeepPartialEntity
     const calendar = this.calendarRepo.create({
       ...dto,
       practice: practiceEntity!,
@@ -111,11 +122,22 @@ export class CalendarService {
     { id }: UpdateCalendarParams,
     { maxSlots, availableSlots }: UpdateCalendarDto,
   ): Promise<CalendarEntity | null> {
+    if (maxSlots && availableSlots) {
+      if (maxSlots < availableSlots) {
+        throw new HttpException(
+          'MaxSlots should be greater than or equal to available slots',
+          HttpStatus.FORBIDDEN,
+        );
+      }
+    }
     await this.calendarRepo.update(id, {
       maxSlots,
       availableSlots,
     });
 
-    return await this.calendarRepo.findOne({ where: { id } });
+    return await this.calendarRepo.findOne({
+      where: { id },
+      relations: ['practice', 'surgeryType', 'user'],
+    });
   }
 }

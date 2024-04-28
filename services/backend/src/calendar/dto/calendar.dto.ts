@@ -8,6 +8,8 @@ export class CreateCalendarDto {
 
   @IsNotEmpty()
   @ApiProperty()
+  @Min(0)
+  @Max(14)
   availableSlots: number;
 
   @IsNotEmpty()
