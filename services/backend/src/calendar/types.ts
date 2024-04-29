@@ -1,7 +1,6 @@
 export type GetCalendarsParams = {
   practiceId: string;
   userId: string;
-  surgeryTypeId?: string;
 };
 
 export type GetCalendarByIdParams = GetCalendarsParams & { id: string };

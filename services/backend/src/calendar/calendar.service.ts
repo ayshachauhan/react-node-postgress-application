@@ -77,8 +77,8 @@ export class CalendarService {
    */
   async getCalendarBySurgeryType(
     params: GetCalendarBySurgeryTypeIdParams,
-  ): Promise<CalendarEntity> {
-    const response: CalendarEntity | null = await this.calendarRepo.findOne({
+  ): Promise<CalendarEntity[]> {
+    const response: CalendarEntity[] | null = await this.calendarRepo.find({
       where: {
         surgeryType: {
           id: params.surgeryTypeId,
@@ -101,7 +101,7 @@ export class CalendarService {
    * @returns
    */
   async createCalendar(
-    { practiceId, userId, surgeryTypeId }: CreateCalendarParams,
+    { practiceId, userId }: CreateCalendarParams,
     dto: CreateCalendarDto,
   ): Promise<CalendarEntity> {
     const practiceEntity = await this.practiceService.findOne(practiceId);
@@ -111,7 +111,7 @@ export class CalendarService {
     );
 
     const surgeryTypeEntity = await this.surgeryTypeService.getSurgeryTypeById(
-      surgeryTypeId,
+      dto.surgeryTypeId,
       practiceId,
     );
 

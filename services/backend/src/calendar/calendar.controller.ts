@@ -5,7 +5,7 @@ import {
   Param,
   Patch,
   Post,
-  //UseGuards,
+ // UseGuards,
   UseInterceptors,
   ValidationPipe,
 } from '@nestjs/common';
@@ -46,10 +46,10 @@ export class CalendarController {
     return this.calendarService.getCalendarById(params);
   }
 
-  @Get(':surgeryTypeId')
+  @Get('/surgery/:surgeryTypeId')
   getCalendarBySurgeryType(
     @Param() params: GetCalendarBySurgeryTypeIdParams,
-  ): Promise<CalendarEntity> {
+  ): Promise<CalendarEntity[]> {
     return this.calendarService.getCalendarBySurgeryType(params);
   }
 
