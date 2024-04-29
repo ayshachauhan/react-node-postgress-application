@@ -1,18 +1,18 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PracticeEntity } from '@packages/entities/practice';
-import { Referrers } from '@packages/entities/referrer';
-import { PracticeNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
+import { Review } from '@packages/entities/review';
+import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
 import { PracticesModule } from 'src/practices/practices.module';
-import { ReferrersController } from './referrers.controller';
-import { ReferrersService } from './referrers.service';
+import { ReviewController } from './review.controller';
+import { ReviewService } from './review.service';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Referrers, PracticeEntity]),
+    TypeOrmModule.forFeature([Review, PracticeEntity]),
     PracticesModule,
   ],
-  controllers: [ReferrersController],
-  providers: [ReferrersService, PracticeNotFoundInterceptor],
+  controllers: [ReviewController],
+  providers: [ReviewService, practiceNotFoundInterceptor],
 })
 export class ReferrersModule {}

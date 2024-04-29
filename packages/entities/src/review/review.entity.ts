@@ -1,6 +1,6 @@
-import { IReview } from '@packages/entities/review';
 import { Column, Entity } from 'typeorm';
 import { BaseEntity } from '../base.entity';
+import { IReview } from '../review';
 import { ReviewStatus } from '../review/review.interface';
 
 @Entity('review')

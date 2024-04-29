@@ -1,25 +1,25 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Referrers } from '@packages/entities/referrer';
-import { ILike, Repository } from 'typeorm';
+import { Review } from '@packages/entities/review';
+import { Repository } from 'typeorm';
 
 @Injectable()
-export class ReferrersService {
+export class ReviewService {
   constructor(
-    @InjectRepository(Referrers)
-    private readonly referrers: Repository<Referrers>,
+    @InjectRepository(Review)
+    private readonly reviews: Repository<Review>,
   ) {}
 
   async createReferrer(
     practiceId: string,
-    referrerData: Partial<Referrers>,
-  ): Promise<Referrers> {
-    const referrer = this.referrers.create({ ...referrerData, practiceId });
-    return await this.referrers.save(referrer);
+    referrerData: Partial<Review>,
+  ): Promise<Review> {
+    const referrer = this.reviews.create({ ...referrerData, practiceId });
+    return await this.reviews.save(referrer);
   }
 
-  async deleteReferrer(practiceId: string, id: string): Promise<void> {
-    await this.referrers.softDelete({
+  async deleteReview(practiceId: string, id: string): Promise<void> {
+    await this.reviews.softDelete({
       id,
       practiceId,
     });
@@ -28,8 +28,8 @@ export class ReferrersService {
   private async getReferrerById(
     practiceId: string,
     referrerId: string,
-  ): Promise<Referrers> {
-    const referrer = await this.referrers.findOne({
+  ): Promise<Review> {
+    const referrer = await this.reviews.findOne({
       where: { id: referrerId, practiceId },
     });
     if (!referrer) {
@@ -41,39 +41,29 @@ export class ReferrersService {
   async updateReferrer(
     practiceId: string,
     referrerId: string,
-    referrerData: Partial<Referrers>,
-  ): Promise<Referrers | undefined> {
+    referrerData: Partial<Review>,
+  ): Promise<Review | undefined> {
     const referrer = await this.getReferrerById(practiceId, referrerId);
-    const updatedReferrer = this.referrers.merge(referrer, referrerData);
-    return this.referrers.save(updatedReferrer);
+    const updatedReferrer = this.reviews.merge(referrer, referrerData);
+    return this.reviews.save(updatedReferrer);
   }
 
   async getReferrer(practiceId: string) {
-    const referrers = await this.referrers.find({
+    const reviews = await this.reviews.find({
       where: { practiceId },
     });
-    return referrers;
+    return reviews;
   }
 
-  async getReferrerByName(
-    practiceId: string,
-    keyword: string,
-  ): Promise<Referrers[]> {
-    const referrers = await this.referrers.find({
-      where: [
-        { firstName: ILike(`%${keyword}%`), practiceId: practiceId },
-        { lastName: ILike(`%${keyword}%`), practiceId: practiceId },
-      ],
-      order: {
-        firstName: 'ASC',
-        lastName: 'ASC',
-      },
+  async getReviewByName(practiceId: string): Promise<Review[]> {
+    const reviews = await this.reviews.find({
+      where: [{ practiceId: practiceId }, { practiceId: practiceId }],
     });
 
-    if (referrers.length === 0) {
-      throw new NotFoundException('No referrers found with the given keyword');
+    if (reviews.length === 0) {
+      throw new NotFoundException('No reviews found with the given keyword');
     }
 
-    return referrers;
+    return reviews;
   }
 }
