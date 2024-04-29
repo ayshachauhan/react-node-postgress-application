@@ -18,6 +18,7 @@ import { CreateCalendarDto, UpdateCalendarDto } from './dto/calendar.dto';
 import type {
   CreateCalendarParams,
   GetCalendarByIdParams,
+  GetCalendarBySurgeryTypeIdParams,
   GetCalendarsParams,
   UpdateCalendarParams,
 } from './types';
@@ -25,7 +26,7 @@ import type {
 @UseInterceptors(practiceNotFoundInterceptor)
 @ApiTags('Calendar')
 @ApiBearerAuth('normal')
-@Controller('/practices/:practiceId/users/:userId/:surgeryTypeId/calendar')
+@Controller('/practices/:practiceId/users/:userId/calendar')
 @UseGuards(AuthGuard)
 export class CalendarController {
   constructor(private calendarService: CalendarService) {}
@@ -43,6 +44,13 @@ export class CalendarController {
     @Param() params: GetCalendarByIdParams,
   ): Promise<CalendarEntity> {
     return this.calendarService.getCalendarById(params);
+  }
+
+  @Get('/surgery/:surgeryTypeId')
+  getCalendarBySurgeryType(
+    @Param() params: GetCalendarBySurgeryTypeIdParams,
+  ): Promise<CalendarEntity[]> {
+    return this.calendarService.getCalendarBySurgeryType(params);
   }
 
   @Post()

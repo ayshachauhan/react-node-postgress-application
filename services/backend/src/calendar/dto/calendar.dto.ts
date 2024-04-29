@@ -17,6 +17,10 @@ export class CreateCalendarDto {
   @Max(14)
   @Min(0)
   maxSlots: number;
+
+  @IsNotEmpty()
+  @ApiProperty()
+  surgeryTypeId: string;
 }
 
 export class UpdateCalendarDto {

@@ -16,6 +16,7 @@ import { CreateCalendarDto, UpdateCalendarDto } from './dto/calendar.dto';
 import {
   CreateCalendarParams,
   GetCalendarByIdParams,
+  GetCalendarBySurgeryTypeIdParams,
   GetCalendarsParams,
   UpdateCalendarParams,
 } from './types';
@@ -39,16 +40,12 @@ export class CalendarService {
   async getAllCalendars({
     practiceId,
     userId,
-    surgeryTypeId,
   }: GetCalendarsParams): Promise<CalendarEntity[]> {
     return await this.calendarRepo.find({
       where: {
         practice: { id: practiceId },
         user: {
           id: userId,
-        },
-        surgeryType: {
-          id: surgeryTypeId,
         },
       },
       relations: ['practice', 'surgeryType', 'user'],
@@ -74,13 +71,38 @@ export class CalendarService {
   }
 
   /**
+   * Get calendar by calendarid
+   * @param params
+   * @returns CalendarEntity
+   */
+  async getCalendarBySurgeryType(
+    params: GetCalendarBySurgeryTypeIdParams,
+  ): Promise<CalendarEntity[]> {
+    const response: CalendarEntity[] | null = await this.calendarRepo.find({
+      where: {
+        surgeryType: {
+          id: params.surgeryTypeId,
+        },
+      },
+      relations: ['practice', 'surgeryType', 'user'],
+    });
+
+    if (!response) {
+      throw new NotFoundException(
+        'Calendar does not exists for this surgerytype',
+      );
+    }
+    return response;
+  }
+
+  /**
    * Create Calendar
    * @param param0
    * @param dto
    * @returns
    */
   async createCalendar(
-    { practiceId, userId, surgeryTypeId }: CreateCalendarParams,
+    { practiceId, userId }: CreateCalendarParams,
     dto: CreateCalendarDto,
   ): Promise<CalendarEntity> {
     const practiceEntity = await this.practiceService.findOne(practiceId);
@@ -90,7 +112,7 @@ export class CalendarService {
     );
 
     const surgeryTypeEntity = await this.surgeryTypeService.getSurgeryTypeById(
-      surgeryTypeId,
+      dto.surgeryTypeId,
       practiceId,
     );
 
