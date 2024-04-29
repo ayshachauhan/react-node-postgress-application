@@ -11,4 +11,3 @@ export * from './surgery/surgery.interface';
 export * from './surgeryType/surgeryType.interface';
 export * from './template/template.interface';
 export * from './user/user.interface';
-export * from './user/userPermission.interface';

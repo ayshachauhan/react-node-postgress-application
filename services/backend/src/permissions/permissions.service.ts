@@ -24,6 +24,6 @@ export class PermissionsService {
     const permissions = await this.permissionRepository.find({
       where: { id: In(permissionIds) },
     });
-    return permissions.length > 0 ? permissions : null;
+    return permissions;
   }
 }
