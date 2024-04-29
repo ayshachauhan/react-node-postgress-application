@@ -107,7 +107,7 @@ export default function ReferrerTable() {
     };
   }, [successMessage, errorMessage, dispatch]);
   return (
-    <div className="mt-4">
+    <div className="my-4">
       <div className="flex justify-between border-gray-400">
         <span className="text-xl font-bold">Referrer</span>
         {showModal && <div className="text-green-700">{successMessage}</div>}

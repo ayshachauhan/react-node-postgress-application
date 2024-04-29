@@ -25,14 +25,6 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
     id: key,
   }));
 
-  interface Permission {
-    id: string;
-  }
-
-  const isChecked = (permissionsArray: Permission[], id: string): boolean => {
-    return permissionsArray.some((permission) => permission.id === id);
-  };
-
   const dispatch = useAppDispatch();
   const permissions = useAppSelector((state) =>
     Object.values(state.permissions.entities),
@@ -40,15 +32,6 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
   const [checkboxes, setCheckboxes] = useState(() =>
     Array(permissions.length).fill(false),
   );
-
-  const handleCheckboxChange = (index: number) => {
-    const updatedCheckboxes = [...checkboxes];
-    updatedCheckboxes[index] = !updatedCheckboxes[index];
-    setCheckboxes(updatedCheckboxes);
-    const selectedIds = getSelectedCheckboxIds(); // Get selected permission ids
-    // Update the permissions property in updatedUserInfo state
-    setUserInfo({ ...updatedUserInfo, permissions: selectedIds });
-  };
 
   const getSelectedCheckboxIds = (): string[] => {
     const selectedIds = permissions.reduce(
@@ -95,6 +78,12 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
   const handleTypeChange = (params) => {
     const { label } = params.option;
     setUserInfo({ ...updatedUserInfo, type: label });
+  };
+
+  const handleCheckboxChange = (index: number) => {
+    const updatedCheckboxes = [...checkboxes];
+    updatedCheckboxes[index] = !updatedCheckboxes[index];
+    setCheckboxes(updatedCheckboxes);
   };
 
   useEffect(() => {
@@ -327,15 +316,11 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
               >
                 Permissions
               </label>
-              <div className="grid grid-cols-3 gap-3.5">
+              <div className="grid grid-cols-3 gap-1">
                 {permissions.map((label, index) => (
                   <Checkbox
                     key={index}
-                    checked={
-                      updatedUserInfo?.permissions
-                        ? isChecked(updatedUserInfo.permissions, label.id)
-                        : false
-                    }
+                    checked={checkboxes[index]}
                     onChange={() => handleCheckboxChange(index)}
                     overrides={{
                       Checkmark: {

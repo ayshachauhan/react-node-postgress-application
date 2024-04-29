@@ -137,7 +137,7 @@ export class UsersService {
   async getUserById(id: string): Promise<UserEntity | null> {
     return this.usersRepository.findOne({
       where: { id },
-      relations: ['practices'],
+      relations: ['practices', 'permissions'],
     });
   }
 
@@ -169,19 +169,23 @@ export class UsersService {
       );
     }
 
-    const updatedResult = await this.usersRepository.update(id, {
-      ...updateUserDto,
-    });
+    const updatedUser = this.usersRepository.merge(userToUpdate, updateUserDto);
 
-    if (updatedResult.affected === 0) {
-      throw new HttpException(
-        `User with id ${id} not found`,
-        HttpStatus.NOT_FOUND,
-      );
+    if (updateUserDto.permissionIds) {
+      const permissionEntities =
+        await this.permissionsService.getPermissionByIds(
+          updateUserDto.permissionIds,
+        );
+      if (!permissionEntities) {
+        throw new HttpException(`Permissions not found`, HttpStatus.NOT_FOUND);
+      }
+      updatedUser.permissions = permissionEntities;
     }
-    const resultUser = await this.getUserById(id);
-    if (resultUser) {
-      return this.sanitizeUser(resultUser);
+
+    const savedUser = await this.usersRepository.save(updatedUser);
+
+    if (savedUser) {
+      return this.sanitizeUser(savedUser);
     }
     return null;
   }

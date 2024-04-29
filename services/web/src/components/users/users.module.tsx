@@ -32,9 +32,6 @@ import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 
 export default function UserPage() {
-  const permissions = useAppSelector((state) =>
-    Object.values(state.permissions.entities),
-  );
   const [showModal, setShowModal] = useState(false);
   const dispatch = useAppDispatch();
   const users = useAppSelector((state) => Object.values(state.users.entities));
@@ -51,14 +48,6 @@ export default function UserPage() {
     errorMessage: state.users.errorMessage,
   }));
   const router = useRouter();
-
-  interface Permission {
-    id: string;
-  }
-
-  const isChecked = (permissionsArray: Permission[], id: string): boolean => {
-    return permissionsArray.some((permission) => permission.id === id);
-  };
 
   useEffect(() => {
     if (practiceId !== null) {
@@ -187,7 +176,7 @@ export default function UserPage() {
   };
 
   return (
-    <div className="mt-4">
+    <div className="my-4">
       <div className="flex justify-between border-gray-400">
         <span className="text-xl font-bold">Users</span>
         {showModal && <div className="text-green-700">{successMessage}</div>}
@@ -201,7 +190,7 @@ export default function UserPage() {
       </div>
       <hr className="h-px my-2.5 bg-gray-100 border-1 dark:bg-gray-700"></hr>
       <div className="text-gray-50 w-full  items-center bg-gray-50 py-4 rounded-lg text-sm overflow-x-auto">
-        <div className="bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 grid grid-cols-[0.5fr_0.5fr_0.5fr_0.5fr_0.5fr_0.5fr_2.5fr_0.5fr_0.5fr_0.5fr] gap-4 p-4 rounded-lg">
+        <div className="bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 grid grid-cols-[0.5fr_1fr_1fr_1fr_1fr_0.5fr_2fr_1fr_0.5fr_0.5fr] gap-4 p-4 rounded-lg">
           <div className="font-bold text-white">Username</div>
           <div className="font-bold text-white">Email</div>
           <div className="font-bold text-white">Practice Name</div>
@@ -215,19 +204,31 @@ export default function UserPage() {
         </div>
         {filteredUsers.map((data) => (
           <React.Fragment key={data.id}>
-            <div className="grid grid-cols-[0.5fr_0.5fr_0.5fr_0.5fr_0.5fr_0.5fr_2.5fr_0.5fr_0.5fr_0.5fr] gap-4 bg-gray-50 px-4 py-2">
-              <div className="text-gray-900">{data.userName}</div>
-              <div className="text-gray-900">{data.email}</div>
-              <div className="text-gray-900">{practiceName}</div>
-              <div className="text-gray-900">{data.fullName}</div>
-              <div className="text-gray-900">{data.contactNumber}</div>
-              <div className="text-gray-900">{data.type}</div>
+            <div className="grid grid-cols-[0.5fr_1fr_1fr_1fr_1fr_0.5fr_2fr_1fr_0.5fr_0.5fr] gap-4 bg-gray-50 px-4 py-2">
+              <div className="text-gray-900 overflow-hidden whitespace-nowrap">
+                {data.userName}
+              </div>
+              <div className="text-gray-900 overflow-hidden whitespace-nowrap">
+                {data.email}
+              </div>
+              <div className="text-gray-900 overflow-hidden whitespace-nowrap">
+                {practiceName}
+              </div>
+              <div className="text-gray-900 overflow-hidden whitespace-nowrap">
+                {data.fullName}
+              </div>
+              <div className="text-gray-900 overflow-hidden whitespace-nowrap">
+                {data.contactNumber}
+              </div>
+              <div className="text-gray-900 overflow-hidden whitespace-nowrap">
+                {data.type}
+              </div>
               <div className="text-gray-900">
-                <div className="grid grid-cols-3 gap-2">
-                  {permissions.map((label, index) => (
+                <div className="grid grid-cols-2 gap-1">
+                  {data?.permissions.map((label, index) => (
                     <Checkbox
                       key={index}
-                      checked={isChecked(data.permissions, label.id)}
+                      checked={true}
                       overrides={{
                         Checkmark: {
                           style: ({ $checked }) => ({
@@ -257,8 +258,10 @@ export default function UserPage() {
                   ))}
                 </div>
               </div>
-              <div className="text-gray-900">{data.url}</div>
-              <div className="text-gray-900 text-center">
+              <div className="text-gray-900 overflow-hidden whitespace-nowrap">
+                {data.url}
+              </div>
+              <div className="text-gray-900 text-center overflow-hidden whitespace-nowrap">
                 <div
                   className={`rounded-md text-white px-1 ${
                     data.status?.toString() === 'pending'

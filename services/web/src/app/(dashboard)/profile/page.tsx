@@ -114,9 +114,9 @@ const Profile: React.FC = () => {
           </p>
         </div>
       </div>
-      <div className="ml-64 mt-6">
+      <div className="ml-64 mt-8 w-1/3">
         <span className="font-bold">Permissions </span>
-        <div className="grid grid-cols-3 gap-3.5 mt-2">
+        <div className="grid grid-cols-2 gap-1 mt-4 w-30">
           {permissions.map((label, index) => (
             <Checkbox
               key={index}
