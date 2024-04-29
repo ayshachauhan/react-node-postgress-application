@@ -2,6 +2,9 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { State } from '@root/store';
 import { indexBy } from '@root/utils';
 import {
+  addAllSurgeryTypeDetails,
+  addBodyPart,
+  addFacility,
   addSurgeryType,
   deleteSurgeryType,
   getSurgeryTypeInfo,
@@ -119,6 +122,81 @@ const surgeryTypeSlice = createSlice({
         state.errorMessage = 'Failed to delete surgery type';
       }
     });
+
+    // add facility
+    builder.addCase(addFacilityAsync.pending, (state) => {
+      state.processing = true;
+      state.status = EntityLoadingState.PENDING;
+    });
+
+    builder.addCase(addFacilityAsync.fulfilled, (state, action) => {
+      state.status = EntityLoadingState.SUCCEEDED;
+      state.entities = {
+        ...state.entities,
+        ...{ [action.payload.id]: action.payload },
+      };
+      state.successMessage = 'Record added successfully';
+    });
+
+    builder.addCase(addFacilityAsync.rejected, (state, action) => {
+      state.status = EntityLoadingState.FAILED;
+      if (typeof action.payload === 'string') {
+        state.errorMessage = action.payload ?? 'Failed to add surgery type';
+      } else {
+        state.errorMessage = 'Failed to add surgery type';
+      }
+    });
+
+    // add bodyPart
+    builder.addCase(addBodyPartAsync.pending, (state) => {
+      state.processing = true;
+      state.status = EntityLoadingState.PENDING;
+    });
+
+    builder.addCase(addBodyPartAsync.fulfilled, (state, action) => {
+      state.status = EntityLoadingState.SUCCEEDED;
+      state.entities = {
+        ...state.entities,
+        ...{ [action.payload.id]: action.payload },
+      };
+      state.successMessage = 'Record added successfully';
+    });
+
+    builder.addCase(addBodyPartAsync.rejected, (state, action) => {
+      state.status = EntityLoadingState.FAILED;
+      if (typeof action.payload === 'string') {
+        state.errorMessage = action.payload ?? 'Failed to add surgery type';
+      } else {
+        state.errorMessage = 'Failed to add surgery type';
+      }
+    });
+
+    // add allDetails
+    builder.addCase(addAllSurgeryTypeDetailsAsync.pending, (state) => {
+      state.processing = true;
+      state.status = EntityLoadingState.PENDING;
+    });
+
+    builder.addCase(
+      addAllSurgeryTypeDetailsAsync.fulfilled,
+      (state, action) => {
+        state.status = EntityLoadingState.SUCCEEDED;
+        state.entities = {
+          ...state.entities,
+          ...{ [action.payload.id]: action.payload },
+        };
+        state.successMessage = 'Record added successfully';
+      },
+    );
+
+    builder.addCase(addAllSurgeryTypeDetailsAsync.rejected, (state, action) => {
+      state.status = EntityLoadingState.FAILED;
+      if (typeof action.payload === 'string') {
+        state.errorMessage = action.payload ?? 'Failed to add surgery type';
+      } else {
+        state.errorMessage = 'Failed to add surgery type';
+      }
+    });
   },
 });
 export const { clearSuccessMessage, clearErrorMessage } =
@@ -142,6 +220,21 @@ export const addRecordAsync = createAsyncThunk(
 export const deleteRecordAsync = createAsyncThunk(
   'surgeryTypes/deleteRecordAsync',
   deleteSurgeryType,
+);
+
+export const addFacilityAsync = createAsyncThunk(
+  'surgeryTypes/facility/addRecordAsync',
+  addFacility,
+);
+
+export const addBodyPartAsync = createAsyncThunk(
+  'surgeryTypes/body-part/addRecordAsync',
+  addBodyPart,
+);
+
+export const addAllSurgeryTypeDetailsAsync = createAsyncThunk(
+  'surgeryTypes/body-part/addAllSurgeryTypeDetailsAsync',
+  addAllSurgeryTypeDetails,
 );
 
 export const selectRecords = (state: State) => state.surgeryTypes;

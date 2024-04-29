@@ -3,9 +3,9 @@ import { SurgeryChecklist, SurgeryOptions } from '@packages/entities/*';
 import { IsNotEmpty } from 'class-validator';
 
 export class CreateSurgeryTypeDto {
-  @IsNotEmpty({ message: 'Name is required' })
+  @IsNotEmpty({ message: 'Type is required' })
   @ApiProperty()
-  name: string;
+  type: string;
 }
 
 export class AddBodyPartToSurgeryTypeDto {

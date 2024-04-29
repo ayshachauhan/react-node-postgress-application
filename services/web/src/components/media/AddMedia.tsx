@@ -11,7 +11,7 @@ import React, { useEffect, useState } from 'react';
 const MediaPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const surgeryTypes = useAppSelector((state) => state.surgeryTypes.entities);
   const surgeryTypeOptions = Object.keys(surgeryTypes).map((key) => ({
-    label: surgeryTypes[key].name,
+    label: surgeryTypes[key].type,
     id: surgeryTypes[key].id,
   }));
   const practiceId = getPracticeId();

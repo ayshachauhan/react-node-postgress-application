@@ -13,8 +13,11 @@ export class SurgeryTypeEntity extends BaseEntity implements ISurgeryType {
   @JoinColumn({ name: 'practiceId' })
   practice: PracticeEntity;
 
-  @Column({ type: 'varchar' })
+  @Column({ type: 'varchar', nullable: true })
   name: string;
+
+  @Column({ type: 'varchar' })
+  type: string;
 
   @Column('varchar', {
     array: true,

@@ -96,4 +96,9 @@ export class SurgeryTypesController {
   ) {
     return this.surgeryTypesService.addSurgeryOption(id, dto.option);
   }
+
+  @Patch(':id/surgery-type-details')
+  async updateSurgeryDetails(@Param('id') id: string, @Body() dto) {
+    return this.surgeryTypesService.updateSurgeryDetails(id, dto);
+  }
 }

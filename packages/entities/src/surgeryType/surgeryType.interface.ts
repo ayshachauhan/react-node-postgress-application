@@ -8,6 +8,7 @@ export interface ISurgeryType extends IBaseEntity {
   facility: string[];
   options: SurgeryOptions;
   checkList: SurgeryChecklist;
+  type: string;
 }
 
 /**
@@ -43,7 +44,29 @@ export type SurgeryOptions = {
     label: string;
     default: string;
     required: string;
-    allowedValues: [];
+    allowedValues: SurgeryOptionAllowedList[];
     count: number;
   };
+};
+
+export interface IAddFacility {
+  id: string;
+  name: string;
+}
+
+export type AddFacility = {
+  practiceId: string;
+  id: string;
+  name: string;
+};
+
+export interface IBodyPart {
+  id: string;
+  name: string;
+}
+
+export type BodyPart = {
+  practiceId: string;
+  id: string;
+  name: string;
 };

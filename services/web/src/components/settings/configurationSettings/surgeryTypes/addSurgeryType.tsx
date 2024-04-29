@@ -16,7 +16,7 @@ const AddSurgeryType: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     if (practiceId) {
       const surgeryTypePayload: createSurgeryTypeInterface = {
         practiceId,
-        name: surgeryType,
+        type: surgeryType,
       };
       try {
         dispatch(addRecordAsync(surgeryTypePayload));

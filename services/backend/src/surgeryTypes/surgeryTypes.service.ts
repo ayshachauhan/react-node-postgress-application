@@ -41,7 +41,7 @@ export class SurgeryTypesService {
   }
 
   async create(
-    { name }: CreateSurgeryTypeDto,
+    { type }: CreateSurgeryTypeDto,
     practice: PracticeEntity,
   ): Promise<SurgeryTypeEntity> {
     const newPracticeHome: SurgeryTypeEntity = new SurgeryTypeEntity();
@@ -49,7 +49,7 @@ export class SurgeryTypesService {
     return await this.surgeryTypeRepository.save({
       ...newPracticeHome,
       practice,
-      name,
+      type,
     });
   }
 
@@ -126,6 +126,30 @@ export class SurgeryTypesService {
         ...surgeryType.options,
         ...option,
       },
+    });
+
+    return this.surgeryTypeRepository.findOne({ where: { id: id } });
+  }
+
+  async updateSurgeryDetails(
+    id: string,
+    data,
+  ): Promise<SurgeryTypeEntity | null> {
+    const surgeryType: SurgeryTypeEntity | null =
+      await this.surgeryTypeRepository.findOne({ where: { id } });
+
+    if (!surgeryType) {
+      throw new HttpException('Surgery type not found', HttpStatus.NOT_FOUND);
+    }
+    const options = data.options;
+    const checkList = data.checkList;
+
+    await this.surgeryTypeRepository.update(surgeryType.id, {
+      name: data.name,
+      bodyPart: data.bodyPart,
+      facility: data.facility,
+      options,
+      checkList,
     });
 
     return this.surgeryTypeRepository.findOne({ where: { id: id } });

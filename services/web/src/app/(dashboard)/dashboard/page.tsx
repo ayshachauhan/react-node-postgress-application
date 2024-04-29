@@ -122,7 +122,7 @@ const Dashboard: React.FC = () => {
         email: ele.patient.email,
         phoneNumber: ele.patient.phoneNumber,
         date: usDateFormatter(ele.date),
-        surgeryTypeName: ele.surgeryType.name,
+        surgeryTypeName: ele.surgeryType.type,
         practiceHomeName: ele.practiceHome.name,
         insuranceDetails: ele.insuranceDetails,
         insuranceTypeName: ele.insuranceType ? ele.insuranceType?.name : '',

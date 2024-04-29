@@ -40,7 +40,7 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
   }));
 
   const surgeryTypeOptions = Object.keys(surgeryTypesList).map((key) => ({
-    label: surgeryTypesList[key].name,
+    label: surgeryTypesList[key].type,
     id: surgeryTypesList[key].id,
   }));
 

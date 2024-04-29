@@ -118,7 +118,7 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
 
   const surgeryTypes = useAppSelector((state) => state.surgeryTypes.entities);
   const surgeryTypeOptions = Object.keys(surgeryTypes).map((key) => ({
-    label: surgeryTypes[key].name,
+    label: surgeryTypes[key].type,
     id: surgeryTypes[key].id,
   }));
 

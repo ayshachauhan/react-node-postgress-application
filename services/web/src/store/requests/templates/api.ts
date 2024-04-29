@@ -31,7 +31,7 @@ export const getTemplates = async (
 
     const modifiedDataObject = {};
     data.forEach((element: ITemplate) => {
-      const surgeryType: string = element.surgeryType.name;
+      const surgeryType: string = element.surgeryType.type;
       const messageType: string = element.messageType;
       if (modifiedDataObject[surgeryType]) {
         if (modifiedDataObject[surgeryType][messageType]) {

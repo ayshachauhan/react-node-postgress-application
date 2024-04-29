@@ -1,15 +1,14 @@
 'use client';
-import AddPracticeHome from '@components/settings/insuranceTypes/addInsuranceType';
-import { IInsuranceType } from '@packages/entities';
 import Button from '@root/components/Button';
 import { AddIcon, DeleteIcon } from '@root/components/Icons';
+import AddPracticeHome from '@root/components/settings/configurationSettings/PracticeHomes/addPracticeHome';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import {
   clearErrorMessage,
   clearSuccessMessage,
   deleteRecordAsync,
   fetchListings,
-} from '@root/store/reducers/insuranceTypes';
+} from '@root/store/reducers/practiceHomes';
 import { getPracticeInfo } from '@root/store/reducers/practices';
 import { getPracticeId } from '@utils/index';
 import {
@@ -22,7 +21,7 @@ import {
 } from 'baseui/modal';
 import React, { useEffect, useState } from 'react';
 
-export default function InsuranceTypePage() {
+export default function PracticeHomesPage() {
   const [showModal, setShowModal] = useState(false);
   const dispatch = useAppDispatch();
 
@@ -32,14 +31,14 @@ export default function InsuranceTypePage() {
   const practiceName = useAppSelector(
     (state) => state.practices.practiceInfo?.name,
   );
-  const insuranceTypes: IInsuranceType[] = useAppSelector((state) =>
-    Object.values(state.insuranceTypes.entities),
+  const practiceHomes = useAppSelector((state) =>
+    Object.values(state.practiceHomes.entities),
   );
-  const [insuranceTypeId, setInsuranceTypeId] = useState('');
+  const [practiceHomeId, setPracticeHomeId] = useState('');
   const [showErrorMessage, setShowErrorMessage] = useState(false);
   const { successMessage, errorMessage } = useAppSelector((state) => ({
-    successMessage: state.insuranceTypes.successMessage,
-    errorMessage: state.insuranceTypes.errorMessage,
+    successMessage: state.practiceHomes.successMessage,
+    errorMessage: state.practiceHomes.errorMessage,
   }));
 
   useEffect(() => {
@@ -75,7 +74,7 @@ export default function InsuranceTypePage() {
   const onConfirmDelete = (): void => {
     if (practiceId) {
       try {
-        dispatch(deleteRecordAsync({ practiceId, id: insuranceTypeId }));
+        dispatch(deleteRecordAsync({ practiceId, id: practiceHomeId }));
         setIsDeleteModalOpen(false);
       } catch (error) {
         console.log(error);
@@ -89,7 +88,7 @@ export default function InsuranceTypePage() {
 
   const handleOpenDeleteModal = (Id: string): void => {
     setIsDeleteModalOpen(true);
-    setInsuranceTypeId(Id);
+    setPracticeHomeId(Id);
   };
 
   const handleCloseModal = (): void => {
@@ -127,7 +126,7 @@ export default function InsuranceTypePage() {
             paddingBottom: '8px',
           }}
         >
-          Add New Insurance Type
+          Add New Practice Home
         </ModalHeader>
         <ModalBody>
           <AddPracticeHome onClose={handleCloseModal} />
@@ -173,7 +172,7 @@ export default function InsuranceTypePage() {
   return (
     <div className="mt-4">
       <div className="flex justify-between border-gray-400">
-        <span className="text-xl font-bold align-middle">Insurance Type</span>
+        <span className="text-xl font-bold align-middle">Practice Home</span>
         {showModal && <div className="text-green-700">{successMessage}</div>}
         {showErrorMessage && <div className="text-red-700">{errorMessage}</div>}
         <Button
@@ -188,9 +187,9 @@ export default function InsuranceTypePage() {
         <div className="bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 grid grid-cols-4 rounded-lg">
           <div className="font-bold text-white p-4">S. No.</div>
           <div className="font-bold text-white p-4">Practice Name</div>
-          <div className="font-bold text-white p-4">Insurance Type</div>
+          <div className="font-bold text-white p-4">Practice Home</div>
           <div className="font-bold text-white p-4">Action</div>
-          {insuranceTypes.map((data, index) => (
+          {practiceHomes.map((data, index) => (
             <React.Fragment key={data.id}>
               <div className="text-gray-900 bg-gray-50 pt-2 px-4">
                 {index + 1}
