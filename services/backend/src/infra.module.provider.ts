@@ -14,7 +14,6 @@ import {
   SurgeryTypeEntity,
   TemplateEntity,
   UserEntity,
-  UserPermissionEntity,
   VideoEntity,
 } from '@packages/entities';
 import { LoggerModule } from 'nestjs-pino';
@@ -86,7 +85,6 @@ export const createInfraModuleProviders = (): Array<
           SurgeryTypeEntity,
           TemplateEntity,
           UserEntity,
-          UserPermissionEntity,
           SurgeryEntity,
           PatientEntity,
           EvalEntity,
