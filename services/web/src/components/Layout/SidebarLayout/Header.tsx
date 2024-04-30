@@ -113,7 +113,7 @@ const Header: React.FC = () => {
   };
 
   return (
-    <nav className="fixed top-0 right-0 z-40 bg-white shadow-md w-[calc(100%-16rem)] h-[68px]">
+    <nav className="fixed top-0 right-0 z-40 bg-white shadow-md w-[calc(100%-16rem)] h-[68px] z-0">
       <div className="px-5 py-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center">

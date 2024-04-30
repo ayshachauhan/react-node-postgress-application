@@ -1,0 +1,180 @@
+import Button from '@root/components/Button';
+import TextInput from '@root/components/TextInput';
+import { useAppDispatch } from '@root/store';
+import { createCalendarEntry } from '@root/store/reducers/calendar';
+import { DatePicker } from 'baseui/datepicker';
+import { Select } from 'baseui/select';
+import React, { useState } from 'react';
+import { CalendarData } from '../dashboard/UpcomingSection';
+
+const UpsertCalendar: React.FC<{
+  onClose: () => void;
+  calendarData: CalendarData[];
+  isUpdating: boolean;
+}> = ({ onClose, calendarData, isUpdating }) => {
+  const maxSlotsOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
+  const dispatch = useAppDispatch();
+
+  const [upsertCalendarData, setUpsertCalendarData] =
+    useState<CalendarData[]>(calendarData);
+
+  const handleInputChange = (
+    value: string,
+    event?: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
+    console.log(
+      value,
+      'value',
+      event?.target.id,
+      event?.target.name,
+      'valueinput',
+    );
+
+    // Update the corresponding field in the state
+    setUpsertCalendarData((prevData) =>
+      prevData.map((calendar: CalendarData) => ({
+        ...calendar,
+        ...(event?.target ? { [event?.target.name]: value } : {}),
+      })),
+    );
+  };
+
+  console.log(upsertCalendarData, 'updcaldata');
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (isUpdating) {
+      const updatedData: CalendarData[] = upsertCalendarData.filter(
+        (calendar, index) => calendar.maxSlots !== calendarData[index].maxSlots,
+      );
+      if (updatedData.length) {
+        try {
+          dispatch(addRecordAsync(userPayloadData));
+          onClose();
+        } catch (error) {
+          onClose();
+        }
+      } else {
+        dispatch(createCalendarEntry());
+      }
+    }
+  };
+
+  return (
+    <div>
+      <form onSubmit={handleSubmit}>
+        {upsertCalendarData.map((calendar: CalendarData) => (
+          <div className="flex flex-row justify-between pt-4">
+            <div className=" flex-1 space-y-2 px-4">
+              <label
+                htmlFor="userName"
+                className="text-black text-sm font-normal"
+              >
+                Type
+              </label>
+              <TextInput
+                id={calendar.id}
+                name="surgeryType"
+                value={calendar.surgeryType}
+                onChange={handleInputChange}
+                required
+                disabled={true}
+              />
+            </div>
+            <div className="flex-1 space-y-2 px-4">
+              <label htmlFor="date" className="text-black text-sm font-normal">
+                Date
+              </label>
+              {isUpdating ? (
+                <TextInput
+                  id={calendar.id}
+                  name="date"
+                  value={calendar.date}
+                  onChange={handleInputChange}
+                  required
+                  disabled={isUpdating}
+                />
+              ) : (
+                <DatePicker
+                  value={new Date()}
+                  onChange={({ date }) => handleInputChange(date)}
+                  placeholder="Surgery Date"
+                  required
+                />
+              )}
+            </div>
+
+            <div className="flex-1 space-y-2 px-4">
+              <label
+                htmlFor="avaialableSlots"
+                className="text-black text-sm font-normal"
+              >
+                Available Slots{' '}
+              </label>
+              <TextInput
+                id={calendar.id}
+                name="availableSlots"
+                value={calendar.availableSlots}
+                onChange={handleInputChange}
+                required
+                disabled={true}
+              />
+            </div>
+            <div className=" flex-1 space-y-2 px-4">
+              <label
+                htmlFor="maxSlots"
+                className="text-black text-sm font-normal"
+              >
+                Max Slots{' '}
+              </label>
+              <Select
+                options={maxSlotsOptions.map((key: number) => ({
+                  label: key,
+                  id: key,
+                  calendarId: calendar.id,
+                }))}
+                onChange={({ value }) => {
+                  console.log(value, 'inselct');
+                  setUpsertCalendarData((prevData) =>
+                    prevData.map((cal: CalendarData) =>
+                      cal.id === value[0].calendarId
+                        ? { ...cal, maxSlots: value[0].label as number }
+                        : cal,
+                    ),
+                  );
+                }}
+                value={[{ label: calendar.maxSlots, id: calendar.id }]}
+                required
+                overrides={{
+                  ControlContainer: {
+                    style: {
+                      backgroundColor: 'rgba(250, 250, 250, 1)',
+                      border: 'none',
+                      color: 'rgba(82, 82, 91, 1)',
+                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)', // Add shadow CSS here
+                    },
+                  },
+                  ClearIcon: {
+                    component: () => null,
+                  },
+                }}
+              />
+            </div>
+          </div>
+        ))}
+        <div
+          className="space-y-2 px-4 py-4 mt-8 flex justify-end"
+          style={{ position: 'sticky', bottom: 0, backgroundColor: 'white' }}
+        >
+          <Button
+            kind="primary"
+            title={isUpdating ? 'Update' : 'Add'}
+            width={100}
+          />
+        </div>
+      </form>
+    </div>
+  );
+};
+
+export default UpsertCalendar;

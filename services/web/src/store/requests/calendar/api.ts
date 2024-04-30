@@ -33,6 +33,8 @@ export const getCalendars = async (
 
     const data: ICalendar[] = await response.json();
 
+    console.log(data, 'datacalendar');
+
     return data;
   } catch (error) {
     if (error instanceof Error) {

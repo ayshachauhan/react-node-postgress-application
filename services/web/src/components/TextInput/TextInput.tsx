@@ -4,7 +4,10 @@ import { Input, InputOverrides, InputProps } from 'baseui/input';
 import React from 'react';
 
 type Props = Partial<Omit<InputProps, 'onChange'>> & {
-  onChange: (value: string) => void;
+  onChange: (
+    value: string,
+    event?: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => void;
   onBlur?: (event: React.FocusEvent) => void;
   onFocus?: () => void;
   heightOverride?: string;
@@ -46,7 +49,7 @@ const TextInput: React.FC<Props> = ({
   function handleChange(
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ): void {
-    onChange(event.target.value);
+    onChange(event.target.value, event);
   }
 
   function handleFocus(): void {
