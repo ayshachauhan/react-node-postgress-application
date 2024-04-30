@@ -79,7 +79,7 @@ export class PracticesService {
   async findOne(id: string): Promise<PracticeEntity | null> {
     return await this.practicesRepository.findOne({
       where: { id },
-      relations: ['users'],
+      relations: ['users', 'users.permissions'],
     });
   }
 
@@ -119,6 +119,7 @@ export class PracticesService {
           type: UserType.ADMIN,
           url: '',
           contactNumber: adminContactNumber,
+          permissionIds: [],
         },
         practice.id,
       );

@@ -6,11 +6,12 @@ import {
   EditIcon,
   ViewIcon,
 } from '@root/components/Icons';
-import Form from '@root/components/users/addUser.module';
-import EditUser from '@root/components/users/editUser.module';
+import AddUserModal from '@root/components/users/AddUserModal';
+import EditUserModal from '@root/components/users/EditUserModal';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { selectRecords } from '@root/store/reducers/auth';
 import { getPracticeInfo } from '@root/store/reducers/practices';
+import { fetchListings as fetchPermissions } from '@root/store/reducers/userPermissions';
 import {
   clearErrorMessage,
   clearSuccessMessage,
@@ -18,6 +19,7 @@ import {
   fetchListings,
 } from '@root/store/reducers/users';
 import { getPracticeId } from '@utils/index';
+import { Checkbox } from 'baseui/checkbox';
 import {
   Modal,
   ModalBody,
@@ -30,16 +32,16 @@ import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 
 export default function UserPage() {
-  const [showModal, setShowModal] = useState(false); // State to manage modal visibility
+  const [showModal, setShowModal] = useState(false);
   const dispatch = useAppDispatch();
   const users = useAppSelector((state) => Object.values(state.users.entities));
-  const userInfo = useAppSelector(selectRecords); // Select success message from Redux store
+  const userInfo = useAppSelector(selectRecords);
   const filteredUsers = users.filter((user) => user.id !== userInfo?.id);
   const [userId, setUserId] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const practiceId = getPracticeId(); // Select success message from Redux store
+  const practiceId = getPracticeId();
   const [showErrorMessage, setShowErrorMessage] = useState(false);
   const { successMessage, errorMessage } = useAppSelector((state) => ({
     successMessage: state.users.successMessage,
@@ -49,9 +51,13 @@ export default function UserPage() {
 
   useEffect(() => {
     if (practiceId !== null) {
-      dispatch(fetchListings({ practiceId: practiceId })); // Fetch listings from PostgreSQL database
+      dispatch(fetchListings({ practiceId: practiceId }));
     }
   }, [practiceId, dispatch]);
+
+  useEffect(() => {
+    dispatch(fetchPermissions(undefined));
+  }, []);
 
   useEffect(() => {
     let timer;
@@ -59,15 +65,15 @@ export default function UserPage() {
       setShowModal(true);
       timer = setTimeout(() => {
         setShowModal(false);
-        dispatch(clearSuccessMessage()); // Clear success message
-      }, 2000); // Hide modal after 2 seconds
+        dispatch(clearSuccessMessage());
+      }, 2000);
     }
     if (errorMessage) {
       setShowErrorMessage(true);
       timer = setTimeout(() => {
         setShowErrorMessage(false);
-        dispatch(clearErrorMessage()); // Clear error message
-      }, 2000); // Hide modal after 2 seconds
+        dispatch(clearErrorMessage());
+      }, 2000);
     }
     return () => {
       if (timer) {
@@ -78,7 +84,7 @@ export default function UserPage() {
 
   useEffect(() => {
     if (practiceId) {
-      dispatch(getPracticeInfo({ id: practiceId })); // Fetch listings from PostgreSQL database
+      dispatch(getPracticeInfo({ id: practiceId }));
     }
   }, [practiceId, dispatch]);
   const practiceName = useAppSelector(
@@ -106,8 +112,8 @@ export default function UserPage() {
 
   const handleViewUser = (id: string): void => {
     const query = { id };
-    const queryString = new URLSearchParams(query).toString(); // Serialize the query object
-    const url = `/users/view/?${queryString}`; // Append the serialized query string to the pathname
+    const queryString = new URLSearchParams(query).toString();
+    const url = `/users/view/?${queryString}`;
     router.push(url);
   };
 
@@ -137,71 +143,6 @@ export default function UserPage() {
     setUserId(null);
   };
 
-  const UserAddModal = () => {
-    return (
-      <Modal
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-        closeable
-        animate
-        autoFocus
-        size={SIZE.default}
-        role={ROLE.dialog}
-        overrides={{
-          Root: {
-            style: ({ $theme }) => ({
-              outline: `${$theme.colors.warning200} solid`,
-              backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            }),
-          },
-        }}
-      >
-        <ModalHeader
-          $style={{
-            fontSize: '1.25rem',
-            fontWeight: 700,
-            borderBottom: '1px solid rgba(244, 244, 245, 1)',
-            paddingBottom: '8px',
-          }}
-        >
-          Add New User
-        </ModalHeader>
-        <ModalBody>
-          <Form onClose={handleCloseModal} />
-        </ModalBody>
-      </Modal>
-    );
-  };
-  const UserEditModal = () => {
-    return (
-      <Modal
-        isOpen={isEditModalOpen}
-        onClose={handleCloseEditModal}
-        closeable
-        animate
-        autoFocus
-        size={SIZE.default}
-        role={ROLE.dialog}
-        overrides={{
-          Root: {
-            style: ({ $theme }) => ({
-              outline: `${$theme.colors.warning200} solid`,
-              backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            }),
-          },
-        }}
-      >
-        <ModalHeader $style={{ fontSize: '1.25rem', fontWeight: 700 }}>
-          Edit User
-        </ModalHeader>
-        <ModalBody>
-          {userId !== null && (
-            <EditUser data={{ id: userId }} onClose={handleCloseEditModal} />
-          )}
-        </ModalBody>
-      </Modal>
-    );
-  };
   const UserDeleteModal = () => {
     return (
       <Modal
@@ -235,7 +176,7 @@ export default function UserPage() {
   };
 
   return (
-    <div className="mt-4">
+    <div className="my-4">
       <div className="flex justify-between border-gray-400">
         <span className="text-xl font-bold">Users</span>
         {showModal && <div className="text-green-700">{successMessage}</div>}
@@ -248,51 +189,81 @@ export default function UserPage() {
         />
       </div>
       <hr className="h-px my-2.5 bg-gray-100 border-1 dark:bg-gray-700"></hr>
-      <div className="text-gray-50 w-full  items-center  bg-gray-50 py-4 rounded-lg">
-        <div className="bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 grid grid-cols-10 rounded-lg">
-          <div className="font-bold text-white p-4">S. No.</div>
-          {/* <div className="font-bold text-white p-4">Location</div> */}
-          <div className="font-bold text-white p-4">Username</div>
-          <div className="font-bold text-white p-4">Email</div>
-          <div className="font-bold text-white p-4">Practice Name</div>
-          <div className="font-bold text-white p-4">Display Name</div>
-          <div className="font-bold text-white p-4">Contact No.</div>
-          <div className="font-bold text-white p-4">Designation</div>
-          <div className="font-bold text-white p-4">User URL</div>
-          <div className="font-bold text-white p-4">Status</div>
-          <div className="font-bold text-white p-4">Action</div>
-          {filteredUsers.map((data, index) => (
-            <React.Fragment key={data.id}>
-              <div className="text-gray-900 bg-gray-50 pt-2 px-4">
-                {index + 1}
-              </div>
-              {/* <div className="text-gray-900 bg-gray-50 pt-2 px-4">
-                
-              </div> */}
-              <div className="text-gray-900 bg-gray-50 pt-2 px-4">
+      <div className="text-gray-50 w-full  items-center bg-gray-50 py-4 rounded-lg text-sm overflow-x-auto">
+        <div className="bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 grid grid-cols-[0.5fr_1fr_1fr_1fr_1fr_0.5fr_2fr_1fr_0.5fr_0.5fr] gap-4 p-4 rounded-lg">
+          <div className="font-bold text-white">Username</div>
+          <div className="font-bold text-white">Email</div>
+          <div className="font-bold text-white">Practice Name</div>
+          <div className="font-bold text-white">Display Name</div>
+          <div className="font-bold text-white">Contact No.</div>
+          <div className="font-bold text-white">Designation</div>
+          <div className="font-bold text-white">Permissions</div>
+          <div className="font-bold text-white">Social Media URL</div>
+          <div className="font-bold text-white">Status</div>
+          <div className="font-bold text-white">Action</div>
+        </div>
+        {filteredUsers.map((data) => (
+          <React.Fragment key={data.id}>
+            <div className="grid grid-cols-[0.5fr_1fr_1fr_1fr_1fr_0.5fr_2fr_1fr_0.5fr_0.5fr] gap-4 bg-gray-50 px-4 py-2">
+              <div className="text-gray-900 overflow-hidden whitespace-nowrap">
                 {data.userName}
               </div>
-              <div className="text-gray-900 bg-gray-50 pt-2 px-4">
+              <div className="text-gray-900 overflow-hidden whitespace-nowrap">
                 {data.email}
               </div>
-              <div className="text-gray-900 bg-gray-50 pt-2 px-4">
+              <div className="text-gray-900 overflow-hidden whitespace-nowrap">
                 {practiceName}
               </div>
-              <div className="text-gray-900 bg-gray-50 pt-2 px-4">
+              <div className="text-gray-900 overflow-hidden whitespace-nowrap">
                 {data.fullName}
               </div>
-              <div className="text-gray-900 bg-gray-50 pt-2 px-4">
+              <div className="text-gray-900 overflow-hidden whitespace-nowrap">
                 {data.contactNumber}
               </div>
-              <div className="text-gray-900 bg-gray-50 pt-2 px-4">
+              <div className="text-gray-900 overflow-hidden whitespace-nowrap">
                 {data.type}
               </div>
-              <div className="text-gray-900 bg-gray-50 pt-2 px-4">
+              <div className="text-gray-900">
+                <div className="grid grid-cols-2 gap-1">
+                  {data?.permissions.map((label, index) => (
+                    <Checkbox
+                      key={index}
+                      checked={true}
+                      overrides={{
+                        Checkmark: {
+                          style: ({ $checked }) => ({
+                            backgroundColor: $checked
+                              ? 'rgba(34, 197, 94, 1)'
+                              : 'white',
+                            borderColor: $checked
+                              ? 'rgba(34, 197, 94, 1)'
+                              : 'rgba(113, 113, 122, 1)',
+                            width: '15px',
+                            height: '15px',
+                            marginTop: '7px',
+                            marginRight: '0px',
+                            borderRadius: '2px',
+                            borderWidth: '2px',
+                          }),
+                        },
+                      }}
+                    >
+                      <label
+                        htmlFor={`checkbox-${index}`}
+                        className="text-black text-sm font-normal"
+                      >
+                        <span className="truncate">{label.name}</span>
+                      </label>
+                    </Checkbox>
+                  ))}
+                </div>
+              </div>
+              <div className="text-gray-900 overflow-hidden whitespace-nowrap">
                 {data.url}
               </div>
-              <div className="text-gray-900 bg-gray-50 pt-2 px-4 flex text-center items-center">
+              <div className="text-gray-900 text-center overflow-hidden whitespace-nowrap">
                 <div
-                  className={`rounded-md text-white px-3.5 ${
+                  className={`rounded-md text-white px-1 ${
                     data.status?.toString() === 'pending'
                       ? 'bg-yellow-500'
                       : data.status?.toString() === 'inactive'
@@ -303,32 +274,39 @@ export default function UserPage() {
                   {data.status?.toString()}
                 </div>
               </div>
-              <div className="text-gray-900 bg-gray-50 pt-2 px-4 flex gap-4">
+              <div className="text-gray-900 flex gap-4">
                 <div
                   onClick={() => data.id && handleViewUser(data.id)}
                   className="cursor-pointer"
                 >
-                  <ViewIcon className="mt-2"></ViewIcon>
+                  <ViewIcon></ViewIcon>
                 </div>
                 <div
                   onClick={() => data.id && handleOpenEditModal(data.id)}
                   className="cursor-pointer"
                 >
-                  <EditIcon className="mt-2"></EditIcon>
+                  <EditIcon></EditIcon>
                 </div>
                 <div
                   onClick={() => data.id && handleOpenDeleteModal(data.id)}
                   className="cursor-pointer"
                 >
-                  <DeleteIcon className="mt-2"></DeleteIcon>
+                  <DeleteIcon></DeleteIcon>
                 </div>
               </div>
-            </React.Fragment>
-          ))}
-        </div>
+            </div>
+          </React.Fragment>
+        ))}
       </div>
-      <UserAddModal />
-      <UserEditModal />
+      <AddUserModal
+        isModalOpen={isModalOpen}
+        handleCloseModal={handleCloseModal}
+      />
+      <EditUserModal
+        isEditModalOpen={isEditModalOpen}
+        handleCloseEditModal={handleCloseEditModal}
+        userId={userId}
+      />
       <UserDeleteModal />
     </div>
   );

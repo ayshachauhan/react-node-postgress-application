@@ -34,4 +34,8 @@ export class UpdateUserDto {
   @IsOptional()
   @ApiProperty()
   url: string;
+
+  @IsOptional()
+  @ApiProperty()
+  permissionIds: string[];
 }

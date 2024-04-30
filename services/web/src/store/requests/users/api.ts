@@ -1,7 +1,7 @@
 import { IUser } from '@packages/entities/index.browser';
 import { ApiService } from '@root/services/apiclient';
 import { SanitizedUser } from '@root/store/types';
-import { AddUser, ChangePasswordInterface, EditUser } from '.';
+import { ChangePasswordInterface } from '.';
 
 const apiClient = new ApiService();
 
@@ -67,7 +67,15 @@ export const getUserInfo = async (
  * @returns
  */
 export const addUser = async (
-  payloadData: AddUser,
+  payloadData: Omit<
+    IUser,
+    | 'password'
+    | 'practices'
+    | 'id'
+    | 'dateCreated'
+    | 'dateUpdated'
+    | 'permissions'
+  >,
   { rejectWithValue },
 ): Promise<SanitizedUser> => {
   try {
@@ -98,7 +106,10 @@ export const addUser = async (
  * @note ToDO: Need to udpate types as we are getting santized respones back
  */
 export const updateUser = async (
-  payloadData: EditUser,
+  payloadData: Omit<
+    IUser,
+    'password' | 'practices' | 'dateCreated' | 'dateUpdated' | 'permissions'
+  >,
   { rejectWithValue },
 ): Promise<SanitizedUser> => {
   try {
