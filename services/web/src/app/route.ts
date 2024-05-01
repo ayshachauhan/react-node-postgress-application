@@ -1,6 +1,19 @@
 import { redirect } from 'next/navigation';
 
-export const GET = () => {
-  // todo: add auth logic here
-  redirect('/login');
+// Example authentication check function
+async function isAuthenticated(req) {
+  // This should include actual logic to check user authentication status
+  // For demonstration, this returns false to always trigger the redirect
+  return true;
+}
+
+export const GET = async ({ req }) => {
+  // Check if the user is authenticated
+  const auth = await isAuthenticated(req);
+
+  if (!auth) {
+    return redirect('/login');
+  }
+
+  return redirect('/dashboard');
 };
