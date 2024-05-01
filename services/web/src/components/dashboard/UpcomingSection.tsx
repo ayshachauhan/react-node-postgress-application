@@ -237,6 +237,7 @@ const UpcomingSection: React.FC = () => {
                   ]
             }
             isUpdating={isUpdating ?? false}
+            selectedSurgery={selectedSurgery}
           />
         </ModalBody>
       </Modal>

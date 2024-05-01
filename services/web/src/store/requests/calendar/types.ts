@@ -10,7 +10,7 @@ export type CreateCalendarPayload = {
   maxSlots: number;
   availableSlots: number;
   date: Date;
-} & CalendarsPayload;
+} & Required<CalendarsPayload>;
 
 export type GetCalendarByIdPayload = { id: string } & CalendarsPayload;
 

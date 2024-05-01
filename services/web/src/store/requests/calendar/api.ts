@@ -59,10 +59,12 @@ export const createCalendar = async (
       getUrlPath(payload),
       payload,
     );
+
     if (!response.ok) {
       throw new Error('Failed to add calendar entry');
     }
     const data: ICalendar = await response.json();
+
     return data;
   } catch (error) {
     if (error instanceof Error) {
@@ -109,6 +111,34 @@ export const getCalendarById = async (
  * @returns Icalendar
  */
 export const updateCalendar = async (
+  payload: UpdateCalendarPayload,
+  { rejectWithValue },
+): Promise<ICalendar> => {
+  try {
+    const response: Response = await apiClient.patch(
+      `${getUrlPath(payload)}/${payload.id}`,
+      payload,
+    );
+    if (!response.ok) {
+      throw new Error('Failed to add calendar entry');
+    }
+    const data: ICalendar = await response.json();
+    return data;
+  } catch (error) {
+    if (error instanceof Error) {
+      return rejectWithValue(error.message);
+    }
+    return rejectWithValue('An unknown error occurred');
+  }
+};
+
+/**
+ * @summary Update calendar for a practice
+ * @param payloadData
+ * @param param1
+ * @returns Icalendar
+ */
+export const updateCalendars = async (
   payload: UpdateCalendarPayload,
   { rejectWithValue },
 ): Promise<ICalendar> => {

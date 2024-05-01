@@ -1,7 +1,10 @@
+import { ISurgeryType } from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
 import { useAppDispatch } from '@root/store';
 import { createCalendarEntry } from '@root/store/reducers/calendar';
+import { CreateCalendarPayload } from '@root/store/requests/calendar';
+import { getPracticeId, getUserId } from '@root/utils';
 import { DatePicker } from 'baseui/datepicker';
 import { Select } from 'baseui/select';
 import React, { useState } from 'react';
@@ -11,7 +14,8 @@ const UpsertCalendar: React.FC<{
   onClose: () => void;
   calendarData: CalendarData[];
   isUpdating: boolean;
-}> = ({ onClose, calendarData, isUpdating }) => {
+  selectedSurgery: ISurgeryType;
+}> = ({ onClose, calendarData, isUpdating, selectedSurgery }) => {
   const maxSlotsOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
   const dispatch = useAppDispatch();
 
@@ -25,6 +29,7 @@ const UpsertCalendar: React.FC<{
     console.log(
       value,
       'value',
+      event,
       event?.target.id,
       event?.target.name,
       'valueinput',
@@ -43,21 +48,40 @@ const UpsertCalendar: React.FC<{
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (isUpdating) {
-      const updatedData: CalendarData[] = upsertCalendarData.filter(
-        (calendar, index) => calendar.maxSlots !== calendarData[index].maxSlots,
-      );
-      if (updatedData.length) {
-        try {
-          dispatch(addRecordAsync(userPayloadData));
-          onClose();
-        } catch (error) {
-          onClose();
+    const practiceId = getPracticeId();
+    const userId = getUserId();
+    console.log('insubmit', practiceId, userId, isUpdating);
+
+    if (practiceId && userId)
+      if (isUpdating) {
+        const updatedData: CalendarData[] = upsertCalendarData.filter(
+          (calendar, index) =>
+            calendar.maxSlots !== calendarData[index].maxSlots,
+        );
+        console.log(updatedData, 'updata');
+        if (updatedData.length) {
+          try {
+            dispatch(addRecordAsync(userPayloadData));
+            onClose();
+          } catch (error) {
+            onClose();
+          }
+        } else {
         }
       } else {
-        dispatch(createCalendarEntry());
+        const payload: CreateCalendarPayload = {
+          practiceId,
+          userId,
+          surgeryTypeId: selectedSurgery.id,
+          maxSlots: upsertCalendarData[0].maxSlots,
+          availableSlots: upsertCalendarData[0].availableSlots,
+          date: new Date(upsertCalendarData[0].date).toISOString(),
+        };
+
+        console.log(payload, 'payloadc');
+
+        dispatch(createCalendarEntry(payload));
       }
-    }
   };
 
   return (
@@ -96,8 +120,10 @@ const UpsertCalendar: React.FC<{
                 />
               ) : (
                 <DatePicker
-                  value={new Date()}
-                  onChange={({ date }) => handleInputChange(date)}
+                  value={calendar.date}
+                  onChange={({ date }) =>
+                    handleInputChange(date, { target: { name: 'date' } })
+                  }
                   placeholder="Surgery Date"
                   required
                 />
@@ -170,6 +196,7 @@ const UpsertCalendar: React.FC<{
             kind="primary"
             title={isUpdating ? 'Update' : 'Add'}
             width={100}
+            type="submit"
           />
         </div>
       </form>
