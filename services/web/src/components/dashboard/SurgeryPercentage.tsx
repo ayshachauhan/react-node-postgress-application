@@ -1,19 +1,18 @@
 'use client';
-import DataTable, { ColumnConfig } from '@components/DataTable';
 import React from 'react';
 
-const DUMMY_DATA = [
-  { name: 'Cataract', age: 10 },
-  { name: 'AM%', age: 15 },
-  { name: 'Kiera', age: 13 },
-  { name: 'Edna', age: 20 },
-  { name: 'Soraya', age: 18 },
-  { name: 'Dorris', age: 32 },
-  { name: 'Astrid', age: 26 },
+const surgeryPercentage = [
+  { name: 'Cataract', percentage: '10', id: '1' },
+  { name: 'AM%', percentage: '15', id: '2' },
+  { name: 'Kiera', percentage: '13', id: '3' },
+  { name: 'Edna', percentage: '20', id: '4' },
+  { name: 'Soraya', percentage: '18', id: '5' },
+  { name: 'Dorris', percentage: '32', id: '6' },
+  { name: 'Astrid', percentage: '26', id: '7' },
 ];
 
 const SurgeryPercentage: React.FC = () => {
-  const maxCellStyle = (cellValue: number | string) => {
+  const maxCellStyle = (cellValue: string) => {
     const numericValue =
       typeof cellValue === 'string'
         ? parseInt(cellValue.replace('%', ''), 10)
@@ -30,55 +29,9 @@ const SurgeryPercentage: React.FC = () => {
     }
   };
 
-  const appendPercentageSign = (cellValue: number) => {
+  const appendPercentageSign = (cellValue: string) => {
     return cellValue + '%';
   };
-
-  const columnConfig: ColumnConfig<{ name: string; age: number }>[] = [
-    { title: 'Surgery', accessor: 'name', id: 'name', width: 100 },
-    {
-      title: '1',
-      id: 'age',
-      width: 40,
-      cellStyle: maxCellStyle,
-      accessor: (row) => appendPercentageSign(row.age),
-    },
-    {
-      title: '2',
-      id: 'age',
-      width: 40,
-      cellStyle: maxCellStyle,
-      accessor: (row) => appendPercentageSign(row.age),
-    },
-    {
-      title: '3',
-      id: 'age',
-      width: 40,
-      cellStyle: maxCellStyle,
-      accessor: (row) => appendPercentageSign(row.age),
-    },
-    {
-      title: '6',
-      id: 'age',
-      width: 40,
-      cellStyle: maxCellStyle,
-      accessor: (row) => appendPercentageSign(row.age),
-    },
-    {
-      title: '12',
-      id: 'age',
-      width: 40,
-      cellStyle: maxCellStyle,
-      accessor: (row) => appendPercentageSign(row.age),
-    },
-    {
-      title: 'All',
-      id: 'age',
-      width: 40,
-      cellStyle: maxCellStyle,
-      accessor: (row) => appendPercentageSign(row.age),
-    },
-  ];
 
   return (
     <div>
@@ -86,9 +39,68 @@ const SurgeryPercentage: React.FC = () => {
         Surgery Percentage
         <hr className="h-px my-2.5 bg-gray-100 border-1 border-gray-100"></hr>
       </div>
-      <div className="overflow-x-auto">
-        <div className="mt-2 text-xs">
-          <DataTable data={DUMMY_DATA} columns={columnConfig} />
+      <div className="mt-2 text-xs overflow-x-auto">
+        <div className="text-gray-50 w-full items-center bg-gray-50 rounded-lg">
+          <div className="bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 flex">
+            <div className="font-bold text-white p-4 w-20">Surgery</div>
+            <div className="font-bold text-white p-4 w-10">1</div>
+            <div className="font-bold text-white p-4 w-10">2</div>
+            <div className="font-bold text-white p-4 w-10">3</div>
+            <div className="font-bold text-white p-4 w-10">6</div>
+            <div className="font-bold text-white p-4 w-10">12</div>
+            <div className="font-bold text-white p-4 w-10">All</div>
+          </div>
+          {surgeryPercentage.map((surgery, index) => (
+            <React.Fragment key={surgery.id}>
+              <div
+                className={`flex ${
+                  index !== surgeryPercentage.length - 1
+                    ? 'border-b border-gray-300'
+                    : ''
+                }`}
+              >
+                <div className="text-black bg-gray-50 pt-2 pb-2 px-4 w-20">
+                  {surgery.name}
+                </div>
+                <div
+                  className="text-black bg-gray-50 pt-2 pb-2 px-4 w-10"
+                  style={maxCellStyle(appendPercentageSign(surgery.percentage))}
+                >
+                  {appendPercentageSign(surgery.percentage)}
+                </div>
+                <div
+                  className="text-black bg-gray-50 pt-2 pb-2 px-4 w-10"
+                  style={maxCellStyle(appendPercentageSign(surgery.percentage))}
+                >
+                  {appendPercentageSign(surgery.percentage)}
+                </div>
+                <div
+                  className="text-black bg-gray-50 pt-2 pb-2 px-4 w-10"
+                  style={maxCellStyle(appendPercentageSign(surgery.percentage))}
+                >
+                  {appendPercentageSign(surgery.percentage)}
+                </div>
+                <div
+                  className="text-black bg-gray-50 pt-2 pb-2 px-4 w-10"
+                  style={maxCellStyle(appendPercentageSign(surgery.percentage))}
+                >
+                  {appendPercentageSign(surgery.percentage)}
+                </div>
+                <div
+                  className="text-black bg-gray-50 pt-2 pb-2 px-4 w-10"
+                  style={maxCellStyle(appendPercentageSign(surgery.percentage))}
+                >
+                  {appendPercentageSign(surgery.percentage)}
+                </div>
+                <div
+                  className="text-black bg-gray-50 pt-2 pb-2 px-4 w-10"
+                  style={maxCellStyle(appendPercentageSign(surgery.percentage))}
+                >
+                  {appendPercentageSign(surgery.percentage)}
+                </div>
+              </div>
+            </React.Fragment>
+          ))}
         </div>
       </div>
     </div>
