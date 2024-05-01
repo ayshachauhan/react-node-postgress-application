@@ -60,11 +60,13 @@ const UpcomingSection: React.FC = () => {
     setActiveButton(id);
   };
 
+  const handleOpenEditModal = (): void => {};
+
   return (
     <div>
       <div className="text-lg font-normal flex justify-between">
         <span>Upcoming</span>
-        <div className="cursor-pointer">
+        <div className="cursor-pointer" onClick={() => handleOpenEditModal()}>
           <EditIcon className="mt-2"></EditIcon>
         </div>
       </div>

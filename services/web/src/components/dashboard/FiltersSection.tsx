@@ -1,7 +1,7 @@
 import { HomeIcon, RoundIcon } from '@root/components/Icons';
 import { Input } from 'baseui/input';
 import { Select } from 'baseui/select';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   CopyIcon,
   DeleteIcon,
@@ -38,10 +38,45 @@ const FiltersSection: React.FC = () => {
     </div>
   );
 
+  interface MonthOption {
+    label: string;
+    value: string;
+  }
+
+  const monthOptions = [
+    { label: 'January', value: '1' },
+    { label: 'February', value: '2' },
+    { label: 'March', value: '3' },
+    { label: 'April', value: '4' },
+    { label: 'May', value: '5' },
+    { label: 'June', value: '6' },
+    { label: 'July', value: '7' },
+    { label: 'August', value: '8' },
+    { label: 'September', value: '9' },
+    { label: 'October', value: '10' },
+    { label: 'November', value: '11' },
+    { label: 'December', value: '12' },
+  ];
+
+  const currentMonthIndex = new Date().getMonth() + 1;
+  const currentMonthOption = {
+    label: monthOptions[currentMonthIndex - 1].label,
+    value: monthOptions[currentMonthIndex - 1].value,
+  };
+
+  const [selectedMonth, setSelectedMonth] = React.useState<MonthOption[]>([
+    currentMonthOption,
+  ]);
+
+  const handleChangeMonth = ({ value }) => {
+    setSelectedMonth(value);
+    filterData();
+  };
+
   const surgeryData = [
     {
       id: '1',
-      date: '3/12',
+      date: '5/12',
       home: 'w',
       hash: 10,
       round: <RoundIcon />,
@@ -174,32 +209,58 @@ const FiltersSection: React.FC = () => {
     details: number;
     hp: string;
     consent: string;
-    action: JSX.Element;
+    action: (id: string) => JSX.Element;
   }
 
-  const [filteredData, setFilteredData] = useState(surgeryData);
+  const [filteredData, setFilteredData] = useState<SurgeryRecord[]>([]);
   const [searchMRN, setSearchMRN] = useState('');
+  const [groupedData, setGroupedData] = useState<{
+    [date: string]: SurgeryRecord[];
+  }>({});
 
-  const groupedData: { [date: string]: SurgeryRecord[] } = filteredData.reduce(
-    (acc, curr) => {
-      if (!acc[curr.date]) {
-        acc[curr.date] = [curr];
-      } else {
-        acc[curr.date].push(curr);
-      }
-      return acc;
-    },
-    {},
-  );
+  const filterData = () => {
+    let filtered = [...surgeryData];
+    if (selectedMonth.length) {
+      filtered = filtered.filter((item) => {
+        const itemMonth = new Date(item.date).getMonth() + 1;
+        return itemMonth.toString() === selectedMonth[0].value;
+      });
+    }
+    if (searchMRN) {
+      filtered = filtered.filter((row) =>
+        row.mrn.toLowerCase().includes(searchMRN.toLowerCase()),
+      );
+    }
+    setFilteredData(filtered);
+  };
+
+  useEffect(() => {
+    filterData();
+  }, [selectedMonth, searchMRN]);
+
+  const generateGroupedData = (data: SurgeryRecord[]) => {
+    return data.reduce(
+      (acc: { [date: string]: SurgeryRecord[] }, curr: SurgeryRecord) => {
+        if (!acc[curr.date]) {
+          acc[curr.date] = [curr];
+        } else {
+          acc[curr.date].push(curr);
+        }
+        return acc;
+      },
+      {},
+    );
+  };
+
+  useEffect(() => {
+    const newGroupedData = generateGroupedData(filteredData);
+    setGroupedData(newGroupedData);
+  }, [filteredData]);
 
   const handleSearchMRNChange = (event) => {
     const mrn = event.target.value.toLowerCase();
     setSearchMRN(mrn);
-
-    const filtered = surgeryData.filter((row) =>
-      row.mrn.toLowerCase().includes(mrn),
-    );
-    setFilteredData(filtered);
+    filterData();
   };
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -336,6 +397,10 @@ const FiltersSection: React.FC = () => {
           <div>
             <Select
               required
+              options={monthOptions}
+              value={selectedMonth}
+              onChange={handleChangeMonth}
+              placeholder="Month"
               overrides={{
                 ControlContainer: {
                   style: {
