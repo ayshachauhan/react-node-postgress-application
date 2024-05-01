@@ -85,7 +85,9 @@ const UpsertCalendar: React.FC<{
         }
       } else {
         const formattedDate = new Date(
+          //@ts-ignore
           upsertCalendarData[0].date.getTime() -
+            //@ts-ignore
             upsertCalendarData[0].date.getTimezoneOffset() * 60000,
         );
 
@@ -95,6 +97,7 @@ const UpsertCalendar: React.FC<{
           surgeryTypeId: selectedSurgery.id,
           maxSlots: upsertCalendarData[0].maxSlots,
           availableSlots: upsertCalendarData[0].availableSlots,
+          //@ts-ignore
           date: formattedDate.toISOString(),
         };
 
@@ -106,6 +109,7 @@ const UpsertCalendar: React.FC<{
         );
 
         dispatch(createCalendarEntry(payload));
+        onClose();
       }
   };
 
@@ -147,7 +151,7 @@ const UpsertCalendar: React.FC<{
                 <DatePicker
                   value={calendar.date}
                   onChange={({ date }) =>
-                    handleInputChange(date, { target: { name: 'date' } })
+                    handleInputChange(date, { target: { name: 'date' } } as any)
                   }
                   placeholder="Surgery Date"
                   required
@@ -189,7 +193,13 @@ const UpsertCalendar: React.FC<{
                   setUpsertCalendarData((prevData) =>
                     prevData.map((cal: CalendarData) =>
                       cal.id === value[0].calendarId
-                        ? { ...cal, maxSlots: value[0].label as number }
+                        ? {
+                            ...cal,
+                            maxSlots: value[0].label as number,
+                            availableSlots: isUpdating
+                              ? cal.availableSlots
+                              : (value[0].label as number),
+                          }
                         : cal,
                     ),
                   );

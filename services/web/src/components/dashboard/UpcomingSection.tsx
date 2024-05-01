@@ -126,18 +126,13 @@ const UpcomingSection: React.FC = () => {
     const currentMonth = currentDate.getMonth();
     const currentYear = currentDate.getFullYear();
     const startDate = new Date(currentYear, currentMonth, 1);
-    const endDate = new Date(
-      currentYear,
-      currentMonth + 1,
-      currentDate.getDate(),
-    );
 
     return calendars
       .filter((calendar) => {
         const calendarDate = new Date(calendar.date);
-        //console.log(startDate, endDate, 'dates', calendarDate);
 
-        return calendarDate >= startDate && calendarDate <= endDate;
+        // Adjust the filter condition to include all calendars from the current date onwards
+        return calendarDate >= startDate;
       })
       .sort((a, b) => {
         const dateA = new Date(a.date);
