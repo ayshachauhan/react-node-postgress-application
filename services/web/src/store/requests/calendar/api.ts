@@ -6,6 +6,7 @@ import {
   GetCalendarByIdPayload,
   GetCalendarsPayload,
   UpdateCalendarPayload,
+  UpdateCalendarsPayload,
 } from './types';
 
 const apiClient = new ApiService();
@@ -55,10 +56,14 @@ export const createCalendar = async (
   { rejectWithValue },
 ): Promise<ICalendar> => {
   try {
+    console.log(payload, 'payloadcreate');
+
     const response: Response = await apiClient.post(
       getUrlPath(payload),
       payload,
     );
+
+    console.log(response, 'respcre');
 
     if (!response.ok) {
       throw new Error('Failed to add calendar entry');
@@ -139,18 +144,18 @@ export const updateCalendar = async (
  * @returns Icalendar
  */
 export const updateCalendars = async (
-  payload: UpdateCalendarPayload,
+  payload: UpdateCalendarsPayload,
   { rejectWithValue },
-): Promise<ICalendar> => {
+): Promise<ICalendar[]> => {
   try {
     const response: Response = await apiClient.patch(
-      `${getUrlPath(payload)}/${payload.id}`,
+      `${getUrlPath(payload)}`,
       payload,
     );
     if (!response.ok) {
       throw new Error('Failed to add calendar entry');
     }
-    const data: ICalendar = await response.json();
+    const data: ICalendar[] = await response.json();
     return data;
   } catch (error) {
     if (error instanceof Error) {

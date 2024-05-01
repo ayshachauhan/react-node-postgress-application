@@ -34,3 +34,11 @@ export class UpdateCalendarDto {
   @Min(0)
   maxSlots?: number;
 }
+
+export class UpdateCalendarsDto {
+  data: {
+    id: string;
+    availableSlots?: number;
+    maxSlots?: number;
+  }[];
+}

@@ -12,7 +12,11 @@ import { CalendarEntity } from '@packages/entities/calendar';
 import { Repository } from 'typeorm';
 import { PracticesService } from '../practices/practices.service';
 import { SurgeryTypesService } from '../surgeryTypes/surgeryTypes.service';
-import { CreateCalendarDto, UpdateCalendarDto } from './dto/calendar.dto';
+import {
+  CreateCalendarDto,
+  UpdateCalendarDto,
+  UpdateCalendarsDto,
+} from './dto/calendar.dto';
 import {
   CreateCalendarParams,
   GetCalendarByIdParams,
@@ -122,6 +126,8 @@ export class CalendarService {
       );
     }
 
+    console.log(dto, 'dtocreate');
+
     //TODO: need to check why we need to add the ! operator here, giving typeerror whithout them about DeepPartialEntity
     const calendar = this.calendarRepo.create({
       ...dto,
@@ -160,5 +166,42 @@ export class CalendarService {
       where: { id },
       relations: ['practice', 'surgeryType', 'user'],
     });
+  }
+
+  /**
+   * Update bulk calendars
+   * @param param0
+   * @param param1
+   * @returns
+   */
+  async updateCalendars(
+    {}: UpdateCalendarParams,
+    { data }: UpdateCalendarsDto,
+  ): Promise<CalendarEntity[] | null> {
+    const updatedCalendars: CalendarEntity[] = [];
+
+    await Promise.all(
+      data.map(async (data) => {
+        const { id, maxSlots, availableSlots } = data;
+
+        if (maxSlots && availableSlots && maxSlots < availableSlots) {
+          throw new HttpException(
+            'MaxSlots should be greater than or equal to available slots',
+            HttpStatus.FORBIDDEN,
+          );
+        }
+
+        await this.calendarRepo.update(id, { maxSlots, availableSlots });
+
+        const updatedCalendar = (await this.calendarRepo.findOne({
+          where: { id },
+          relations: ['practice', 'surgeryType', 'user'],
+        })) as CalendarEntity;
+
+        updatedCalendars.push(updatedCalendar);
+      }),
+    );
+
+    return updatedCalendars;
   }
 }

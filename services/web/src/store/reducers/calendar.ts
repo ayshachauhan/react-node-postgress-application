@@ -1,7 +1,11 @@
 import { ICalendar } from '@packages/entities/index.browser';
 import { PayloadAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { indexBy } from '@root/utils/index';
-import { createCalendar, getCalendars } from '../requests/calendar/api';
+import {
+  createCalendar,
+  getCalendars,
+  updateCalendars,
+} from '../requests/calendar/api';
 import { EntitiesState, EntityLoadingState } from '../types';
 
 const initialState: EntitiesState<ICalendar> = {
@@ -79,6 +83,30 @@ const calendarSlice = createSlice({
       }
       state.processing = false;
     });
+
+    builder.addCase(updateBulkCalendars.pending, (state) => {
+      state.processing = true;
+      state.status = EntityLoadingState.PENDING;
+    });
+
+    builder.addCase(updateBulkCalendars.fulfilled, (state, action) => {
+      state.status = EntityLoadingState.SUCCEEDED;
+      state.entities = {
+        ...state.entities,
+        ...indexBy('id', action.payload),
+      };
+      state.successMessage = 'Calendars updated successfully';
+    });
+
+    builder.addCase(updateBulkCalendars.rejected, (state, action) => {
+      state.status = EntityLoadingState.FAILED;
+      if (typeof action.payload === 'string') {
+        state.errorMessage = action.payload ?? 'Failed to update Calendars';
+      } else {
+        state.errorMessage = 'Failed to update calendars';
+      }
+      state.processing = false;
+    });
   },
 });
 
@@ -93,6 +121,11 @@ export const fetchCalendars = createAsyncThunk(
 export const createCalendarEntry = createAsyncThunk(
   'calendar/createCalendarEntry',
   createCalendar,
+);
+
+export const updateBulkCalendars = createAsyncThunk(
+  'calendar/updateCalendars',
+  updateCalendars,
 );
 
 export default calendarSlice.reducer;

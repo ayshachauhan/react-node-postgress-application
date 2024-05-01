@@ -19,3 +19,13 @@ export type UpdateCalendarPayload = {
   availableSlots: number;
   id: string;
 } & CalendarsPayload;
+
+export type UpdateCalendarsPayload = {
+  practiceId: string;
+  userId: string;
+  data: {
+    maxSlots: number;
+    availableSlots: number;
+    id: string;
+  }[];
+};

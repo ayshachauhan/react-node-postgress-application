@@ -5,7 +5,7 @@ import {
   Param,
   Patch,
   Post,
- // UseGuards,
+  // UseGuards,
   UseInterceptors,
   ValidationPipe,
 } from '@nestjs/common';
@@ -14,7 +14,11 @@ import { CalendarEntity } from '@packages/entities';
 //import { AuthGuard } from 'src/auth/auth.guard';
 import { practiceNotFoundInterceptor } from '../interceptors/practiceNotFoundInterceptor';
 import { CalendarService } from './calendar.service';
-import { CreateCalendarDto, UpdateCalendarDto } from './dto/calendar.dto';
+import {
+  CreateCalendarDto,
+  UpdateCalendarDto,
+  UpdateCalendarsDto,
+} from './dto/calendar.dto';
 import type {
   CreateCalendarParams,
   GetCalendarByIdParams,
@@ -67,5 +71,13 @@ export class CalendarController {
     @Body(new ValidationPipe()) updateDTO: UpdateCalendarDto,
   ): Promise<CalendarEntity | null> {
     return this.calendarService.updateCalendar(params, updateDTO);
+  }
+
+  @Patch('')
+  updateCalendars(
+    @Param() params: UpdateCalendarParams,
+    @Body(new ValidationPipe()) updateDTO: UpdateCalendarsDto,
+  ): Promise<CalendarEntity[] | null> {
+    return this.calendarService.updateCalendars(params, updateDTO);
   }
 }

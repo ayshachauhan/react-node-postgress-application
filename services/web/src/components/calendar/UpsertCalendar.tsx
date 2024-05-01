@@ -2,8 +2,14 @@ import { ISurgeryType } from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
 import { useAppDispatch } from '@root/store';
-import { createCalendarEntry } from '@root/store/reducers/calendar';
-import { CreateCalendarPayload } from '@root/store/requests/calendar';
+import {
+  createCalendarEntry,
+  updateBulkCalendars,
+} from '@root/store/reducers/calendar';
+import {
+  CreateCalendarPayload,
+  UpdateCalendarsPayload,
+} from '@root/store/requests/calendar';
 import { getPracticeId, getUserId } from '@root/utils';
 import { DatePicker } from 'baseui/datepicker';
 import { Select } from 'baseui/select';
@@ -59,9 +65,18 @@ const UpsertCalendar: React.FC<{
             calendar.maxSlots !== calendarData[index].maxSlots,
         );
         console.log(updatedData, 'updata');
+        const payload: UpdateCalendarsPayload = {
+          practiceId,
+          userId,
+          data: updatedData.map((data) => ({
+            id: data.id,
+            availableSlots: data.availableSlots,
+            maxSlots: data.maxSlots,
+          })),
+        };
         if (updatedData.length) {
           try {
-            dispatch(addRecordAsync(userPayloadData));
+            dispatch(updateBulkCalendars(payload));
             onClose();
           } catch (error) {
             onClose();
@@ -69,16 +84,26 @@ const UpsertCalendar: React.FC<{
         } else {
         }
       } else {
+        const formattedDate = new Date(
+          upsertCalendarData[0].date.getTime() -
+            upsertCalendarData[0].date.getTimezoneOffset() * 60000,
+        );
+
         const payload: CreateCalendarPayload = {
           practiceId,
           userId,
           surgeryTypeId: selectedSurgery.id,
           maxSlots: upsertCalendarData[0].maxSlots,
           availableSlots: upsertCalendarData[0].availableSlots,
-          date: new Date(upsertCalendarData[0].date).toISOString(),
+          date: formattedDate.toISOString(),
         };
 
-        console.log(payload, 'payloadc');
+        console.log(
+          payload,
+          formattedDate,
+          formattedDate.toISOString(),
+          'payloadc',
+        );
 
         dispatch(createCalendarEntry(payload));
       }

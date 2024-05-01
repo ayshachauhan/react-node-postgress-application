@@ -12,3 +12,5 @@ export type GetCalendarBySurgeryTypeIdParams = GetCalendarsParams & {
 export type CreateCalendarParams = Required<GetCalendarsParams>;
 
 export type UpdateCalendarParams = GetCalendarByIdParams;
+
+export type UpdateCalendarsParams = GetCalendarsParams;

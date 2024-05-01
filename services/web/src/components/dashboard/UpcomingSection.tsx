@@ -237,7 +237,7 @@ const UpcomingSection: React.FC = () => {
                   ]
             }
             isUpdating={isUpdating ?? false}
-            selectedSurgery={selectedSurgery}
+            selectedSurgery={selectedSurgery as ISurgeryType}
           />
         </ModalBody>
       </Modal>
@@ -248,21 +248,23 @@ const UpcomingSection: React.FC = () => {
     <div>
       <div className="text-lg font-normal flex justify-between">
         <span>Calendar</span>
-        <div className="flex">
-          <div
-            className="cursor-pointer px-2"
-            onClick={() => handleOpenModal(false)}
-          >
-            <AddIcon className="mt-2" size={25}></AddIcon>
-            {''}
+        {selectedSurgery && (
+          <div className="flex">
+            <div
+              className="cursor-pointer px-2"
+              onClick={() => handleOpenModal(false)}
+            >
+              <AddIcon className="mt-2" size={25}></AddIcon>
+              {''}
+            </div>
+            <div
+              className="cursor-pointer px-2"
+              onClick={() => handleOpenModal(true)}
+            >
+              <EditIcon className="mt-2"></EditIcon>
+            </div>
           </div>
-          <div
-            className="cursor-pointer px-2"
-            onClick={() => handleOpenModal(true)}
-          >
-            <EditIcon className="mt-2"></EditIcon>
-          </div>
-        </div>
+        )}
       </div>
       <hr className="h-px my-2.5 bg-gray-100 border-1 border-gray-100"></hr>
       <div className="flex w-full bg-green-50 pr-2 border-b border-green-200 items-center">
