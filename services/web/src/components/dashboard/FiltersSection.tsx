@@ -359,7 +359,7 @@ const FiltersSection: React.FC = () => {
           </div>
         </div>
       </div>
-      <div className="w-full overflow-x-auto mt-2">
+      <div className="w-full overflow-x-auto mt-2 border border-gray-200">
         {Object.entries(groupedData).map(([date, records]) => (
           <div key={date} className="w-max">
             <div
