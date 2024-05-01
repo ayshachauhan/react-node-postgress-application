@@ -9,7 +9,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PracticeEntity } from '@packages/entities/practice';
-import { UserEntity, UserStatus, UserType } from '@packages/entities/user';
+import { UserEntity, UserType } from '@packages/entities/user';
 import Mail from 'nodemailer/lib/mailer';
 import { SystemTemplates } from 'src/transporter/transporter.types';
 import { DataSource, Repository, UpdateResult } from 'typeorm';
@@ -79,7 +79,7 @@ export class PracticesService {
   async findOne(id: string): Promise<PracticeEntity | null> {
     return await this.practicesRepository.findOne({
       where: { id },
-      relations: ['users'],
+      relations: ['users', 'users.permissions'],
     });
   }
 
@@ -116,10 +116,10 @@ export class PracticesService {
           lastName: adminLastName,
           email: adminEmail,
           userName: `${adminEmail}`,
-          status: UserStatus.PENDING,
           type: UserType.ADMIN,
           url: '',
           contactNumber: adminContactNumber,
+          permissionIds: [],
         },
         practice.id,
       );

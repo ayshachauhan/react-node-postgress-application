@@ -1,12 +1,13 @@
-import { UserStatus, UserType } from '@packages/entities/index.browser';
+import { IUser, UserStatus, UserType } from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
-import { useAppDispatch } from '@root/store';
+import { useAppDispatch, useAppSelector } from '@root/store';
+import { fetchListings as fetchPermissions } from '@root/store/reducers/userPermissions';
 import { addRecordAsync } from '@root/store/reducers/users';
-import { AddUser } from '@root/store/requests/users';
 import { generateFullName, getPracticeId } from '@utils/index';
+import { Checkbox } from 'baseui/checkbox';
 import { Select } from 'baseui/select';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const userTypeOptions = Object.keys(UserType).map((key) => ({
@@ -14,6 +15,12 @@ const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     id: key,
   }));
   const dispatch = useAppDispatch();
+  const permissions = useAppSelector((state) =>
+    Object.values(state.permissions.entities),
+  );
+  const [checkboxes, setCheckboxes] = useState(() =>
+    Array(permissions.length).fill(false),
+  );
   const [userName, setUserName] = useState('');
   const [email, setEmail] = useState('');
   const [firstName, setFirstName] = useState('');
@@ -27,11 +34,36 @@ const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     setType(value[0] ? value[0].label : null);
   };
 
+  const handleCheckboxChange = (index: number) => {
+    const updatedCheckboxes = [...checkboxes];
+    updatedCheckboxes[index] = !updatedCheckboxes[index];
+    setCheckboxes(updatedCheckboxes);
+  };
+
+  const getSelectedCheckboxIds = (): string[] => {
+    return permissions.reduce((selectedIds: string[], permission, index) => {
+      if (checkboxes[index]) {
+        selectedIds.push(permission.id);
+      }
+      return selectedIds;
+    }, []);
+  };
+
+  type AddUserDto = Omit<
+    IUser,
+    | 'password'
+    | 'practices'
+    | 'id'
+    | 'dateCreated'
+    | 'dateUpdated'
+    | 'permissions'
+  >;
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const selectedUserPermissions = getSelectedCheckboxIds();
     const fullName = generateFullName(firstName, lastName);
     if (practiceId) {
-      const userPayloadData: AddUser = {
+      const userPayloadData: AddUserDto = {
         practiceId,
         email,
         userName,
@@ -42,6 +74,7 @@ const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         type,
         status: UserStatus.ACTIVE,
         contactNumber,
+        permissionIds: selectedUserPermissions,
       };
       try {
         dispatch(addRecordAsync(userPayloadData));
@@ -52,17 +85,21 @@ const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     }
   };
 
+  useEffect(() => {
+    dispatch(fetchPermissions(undefined));
+  }, []);
+
   return (
     <div>
       <form onSubmit={handleSubmit}>
         <div className="flex flex-col">
-          <div className="flex flex-row justify-between pt-4">
-            <div className="space-y-2">
+          <div className="flex flex-row justify-between gap-7 pt-4">
+            <div className="w-1/2 space-y-2">
               <label
                 htmlFor="userName"
                 className="text-black text-sm font-normal"
               >
-                Username
+                User Name
               </label>
               <TextInput
                 name="userName"
@@ -73,7 +110,7 @@ const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 required
               />
             </div>
-            <div className="space-y-2">
+            <div className="w-1/2 space-y-2">
               <label htmlFor="email" className="text-black text-sm font-normal">
                 Email
               </label>
@@ -87,8 +124,8 @@ const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               />
             </div>
           </div>
-          <div className="flex flex-row justify-between pt-4">
-            <div className="space-y-2">
+          <div className="flex flex-row justify-between gap-7 pt-4">
+            <div className="w-1/2 space-y-2">
               <label
                 htmlFor="firstName"
                 className="text-black text-sm font-normal"
@@ -104,7 +141,7 @@ const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 required
               />
             </div>
-            <div className="space-y-2">
+            <div className="w-1/2 space-y-2">
               <label
                 htmlFor="lastName"
                 className="text-black text-sm font-normal"
@@ -121,8 +158,8 @@ const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               />
             </div>
           </div>
-          <div className="flex flex-row justify-between pt-4">
-            <div className="space-y-2">
+          <div className="flex flex-row justify-between gap-7 pt-4">
+            <div className="w-1/2 space-y-2">
               <label
                 htmlFor="contactNumber"
                 className="text-black text-sm font-normal"
@@ -138,7 +175,7 @@ const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 required
               />
             </div>
-            <div className="space-y-2">
+            <div className="w-1/2 space-y-2">
               <label htmlFor="url" className="text-black text-sm font-normal">
                 User URL
               </label>
@@ -151,7 +188,7 @@ const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               />
             </div>
           </div>
-          <div className="flex flex-row gap-6 pt-4">
+          <div className="flex flex-row justify-between gap-7 pt-4">
             <div className="w-1/2 space-y-2">
               <label htmlFor="type" className="text-black text-sm font-normal">
                 Designation
@@ -175,6 +212,48 @@ const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                   },
                 }}
               />
+            </div>
+            <div className="w-1/2 space-y-2 flex flex-col">
+              <label
+                htmlFor="permissions"
+                className="text-black text-sm font-normal"
+              >
+                Permissions
+              </label>
+              <div className="grid grid-cols-2 gap-1">
+                {permissions.map((label, index) => (
+                  <Checkbox
+                    key={index}
+                    checked={checkboxes[index]}
+                    onChange={() => handleCheckboxChange(index)}
+                    overrides={{
+                      Checkmark: {
+                        style: ({ $checked }) => ({
+                          backgroundColor: $checked
+                            ? 'rgba(34, 197, 94, 1)'
+                            : 'white',
+                          borderColor: $checked
+                            ? 'rgba(34, 197, 94, 1)'
+                            : 'rgba(113, 113, 122, 1)',
+                          width: '15px',
+                          height: '15px',
+                          marginTop: '7px',
+                          marginRight: '0px',
+                          borderRadius: '2px',
+                          borderWidth: '2px',
+                        }),
+                      },
+                    }}
+                  >
+                    <label
+                      htmlFor={`checkbox-${index}`}
+                      className="text-black text-xs"
+                    >
+                      <span className="truncate">{label.name}</span>
+                    </label>
+                  </Checkbox>
+                ))}
+              </div>
             </div>
           </div>
         </div>

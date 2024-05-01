@@ -3,15 +3,17 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import {
+  EvalEntity,
   InsuranceTypeEntity,
+  PatientEntity,
   PermissionEntity,
   PracticeEntity,
   PracticeHomesEntity,
   ReferrersEntity,
+  SurgeryEntity,
   SurgeryTypeEntity,
   TemplateEntity,
   UserEntity,
-  UserPermissionEntity,
   VideoEntity,
 } from '@packages/entities';
 import { LoggerModule } from 'nestjs-pino';
@@ -83,7 +85,9 @@ export const createInfraModuleProviders = (): Array<
           SurgeryTypeEntity,
           TemplateEntity,
           UserEntity,
-          UserPermissionEntity,
+          SurgeryEntity,
+          PatientEntity,
+          EvalEntity,
         ],
         synchronize: true,
       }),

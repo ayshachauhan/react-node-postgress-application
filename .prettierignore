@@ -13,3 +13,4 @@ favicon.ico
 
 /services/*/dist
 /services/*/.next
+*.svg

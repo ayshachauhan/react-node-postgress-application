@@ -8,11 +8,19 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
-import { PracticeEntity, PracticeStatus } from '@packages/entities/practice';
-import { UserEntity, UserStatus, UserType } from '@packages/entities/user';
+import {
+  IPractice,
+  IUser,
+  PracticeEntity,
+  PracticeStatus,
+  UserEntity,
+  UserStatus,
+  UserType,
+} from '@packages/entities';
 import * as bcrypt from 'bcrypt';
 import Mail from 'nodemailer/lib/mailer';
 import { ENVIRONMENT_VARIABLES } from 'src/enums/environment.enums';
+import { PermissionsService } from 'src/permissions/permissions.service';
 import { PracticesService } from 'src/practices/practices.service';
 import { TransporterService } from 'src/transporter';
 import { SystemTemplates } from 'src/transporter/transporter.types';
@@ -28,6 +36,7 @@ export class UsersService {
     private usersRepository: Repository<UserEntity>,
     @Inject(forwardRef(() => PracticesService))
     private readonly practicesService: PracticesService,
+    private readonly permissionsService: PermissionsService,
     private readonly configService: ConfigService,
     private readonly transporterService: TransporterService,
     private jwtService: JwtService,
@@ -46,6 +55,7 @@ export class UsersService {
     practiceId: string,
   ): Promise<SanitizedUser> {
     const { firstName, lastName } = createUserDto;
+    const { permissionIds } = createUserDto;
     const fullName = `${firstName}_${lastName}`;
     const hashedDefaultPassword = await bcrypt.hash(
       this.defaultUserPassword(),
@@ -62,45 +72,52 @@ export class UsersService {
         throw new HttpException('Practice not found', HttpStatus.NOT_FOUND);
       }
 
-      const newUser: UserEntity = this.usersRepository.create({
-        ...createUserDto,
-        fullName,
-        password: hashedDefaultPassword,
-        practices: [practiceEntity],
-      });
+      const permissionEntities =
+        await this.permissionsService.getPermissionByIds(permissionIds);
 
-      const resultUser = await this.usersRepository.save(newUser);
-
-      const newSanitzedUser = this.sanitizeUser(resultUser);
-
-      const token = this.jwtService.sign({
-        ...newSanitzedUser,
-      });
-
-      const mailOptions: Mail.Options = {
-        to: resultUser.email,
-        subject:
-          'Subject: Welcome to Practice Optimization Dashboard - Complete Your Sign-up Process',
-        text: 'text message',
-      };
-
-      const frontendBaseUrl: string = this.getFrontEndBaseUrl();
-
-      const mailData: NewUserMailData = {
-        signUpLink: frontendBaseUrl + `/onboarding/user?token=${token}`,
-        practiceName: practiceEntity.name,
-        fullName,
-        defaultUserPassword: this.defaultUserPassword(),
-      };
-
-      await this.transporterService.sendSystemEmails(
-        mailOptions,
-        mailData,
-        SystemTemplates.INVITE_NEW_USER_TEMPLATE,
+      const existingUser: UserEntity | null = await this.getUserByEmail(
+        createUserDto.email,
       );
 
+      let newUser: UserEntity = new UserEntity();
+
+      if (!existingUser) {
+        newUser = await this.usersRepository.save({
+          ...newUser,
+          ...createUserDto,
+          fullName,
+          password: hashedDefaultPassword,
+          practices: [practiceEntity],
+          permissions: permissionEntities || [],
+        });
+
+        await this.sendNewUserMail({ newUser, fullName, practiceEntity });
+      } else {
+        const emailExists = existingUser.practices.find(
+          (ele) => ele.id == practiceId,
+        );
+        if (emailExists) {
+          throw new HttpException(
+            'User for this email already exists',
+            HttpStatus.UNPROCESSABLE_ENTITY,
+          );
+        }
+
+        existingUser.practices.push(practiceEntity);
+        await this.usersRepository.save({
+          ...existingUser,
+        });
+
+        newUser = existingUser;
+        await this.sendNewPracticeMailToExistingUser({
+          newUser,
+          fullName,
+          practiceEntity,
+        });
+      }
+
       await queryRunner.commitTransaction();
-      return this.sanitizeUser(resultUser);
+      return this.sanitizeUser(newUser);
     } catch (error) {
       await queryRunner.rollbackTransaction();
       throw error;
@@ -120,7 +137,7 @@ export class UsersService {
   async getUserById(id: string): Promise<UserEntity | null> {
     return this.usersRepository.findOne({
       where: { id },
-      relations: ['practices'],
+      relations: ['practices', 'permissions'],
     });
   }
 
@@ -152,19 +169,23 @@ export class UsersService {
       );
     }
 
-    const updatedResult = await this.usersRepository.update(id, {
-      ...updateUserDto,
-    });
+    const updatedUser = this.usersRepository.merge(userToUpdate, updateUserDto);
 
-    if (updatedResult.affected === 0) {
-      throw new HttpException(
-        `User with id ${id} not found`,
-        HttpStatus.NOT_FOUND,
-      );
+    if (updateUserDto.permissionIds) {
+      const permissionEntities =
+        await this.permissionsService.getPermissionByIds(
+          updateUserDto.permissionIds,
+        );
+      if (!permissionEntities) {
+        throw new HttpException(`Permissions not found`, HttpStatus.NOT_FOUND);
+      }
+      updatedUser.permissions = permissionEntities;
     }
-    const resultUser = await this.getUserById(id);
-    if (resultUser) {
-      return this.sanitizeUser(resultUser);
+
+    const savedUser = await this.usersRepository.save(updatedUser);
+
+    if (savedUser) {
+      return this.sanitizeUser(savedUser);
     }
     return null;
   }
@@ -227,5 +248,81 @@ export class UsersService {
     }
 
     throw new HttpException(`error while updating`, HttpStatus.NOT_ACCEPTABLE);
+  }
+
+  async sendNewUserMail({
+    newUser,
+    fullName,
+    practiceEntity,
+  }: {
+    newUser: UserEntity;
+    fullName: string;
+    practiceEntity: IPractice;
+  }): Promise<void> {
+    const frontendBaseUrl: string = this.getFrontEndBaseUrl();
+    const newSanitizedUser = this.sanitizeUser(newUser);
+    const token = this.jwtService.sign({
+      ...newSanitizedUser,
+    });
+
+    // Read the HTML file content
+
+    const mailOptions: Mail.Options = {
+      to: newSanitizedUser.email,
+      subject:
+        'Welcome to Practice Optimization Dashboard - Complete Your Sign-up Process',
+      text: 'text message',
+    };
+
+    const mailData: NewUserMailData = {
+      signUpLink: frontendBaseUrl + `/onboarding/user?${token}`,
+      practiceName: practiceEntity.name,
+      fullName,
+      defaultUserPassword: this.defaultUserPassword(),
+    };
+
+    await this.transporterService.sendSystemEmails(
+      mailOptions,
+      mailData,
+      SystemTemplates.INVITE_NEW_USER_TEMPLATE,
+    );
+  }
+
+  async sendNewPracticeMailToExistingUser({
+    newUser,
+    fullName,
+    practiceEntity,
+  }: {
+    newUser: IUser;
+    fullName: string;
+    practiceEntity: IPractice;
+  }): Promise<void> {
+    const frontendBaseUrl: string = this.getFrontEndBaseUrl();
+
+    const mailOptions: Mail.Options = {
+      to: newUser.email,
+      subject: 'Welcome to Practice Optimization Dashboard',
+      text: 'text message',
+    };
+
+    const mailData: NewUserMailData = {
+      signUpLink: frontendBaseUrl + `/login`,
+      practiceName: practiceEntity.name,
+      fullName,
+      defaultUserPassword: this.defaultUserPassword(),
+    };
+
+    await this.transporterService.sendSystemEmails(
+      mailOptions,
+      mailData,
+      SystemTemplates.NEW_PRACTICE_MAIL_TO_EXISTING_USER,
+    );
+  }
+
+  async getUserByEmail(email: string): Promise<UserEntity | null> {
+    return await this.usersRepository.findOne({
+      where: { email },
+      relations: ['practices'],
+    });
   }
 }
