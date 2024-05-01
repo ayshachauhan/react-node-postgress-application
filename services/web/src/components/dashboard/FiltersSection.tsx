@@ -400,7 +400,6 @@ const FiltersSection: React.FC = () => {
               options={monthOptions}
               value={selectedMonth}
               onChange={handleChangeMonth}
-              placeholder="Month"
               overrides={{
                 ControlContainer: {
                   style: {
