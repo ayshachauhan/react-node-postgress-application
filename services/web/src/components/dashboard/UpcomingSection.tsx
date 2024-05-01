@@ -43,7 +43,7 @@ const UpcomingSection: React.FC = () => {
     return '+' + cellValue;
   };
 
-  const maxCellStyle = (cellValue: number | string) => {
+  const maxCellStyle = (cellValue: string) => {
     const numericValue =
       typeof cellValue === 'string'
         ? parseInt(cellValue.replace('%', ''), 10)

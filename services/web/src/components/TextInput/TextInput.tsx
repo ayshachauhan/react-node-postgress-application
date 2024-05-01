@@ -10,29 +10,12 @@ type Props = Partial<Omit<InputProps, 'onChange'>> & {
   ) => void;
   onBlur?: (event: React.FocusEvent) => void;
   onFocus?: () => void;
-  heightOverride?: string;
-  fontSizeOverride?: string;
-  fontWeightOverride?: string;
-  fontColorOverride?: string;
 };
 
 const TextInputOverrides: InputOverrides = {
   Root: {
-    style: ({ heightOverride, fontSizeOverride, fontWeightOverride }) => ({
-      border: 0,
-      height: heightOverride ?? '48px',
-      fontSize: fontSizeOverride ?? '',
-      fontWeight: fontWeightOverride ?? '',
-    }),
+    style: { border: 0, height: '48px' },
     props: { className: 'shadow-md' },
-  },
-  Input: {
-    props: {
-      style: ({ fontColorOverride }) => ({
-        backgroundColor: 'rgba(250, 250, 250, 1)',
-        color: fontColorOverride ?? '',
-      }),
-    },
   },
 };
 
@@ -40,10 +23,6 @@ const TextInput: React.FC<Props> = ({
   onChange,
   onBlur,
   onFocus,
-  heightOverride,
-  fontSizeOverride,
-  fontWeightOverride,
-  fontColorOverride,
   ...props
 }) => {
   function handleChange(
@@ -70,21 +49,10 @@ const TextInput: React.FC<Props> = ({
         {...props}
         overrides={{
           ...TextInputOverrides,
-          Root: {
-            props: {
-              className: 'shadow-md',
-              style: {
-                border: 0,
-                height: heightOverride ?? '48px',
-                fontSize: fontSizeOverride,
-                fontWeight: fontWeightOverride,
-              },
-            },
-          },
           Input: {
             props: {
               style: {
-                color: fontColorOverride ?? 'rgba(82, 82, 91, 1)',
+                color: 'rgba(82, 82, 91, 1)',
                 backgroundColor: 'rgba(250, 250, 250, 1)',
               },
             },

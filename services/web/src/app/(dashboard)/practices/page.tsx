@@ -220,7 +220,7 @@ const Practice: React.FC = () => {
   }, [successMessage, errorMessage, dispatch]);
 
   return (
-    <div className="mt-4">
+    <div className="my-4">
       <div className="flex justify-between border-gray-400">
         <span className="text-xl font-bold">All Practices</span>
         {showModal && <div className="text-green-700">{successMessage}</div>}

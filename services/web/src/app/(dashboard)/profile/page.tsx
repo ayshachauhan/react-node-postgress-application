@@ -4,19 +4,45 @@ import { AvatarIcon } from '@root/components/Icons';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { selectRecords } from '@root/store/reducers/auth';
 import { getPracticeInfo } from '@root/store/reducers/practices';
+import { fetchListings as fetchPermissions } from '@root/store/reducers/userPermissions';
+import { SanitizedUser } from '@root/store/types';
 import { getPracticeId } from '@utils/index';
+import { Checkbox } from 'baseui/checkbox';
 import { useRouter } from 'next/navigation';
 import React, { useEffect } from 'react';
 
 const Profile: React.FC = () => {
   const dispatch = useAppDispatch();
+  const permissions = useAppSelector((state) =>
+    Object.values(state.permissions.entities),
+  );
   const userInfo = useAppSelector(selectRecords);
+  const profileUserInfo = useAppSelector((state) =>
+    userInfo?.id
+      ? Object.values(state.users.entities).find(
+          ({ id }: SanitizedUser) => id === userInfo?.id,
+        )
+      : undefined,
+  );
   const userPracticeId = getPracticeId();
+
+  interface Permission {
+    id: string;
+  }
+
+  const isChecked = (permissionsArray: Permission[], id: string): boolean => {
+    return permissionsArray.some((permission) => permission.id === id);
+  };
   useEffect(() => {
     if (userPracticeId) {
       dispatch(getPracticeInfo({ id: userPracticeId }));
     }
   }, [userPracticeId, dispatch]);
+
+  useEffect(() => {
+    dispatch(fetchPermissions(undefined));
+  }, []);
+
   const practiceName = useAppSelector(
     (state) => state.practices.practiceInfo?.name,
   );
@@ -86,6 +112,46 @@ const Profile: React.FC = () => {
             <span className="font-bold">Practice Name</span>{' '}
             <span>: {practiceName}</span>
           </p>
+        </div>
+      </div>
+      <div className="ml-64 mt-8 w-1/3">
+        <span className="font-bold">Permissions </span>
+        <div className="grid grid-cols-2 gap-1 mt-4 w-30">
+          {permissions.map((label, index) => (
+            <Checkbox
+              key={index}
+              checked={
+                profileUserInfo?.permissions
+                  ? isChecked(profileUserInfo.permissions, label.id)
+                  : false
+              }
+              overrides={{
+                Checkmark: {
+                  style: ({ $checked }) => ({
+                    backgroundColor: $checked
+                      ? 'rgba(34, 197, 94, 1)'
+                      : 'white',
+                    borderColor: $checked
+                      ? 'rgba(34, 197, 94, 1)'
+                      : 'rgba(113, 113, 122, 1)',
+                    width: '15px',
+                    height: '15px',
+                    marginTop: '7px',
+                    marginRight: '0px',
+                    borderRadius: '2px',
+                    borderWidth: '2px',
+                  }),
+                },
+              }}
+            >
+              <label
+                htmlFor={`checkbox-${index}`}
+                className="text-black text-sm font-normal"
+              >
+                <span className="truncate">{label.name}</span>
+              </label>
+            </Checkbox>
+          ))}
         </div>
       </div>
     </div>

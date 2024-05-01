@@ -12,6 +12,7 @@ import referrersReducer from './reducers/referrer';
 import surgeryReducer from './reducers/surgery';
 import surgeryTypeReducer from './reducers/surgeryTypes';
 import templatesReducer from './reducers/templates';
+import permissionsReducer from './reducers/userPermissions';
 import usersReducer from './reducers/users';
 
 export const store = configureStore({
@@ -28,6 +29,7 @@ export const store = configureStore({
     referrers: referrersReducer,
     surgeries: surgeryReducer,
     calendars: calendarReducer,
+    permissions: permissionsReducer,
   },
 });
 

@@ -1,4 +1,5 @@
 import { IBaseEntity } from '../base.interface';
+import { IPermission } from '../permission';
 import { IPractice } from '../practice';
 
 export interface IUser extends IBaseEntity {
@@ -12,7 +13,10 @@ export interface IUser extends IBaseEntity {
   status: UserStatus;
   type: UserType;
   contactNumber: string;
+  practiceId?: string;
   practices: IPractice[];
+  permissions: IPermission[];
+  permissionIds?: string[];
 }
 
 export enum UserType {
