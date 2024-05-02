@@ -41,6 +41,16 @@ export const getMe = async (): Promise<User> => {
       Authorization: `Bearer ${accessToken}`,
     },
   });
+  if (!response.ok) {
+    const errorResponse = await response.json();
+
+    if (response.status === 403) {
+      throw new Error('Access Denied');
+    }
+
+    throw new Error(errorResponse.message || 'Failed to fetch user data');
+  }
+
   const data = await response.json();
   return data;
 };
