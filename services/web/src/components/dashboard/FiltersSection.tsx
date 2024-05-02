@@ -364,7 +364,11 @@ const FiltersSection: React.FC = () => {
           <div className="text-xl font-bold border-r border-gray-300 py-4 pr-4">
             Filters
           </div>
-          <div className="text-base font-bold p-4">March 2024</div>
+          {selectedMonth && selectedMonth.length > 0 && (
+            <div className="text-base font-bold p-4">
+              {selectedMonth[0].label} 2024
+            </div>
+          )}
         </div>
         <div className="flex w-3/4 justify-end gap-3 items-center text-sm">
           <div className="flex">
