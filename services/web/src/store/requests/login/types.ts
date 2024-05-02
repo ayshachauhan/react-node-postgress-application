@@ -1,7 +1,6 @@
 import { IPractice } from '@packages/entities';
 
 export interface User {
-  statusCode: number;
   id: string;
   userName: string;
   firstName: string;
