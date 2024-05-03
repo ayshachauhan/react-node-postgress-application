@@ -1,5 +1,4 @@
 'use client';
-import DataTable, { ColumnConfig } from '@components/DataTable';
 import { AddIcon, EditIcon } from '@components/Icons';
 import { ICalendar, ISurgeryType } from '@packages/entities/index.browser';
 import { useAppDispatch, useAppSelector } from '@root/store';
@@ -80,26 +79,6 @@ const UpcomingSection: React.FC = () => {
       return {};
     }
   };
-
-  const columnConfig: ColumnConfig<CalendarData>[] = [
-    { title: 'T', accessor: 'surgeryType', id: 'surgeryType', width: 50 },
-    {
-      title: 'Date',
-      accessor: 'date',
-      id: 'date',
-      width: 100,
-    },
-    { title: 'Now', accessor: 'availableSlots', id: 'now', width: 50 },
-    { title: 'Max', accessor: 'maxSlots', id: 'max', width: 50 },
-    {
-      title: '',
-      id: '',
-      width: 50,
-      cellStyle: maxCellStyle,
-      accessor: (row) =>
-        appendAddSign(Number(row.maxSlots - row.availableSlots)),
-    },
-  ];
 
   useEffect(() => {
     if (practiceId !== null) {
@@ -264,7 +243,7 @@ const UpcomingSection: React.FC = () => {
       <hr className="h-px my-2.5 bg-gray-100 border-1 border-gray-100"></hr>
       <div className="flex w-full bg-green-50 pr-2 border-b border-green-200 items-center">
         <div className="flex items-center">
-          {surgeryTypes.map((item, index) => (
+          {surgeryTypes.map((item: ISurgeryType, index) => (
             <div className="mr-1" key={index}>
               <button
                 className="py-2 px-4 text-xs text-black text-normal border-b-2 border-transparent hover:text-white hover:bg-gradient-to-r from-primary-light to-primary-dark hover:rounded-t-lg"
@@ -286,11 +265,47 @@ const UpcomingSection: React.FC = () => {
         </div>
       </div>
       <div className="mt-2 flex justify-between overflow-x-auto text-xs">
-        {splitData.map((part, index) => (
-          <div key={index} className="border-r-4 border-gray-200 pr-4">
-            <DataTable data={part} columns={columnConfig} />
+        <div className="border-r-4 border-gray-200 pr-4">
+          <div className="mt-2 text-xs">
+            <div className="text-gray-50 w-full items-center bg-gray-50 rounded-lg">
+              {splitData.map((calendar) => (
+                <>
+                  <div className="bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 flex">
+                    <div className="font-bold text-white p-4 w-10">T</div>
+                    <div className="font-bold text-white p-4 w-40">Date</div>
+                    <div className="font-bold text-white p-4 w-10">Now</div>
+                    <div className="font-bold text-white p-4 w-10">Max</div>
+                    <div className="font-bold text-white p-4 w-10"></div>
+                  </div>
+                  {calendar.map((data: CalendarData) => (
+                    <React.Fragment key={data.id}>
+                      <div className={`flex items-center`}>
+                        <div className="text-black bg-gray-50 pt-2 pb-2 px-4 w-10">
+                          {data.surgeryType}
+                        </div>
+                        <div className="text-black bg-gray-50 pt-2 pb-2 px-4 w-40">
+                          {data.date}
+                        </div>
+                        <div className="text-black bg-gray-50 pt-2 pb-2 px-4 w-10">
+                          {data.availableSlots}
+                        </div>
+                        <div className="text-black bg-gray-50 pt-2 pb-2 px-4 w-10">
+                          {data.maxSlots}
+                        </div>
+                        <div
+                          className="text-black bg-gray-50 pt-2 pb-2 px-4 w-10 text-center"
+                          style={maxCellStyle(appendAddSign(data.maxSlots))}
+                        >
+                          {appendAddSign(data.maxSlots)}
+                        </div>
+                      </div>
+                    </React.Fragment>
+                  ))}
+                </>
+              ))}
+            </div>
           </div>
-        ))}
+        </div>
       </div>
       <UpsertCalendarModal isUpdating={isUpdating} />
     </div>
