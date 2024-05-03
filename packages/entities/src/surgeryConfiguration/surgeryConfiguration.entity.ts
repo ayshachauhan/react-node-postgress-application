@@ -1,23 +1,24 @@
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { BaseEntity } from '../base.entity';
-import { PracticeEntity } from '../practice';
+
+import { SurgeryTypeEntity } from '../surgeryType';
 import {
-  ISurgeryType,
+  ISurgeryConfiguration,
   SurgeryChecklist,
   SurgeryOptions,
-} from './surgeryType.interface';
+} from './surgeryConfiguration.interface';
 
-@Entity('surgery_types')
-export class SurgeryTypeEntity extends BaseEntity implements ISurgeryType {
-  @ManyToOne(() => PracticeEntity)
-  @JoinColumn({ name: 'practiceId' })
-  practice: PracticeEntity;
-
-  @Column({ type: 'varchar', nullable: true })
-  name: string;
+@Entity('surgery_configurations')
+export class SurgeryConfigurationEntity
+  extends BaseEntity
+  implements ISurgeryConfiguration
+{
+  @ManyToOne(() => SurgeryTypeEntity)
+  @JoinColumn({ name: 'surgeryTypeId' })
+  surgeryType: SurgeryTypeEntity;
 
   @Column({ type: 'varchar' })
-  type: string;
+  name: string;
 
   @Column('varchar', {
     array: true,

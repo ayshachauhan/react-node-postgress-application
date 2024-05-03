@@ -24,7 +24,7 @@ const AddTemplateForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const dispatch = useAppDispatch();
   const surgeryTypes = useAppSelector((state) => state.surgeryTypes.entities);
   const surgeryTypeOptions = Object.keys(surgeryTypes).map((key) => ({
-    label: surgeryTypes[key].type,
+    label: surgeryTypes[key].name,
     id: surgeryTypes[key].id,
   }));
   const [surgeryTypeId, setsurgeryTypeId] = useState('');

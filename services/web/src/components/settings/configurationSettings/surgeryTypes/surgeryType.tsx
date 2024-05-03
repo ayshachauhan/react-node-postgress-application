@@ -198,7 +198,7 @@ export default function SurgeryTypePage() {
                 {practiceName}
               </div>
               <div className="text-gray-900 bg-gray-50 pt-2 px-4">
-                {data.type}
+                {data.name}
               </div>
               <div className="text-gray-900 bg-gray-50 pt-2 px-4 flex gap-4">
                 <div

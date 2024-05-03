@@ -81,6 +81,7 @@ export default function UserPage() {
       dispatch(getPracticeInfo({ id: practiceId })); // Fetch listings from PostgreSQL database
     }
   }, [practiceId, dispatch]);
+
   const practiceName = useAppSelector(
     (state) => state.practices.practiceInfo?.name,
   );

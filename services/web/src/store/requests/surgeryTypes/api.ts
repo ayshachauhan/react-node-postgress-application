@@ -1,4 +1,3 @@
-import { AddFacility, BodyPart } from '@packages/entities/index.browser';
 import Cookies from 'js-cookie';
 import { publicRuntimeConfig } from 'next.config';
 import { createSurgeryTypeInterface } from '.';
@@ -118,89 +117,5 @@ export const getSurgeryTypeInfo = async (
     return data;
   } catch (error) {
     return rejectWithValue(error);
-  }
-};
-
-export const addFacility = async (payloadData: AddFacility) => {
-  try {
-    const accessToken = Cookies.get('access_token');
-    const response = await fetch(
-      `${API_BASE_URL}/practices/${payloadData.practiceId}/surgery-types/${payloadData.id}/facility`,
-      {
-        method: 'Patch',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify(payloadData),
-      },
-    );
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    return error;
-  }
-};
-
-export const addBodyPart = async (payloadData: BodyPart) => {
-  try {
-    const accessToken = Cookies.get('access_token');
-    const response = await fetch(
-      `${API_BASE_URL}/practices/${payloadData.practiceId}/surgery-types/${payloadData.id}/body-part`,
-      {
-        method: 'Patch',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify(payloadData),
-      },
-    );
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    return error;
-  }
-};
-
-export const addCheckList = async (payloadData: BodyPart) => {
-  try {
-    const accessToken = Cookies.get('access_token');
-    const response = await fetch(
-      `${API_BASE_URL}/practices/${payloadData.practiceId}/surgery-types/${payloadData.id}/check-list`,
-      {
-        method: 'Patch',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify(payloadData),
-      },
-    );
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    return error;
-  }
-};
-
-export const addAllSurgeryTypeDetails = async (payloadData) => {
-  try {
-    const accessToken = Cookies.get('access_token');
-    const response = await fetch(
-      `${API_BASE_URL}/practices/${payloadData.practiceId}/surgery-types/${payloadData.id}/surgery-type-details`,
-      {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify(payloadData),
-      },
-    );
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    return error;
   }
 };

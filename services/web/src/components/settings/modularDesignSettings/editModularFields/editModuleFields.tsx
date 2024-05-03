@@ -1,32 +1,87 @@
-import { CreateSurgeryConfigurationPayload } from '@packages/entities';
+import {
+  CreateSurgeryConfigurationPayload,
+  ISurgeryConfiguration,
+} from '@packages/entities';
 import Button from '@root/components/Button';
 import { AddIcon, CloseIcon } from '@root/components/Icons';
 import TextInput from '@root/components/TextInput';
-import { useAppDispatch } from '@root/store';
-import { addRecordAsync } from '@root/store/reducers/surgeryConfigurations';
+import { useAppDispatch, useAppSelector } from '@root/store';
+import { editRecordAsync } from '@root/store/reducers/surgeryConfigurations';
 import { getPracticeId } from '@utils/index';
 import { Select } from 'baseui/select';
 import { useRouter } from 'next/navigation';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
-const AddModularField: React.FC<{ onClose: () => void; items }> = ({
+const EditModularField: React.FC<{ onClose: () => void; data }> = ({
   onClose,
-  items,
+  data,
 }) => {
   const dispatch = useAppDispatch();
   const practiceId = getPracticeId();
+  const surgeryConfigInfo: ISurgeryConfiguration | undefined = Object.values(
+    useAppSelector((state) => state.surgeryConfigurations.entities),
+  ).find((ele) => ele.id === data.configurationId);
+  const [surgeryName, setSurgeryName] = useState<string>('');
+  const [surgeryTypeId, setSurgeryTypeId] = useState<string>(
+    surgeryConfigInfo?.surgeryType.id || '',
+  );
+
+  const [bodyPartInputFields, setBodyPartInputFields] = useState([
+    { value: '' },
+  ]);
+  const [facilityInputFields, setFacilityInputFields] = useState([
+    { value: '' },
+  ]);
+
+  const [optionsFields, setOptionsFields] = useState([
+    {
+      category: '',
+      billingType: '',
+      hospitalPricing: 0,
+      professionalPricing: 0,
+      option: [''],
+    },
+  ]);
+  const [checkListInputFields, setCheckListInputFields] = useState([
+    { value: '' },
+  ]);
+
+  useEffect(() => {
+    if (surgeryConfigInfo) {
+      const defaultChecklist = Object.values(surgeryConfigInfo?.checkList);
+      const defaultOptions = Object.values(surgeryConfigInfo?.options);
+
+      setSurgeryName(surgeryConfigInfo.name);
+      setSurgeryTypeId(surgeryConfigInfo.surgeryType.id);
+      setBodyPartInputFields(
+        surgeryConfigInfo?.bodyPart.map((ele) => ({ value: ele })),
+      );
+      setFacilityInputFields(
+        surgeryConfigInfo?.facility.map((ele) => ({ value: ele })),
+      );
+      setCheckListInputFields(
+        defaultChecklist.map((ele) => ({ value: ele.label })),
+      );
+      setOptionsFields(
+        defaultOptions.map((ele) => ({
+          category: ele.label,
+          billingType: ele.billingType,
+          hospitalPricing: ele.allowedValues[0].hospitalPricing,
+          professionalPricing: ele.allowedValues[0].professionalPricing,
+          option: ele.allowedValues.map((ele) => ele.name),
+        })),
+      );
+    }
+  }, [surgeryConfigInfo]);
+
   const router = useRouter();
 
-  const { surgeryTypesList } = items;
+  const { surgeryTypesList } = data;
 
   const surgeryTypeOptions = Object.keys(surgeryTypesList).map((key) => ({
     label: surgeryTypesList[key].name,
     id: surgeryTypesList[key].id,
   }));
-
-  const [bodyPartInputFields, setBodyPartInputFields] = useState([
-    { value: '' },
-  ]);
 
   const handleChangeInput = (index: number, event: string) => {
     const values = [...bodyPartInputFields];
@@ -42,9 +97,6 @@ const AddModularField: React.FC<{ onClose: () => void; items }> = ({
     setBodyPartInputFields(values);
   };
 
-  const [facilityInputFields, setFacilityInputFields] = useState([
-    { value: '' },
-  ]);
   const handleFacilityChangeInput = (index: number, event: string) => {
     const values = [...facilityInputFields];
     values[index].value = event;
@@ -60,15 +112,6 @@ const AddModularField: React.FC<{ onClose: () => void; items }> = ({
     setFacilityInputFields(values);
   };
 
-  const [optionsFields, setOptionsFields] = useState([
-    {
-      category: '',
-      billingType: '',
-      hospitalPricing: '',
-      professionalPricing: '',
-      option: [],
-    },
-  ]);
   const handleOptionsFieldChangeInput = (index: number, event, key: string) => {
     const values = [...optionsFields];
     if (Array.isArray(event)) {
@@ -84,37 +127,33 @@ const AddModularField: React.FC<{ onClose: () => void; items }> = ({
       {
         category: '',
         billingType: '',
-        hospitalPricing: '',
-        professionalPricing: '',
+        hospitalPricing: 0,
+        professionalPricing: 0,
         option: [],
       },
     ]);
   };
-  const handleOptionsRemoveFields = (index) => {
+  const handleOptionsFields = (index) => {
     const values = [...optionsFields];
     values.splice(index, 1);
     setOptionsFields(values);
   };
 
-  const [checkListInputFields, setCheckListInputFields] = useState([
-    { value: '' },
-  ]);
   const handleChecklistChangeInput = (index: number, event: string) => {
     const values = [...checkListInputFields];
     values[index].value = event;
     setCheckListInputFields(values);
   };
+
   const handleChecklistAddFields = () => {
     setCheckListInputFields([...checkListInputFields, { value: '' }]);
   };
+
   const handleChecklistRemoveFields = (index) => {
     const values = [...checkListInputFields];
     values.splice(index, 1);
     setCheckListInputFields(values);
   };
-
-  const [surgeryName, setSurgeryName] = useState<string>('');
-  const [surgeryTypeId, setSurgeryTypeId] = useState('');
 
   const handleSurgeryTypeChange = ({ value }) => {
     setSurgeryTypeId(value[0] ? value[0].id : null);
@@ -122,7 +161,6 @@ const AddModularField: React.FC<{ onClose: () => void; items }> = ({
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // if (practiceId) {
     const surgeryOptionObj = {};
     const checkListObj = {};
 
@@ -163,7 +201,9 @@ const AddModularField: React.FC<{ onClose: () => void; items }> = ({
         checkList: checkListObj,
       };
 
-      dispatch(addRecordAsync({ payloadData, practiceId }));
+      dispatch(
+        editRecordAsync({ payloadData, practiceId, id: data.configurationId }),
+      );
     }
 
     try {
@@ -172,7 +212,6 @@ const AddModularField: React.FC<{ onClose: () => void; items }> = ({
     } catch (error) {
       onClose();
     }
-    // }
 
     router.refresh();
     onClose();
@@ -184,7 +223,7 @@ const AddModularField: React.FC<{ onClose: () => void; items }> = ({
         <form onSubmit={handleSubmit}>
           <div className="flex mt-8 pb-5 border-b border-gray-100">
             <div className="text-xl font-bold text-black w-full">
-              Add Modular Field
+              Edit Modular Field
             </div>
           </div>
           <div className="flex gap-5 mt-4">
@@ -239,14 +278,14 @@ const AddModularField: React.FC<{ onClose: () => void; items }> = ({
                 Body Part
               </label>
               <div className="flex flex-row gap-3">
-                {bodyPartInputFields.map((inputField, index, arr) => (
+                {bodyPartInputFields.map((inputField, index, bodyPartsArr) => (
                   <div key={index}>
                     <TextInput
                       type="text"
                       value={inputField.value}
                       onChange={(event) => handleChangeInput(index, event)}
                       endEnhancer={
-                        arr.length > 1 ? (
+                        bodyPartsArr.length > 1 ? (
                           <div
                             className="rounded-md cursor-pointer items-center pl-3"
                             onClick={() => handleRemoveFields(index)}
@@ -279,8 +318,8 @@ const AddModularField: React.FC<{ onClose: () => void; items }> = ({
               <label htmlFor="facility" className="text-black text-sm">
                 Facility
               </label>
-              <div className="flex flex-row gap-3">
-                {facilityInputFields.map((inputField, index, arr) => (
+              <div className="flex flex-row">
+                {facilityInputFields.map((inputField, index, facilityArr) => (
                   <div key={index}>
                     <TextInput
                       type="text"
@@ -289,7 +328,7 @@ const AddModularField: React.FC<{ onClose: () => void; items }> = ({
                         handleFacilityChangeInput(index, event)
                       }
                       endEnhancer={
-                        arr.length > 1 ? (
+                        facilityArr.length > 1 ? (
                           <div
                             className="rounded-md cursor-pointer items-center pl-3"
                             onClick={() => handleFacilityRemoveField(index)}
@@ -299,9 +338,10 @@ const AddModularField: React.FC<{ onClose: () => void; items }> = ({
                         ) : null
                       }
                     />
+                    <div className="pl-3"></div>
                   </div>
                 ))}
-                <div className="">
+                <div className="pl-3">
                   <Button
                     type="button"
                     kind="primary"
@@ -342,7 +382,7 @@ const AddModularField: React.FC<{ onClose: () => void; items }> = ({
               </div>
             </div>
             <hr className="h-px my-2.5 bg-gray-100 border-1 dark:bg-gray-800"></hr>
-            {optionsFields.map((inputField, index, arr) => (
+            {optionsFields.map((inputField, index, optionsArr) => (
               <div key={index}>
                 <div className="flex gap-5">
                   <div className="space-y-4 flex-1">
@@ -453,7 +493,7 @@ const AddModularField: React.FC<{ onClose: () => void; items }> = ({
                     />
                     <div className="space-y-4"></div>
                   </div>
-                  {arr.length > 1 && (
+                  {optionsArr.length > 1 && (
                     <div className="text-right text-base mt-10">
                       <Button
                         type="button"
@@ -464,7 +504,7 @@ const AddModularField: React.FC<{ onClose: () => void; items }> = ({
                           backgroundColor: 'red',
                           color: 'white',
                         }}
-                        onClick={() => handleOptionsRemoveFields(index)}
+                        onClick={() => handleOptionsFields(index)}
                       />
                     </div>
                   )}
@@ -502,29 +542,33 @@ const AddModularField: React.FC<{ onClose: () => void; items }> = ({
                 <label htmlFor="email" className="text-black text-sm">
                   Name
                 </label>
-                <div className="flex flex-row gap-3">
-                  {checkListInputFields.map((inputField, index, arr) => (
-                    <div key={index}>
-                      <TextInput
-                        type="text"
-                        value={inputField.value}
-                        onChange={(event) =>
-                          handleChecklistChangeInput(index, event)
-                        }
-                        endEnhancer={
-                          arr.length > 1 ? (
-                            <div
-                              className="rounded-md cursor-pointer items-center pl-3"
-                              onClick={() => handleChecklistRemoveFields(index)}
-                            >
-                              <CloseIcon className="" size={10} />
-                            </div>
-                          ) : null
-                        }
-                      />
-                      <div className="pl-3"></div>
-                    </div>
-                  ))}
+                <div className="flex flex-row">
+                  {checkListInputFields.map(
+                    (inputField, index, checkListArr) => (
+                      <div key={index}>
+                        <TextInput
+                          type="text"
+                          value={inputField.value}
+                          onChange={(event) =>
+                            handleChecklistChangeInput(index, event)
+                          }
+                          endEnhancer={
+                            checkListArr.length > 1 ? (
+                              <div
+                                className="rounded-md cursor-pointer items-center pl-3"
+                                onClick={() =>
+                                  handleChecklistRemoveFields(index)
+                                }
+                              >
+                                <CloseIcon className="" size={10} />
+                              </div>
+                            ) : null
+                          }
+                        />
+                        <div className="pl-3"></div>
+                      </div>
+                    ),
+                  )}
                 </div>
                 <div className="space-y-4"></div>
               </div>
@@ -554,4 +598,4 @@ const AddModularField: React.FC<{ onClose: () => void; items }> = ({
   );
 };
 
-export default AddModularField;
+export default EditModularField;
