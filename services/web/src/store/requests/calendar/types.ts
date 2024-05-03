@@ -8,7 +8,7 @@ export type GetCalendarsPayload = CalendarsPayload;
 
 export type CreateCalendarPayload = {
   maxSlots: number;
-  availableSlots: number;
+  bookedSlots: number;
   date: Date;
 } & Required<CalendarsPayload>;
 
@@ -16,7 +16,7 @@ export type GetCalendarByIdPayload = { id: string } & CalendarsPayload;
 
 export type UpdateCalendarPayload = {
   maxSlots: number;
-  availableSlots: number;
+  bookedSlots: number;
   id: string;
 } & CalendarsPayload;
 
@@ -25,7 +25,7 @@ export type UpdateCalendarsPayload = {
   userId: string;
   data: {
     maxSlots: number;
-    availableSlots: number;
+    bookedSlots: number;
     id: string;
   }[];
 };

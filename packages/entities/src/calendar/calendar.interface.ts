@@ -8,6 +8,6 @@ export interface ICalendar extends IBaseEntity {
   surgeryType: ISurgeryType;
   user: ISanitizedUser;
   date: Date;
-  availableSlots: number;
+  bookedSlots: number;
   maxSlots: number;
 }

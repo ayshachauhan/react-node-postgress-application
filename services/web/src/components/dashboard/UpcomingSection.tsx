@@ -14,7 +14,7 @@ export type CalendarData = {
   id: string;
   date: Date;
   maxSlots: number;
-  availableSlots: number;
+  bookedSlots: number;
   surgeryType: string;
 };
 
@@ -149,7 +149,7 @@ const UpcomingSection: React.FC = () => {
       id: data.id,
       date: data.date,
       maxSlots: data.maxSlots,
-      availableSlots: data.availableSlots,
+      bookedSlots: data.bookedSlots,
       surgeryType: data.surgeryType.name.charAt(0).toUpperCase(),
     }));
 
@@ -213,8 +213,8 @@ const UpcomingSection: React.FC = () => {
                 : [
                     {
                       id: '',
-                      maxSlots: 14,
-                      availableSlots: 14,
+                      maxSlots: DEFAULT_MAX_SLOTS,
+                      bookedSlots: 0,
                       date: new Date(),
                       surgeryType: selectedSurgery?.name
                         .charAt(0)
@@ -291,8 +291,8 @@ const UpcomingSection: React.FC = () => {
                       <div className="font-bold text-white p-4 w-10"></div>
                     </div>
                     {calendar.map((data: CalendarData) => {
-                      const bookedSlots: number =
-                        data.maxSlots - data.availableSlots;
+                      const availableSlots: number =
+                        data.maxSlots - data.bookedSlots;
                       return (
                         <React.Fragment key={data.id}>
                           <div className={`flex items-center`}>
@@ -303,16 +303,16 @@ const UpcomingSection: React.FC = () => {
                               {moment(data.date).format('YYYY-MM-DD')}
                             </div>
                             <div className="text-black bg-gray-50 pt-2 pb-2 px-4 w-10">
-                              {bookedSlots}
+                              {data.bookedSlots}
                             </div>
                             <div className="text-black bg-gray-50 pt-2 pb-2 px-4 w-10">
                               {data.maxSlots}
                             </div>
                             <div
                               className="text-black bg-gray-50 pt-2 pb-2 px-4 w-10 text-center"
-                              style={maxCellStyle(data.availableSlots)}
+                              style={maxCellStyle(availableSlots)}
                             >
-                              {appendAddSign(data.availableSlots)}
+                              {appendAddSign(availableSlots)}
                             </div>
                           </div>
                         </React.Fragment>

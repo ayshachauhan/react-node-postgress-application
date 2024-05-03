@@ -34,7 +34,7 @@ export class CreateCalendar1713982043727 implements MigrationInterface {
             isNullable: false,
           },
           {
-            name: 'availableSlots',
+            name: 'bookedSlots',
             type: 'integer',
             isNullable: false,
           },

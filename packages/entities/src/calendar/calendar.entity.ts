@@ -18,7 +18,7 @@ export class CalendarEntity extends BaseEntity implements ICalendar {
   date: Date;
 
   @Column({ type: 'integer' })
-  availableSlots: number;
+  bookedSlots: number;
 
   @Column({ type: 'integer', default: 14 })
   maxSlots: number;

@@ -75,9 +75,8 @@ export class CalendarController {
 
   @Patch('')
   updateCalendars(
-    @Param() params: UpdateCalendarParams,
     @Body(new ValidationPipe()) updateDTO: UpdateCalendarsDto,
   ): Promise<CalendarEntity[] | null> {
-    return this.calendarService.updateCalendars(params, updateDTO);
+    return this.calendarService.updateCalendars(updateDTO);
   }
 }

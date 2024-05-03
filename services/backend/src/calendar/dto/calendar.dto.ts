@@ -6,11 +6,11 @@ export class CreateCalendarDto {
   @ApiProperty()
   date: Date;
 
-  @IsNotEmpty()
+  @IsOptional()
   @ApiProperty()
   @Min(0)
   @Max(14)
-  availableSlots: number;
+  bookedSlots: number;
 
   @IsNotEmpty()
   @ApiProperty()
@@ -26,7 +26,7 @@ export class CreateCalendarDto {
 export class UpdateCalendarDto {
   @IsOptional()
   @ApiProperty()
-  availableSlots?: number;
+  bookedSlots?: number;
 
   @IsOptional()
   @ApiProperty()
@@ -38,7 +38,7 @@ export class UpdateCalendarDto {
 export class UpdateCalendarsDto {
   data: {
     id: string;
-    availableSlots?: number;
+    bookedSlots?: number;
     maxSlots?: number;
   }[];
 }

@@ -119,18 +119,12 @@ export class CalendarService {
       practiceId,
     );
 
-    if (dto.maxSlots < dto.availableSlots) {
-      throw new HttpException(
-        'MaxSlots should be greater than or equal to available slots',
-        HttpStatus.FORBIDDEN,
-      );
-    }
-
     console.log(dto, 'dtocreate');
 
     //TODO: need to check why we need to add the ! operator here, giving typeerror whithout them about DeepPartialEntity
     const calendar = this.calendarRepo.create({
       ...dto,
+      bookedSlots: dto.bookedSlots ?? 0,
       practice: practiceEntity!,
       surgeryType: surgeryTypeEntity!,
       user: userEntity!,
@@ -147,19 +141,19 @@ export class CalendarService {
    */
   async updateCalendar(
     { id }: UpdateCalendarParams,
-    { maxSlots, availableSlots }: UpdateCalendarDto,
+    { maxSlots, bookedSlots }: UpdateCalendarDto,
   ): Promise<CalendarEntity | null> {
-    if (maxSlots && availableSlots) {
-      if (maxSlots < availableSlots) {
+    if (maxSlots && bookedSlots) {
+      if (maxSlots < bookedSlots) {
         throw new HttpException(
-          'MaxSlots should be greater than or equal to available slots',
+          'MaxSlots should be greater than or equal to booked slots',
           HttpStatus.FORBIDDEN,
         );
       }
     }
     await this.calendarRepo.update(id, {
       maxSlots,
-      availableSlots,
+      bookedSlots,
     });
 
     return await this.calendarRepo.findOne({
@@ -174,24 +168,23 @@ export class CalendarService {
    * @param param1
    * @returns
    */
-  async updateCalendars(
-    __params: UpdateCalendarParams,
-    { data }: UpdateCalendarsDto,
-  ): Promise<CalendarEntity[] | null> {
+  async updateCalendars({
+    data,
+  }: UpdateCalendarsDto): Promise<CalendarEntity[] | null> {
     const updatedCalendars: CalendarEntity[] = [];
 
     await Promise.all(
       data.map(async (data) => {
-        const { id, maxSlots, availableSlots } = data;
+        const { id, maxSlots, bookedSlots } = data;
 
-        if (maxSlots && availableSlots && maxSlots < availableSlots) {
+        if (maxSlots && bookedSlots && maxSlots < bookedSlots) {
           throw new HttpException(
-            'MaxSlots should be greater than or equal to available slots',
+            'MaxSlots should be greater than or equal to booked slots',
             HttpStatus.FORBIDDEN,
           );
         }
 
-        await this.calendarRepo.update(id, { maxSlots, availableSlots });
+        await this.calendarRepo.update(id, { maxSlots, bookedSlots });
 
         const updatedCalendar = (await this.calendarRepo.findOne({
           where: { id },

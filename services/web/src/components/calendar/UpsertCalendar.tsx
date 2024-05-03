@@ -71,7 +71,7 @@ const UpsertCalendar: React.FC<{
           userId,
           data: updatedData.map((data) => ({
             id: data.id,
-            availableSlots: data.availableSlots,
+            bookedSlots: data.bookedSlots,
             maxSlots: data.maxSlots,
           })),
         };
@@ -94,7 +94,7 @@ const UpsertCalendar: React.FC<{
           userId,
           surgeryTypeId: selectedSurgery.id,
           maxSlots: upsertCalendarData[0].maxSlots,
-          availableSlots: upsertCalendarData[0].availableSlots,
+          bookedSlots: upsertCalendarData[0].bookedSlots,
           date: formattedDate,
         };
 
@@ -163,15 +163,15 @@ const UpsertCalendar: React.FC<{
 
             <div className="flex-1 space-y-2 px-4">
               <label
-                htmlFor="avaialableSlots"
+                htmlFor="bookedSlots"
                 className="text-black text-sm font-normal"
               >
-                Available Slots{' '}
+                Booked Slots{' '}
               </label>
               <TextInput
                 id={calendar.id}
-                name="availableSlots"
-                value={calendar.availableSlots}
+                name="bookedSlots"
+                value={calendar.bookedSlots}
                 onChange={handleInputChange}
                 required
                 disabled={true}
@@ -189,7 +189,7 @@ const UpsertCalendar: React.FC<{
                   label: key,
                   id: key,
                   calendarId: calendar.id,
-                  disabled: isUpdating ? key < calendar.availableSlots : false,
+                  disabled: isUpdating ? key < calendar.bookedSlots : false,
                 }))}
                 onChange={({ value }) => {
                   setUpsertCalendarData((prevData) =>
@@ -198,9 +198,6 @@ const UpsertCalendar: React.FC<{
                         ? {
                             ...cal,
                             maxSlots: value[0].label as number,
-                            availableSlots: isUpdating
-                              ? cal.availableSlots
-                              : (value[0].label as number),
                           }
                         : cal,
                     ),
