@@ -38,36 +38,43 @@ const UpcomingSection: React.FC = () => {
     null,
   );
 
-  const appendAddSign = (cellValue: number) => {
+  /**
+   * @summary append + sign
+   * @param cellValue number
+   */
+  const appendAddSign = (cellValue: number): string => {
     return '+' + cellValue;
   };
 
-  const maxCellStyle = (maxSlots: number, availableSlots: number) => {
-    const isMax = maxSlots === availableSlots;
-    const isRed = maxSlots - availableSlots === 0;
-    const isGreen = maxSlots - availableSlots > 0;
+  /**
+   * @summary css for available slots view
+   * @param availableSlots
+   * @returns css for available slots view
+   */
+  const maxCellStyle = (availableSlots: number): Record<string, string> => {
+    const isMax = availableSlots === DEFAULT_MAX_SLOTS;
+    const isRed = availableSlots === 0;
+    const isGreen = availableSlots > 0;
+
+    const cssObject = {
+      color: 'white',
+      paddingLeft: '4px',
+      paddingRight: '4px',
+      paddingTop: '0px',
+      paddingBottom: '0px',
+      borderRadius: '5px',
+      justifyContent: 'center',
+    };
 
     if (isMax) {
       return {
+        ...cssObject,
         backgroundColor: 'rgba(34, 197, 94, 1)',
-        color: 'white',
-        paddingLeft: '4px',
-        paddingRight: '4px',
-        paddingTop: '0px',
-        paddingBottom: '0px',
-        borderRadius: '5px',
-        justifyContent: 'center',
       };
     } else if (isRed) {
       return {
+        ...cssObject,
         backgroundColor: 'rgba(239, 68, 68, 1)',
-        color: 'white',
-        paddingLeft: '4px',
-        paddingRight: '4px',
-        paddingTop: '0px',
-        paddingBottom: '0px',
-        borderRadius: '5px',
-        justifyContent: 'center',
       };
     } else if (isGreen) {
       return { color: 'rgba(22, 163, 74, 1)' };
@@ -116,6 +123,11 @@ const UpcomingSection: React.FC = () => {
       });
   };
 
+  /**
+   * @summary split calendar data so it can render only 7 dates in one view
+   * @param calendars
+   * @returns
+   */
   const splitCalendarData = (calendars: CalendarData[]): CalendarData[][] => {
     const splitData: CalendarData[][] = [];
     let currentPart: CalendarData[] = [];
@@ -152,6 +164,11 @@ const UpcomingSection: React.FC = () => {
     setIsModalOpen(false);
   };
 
+  /**
+   * @summary Upsert calendar modal to add or update the data
+   * @param param0
+   * @returns
+   */
   const UpsertCalendarModal = ({ isUpdating }: { isUpdating: boolean }) => {
     return (
       <Modal
@@ -273,37 +290,34 @@ const UpcomingSection: React.FC = () => {
                       <div className="font-bold text-white p-4 w-10">Max</div>
                       <div className="font-bold text-white p-4 w-10"></div>
                     </div>
-                    {calendar.map((data: CalendarData) => (
-                      <React.Fragment key={data.id}>
-                        <div className={`flex items-center`}>
-                          <div className="text-black bg-gray-50 pt-2 pb-2 px-4 w-10">
-                            {data.surgeryType}
+                    {calendar.map((data: CalendarData) => {
+                      const bookedSlots: number =
+                        data.maxSlots - data.availableSlots;
+                      return (
+                        <React.Fragment key={data.id}>
+                          <div className={`flex items-center`}>
+                            <div className="text-black bg-gray-50 pt-2 pb-2 px-4 w-10">
+                              {data.surgeryType}
+                            </div>
+                            <div className="text-black bg-gray-50 pt-2 pb-2 px-4 w-40">
+                              {moment(data.date).format('YYYY-MM-DD')}
+                            </div>
+                            <div className="text-black bg-gray-50 pt-2 pb-2 px-4 w-10">
+                              {bookedSlots}
+                            </div>
+                            <div className="text-black bg-gray-50 pt-2 pb-2 px-4 w-10">
+                              {data.maxSlots}
+                            </div>
+                            <div
+                              className="text-black bg-gray-50 pt-2 pb-2 px-4 w-10 text-center"
+                              style={maxCellStyle(data.availableSlots)}
+                            >
+                              {appendAddSign(data.availableSlots)}
+                            </div>
                           </div>
-                          <div className="text-black bg-gray-50 pt-2 pb-2 px-4 w-40">
-                            {moment(data.date).format('YYYY-MM-DD')}
-                          </div>
-                          <div className="text-black bg-gray-50 pt-2 pb-2 px-4 w-10">
-                            {data.availableSlots}
-                          </div>
-                          <div className="text-black bg-gray-50 pt-2 pb-2 px-4 w-10">
-                            {data.maxSlots}
-                          </div>
-                          <div
-                            className="text-black bg-gray-50 pt-2 pb-2 px-4 w-10 text-center"
-                            style={maxCellStyle(
-                              data.maxSlots,
-                              data.availableSlots,
-                            )}
-                          >
-                            {appendAddSign(
-                              data.maxSlots === data.availableSlots
-                                ? data.maxSlots
-                                : data.maxSlots - data.availableSlots,
-                            )}
-                          </div>
-                        </div>
-                      </React.Fragment>
-                    ))}
+                        </React.Fragment>
+                      );
+                    })}
                   </>
                 </div>
               </div>
