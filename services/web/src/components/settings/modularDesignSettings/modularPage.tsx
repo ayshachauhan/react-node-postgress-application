@@ -32,7 +32,6 @@ const Dashboard: React.FC = () => {
     }
   }, [practiceId, dispatch]);
   const [showModal, setShowModal] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [configurationId, setConfigurationId] = useState<string | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -59,7 +58,6 @@ const Dashboard: React.FC = () => {
   };
 
   const handleOpenEditModal = (data): void => {
-    setIsModalOpen(false);
     setIsEditModalOpen(true);
     setIsDeleteModalOpen(false);
     setConfigurationId(data.id);
@@ -69,7 +67,9 @@ const Dashboard: React.FC = () => {
     const id = configurationId;
     if (practiceId && id) {
       try {
-        // dispatch(deleteRecordAsync({ practiceId, id }));
+        dispatch(
+          deleteRecordAsync({ practiceId, id: configurationId, surgeryTypeId }),
+        );
         setIsDeleteModalOpen(false);
         setConfigurationId(null);
       } catch (error) {
