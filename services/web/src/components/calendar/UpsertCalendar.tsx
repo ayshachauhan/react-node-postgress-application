@@ -13,6 +13,7 @@ import {
 import { getPracticeId, getUserId } from '@root/utils';
 import { DatePicker } from 'baseui/datepicker';
 import { Select } from 'baseui/select';
+import moment from 'moment';
 import React, { useState } from 'react';
 import { CalendarData } from '../dashboard/UpcomingSection';
 
@@ -85,9 +86,7 @@ const UpsertCalendar: React.FC<{
         }
       } else {
         const formattedDate = new Date(
-          //@ts-ignore
           upsertCalendarData[0].date.getTime() -
-            //@ts-ignore
             upsertCalendarData[0].date.getTimezoneOffset() * 60000,
         );
 
@@ -97,8 +96,7 @@ const UpsertCalendar: React.FC<{
           surgeryTypeId: selectedSurgery.id,
           maxSlots: upsertCalendarData[0].maxSlots,
           availableSlots: upsertCalendarData[0].availableSlots,
-          //@ts-ignore
-          date: formattedDate.toISOString(),
+          date: formattedDate,
         };
 
         console.log(
@@ -142,7 +140,7 @@ const UpsertCalendar: React.FC<{
                 <TextInput
                   id={calendar.id}
                   name="date"
-                  value={calendar.date}
+                  value={moment(calendar.date).format('YYYY-MM-DD')}
                   onChange={handleInputChange}
                   required
                   disabled={isUpdating}
@@ -155,6 +153,7 @@ const UpsertCalendar: React.FC<{
                   }
                   placeholder="Surgery Date"
                   required
+                  minDate={new Date()}
                 />
               )}
             </div>
@@ -189,7 +188,6 @@ const UpsertCalendar: React.FC<{
                   calendarId: calendar.id,
                 }))}
                 onChange={({ value }) => {
-                  console.log(value, 'inselct');
                   setUpsertCalendarData((prevData) =>
                     prevData.map((cal: CalendarData) =>
                       cal.id === value[0].calendarId

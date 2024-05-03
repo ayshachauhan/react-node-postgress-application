@@ -6,12 +6,13 @@ import { fetchCalendars } from '@root/store/reducers/calendar';
 import { fetchListings } from '@root/store/reducers/surgeryTypes';
 import { getPracticeId, getUserId } from '@root/utils/index';
 import { Modal, ModalBody, ModalHeader, ROLE } from 'baseui/modal';
+import moment from 'moment';
 import React, { useEffect, useState } from 'react';
 import UpsertCalendar from '../calendar/UpsertCalendar';
 
 export type CalendarData = {
   id: string;
-  date: string;
+  date: Date;
   maxSlots: number;
   availableSlots: number;
   surgeryType: string;
@@ -139,14 +140,13 @@ const UpcomingSection: React.FC = () => {
     .filter((data: ICalendar) => data.surgeryType.id === selectedSurgery?.id)
     .map((data: ICalendar) => ({
       id: data.id,
-      date: new Date(data.date).toISOString().split('T')[0],
+      date: data.date,
       maxSlots: data.maxSlots,
       availableSlots: data.availableSlots,
       surgeryType: data.surgeryType.name.charAt(0).toUpperCase(),
     }));
 
   const filteredCalendars = filterCalendarByMonth(upcomingDates);
-  const splitData = splitCalendarData(filteredCalendars);
 
   const handleOpenModal = (isUpdating: boolean): void => {
     console.log(isModalOpen, 'modalopen');
@@ -203,7 +203,7 @@ const UpcomingSection: React.FC = () => {
                       id: '',
                       maxSlots: 14,
                       availableSlots: 14,
-                      date: '',
+                      date: new Date(),
                       surgeryType: selectedSurgery?.name
                         .charAt(0)
                         .toUpperCase() as string,
@@ -265,47 +265,49 @@ const UpcomingSection: React.FC = () => {
         </div>
       </div>
       <div className="mt-2 flex justify-between overflow-x-auto text-xs">
-        <div className="border-r-4 border-gray-200 pr-4">
-          <div className="mt-2 text-xs">
-            <div className="text-gray-50 w-full items-center bg-gray-50 rounded-lg">
-              {splitData.map((calendar) => (
-                <>
-                  <div className="bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 flex">
-                    <div className="font-bold text-white p-4 w-10">T</div>
-                    <div className="font-bold text-white p-4 w-40">Date</div>
-                    <div className="font-bold text-white p-4 w-10">Now</div>
-                    <div className="font-bold text-white p-4 w-10">Max</div>
-                    <div className="font-bold text-white p-4 w-10"></div>
-                  </div>
-                  {calendar.map((data: CalendarData) => (
-                    <React.Fragment key={data.id}>
-                      <div className={`flex items-center`}>
-                        <div className="text-black bg-gray-50 pt-2 pb-2 px-4 w-10">
-                          {data.surgeryType}
+        {splitCalendarData(filteredCalendars).map(
+          (calendar: CalendarData[]) => (
+            <div className="border-r-4 border-gray-200 pr-4 flex">
+              <div className="mt-2 text-xs">
+                <div className="text-gray-50 w-full items-center bg-gray-50 rounded-lg">
+                  <>
+                    <div className="bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 flex">
+                      <div className="font-bold text-white p-4 w-10">T</div>
+                      <div className="font-bold text-white p-4 w-40">Date</div>
+                      <div className="font-bold text-white p-4 w-10">Now</div>
+                      <div className="font-bold text-white p-4 w-10">Max</div>
+                      <div className="font-bold text-white p-4 w-10"></div>
+                    </div>
+                    {calendar.map((data: CalendarData) => (
+                      <React.Fragment key={data.id}>
+                        <div className={`flex items-center`}>
+                          <div className="text-black bg-gray-50 pt-2 pb-2 px-4 w-10">
+                            {data.surgeryType}
+                          </div>
+                          <div className="text-black bg-gray-50 pt-2 pb-2 px-4 w-40">
+                            {moment(data.date).format('YYYY-MM-DD')}
+                          </div>
+                          <div className="text-black bg-gray-50 pt-2 pb-2 px-4 w-10">
+                            {data.availableSlots}
+                          </div>
+                          <div className="text-black bg-gray-50 pt-2 pb-2 px-4 w-10">
+                            {data.maxSlots}
+                          </div>
+                          <div
+                            className="text-black bg-gray-50 pt-2 pb-2 px-4 w-10 text-center"
+                            style={maxCellStyle(appendAddSign(data.maxSlots))}
+                          >
+                            {appendAddSign(data.maxSlots)}
+                          </div>
                         </div>
-                        <div className="text-black bg-gray-50 pt-2 pb-2 px-4 w-40">
-                          {data.date}
-                        </div>
-                        <div className="text-black bg-gray-50 pt-2 pb-2 px-4 w-10">
-                          {data.availableSlots}
-                        </div>
-                        <div className="text-black bg-gray-50 pt-2 pb-2 px-4 w-10">
-                          {data.maxSlots}
-                        </div>
-                        <div
-                          className="text-black bg-gray-50 pt-2 pb-2 px-4 w-10 text-center"
-                          style={maxCellStyle(appendAddSign(data.maxSlots))}
-                        >
-                          {appendAddSign(data.maxSlots)}
-                        </div>
-                      </div>
-                    </React.Fragment>
-                  ))}
-                </>
-              ))}
+                      </React.Fragment>
+                    ))}
+                  </>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
+          ),
+        )}
       </div>
       <UpsertCalendarModal isUpdating={isUpdating} />
     </div>
