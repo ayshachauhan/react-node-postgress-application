@@ -1,6 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { ReferredPatient, SurgeryEntity } from '@packages/entities/*';
 import { ReferrersEntity } from '@packages/entities/referrer';
+import { SurgeryService } from 'src/surgery/surgery.service';
 import { ILike, Repository } from 'typeorm';
 
 @Injectable()
@@ -8,6 +10,7 @@ export class ReferrersService {
   constructor(
     @InjectRepository(ReferrersEntity)
     private readonly referrers: Repository<ReferrersEntity>,
+    private readonly surgeryService: SurgeryService,
   ) {}
 
   async createReferrer(
@@ -31,7 +34,6 @@ export class ReferrersService {
   ): Promise<ReferrersEntity> {
     const referrer = await this.referrers.findOne({
       where: { id: referrerId, practiceId },
-      relations: ['patients'],
     });
     if (!referrer) {
       throw new NotFoundException('Referrer not exists');
@@ -77,5 +79,61 @@ export class ReferrersService {
     }
 
     return referrers;
+  }
+
+  async getReferrerPatient(
+    practiceId: string,
+    referrerId: string,
+  ): Promise<ReferredPatient[]> {
+    const referrer = await this.referrers.findOne({
+      where: { id: referrerId, practiceId },
+      relations: ['patients'],
+    });
+
+    const resultArray: ReferredPatient[] = [];
+
+    const filteredData =
+      await this.surgeryService.getSurgeriesByReferredId(referrerId);
+
+    interface GroupedSurgery {
+      id: string;
+      surgeries: SurgeryEntity[];
+      firstName: string;
+      lastName: string;
+      dateCreated: Date;
+      count: number;
+    }
+
+    const groupedSurgeries: GroupedSurgery[] = Object.values(
+      filteredData.reduce((acc, surgery) => {
+        const { id, patient, ...rest } = surgery;
+        const patientId = patient.id;
+        if (!acc[patientId]) {
+          acc[patientId] = { ...patient, surgeries: [], count: 0 };
+        }
+        acc[patientId].surgeries.push({ id, ...rest });
+        acc[patientId].count++;
+        return acc;
+      }, {}),
+    );
+
+    groupedSurgeries.forEach((element: GroupedSurgery) => {
+      const newObj: ReferredPatient = {
+        dateCreated: element.dateCreated,
+        date: element.surgeries[0]?.date,
+        firstName: element.firstName,
+        lastName: element.lastName,
+        lens: element.surgeries[0]?.lensType,
+        billing: 'billing',
+        count: element.count,
+        id: element.id,
+      };
+      resultArray.push(newObj);
+    });
+
+    if (!referrer) {
+      throw new NotFoundException('Referrer not exists');
+    }
+    return resultArray;
   }
 }

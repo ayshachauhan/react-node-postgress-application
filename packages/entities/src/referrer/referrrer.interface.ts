@@ -1,5 +1,5 @@
 import { IBaseEntity } from '../base.interface';
-import { IPatient } from '../patient';
+import { ReferredPatient } from '../patient';
 
 export interface IReferrer extends IBaseEntity {
   firstName: string;
@@ -7,7 +7,7 @@ export interface IReferrer extends IBaseEntity {
   email: string;
   practiceId: string;
   referrerType: ReferrerType;
-  patients: IPatient[];
+  patients: ReferredPatient[];
 }
 
 export enum ReferrerType {

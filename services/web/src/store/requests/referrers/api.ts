@@ -148,3 +148,32 @@ export const updateReferrer = async (
     return rejectWithValue('An unknown error occurred');
   }
 };
+
+/**
+ * @param payloadData
+ * @param param1
+ * @returns Get referred patients by referrer id
+ */
+export const getReferrerPatient = async (
+  payloadData: {
+    id: string;
+    practiceId: string;
+  },
+  { rejectWithValue },
+) => {
+  try {
+    const response = await apiClient.get(
+      `/practices/${payloadData.practiceId}/referrer/referred-patient/${payloadData.id}`,
+    );
+    if (!response.ok) {
+      throw new Error('Failed to fetch referrer');
+    }
+    const data: IReferrer = await response.json();
+    return data;
+  } catch (error) {
+    if (error instanceof Error) {
+      return rejectWithValue(error.message);
+    }
+    return rejectWithValue('An unknown error occurred');
+  }
+};

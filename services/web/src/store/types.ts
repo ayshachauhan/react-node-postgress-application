@@ -8,6 +8,7 @@ import {
   ISurgery,
   ISurgeryType,
   IUser,
+  ReferredPatient,
 } from '@packages/entities';
 import {} from '@packages/entities/index.browser';
 import { PracticesGetInterface } from 'src/store/requests/practices';
@@ -65,6 +66,7 @@ export type UserState = EntitiesState<SanitizedUser> & {
 
 export type ReferrerState = EntitiesState<IReferrer> & {
   referrerInfo: IReferrer | null;
+  referredPatients: ReferredPatient[] | [];
 };
 
 export type TemplateState = EntitiesState<GetTemplatesResponse> & {

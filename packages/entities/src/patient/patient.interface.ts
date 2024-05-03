@@ -1,6 +1,7 @@
 import { IBaseEntity } from '../base.interface';
 import { IPractice } from '../practice';
 import { IReferrer } from '../referrer';
+
 export interface IPatient extends IBaseEntity {
   practice: IPractice;
   mrn: string;
@@ -11,4 +12,16 @@ export interface IPatient extends IBaseEntity {
   pcp?: string;
   referrer?: IReferrer;
   details?: string;
+}
+
+export interface ReferredPatient {
+  id: string;
+  firstName: string;
+  lastName: string;
+  dateCreated: Date;
+  referrer?: IReferrer;
+  date?: Date;
+  lens: string;
+  billing: string;
+  count: number;
 }

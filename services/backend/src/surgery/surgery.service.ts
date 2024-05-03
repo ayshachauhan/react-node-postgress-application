@@ -159,4 +159,22 @@ export class SurgeryService {
   async remove(id: string): Promise<void> {
     await this.surgeryRepository.softDelete(id);
   }
+
+  async getSurgeriesByReferredId(id: string): Promise<SurgeryEntity[]> {
+    const dbSurgeryByPractice = await this.surgeryRepository.find({
+      where: {
+        patient: {
+          referrer: {
+            id: id,
+          },
+        },
+      },
+      relations: ['patient', 'patient.referrer'],
+      order: {
+        dateCreated: 'DESC',
+      },
+    });
+
+    return dbSurgeryByPractice;
+  }
 }
