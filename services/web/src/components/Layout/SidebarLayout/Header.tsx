@@ -17,7 +17,6 @@ import { ChevronDown } from 'baseui/icon';
 import { usePathname, useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 
-
 const Header: React.FC = () => {
   const dispatch = useAppDispatch();
   const getSelectedUserId: string | null =
