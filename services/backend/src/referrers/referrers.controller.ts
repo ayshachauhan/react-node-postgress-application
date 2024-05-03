@@ -13,6 +13,7 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ReferrersEntity } from '@packages/entities/*';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
 import { CreateReferrerDto } from './dtos/referrer.createDto';
@@ -74,5 +75,13 @@ export class ReferrersController {
     } catch (error) {
       throw new NotFoundException('No referrers found.');
     }
+  }
+
+  @Get(':id')
+  async getReferrerById(
+    @Param()
+    { practiceId, referrerId }: { practiceId: string; referrerId: string },
+  ): Promise<ReferrersEntity | null> {
+    return this.referrerService.getReferrerById(practiceId, referrerId);
   }
 }

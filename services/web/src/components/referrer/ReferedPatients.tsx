@@ -1,4 +1,5 @@
 'use client';
+import { IReferrer } from '@packages/entities';
 import { DeleteIcon } from '@root/components/Icons';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import {
@@ -6,11 +7,11 @@ import {
   clearSuccessMessage,
   deleteRecordAsync,
 } from '@root/store/reducers/referrer';
-import { getPracticeId } from '@utils/index';
+import { generateFullName, getPracticeId } from '@utils/index';
 import React, { useEffect, useState } from 'react';
 import DeleteReferredPatientModal from './DeleteReferredPatientModal';
 
-const ReferedPatients: React.FC = () => {
+const ReferedPatients = ({ referrerId }) => {
   const practiceId = getPracticeId();
   const [showModal, setShowModal] = useState(false);
   const [showErrorMessage, setShowErrorMessage] = useState(false);
@@ -18,7 +19,19 @@ const ReferedPatients: React.FC = () => {
     successMessage: state.referrers.successMessage,
     errorMessage: state.referrers.errorMessage,
   }));
-  const [referrerId, setReferrerId] = useState<string | null>(null);
+  const [referrerPatientId, setreferrerPatientId] = useState<string | null>(
+    null,
+  );
+  console.log(referrerPatientId);
+  const referrerInfo = useAppSelector((state) =>
+    referrerId
+      ? Object.values(state.referrers.entities).find(
+          ({ id }: IReferrer) => id === referrerId,
+        )
+      : undefined,
+  );
+  const referredPatients = referrerInfo?.patients;
+  console.log(referredPatients);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const handleOpenDeleteModal = (): void => {
@@ -38,7 +51,7 @@ const ReferedPatients: React.FC = () => {
         console.log(error);
       }
     }
-    setReferrerId(null);
+    setreferrerPatientId(null);
   };
   const dispatch = useAppDispatch();
   useEffect(() => {
@@ -82,30 +95,34 @@ const ReferedPatients: React.FC = () => {
           <div className="font-bold text-white px-2 py-4 flex-1">Billing</div>
           <div className="font-bold text-white px-2 py-4 flex-1">Action</div>
         </div>
-        <div className="flex">
-          <div className="text-gray-900 bg-gray-50 pt-2 px-2 flex-1">
-            Harris Benjamin
-          </div>
-          <div className="text-gray-900 bg-gray-50 pt-2 px-2 flex-1">
-            03/11/2024
-          </div>
-          <div className="text-gray-900 bg-gray-50 pt-2 px-2 flex-1">
-            04/17/2024
-          </div>
-          <div className="text-gray-900 bg-gray-50 pt-2 px-2 flex-1">
-            Standard
-          </div>
-          <div className="text-gray-900 bg-gray-50 pt-2 px-2 flex-1">
-            Billing
-          </div>
-          <div className="text-gray-900 bg-gray-50 pt-2 px-2 flex-1">
-            <div
-              onClick={() => handleOpenDeleteModal()}
-              className="cursor-pointer"
-            >
-              <DeleteIcon className="mt-2"></DeleteIcon>
-            </div>
-          </div>
+        <div>
+          {referredPatients && referredPatients.length > 0 ? (
+            referredPatients.map((data) => (
+              <React.Fragment key={data.id}>
+                <div className="flex">
+                  <div className="text-gray-900 bg-gray-50 pt-2 px-2 flex-1">
+                    {data
+                      ? generateFullName(data.firstName, data.lastName)
+                      : null}
+                  </div>
+                  <div className="text-gray-900 bg-gray-50 pt-2 px-2 flex-1"></div>
+                  <div className="text-gray-900 bg-gray-50 pt-2 px-2 flex-1"></div>
+                  <div className="text-gray-900 bg-gray-50 pt-2 px-2 flex-1"></div>
+                  <div className="text-gray-900 bg-gray-50 pt-2 px-2 flex-1"></div>
+                  <div className="text-gray-900 bg-gray-50 pt-2 px-2 flex-1">
+                    <div
+                      onClick={() => handleOpenDeleteModal()}
+                      className="cursor-pointer"
+                    >
+                      <DeleteIcon className="mt-2"></DeleteIcon>
+                    </div>
+                  </div>
+                </div>
+              </React.Fragment>
+            ))
+          ) : (
+            <span>No patients referred.</span>
+          )}
         </div>
       </div>
       <DeleteReferredPatientModal

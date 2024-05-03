@@ -175,6 +175,7 @@ export default function ReferrerTable() {
       />
       <ReferredListModal
         isListModalOpen={isListModalOpen}
+        referrerId={referrerId}
         handleCloseListModal={handleCloseListModal}
       />
       <EditReferrerModal

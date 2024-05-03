@@ -31,6 +31,7 @@ export class ReferrersService {
   ): Promise<ReferrersEntity> {
     const referrer = await this.referrers.findOne({
       where: { id: referrerId, practiceId },
+      relations: ['patients'],
     });
     if (!referrer) {
       throw new NotFoundException('Referrer not exists');
@@ -51,6 +52,7 @@ export class ReferrersService {
   async getReferrer(practiceId: string) {
     const referrers = await this.referrers.find({
       where: { practiceId },
+      relations: ['patients'],
     });
     return referrers;
   }
