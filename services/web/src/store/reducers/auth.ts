@@ -69,11 +69,10 @@ const authSlice = createSlice({
       state.isAuthenticated = true;
       state.user = action.payload;
       state.errorMessage = undefined;
+      localStorage.removeItem('practiceId');
       const practiceId = getPracticeId();
       if (state.user && state.user.practices && state.user.practices.length) {
-        if (!practiceId) {
-          localStorage.setItem('practiceId', state.user.practices[0].id);
-        }
+        localStorage.setItem('practiceId', state.user.practices[0].id);
         state.azentiaSelectedPractice = state.user.practices[0].name;
       } else {
         if (!practiceId) {

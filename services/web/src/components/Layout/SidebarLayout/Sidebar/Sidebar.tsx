@@ -41,7 +41,7 @@ const Sidebar: React.FC = () => {
       aria-label="Sidebar"
       className="fixed top-0 left-0 w-64 h-screen translate-x-0 bg-gradient-to-b from-primary-dark to-primary-light"
     >
-      <div className="h-[68px] flex px-4 items-center justify-start">
+      <div className="h-[168px] flex px-4 items-center justify-start">
         <Link href="/dashboard">
           <img alt="Azentia" src="/images/azentia.svg" />
         </Link>

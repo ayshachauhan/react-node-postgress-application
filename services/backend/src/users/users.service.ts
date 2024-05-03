@@ -20,6 +20,7 @@ import {
 import * as bcrypt from 'bcrypt';
 import Mail from 'nodemailer/lib/mailer';
 import { ENVIRONMENT_VARIABLES } from 'src/enums/environment.enums';
+import { PermissionsService } from 'src/permissions/permissions.service';
 import { PracticesService } from 'src/practices/practices.service';
 import { TransporterService } from 'src/transporter';
 import { SystemTemplates } from 'src/transporter/transporter.types';
@@ -35,6 +36,7 @@ export class UsersService {
     private usersRepository: Repository<UserEntity>,
     @Inject(forwardRef(() => PracticesService))
     private readonly practicesService: PracticesService,
+    private readonly permissionsService: PermissionsService,
     private readonly configService: ConfigService,
     private readonly transporterService: TransporterService,
     private jwtService: JwtService,
@@ -53,6 +55,7 @@ export class UsersService {
     practiceId: string,
   ): Promise<SanitizedUser> {
     const { firstName, lastName } = createUserDto;
+    const { permissionIds } = createUserDto;
     const fullName = `${firstName}_${lastName}`;
     const hashedDefaultPassword = await bcrypt.hash(
       this.defaultUserPassword(),
@@ -69,6 +72,9 @@ export class UsersService {
         throw new HttpException('Practice not found', HttpStatus.NOT_FOUND);
       }
 
+      const permissionEntities =
+        await this.permissionsService.getPermissionByIds(permissionIds);
+
       const existingUser: UserEntity | null = await this.getUserByEmail(
         createUserDto.email,
       );
@@ -82,6 +88,7 @@ export class UsersService {
           fullName,
           password: hashedDefaultPassword,
           practices: [practiceEntity],
+          permissions: permissionEntities || [],
         });
 
         await this.sendNewUserMail({ newUser, fullName, practiceEntity });
@@ -130,7 +137,7 @@ export class UsersService {
   async getUserById(id: string): Promise<UserEntity | null> {
     return this.usersRepository.findOne({
       where: { id },
-      relations: ['practices'],
+      relations: ['practices', 'permissions'],
     });
   }
 
@@ -162,19 +169,23 @@ export class UsersService {
       );
     }
 
-    const updatedResult = await this.usersRepository.update(id, {
-      ...updateUserDto,
-    });
+    const updatedUser = this.usersRepository.merge(userToUpdate, updateUserDto);
 
-    if (updatedResult.affected === 0) {
-      throw new HttpException(
-        `User with id ${id} not found`,
-        HttpStatus.NOT_FOUND,
-      );
+    if (updateUserDto.permissionIds) {
+      const permissionEntities =
+        await this.permissionsService.getPermissionByIds(
+          updateUserDto.permissionIds,
+        );
+      if (!permissionEntities) {
+        throw new HttpException(`Permissions not found`, HttpStatus.NOT_FOUND);
+      }
+      updatedUser.permissions = permissionEntities;
     }
-    const resultUser = await this.getUserById(id);
-    if (resultUser) {
-      return this.sanitizeUser(resultUser);
+
+    const savedUser = await this.usersRepository.save(updatedUser);
+
+    if (savedUser) {
+      return this.sanitizeUser(savedUser);
     }
     return null;
   }

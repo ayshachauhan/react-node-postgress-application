@@ -14,7 +14,6 @@ import { SurgeryModule } from './surgery/surgery.module';
 import { SurgeryConfigurationsModule } from './surgeryConfiguration/surgeryConfiguration.module';
 import { SurgeryTypesModule } from './surgeryTypes/surgeryTypes.module';
 import { TemplatesModule } from './templates/templates.module';
-import { UserPermissionsModule } from './userPermissions/userPermissions.module';
 import { UsersModule } from './users/users.module';
 
 /**
@@ -30,7 +29,6 @@ import { UsersModule } from './users/users.module';
     PracticeHomesModule,
     MediaModule,
     PermissionsModule,
-    UserPermissionsModule,
     ReferrersModule,
     TemplatesModule,
     SurgeryTypesModule,
