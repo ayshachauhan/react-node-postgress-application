@@ -18,22 +18,21 @@ export type CalendarData = {
   surgeryType: string;
 };
 
+export const DEFAULT_MAX_SLOTS: number = 14;
+
 const UpcomingSection: React.FC = () => {
   const dispatch = useAppDispatch();
 
-  const calendars = useAppSelector((state) =>
-    Object.values(state.calendars.entities),
-  );
+  const { calendars, surgeryTypes } = useAppSelector((state) => ({
+    calendars: Object.values(state.calendars.entities),
+    surgeryTypes: Object.values(state.surgeryTypes.entities),
+  }));
 
-  const surgeryTypes = useAppSelector((state) =>
-    Object.values(state.surgeryTypes.entities),
-  );
+  const practiceId: string | null = getPracticeId();
+  const userId: string | null = getUserId();
 
-  const practiceId = getPracticeId();
-  const userId = getUserId();
-
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isUpdating, setIsUpdating] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [isUpdating, setIsUpdating] = useState<boolean>(false);
 
   const [selectedSurgery, setSelectedSurgery] = useState<ISurgeryType | null>(
     null,
@@ -43,14 +42,10 @@ const UpcomingSection: React.FC = () => {
     return '+' + cellValue;
   };
 
-  const maxCellStyle = (cellValue: string) => {
-    const numericValue =
-      typeof cellValue === 'string'
-        ? parseInt(cellValue.replace('%', ''), 10)
-        : cellValue;
-    const isMax = numericValue === 14;
-    const isRed = numericValue === 0;
-    const isGreen = numericValue > 0;
+  const maxCellStyle = (maxSlots: number, availableSlots: number) => {
+    const isMax = maxSlots === availableSlots;
+    const isRed = maxSlots - availableSlots === 0;
+    const isGreen = maxSlots - availableSlots > 0;
 
     if (isMax) {
       return {
@@ -295,9 +290,16 @@ const UpcomingSection: React.FC = () => {
                           </div>
                           <div
                             className="text-black bg-gray-50 pt-2 pb-2 px-4 w-10 text-center"
-                            style={maxCellStyle(appendAddSign(data.maxSlots))}
+                            style={maxCellStyle(
+                              data.maxSlots,
+                              data.availableSlots,
+                            )}
                           >
-                            {appendAddSign(data.maxSlots)}
+                            {appendAddSign(
+                              data.maxSlots === data.availableSlots
+                                ? data.maxSlots
+                                : data.maxSlots - data.availableSlots,
+                            )}
                           </div>
                         </div>
                       </React.Fragment>

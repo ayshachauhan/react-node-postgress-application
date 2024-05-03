@@ -189,7 +189,7 @@ const UpsertCalendar: React.FC<{
                   label: key,
                   id: key,
                   calendarId: calendar.id,
-                  disabled: key < calendar.availableSlots,
+                  disabled: isUpdating ? key < calendar.availableSlots : false,
                 }))}
                 onChange={({ value }) => {
                   setUpsertCalendarData((prevData) =>
