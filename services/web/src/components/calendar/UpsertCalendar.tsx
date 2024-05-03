@@ -23,7 +23,7 @@ const UpsertCalendar: React.FC<{
   isUpdating: boolean;
   selectedSurgery: ISurgeryType;
 }> = ({ onClose, calendarData, isUpdating, selectedSurgery }) => {
-  const maxSlotsOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
+  const maxSlotsOptions = Array.from({ length: 14 }, (_, index) => index + 1);
   const dispatch = useAppDispatch();
 
   const [upsertCalendarData, setUpsertCalendarData] =
@@ -33,15 +33,6 @@ const UpsertCalendar: React.FC<{
     value: string,
     event?: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
-    console.log(
-      value,
-      'value',
-      event,
-      event?.target.id,
-      event?.target.name,
-      'valueinput',
-    );
-
     // Update the corresponding field in the state
     setUpsertCalendarData((prevData) =>
       prevData.map((calendar: CalendarData) => ({
@@ -51,13 +42,10 @@ const UpsertCalendar: React.FC<{
     );
   };
 
-  console.log(upsertCalendarData, 'updcaldata');
-
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const practiceId = getPracticeId();
     const userId = getUserId();
-    console.log('insubmit', practiceId, userId, isUpdating);
 
     if (practiceId && userId)
       if (isUpdating) {
@@ -65,7 +53,6 @@ const UpsertCalendar: React.FC<{
           (calendar, index) =>
             calendar.maxSlots !== calendarData[index].maxSlots,
         );
-        console.log(updatedData, 'updata');
         const payload: UpdateCalendarsPayload = {
           practiceId,
           userId,
@@ -97,13 +84,6 @@ const UpsertCalendar: React.FC<{
           bookedSlots: upsertCalendarData[0].bookedSlots,
           date: formattedDate,
         };
-
-        console.log(
-          payload,
-          formattedDate,
-          formattedDate.toISOString(),
-          'payloadc',
-        );
 
         dispatch(createCalendarEntry(payload));
         onClose();
