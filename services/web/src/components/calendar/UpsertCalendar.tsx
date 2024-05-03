@@ -82,7 +82,6 @@ const UpsertCalendar: React.FC<{
           } catch (error) {
             onClose();
           }
-        } else {
         }
       } else {
         const formattedDate = new Date(
@@ -114,8 +113,8 @@ const UpsertCalendar: React.FC<{
   return (
     <div>
       <form onSubmit={handleSubmit}>
-        {upsertCalendarData.map((calendar: CalendarData) => (
-          <div className="flex flex-row justify-between pt-4">
+        {upsertCalendarData.map((calendar: CalendarData, index: number) => (
+          <div className="flex flex-row justify-between pt-4" key={index}>
             <div className=" flex-1 space-y-2 px-4">
               <label
                 htmlFor="userName"
@@ -149,7 +148,11 @@ const UpsertCalendar: React.FC<{
                 <DatePicker
                   value={calendar.date}
                   onChange={({ date }) =>
-                    handleInputChange(date, { target: { name: 'date' } } as any)
+                    handleInputChange(date, {
+                      target: { name: 'date' },
+                    } as React.ChangeEvent<
+                      HTMLInputElement | HTMLTextAreaElement
+                    >)
                   }
                   placeholder="Surgery Date"
                   required

@@ -266,8 +266,8 @@ const UpcomingSection: React.FC = () => {
       </div>
       <div className="mt-2 flex justify-between overflow-x-auto text-xs">
         {splitCalendarData(filteredCalendars).map(
-          (calendar: CalendarData[]) => (
-            <div className="border-r-4 border-gray-200 pr-4 flex">
+          (calendar: CalendarData[], index: number) => (
+            <div className="border-r-4 border-gray-200 pr-4 flex" key={index}>
               <div className="mt-2 text-xs">
                 <div className="text-gray-50 w-full items-center bg-gray-50 rounded-lg">
                   <>

@@ -175,7 +175,7 @@ export class CalendarService {
    * @returns
    */
   async updateCalendars(
-    {}: UpdateCalendarParams,
+    __params: UpdateCalendarParams,
     { data }: UpdateCalendarsDto,
   ): Promise<CalendarEntity[] | null> {
     const updatedCalendars: CalendarEntity[] = [];
