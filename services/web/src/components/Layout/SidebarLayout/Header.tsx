@@ -180,6 +180,12 @@ const Header: React.FC = () => {
                   Settings
                 </Dropdown.Item>
               )}
+              <Dropdown.Item
+                id="reset_password"
+                onClick={() => router.push('/resetpassword')}
+              >
+                Reset Password
+              </Dropdown.Item>
               <Dropdown.Item id="logout" onClick={handleLogout}>
                 Log out
               </Dropdown.Item>
