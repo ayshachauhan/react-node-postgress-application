@@ -2,7 +2,7 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { State } from '@root/store';
 import Cookies from 'js-cookie';
 import { getPracticeId } from '../../utils/index';
-import { getMe, login } from '../requests/login';
+import { getMe, login, sendResetMail } from '../requests/login';
 import { AuthState, EntityLoadingState } from '../types';
 
 const initialState: AuthState = {
@@ -88,6 +88,27 @@ const authSlice = createSlice({
       state.errorMessage = action.payload as string;
       state.isSuperAdmin = false;
     });
+
+    builder.addCase(forgotPassword.pending, (state) => {
+      state.processing = true;
+      state.status = EntityLoadingState.PENDING;
+      state.errorMessage = undefined;
+      state.successMessage = undefined;
+    });
+
+    builder.addCase(forgotPassword.fulfilled, (state, action) => {
+      state.processing = false;
+      state.status = EntityLoadingState.SUCCEEDED;
+      state.errorMessage = undefined;
+      state.successMessage = action.payload as string;
+    });
+
+    builder.addCase(forgotPassword.rejected, (state, action) => {
+      state.processing = false;
+      state.status = EntityLoadingState.FAILED;
+      state.errorMessage = action.payload as string;
+      state.successMessage = undefined;
+    });
   },
 });
 
@@ -99,6 +120,11 @@ export const fetchLoggedInUser = createAsyncThunk(
 );
 
 export const loginUser = createAsyncThunk('auth/loginUser', login);
+
+export const forgotPassword = createAsyncThunk(
+  'users/forgotPassword',
+  sendResetMail,
+);
 
 export const { logoutUser } = authSlice.actions;
 

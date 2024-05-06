@@ -103,7 +103,7 @@ export default function LoginPage() {
               <Button kind="primary" title="Login" type="submit" width={164} />
               <div className="text-sm">
                 <a
-                  href="#"
+                  href="/forgot-password"
                   className="font-medium text-blue-400 hover:text-blue-500 sm:pt-3"
                 >
                   Forgot Password
