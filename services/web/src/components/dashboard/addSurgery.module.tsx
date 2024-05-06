@@ -2,9 +2,8 @@ import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
 import { EVAL_EYE_TYPE } from '@root/enums/evalEyeType.enum';
 import { EVAL_STATUS } from '@root/enums/evalStatus.enum';
-import { LENS_TYPE } from '@root/enums/lensType.enum';
 import { SURGERY_EYE_TYPE } from '@root/enums/surgeryEyeType.enum';
-import { useAppDispatch } from '@root/store';
+import { useAppDispatch, useAppSelector } from '@root/store';
 import { addRecordAsync as addEvalRecord } from '@root/store/reducers/evals';
 import { addRecordAsync as addSurgeryRecord } from '@root/store/reducers/surgery';
 import { getPracticeId, toFullName } from '@utils/index';
@@ -12,20 +11,12 @@ import { Checkbox } from 'baseui/checkbox';
 import { DatePicker } from 'baseui/datepicker';
 import { Select } from 'baseui/select';
 import { useRouter } from 'next/navigation';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
   onClose,
   items,
 }) => {
-  const SELECTED_DOCTOR_KEY: string = 'SELECTED_DOCTOR';
-  const dispatch = useAppDispatch();
-  const practiceId = getPracticeId();
-  const router = useRouter();
-
-  const getSelectedUserId: string | null =
-    localStorage.getItem(SELECTED_DOCTOR_KEY);
-
   const {
     practiceHomesList,
     surgeryTypesList,
@@ -33,6 +24,67 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
     referrersList,
     usersList,
   } = items;
+
+  const SELECTED_DOCTOR_KEY: string = 'SELECTED_DOCTOR';
+  const getSelectedUserId: string | null =
+    localStorage.getItem(SELECTED_DOCTOR_KEY);
+
+  const dispatch = useAppDispatch();
+  const surgeryConfigurationsList = useAppSelector(
+    (state) => state.surgeryConfigurations.entities,
+  );
+  const surgeryConfigurations = Object.values(surgeryConfigurationsList);
+  const practiceId = getPracticeId();
+  const router = useRouter();
+  const defaultUser = usersList.find((ele) => ele.id === getSelectedUserId);
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [email, setEmail] = useState('');
+  const [mrn, setMrn] = useState('');
+  const [evalSurgeryTypeId, setEvalSurgeryTypeId] = useState('');
+  const [insuranceDetails, setInsuranceDetails] = useState('');
+  const [insuranceTypeId, setInsuranceTypeId] = useState<string>('');
+  const [practiceHomeId, setPracticeHomeId] = useState<string>('');
+  const [evalEyeType, setEvalEyeType] = useState<string>('');
+  const [evalStatus, setEvalStatus] = useState<string>('');
+  const [surgeryEyeType, setSurgeryEyeType] = useState<string>('');
+  const [referrerId, setReferrerId] = useState<string>('');
+  const [doctorId, setDoctorId] = useState<string | null>(getSelectedUserId);
+  const [date, setDate] = useState<Date>(new Date());
+  const [surgeryDate, SetSurgeryDate] = useState<Date>(new Date());
+  const [pcp, setPcp] = useState('');
+  const [notes, setNotes] = useState('');
+  const [checkboxes, setCheckboxes] = React.useState([true, false]);
+  const [url, setUrl] = useState('');
+  const [isAddEval, setIsEval] = useState<boolean>(false);
+  const [surgeryNameId, setSurgeryNameId] = useState<string>('');
+  const [surgeryDropdownOptions, setSurgeryDropdownOptions] = useState([
+    { id: '', label: '', checked: false },
+  ]);
+
+  const handleCheckboxChange = (index: number) => {
+    surgeryDropdownOptions[index].checked =
+      !surgeryDropdownOptions[index].checked;
+    setSurgeryDropdownOptions([...surgeryDropdownOptions]);
+  };
+
+  useEffect(() => {
+    if (surgeryNameId) {
+      const selectedSurgeryConfiguration =
+        surgeryConfigurationsList[surgeryNameId];
+      const selectedSurgeryOptions = Object.keys(
+        selectedSurgeryConfiguration.options,
+      ).map((ele, i) => ({ id: i + '', label: ele, checked: true }));
+
+      setSurgeryDropdownOptions([...selectedSurgeryOptions]);
+    }
+  }, [surgeryNameId]);
+
+  const surgeryConfigurationsOptions = surgeryConfigurations.map((key) => ({
+    label: key.name,
+    id: key.id,
+  }));
 
   const practiceHomesOptions = Object.keys(practiceHomesList).map((key) => ({
     label: practiceHomesList[key].name,
@@ -74,43 +126,12 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
   }));
 
   const usersOptions = usersList.map((key) => ({
-    label: toFullName(key),
+    label: key ? toFullName(key) : '',
     id: key.id,
   }));
 
-  const lensTypeOptions = Object.keys(LENS_TYPE).map((key) => ({
-    label: key,
-    id: key,
-  }));
-
-  const defaultUser = usersList.find((ele) => ele.id === getSelectedUserId);
-
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [email, setEmail] = useState('');
-  const [mrn, setMrn] = useState('');
-  const [surgeryTypeId, setSurgeryTypeId] = useState('');
-  const [evalSurgeryTypeId, setEvalSurgeryTypeId] = useState('');
-  const [insuranceDetails, setInsuranceDetails] = useState('');
-  const [insuranceTypeId, setInsuranceTypeId] = useState<string>('');
-  const [practiceHomeId, setPracticeHomeId] = useState<string>('');
-  const [evalEyeType, setEvalEyeType] = useState<string>('');
-  const [evalStatus, setEvalStatus] = useState<string>('');
-  const [surgeryEyeType, setSurgeryEyeType] = useState<string>('');
-  const [referrerId, setReferrerId] = useState<string>('');
-  const [doctorId, setDoctorId] = useState<string | null>(getSelectedUserId);
-  const [date, setDate] = useState<Date>(new Date());
-  const [surgeryDate, SetSurgeryDate] = useState<Date>(new Date());
-  const [pcp, setPcp] = useState('');
-  const [notes, setNotes] = useState('');
-  const [checkboxes, setCheckboxes] = React.useState([true, false]);
-  const [url, setUrl] = useState('');
-  const [isAddEval, setIsEval] = useState<boolean>(false);
-  const [lensType, setLensType] = useState('');
-
-  const handleSurgeryTypeChange = ({ value }) => {
-    setSurgeryTypeId(value[0] ? value[0].id : null);
+  const handleSurgeryNameChange = ({ value }) => {
+    setSurgeryNameId(value[0] ? value[0].id : null);
   };
   const handleEvalSurgeryTypeChange = ({ value }) => {
     setEvalSurgeryTypeId(value[0] ? value[0].id : null);
@@ -139,10 +160,6 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
 
   const handleDoctorChange = ({ value }) => {
     setDoctorId(value[0] ? value[0].id : null);
-  };
-
-  const handleLensTypeChange = ({ value }) => {
-    setLensType(value[0] ? value[0].id : null);
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -180,15 +197,15 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
             phoneNumber,
             mrn,
             practiceHomeId,
-            surgeryTypeId,
+            surgeryConfigurationId: surgeryNameId,
             insuranceDetails,
             insuranceTypeId,
             practiceId,
             doctorId,
             pcp,
-            referrer: referrerId,
+            referrerId,
             details: notes,
-            lensType,
+            surgeryOption: surgeryDropdownOptions.map((ele) => ele.label),
             eye: surgeryEyeType,
           }),
         );
@@ -200,7 +217,6 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
         setMrn('');
         setPhoneNumber('');
         setEmail('');
-        setSurgeryTypeId('');
         setPracticeHomeId('');
         setInsuranceDetails('');
         setInsuranceTypeId('');
@@ -332,22 +348,7 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
               <label htmlFor="urlEmbed" className="text-black text-sm">
                 No Wait list
               </label>
-              <Select
-              // required
-              // overrides={{
-              //   ControlContainer: {
-              //     style: {
-              //       backgroundColor: 'rgba(250, 250, 250, 1)',
-              //       border: 'none',
-              //       boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-              //       color: '#52525B',
-              //     },
-              //   },
-              //   ClearIcon: {
-              //     component: () => null,
-              //   },
-              // }}
-              />
+              <Select />
               <div className="space-y-4"></div>
             </div>
           </div>
@@ -550,7 +551,6 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
             />
             <div className="space-y-4"></div>
           </div>
-
           <div className="mt-6 flex gap-5">
             <div className="px-6 border border-gray-100 pb-6 rounded-xl flex-1 w-4/12">
               <div className="mt-8 text-xl pb-5 font-bold border-b border-gray-100 text-black w-full">
@@ -559,6 +559,7 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
               <div className="flex gap-5 mt-4">
                 <div className="space-y-4 flex-1">
                   <Select
+                    required
                     options={surgeryEyeTypeOptions}
                     onChange={handleSurgeryEyeTypeChange}
                     value={
@@ -584,11 +585,11 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
                 </div>
                 <div className="space-y-4 flex-1">
                   <Select
-                    options={surgeryTypeOptions}
-                    onChange={handleSurgeryTypeChange}
+                    options={surgeryConfigurationsOptions}
+                    onChange={handleSurgeryNameChange}
                     value={
-                      surgeryTypeId
-                        ? [{ label: surgeryTypeId, id: surgeryTypeId }]
+                      surgeryNameId
+                        ? [{ label: surgeryNameId, id: surgeryNameId }]
                         : []
                     }
                     overrides={{
@@ -619,43 +620,11 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
               </div>
               <div className="flex gap-5 mt-4">
                 <div className="space-y-4 flex-1">
-                  <Select
-                    // required
-                    // overrides={{
-                    //   ControlContainer: {
-                    //     style: {
-                    //       backgroundColor: 'rgba(250, 250, 250, 1)',
-                    //       border: 'none',
-                    //       boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-                    //       color: '#52525B',
-                    //     },
-                    //   },
-                    //   ClearIcon: {
-                    //     component: () => null,
-                    //   },
-                    // }}
-                    disabled
-                  />
+                  <Select disabled />
                   <div className="space-y-4"></div>
                 </div>
                 <div className="space-y-4 flex-1">
-                  <Select
-                    // required
-                    // overrides={{
-                    //   ControlContainer: {
-                    //     style: {
-                    //       backgroundColor: 'rgba(250, 250, 250, 1)',
-                    //       border: 'none',
-                    //       boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-                    //       color: '#52525B',
-                    //     },
-                    //   },
-                    //   ClearIcon: {
-                    //     component: () => null,
-                    //   },
-                    // }}
-                    disabled
-                  />
+                  <Select disabled />
                   <div className="space-y-4"></div>
                 </div>
                 <div className="space-y-4 flex-1">
@@ -672,98 +641,32 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
                 </div>
               </div>
               <div className="flex gap-5 mt-4">
-                <div className="space-y-4 w-6/12">
-                  <Select
-                    options={lensTypeOptions}
-                    value={lensType ? [{ label: lensType, id: lensType }] : []}
-                    onChange={handleLensTypeChange}
-                    overrides={{
-                      ControlContainer: {
-                        style: {
-                          backgroundColor: 'rgba(250, 250, 250, 1)',
-                          border: 'none',
-                          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-                          color: '#52525B',
-                        },
-                      },
-                      ClearIcon: {
-                        component: () => null,
-                      },
-                    }}
-                  />
-                  <div className="space-y-4"></div>
-                </div>
-                <div className="space-y-4 w-4/12">
-                  <div className="flex gap-5">
-                    <Checkbox
-                      overrides={{
-                        Checkmark: {
-                          style: ({ $checked }) => ({
-                            backgroundColor: $checked
-                              ? 'rgba(59, 130, 246, 1)'
-                              : 'white',
-                            borderColor: $checked
-                              ? 'rgba(59, 130, 246, 1)'
-                              : 'rgba(161, 161, 170, 1)',
-                            borderRadius: '4px',
-                          }),
-                        },
-                      }}
-                      checked={checkboxes[0]}
-                      onChange={(e) => {
-                        const target = e.target as HTMLInputElement;
-                        setCheckboxes([target.checked, checkboxes[1]]);
-                      }}
-                    >
-                      AM
-                    </Checkbox>
-                    <Checkbox
-                      overrides={{
-                        Checkmark: {
-                          style: ({ $checked }) => ({
-                            backgroundColor: $checked
-                              ? 'rgba(59, 130, 246, 1)'
-                              : 'white',
-                            borderColor: $checked
-                              ? 'rgba(59, 130, 246, 1)'
-                              : 'rgba(161, 161, 170, 1)',
-                            borderRadius: '4px',
-                          }),
-                        },
-                      }}
-                      checked={checkboxes[1]}
-                      onChange={(e) => {
-                        const target = e.target as HTMLInputElement;
-                        setCheckboxes([checkboxes[0], target.checked]);
-                      }}
-                    >
-                      Femto
-                    </Checkbox>
-                    <Checkbox
-                      overrides={{
-                        Checkmark: {
-                          style: ({ $checked }) => ({
-                            backgroundColor: $checked
-                              ? 'rgba(59, 130, 246, 1)'
-                              : 'white',
-                            borderColor: $checked
-                              ? 'rgba(59, 130, 246, 1)'
-                              : 'rgba(161, 161, 170, 1)',
-                            borderRadius: '4px',
-                          }),
-                        },
-                      }}
-                      checked={checkboxes[1]}
-                      onChange={(e) => {
-                        const target = e.target as HTMLInputElement;
-                        setCheckboxes([checkboxes[0], target.checked]);
-                      }}
-                    >
-                      ORA
-                    </Checkbox>
-                  </div>
-                  <div className="space-y-4"></div>
-                </div>
+                {surgeryNameId &&
+                  surgeryDropdownOptions.map((option, index) => (
+                    <div key={index}>
+                      <Checkbox
+                        overrides={{
+                          Checkmark: {
+                            style: ({ $checked }) => ({
+                              backgroundColor: $checked
+                                ? 'rgba(59, 130, 246, 1)'
+                                : 'white',
+                              borderColor: $checked
+                                ? 'rgba(59, 130, 246, 1)'
+                                : 'rgba(161, 161, 170, 1)',
+                              borderRadius: '4px',
+                            }),
+                          },
+                        }}
+                        checked={option.checked}
+                        onChange={() => {
+                          handleCheckboxChange(index);
+                        }}
+                      >
+                        {option.label}
+                      </Checkbox>
+                    </div>
+                  ))}
               </div>
               <div className="text-left text-base mt-4">
                 <Button kind="primary" title="Add Surgery" width={189} />

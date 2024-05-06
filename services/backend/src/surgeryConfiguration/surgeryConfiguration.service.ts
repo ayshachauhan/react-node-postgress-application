@@ -28,10 +28,9 @@ export class SurgeryConfigurationsService {
 
   async getSurgeryConfigurationById(
     id: string,
-    surgeryTypeId: string,
   ): Promise<SurgeryConfigurationEntity | null> {
     return this.surgeryConfigurationRepository.findOne({
-      where: { id, surgeryType: { id: surgeryTypeId } },
+      where: { id },
     });
   }
 

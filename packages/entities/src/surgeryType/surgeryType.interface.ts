@@ -5,3 +5,8 @@ export interface ISurgeryType extends IBaseEntity {
   practice: IPractice;
   name: string;
 }
+
+export type SurgeryType = {
+  practiceId: string;
+  name: string;
+};

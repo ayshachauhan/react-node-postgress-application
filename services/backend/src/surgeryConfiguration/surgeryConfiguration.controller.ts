@@ -44,13 +44,9 @@ export class SurgeryConfigurationsController {
   @Get(':surgeryTypeId/:id')
   @UseInterceptors(surgeryTypeNotFoundInterceptor)
   async getSurgeryTypeById(
-    @Param('surgeryTypeId') surgeryTypeId: string,
     @Param('id') id: string,
   ): Promise<SurgeryConfigurationEntity | null> {
-    return this.surgeryConfigurationService.getSurgeryConfigurationById(
-      id,
-      surgeryTypeId,
-    );
+    return this.surgeryConfigurationService.getSurgeryConfigurationById(id);
   }
 
   @UseInterceptors(surgeryTypeNotFoundInterceptor)

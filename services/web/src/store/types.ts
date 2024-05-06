@@ -41,7 +41,7 @@ export type InsuranceTypeState = EntitiesState<IInsuranceType> & {
 };
 
 export type SurgeryTypeState = EntitiesState<ISurgeryType> & {
-  surgeryTypeInfo: IInsuranceType | null;
+  surgeryTypeInfo: ISurgeryType | null;
 };
 
 export type EvalState = EntitiesState<IEval> & {
