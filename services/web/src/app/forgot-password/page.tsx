@@ -10,7 +10,7 @@ import {
 } from '@root/store/reducers/users';
 import { useEffect, useState } from 'react';
 
-export const ForgotPassword: React.FC = () => {
+const ForgotPassword: React.FC = () => {
   const dispatch = useAppDispatch();
   const [email, setEmail] = useState('');
   const [isEmailSent, setIsEmailSent] = useState<boolean>(false);
