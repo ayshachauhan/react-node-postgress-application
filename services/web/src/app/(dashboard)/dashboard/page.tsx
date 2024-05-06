@@ -296,8 +296,11 @@ const Dashboard: React.FC = () => {
                   {data.surgeryTypeName}
                 </div>
                 {surgeryOptionsHeaders.length &&
-                  surgeryOptionsHeaders.map((ele) => (
-                    <div className="text-gray-900 bg-gray-50 pt-2 px-4 w-40">
+                  surgeryOptionsHeaders.map((ele, i) => (
+                    <div
+                      className="text-gray-900 bg-gray-50 pt-2 px-4 w-40"
+                      key={i}
+                    >
                       {data[ele]}
                     </div>
                   ))}
