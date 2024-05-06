@@ -230,11 +230,13 @@ export default function MessagesTable() {
         </div>
       </div>
       {Object.keys(groupedData).length !== 0 && (
-        <div className="w-full overflow-x-auto mt-2 border border-gray-200">
-          {Object.entries(groupedData).map(([date, records]) => (
+        <div className="w-full overflow-x-auto mt-2 border-l border-r border-t rounded-t-lg border-gray-200">
+          {Object.entries(groupedData).map(([date, records], index) => (
             <div key={date}>
               <div
-                className="border-solid rounded-t-lg px-2.5 py-3 text-white text-base font-normal"
+                className={`border-solid px-2.5 py-3 text-white text-base font-normal ${
+                  index == 0 ? 'rounded-t-lg' : ''
+                }`}
                 style={{ backgroundColor: 'rgba(53, 165, 118, 1)' }}
               >
                 {formatHeaderDate(date)}
