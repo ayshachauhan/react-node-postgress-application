@@ -5,6 +5,15 @@ import { ReferrersEntity } from '@packages/entities/referrer';
 import { SurgeryService } from 'src/surgery/surgery.service';
 import { ILike, Repository } from 'typeorm';
 
+interface GroupedSurgery {
+  id: string;
+  surgeries: SurgeryEntity[];
+  firstName: string;
+  lastName: string;
+  dateCreated: Date;
+  count: number;
+}
+
 @Injectable()
 export class ReferrersService {
   constructor(
@@ -94,15 +103,6 @@ export class ReferrersService {
 
     const filteredData =
       await this.surgeryService.getSurgeriesByReferredId(referrerId);
-
-    interface GroupedSurgery {
-      id: string;
-      surgeries: SurgeryEntity[];
-      firstName: string;
-      lastName: string;
-      dateCreated: Date;
-      count: number;
-    }
 
     const groupedSurgeries: GroupedSurgery[] = Object.values(
       filteredData.reduce((acc, surgery) => {

@@ -1,6 +1,6 @@
 import { Column, Entity, OneToMany } from 'typeorm';
 import { BaseEntity } from '../base.entity';
-import { PatientEntity, ReferredPatient } from '../patient';
+import { IPatient, PatientEntity } from '../patient';
 import { IReferrer } from '../referrer';
 import { ReferrerType } from '../referrer/referrrer.interface';
 
@@ -22,5 +22,5 @@ export class ReferrersEntity extends BaseEntity implements IReferrer {
   referrerType: ReferrerType;
 
   @OneToMany(() => PatientEntity, (patient) => patient.referrer)
-  patients: ReferredPatient[];
+  patients: IPatient[];
 }

@@ -13,15 +13,3 @@ export interface IPatient extends IBaseEntity {
   referrer?: IReferrer;
   details?: string;
 }
-
-export interface ReferredPatient {
-  id: string;
-  firstName: string;
-  lastName: string;
-  dateCreated: Date;
-  referrer?: IReferrer;
-  date?: Date;
-  lens: string;
-  billing: string;
-  count: number;
-}

@@ -85,7 +85,7 @@ export class ReferrersController {
     return this.referrerService.getReferrerById(practiceId, id);
   }
 
-  @Get('referred-patient/:id')
+  @Get(':id/referred-patient')
   async getReferrerPatient(
     @Param()
     { practiceId, id }: { practiceId: string; id: string },

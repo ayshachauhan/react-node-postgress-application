@@ -163,7 +163,7 @@ export const getReferrerPatient = async (
 ) => {
   try {
     const response = await apiClient.get(
-      `/practices/${payloadData.practiceId}/referrer/referred-patient/${payloadData.id}`,
+      `/practices/${payloadData.practiceId}/referrer/${payloadData.id}/referred-patient`,
     );
     if (!response.ok) {
       throw new Error('Failed to fetch referrer');
