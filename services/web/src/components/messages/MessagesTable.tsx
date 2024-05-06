@@ -230,7 +230,7 @@ export default function MessagesTable() {
         </div>
       </div>
       {Object.keys(groupedData).length !== 0 && (
-        <div className="w-full overflow-x-auto mt-2 border-l border-r border-t rounded-t-lg border-gray-200">
+        <div className="w-full overflow-x-auto mt-2 border rounded-t-lg rounded-b-lg border-gray-200">
           {Object.entries(groupedData).map(([date, records], index) => (
             <div key={date}>
               <div
