@@ -40,9 +40,6 @@ export class SurgeryEntity extends BaseEntity {
   @Column()
   eye: string;
 
-  @Column({
-    default: null,
-    nullable: true,
-  })
+  @Column()
   lensType: string;
 }

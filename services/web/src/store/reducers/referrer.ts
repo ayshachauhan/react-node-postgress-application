@@ -14,7 +14,6 @@ const initialState: ReferrerState = {
   processing: false,
   entities: {},
   referrerInfo: null,
-  referredPatients: [],
   status: EntityLoadingState.IDLE,
   successMessage: undefined,
   errorMessage: undefined,
@@ -150,26 +149,6 @@ const referrerSlice = createSlice({
         state.errorMessage = action.payload ?? 'Failed to update referrer';
       } else {
         state.errorMessage = 'Failed to update referrer';
-      }
-    });
-
-    builder.addCase(fetchReferredPatient.pending, (state) => {
-      state.processing = true;
-      state.status = EntityLoadingState.PENDING;
-    });
-
-    builder.addCase(fetchReferredPatient.fulfilled, (state, action) => {
-      state.status = EntityLoadingState.SUCCEEDED;
-      state.referredPatients = action.payload;
-    });
-
-    builder.addCase(fetchReferredPatient.rejected, (state, action) => {
-      state.status = EntityLoadingState.FAILED;
-      if (typeof action.payload === 'string') {
-        state.errorMessage =
-          action.payload ?? 'Failed to fetch referred patients';
-      } else {
-        state.errorMessage = 'Failed to fetchreferred patients';
       }
     });
   },

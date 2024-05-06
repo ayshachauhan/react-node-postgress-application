@@ -13,7 +13,7 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { ReferredPatient, ReferrersEntity } from '@packages/entities/*';
+import { IPatient, ReferrersEntity } from '@packages/entities/*';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
 import { CreateReferrerDto } from './dtos/referrer.createDto';
@@ -82,14 +82,28 @@ export class ReferrersController {
     @Param()
     { practiceId, id }: { practiceId: string; id: string },
   ): Promise<ReferrersEntity | null> {
-    return this.referrerService.getReferrerById(practiceId, id);
+    const referrerInfo = await this.referrerService.getReferrerById(
+      practiceId,
+      id,
+    );
+    const referredPatients = await this.referrerService.getReferrerPatient(
+      practiceId,
+      id,
+    );
+    referrerInfo['patients'] = referredPatients;
+    return referrerInfo;
   }
 
   @Get(':id/referred-patient')
   async getReferrerPatient(
     @Param()
     { practiceId, id }: { practiceId: string; id: string },
-  ): Promise<ReferredPatient[]> {
+  ): Promise<
+    Omit<
+      IPatient,
+      'practice' | 'mrn' | 'phoneNumber' | 'email' | 'dateUpdated'
+    >[]
+  > {
     return this.referrerService.getReferrerPatient(practiceId, id);
   }
 }

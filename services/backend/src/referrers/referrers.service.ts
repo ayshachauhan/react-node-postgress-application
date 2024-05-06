@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ReferredPatient, SurgeryEntity } from '@packages/entities/*';
+import { IPatient, SurgeryEntity } from '@packages/entities/*';
 import { ReferrersEntity } from '@packages/entities/referrer';
 import { SurgeryService } from 'src/surgery/surgery.service';
 import { ILike, Repository } from 'typeorm';
@@ -13,6 +13,11 @@ interface GroupedSurgery {
   dateCreated: Date;
   count: number;
 }
+
+type IReferredPatient = Omit<
+  IPatient,
+  'practice' | 'mrn' | 'phoneNumber' | 'email' | 'dateUpdated'
+>;
 
 @Injectable()
 export class ReferrersService {
@@ -93,13 +98,13 @@ export class ReferrersService {
   async getReferrerPatient(
     practiceId: string,
     referrerId: string,
-  ): Promise<ReferredPatient[]> {
+  ): Promise<IReferredPatient[]> {
     const referrer = await this.referrers.findOne({
       where: { id: referrerId, practiceId },
       relations: ['patients'],
     });
 
-    const resultArray: ReferredPatient[] = [];
+    const resultArray: IReferredPatient[] = [];
 
     const filteredData =
       await this.surgeryService.getSurgeriesByReferredId(referrerId);
@@ -118,14 +123,10 @@ export class ReferrersService {
     );
 
     groupedSurgeries.forEach((element: GroupedSurgery) => {
-      const newObj: ReferredPatient = {
+      const newObj: IReferredPatient = {
         dateCreated: element.dateCreated,
-        date: element.surgeries[0]?.date,
         firstName: element.firstName,
         lastName: element.lastName,
-        lens: element.surgeries[0]?.lensType,
-        billing: 'billing',
-        count: element.count,
         id: element.id,
       };
       resultArray.push(newObj);
