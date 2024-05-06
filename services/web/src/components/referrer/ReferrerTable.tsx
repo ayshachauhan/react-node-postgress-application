@@ -107,7 +107,7 @@ export default function ReferrerTable() {
     };
   }, [successMessage, errorMessage, dispatch]);
   return (
-    <div className="my-4">
+    <div className="mt-4 mb-8">
       <div className="flex justify-between border-gray-400">
         <span className="text-xl font-bold">Referrer</span>
         {showModal && <div className="text-green-700">{successMessage}</div>}
@@ -120,17 +120,21 @@ export default function ReferrerTable() {
         />
       </div>
       <hr className="h-px my-2.5 bg-gray-100 border-1 dark:bg-gray-700"></hr>
-      <div className="text-gray-50 w-full items-center  bg-gray-50 py-4 rounded-lg">
-        <div className="bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 flex rounded-lg">
+      <div className="w-full overflow-x-auto mt-2 border rounded-t-lg rounded-b-lg border-gray-200">
+        <div className="bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 flex">
           <div className="font-bold text-white p-4 flex-1">Name</div>
           <div className="font-bold text-white p-4 flex-1">Type</div>
           <div className="font-bold text-white p-4 flex-1">Ref#</div>
           <div className="font-bold text-white p-4 flex-1">Email</div>
           <div className="font-bold text-white p-4 flex-1">Action</div>
         </div>
-        {referrers.map((data) => (
+        {referrers.map((data, index) => (
           <React.Fragment key={data.id}>
-            <div className="flex">
+            <div
+              className={`flex pb-2 ${
+                index !== referrers.length - 1 ? 'border-b border-gray-300' : ''
+              }`}
+            >
               <div
                 className="text-blue-600 hover:text-blue-800 visited:text-purple-600 decoration-solid cursor-pointer bg-gray-50 pt-2 px-4 flex-1"
                 onClick={() => data.id && handleOpenListModal(data.id)}

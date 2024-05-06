@@ -177,7 +177,7 @@ export default function UserPage() {
   };
 
   return (
-    <div className="my-4">
+    <div className="mt-4 mb-8">
       <div className="flex justify-between border-gray-400">
         <span className="text-xl font-bold">Users</span>
         {showModal && <div className="text-green-700">{successMessage}</div>}
@@ -190,8 +190,8 @@ export default function UserPage() {
         />
       </div>
       <hr className="h-px my-2.5 bg-gray-100 border-1 dark:bg-gray-700"></hr>
-      <div className="text-gray-50 w-full  items-center bg-gray-50 py-4 rounded-lg text-sm overflow-x-auto">
-        <div className="bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 grid grid-cols-[0.5fr_1fr_1fr_1fr_1fr_0.5fr_2fr_1fr_0.5fr_0.5fr] gap-4 p-4 rounded-lg">
+      <div className="text-gray-50 w-full items-center bg-gray-50 border-l border rounded-t-lg rounded-b-lg border-gray-200 text-sm overflow-x-auto mt-2">
+        <div className="bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 grid grid-cols-[0.5fr_1fr_1fr_1fr_1fr_0.5fr_2fr_1fr_0.5fr_0.5fr] gap-4 p-4">
           <div className="font-bold text-white">Username</div>
           <div className="font-bold text-white">Email</div>
           <div className="font-bold text-white">Practice Name</div>

@@ -60,3 +60,31 @@ export function usDateFormatter(date: Date): string {
 
   return formattedDateSplit.join('/');
 }
+
+export function formatColumnDate(dateString: string) {
+  const date = new Date(dateString);
+  const formattedDate = new Intl.DateTimeFormat('en-US', {
+    month: 'numeric',
+    day: 'numeric',
+  }).format(date);
+  const hours = date.getHours();
+  const minutes = date.getMinutes();
+  const ampm = hours >= 12 ? 'pm' : 'am';
+  const formattedTime = `${hours % 12 || 12}:${
+    minutes < 10 ? '0' : ''
+  }${minutes}${ampm}`;
+  const result = `${formattedDate} | ${formattedTime}`;
+  return result;
+}
+
+export function formatHeaderDate(dateString: string) {
+  const date = new Date(dateString);
+  const formattedDate = new Intl.DateTimeFormat('en-US', {
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+  }).format(date);
+  const finalDate = formattedDate.replace(/(?<=^\w+),/, '');
+  return finalDate;
+}
