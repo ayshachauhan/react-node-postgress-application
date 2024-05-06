@@ -1,14 +1,14 @@
 'use client';
-import DataTable, { ColumnConfig } from '@components/DataTable';
 import {
   IInsuranceType,
   IPracticeHomes,
   IReferrer,
   ISurgery,
+  ISurgeryConfiguration,
 } from '@packages/entities';
 import { ISurgeryType } from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
-import { AddIcon } from '@root/components/Icons';
+import { AddIcon, DeleteIcon, EditIcon } from '@root/components/Icons';
 import Form from '@root/components/dashboard/addSurgery.module';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import {
@@ -40,10 +40,14 @@ const Dashboard: React.FC = () => {
       errorMessage: state.surgeries.errorMessage,
     }),
   );
+
+  const surgeryOptionsHeaders: string[] = [];
+  const checkListHeaders: string[] = [];
   const { successMessage: addEvalSuccessMessage } = useAppSelector((state) => ({
     successMessage: state.evals.successMessage,
     errorMessage: state.evals.errorMessage,
   }));
+
   const [showModal, setShowModal] = useState(false);
   useEffect(() => {
     if (practiceId) {
@@ -106,17 +110,33 @@ const Dashboard: React.FC = () => {
     Object.values(state.users.entities),
   );
 
-  // const evalsList: IEval[] = useAppSelector((state) =>
-  //   Object.values(state.evals.entities),
-  // );
-
   const surgeryList: ISurgery[] = useAppSelector((state) =>
     Object.values(state.surgeries.entities),
   );
 
+  const surgeryConfigList: ISurgeryConfiguration[] = useAppSelector((state) =>
+    Object.values(state.surgeryConfigurations.entities),
+  );
+  if (surgeryConfigList.length) {
+    const tempArr: string[] = [];
+    const checkListArr: string[] = [];
+    surgeryConfigList.forEach((ele) => {
+      tempArr.push(...Object.keys(ele.options));
+      checkListArr.push(...Object.keys(ele.checkList));
+    });
+    surgeryOptionsHeaders.push(...new Set(tempArr));
+    checkListHeaders.push(...new Set(checkListArr));
+  }
+
   const modifyEvalList = surgeryList
     .map((ele, index) => {
+      const surgeryConfigOptions = ele.surgeryConfiguration.options;
+      const checkListArr = Object.keys(ele.surgeryConfiguration.checkList);
+
       const viewData = {
+        hospitalPricing: 0,
+        professionalPricing: 0,
+        totalPrice: 0,
         firstName: ele.patient.firstName,
         lastName: ele.patient.lastName,
         fullName: toFullName(ele?.patient),
@@ -133,8 +153,19 @@ const Dashboard: React.FC = () => {
         details: ele.patient.details ? ele.patient.details : '',
         eye: ele.eye,
         index: index + 1,
-        total: 450,
+        id: ele.id,
       };
+      ele.surgeryOption.forEach((ele) => {
+        const optionDetails = surgeryConfigOptions[ele];
+        const allowedValue = optionDetails.allowedValues[0];
+        viewData[optionDetails.label] = allowedValue.name;
+        viewData.hospitalPricing += +allowedValue.hospitalPricing;
+        viewData.professionalPricing += +allowedValue.professionalPricing;
+      });
+      checkListArr.forEach((ele) => (viewData[ele] = ele));
+
+      viewData.totalPrice =
+        viewData.hospitalPricing + viewData.professionalPricing;
 
       return viewData;
     })
@@ -189,53 +220,6 @@ const Dashboard: React.FC = () => {
   const handleOpenAddModal = (): void => {
     setIsAddModalOpen(true);
   };
-  const columnConfig: ColumnConfig<{
-    mrn: string;
-    fullName: string;
-    lastName: string;
-    phoneNumber: string;
-    email: string;
-    date: string;
-    practiceHomeName: string;
-    surgeryTypeName: string;
-    insuranceDetails: string;
-    insuranceTypeName: string;
-    details: string;
-    pcp: string;
-    referrer: string;
-    index: number;
-    eye: string;
-    total: number;
-  }>[] = [
-    { title: 'S. No.', accessor: 'index', id: 'index' },
-    { title: 'MRN', accessor: 'mrn', id: 'mrn' },
-    { title: 'Name', accessor: 'fullName', id: 'fullName' },
-    { title: 'Email', accessor: 'email', id: 'email' },
-    { title: 'Phone Number', accessor: 'phoneNumber', id: 'phoneNumber' },
-    { title: 'Eye', accessor: 'eye', id: 'eye' },
-    { title: 'Date', accessor: 'date', id: 'date' },
-    { title: 'Home', accessor: 'practiceHomeName', id: 'practiceHomeName' },
-    {
-      title: 'Surgery Name',
-      accessor: 'surgeryTypeName',
-      id: 'surgeryTypeName',
-    },
-    { title: 'Hospital Billing', accessor: 'pcp', id: 'pcp' },
-    { title: 'Professional Billing', accessor: 'details', id: 'details' },
-    { title: 'Total Billing', accessor: 'total', id: 'total' },
-    {
-      title: 'Insurance Type',
-      accessor: 'insuranceTypeName',
-      id: 'insuranceTypeName',
-    },
-    {
-      title: 'Insurance Details',
-      accessor: 'insuranceDetails',
-      id: 'insuranceDetails',
-    },
-
-    { title: 'Referrer', accessor: 'referrer', id: 'referrer' },
-  ];
 
   return (
     <div id="__next" className="mt-4">
@@ -259,8 +243,95 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
       <hr className="h-px my-2.5 px-0 mx-0 bg-gray-100 border-1 dark:bg-gray-700"></hr>
-      <div style={{}}>
-        <DataTable data={modifyEvalList} columns={columnConfig} />
+      <div className="text-gray-50 w-full  items-center  bg-gray-50 py-4 rounded-lg">
+        <div
+          className={`bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 flex rounded-lg`}
+        >
+          s<div className="font-bold text-white p-4 w-20">Date</div>
+          <div className="font-bold text-white p-4 w-40">Name</div>
+          <div className="font-bold text-white p-4 w-30">MRN</div>
+          <div className="font-bold text-white p-4 w-20">Eye</div>
+          <div className="font-bold text-white p-4 w-30">Surgery</div>
+          {surgeryOptionsHeaders.length &&
+            surgeryOptionsHeaders.map((ele, index) => (
+              <div
+                className="font-bold text-white p-4 text-center w-40"
+                key={index}
+              >
+                {ele}
+              </div>
+            ))}
+          <div className="font-bold text-white p-4 w-20">Hosp($)</div>
+          <div className="font-bold text-white p-4 w-20">Prof($)</div>
+          <div className="font-bold text-white p-4 w-20">Total($)</div>
+          {checkListHeaders.length &&
+            checkListHeaders.map((ele, index) => (
+              <div
+                className="font-bold text-white p-4 w-20 text-center"
+                key={index}
+              >
+                {ele}
+              </div>
+            ))}
+          <div className="font-bold text-white p-4 w-20">Action</div>
+        </div>
+        <div className="">
+          {modifyEvalList.map((data) => (
+            <React.Fragment key={data.id}>
+              <div className="flex">
+                <div className="text-gray-900 bg-gray-50 pt-2 px-4 w-20">
+                  {data.date}
+                </div>
+                <div className="text-gray-900 bg-gray-50 pt-2 px-4 w-40">
+                  {data.fullName}
+                </div>
+
+                <div className="text-gray-900 bg-gray-50 pt-2 px-4 w-20">
+                  {data.mrn}
+                </div>
+                <div className="text-gray-900 bg-gray-50 pt-2 px-4 w-20">
+                  {data.eye}
+                </div>
+                <div className="text-gray-900 bg-gray-50 pt-2 px-4 w-30">
+                  {data.surgeryTypeName}
+                </div>
+                {surgeryOptionsHeaders.length &&
+                  surgeryOptionsHeaders.map((ele) => (
+                    <div className="text-gray-900 bg-gray-50 pt-2 px-4 w-40">
+                      {data[ele]}
+                    </div>
+                  ))}
+                <div className="text-gray-900 bg-gray-50 pt-2 px-4 w-20">
+                  {data.hospitalPricing}
+                </div>
+                <div className="text-gray-900 bg-gray-50 pt-2 px-4 w-20">
+                  {data.professionalPricing}
+                </div>
+                <div className="text-gray-900 bg-gray-50 pt-2 px-4 w-20">
+                  {data.totalPrice}
+                </div>
+                {checkListHeaders.length &&
+                  checkListHeaders.map((ele, i) => (
+                    <div
+                      className="text-gray-900 bg-gray-50 pt-2 px-4 w-20"
+                      key={i}
+                    >
+                      {data[ele]}
+                    </div>
+                  ))}
+                <div className="text-gray-900 bg-gray-50 pt-2 px-4 w-20 flex gap-4">
+                  <div className="cursor-pointer">
+                    <EditIcon className="mt-2"></EditIcon>
+                  </div>
+                  <div className="cursor-pointer">
+                    <DeleteIcon className="mt-2"></DeleteIcon>
+                  </div>
+                </div>
+              </div>
+            </React.Fragment>
+          ))}
+        </div>
+        <div></div>
       </div>
       <FormModal />
     </div>

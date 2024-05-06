@@ -46,7 +46,6 @@ const Dashboard: React.FC = () => {
   const surgeryConfigurationsList = useAppSelector((state) =>
     Object.values(state.surgeryConfigurations.entities),
   );
-  console.log(surgeryConfigurationsList, 342541334);
 
   const surgeryTypesList = useAppSelector((state) =>
     Object.values(state.surgeryTypes.entities),
@@ -81,16 +80,6 @@ const Dashboard: React.FC = () => {
 
   const modifySurgeryConfigList = surgeryConfigurationsList
     .map((ele, index) => {
-      let hospitalPricing = 0;
-      let professionalPricing = 0;
-
-      if (ele.options) {
-        hospitalPricing = Object.values(ele.options)[0].allowedValues[0]
-          .hospitalPricing;
-        professionalPricing = Object.values(ele.options)[0].allowedValues[0]
-          .professionalPricing;
-      }
-
       return {
         surgeryName: ele.name,
         surgeryType: ele.surgeryType.name,
@@ -98,8 +87,6 @@ const Dashboard: React.FC = () => {
         bodyPart: ele.bodyPart ? ele.bodyPart.join(', ') : '',
         facility: ele.facility ? ele.facility.join(', ') : '',
         index: index + 1,
-        hospitalPricing,
-        professionalPricing,
         id: ele.id,
       };
     })
@@ -281,14 +268,12 @@ const Dashboard: React.FC = () => {
       </div>
       <hr className="h-px my-2.5 px-0 mx-0 bg-gray-100 border-1 dark:bg-gray-700"></hr>
       <div className="text-gray-50 w-full  items-center  bg-gray-50 py-4 rounded-lg">
-        <div className="bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 grid grid-cols-8 rounded-lg">
+        <div className="bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 grid grid-cols-6 rounded-lg">
           <div className="font-bold text-white p-4">S. No.</div>
           <div className="font-bold text-white p-4">Surgery Type</div>
           <div className="font-bold text-white p-4">Surgery Name</div>
           <div className="font-bold text-white p-4">Body Part</div>
           <div className="font-bold text-white p-4">Facility</div>
-          <div className="font-bold text-white p-4">Hospital Pricing</div>
-          <div className="font-bold text-white p-4">Professional Pricing</div>
           <div className="font-bold text-white p-4">Action</div>
           {modifySurgeryConfigList.map((data, index) => (
             <React.Fragment key={data.id}>
@@ -306,12 +291,6 @@ const Dashboard: React.FC = () => {
               </div>
               <div className="text-gray-900 bg-gray-50 pt-2 px-4">
                 {data.facility}
-              </div>
-              <div className="text-gray-900 bg-gray-50 pt-2 px-4">
-                {data.hospitalPricing}
-              </div>
-              <div className="text-gray-900 bg-gray-50 pt-2 px-4">
-                {data.professionalPricing}
               </div>
               <div className="text-gray-900 bg-gray-50 pt-2 px-4 flex gap-4">
                 <div

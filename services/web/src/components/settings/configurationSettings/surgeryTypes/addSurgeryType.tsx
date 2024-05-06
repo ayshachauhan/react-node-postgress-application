@@ -1,4 +1,4 @@
-import { CreateSurgeryType } from '@packages/entities';
+import { SurgeryType } from '@packages/entities';
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
 import { useAppDispatch } from '@root/store';
@@ -14,7 +14,7 @@ const AddSurgeryType: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (practiceId) {
-      const surgeryTypePayload: CreateSurgeryType = {
+      const surgeryTypePayload: SurgeryType = {
         practiceId,
         name: surgeryType,
       };

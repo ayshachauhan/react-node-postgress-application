@@ -205,7 +205,9 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
             pcp,
             referrerId,
             details: notes,
-            surgeryOption: surgeryDropdownOptions.map((ele) => ele.label),
+            surgeryOption: surgeryDropdownOptions
+              .filter((ele) => ele.checked)
+              .map((ele) => ele.label),
             eye: surgeryEyeType,
           }),
         );

@@ -29,7 +29,7 @@ export interface CreateSurgeryPayload {
   email: string;
   phoneNumber: string;
   pcp?: string;
-  referrer?: string;
+  referrerId?: string;
   details?: string;
   eye: string;
   doctorId: string;
