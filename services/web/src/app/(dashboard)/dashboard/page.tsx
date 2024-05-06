@@ -247,20 +247,21 @@ const Dashboard: React.FC = () => {
         <div
           className={`bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 flex rounded-lg`}
         >
-          s<div className="font-bold text-white p-4 w-20">Date</div>
+          <div className="font-bold text-white p-4 w-20">Date</div>
           <div className="font-bold text-white p-4 w-40">Name</div>
           <div className="font-bold text-white p-4 w-30">MRN</div>
           <div className="font-bold text-white p-4 w-20">Eye</div>
           <div className="font-bold text-white p-4 w-30">Surgery</div>
-          {surgeryOptionsHeaders.length &&
-            surgeryOptionsHeaders.map((ele, index) => (
-              <div
-                className="font-bold text-white p-4 text-center w-40"
-                key={index}
-              >
-                {ele}
-              </div>
-            ))}
+          {surgeryOptionsHeaders.length
+            ? surgeryOptionsHeaders.map((ele, index) => (
+                <div
+                  className="font-bold text-white p-4 text-center w-40"
+                  key={index}
+                >
+                  {ele}
+                </div>
+              ))
+            : null}
           <div className="font-bold text-white p-4 w-20">Hosp($)</div>
           <div className="font-bold text-white p-4 w-20">Prof($)</div>
           <div className="font-bold text-white p-4 w-20">Total($)</div>
@@ -298,7 +299,7 @@ const Dashboard: React.FC = () => {
                 {surgeryOptionsHeaders.length &&
                   surgeryOptionsHeaders.map((ele, i) => (
                     <div
-                      className="text-gray-900 bg-gray-50 pt-2 px-4 w-40"
+                      className="text-gray-900 bg-gray-50 pt-2 px-4 w-40 text-center"
                       key={i}
                     >
                       {data[ele]}
