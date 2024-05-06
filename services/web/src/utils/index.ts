@@ -76,3 +76,15 @@ export function formatColumnDate(dateString: string) {
   const result = `${formattedDate} | ${formattedTime}`;
   return result;
 }
+
+export function formatHeaderDate(dateString: string) {
+  const date = new Date(dateString);
+  const formattedDate = new Intl.DateTimeFormat('en-US', {
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+  }).format(date);
+  const finalDate = formattedDate.replace(/(?<=^\w+),/, '');
+  return finalDate;
+}
