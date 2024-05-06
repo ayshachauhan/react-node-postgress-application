@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { ReviewStatus } from '@packages/entities/ReviewStatus';
+import { ReviewStatus } from '@packages/entities/review';
 import { IsEnum, IsNotEmpty, IsOptional } from 'class-validator';
 
 export class CreateReviewDto {
@@ -18,7 +18,7 @@ export class CreateReviewDto {
   @IsNotEmpty({ message: 'Status is required' })
   @ApiProperty()
   @IsEnum(ReviewStatus)
-  referrerType: ReviewStatus;
+  reviewStatus: ReviewStatus;
 
   @IsOptional()
   @ApiProperty()

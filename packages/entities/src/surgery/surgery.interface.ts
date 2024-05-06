@@ -15,3 +15,9 @@ export interface ISurgery extends IBaseEntity {
   doctor: ISanitizedUser;
   lensType: string;
 }
+
+export enum ProcedureStatus {
+  BOOKED = 'Booked',
+  INPROGRESS = 'In progress',
+  COMPLETE = 'Complete',
+}

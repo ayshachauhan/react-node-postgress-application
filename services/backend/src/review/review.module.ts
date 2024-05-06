@@ -1,18 +1,23 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PracticeEntity } from '@packages/entities/practice';
-import { Review } from '@packages/entities/review';
+import { ReviewEntity } from '@packages/entities/review';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
+import { PatientsModule } from 'src/patients/patients.module';
 import { PracticesModule } from 'src/practices/practices.module';
+import { TransporterModule } from 'src/transporter';
 import { ReviewController } from './review.controller';
 import { ReviewService } from './review.service';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Review, PracticeEntity]),
+    TypeOrmModule.forFeature([ReviewEntity, PracticeEntity]),
+    forwardRef(() => PatientsModule),
     PracticesModule,
+    TransporterModule,
   ],
   controllers: [ReviewController],
   providers: [ReviewService, practiceNotFoundInterceptor],
+  exports: [ReviewService],
 })
-export class ReferrersModule {}
+export class ReviewsModule {}

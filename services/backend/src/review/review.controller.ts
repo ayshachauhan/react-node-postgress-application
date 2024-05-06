@@ -16,10 +16,10 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { practiceNotFoundInterceptor } from '../interceptors/practiceNotFoundInterceptor';
 import { CreateReviewDto } from './dtos/review.createDto';
-//import { updateReviewDto } from './dtos/review.updateDto';
+import { updateReviewDto } from './dtos/review.updateDto';
 import { ReviewService } from './review.service';
 
-@ApiTags('review')
+@ApiTags('Review')
 @ApiBearerAuth('normal')
 @Controller('/practices/:practiceId/review')
 @UseGuards(AuthGuard)
@@ -32,7 +32,16 @@ export class ReviewController {
     @Param('practiceId') practiceId: string,
     @Body(new ValidationPipe()) referrerData: CreateReviewDto,
   ) {
-    return this.reviewService.createReferrer(practiceId, referrerData);
+    return this.reviewService.createReview(practiceId, referrerData);
+  }
+
+  @Post('send')
+  @UseInterceptors(practiceNotFoundInterceptor)
+  sendReview(
+    @Param('practiceId') practiceId: string,
+    @Body(new ValidationPipe()) reviewId: string,
+  ) {
+    return this.reviewService.sendReviewRequest(practiceId, reviewId);
   }
 
   @Delete('/:id')
@@ -47,15 +56,15 @@ export class ReviewController {
   updateReviewById(
     @Param('practiceId') practiceId: string,
     @Param('id') id: string,
-    @Body(new ValidationPipe()) referrerData: string, //updateReferrerDto,
+    @Body(new ValidationPipe()) reviewData: updateReviewDto,
   ) {
-    console.log(practiceId, '', id, '', referrerData);
-    //return this.reviewService.updateReferrer(practiceId, id, referrerData);
+    console.log(practiceId, '', id, '', reviewData);
+    return this.reviewService.updateReview(practiceId, id, reviewData);
   }
 
   @Get()
-  getReview(@Param('practiceId') practiceId: string) {
-    return this.reviewService.getReferrer(practiceId);
+  getReviews(@Param('practiceId') practiceId: string) {
+    return this.reviewService.getReviews(practiceId);
   }
 
   @Get('search')

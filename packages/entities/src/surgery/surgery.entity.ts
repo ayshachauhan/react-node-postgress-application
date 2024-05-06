@@ -5,6 +5,7 @@ import { PatientEntity } from '../patient';
 import { PracticeHomesEntity } from '../practiceHomes';
 import { SurgeryTypeEntity } from '../surgeryType';
 import { UserEntity } from '../user';
+import { ProcedureStatus } from './surgery.interface';
 
 @Entity('surgeries')
 export class SurgeryEntity extends BaseEntity {
@@ -39,4 +40,7 @@ export class SurgeryEntity extends BaseEntity {
 
   @Column()
   lensType: string;
+
+  @Column({ type: 'enum', enum: ProcedureStatus })
+  surgeryStatus: ProcedureStatus;
 }

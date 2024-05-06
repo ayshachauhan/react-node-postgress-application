@@ -1,21 +1,73 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Review } from '@packages/entities/review';
+import { PatientEntity } from '@packages/entities/*';
+import { ReviewEntity } from '@packages/entities/review';
+import Mail from 'nodemailer/lib/mailer';
+import { PatientsService } from 'src/patients/patients.service';
+import { PracticesService } from 'src/practices/practices.service';
 import { Repository } from 'typeorm';
+import { TransporterService } from '../transporter';
+import { SystemTemplates } from '../transporter/transporter.types';
+import { ReviewMailData } from './types';
 
 @Injectable()
 export class ReviewService {
   constructor(
-    @InjectRepository(Review)
-    private readonly reviews: Repository<Review>,
+    @InjectRepository(ReviewEntity)
+    private readonly reviews: Repository<ReviewEntity>,
+    private readonly transporterService: TransporterService,
+    private jwtService: JwtService,
+    private readonly practiceService: PracticesService,
+    private readonly patientService: PatientsService,
   ) {}
 
-  async createReferrer(
+  async createReview(
     practiceId: string,
-    referrerData: Partial<Review>,
-  ): Promise<Review> {
-    const referrer = this.reviews.create({ ...referrerData, practiceId });
-    return await this.reviews.save(referrer);
+    reviewData: Partial<ReviewEntity>,
+  ): Promise<ReviewEntity> {
+    const review = this.reviews.create({ ...reviewData, practiceId });
+    return await this.reviews.save(review);
+  }
+
+  async sendReviewRequest(practiceId: string, reviewId: string) {
+    const reviewData = await this.getReviewById(practiceId, reviewId);
+
+    if (practiceId && reviewId) {
+      const patientList: PatientEntity[] =
+        await this.patientService.getUsersByPractice(practiceId);
+      const reviewPatient: PatientEntity | undefined = patientList.find(
+        (p) => p.id === reviewData.patientId,
+      );
+      const token: string = this.jwtService.sign({
+        practiceId: practiceId,
+        reviewId: reviewId,
+        id: reviewPatient?.id,
+      });
+
+      const mailOptions: Mail.Options = {
+        to: reviewPatient?.email,
+        subject: 'Practice Optimizer Dashboard - Rate your visit',
+      };
+
+      const frontendBaseUrl: string | undefined =
+        this.practiceService.getFrontEndBaseUrl();
+
+      const mailData: ReviewMailData = {
+        reviewLink: frontendBaseUrl + `/review/post?token=${token}`,
+        patientName: reviewPatient?.firstName || '',
+        practiceName: '',
+      };
+
+      await this.transporterService.sendSystemEmails(
+        mailOptions,
+        mailData,
+        SystemTemplates.REVIEW_REQUEST,
+      );
+      console.log(`Review main sent to the patient`);
+    } else {
+      console.log(`Review data not inserted`);
+    }
   }
 
   async deleteReview(practiceId: string, id: string): Promise<void> {
@@ -25,37 +77,37 @@ export class ReviewService {
     });
   }
 
-  private async getReferrerById(
+  private async getReviewById(
     practiceId: string,
-    referrerId: string,
-  ): Promise<Review> {
-    const referrer = await this.reviews.findOne({
-      where: { id: referrerId, practiceId },
+    reviewId: string,
+  ): Promise<ReviewEntity> {
+    const review = await this.reviews.findOne({
+      where: { id: reviewId, practiceId },
     });
-    if (!referrer) {
-      throw new NotFoundException('Referrer not exists');
+    if (!review) {
+      throw new NotFoundException('Review not exists');
     }
-    return referrer;
+    return review;
   }
 
-  async updateReferrer(
+  async updateReview(
     practiceId: string,
-    referrerId: string,
-    referrerData: Partial<Review>,
-  ): Promise<Review | undefined> {
-    const referrer = await this.getReferrerById(practiceId, referrerId);
-    const updatedReferrer = this.reviews.merge(referrer, referrerData);
-    return this.reviews.save(updatedReferrer);
+    reviewId: string,
+    reviewData: Partial<ReviewEntity>,
+  ): Promise<ReviewEntity | undefined> {
+    const review = await this.getReviewById(practiceId, reviewId);
+    const updatedReview = this.reviews.merge(review, reviewData);
+    return this.reviews.save(updatedReview);
   }
 
-  async getReferrer(practiceId: string) {
+  async getReviews(practiceId: string) {
     const reviews = await this.reviews.find({
       where: { practiceId },
     });
     return reviews;
   }
 
-  async getReviewByName(practiceId: string): Promise<Review[]> {
+  async getReviewByName(practiceId: string): Promise<ReviewEntity[]> {
     const reviews = await this.reviews.find({
       where: [{ practiceId: practiceId }, { practiceId: practiceId }],
     });
