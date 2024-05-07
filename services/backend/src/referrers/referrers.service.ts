@@ -11,7 +11,6 @@ interface GroupedSurgery {
   firstName: string;
   lastName: string;
   dateCreated: Date;
-  count: number;
 }
 
 type IReferredPatient = Omit<
@@ -48,7 +47,37 @@ export class ReferrersService {
   ): Promise<ReferrersEntity> {
     const referrer = await this.referrers.findOne({
       where: { id: referrerId, practiceId },
+      relations: ['patients', 'patients.surgeries'],
     });
+
+    const resultArray: IReferredPatient[] = [];
+
+    const filteredData =
+      await this.surgeryService.getSurgeriesByReferredId(referrerId);
+
+    const groupedSurgeries: GroupedSurgery[] = Object.values(
+      filteredData.reduce((acc, surgery) => {
+        const { id, patient, ...rest } = surgery;
+        const patientId = patient.id;
+        if (!acc[patientId]) {
+          acc[patientId] = { ...patient, surgeries: [], count: 0 };
+        }
+        acc[patientId].surgeries.push({ id, ...rest });
+        acc[patientId].count++;
+        return acc;
+      }, {}),
+    );
+
+    groupedSurgeries.forEach((element: GroupedSurgery) => {
+      const newObj: IReferredPatient = {
+        dateCreated: element.dateCreated,
+        firstName: element.firstName,
+        lastName: element.lastName,
+        id: element.id,
+      };
+      resultArray.push(newObj);
+    });
+
     if (!referrer) {
       throw new NotFoundException('Referrer not exists');
     }
@@ -93,48 +122,5 @@ export class ReferrersService {
     }
 
     return referrers;
-  }
-
-  async getReferrerPatient(
-    practiceId: string,
-    referrerId: string,
-  ): Promise<IReferredPatient[]> {
-    const referrer = await this.referrers.findOne({
-      where: { id: referrerId, practiceId },
-      relations: ['patients'],
-    });
-
-    const resultArray: IReferredPatient[] = [];
-
-    const filteredData =
-      await this.surgeryService.getSurgeriesByReferredId(referrerId);
-
-    const groupedSurgeries: GroupedSurgery[] = Object.values(
-      filteredData.reduce((acc, surgery) => {
-        const { id, patient, ...rest } = surgery;
-        const patientId = patient.id;
-        if (!acc[patientId]) {
-          acc[patientId] = { ...patient, surgeries: [], count: 0 };
-        }
-        acc[patientId].surgeries.push({ id, ...rest });
-        acc[patientId].count++;
-        return acc;
-      }, {}),
-    );
-
-    groupedSurgeries.forEach((element: GroupedSurgery) => {
-      const newObj: IReferredPatient = {
-        dateCreated: element.dateCreated,
-        firstName: element.firstName,
-        lastName: element.lastName,
-        id: element.id,
-      };
-      resultArray.push(newObj);
-    });
-
-    if (!referrer) {
-      throw new NotFoundException('Referrer not exists');
-    }
-    return resultArray;
   }
 }

@@ -82,26 +82,26 @@ const ReferedPatients = ({ referrerId }) => {
                       : ''
                   }`}
                 >
-                  <div className="text-gray-900 bg-gray-50 pt-2 px-2 flex-1">
+                  <div className="text-gray-900 bg-gray-50 px-2 flex-1">
                     {data
                       ? generateFullName(data.firstName, data.lastName)
                       : null}
                   </div>
-                  <div className="text-gray-900 bg-gray-50 pt-2 px-2 flex-1">
+                  <div className="text-gray-900 bg-gray-50 px-2 flex-1">
                     {data.dateCreated
                       ? usDateFormatter(data.dateCreated)
                       : 'Date is undefined'}
                   </div>
-                  <div className="text-gray-900 bg-gray-50 pt-2 px-2 flex-1">
+                  <div className="text-gray-900 bg-gray-50 px-2 flex-1">
                     03/11/2024
                   </div>
-                  <div className="text-gray-900 bg-gray-50 pt-2 px-2 flex-1">
+                  <div className="text-gray-900 bg-gray-50 px-2 flex-1">
                     Standard
                   </div>
-                  <div className="text-gray-900 bg-gray-50 pt-2 px-2 flex-1">
+                  <div className="text-gray-900 bg-gray-50 px-2 flex-1">
                     Billing
                   </div>
-                  <div className="text-gray-900 bg-gray-50 pt-2 px-2 flex-1">
+                  <div className="text-gray-900 bg-gray-50 px-2 flex-1">
                     {referredPatients.length}
                   </div>
                 </div>

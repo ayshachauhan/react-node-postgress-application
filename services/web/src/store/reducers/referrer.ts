@@ -4,7 +4,6 @@ import {
   addReferrer,
   deleteReferrer,
   getReferrerInfo,
-  getReferrerPatient,
   getReferrers,
   updateReferrer,
 } from '../requests/referrers';
@@ -163,11 +162,6 @@ export const fetchListings = createAsyncThunk(
 export const fetchReferrerInfo = createAsyncThunk(
   'referrers/fetchReferrerInfo',
   getReferrerInfo,
-);
-
-export const fetchReferredPatient = createAsyncThunk(
-  'referrers/fetchReferredPatient',
-  getReferrerPatient,
 );
 
 export const addRecordAsync = createAsyncThunk(
