@@ -114,7 +114,7 @@ export const ResetPassword: React.FC<Props> = ({
 
   return (
     <div>
-      <AddIcon onClick={handleGoBack} />
+      <AddIcon size={25} onClick={handleGoBack} />
       <LogoWrapper>
         {isAlreadyOnboared && isOnboarding ? (
           children
