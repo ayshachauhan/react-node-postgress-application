@@ -1,6 +1,6 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
-
+import apiMiddleware from './apiMiddleware'; // Import the API middleware
 import authReducer from './reducers/auth';
 import calendarReducer from './reducers/calendar';
 import evalsReducer from './reducers/evals';
@@ -31,6 +31,8 @@ export const store = configureStore({
     calendars: calendarReducer,
     permissions: permissionsReducer,
   },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().concat(apiMiddleware),
 });
 
 export type State = ReturnType<typeof store.getState>;
