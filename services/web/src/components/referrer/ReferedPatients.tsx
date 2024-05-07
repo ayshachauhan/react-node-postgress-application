@@ -20,7 +20,6 @@ const ReferedPatients = ({ referrerId }) => {
       referrerInfo: state.referrers.referrerInfo,
     }),
   );
-  console.log(referrerInfo);
   const referredPatients = referrerInfo?.patients;
   const dispatch = useAppDispatch();
 
