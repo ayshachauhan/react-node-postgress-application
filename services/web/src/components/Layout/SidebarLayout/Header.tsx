@@ -1,5 +1,6 @@
 'use client';
 
+import { UserType } from '@packages/entities';
 import Dropdown from '@root/components/Dropdown';
 import { AvatarIcon } from '@root/components/Icons';
 import { State, useAppDispatch, useAppSelector } from '@root/store';
@@ -28,7 +29,9 @@ const Header: React.FC = () => {
   const { entities } = useAppSelector((state: State) => state.users);
   const practiceId = getPracticeId();
 
-  const users: SanitizedUser[] = Object.values(entities);
+  const users: SanitizedUser[] = Object.values(entities).filter(
+    (user) => user.type == UserType.DOCTOR,
+  );
 
   const findSelectedUser = (userId: string): SanitizedUser | undefined =>
     Object.values(entities).find((user) => user.id === userId);
