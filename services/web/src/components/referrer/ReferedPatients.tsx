@@ -93,7 +93,11 @@ const ReferedPatients = ({ referrerId }) => {
                       : 'Date is undefined'}
                   </div>
                   <div className="text-gray-900 bg-gray-50 px-2 flex-1">
-                    03/11/2024
+                    {data?.surgeries &&
+                    data.surgeries.length > 0 &&
+                    data.surgeries[0].dateCreated
+                      ? usDateFormatter(data.surgeries[0].dateCreated)
+                      : 'Date is undefined'}
                   </div>
                   <div className="text-gray-900 bg-gray-50 px-2 flex-1">
                     Standard
@@ -102,7 +106,7 @@ const ReferedPatients = ({ referrerId }) => {
                     Billing
                   </div>
                   <div className="text-gray-900 bg-gray-50 px-2 flex-1">
-                    {referredPatients.length}
+                    {data?.surgeries?.length}
                   </div>
                 </div>
               </React.Fragment>

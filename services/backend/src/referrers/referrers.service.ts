@@ -1,29 +1,13 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { IPatient, SurgeryEntity } from '@packages/entities/*';
 import { ReferrersEntity } from '@packages/entities/referrer';
-import { SurgeryService } from 'src/surgery/surgery.service';
 import { ILike, Repository } from 'typeorm';
-
-interface GroupedSurgery {
-  id: string;
-  surgeries: SurgeryEntity[];
-  firstName: string;
-  lastName: string;
-  dateCreated: Date;
-}
-
-type IReferredPatient = Omit<
-  IPatient,
-  'practice' | 'mrn' | 'phoneNumber' | 'email' | 'dateUpdated'
->;
 
 @Injectable()
 export class ReferrersService {
   constructor(
     @InjectRepository(ReferrersEntity)
     private readonly referrers: Repository<ReferrersEntity>,
-    private readonly surgeryService: SurgeryService,
   ) {}
 
   async createReferrer(
@@ -50,37 +34,23 @@ export class ReferrersService {
       relations: ['patients', 'patients.surgeries'],
     });
 
-    const resultArray: IReferredPatient[] = [];
-
-    const filteredData =
-      await this.surgeryService.getSurgeriesByReferredId(referrerId);
-
-    const groupedSurgeries: GroupedSurgery[] = Object.values(
-      filteredData.reduce((acc, surgery) => {
-        const { id, patient, ...rest } = surgery;
-        const patientId = patient.id;
-        if (!acc[patientId]) {
-          acc[patientId] = { ...patient, surgeries: [], count: 0 };
-        }
-        acc[patientId].surgeries.push({ id, ...rest });
-        acc[patientId].count++;
-        return acc;
-      }, {}),
-    );
-
-    groupedSurgeries.forEach((element: GroupedSurgery) => {
-      const newObj: IReferredPatient = {
-        dateCreated: element.dateCreated,
-        firstName: element.firstName,
-        lastName: element.lastName,
-        id: element.id,
-      };
-      resultArray.push(newObj);
-    });
-
     if (!referrer) {
       throw new NotFoundException('Referrer not exists');
     }
+
+    if (referrer.patients && referrer.patients.length > 0) {
+      referrer.patients.forEach((patient) => {
+        if (patient.surgeries && patient.surgeries.length > 0) {
+          patient.surgeries.sort((a, b) => {
+            return (
+              new Date(b.dateCreated).getTime() -
+              new Date(a.dateCreated).getTime()
+            );
+          });
+        }
+      });
+    }
+
     return referrer;
   }
 
