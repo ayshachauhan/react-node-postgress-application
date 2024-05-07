@@ -111,7 +111,9 @@ const ReferedPatients = ({ referrerId }) => {
               </React.Fragment>
             ))
           ) : (
-            <span>No patients referred.</span>
+            <div className="text-center p-2 flex-1">
+              <span className="text-gray-900">No patients referred.</span>
+            </div>
           )}
         </div>
       </div>
