@@ -2,7 +2,6 @@
 import Button from '@root/components/Button';
 import { AvatarIcon } from '@root/components/Icons';
 import { useAppDispatch, useAppSelector } from '@root/store';
-import { selectRecords } from '@root/store/reducers/auth';
 import { getPracticeInfo } from '@root/store/reducers/practices';
 import { fetchListings as fetchPermissions } from '@root/store/reducers/userPermissions';
 import { SanitizedUser } from '@root/store/types';
@@ -16,7 +15,7 @@ const Profile: React.FC = () => {
   const permissions = useAppSelector((state) =>
     Object.values(state.permissions.entities),
   );
-  const userInfo = useAppSelector(selectRecords);
+  const userInfo = useAppSelector((state) => state.auth.user);
   const profileUserInfo = useAppSelector((state) =>
     userInfo?.id
       ? Object.values(state.users.entities).find(

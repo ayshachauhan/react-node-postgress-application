@@ -5,7 +5,6 @@ import { AvatarIcon } from '@root/components/Icons';
 import { State, useAppDispatch, useAppSelector } from '@root/store';
 import {
   logoutUser,
-  selectRecords,
   selectedPracticeName,
   userPractices,
 } from '@root/store/reducers/auth';
@@ -24,7 +23,7 @@ const Header: React.FC = () => {
   const getSelectedUserId: string | null =
     localStorage.getItem(SELECTED_DOCTOR_KEY);
 
-  const userInfo = useAppSelector(selectRecords);
+  const userInfo = useAppSelector((state) => state.auth.user);
   const { entities } = useAppSelector((state: State) => state.users);
   const practiceId = getPracticeId();
 

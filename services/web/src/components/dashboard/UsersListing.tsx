@@ -1,17 +1,13 @@
 'use client';
+import { useAppSelector } from '@root/store';
 import React from 'react';
 
-const userData = [
-  { id: 1, name: 'Marlyn', age: 10, month: 0 },
-  { id: 2, name: 'Luther', age: 15, month: 0 },
-  { id: 3, name: 'Kiera', age: 13, month: 0 },
-  { id: 4, name: 'Edna', age: 20, month: 0 },
-  { id: 5, name: 'Soraya', age: 18, month: 0 },
-  { id: 6, name: 'Dorris', age: 32, month: 0 },
-  { id: 7, name: 'Astrid', age: 26, month: 0 },
-];
-
 const UsersListing: React.FC = () => {
+  const userInfo = useAppSelector((state) => state.auth.user);
+  const userData = useAppSelector((state) =>
+    Object.values(state.users.entities),
+  ).filter((user) => user.id !== userInfo?.id);
+
   return (
     <div>
       <div className="text-lg font-normal">
@@ -35,13 +31,13 @@ const UsersListing: React.FC = () => {
                 }`}
               >
                 <div className="text-black bg-gray-50 pt-2 pb-2 px-4 flex-1">
-                  {user.name}
+                  {user?.firstName}
                 </div>
                 <div className="text-black bg-gray-50 pt-2 pb-2 px-4 flex-1">
-                  {user.age}
+                  0
                 </div>
                 <div className="text-black bg-gray-50 pt-2 pb-2 px-4 flex-1">
-                  {user.month}
+                  0
                 </div>
               </div>
             </React.Fragment>
