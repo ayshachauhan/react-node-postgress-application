@@ -6,6 +6,7 @@ import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundIn
 import { PatientsModule } from 'src/patients/patients.module';
 import { PracticeHomesModule } from 'src/practiceHomes/practiceHomes.module';
 import { PracticesModule } from 'src/practices/practices.module';
+import { SurgeryConfigurationsModule } from 'src/surgeryConfiguration/surgeryConfiguration.module';
 import { SurgeryTypesModule } from 'src/surgeryTypes/surgeryTypes.module';
 import { UsersModule } from 'src/users/users.module';
 import { SurgeryController } from './surgery.controller';
@@ -19,6 +20,7 @@ import { SurgeryService } from './surgery.service';
     forwardRef(() => SurgeryTypesModule),
     forwardRef(() => PracticeHomesModule),
     forwardRef(() => InsuranceTypesModule),
+    forwardRef(() => SurgeryConfigurationsModule),
     forwardRef(() => UsersModule),
   ],
   providers: [

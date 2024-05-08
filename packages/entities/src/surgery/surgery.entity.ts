@@ -3,14 +3,14 @@ import { BaseEntity } from '../base.entity';
 import { InsuranceTypeEntity } from '../insuranceType';
 import { PatientEntity } from '../patient';
 import { PracticeHomesEntity } from '../practiceHomes';
-import { SurgeryTypeEntity } from '../surgeryType';
+import { SurgeryConfigurationEntity } from '../surgeryConfiguration';
 import { UserEntity } from '../user';
 
 @Entity('surgeries')
 export class SurgeryEntity extends BaseEntity {
-  @ManyToOne(() => SurgeryTypeEntity)
-  @JoinColumn({ name: 'surgeryTypeId' })
-  surgeryType: SurgeryTypeEntity;
+  @ManyToOne(() => SurgeryConfigurationEntity)
+  @JoinColumn({ name: 'surgeryConfigurationId' })
+  surgeryConfiguration: SurgeryConfigurationEntity;
 
   @ManyToOne(() => PatientEntity)
   @JoinColumn({ name: 'patientId' })
@@ -37,6 +37,9 @@ export class SurgeryEntity extends BaseEntity {
   @Column()
   eye: string;
 
-  @Column()
-  lensType: string;
+  @Column('varchar', {
+    array: true,
+    default: '{}',
+  })
+  surgeryOption: string[];
 }

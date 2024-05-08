@@ -12,6 +12,7 @@ import { PracticeHomesModule } from './practiceHomes/practiceHomes.module';
 import { PracticesModule } from './practices/practices.module';
 import { ReferrersModule } from './referrers/referrers.module';
 import { SurgeryModule } from './surgery/surgery.module';
+import { SurgeryConfigurationsModule } from './surgeryConfiguration/surgeryConfiguration.module';
 import { SurgeryTypesModule } from './surgeryTypes/surgeryTypes.module';
 import { TemplatesModule } from './templates/templates.module';
 import { UsersModule } from './users/users.module';
@@ -37,6 +38,7 @@ import { UsersModule } from './users/users.module';
     EvalsModule,
     SurgeryModule,
     CalendarModule,
+    SurgeryConfigurationsModule,
   ],
 })
 export class AppModule {}

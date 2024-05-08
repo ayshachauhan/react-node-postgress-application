@@ -32,9 +32,12 @@ export class InsuranceTypesService {
     id: string,
     practiceId: string,
   ): Promise<InsuranceTypeEntity | null> {
-    return this.insuranceTypeRepository.findOne({
-      where: { id, practice: { id: practiceId } },
-    });
+    if (id) {
+      return this.insuranceTypeRepository.findOne({
+        where: { id, practice: { id: practiceId } },
+      });
+    }
+    return null;
   }
 
   async remove(id: string, practiceId: string): Promise<void> {

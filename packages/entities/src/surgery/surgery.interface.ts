@@ -1,17 +1,37 @@
 import { IBaseEntity } from '../base.interface';
+import { ISurgeryConfiguration } from '../index.browser';
 import { IInsuranceType } from '../insuranceType';
 import { IPatient } from '../patient';
 import { IPracticeHomes } from '../practiceHomes';
-import { ISurgeryType } from '../surgeryType';
 import { ISanitizedUser } from '../user';
 export interface ISurgery extends IBaseEntity {
   practiceHome: IPracticeHomes;
-  surgeryType: ISurgeryType;
+  surgeryConfiguration: ISurgeryConfiguration;
   patient: IPatient;
   insuranceType: IInsuranceType;
   insuranceDetails: string;
   date: Date;
   eye: string;
   doctor: ISanitizedUser;
-  lensType: string;
+  surgeryOption: string[];
+}
+
+export interface CreateSurgeryPayload {
+  practiceId: string;
+  surgeryConfigurationId: string;
+  practiceHomeId: string;
+  insuranceTypeId?: string;
+  insuranceDetails?: string;
+  date: Date;
+  mrn: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phoneNumber: string;
+  pcp?: string;
+  referrerId?: string;
+  details?: string;
+  eye: string;
+  doctorId: string;
+  surgeryOption: string[];
 }

@@ -31,8 +31,6 @@ export class PatientsService {
     createPatientDto: CreatePatientDto,
     practiceEntity: PracticeEntity | null,
   ): Promise<PatientEntity> {
-    const newPatient: PatientEntity = new PatientEntity();
-
     if (!practiceEntity) {
       throw new HttpException('practice not found', HttpStatus.NOT_FOUND);
     }
@@ -55,13 +53,12 @@ export class PatientsService {
         );
       }
     }
-
-    return await this.patientRepository.save({
-      ...newPatient,
+    const newPatient = this.patientRepository.create({
       practice: practiceEntity,
       referrer: referrerEntity,
       ...createPatientDto,
     });
+    return await this.patientRepository.save(newPatient);
   }
 
   async update({ id, practiceId }): Promise<PatientEntity | null> {

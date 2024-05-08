@@ -62,7 +62,7 @@ export function usDateFormatter(date: Date): string {
   const formattedDateSplit: string[] = [];
   formattedDateSplit[0] = splitDate[1];
   formattedDateSplit[1] = splitDate[2];
-  formattedDateSplit[2] = splitDate[0];
+  // formattedDateSplit[2] = splitDate[0];
 
   return formattedDateSplit.join('/');
 }
