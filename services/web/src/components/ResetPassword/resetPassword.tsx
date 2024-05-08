@@ -1,5 +1,5 @@
 'use client';
-import { AddIcon } from '@components/Icons';
+import { CloseIcon } from '@components/Icons';
 import Button from '@root/components/Button';
 import { COOKIES, setCookie } from '@root/services/cookies';
 import { useAppDispatch, useAppSelector } from '@root/store';
@@ -114,7 +114,9 @@ export const ResetPassword: React.FC<Props> = ({
 
   return (
     <div>
-      <AddIcon size={25} onClick={handleGoBack} />
+      <div className="border border-gray-700 w-7 h-7 rounded-full border items-center text-center cursor-pointer">
+        <CloseIcon size={10} onClick={handleGoBack} />
+      </div>
       <LogoWrapper>
         {isAlreadyOnboared && isOnboarding ? (
           children

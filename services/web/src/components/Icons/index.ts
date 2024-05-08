@@ -1,6 +1,7 @@
 export { default as AddIcon } from './Add';
 export { default as AddReferrerIcon } from './AddReferrerIcon';
 export { default as AvatarIcon } from './Avatar';
+export { default as CloseIcon } from './Close';
 export { default as DashboardIcon } from './Dashboard';
 export { default as DeleteIcon } from './Delete';
 export { default as EditIcon } from './Edit';
