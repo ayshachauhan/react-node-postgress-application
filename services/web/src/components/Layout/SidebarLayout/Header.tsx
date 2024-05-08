@@ -45,7 +45,7 @@ const Header: React.FC = () => {
   const selectedUserBox = (
     <span className="inline-flex items-center gap-2">
       <AvatarIcon size={40}></AvatarIcon>
-      {selectedUser?.fullName ?? userInfo?.fullName}
+      {selectedUser?.fullName}
       <ChevronDown />
     </span>
   );
