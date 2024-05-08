@@ -119,7 +119,7 @@ export default function ReferrerTable() {
           startEnhancer={() => <AddIcon className="mt-2" size={25}></AddIcon>}
         />
       </div>
-      <hr className="h-px my-2.5 bg-gray-100 border-1 dark:bg-gray-700"></hr>
+      <hr className="h-px my-2.5 bg-gray-100 border-1 border-gray-100"></hr>
       <div className="w-full overflow-x-auto mt-2 border rounded-t-lg rounded-b-lg border-gray-200">
         <div className="bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 flex">
           <div className="font-bold text-white p-4 flex-1">Name</div>
