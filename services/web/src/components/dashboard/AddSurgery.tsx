@@ -1,4 +1,5 @@
 import { SelectedSurgeryOption } from '@packages/entities';
+import { ICalendar } from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
 import { useAppDispatch, useAppSelector } from '@root/store';
@@ -7,6 +8,7 @@ import { getPracticeId, toFullName } from '@utils/index';
 import { Checkbox } from 'baseui/checkbox';
 import { DatePicker } from 'baseui/datepicker';
 import { Select } from 'baseui/select';
+import moment from 'moment';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 
@@ -14,8 +16,13 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
   onClose,
   items,
 }) => {
-  const { practiceHomesList, insuranceTypesList, referrersList, usersList } =
-    items;
+  const {
+    practiceHomesList,
+    insuranceTypesList,
+    referrersList,
+    usersList,
+    calendars,
+  } = items;
 
   const SELECTED_DOCTOR_KEY: string = 'SELECTED_DOCTOR';
   const getSelectedUserId: string | null =
@@ -221,6 +228,46 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
 
     router.refresh();
     onClose();
+  };
+
+  const isCalendarDates = (date: Date): boolean => {
+    const formattedDate = moment(date).format('YYYY-MM-DD'); // Get date part only
+
+    const dates = (calendars as ICalendar[])
+      .filter(
+        (calendar: ICalendar) =>
+          moment(calendar.date).format('YYYY-MM-DD') >
+          moment(new Date()).format('YYYY-MM-DD'),
+      )
+      .map((calendar) => moment(calendar.date).format('YYYY-MM-DD'));
+
+    return Boolean(dates.find((date) => date === formattedDate));
+  };
+
+  const isSlotsAvailable = (date: Date): Record<string, unknown> => {
+    const formattedDate = moment(date).format('YYYY-MM-DD'); // Get date part only
+
+    const calendar = (calendars as ICalendar[]).find(
+      (calendar: ICalendar) =>
+        moment(calendar.date).format('YYYY-MM-DD') === formattedDate,
+    ) as ICalendar;
+
+    console.log(calendar, date, formattedDate, 'findcal');
+
+    return Boolean(calendar.maxSlots - calendar.bookedSlots)
+      ? {
+          backgroundColor: calendar.surgeryConfiguration.color,
+        }
+      : {
+          backgroundColor: 'transparent',
+          outline: `${calendar.surgeryConfiguration.color} solid`,
+        };
+  };
+
+  const getBackGroundColorCss = (date: Date): Record<string, unknown> => {
+    return isCalendarDates(date)
+      ? isSlotsAvailable(date)
+      : { backgroundColor: 'transparent' };
   };
 
   return (
@@ -600,6 +647,18 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
                     onChange={({ date }) => SetSurgeryDate(date)}
                     placeholder="Surgery Date"
                     required
+                    overrides={{
+                      Day: {
+                        style: ({ $date }) => ({
+                          marginTop: '2px',
+                          marginBottom: '2px',
+                          marginLeft: '2px',
+                          marginRight: '2px',
+                          ...getBackGroundColorCss($date),
+                        }),
+                      },
+                    }}
+                    minDate={new Date()}
                   />
                 </div>
               </div>
