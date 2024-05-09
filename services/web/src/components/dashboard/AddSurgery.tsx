@@ -174,7 +174,6 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
         };
       }
     });
-    console.log(surgeryOptionObj);
 
     if (practiceId && doctorId) {
       dispatch(

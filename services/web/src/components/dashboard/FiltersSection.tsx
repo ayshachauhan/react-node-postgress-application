@@ -2,6 +2,7 @@ import { ISurgery } from '@packages/entities';
 import { HomeIcon, RoundIcon } from '@root/components/Icons';
 import { useAppSelector } from '@root/store';
 import { usDateFormatter } from '@root/utils';
+import { monthOptions } from '@root/utils/constants';
 import { Input } from 'baseui/input';
 import { Select } from 'baseui/select';
 import React, { useEffect, useState } from 'react';
@@ -17,36 +18,43 @@ import {
 import DeleteFilterModal from './DeleteFilterModal';
 import EditableRow from './EditableRow';
 
+interface MonthOption {
+  label: string;
+  value: string;
+}
+
+// interface SurgeryRecord {
+//   id: string;
+//   date: string;
+//   home: string;
+//   hash: number;
+//   round: JSX.Element;
+//   status: string;
+//   firstName: string;
+//   lastName: string;
+//   mrn: string;
+//   eye: string;
+//   surgery: string;
+//   am: string;
+//   femto: string;
+//   ora: string;
+//   lens: string;
+//   implant: string;
+//   calcs: string;
+//   auth: string;
+//   hospital: string;
+//   prof: string;
+//   insurance: string;
+//   details: string;
+//   hp: string;
+//   consent: string;
+//   action: (id: string) => JSX.Element;
+// }
+
 const FiltersSection: React.FC = () => {
   const surgeryList: ISurgery[] = useAppSelector((state) =>
     Object.values(state.surgeries.entities),
   );
-
-  const modifyEvalList = surgeryList
-    .map((ele, index) => {
-      const viewData = {
-        firstName: ele.patient.firstName,
-        lastName: ele.patient.lastName,
-        mrn: ele.patient.mrn,
-        email: ele.patient.email,
-        phoneNumber: ele.patient.phoneNumber,
-        date: usDateFormatter(ele.date),
-        surgeryTypeName: ele.surgeryConfiguration.name,
-        practiceHomeName: ele.practiceHome.name,
-        insuranceDetails: ele.insuranceDetails,
-        insuranceTypeName: ele.insuranceType ? ele.insuranceType?.name : '',
-        pcp: '',
-        referrer: ele.patient.referrer ? ele.patient.referrer.email : '',
-        details: ele.patient.details ? ele.patient.details : '',
-        eye: ele.eye,
-        index: index + 1,
-      };
-
-      return viewData;
-    })
-    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-  console.log(modifyEvalList);
-
   const actionIcons = (id: string) => (
     <div style={{ display: 'flex' }}>
       <StarIcon style={{ marginRight: '8px', cursor: 'pointer' }} />
@@ -69,26 +77,45 @@ const FiltersSection: React.FC = () => {
       />
     </div>
   );
+  const modifyEvalList = surgeryList
+    .map((ele, index) => {
+      const viewData = {
+        id: ele.id,
+        firstName: ele.patient.firstName,
+        lastName: ele.patient.lastName,
+        mrn: ele.patient.mrn,
+        email: ele.patient.email,
+        phoneNumber: ele.patient.phoneNumber,
+        date: usDateFormatter(ele.date),
+        surgery: ele.surgeryConfiguration.name,
+        home: ele.practiceHome.name,
+        insuranceDetails: ele.insuranceDetails,
+        insurance: ele.insuranceType ? ele.insuranceType?.name : '',
+        pcp: '',
+        referrer: ele.patient.referrer ? ele.patient.referrer.email : '',
+        details: ele.patient.details ? ele.patient.details : '',
+        bodyPart: ele.bodyPart,
+        index: index + 1,
+        hospital: ele.totalHospitalPricing,
+        prof: ele.totalProfessionalPricing,
+        action: actionIcons,
+        hash: 10,
+        round: <RoundIcon />,
+        status: 'booked',
+        am: 'am',
+        femto: 'Femto',
+        ora: 'ORA',
+        lens: 'Standard',
+        implant: 'D1234',
+        calcs: '5/6PC',
+        auth: '5/6PC',
+        hp: '5/6PC',
+        consent: '5/6PC',
+      };
 
-  interface MonthOption {
-    label: string;
-    value: string;
-  }
-
-  const monthOptions = [
-    { label: 'January', value: '1', id: '1' },
-    { label: 'February', value: '2', id: '2' },
-    { label: 'March', value: '3', id: '3' },
-    { label: 'April', value: '4', id: '4' },
-    { label: 'May', value: '5', id: '5' },
-    { label: 'June', value: '6', id: '6' },
-    { label: 'July', value: '7', id: '7' },
-    { label: 'August', value: '8', id: '8' },
-    { label: 'September', value: '9', id: '9' },
-    { label: 'October', value: '10', id: '10' },
-    { label: 'November', value: '11', id: '11' },
-    { label: 'December', value: '12', id: '12' },
-  ];
+      return viewData;
+    })
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
   const currentMonthIndex = new Date().getMonth() + 1;
   const currentMonthOption = {
@@ -102,7 +129,7 @@ const FiltersSection: React.FC = () => {
 
   const handleChangeMonth = ({ value }) => {
     setSelectedMonth(value);
-    filterData();
+    // filterData();
   };
 
   const surgeryData = [
@@ -128,90 +155,62 @@ const FiltersSection: React.FC = () => {
       hospital: '1800',
       prof: '5/6PC',
       insurance: 'PPO',
-      details: 5.2,
+      details: '5.2',
       hp: '5/6PC',
       consent: '5/6PC',
       action: actionIcons,
     },
   ];
 
-  interface SurgeryRecord {
-    id: string;
-    date: string;
-    home: string;
-    hash: number;
-    round: JSX.Element;
-    status: string;
-    firstName: string;
-    lastName: string;
-    mrn: string;
-    eye: string;
-    surgery: string;
-    am: string;
-    femto: string;
-    ora: string;
-    lens: string;
-    implant: string;
-    calcs: string;
-    auth: string;
-    hospital: string;
-    prof: string;
-    insurance: string;
-    details: number;
-    hp: string;
-    consent: string;
-    action: (id: string) => JSX.Element;
-  }
-
-  const [filteredData, setFilteredData] = useState<SurgeryRecord[]>([]);
+  // const [filteredData, setFilteredData] = useState<SurgeryRecord[]>([]);
   const [searchMRN, setSearchMRN] = useState('');
-  const [groupedData, setGroupedData] = useState<{
-    [date: string]: SurgeryRecord[];
-  }>({});
+  // const [groupedData, setGroupedData] = useState<{
+  //   [date: string]: SurgeryRecord[];
+  // }>({});
 
-  const filterData = () => {
-    let filtered = [...surgeryData];
-    if (selectedMonth.length) {
-      filtered = filtered.filter((item) => {
-        const itemMonth = new Date(item.date).getMonth() + 1;
-        return itemMonth.toString() === selectedMonth[0].value;
-      });
-    }
-    if (searchMRN) {
-      filtered = filtered.filter((row) =>
-        row.mrn.toLowerCase().includes(searchMRN.toLowerCase()),
-      );
-    }
-    setFilteredData(filtered);
-  };
+  // const filterData = () => {
+  //   let filtered = [...surgeryData];
+  //   if (selectedMonth.length) {
+  //     filtered = filtered.filter((item) => {
+  //       const itemMonth = new Date(item.date).getMonth() + 1;
+  //       return itemMonth.toString() === selectedMonth[0].value;
+  //     });
+  //   }
+  //   if (searchMRN) {
+  //     filtered = filtered.filter((row) =>
+  //       row.mrn.toLowerCase().includes(searchMRN.toLowerCase()),
+  //     );
+  //   }
+  //   setFilteredData(filtered);
+  // };
 
   useEffect(() => {
-    filterData();
+    // filterData();
   }, [selectedMonth, searchMRN]);
 
-  const generateGroupedData = (data: SurgeryRecord[]) => {
-    return data.reduce(
-      (acc: { [date: string]: SurgeryRecord[] }, curr: SurgeryRecord) => {
-        if (!acc[curr.date]) {
-          acc[curr.date] = [curr];
-        } else {
-          acc[curr.date].push(curr);
-        }
-        return acc;
-      },
-      {},
-    );
-  };
+  // const generateGroupedData = (data: SurgeryRecord[]) => {
+  //   return data.reduce(
+  //     (acc: { [date: string]: SurgeryRecord[] }, curr: SurgeryRecord) => {
+  //       if (!acc[curr.date]) {
+  //         acc[curr.date] = [curr];
+  //       } else {
+  //         acc[curr.date].push(curr);
+  //       }
+  //       return acc;
+  //     },
+  //     {},
+  //   );
+  // };
 
-  useEffect(() => {
-    const newGroupedData = generateGroupedData(filteredData);
-    setGroupedData(newGroupedData);
-  }, [filteredData]);
+  // useEffect(() => {
+  //   const newGroupedData = generateGroupedData(filteredData);
+  //   setGroupedData(newGroupedData);
+  // }, [filteredData]);
 
   const handleSearchMRNChange = (event) => {
     const mrn = event.target.value.toLowerCase();
     setSearchMRN(mrn);
-    filterData();
+    // filterData();
   };
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -392,17 +391,17 @@ const FiltersSection: React.FC = () => {
           </div>
         </div>
       </div>
-      {Object.keys(groupedData).length !== 0 && (
+      {true && (
         <div className="w-full overflow-x-auto mt-2 border rounded-t-lg rounded-b-lg border-gray-200">
-          {Object.entries(groupedData).map(([date, records], index) => (
-            <div key={date} className="w-max">
+          {modifyEvalList.map((ele, index) => (
+            <div key={index} className="w-max">
               <div
                 className={`border-solid px-2.5 py-3 text-white text-base font-normal ${
                   index == 0 ? 'rounded-t-lg' : ''
                 }`}
                 style={{ backgroundColor: 'rgba(53, 165, 118, 1)' }}
               >
-                {`${date}/2024 - ${records.length} cases (${14} Max)`}
+                {`${ele.date}/2024 - ${modifyEvalList.length} cases (${14} Max)`}
               </div>
               <div className="bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 flex gap-2 py-2 px-2.5 text-sm">
                 <div className="font-bold text-white py-2 px-1 w-20">Date</div>
@@ -422,7 +421,9 @@ const FiltersSection: React.FC = () => {
                   First Name
                 </div>
                 <div className="font-bold text-white py-2 px-1 w-20">MRN</div>
-                <div className="font-bold text-white py-2 px-1 w-20">Eye</div>
+                <div className="font-bold text-white py-2 px-1 w-20">
+                  Body Part
+                </div>
                 <div className="font-bold text-white py-2 px-1 w-20">
                   Surgery
                 </div>
@@ -454,7 +455,7 @@ const FiltersSection: React.FC = () => {
                   Action
                 </div>
               </div>
-              {records.map((row, index) =>
+              {modifyEvalList.map((row, index) =>
                 selectedRow === row.id && selectedAction == 'edit' ? (
                   <EditableRow
                     key={row.id}
@@ -468,7 +469,7 @@ const FiltersSection: React.FC = () => {
                       key={row.id}
                       id={row.id}
                       className={`div-clone flex gap-2 px-2.5 text-xs items-center ${
-                        index !== records.length - 1
+                        index !== modifyEvalList.length - 1
                           ? 'border-b border-gray-300'
                           : ''
                       }`}
@@ -498,7 +499,7 @@ const FiltersSection: React.FC = () => {
                       </div>
                       <div className="text-black bg-gray-50 pt-2 pb-2 px-1 w-20">
                         {' '}
-                        {row.eye}
+                        {row.bodyPart}
                       </div>
                       <div className="text-black bg-gray-50 pt-2 pb-2 px-1 overflow-hidden whitespace-nowrap w-20">
                         {row.surgery}

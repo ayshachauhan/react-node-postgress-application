@@ -14,6 +14,10 @@ export interface ISurgery extends IBaseEntity {
   eye: string;
   doctor: ISanitizedUser;
   surgeryOption: string[];
+  bodyPart: string;
+  selectedSurgeryOptions: SelectedSurgeryOption;
+  totalHospitalPricing: number;
+  totalProfessionalPricing: number;
 }
 
 export interface CreateSurgeryPayload {
