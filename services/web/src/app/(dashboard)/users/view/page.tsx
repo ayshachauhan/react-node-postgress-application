@@ -41,7 +41,7 @@ const UserViewPage: React.FC = () => {
       <div className="flex justify-between border-gray-400">
         <span className="text-xl font-bold">User Information</span>
       </div>
-      <hr className="h-px my-2.5 bg-gray-100 border-1 dark:bg-gray-700"></hr>
+      <hr className="h-px my-2.5 bg-gray-100 border-1 border-gray-100"></hr>
       <div>
         {userInfo && (
           <div>
@@ -55,7 +55,7 @@ const UserViewPage: React.FC = () => {
                   <span className="font-bold">{userInfo?.fullName}</span> (
                   {userInfo?.type})
                 </p>
-                <hr className="h-px my-2.5 bg-gray-100 border-1 dark:bg-gray-700"></hr>
+                <hr className="h-px my-2.5 bg-gray-100 border-1 border-gray-100"></hr>
               </div>
             </div>
             <div className="flex flex-wrap gap-20 ml-64 mt-4">
