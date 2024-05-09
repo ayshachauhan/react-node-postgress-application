@@ -1,8 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import Mail from 'nodemailer/lib/mailer';
 import { ENVIRONMENT_VARIABLES } from '../enums/environment.enums';
+import { TransporterService } from '../transporter/transporter.service';
+import { SystemTemplates } from '../transporter/transporter.types';
 import { UsersService } from '../users/users.service';
 import { SanitizedUser, SuperAdminUser } from './types';
 
@@ -12,6 +15,7 @@ export class AuthService {
     private usersService: UsersService,
     private jwtService: JwtService,
     private configService: ConfigService,
+    private readonly transporterService: TransporterService,
   ) {}
 
   async validateUser(
@@ -71,5 +75,41 @@ export class AuthService {
   async setUserPractices(payloadUser): Promise<void> {
     const user = await this.usersService.getUserById(payloadUser.id);
     payloadUser['practices'] = user?.practices;
+  }
+
+  async sendPasswordResetEmail(email: string): Promise<void> {
+    const user = await this.usersService.findUserByEmail(email);
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+
+    const token: string = this.jwtService.sign({
+      id: user.id,
+      email: user.email,
+      type: user.type,
+      status: user.status,
+      fullName: user.fullName,
+    });
+
+    const mailOptions: Mail.Options = {
+      to: user.email,
+      subject: 'Subject: Reset Password - Complete Your Reset Password Process',
+    };
+
+    const frontendBaseUrl: string | undefined = this.configService.get(
+      ENVIRONMENT_VARIABLES.FRONT_END_BASE_URL,
+    );
+
+    const mailData = {
+      resetLink: frontendBaseUrl + `/resetpassword?token=${token}`,
+      userFirstName: user.firstName,
+      userLastName: user.lastName,
+    };
+
+    await this.transporterService.sendSystemEmails(
+      mailOptions,
+      mailData,
+      SystemTemplates.RESET_PASSWORD,
+    );
   }
 }

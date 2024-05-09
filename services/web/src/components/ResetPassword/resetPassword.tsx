@@ -45,7 +45,7 @@ export const ResetPassword: React.FC<Props> = ({
   const token: string | null = searchParams.get('token');
 
   useEffect(() => {
-    if (token && isOnboarding) {
+    if (token) {
       setCookie(COOKIES.ACCESS_TOKEN, token, {
         expires: 1,
       });

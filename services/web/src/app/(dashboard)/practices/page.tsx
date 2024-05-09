@@ -232,7 +232,7 @@ const Practice: React.FC = () => {
           startEnhancer={() => <AddIcon className="mt-2" size={25}></AddIcon>}
         />
       </div>
-      <hr className="h-px my-2.5 bg-gray-100 border-1 dark:bg-gray-700"></hr>
+      <hr className="h-px my-2.5 bg-gray-100 border-1 border-gray-100"></hr>
       <div className="text-gray-50 w-full  items-center  bg-gray-50 py-4 rounded-lg">
         <div className="bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2   focus:ring-indigo-500 grid grid-cols-8 rounded-lg w-auto">
           <div className="font-bold text-white p-4 w-auto  text-center">

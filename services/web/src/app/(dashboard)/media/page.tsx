@@ -81,7 +81,7 @@ const Media: React.FC = () => {
 
   return (
     <div className="mt-4">
-      <div className="flex justify-between border-gray-400">
+      <div className="flex justify-between border-gray-400 items-center">
         <span className="text-xl font-bold">Media</span>
         {showModal && <div className="text-green-700">{successMessage}</div>}
         {showErrorMessage && <div className="text-red-700">{errorMessage}</div>}
@@ -92,7 +92,7 @@ const Media: React.FC = () => {
           startEnhancer={() => <AddIcon className="mt-2" size={25}></AddIcon>}
         />{' '}
       </div>
-      <hr className="h-px my-2.5 bg-gray-100 border-1 dark:bg-gray-700"></hr>
+      <hr className="h-px my-2.5 bg-gray-100 border-1 border-gray-100"></hr>
       <div className="flex flex-wrap gap-6">
         {Object.values(media).map((data) => (
           <React.Fragment key={data.id}>
