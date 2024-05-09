@@ -57,6 +57,7 @@ const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     | 'dateCreated'
     | 'dateUpdated'
     | 'permissions'
+    | 'surgeries'
   >;
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

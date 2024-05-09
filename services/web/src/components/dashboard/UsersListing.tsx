@@ -1,12 +1,13 @@
 'use client';
-import { useAppSelector } from '@root/store';
+import { UserType } from '@packages/entities';
+import { State, useAppSelector } from '@root/store';
 import React from 'react';
 
 const UsersListing: React.FC = () => {
-  const userInfo = useAppSelector((state) => state.auth.user);
-  const userData = useAppSelector((state) =>
-    Object.values(state.users.entities),
-  ).filter((user) => user.id !== userInfo?.id);
+  const { entities } = useAppSelector((state: State) => state.users);
+  const userData = Object.values(entities).filter(
+    (user) => user.type == UserType.DOCTOR,
+  );
 
   return (
     <div>
@@ -34,10 +35,25 @@ const UsersListing: React.FC = () => {
                   {user?.firstName}
                 </div>
                 <div className="text-black bg-gray-50 pt-2 pb-2 px-4 flex-1">
-                  0
+                  {user.surgeries?.filter((surgery) => {
+                    const surgeryDate = new Date(surgery.date);
+                    const currentDate = new Date();
+                    return (
+                      surgeryDate.getFullYear() === currentDate.getFullYear() &&
+                      surgeryDate.getMonth() === currentDate.getMonth() &&
+                      surgeryDate.getDate() === currentDate.getDate()
+                    );
+                  }).length || 0}
                 </div>
                 <div className="text-black bg-gray-50 pt-2 pb-2 px-4 flex-1">
-                  0
+                  {user.surgeries?.filter((surgery) => {
+                    const surgeryDate = new Date(surgery.date);
+                    const currentDate = new Date();
+                    return (
+                      surgeryDate.getFullYear() === currentDate.getFullYear() &&
+                      surgeryDate.getMonth() === currentDate.getMonth()
+                    );
+                  }).length || 0}
                 </div>
               </div>
             </React.Fragment>
