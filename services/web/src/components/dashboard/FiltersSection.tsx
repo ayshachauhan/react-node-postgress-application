@@ -1,4 +1,7 @@
+import { ISurgery } from '@packages/entities';
 import { HomeIcon, RoundIcon } from '@root/components/Icons';
+import { useAppSelector } from '@root/store';
+import { usDateFormatter } from '@root/utils';
 import { Input } from 'baseui/input';
 import { Select } from 'baseui/select';
 import React, { useEffect, useState } from 'react';
@@ -15,6 +18,35 @@ import DeleteFilterModal from './DeleteFilterModal';
 import EditableRow from './EditableRow';
 
 const FiltersSection: React.FC = () => {
+  const surgeryList: ISurgery[] = useAppSelector((state) =>
+    Object.values(state.surgeries.entities),
+  );
+
+  const modifyEvalList = surgeryList
+    .map((ele, index) => {
+      const viewData = {
+        firstName: ele.patient.firstName,
+        lastName: ele.patient.lastName,
+        mrn: ele.patient.mrn,
+        email: ele.patient.email,
+        phoneNumber: ele.patient.phoneNumber,
+        date: usDateFormatter(ele.date),
+        surgeryTypeName: ele.surgeryConfiguration.name,
+        practiceHomeName: ele.practiceHome.name,
+        insuranceDetails: ele.insuranceDetails,
+        insuranceTypeName: ele.insuranceType ? ele.insuranceType?.name : '',
+        pcp: '',
+        referrer: ele.patient.referrer ? ele.patient.referrer.email : '',
+        details: ele.patient.details ? ele.patient.details : '',
+        eye: ele.eye,
+        index: index + 1,
+      };
+
+      return viewData;
+    })
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  console.log(modifyEvalList);
+
   const actionIcons = (id: string) => (
     <div style={{ display: 'flex' }}>
       <StarIcon style={{ marginRight: '8px', cursor: 'pointer' }} />
@@ -84,87 +116,6 @@ const FiltersSection: React.FC = () => {
       firstName: 'Victoria',
       lastName: 'Wilson',
       mrn: '2231567',
-      eye: 'Left',
-      surgery: 'Cataract',
-      am: 'AM',
-      femto: 'Femto',
-      ora: 'ORA',
-      lens: 'Standard',
-      implant: 'D1234',
-      calcs: '5/6PC',
-      auth: '5/6PC',
-      hospital: '1800',
-      prof: '5/6PC',
-      insurance: 'PPO',
-      details: 5.2,
-      hp: '5/6PC',
-      consent: '5/6PC',
-      action: actionIcons,
-    },
-    {
-      id: '2',
-      date: '3/12',
-      home: 'w',
-      hash: 10,
-      round: <RoundIcon />,
-      status: 'Booked',
-      firstName: 'Victoria',
-      lastName: 'Matheus',
-      mrn: '3231567',
-      eye: 'Left',
-      surgery: 'Cataract',
-      am: 'AM',
-      femto: 'Femto',
-      ora: 'ORA',
-      lens: 'Standard',
-      implant: 'D1234',
-      calcs: '5/6PC',
-      auth: '5/6PC',
-      hospital: '1800',
-      prof: '5/6PC',
-      insurance: 'PPO',
-      details: 5.2,
-      hp: '5/6PC',
-      consent: '5/6PC',
-      action: actionIcons,
-    },
-    {
-      id: '3',
-      date: '3/11',
-      home: 'w',
-      hash: 10,
-      round: <RoundIcon />,
-      status: 'Booked',
-      firstName: 'Victoria',
-      lastName: 'Stephen',
-      mrn: '3231567',
-      eye: 'Left',
-      surgery: 'Cataract',
-      am: 'AM',
-      femto: 'Femto',
-      ora: 'ORA',
-      lens: 'Standard',
-      implant: 'D1234',
-      calcs: '5/6PC',
-      auth: '5/6PC',
-      hospital: '1800',
-      prof: '5/6PC',
-      insurance: 'PPO',
-      details: 5.2,
-      hp: '5/6PC',
-      consent: '5/6PC',
-      action: actionIcons,
-    },
-    {
-      id: '4',
-      date: '3/10',
-      home: 'w',
-      hash: 10,
-      round: <RoundIcon />,
-      status: 'Booked',
-      firstName: 'Victoria',
-      lastName: 'Maxwell',
-      mrn: '3231567',
       eye: 'Left',
       surgery: 'Cataract',
       am: 'AM',

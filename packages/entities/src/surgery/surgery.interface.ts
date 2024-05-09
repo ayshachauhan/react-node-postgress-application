@@ -31,7 +31,17 @@ export interface CreateSurgeryPayload {
   pcp?: string;
   referrerId?: string;
   details?: string;
-  eye: string;
+  bodyPart: string;
   doctorId: string;
-  surgeryOption: string[];
+  selectedSurgeryOptions: SelectedSurgeryOption;
+  totalHospitalPricing: number;
+  totalProfessionalPricing: number;
+}
+
+export interface SelectedSurgeryOption {
+  [key: string]: {
+    professionalPricing: number;
+    hospitalPricing: number;
+    value: string;
+  };
 }
