@@ -1,10 +1,7 @@
+import { SelectedSurgeryOption } from '@packages/entities';
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
-import { EVAL_EYE_TYPE } from '@root/enums/evalEyeType.enum';
-import { EVAL_STATUS } from '@root/enums/evalStatus.enum';
-import { SURGERY_EYE_TYPE } from '@root/enums/surgeryEyeType.enum';
 import { useAppDispatch, useAppSelector } from '@root/store';
-import { addRecordAsync as addEvalRecord } from '@root/store/reducers/evals';
 import { addRecordAsync as addSurgeryRecord } from '@root/store/reducers/surgery';
 import { getPracticeId, toFullName } from '@utils/index';
 import { Checkbox } from 'baseui/checkbox';
@@ -17,13 +14,8 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
   onClose,
   items,
 }) => {
-  const {
-    practiceHomesList,
-    surgeryTypesList,
-    insuranceTypesList,
-    referrersList,
-    usersList,
-  } = items;
+  const { practiceHomesList, insuranceTypesList, referrersList, usersList } =
+    items;
 
   const SELECTED_DOCTOR_KEY: string = 'SELECTED_DOCTOR';
   const getSelectedUserId: string | null =
@@ -42,30 +34,50 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
   const [phoneNumber, setPhoneNumber] = useState('');
   const [email, setEmail] = useState('');
   const [mrn, setMrn] = useState('');
-  const [evalSurgeryTypeId, setEvalSurgeryTypeId] = useState('');
   const [insuranceDetails, setInsuranceDetails] = useState('');
   const [insuranceTypeId, setInsuranceTypeId] = useState<string>('');
   const [practiceHomeId, setPracticeHomeId] = useState<string>('');
-  const [evalEyeType, setEvalEyeType] = useState<string>('');
-  const [evalStatus, setEvalStatus] = useState<string>('');
-  const [surgeryEyeType, setSurgeryEyeType] = useState<string>('');
+  const [bodyPart, setBodyPart] = useState<string>('');
   const [referrerId, setReferrerId] = useState<string>('');
   const [doctorId, setDoctorId] = useState<string | null>(getSelectedUserId);
-  const [date, setDate] = useState<Date>(new Date());
   const [surgeryDate, SetSurgeryDate] = useState<Date>(new Date());
   const [pcp, setPcp] = useState('');
   const [notes, setNotes] = useState('');
   const [checkboxes, setCheckboxes] = React.useState([true, false]);
-  const [url, setUrl] = useState('');
-  const [isAddEval, setIsEval] = useState<boolean>(false);
   const [surgeryNameId, setSurgeryNameId] = useState<string>('');
   const [surgeryDropdownOptions, setSurgeryDropdownOptions] = useState([
-    { id: '', label: '', checked: false },
+    {
+      id: 0,
+      label: '',
+      checked: false,
+      allowedValues: [
+        {
+          id: 0,
+          label: '',
+          selected: false,
+          hospitalPricing: 0,
+          professionalPricing: 0,
+        },
+      ],
+    },
   ]);
 
   const handleCheckboxChange = (index: number) => {
     surgeryDropdownOptions[index].checked =
       !surgeryDropdownOptions[index].checked;
+
+    setSurgeryDropdownOptions([...surgeryDropdownOptions]);
+  };
+
+  const handleAllowedValueChange = (
+    optionsIndex: number,
+    allowedValueIndex,
+  ) => {
+    surgeryDropdownOptions[optionsIndex].allowedValues.forEach((ele, i) => {
+      if (i === allowedValueIndex) ele.selected = true;
+      else ele.selected = false;
+    });
+
     setSurgeryDropdownOptions([...surgeryDropdownOptions]);
   };
 
@@ -73,9 +85,24 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
     if (surgeryNameId) {
       const selectedSurgeryConfiguration =
         surgeryConfigurationsList[surgeryNameId];
-      const selectedSurgeryOptions = Object.keys(
+
+      setBodyPart(selectedSurgeryConfiguration.bodyPart[0]);
+
+      const selectedSurgeryOptions = Object.values(
         selectedSurgeryConfiguration.options,
-      ).map((ele, i) => ({ id: i + '', label: ele, checked: true }));
+      ).map((ele, i) => {
+        const allowedValues = ele.allowedValues.map(
+          (allowedValue, allowedValueIndex) => ({
+            id: allowedValueIndex,
+            label: allowedValue.name,
+            selected: allowedValueIndex === 0 ? true : false,
+            hospitalPricing: allowedValue.hospitalPricing,
+            professionalPricing: allowedValue.professionalPricing,
+          }),
+        );
+
+        return { id: i, label: ele.label, checked: true, allowedValues };
+      });
 
       setSurgeryDropdownOptions([...selectedSurgeryOptions]);
     }
@@ -91,29 +118,9 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
     id: practiceHomesList[key].id,
   }));
 
-  const surgeryTypeOptions = Object.keys(surgeryTypesList).map((key) => ({
-    label: surgeryTypesList[key].name,
-    id: surgeryTypesList[key].id,
-  }));
-
   const insuranceTypesOptions = Object.keys(insuranceTypesList).map((key) => ({
     label: insuranceTypesList[key].name,
     id: insuranceTypesList[key].id,
-  }));
-
-  const evalEyeTypeOptions = Object.keys(EVAL_EYE_TYPE).map((key) => ({
-    label: key,
-    id: key,
-  }));
-
-  const surgeryEyeTypeOptions = Object.keys(SURGERY_EYE_TYPE).map((key) => ({
-    label: key,
-    id: key,
-  }));
-
-  const evalStatusOption = Object.keys(EVAL_STATUS).map((key) => ({
-    label: key,
-    id: key,
   }));
 
   const referrersOptions = Object.keys(referrersList).map((key) => ({
@@ -133,29 +140,21 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
   const handleSurgeryNameChange = ({ value }) => {
     setSurgeryNameId(value[0] ? value[0].id : null);
   };
-  const handleEvalSurgeryTypeChange = ({ value }) => {
-    setEvalSurgeryTypeId(value[0] ? value[0].id : null);
-  };
+
   const handlePracticeHomeChange = ({ value }) => {
     setPracticeHomeId(value[0] ? value[0].id : null);
   };
+
   const handleInsuranceTypeChange = ({ value }) => {
     setInsuranceTypeId(value[0] ? value[0].id : null);
   };
+
   const handleReferrerChange = ({ value }) => {
     setReferrerId(value[0] ? value[0].id : null);
   };
 
-  const handleEvalStatusChange = ({ value }) => {
-    setEvalStatus(value[0] ? value[0].id : null);
-  };
-
-  const handleEvalEyeTypeChange = ({ value }) => {
-    setEvalEyeType(value[0] ? value[0].id : null);
-  };
-
-  const handleSurgeryEyeTypeChange = ({ value }) => {
-    setSurgeryEyeType(value[0] ? value[0].id : null);
+  const handleBodyPartTypeChange = ({ value }) => {
+    setBodyPart(value[0] ? value[0].id : null);
   };
 
   const handleDoctorChange = ({ value }) => {
@@ -164,54 +163,42 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (practiceId && doctorId) {
-      if (isAddEval) {
-        dispatch(
-          addEvalRecord({
-            firstName,
-            lastName,
-            email,
-            date,
-            phoneNumber,
-            mrn,
-            practiceHomeId,
-            surgeryTypeId: evalSurgeryTypeId,
-            insuranceDetails,
-            insuranceTypeId,
-            practiceId,
-            doctorId,
-            pcp,
-            referrerId,
-            details: notes,
-            status: evalStatus,
-            eye: evalEyeType,
-          }),
-        );
-      } else {
-        dispatch(
-          addSurgeryRecord({
-            firstName,
-            lastName,
-            email,
-            date: surgeryDate,
-            phoneNumber,
-            mrn,
-            practiceHomeId,
-            surgeryConfigurationId: surgeryNameId,
-            insuranceDetails,
-            insuranceTypeId,
-            practiceId,
-            doctorId,
-            pcp,
-            referrerId,
-            details: notes,
-            surgeryOption: surgeryDropdownOptions
-              .filter((ele) => ele.checked)
-              .map((ele) => ele.label),
-            eye: surgeryEyeType,
-          }),
-        );
+    const surgeryOptionObj: SelectedSurgeryOption = {};
+    surgeryDropdownOptions.forEach((ele) => {
+      const allowedValue = ele.allowedValues.find((ele) => ele.selected);
+      if (ele.checked && allowedValue) {
+        surgeryOptionObj[ele.label] = {
+          professionalPricing: allowedValue.professionalPricing,
+          hospitalPricing: allowedValue.hospitalPricing,
+          value: allowedValue.label,
+        };
       }
+    });
+
+    if (practiceId && doctorId) {
+      dispatch(
+        addSurgeryRecord({
+          firstName,
+          lastName,
+          email,
+          date: surgeryDate,
+          phoneNumber,
+          mrn,
+          practiceHomeId,
+          surgeryConfigurationId: surgeryNameId,
+          insuranceDetails,
+          insuranceTypeId,
+          practiceId,
+          doctorId,
+          pcp,
+          referrerId,
+          details: notes,
+          selectedSurgeryOptions: surgeryOptionObj,
+          bodyPart,
+          totalHospitalPricing: 0,
+          totalProfessionalPricing: 0,
+        }),
+      );
 
       try {
         setFirstName('');
@@ -225,9 +212,7 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
         setPcp('');
         setReferrerId('');
         setNotes('');
-        setEvalStatus('');
-        setEvalEyeType('');
-        setSurgeryEyeType('');
+        setBodyPart('');
         onClose();
       } catch (error) {
         onClose();
@@ -240,8 +225,8 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
 
   return (
     <div>
-      <div className="px-6 border-rborder-l border-b border-gray-100 pb-6">
-        <form onSubmit={handleSubmit}>
+      <div className="px-6 border-border-l border-b border-gray-100 pb-6">
+        <form onSubmit={handleSubmit} className="flex flex-col flex-wrap">
           <div className="flex mt-8 pb-5 border-b border-gray-100">
             <div className="text-xl font-bold text-black w-full">
               Add Surgery
@@ -263,7 +248,7 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
                       border: 'none',
                       boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
                       color: '#52525B',
-                      width: '250px', // Adjust the width as needed
+                      width: '250px',
                     },
                   },
                   ClearIcon: {
@@ -443,7 +428,6 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
                 onChange={(value) => {
                   setPcp(value);
                 }}
-                // required
               />
               <div className="space-y-4"></div>
             </div>
@@ -535,7 +519,6 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
                 onChange={(value) => {
                   setInsuranceDetails(value);
                 }}
-                // required
               />
               <div className="space-y-4"></div>
             </div>
@@ -561,32 +544,6 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
               <div className="flex gap-5 mt-4">
                 <div className="space-y-4 flex-1">
                   <Select
-                    required
-                    options={surgeryEyeTypeOptions}
-                    onChange={handleSurgeryEyeTypeChange}
-                    value={
-                      surgeryEyeType
-                        ? [{ label: surgeryEyeType, id: surgeryEyeType }]
-                        : []
-                    }
-                    overrides={{
-                      ControlContainer: {
-                        style: {
-                          backgroundColor: 'rgba(250, 250, 250, 1)',
-                          border: 'none',
-                          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-                          color: '#52525B',
-                        },
-                      },
-                      ClearIcon: {
-                        component: () => null,
-                      },
-                    }}
-                  />
-                  <div className="space-y-4"></div>
-                </div>
-                <div className="space-y-4 flex-1">
-                  <Select
                     options={surgeryConfigurationsOptions}
                     onChange={handleSurgeryNameChange}
                     value={
@@ -608,195 +565,122 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
                       },
                     }}
                   />
-                  <div className="space-y-4"></div>
                 </div>
-                <div className="space-y-4 flex-1">
+                <div className="space-y-4 flex-1 w-1/3">
+                  <Select
+                    required
+                    options={
+                      surgeryNameId
+                        ? surgeryConfigurationsList[surgeryNameId].bodyPart.map(
+                            (ele) => ({ id: ele, label: ele }),
+                          )
+                        : []
+                    }
+                    onChange={handleBodyPartTypeChange}
+                    value={bodyPart ? [{ label: bodyPart, id: bodyPart }] : []}
+                    disabled={surgeryNameId ? false : true}
+                    overrides={{
+                      ControlContainer: {
+                        style: {
+                          backgroundColor: 'rgba(250, 250, 250, 1)',
+                          border: 'none',
+                          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                          color: '#52525B',
+                        },
+                      },
+                      ClearIcon: {
+                        component: () => null,
+                      },
+                    }}
+                  />
+                </div>
+                <div className="space-y-4 flex-1 w-1/3">
                   <DatePicker
                     value={surgeryDate}
                     onChange={({ date }) => SetSurgeryDate(date)}
                     placeholder="Surgery Date"
                     required
                   />
-                  <div className="space-y-4"></div>
                 </div>
               </div>
-              <div className="flex gap-5 mt-4">
-                <div className="space-y-4 flex-1">
-                  <Select disabled />
-                  <div className="space-y-4"></div>
-                </div>
-                <div className="space-y-4 flex-1">
-                  <Select disabled />
-                  <div className="space-y-4"></div>
-                </div>
-                <div className="space-y-4 flex-1">
-                  <TextInput
-                    name="url"
-                    value={url}
-                    onChange={(value) => {
-                      setUrl(value);
-                    }}
-                    placeholder="Date"
-                    disabled
-                  />
-                  <div className="space-y-4"></div>
-                </div>
-              </div>
-              <div className="flex gap-5 mt-4">
+              <div className="flex flex-col gap-5 mt-4">
                 {surgeryNameId &&
                   surgeryDropdownOptions.map((option, index) => (
-                    <div key={index}>
-                      <Checkbox
-                        overrides={{
-                          Checkmark: {
-                            style: ({ $checked }) => ({
-                              backgroundColor: $checked
-                                ? 'rgba(59, 130, 246, 1)'
-                                : 'white',
-                              borderColor: $checked
-                                ? 'rgba(59, 130, 246, 1)'
-                                : 'rgba(161, 161, 170, 1)',
-                              borderRadius: '4px',
-                            }),
-                          },
-                        }}
-                        checked={option.checked}
-                        onChange={() => {
-                          handleCheckboxChange(index);
-                        }}
-                      >
-                        {option.label}
-                      </Checkbox>
+                    <div
+                      className="flex flex-row items-center w-1/3"
+                      key={index}
+                    >
+                      <div key={index} className="w-1/2">
+                        <Checkbox
+                          overrides={{
+                            Checkmark: {
+                              style: ({ $checked }) => ({
+                                backgroundColor: $checked
+                                  ? 'rgba(59, 130, 246, 1)'
+                                  : 'white',
+                                borderColor: $checked
+                                  ? 'rgba(59, 130, 246, 1)'
+                                  : 'rgba(161, 161, 170, 1)',
+                                borderRadius: '4px',
+                              }),
+                            },
+                          }}
+                          checked={option.checked}
+                          onChange={() => {
+                            handleCheckboxChange(index);
+                          }}
+                        >
+                          {option.label}
+                        </Checkbox>
+                      </div>
+                      <div className="w-1/2">
+                        <Select
+                          options={option.allowedValues}
+                          value={option.allowedValues.filter(
+                            (ele) => ele.selected === true,
+                          )}
+                          onChange={({ value }) =>
+                            handleAllowedValueChange(index, value[0].id)
+                          }
+                          disabled={!option.checked}
+                          overrides={{
+                            ControlContainer: {
+                              style: {
+                                backgroundColor: 'rgba(250, 250, 250, 1)',
+                                border: 'none',
+                                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                                color: '#52525B',
+                              },
+                            },
+                            ClearIcon: {
+                              component: () => null,
+                            },
+                          }}
+                        />
+                      </div>
                     </div>
                   ))}
               </div>
-              <div className="text-left text-base mt-4">
-                <Button kind="primary" title="Add Surgery" width={189} />
-              </div>
             </div>
-            <div className="px-6 border border-gray-100 pb-6 rounded-xl flex-1 w-4/12">
-              <div className="mt-8 text-xl pb-5 font-bold border-b border-gray-100 text-black w-full">
-                Add Eval
-              </div>
-              <div className="flex gap-5 mt-4">
-                <div className="space-y-4 flex-1">
-                  <Select
-                    options={evalEyeTypeOptions}
-                    onChange={handleEvalEyeTypeChange}
-                    value={
-                      evalEyeType
-                        ? [{ label: evalEyeType, id: evalEyeType }]
-                        : []
-                    }
-                    overrides={{
-                      ControlContainer: {
-                        style: {
-                          backgroundColor: 'rgba(250, 250, 250, 1)',
-                          border: 'none',
-                          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-                          color: '#52525B',
-                        },
-                      },
-                      ClearIcon: {
-                        component: () => null,
-                      },
-                    }}
-                  />
-                  <div className="space-y-4"></div>
-                </div>
-                <div className="space-y-4 flex-1">
-                  <Select
-                    options={surgeryTypeOptions}
-                    onChange={handleEvalSurgeryTypeChange}
-                    value={
-                      evalSurgeryTypeId
-                        ? [{ label: evalSurgeryTypeId, id: evalSurgeryTypeId }]
-                        : []
-                    }
-                    overrides={{
-                      ControlContainer: {
-                        style: {
-                          backgroundColor: 'rgba(250, 250, 250, 1)',
-                          border: 'none',
-                          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-                          color: '#52525B',
-                        },
-                      },
-                      ClearIcon: {
-                        component: () => null,
-                      },
-                    }}
-                  />
-                  <div className="space-y-4"></div>
-                </div>
-                <div className="space-y-4 flex-1">
-                  <DatePicker
-                    value={date}
-                    onChange={({ date }) => setDate(date)}
-                    placeholder="Eval Date"
-                    required
-                  />
-                  <div className="space-y-4"></div>
-                </div>
-              </div>
-              <div className="flex gap-5 mt-4 items-center">
-                <label htmlFor="title" className="text-black text-sm">
-                  Eval Status:
-                </label>
-                <div className="space-y-4 flex-1">
-                  <Select
-                    options={evalStatusOption}
-                    onChange={handleEvalStatusChange}
-                    value={
-                      evalStatus ? [{ label: evalStatus, id: evalStatus }] : []
-                    }
-                    overrides={{
-                      ControlContainer: {
-                        style: {
-                          backgroundColor: 'rgba(250, 250, 250, 1)',
-                          border: 'none',
-                          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-                          color: '#52525B',
-                        },
-                      },
-                      ClearIcon: {
-                        component: () => null,
-                      },
-                    }}
-                  />
-                  <div className="space-y-4"></div>
-                </div>
-              </div>
-              <div className="flex gap-5 mt-4 justify-end">
-                <Button kind="secondary" title="Today" />
-                <Button kind="secondary" title="+1" />
-                <Button kind="secondary" title="+3" />
-                <Button kind="secondary" title="+6" />
-                <Button kind="secondary" title="+12" />
-              </div>
-              <div className="text-left text-base mt-6">
-                <Button
-                  kind="primary"
-                  title="Add Eval"
-                  width={189}
-                  onClick={() => setIsEval(true)}
-                />
-              </div>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="text-right text-base mt-4">
+              <Button kind="primary" title="Add Surgery" width={189} />
+            </div>
+            <div className="text-right text-base mt-4">
+              <Button
+                type="button"
+                kind="tertiary"
+                title="Cancel"
+                width={189}
+                style={{
+                  backgroundColor: 'rgba(212, 212, 216, 1)',
+                  color: 'black',
+                }}
+              />
             </div>
           </div>
         </form>
-      </div>
-      <div className="text-right text-base mt-6">
-        <Button
-          type="button"
-          kind="tertiary"
-          title="Cancel"
-          width={189}
-          style={{
-            backgroundColor: 'rgba(212, 212, 216, 1)',
-            color: 'black',
-          }}
-        />
       </div>
     </div>
   );

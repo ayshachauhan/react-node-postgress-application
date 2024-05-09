@@ -5,6 +5,7 @@ import { PatientEntity } from '../patient';
 import { PracticeHomesEntity } from '../practiceHomes';
 import { SurgeryConfigurationEntity } from '../surgeryConfiguration';
 import { UserEntity } from '../user';
+import { SelectedSurgeryOption } from './surgery.interface';
 
 @Entity('surgeries')
 export class SurgeryEntity extends BaseEntity {
@@ -35,11 +36,14 @@ export class SurgeryEntity extends BaseEntity {
   date: Date;
 
   @Column()
-  eye: string;
+  bodyPart: string;
 
-  @Column('varchar', {
-    array: true,
-    default: '{}',
-  })
-  surgeryOption: string[];
+  @Column({ type: 'jsonb' })
+  selectedSurgeryOptions: SelectedSurgeryOption;
+
+  @Column()
+  totalHospitalPricing: number;
+
+  @Column()
+  totalProfessionalPricing: number;
 }
