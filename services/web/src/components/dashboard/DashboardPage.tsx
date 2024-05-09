@@ -208,13 +208,13 @@ const DashboardPage: React.FC = () => {
       <hr className="h-px my-2.5 px-0 mx-0 bg-gray-100 border-1 border-gray-100"></hr>
       <div className="mt-1">
         <div className="flex justify-between gap-4">
-          <div className="w-7/12 border border-solid dark:bg-gray-700 rounded-lg px-2.5 py-2">
+          <div className="w-7/12 border border-solid rounded-lg px-2.5 py-2">
             <UpcomingSection />
           </div>
-          <div className="w-2/12 border border-solid dark:bg-gray-700 rounded-lg px-2.5 py-2 text-lg">
+          <div className="w-2/12 border border-solid rounded-lg px-2.5 py-2 text-lg">
             <UsersListing />
           </div>
-          <div className="w-3/12 border border-solid dark:bg-gray-700 rounded-lg px-2.5 py-2 text-lg">
+          <div className="w-3/12 border border-solid rounded-lg px-2.5 py-2 text-lg">
             <SurgeryPercentage />
           </div>
         </div>
