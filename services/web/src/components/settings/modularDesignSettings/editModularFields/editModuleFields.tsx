@@ -7,6 +7,7 @@ import { AddIcon, CloseIcon } from '@root/components/Icons';
 import TextInput from '@root/components/TextInput';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { editRecordAsync } from '@root/store/reducers/surgeryConfigurations';
+import { DEFAULT_SURGERYNAME_COLOR } from '@root/utils/constants';
 import { getPracticeId } from '@utils/index';
 import { Select } from 'baseui/select';
 import { useRouter } from 'next/navigation';
@@ -25,6 +26,8 @@ const EditModularField: React.FC<{ onClose: () => void; data }> = ({
   const [surgeryTypeId, setSurgeryTypeId] = useState<string>(
     surgeryConfigInfo?.surgeryType.id || '',
   );
+
+  const [surgeryNameColor, setSurgeryNameColor] = useState<string>('');
 
   const [bodyPartInputFields, setBodyPartInputFields] = useState([
     { value: '' },
@@ -53,6 +56,9 @@ const EditModularField: React.FC<{ onClose: () => void; data }> = ({
 
       setSurgeryName(surgeryConfigInfo.name);
       setSurgeryTypeId(surgeryConfigInfo.surgeryType.id);
+      setSurgeryNameColor(
+        surgeryConfigInfo?.color ?? DEFAULT_SURGERYNAME_COLOR,
+      );
       setBodyPartInputFields(
         surgeryConfigInfo?.bodyPart.map((ele) => ({ value: ele })),
       );
@@ -199,6 +205,7 @@ const EditModularField: React.FC<{ onClose: () => void; data }> = ({
         facility: facilityInputFields.map((ele) => ele.value),
         options: surgeryOptionObj,
         checkList: checkListObj,
+        color: surgeryNameColor,
       };
 
       dispatch(
@@ -269,6 +276,26 @@ const EditModularField: React.FC<{ onClose: () => void; data }> = ({
                 required
               />
               <div className="space-y-4"></div>
+            </div>
+            <div className="space-y-4 flex-2">
+              <label htmlFor="surgeryName" className="text-black text-sm">
+                Surgery Name Color
+              </label>
+              <div className="d-block">
+                <input
+                  type="color"
+                  id="primary_color"
+                  required={true}
+                  value={surgeryNameColor}
+                  onChange={(e) => setSurgeryNameColor(e.target.value)}
+                  style={{
+                    height: '50px',
+                    width: '50px',
+                    border: 'none',
+                    outline: 'none',
+                  }}
+                />
+              </div>
             </div>
           </div>
 

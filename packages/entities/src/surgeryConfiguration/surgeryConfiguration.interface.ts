@@ -8,6 +8,7 @@ export interface ISurgeryConfiguration extends IBaseEntity {
   facility: string[];
   options: SurgeryOptions;
   checkList: SurgeryChecklist;
+  color: string;
 }
 
 /**
@@ -65,4 +66,5 @@ export type CreateSurgeryConfigurationPayload = {
   options: SurgeryOptions;
   checkList: SurgeryChecklist;
   surgeryTypeId: string;
+  color: string;
 };

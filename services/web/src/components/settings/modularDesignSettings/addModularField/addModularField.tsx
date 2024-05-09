@@ -4,6 +4,7 @@ import { AddIcon, CloseIcon } from '@root/components/Icons';
 import TextInput from '@root/components/TextInput';
 import { useAppDispatch } from '@root/store';
 import { addRecordAsync } from '@root/store/reducers/surgeryConfigurations';
+import { DEFAULT_SURGERYNAME_COLOR } from '@root/utils/constants';
 import { getPracticeId } from '@utils/index';
 import { Select } from 'baseui/select';
 import { useRouter } from 'next/navigation';
@@ -115,6 +116,9 @@ const AddModularField: React.FC<{ onClose: () => void; items }> = ({
 
   const [surgeryName, setSurgeryName] = useState<string>('');
   const [surgeryTypeId, setSurgeryTypeId] = useState('');
+  const [surgeryNameColor, setSurgeryNameColor] = useState<string>(
+    DEFAULT_SURGERYNAME_COLOR,
+  );
 
   const handleSurgeryTypeChange = ({ value }) => {
     setSurgeryTypeId(value[0] ? value[0].id : null);
@@ -161,6 +165,7 @@ const AddModularField: React.FC<{ onClose: () => void; items }> = ({
         facility: facilityInputFields.map((ele) => ele.value),
         options: surgeryOptionObj,
         checkList: checkListObj,
+        color: surgeryNameColor,
       };
 
       dispatch(addRecordAsync({ payloadData, practiceId }));
@@ -230,6 +235,26 @@ const AddModularField: React.FC<{ onClose: () => void; items }> = ({
                 required
               />
               <div className="space-y-4"></div>
+            </div>
+            <div className="space-y-4 flex-2">
+              <label htmlFor="surgeryName" className="text-black text-sm">
+                Surgery Name Color
+              </label>
+              <div className="d-block">
+                <input
+                  type="color"
+                  required={true}
+                  id="primary_color"
+                  value={surgeryNameColor}
+                  onChange={(e) => setSurgeryNameColor(e.target.value)}
+                  style={{
+                    height: '50px',
+                    width: '50px',
+                    border: 'none',
+                    outline: 'none',
+                  }}
+                />
+              </div>
             </div>
           </div>
 

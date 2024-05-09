@@ -37,4 +37,7 @@ export class SurgeryConfigurationEntity
 
   @Column({ type: 'jsonb', nullable: true })
   checkList: SurgeryChecklist;
+
+  @Column({ type: 'varchar', nullable: true })
+  color: string;
 }
