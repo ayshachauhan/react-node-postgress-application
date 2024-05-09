@@ -11,7 +11,7 @@ import { UserEntity } from '@packages/entities/*';
 import { CalendarEntity } from '@packages/entities/calendar';
 import { Repository } from 'typeorm';
 import { PracticesService } from '../practices/practices.service';
-import { SurgeryTypesService } from '../surgeryTypes/surgeryTypes.service';
+import { SurgeryConfigurationsService } from '../surgeryConfiguration/surgeryConfiguration.service';
 import {
   CreateCalendarDto,
   UpdateCalendarDto,
@@ -32,8 +32,8 @@ export class CalendarService {
     private calendarRepo: Repository<CalendarEntity>,
     @Inject(forwardRef(() => PracticesService))
     private practiceService: PracticesService,
-    @Inject(forwardRef(() => SurgeryTypesService))
-    private surgeryTypeService: SurgeryTypesService,
+    @Inject(forwardRef(() => SurgeryConfigurationsService))
+    private surgeryConfifurationService: SurgeryConfigurationsService,
   ) {}
 
   /**
@@ -52,7 +52,7 @@ export class CalendarService {
           id: userId,
         },
       },
-      relations: ['practice', 'surgeryType', 'user'],
+      relations: ['practice', 'surgeryConfiguration', 'user'],
     });
   }
 
@@ -66,7 +66,7 @@ export class CalendarService {
   ): Promise<CalendarEntity> {
     const response: CalendarEntity | null = await this.calendarRepo.findOne({
       where: { id: params.id },
-      relations: ['practice', 'surgeryType', 'user'],
+      relations: ['practice', 'surgeryConfiguration', 'user'],
     });
     if (!response) {
       throw new NotFoundException('Calendar does not exists');
@@ -79,16 +79,16 @@ export class CalendarService {
    * @param params
    * @returns CalendarEntity
    */
-  async getCalendarBySurgeryType(
+  async getCalendarBySurgeryConfiguration(
     params: GetCalendarBySurgeryTypeIdParams,
   ): Promise<CalendarEntity[]> {
     const response: CalendarEntity[] | null = await this.calendarRepo.find({
       where: {
-        surgeryType: {
-          id: params.surgeryTypeId,
+        surgeryConfiguration: {
+          id: params.surgeryConfigurationId,
         },
       },
-      relations: ['practice', 'surgeryType', 'user'],
+      relations: ['practice', 'surgeryConfiguration', 'user'],
     });
     if (!response) {
       throw new NotFoundException(
@@ -114,10 +114,10 @@ export class CalendarService {
       (user: UserEntity) => user.id === userId,
     );
 
-    const surgeryTypeEntity = await this.surgeryTypeService.getSurgeryTypeById(
-      dto.surgeryTypeId,
-      practiceId,
-    );
+    const surgeryConfigurationEntity =
+      await this.surgeryConfifurationService.getSurgeryConfigurationById(
+        dto.surgeryConfigurationId,
+      );
 
     console.log(dto, 'dtocreate');
 
@@ -126,7 +126,7 @@ export class CalendarService {
       ...dto,
       bookedSlots: dto.bookedSlots ?? 0,
       practice: practiceEntity!,
-      surgeryType: surgeryTypeEntity!,
+      surgeryConfiguration: surgeryConfigurationEntity!,
       user: userEntity!,
     });
 
@@ -158,7 +158,7 @@ export class CalendarService {
 
     return await this.calendarRepo.findOne({
       where: { id },
-      relations: ['practice', 'surgeryType', 'user'],
+      relations: ['practice', 'surgeryConfiguration', 'user'],
     });
   }
 
@@ -188,7 +188,7 @@ export class CalendarService {
 
         const updatedCalendar = (await this.calendarRepo.findOne({
           where: { id },
-          relations: ['practice', 'surgeryType', 'user'],
+          relations: ['practice', 'surgeryConfiguration', 'user'],
         })) as CalendarEntity;
 
         updatedCalendars.push(updatedCalendar);

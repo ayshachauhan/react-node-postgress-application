@@ -20,7 +20,7 @@ export class CreateCalendarDto {
 
   @IsNotEmpty()
   @ApiProperty()
-  surgeryTypeId: string;
+  surgeryConfigurationId: string;
 }
 
 export class UpdateCalendarDto {

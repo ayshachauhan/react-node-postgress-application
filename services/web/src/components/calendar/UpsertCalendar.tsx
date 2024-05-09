@@ -1,4 +1,7 @@
-import { ISurgeryType } from '@packages/entities/index.browser';
+import {
+  ICalendar,
+  ISurgeryConfiguration,
+} from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
 import { useAppDispatch } from '@root/store';
@@ -21,8 +24,9 @@ const UpsertCalendar: React.FC<{
   onClose: () => void;
   calendarData: CalendarData[];
   isUpdating: boolean;
-  selectedSurgery: ISurgeryType;
-}> = ({ onClose, calendarData, isUpdating, selectedSurgery }) => {
+  selectedSurgery: ISurgeryConfiguration;
+  calendars: ICalendar[];
+}> = ({ onClose, calendarData, isUpdating, selectedSurgery, calendars }) => {
   const maxSlotsOptions = Array.from({ length: 14 }, (_, index) => index + 1);
   const dispatch = useAppDispatch();
 
@@ -79,7 +83,7 @@ const UpsertCalendar: React.FC<{
         const payload: CreateCalendarPayload = {
           practiceId,
           userId,
-          surgeryTypeId: selectedSurgery.id,
+          surgeryConfigurationId: selectedSurgery.id,
           maxSlots: upsertCalendarData[0].maxSlots,
           bookedSlots: upsertCalendarData[0].bookedSlots,
           date: formattedDate,
@@ -105,7 +109,7 @@ const UpsertCalendar: React.FC<{
               <TextInput
                 id={calendar.id}
                 name="surgeryType"
-                value={calendar.surgeryType}
+                value={calendar.surgeryName}
                 onChange={handleInputChange}
                 required
                 disabled={true}
@@ -137,6 +141,9 @@ const UpsertCalendar: React.FC<{
                   placeholder="Surgery Date"
                   required
                   minDate={new Date()}
+                  excludeDates={calendars.map(
+                    (calendar) => new Date(calendar.date),
+                  )}
                 />
               )}
             </div>

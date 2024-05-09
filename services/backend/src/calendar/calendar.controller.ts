@@ -50,11 +50,11 @@ export class CalendarController {
     return this.calendarService.getCalendarById(params);
   }
 
-  @Get('/surgery/:surgeryTypeId')
+  @Get('/surgery/:surgeryConfigurationId')
   getCalendarBySurgeryType(
     @Param() params: GetCalendarBySurgeryTypeIdParams,
   ): Promise<CalendarEntity[]> {
-    return this.calendarService.getCalendarBySurgeryType(params);
+    return this.calendarService.getCalendarBySurgeryConfiguration(params);
   }
 
   @Post()

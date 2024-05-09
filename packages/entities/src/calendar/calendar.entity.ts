@@ -1,7 +1,7 @@
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { BaseEntity } from '../base.entity';
 import { PracticeEntity } from '../practice/practice.entity';
-import { SurgeryTypeEntity } from '../surgeryType';
+import { SurgeryConfigurationEntity } from '../surgeryConfiguration';
 import { UserEntity } from '../user';
 import { ICalendar } from './calendar.interface';
 @Entity('calendars')
@@ -10,9 +10,9 @@ export class CalendarEntity extends BaseEntity implements ICalendar {
   @JoinColumn({ name: 'practiceId' })
   practice: PracticeEntity;
 
-  @ManyToOne(() => SurgeryTypeEntity)
-  @JoinColumn({ name: 'surgeryTypeId' })
-  surgeryType: SurgeryTypeEntity;
+  @ManyToOne(() => SurgeryConfigurationEntity)
+  @JoinColumn({ name: 'surgeryConfigurationId' })
+  surgeryConfiguration: SurgeryConfigurationEntity;
 
   @Column({ type: 'timestamp' })
   date: Date;

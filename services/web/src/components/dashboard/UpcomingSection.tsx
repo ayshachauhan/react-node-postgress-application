@@ -1,9 +1,13 @@
 'use client';
 import { AddIcon, EditIcon } from '@components/Icons';
-import { ICalendar, ISurgeryType } from '@packages/entities/index.browser';
+import {
+  ICalendar,
+  ISurgeryConfiguration,
+} from '@packages/entities/index.browser';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { fetchCalendars } from '@root/store/reducers/calendar';
-import { fetchListings } from '@root/store/reducers/surgeryTypes';
+import { fetchListings } from '@root/store/reducers/surgeryConfigurations';
+import { DEFAULT_SURGERYNAME_COLOR } from '@root/utils/constants';
 import { getPracticeId, getUserId } from '@root/utils/index';
 import { Modal, ModalBody, ModalHeader, ROLE } from 'baseui/modal';
 import moment from 'moment';
@@ -15,7 +19,8 @@ export type CalendarData = {
   date: Date;
   maxSlots: number;
   bookedSlots: number;
-  surgeryType: string;
+  surgeryName: string;
+  surgeryNameColor: string;
 };
 
 export const DEFAULT_MAX_SLOTS: number = 14;
@@ -23,9 +28,9 @@ export const DEFAULT_MAX_SLOTS: number = 14;
 const UpcomingSection: React.FC = () => {
   const dispatch = useAppDispatch();
 
-  const { calendars, surgeryTypes } = useAppSelector((state) => ({
+  const { calendars, surgeryConfigurations } = useAppSelector((state) => ({
     calendars: Object.values(state.calendars.entities),
-    surgeryTypes: Object.values(state.surgeryTypes.entities),
+    surgeryConfigurations: Object.values(state.surgeryConfigurations.entities),
   }));
 
   const practiceId: string | null = getPracticeId();
@@ -34,9 +39,8 @@ const UpcomingSection: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isUpdating, setIsUpdating] = useState<boolean>(false);
 
-  const [selectedSurgery, setSelectedSurgery] = useState<ISurgeryType | null>(
-    null,
-  );
+  const [selectedSurgery, setSelectedSurgery] =
+    useState<ISurgeryConfiguration | null>(null);
 
   /**
    * @summary append + sign
@@ -94,12 +98,12 @@ const UpcomingSection: React.FC = () => {
   }, [practiceId, userId, dispatch]);
 
   useEffect(() => {
-    if (surgeryTypes.length > 0 && selectedSurgery === null) {
-      setSelectedSurgery(surgeryTypes[0]);
+    if (surgeryConfigurations.length > 0 && selectedSurgery === null) {
+      setSelectedSurgery(surgeryConfigurations[0]);
     }
-  }, [surgeryTypes]);
+  }, [surgeryConfigurations]);
 
-  const toggleActive = (surgeryType: ISurgeryType) => {
+  const toggleActive = (surgeryType: ISurgeryConfiguration) => {
     setSelectedSurgery(surgeryType);
   };
 
@@ -144,13 +148,17 @@ const UpcomingSection: React.FC = () => {
   };
 
   const upcomingDates: CalendarData[] = calendars
-    .filter((data: ICalendar) => data.surgeryType.id === selectedSurgery?.id)
+    .filter(
+      (data: ICalendar) => data.surgeryConfiguration.id === selectedSurgery?.id,
+    )
     .map((data: ICalendar) => ({
       id: data.id,
       date: data.date,
       maxSlots: data.maxSlots,
       bookedSlots: data.bookedSlots,
-      surgeryType: data.surgeryType.name.charAt(0).toUpperCase(),
+      surgeryName: data.surgeryConfiguration.name.charAt(0).toUpperCase(),
+      surgeryNameColor:
+        data.surgeryConfiguration.color ?? DEFAULT_SURGERYNAME_COLOR,
     }));
 
   const filteredCalendars = filterCalendarByMonth(upcomingDates);
@@ -216,14 +224,17 @@ const UpcomingSection: React.FC = () => {
                       maxSlots: DEFAULT_MAX_SLOTS,
                       bookedSlots: 0,
                       date: new Date(),
-                      surgeryType: selectedSurgery?.name
+                      surgeryName: selectedSurgery?.name
                         .charAt(0)
                         .toUpperCase() as string,
+                      surgeryNameColor:
+                        selectedSurgery?.color ?? DEFAULT_SURGERYNAME_COLOR,
                     },
                   ]
             }
             isUpdating={isUpdating ?? false}
-            selectedSurgery={selectedSurgery as ISurgeryType}
+            selectedSurgery={selectedSurgery as ISurgeryConfiguration}
+            calendars={calendars}
           />
         </ModalBody>
       </Modal>
@@ -255,7 +266,7 @@ const UpcomingSection: React.FC = () => {
       <hr className="h-px my-2.5 bg-gray-100 border-1 border-gray-100"></hr>
       <div className="flex w-full bg-green-50 pr-2 border-b border-green-200 items-center">
         <div className="flex items-center">
-          {surgeryTypes.map((item: ISurgeryType, index) => (
+          {surgeryConfigurations.map((item: ISurgeryConfiguration, index) => (
             <div className="mr-1" key={index}>
               <button
                 className="py-2 px-4 text-xs text-black text-normal border-b-2 border-transparent hover:text-white hover:bg-gradient-to-r from-primary-light to-primary-dark hover:rounded-t-lg"
@@ -290,14 +301,23 @@ const UpcomingSection: React.FC = () => {
                       <div className="font-bold text-white p-4 w-10">Max</div>
                       <div className="font-bold text-white p-4 w-10"></div>
                     </div>
-                    {calendar.map((data: CalendarData) => {
+                    {calendar.map((data: CalendarData, index) => {
                       const availableSlots: number =
                         data.maxSlots - data.bookedSlots;
                       return (
                         <React.Fragment key={data.id}>
-                          <div className={`flex items-center`}>
-                            <div className="text-black bg-gray-50 pt-2 pb-2 px-4 w-10">
-                              {data.surgeryType}
+                          <div
+                            className={`flex items-center ${
+                              index !== calendar.length - 1
+                                ? 'border-b border-gray-300'
+                                : ''
+                            }`}
+                          >
+                            <div
+                              className="text-black bg-gray-50 pt-2 pb-2 px-4 w-10"
+                              style={{ background: data.surgeryNameColor }}
+                            >
+                              {data.surgeryName}
                             </div>
                             <div className="text-black bg-gray-50 pt-2 pb-2 px-4 w-40">
                               {moment(data.date).format('YYYY-MM-DD')}
