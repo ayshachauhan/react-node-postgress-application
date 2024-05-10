@@ -86,6 +86,7 @@ export default function UserPage() {
       dispatch(getPracticeInfo({ id: practiceId }));
     }
   }, [practiceId, dispatch]);
+
   const practiceName = useAppSelector(
     (state) => state.practices.practiceInfo?.name,
   );

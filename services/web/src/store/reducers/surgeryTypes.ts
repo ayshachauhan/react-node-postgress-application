@@ -143,7 +143,6 @@ export const deleteRecordAsync = createAsyncThunk(
   'surgeryTypes/deleteRecordAsync',
   deleteSurgeryType,
 );
-
 export const selectRecords = (state: State) => state.surgeryTypes;
 export const selectStatus = (state: State) => state.surgeryTypes.status;
 export const selectError = (state: State) => state.surgeryTypes.errorMessage;

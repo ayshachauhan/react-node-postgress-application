@@ -174,7 +174,7 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
               >
                 Surgery:
               </label>
-              <div className="w-56 text-sm text-sm text-gray-600">
+              <div className="w-56 text-sm text-gray-600">
                 <Select
                   options={surgeryTypeOptions}
                   onChange={handleSurgeryTypeChange}

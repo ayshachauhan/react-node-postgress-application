@@ -1,6 +1,6 @@
+import { CreateSurgeryPayload } from '@packages/entities';
 import Cookies from 'js-cookie';
 import { publicRuntimeConfig } from 'next.config';
-import { CreateSurgeryInterface } from './types';
 const { API_BASE_URL } = publicRuntimeConfig;
 
 export const getSurgeries = async (
@@ -31,7 +31,7 @@ export const getSurgeries = async (
   }
 };
 
-export const addSurgery = async (payloadData: CreateSurgeryInterface) => {
+export const addSurgery = async (payloadData: CreateSurgeryPayload) => {
   try {
     const accessToken = Cookies.get('access_token');
     const response = await fetch(

@@ -13,6 +13,7 @@ import {
   clearSuccessMessage as clearEvalSuccessMessage,
   fetchListings as fetchEvalsList,
 } from '@root/store/reducers/evals';
+
 import { fetchListings as fetchInsuranceTypesList } from '@root/store/reducers/insuranceTypes';
 import { fetchListings as fetchPracticeHomesListing } from '@root/store/reducers/practiceHomes';
 import { fetchListings as fetchReferrerList } from '@root/store/reducers/referrer';
@@ -20,6 +21,7 @@ import {
   clearSuccessMessage as clearSurgerySuccessMessage,
   fetchListings as fetchSurgeryList,
 } from '@root/store/reducers/surgery';
+import { fetchListings as fetchSurgeryConfigurationsListing } from '@root/store/reducers/surgeryConfigurations';
 import { fetchListings as fetchSurgeryTypesListing } from '@root/store/reducers/surgeryTypes';
 import { fetchListings as fetchUsersList } from '@root/store/reducers/users';
 import { SanitizedUser } from '@root/store/types';
@@ -50,6 +52,7 @@ const DashboardPage: React.FC = () => {
       dispatch(fetchSurgeryTypesListing({ practiceId }));
       dispatch(fetchReferrerList({ practiceId }));
       dispatch(fetchUsersList({ practiceId }));
+      dispatch(fetchSurgeryConfigurationsListing({ practiceId }));
     }
   }, [practiceId, dispatch]);
 
@@ -60,6 +63,7 @@ const DashboardPage: React.FC = () => {
         dispatch(fetchSurgeryList({ practiceId }));
         dispatch(clearSurgerySuccessMessage());
         dispatch(clearEvalSuccessMessage());
+        dispatch(fetchSurgeryConfigurationsListing({ practiceId }));
       }
     }
   }, [addSurgerySuccessMessage, addEvalSuccessMessage, dispatch]);
@@ -101,38 +105,6 @@ const DashboardPage: React.FC = () => {
     Object.values(state.users.entities),
   );
 
-  // const evalsList: IEval[] = useAppSelector((state) =>
-  //   Object.values(state.evals.entities),
-  // );
-
-  // const surgeryList: ISurgery[] = useAppSelector((state) =>
-  //   Object.values(state.surgeries.entities),
-  // );
-
-  // const mergedList = [...evalsList, ...surgeryList];
-  // const modifyEvalList = mergedList
-  //   .map((ele, index) => {
-  //     const viewData = {
-  //       firstName: ele.patient.firstName,
-  //       lastName: ele.patient.lastName,
-  //       mrn: ele.patient.mrn,
-  //       email: ele.patient.email,
-  //       phoneNumber: ele.patient.phoneNumber,
-  //       date: usDateFormatter(ele.date),
-  //       surgeryTypeName: ele.surgeryType.name,
-  //       practiceHomeName: ele.practiceHome.name,
-  //       insuranceDetails: ele.insuranceDetails,
-  //       insuranceTypeName: ele.insuranceType ? ele.insuranceType?.name : '',
-  //       pcp: '',
-  //       referrer: ele.patient.referrer ? ele.patient.referrer.email : '',
-  //       details: ele.patient.details ? ele.patient.details : '',
-  //       eye: ele.eye,
-  //       index: index + 1,
-  //     };
-
-  //     return viewData;
-  //   })
-  //   .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const FormModal = () => {
     return (
@@ -208,13 +180,13 @@ const DashboardPage: React.FC = () => {
       <hr className="h-px my-2.5 px-0 mx-0 bg-gray-100 border-1 border-gray-100"></hr>
       <div className="mt-1">
         <div className="flex justify-between gap-4">
-          <div className="w-7/12 border border-solid dark:bg-gray-700 rounded-lg px-2.5 py-2">
+          <div className="w-7/12 border border-solid rounded-lg px-2.5 py-2">
             <UpcomingSection />
           </div>
-          <div className="w-2/12 border border-solid dark:bg-gray-700 rounded-lg px-2.5 py-2 text-lg">
+          <div className="w-2/12 border border-solid rounded-lg px-2.5 py-2 text-lg">
             <UsersListing />
           </div>
-          <div className="w-3/12 border border-solid dark:bg-gray-700 rounded-lg px-2.5 py-2 text-lg">
+          <div className="w-3/12 border border-solid rounded-lg px-2.5 py-2 text-lg">
             <SurgeryPercentage />
           </div>
         </div>

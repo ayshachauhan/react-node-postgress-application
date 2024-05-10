@@ -1,17 +1,16 @@
 'use client';
+import { IInsuranceType } from '@packages/entities';
 import Button from '@root/components/Button';
 import { AddIcon, DeleteIcon } from '@root/components/Icons';
-import AddSurgeryType from '@root/components/settings/surgeryTypes/addSurgeryType';
+import AddPracticeHome from '@root/components/settings/configurationSettings/insuranceTypes/addInsuranceType';
 import { useAppDispatch, useAppSelector } from '@root/store';
-import { getPracticeInfo } from '@root/store/reducers/practices';
 import {
   clearErrorMessage,
   clearSuccessMessage,
   deleteRecordAsync,
-  fetchListings as fetchSurgeryTypes,
-  selectError,
-  selectSuccessMessage,
-} from '@root/store/reducers/surgeryTypes';
+  fetchListings,
+} from '@root/store/reducers/insuranceTypes';
+import { getPracticeInfo } from '@root/store/reducers/practices';
 import { getPracticeId } from '@utils/index';
 import {
   Modal,
@@ -23,7 +22,7 @@ import {
 } from 'baseui/modal';
 import React, { useEffect, useState } from 'react';
 
-export default function SurgeryTypePage() {
+export default function InsuranceTypePage() {
   const [showModal, setShowModal] = useState(false);
   const dispatch = useAppDispatch();
 
@@ -33,17 +32,19 @@ export default function SurgeryTypePage() {
   const practiceName = useAppSelector(
     (state) => state.practices.practiceInfo?.name,
   );
-  const surgeryTypes = useAppSelector((state) =>
-    Object.values(state.surgeryTypes.entities),
+  const insuranceTypes: IInsuranceType[] = useAppSelector((state) =>
+    Object.values(state.insuranceTypes.entities),
   );
-  const [surgeryTypeId, setSurgeryTypeId] = useState('');
+  const [insuranceTypeId, setInsuranceTypeId] = useState('');
   const [showErrorMessage, setShowErrorMessage] = useState(false);
-  const successMessage = useAppSelector(selectSuccessMessage);
-  const errorMessage = useAppSelector(selectError);
+  const { successMessage, errorMessage } = useAppSelector((state) => ({
+    successMessage: state.insuranceTypes.successMessage,
+    errorMessage: state.insuranceTypes.errorMessage,
+  }));
 
   useEffect(() => {
     if (practiceId !== null) {
-      dispatch(fetchSurgeryTypes({ practiceId: practiceId }));
+      dispatch(fetchListings({ practiceId: practiceId }));
       dispatch(getPracticeInfo({ id: practiceId }));
     }
   }, [practiceId, dispatch]);
@@ -74,7 +75,7 @@ export default function SurgeryTypePage() {
   const onConfirmDelete = (): void => {
     if (practiceId) {
       try {
-        dispatch(deleteRecordAsync({ practiceId, id: surgeryTypeId }));
+        dispatch(deleteRecordAsync({ practiceId, id: insuranceTypeId }));
         setIsDeleteModalOpen(false);
       } catch (error) {
         console.log(error);
@@ -88,7 +89,7 @@ export default function SurgeryTypePage() {
 
   const handleOpenDeleteModal = (Id: string): void => {
     setIsDeleteModalOpen(true);
-    setSurgeryTypeId(Id);
+    setInsuranceTypeId(Id);
   };
 
   const handleCloseModal = (): void => {
@@ -99,7 +100,7 @@ export default function SurgeryTypePage() {
     setIsDeleteModalOpen(false);
   };
 
-  const AddSurgeryModal = () => {
+  const AddPracticeHomeModal = () => {
     return (
       <Modal
         isOpen={isModalOpen}
@@ -126,16 +127,16 @@ export default function SurgeryTypePage() {
             paddingBottom: '8px',
           }}
         >
-          Add New Surgery Type
+          Add New Insurance Type
         </ModalHeader>
         <ModalBody>
-          <AddSurgeryType onClose={handleCloseModal} />
+          <AddPracticeHome onClose={handleCloseModal} />
         </ModalBody>
       </Modal>
     );
   };
 
-  const DeleteSurgeryTypeModal = () => {
+  const DeletePracticeHomeModal = () => {
     return (
       <Modal
         isOpen={isDeleteModalOpen}
@@ -158,7 +159,7 @@ export default function SurgeryTypePage() {
           Confirm Deletion
         </ModalHeader>
         <ModalBody>
-          Are you sure you want to delete this surgery type?
+          Are you sure you want to delete this Practice Home?
         </ModalBody>
         <ModalFooter>
           <Button kind="primary" title="Delete" onClick={onConfirmDelete}>
@@ -172,7 +173,7 @@ export default function SurgeryTypePage() {
   return (
     <div className="mt-4">
       <div className="flex justify-between border-gray-400">
-        <span className="text-xl font-bold align-middle">Surgery Type</span>
+        <span className="text-xl font-bold align-middle">Insurance Type</span>
         {showModal && <div className="text-green-700">{successMessage}</div>}
         {showErrorMessage && <div className="text-red-700">{errorMessage}</div>}
         <Button
@@ -187,9 +188,9 @@ export default function SurgeryTypePage() {
         <div className="bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 grid grid-cols-4 rounded-lg">
           <div className="font-bold text-white p-4">S. No.</div>
           <div className="font-bold text-white p-4">Practice Name</div>
-          <div className="font-bold text-white p-4">Surgery Type</div>
+          <div className="font-bold text-white p-4">Insurance Type</div>
           <div className="font-bold text-white p-4">Action</div>
-          {surgeryTypes.map((data, index) => (
+          {insuranceTypes.map((data, index) => (
             <React.Fragment key={data.id}>
               <div className="text-gray-900 bg-gray-50 pt-2 px-4">
                 {index + 1}
@@ -212,8 +213,8 @@ export default function SurgeryTypePage() {
           ))}
         </div>
       </div>
-      <AddSurgeryModal />
-      <DeleteSurgeryTypeModal />
+      <AddPracticeHomeModal />
+      <DeletePracticeHomeModal />
     </div>
   );
 }
