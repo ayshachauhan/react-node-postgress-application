@@ -1,5 +1,6 @@
 'use client';
 
+import { UserType } from '@packages/entities';
 import Dropdown from '@root/components/Dropdown';
 import { AvatarIcon } from '@root/components/Icons';
 import { State, useAppDispatch, useAppSelector } from '@root/store';
@@ -26,21 +27,23 @@ const Header: React.FC = () => {
   const { entities } = useAppSelector((state: State) => state.users);
   const practiceId = getPracticeId();
 
-  const users: SanitizedUser[] = Object.values(entities);
+  const users: SanitizedUser[] = Object.values(entities).filter(
+    (user) => user.type == UserType.DOCTOR,
+  );
 
   const findSelectedUser = (userId: string): SanitizedUser | undefined =>
     Object.values(entities).find((user) => user.id === userId);
 
   const [selectedUser, setSelectedUser] = useState<SanitizedUser | null>(null);
-  if (!localStorage.getItem(SELECTED_DOCTOR_KEY) && userInfo && userInfo.id) {
-    localStorage.setItem(SELECTED_DOCTOR_KEY, userInfo.id);
+  if (!localStorage.getItem(SELECTED_DOCTOR_KEY) && users.length > 0) {
+    localStorage.setItem(SELECTED_DOCTOR_KEY, users[0].id);
   }
 
   const is_super_admin = userInfo ? userInfo.isSuperAdmin : false;
   const selectedUserBox = (
     <span className="inline-flex items-center gap-2">
       <AvatarIcon size={40}></AvatarIcon>
-      {selectedUser?.fullName ?? userInfo?.fullName}
+      {selectedUser?.fullName}
       <ChevronDown />
     </span>
   );

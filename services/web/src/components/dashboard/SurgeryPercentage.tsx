@@ -1,33 +1,45 @@
 'use client';
+import { useAppSelector } from '@root/store';
+import { getPracticeId, getUserId } from '@root/utils';
 import React from 'react';
+// import {
+//   ICalendar
+// } from '@packages/entities/index.browser';
 
-const surgeryPercentage = [
-  { name: 'Cataract', percentage: '10', id: '1' },
-  { name: 'AM%', percentage: '15', id: '2' },
-  { name: 'Kiera', percentage: '13', id: '3' },
-  { name: 'Edna', percentage: '20', id: '4' },
-  { name: 'Soraya', percentage: '18', id: '5' },
-  { name: 'Dorris', percentage: '32', id: '6' },
-  { name: 'Astrid', percentage: '26', id: '7' },
-];
+export type CalendarData = {
+  id: string;
+  date: Date;
+  maxSlots: number;
+  bookedSlots: number;
+  surgeryName: string;
+  surgeryNameColor: string;
+};
 
 const SurgeryPercentage: React.FC = () => {
-  const maxCellStyle = (cellValue: string) => {
-    const numericValue =
-      typeof cellValue === 'string'
-        ? parseInt(cellValue.replace('%', ''), 10)
-        : cellValue;
-    const isRed = numericValue === 32;
-    const isYellow = numericValue === 15;
+  console.log(getUserId(), 'getuser');
+  const selectedDoctorId = getUserId();
+  console.log(selectedDoctorId, 'doctor');
+  const practiceId = getPracticeId();
+  console.log(practiceId);
+  const { surgeryConfigurations } = useAppSelector((state) => ({
+    calendars: Object.values(state.calendars.entities),
+    surgeryConfigurations: Object.values(state.surgeryConfigurations.entities),
+  }));
+  // const upcomingDates: CalendarData[] = calendars
+  //   .filter(
+  //     (data: ICalendar) => data.surgeryConfiguration.id === selectedSurgery?.id,
+  //   )
+  //   .map((data: ICalendar) => ({
+  //     maxSlots: data.maxSlots,
+  //     bookedSlots: data.bookedSlots,
+  //   }));
+  //   console.log(upcomingDates)
 
-    if (isRed) {
-      return { color: 'rgba(239, 68, 68, 1)' };
-    } else if (isYellow) {
-      return { color: 'rgba(234, 179, 8, 1)' };
-    } else {
-      return {};
-    }
-  };
+  const surgeryPercentage = surgeryConfigurations.map((config, index) => ({
+    name: config.name,
+    percentage: `${index + 10}`, // Example percentage based on index
+    id: config.id,
+  }));
 
   const appendPercentageSign = (cellValue: string) => {
     return cellValue + '%';
@@ -62,40 +74,22 @@ const SurgeryPercentage: React.FC = () => {
                 <div className="text-black bg-gray-50 pt-2 pb-2 px-4 w-20">
                   {surgery.name}
                 </div>
-                <div
-                  className="text-black bg-gray-50 pt-2 pb-2 px-4 w-10"
-                  style={maxCellStyle(appendPercentageSign(surgery.percentage))}
-                >
+                <div className="text-black bg-gray-50 pt-2 pb-2 px-4 w-10">
                   {appendPercentageSign(surgery.percentage)}
                 </div>
-                <div
-                  className="text-black bg-gray-50 pt-2 pb-2 px-4 w-10"
-                  style={maxCellStyle(appendPercentageSign(surgery.percentage))}
-                >
+                <div className="text-black bg-gray-50 pt-2 pb-2 px-4 w-10">
                   {appendPercentageSign(surgery.percentage)}
                 </div>
-                <div
-                  className="text-black bg-gray-50 pt-2 pb-2 px-4 w-10"
-                  style={maxCellStyle(appendPercentageSign(surgery.percentage))}
-                >
+                <div className="text-black bg-gray-50 pt-2 pb-2 px-4 w-10">
                   {appendPercentageSign(surgery.percentage)}
                 </div>
-                <div
-                  className="text-black bg-gray-50 pt-2 pb-2 px-4 w-10"
-                  style={maxCellStyle(appendPercentageSign(surgery.percentage))}
-                >
+                <div className="text-black bg-gray-50 pt-2 pb-2 px-4 w-10">
                   {appendPercentageSign(surgery.percentage)}
                 </div>
-                <div
-                  className="text-black bg-gray-50 pt-2 pb-2 px-4 w-10"
-                  style={maxCellStyle(appendPercentageSign(surgery.percentage))}
-                >
+                <div className="text-black bg-gray-50 pt-2 pb-2 px-4 w-10">
                   {appendPercentageSign(surgery.percentage)}
                 </div>
-                <div
-                  className="text-black bg-gray-50 pt-2 pb-2 px-4 w-10"
-                  style={maxCellStyle(appendPercentageSign(surgery.percentage))}
-                >
+                <div className="text-black bg-gray-50 pt-2 pb-2 px-4 w-10">
                   {appendPercentageSign(surgery.percentage)}
                 </div>
               </div>
