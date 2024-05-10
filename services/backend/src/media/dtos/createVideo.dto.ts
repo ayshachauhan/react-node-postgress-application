@@ -2,15 +2,19 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty } from 'class-validator';
 
 export class CreateVideoDto {
-  @IsNotEmpty()
+  @IsNotEmpty({ message: 'name is required' })
   @ApiProperty()
   name: string;
 
-  @IsNotEmpty()
+  @IsNotEmpty({ message: 'urlEmbed is required' })
   @ApiProperty()
   urlEmbed: string;
 
-  @IsNotEmpty()
+  @IsNotEmpty({ message: 'surgeryType is required' })
+  @ApiProperty()
+  surgeryTypeId: string;
+
+  @IsNotEmpty({ message: 'url is required' })
   @ApiProperty()
   url: string;
 }

@@ -21,16 +21,17 @@
     "migrate": "dotenv -e .env -- pnpm turbo run run-migrations"
   },
   "devDependencies": {
+    "@trivago/prettier-plugin-sort-imports": "^4.3.0",
+    "@types/js-cookie": "^3.0.6",
     "@types/node": "^20.10.3",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
-    "@trivago/prettier-plugin-sort-imports": "^4.3.0",
-    "prettier-plugin-organize-imports": "^3.2.4",
     "dotenv-cli": "^7.3.0",
     "eslint": "^8.42.0",
     "husky": "^8.0.3",
     "lint-staged": "^15.2.2",
     "prettier": "^3.0.0",
+    "prettier-plugin-organize-imports": "^3.2.4",
     "ts-node": "^10.9.1",
     "tslib": "2.3.1",
     "turbo": "^1.10.16"
@@ -40,5 +41,8 @@
       "prettier --write",
       "git add"
     ]
+  },
+  "dependencies": {
+    "js-cookie": "^3.0.5"
   }
 }

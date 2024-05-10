@@ -8,9 +8,11 @@ tmp/**
 .gitignore
 .eslintignore
 .dockerignore
+favicon.ico
 
 /packages/*/dist
 
 /services/*/dist
 /services/*/Dockerfile
 /services/*/.next
+*.svg

@@ -1,22 +1,20 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { PracticeEntity, PracticeHomesEntity } from '@packages/entities';
 import { Repository } from 'typeorm';
-import { PracticeHome } from '../entities/practiceHomes.entity';
-import { PracticesService } from '../practices/practices.service';
 import { PracticeHomeCreateDto } from './dto/create.dto';
 import { PracticeHomePatchDto } from './dto/patch.dto';
 
 @Injectable()
 export class PracticeHomesService {
   constructor(
-    @InjectRepository(PracticeHome)
-    private practiceHomesRepository: Repository<PracticeHome>,
-    private readonly practicesService: PracticesService,
+    @InjectRepository(PracticeHomesEntity)
+    private practiceHomesRepository: Repository<PracticeHomesEntity>,
   ) {}
 
   async getPracticeHomesByPractice(
     practiceId: string,
-  ): Promise<PracticeHome[]> {
+  ): Promise<PracticeHomesEntity[]> {
     return this.practiceHomesRepository.find({
       where: { practice: { id: practiceId } },
     });
@@ -25,7 +23,7 @@ export class PracticeHomesService {
   async getPracticeHomeById(
     id: string,
     practiceId: string,
-  ): Promise<PracticeHome | null> {
+  ): Promise<PracticeHomesEntity | null> {
     return this.practiceHomesRepository.findOne({
       where: { id, practice: { id: practiceId } },
     });
@@ -40,27 +38,22 @@ export class PracticeHomesService {
 
   async create(
     { name }: PracticeHomeCreateDto,
-    practiceId: string,
-  ): Promise<PracticeHome> {
-    const newPracticeHome: PracticeHome = new PracticeHome();
+    practiceEntity: PracticeEntity,
+  ): Promise<PracticeHomesEntity> {
+    const newPracticeHome: PracticeHomesEntity =
+      this.practiceHomesRepository.create({
+        practice: practiceEntity,
+        name,
+      });
 
-    const practiceEntity = await this.practicesService.findOne(practiceId);
-    if (!practiceEntity) {
-      throw new HttpException('Practice not found', HttpStatus.NOT_FOUND);
-    }
-
-    return await this.practiceHomesRepository.save({
-      ...newPracticeHome,
-      practice: practiceEntity,
-      name,
-    });
+    return await this.practiceHomesRepository.save(newPracticeHome);
   }
 
   async update(
     id: string,
     practiceHomePatchDto: PracticeHomePatchDto,
     practiceId: string,
-  ): Promise<PracticeHome | null> {
+  ): Promise<PracticeHomesEntity | null> {
     const practiceHomeToUpdate = await this.getPracticeHomeById(id, practiceId);
 
     if (!practiceHomeToUpdate) {

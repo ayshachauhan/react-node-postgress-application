@@ -6,13 +6,15 @@ import {
   Param,
   Patch,
   Post,
+  Req,
   UseGuards,
+  UseInterceptors,
   ValidationPipe,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { PracticeHomesEntity } from '@packages/entities/practiceHomes';
+import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
 import { AuthGuard } from '../auth/auth.guard';
-import { PracticeHome } from '../entities/practiceHomes.entity';
-import { PracticeEntity } from '../entities/practices.entity';
 import { PracticeHomeCreateDto } from './dto/create.dto';
 import { PracticeHomePatchDto } from './dto/patch.dto';
 import { PracticeHomesService } from './practiceHomes.service';
@@ -27,14 +29,14 @@ export class PracticeHomesController {
   @Get()
   async getPracticeHomesByPractice(
     @Param('practiceId') practiceId: string,
-  ): Promise<PracticeEntity[]> {
+  ): Promise<PracticeHomesEntity[]> {
     return this.practiceHomesService.getPracticeHomesByPractice(practiceId);
   }
 
   @Get(':id')
   async getPracticeHomeById(
     @Param() { practiceId, id }: { practiceId: string; id: string },
-  ): Promise<PracticeEntity | null> {
+  ): Promise<PracticeHomesEntity | null> {
     return this.practiceHomesService.getPracticeHomeById(id, practiceId);
   }
 
@@ -46,18 +48,23 @@ export class PracticeHomesController {
   }
 
   @Post()
+  @UseInterceptors(practiceNotFoundInterceptor)
   async create(
-    @Param('practiceId') practiceId: string,
-    @Body(new ValidationPipe()) practiceHomeCreateto: PracticeHomeCreateDto,
-  ): Promise<PracticeHome> {
-    return this.practiceHomesService.create(practiceHomeCreateto, practiceId);
+    @Req() request: Request,
+    @Body(new ValidationPipe()) practiceHomeCreateDto: PracticeHomeCreateDto,
+  ): Promise<PracticeHomesEntity> {
+    const practiceEntity = request['practiceEntity'];
+    return this.practiceHomesService.create(
+      practiceHomeCreateDto,
+      practiceEntity,
+    );
   }
 
   @Patch(':id')
   async update(
     @Param() { practiceId, id }: { practiceId: string; id: string },
     @Body() practiceHomePatchDto: PracticeHomePatchDto,
-  ): Promise<PracticeHome | null> {
+  ): Promise<PracticeHomesEntity | null> {
     return this.practiceHomesService.update(
       id,
       practiceHomePatchDto,

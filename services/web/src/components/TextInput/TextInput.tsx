@@ -3,7 +3,7 @@
 import { Input, InputOverrides, InputProps } from 'baseui/input';
 import React from 'react';
 
-type Props = Partial<InputProps> & {
+type Props = Partial<Omit<InputProps, 'onChange'>> & {
   onChange: (value: string) => void;
   onBlur?: (event: React.FocusEvent) => void;
   onFocus?: () => void;
@@ -44,7 +44,17 @@ const TextInput: React.FC<Props> = ({
     <div className="d-block">
       <Input
         {...props}
-        overrides={TextInputOverrides}
+        overrides={{
+          ...TextInputOverrides,
+          Input: {
+            props: {
+              style: {
+                color: 'rgba(82, 82, 91, 1)',
+                backgroundColor: 'rgba(250, 250, 250, 1)',
+              },
+            },
+          },
+        }}
         onChange={handleChange}
         onBlur={handleBlur}
         onFocus={handleFocus}
