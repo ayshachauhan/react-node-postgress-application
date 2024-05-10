@@ -1,11 +1,4 @@
-import {
-  Column,
-  Entity,
-  JoinColumn,
-  JoinTable,
-  ManyToMany,
-  ManyToOne,
-} from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 import { BaseEntity } from '../base.entity';
 import { PracticeEntity } from '../practice';
 import { ReferrersEntity } from '../referrer';
@@ -45,11 +38,6 @@ export class PatientEntity extends BaseEntity {
   @Column({ type: 'varchar' })
   details: string;
 
-  @ManyToMany(() => SurgeryEntity)
-  @JoinTable({
-    name: 'patients_surgeries',
-    joinColumn: { name: 'patientId', referencedColumnName: 'id' },
-    inverseJoinColumn: { name: 'surgeryId', referencedColumnName: 'id' },
-  })
+  @OneToMany(() => SurgeryEntity, (surgery) => surgery.patient)
   surgeries: SurgeryEntity[];
 }

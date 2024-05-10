@@ -66,8 +66,6 @@ const ReferedPatients = ({ referrerId }) => {
           <div className="font-bold text-white px-2 py-4 flex-1">
             Surgery Date
           </div>
-          <div className="font-bold text-white px-2 py-4 flex-1">Lens</div>
-          <div className="font-bold text-white px-2 py-4 flex-1">Billing</div>
           <div className="font-bold text-white px-2 py-4 flex-1">Surgery#</div>
         </div>
         <div className="border border-gray-300 rounded-b-md">
@@ -89,20 +87,14 @@ const ReferedPatients = ({ referrerId }) => {
                   <div className="text-gray-900 bg-gray-50 px-2 flex-1">
                     {data.dateCreated
                       ? usDateFormatter(data.dateCreated)
-                      : 'Date is undefined'}
+                      : 'NA'}
                   </div>
                   <div className="text-gray-900 bg-gray-50 px-2 flex-1">
                     {data?.surgeries &&
                     data.surgeries.length > 0 &&
                     data.surgeries[0].dateCreated
                       ? usDateFormatter(data.surgeries[0].dateCreated)
-                      : 'Date is undefined'}
-                  </div>
-                  <div className="text-gray-900 bg-gray-50 px-2 flex-1">
-                    Standard
-                  </div>
-                  <div className="text-gray-900 bg-gray-50 px-2 flex-1">
-                    Billing
+                      : 'NA'}
                   </div>
                   <div className="text-gray-900 bg-gray-50 px-2 flex-1">
                     {data?.surgeries?.length}

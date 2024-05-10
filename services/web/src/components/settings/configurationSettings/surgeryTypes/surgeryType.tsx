@@ -1,7 +1,7 @@
 'use client';
 import Button from '@root/components/Button';
 import { AddIcon, DeleteIcon } from '@root/components/Icons';
-import AddSurgeryType from '@root/components/settings/surgeryTypes/addSurgeryType';
+import AddSurgeryType from '@root/components/settings/configurationSettings/surgeryTypes/addSurgeryType';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { getPracticeInfo } from '@root/store/reducers/practices';
 import {
@@ -182,7 +182,7 @@ export default function SurgeryTypePage() {
           startEnhancer={() => <AddIcon className="mt-2" size={25}></AddIcon>}
         />
       </div>
-      <hr className="h-px my-2.5 bg-gray-100 border-1 dark:bg-gray-700"></hr>
+      <hr className="h-px my-2.5 bg-gray-100 border-1 border-gray-100"></hr>
       <div className="text-gray-50 w-full  items-center  bg-gray-50 py-4 rounded-lg">
         <div className="bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 grid grid-cols-4 rounded-lg">
           <div className="font-bold text-white p-4">S. No.</div>

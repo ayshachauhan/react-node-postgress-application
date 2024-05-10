@@ -1,2 +1,2 @@
+export * from './surgeryType.entity';
 export * from './surgeryType.interface';
-export * from './surgeryTypes.entity';

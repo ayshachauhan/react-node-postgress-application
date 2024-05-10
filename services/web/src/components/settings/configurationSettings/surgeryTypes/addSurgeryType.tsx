@@ -1,8 +1,8 @@
+import { SurgeryType } from '@packages/entities';
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
 import { useAppDispatch } from '@root/store';
 import { addRecordAsync } from '@root/store/reducers/surgeryTypes';
-import { createSurgeryTypeInterface } from '@root/store/requests/surgeryTypes';
 import { getPracticeId } from '@utils/index';
 import React, { useState } from 'react';
 
@@ -14,7 +14,7 @@ const AddSurgeryType: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (practiceId) {
-      const surgeryTypePayload: createSurgeryTypeInterface = {
+      const surgeryTypePayload: SurgeryType = {
         practiceId,
         name: surgeryType,
       };

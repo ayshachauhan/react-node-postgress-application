@@ -1,21 +1,20 @@
 import { Inject, Injectable, forwardRef } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
+import { SurgeryEntity } from '@packages/entities';
 import { PatientEntity } from '@packages/entities/patient';
-import * as fs from 'fs';
 import Mail from 'nodemailer/lib/mailer';
-import * as path from 'path';
+import { ENVIRONMENT_VARIABLES } from 'src/enums/environment.enums';
+import { InsuranceTypesService } from 'src/insuranceTypes/insuranceTypes.service';
 import { PatientsService } from 'src/patients/patients.service';
 import { PracticeHomesService } from 'src/practiceHomes/practiceHomes.service';
 import { PracticesService } from 'src/practices/practices.service';
+import { SurgeryConfigurationsService } from 'src/surgeryConfiguration/surgeryConfiguration.service';
 import { SurgeryTypesService } from 'src/surgeryTypes/surgeryTypes.service';
 import { TransporterService } from 'src/transporter';
-import { In, Repository } from 'typeorm';
-
-import { ConfigService } from '@nestjs/config';
-import { SurgeryEntity } from '@packages/entities';
-import { ENVIRONMENT_VARIABLES } from 'src/enums/environment.enums';
-import { InsuranceTypesService } from 'src/insuranceTypes/insuranceTypes.service';
+import { SystemTemplates } from 'src/transporter/transporter.types';
 import { UsersService } from 'src/users/users.service';
+import { In, Repository } from 'typeorm';
 import { PatientMailData } from './types';
 
 @Injectable()
@@ -33,6 +32,8 @@ export class SurgeryService {
     private practiceHomesService: PracticeHomesService,
     @Inject(forwardRef(() => InsuranceTypesService))
     private insuranceTypesService: InsuranceTypesService,
+    @Inject(forwardRef(() => SurgeryConfigurationsService))
+    private surgeryConfigurationService: SurgeryConfigurationsService,
     @Inject(forwardRef(() => UsersService))
     private userService: UsersService,
     private readonly configService: ConfigService,
@@ -55,7 +56,7 @@ export class SurgeryService {
       },
       relations: [
         'practiceHome',
-        'surgeryType',
+        'surgeryConfiguration',
         'patient',
         'insuranceType',
         'patient.referrer',
@@ -74,6 +75,7 @@ export class SurgeryService {
 
   async create({ practiceId, createSurgeryDto }): Promise<SurgeryEntity> {
     const newSurgery: SurgeryEntity = new SurgeryEntity();
+
     const practiceEntity = await this.practiceService.findOne(practiceId);
     const newPatient: PatientEntity = await this.patientService.create(
       createSurgeryDto,
@@ -100,6 +102,11 @@ export class SurgeryService {
       createSurgeryDto.doctorId,
     );
 
+    const surgeryConfigurationEntity =
+      await this.surgeryConfigurationService.getSurgeryConfigurationById(
+        createSurgeryDto.surgeryConfigurationId,
+      );
+
     const resultSurgery = await this.surgeryRepository.save({
       ...newSurgery,
       ...createSurgeryDto,
@@ -109,24 +116,12 @@ export class SurgeryService {
       practiceHome: practiceHomeEntity,
       insuranceType: insuranceTypeEntity,
       doctor: doctorEntity,
+      surgeryConfiguration: surgeryConfigurationEntity,
     });
 
-    await this.patientService.updatePatientSurgeries({
-      id: newPatient.id,
-      practiceId: practiceEntity?.id,
-      surgeryEntity: resultSurgery,
-    });
-
-    // Read the HTML file content
-    const htmlFilePath = path.join(
-      __dirname,
-      '../emailTemplates/notifyPatient.html',
-    );
-    const htmlFileContent = fs.readFileSync(htmlFilePath, 'utf8');
     const mailOptions: Mail.Options = {
       to: createSurgeryDto.email,
       subject: 'Eval/surgery registered',
-      html: htmlFileContent,
       text: 'text message',
     };
 
@@ -144,7 +139,11 @@ export class SurgeryService {
       insuranceDetails: createSurgeryDto.insuranceDetails,
     };
 
-    await this.transporterService.sendEmail(mailOptions, mailData);
+    await this.transporterService.sendSystemEmails(
+      mailOptions,
+      mailData,
+      SystemTemplates.NOTIFY_PATIENT,
+    );
 
     return resultSurgery;
   }

@@ -31,8 +31,6 @@ export class PatientsService {
     createPatientDto: CreatePatientDto,
     practiceEntity: PracticeEntity | null,
   ): Promise<PatientEntity> {
-    const newPatient: PatientEntity = new PatientEntity();
-
     if (!practiceEntity) {
       throw new HttpException('practice not found', HttpStatus.NOT_FOUND);
     }
@@ -55,33 +53,12 @@ export class PatientsService {
         );
       }
     }
-
-    return await this.patientRepository.save({
-      ...newPatient,
+    const newPatient = this.patientRepository.create({
       practice: practiceEntity,
       referrer: referrerEntity,
       ...createPatientDto,
     });
-  }
-
-  async updatePatientSurgeries({
-    id,
-    practiceId,
-    surgeryEntity,
-  }): Promise<PatientEntity | null> {
-    const existingPatient = await this.patientRepository.findOne({
-      where: { id, practice: { id: practiceId } },
-      relations: ['surgeries'],
-    });
-
-    if (existingPatient) {
-      existingPatient.surgeries.push(surgeryEntity);
-      await this.patientRepository.save(existingPatient);
-    }
-    return await this.patientRepository.findOne({
-      where: { id, practice: { id: practiceId } },
-      relations: ['surgeries'],
-    });
+    return await this.patientRepository.save(newPatient);
   }
 
   async getUsersByPractice(practiceId: string): Promise<PatientEntity[]> {

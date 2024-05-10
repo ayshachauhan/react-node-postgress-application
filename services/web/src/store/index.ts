@@ -9,6 +9,7 @@ import practiceHomesReducer from './reducers/practiceHomes';
 import practicesReducer from './reducers/practices';
 import referrersReducer from './reducers/referrer';
 import surgeryReducer from './reducers/surgery';
+import surgeryConfigurationReducer from './reducers/surgeryConfigurations';
 import surgeryTypeReducer from './reducers/surgeryTypes';
 import templatesReducer from './reducers/templates';
 import permissionsReducer from './reducers/userPermissions';
@@ -27,6 +28,7 @@ export const store = configureStore({
     evals: evalsReducer,
     referrers: referrersReducer,
     surgeries: surgeryReducer,
+    surgeryConfigurations: surgeryConfigurationReducer,
     permissions: permissionsReducer,
   },
   middleware: (getDefaultMiddleware) =>
