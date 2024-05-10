@@ -16,3 +16,4 @@ favicon.ico
 /services/*/Dockerfile
 /services/*/.next
 *.svg
+pnpm-lock.yaml
