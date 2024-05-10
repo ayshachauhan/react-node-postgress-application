@@ -257,7 +257,7 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
 
     console.log(calendar, date, formattedDate, 'findcal');
 
-    return Boolean(calendar.maxSlots >= calendar.bookedSlots)
+    return calendar.maxSlots >= calendar.bookedSlots
       ? {
           backgroundColor: calendar.surgeryConfiguration.color,
           borderTopColor: calendar.surgeryConfiguration.color,
