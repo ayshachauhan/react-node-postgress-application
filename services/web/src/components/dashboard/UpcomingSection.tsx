@@ -47,7 +47,7 @@ const UpcomingSection: React.FC = () => {
    * @param cellValue number
    */
   const appendAddSign = (cellValue: number): string => {
-    return '+' + cellValue;
+    return cellValue > 0 ? '+' + cellValue : cellValue.toString();
   };
 
   /**
@@ -57,7 +57,7 @@ const UpcomingSection: React.FC = () => {
    */
   const maxCellStyle = (availableSlots: number): Record<string, string> => {
     const isMax = availableSlots === DEFAULT_MAX_SLOTS;
-    const isRed = availableSlots === 0;
+    const isRed = availableSlots <= 0;
     const isGreen = availableSlots > 0;
 
     const cssObject = {

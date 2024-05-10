@@ -254,13 +254,21 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
 
     console.log(calendar, date, formattedDate, 'findcal');
 
-    return Boolean(calendar.maxSlots - calendar.bookedSlots)
+    return Boolean(calendar.maxSlots >= calendar.bookedSlots)
       ? {
           backgroundColor: calendar.surgeryConfiguration.color,
+          borderTopColor: calendar.surgeryConfiguration.color,
+          borderBottomColor: calendar.surgeryConfiguration.color,
+          borderRightColor: calendar.surgeryConfiguration.color,
+          borderLeftColor: calendar.surgeryConfiguration.color,
         }
       : {
           backgroundColor: 'transparent',
-          outline: `${calendar.surgeryConfiguration.color} solid`,
+          outline: `${calendar.surgeryConfiguration.color} solid 3px`,
+          borderTopColor: calendar.surgeryConfiguration.color,
+          borderBottomColor: calendar.surgeryConfiguration.color,
+          borderRightColor: calendar.surgeryConfiguration.color,
+          borderLeftColor: calendar.surgeryConfiguration.color,
         };
   };
 
@@ -650,11 +658,15 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
                     overrides={{
                       Day: {
                         style: ({ $date }) => ({
-                          marginTop: '2px',
-                          marginBottom: '2px',
-                          marginLeft: '2px',
-                          marginRight: '2px',
+                          height: '53px',
+                          width: '53px',
+                          borderRadius: '50%',
+                          boxSizing: 'border-box',
+                          paddingTop: '6px',
+                          paddingBottom: '6px',
+                          color: '#000000',
                           ...getBackGroundColorCss($date),
+                          ':after': '',
                         }),
                       },
                     }}
