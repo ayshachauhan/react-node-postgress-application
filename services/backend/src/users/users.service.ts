@@ -325,20 +325,4 @@ export class UsersService {
       relations: ['practices'],
     });
   }
-
-  async updateUserSurgeries({ id, surgeryEntity }): Promise<UserEntity | null> {
-    const existingUser = await this.usersRepository.findOne({
-      where: { id },
-      relations: ['practices', 'permissions', 'surgeries'],
-    });
-
-    if (existingUser) {
-      existingUser.surgeries.push(surgeryEntity);
-      await this.usersRepository.save(existingUser);
-    }
-    return await this.usersRepository.findOne({
-      where: { id },
-      relations: ['practices', 'permissions', 'surgeries'],
-    });
-  }
 }

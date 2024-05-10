@@ -64,7 +64,6 @@ export const ResetPassword: React.FC<Props> = ({
   }, [practiceId]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    console.log('inhandlesubmit', userInfo, userInfo?.practices);
     e.preventDefault();
     if (userInfo && userInfo.practices) {
       const payload: ChangePasswordInterface = {

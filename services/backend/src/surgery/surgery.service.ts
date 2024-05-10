@@ -111,11 +111,6 @@ export class SurgeryService {
       doctor: doctorEntity,
     });
 
-    await this.userService.updateUserSurgeries({
-      id: doctorEntity?.id,
-      surgeryEntity: resultSurgery,
-    });
-
     // Read the HTML file content
     const htmlFilePath = path.join(
       __dirname,
