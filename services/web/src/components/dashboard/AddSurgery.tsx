@@ -255,9 +255,7 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
         moment(calendar.date).format('YYYY-MM-DD') === formattedDate,
     ) as ICalendar;
 
-    console.log(calendar, date, formattedDate, 'findcal');
-
-    return calendar.maxSlots >= calendar.bookedSlots
+    return calendar.maxSlots > calendar.bookedSlots
       ? {
           backgroundColor: calendar.surgeryConfiguration.color,
           borderTopColor: calendar.surgeryConfiguration.color,
@@ -668,6 +666,7 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
                           paddingTop: '6px',
                           paddingBottom: '6px',
                           color: '#000000',
+                          margin: '2px',
                           ...getBackGroundColorCss($date),
                           ':after': '',
                         }),
