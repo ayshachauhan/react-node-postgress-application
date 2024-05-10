@@ -13,6 +13,7 @@ import {
   clearSuccessMessage as clearEvalSuccessMessage,
   fetchListings as fetchEvalsList,
 } from '@root/store/reducers/evals';
+
 import { fetchListings as fetchInsuranceTypesList } from '@root/store/reducers/insuranceTypes';
 import { fetchListings as fetchPracticeHomesListing } from '@root/store/reducers/practiceHomes';
 import { fetchListings as fetchReferrerList } from '@root/store/reducers/referrer';
@@ -20,6 +21,7 @@ import {
   clearSuccessMessage as clearSurgerySuccessMessage,
   fetchListings as fetchSurgeryList,
 } from '@root/store/reducers/surgery';
+import { fetchListings as fetchSurgeryConfigurationsListing } from '@root/store/reducers/surgeryConfigurations';
 import { fetchListings as fetchSurgeryTypesListing } from '@root/store/reducers/surgeryTypes';
 import { fetchListings as fetchUsersList } from '@root/store/reducers/users';
 import { SanitizedUser } from '@root/store/types';
@@ -50,6 +52,7 @@ const DashboardPage: React.FC = () => {
       dispatch(fetchSurgeryTypesListing({ practiceId }));
       dispatch(fetchReferrerList({ practiceId }));
       dispatch(fetchUsersList({ practiceId }));
+      dispatch(fetchSurgeryConfigurationsListing({ practiceId }));
     }
   }, [practiceId, dispatch]);
 
@@ -60,6 +63,7 @@ const DashboardPage: React.FC = () => {
         dispatch(fetchSurgeryList({ practiceId }));
         dispatch(clearSurgerySuccessMessage());
         dispatch(clearEvalSuccessMessage());
+        dispatch(fetchSurgeryConfigurationsListing({ practiceId }));
       }
     }
   }, [addSurgerySuccessMessage, addEvalSuccessMessage, dispatch]);
@@ -101,38 +105,6 @@ const DashboardPage: React.FC = () => {
     Object.values(state.users.entities),
   );
 
-  // const evalsList: IEval[] = useAppSelector((state) =>
-  //   Object.values(state.evals.entities),
-  // );
-
-  // const surgeryList: ISurgery[] = useAppSelector((state) =>
-  //   Object.values(state.surgeries.entities),
-  // );
-
-  // const mergedList = [...evalsList, ...surgeryList];
-  // const modifyEvalList = mergedList
-  //   .map((ele, index) => {
-  //     const viewData = {
-  //       firstName: ele.patient.firstName,
-  //       lastName: ele.patient.lastName,
-  //       mrn: ele.patient.mrn,
-  //       email: ele.patient.email,
-  //       phoneNumber: ele.patient.phoneNumber,
-  //       date: usDateFormatter(ele.date),
-  //       surgeryTypeName: ele.surgeryType.name,
-  //       practiceHomeName: ele.practiceHome.name,
-  //       insuranceDetails: ele.insuranceDetails,
-  //       insuranceTypeName: ele.insuranceType ? ele.insuranceType?.name : '',
-  //       pcp: '',
-  //       referrer: ele.patient.referrer ? ele.patient.referrer.email : '',
-  //       details: ele.patient.details ? ele.patient.details : '',
-  //       eye: ele.eye,
-  //       index: index + 1,
-  //     };
-
-  //     return viewData;
-  //   })
-  //   .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const FormModal = () => {
     return (

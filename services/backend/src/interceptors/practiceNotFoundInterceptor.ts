@@ -19,10 +19,12 @@ export class practiceNotFoundInterceptor<T>
   ): Promise<Observable<T | T[]>> {
     const request = context.switchToHttp().getRequest();
     const practiceId = request.params.practiceId;
+
     const practiceEntity = await this.practicesService.findOne(practiceId);
     if (!practiceEntity) {
       throw new NotFoundException('Practice not found');
     }
+
     request.practiceEntity = practiceEntity;
     return next.handle();
   }

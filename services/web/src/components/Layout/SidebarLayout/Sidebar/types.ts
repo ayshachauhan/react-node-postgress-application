@@ -82,9 +82,23 @@ export const sidebarItems: SideBarItem[] = [
   {
     id: 'setting',
     title: 'Settings',
-    path: '/settings',
+    path: '#',
     permissions: ['admin'],
     Icon: SettingIcon,
+    child: [
+      {
+        id: 'configuration',
+        title: 'Configuration',
+        path: '/settings/configurations',
+        permissions: ['admin'],
+      },
+      {
+        id: 'modularDesign',
+        title: 'Modular Fields',
+        path: '/settings/modularFields',
+        permissions: ['admin'],
+      },
+    ],
   },
 ];
 
