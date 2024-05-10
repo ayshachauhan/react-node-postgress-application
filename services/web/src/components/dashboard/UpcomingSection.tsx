@@ -287,7 +287,7 @@ const UpcomingSection: React.FC = () => {
           ))}
         </div>
       </div>
-      <div className="mt-2 flex justify-between overflow-x-auto text-xs">
+      <div className="mt-2 flex gap-5 overflow-x-auto text-xs">
         {splitCalendarData(filteredCalendars).map(
           (calendar: CalendarData[], index: number) => (
             <div className="border-r-4 border-gray-200 pr-4 flex" key={index}>

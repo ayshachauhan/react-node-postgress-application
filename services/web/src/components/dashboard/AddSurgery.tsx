@@ -3,6 +3,7 @@ import { ICalendar } from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
 import { useAppDispatch, useAppSelector } from '@root/store';
+import { fetchCalendars } from '@root/store/reducers/calendar';
 import { addRecordAsync as addSurgeryRecord } from '@root/store/reducers/surgery';
 import { getPracticeId, toFullName } from '@utils/index';
 import { Checkbox } from 'baseui/checkbox';
@@ -206,6 +207,8 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
           totalProfessionalPricing: 0,
         }),
       );
+
+      dispatch(fetchCalendars({ practiceId, userId: doctorId }));
 
       try {
         setFirstName('');
