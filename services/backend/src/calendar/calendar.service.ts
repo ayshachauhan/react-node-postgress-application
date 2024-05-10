@@ -22,7 +22,6 @@ import {
   GetCalendarByIdParams,
   GetCalendarBySurgeryTypeIdParams,
   GetCalendarsParams,
-  UpdateCalendarParams,
 } from './types';
 
 @Injectable()
@@ -139,10 +138,11 @@ export class CalendarService {
    * @param param1
    * @returns CalendarEntity | null
    */
-  async updateCalendar(
-    { id }: UpdateCalendarParams,
-    { maxSlots, bookedSlots }: UpdateCalendarDto,
-  ): Promise<CalendarEntity | null> {
+  async updateCalendar({
+    maxSlots,
+    bookedSlots,
+    id,
+  }: UpdateCalendarDto & { id: string }): Promise<CalendarEntity | null> {
     if (maxSlots && bookedSlots) {
       if (maxSlots < bookedSlots) {
         throw new HttpException(

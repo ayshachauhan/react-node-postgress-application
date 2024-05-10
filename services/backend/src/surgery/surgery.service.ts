@@ -1,8 +1,9 @@
 import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
-import { SurgeryEntity } from '@packages/entities';
+import { ICalendar, SurgeryEntity } from '@packages/entities';
 import { PatientEntity } from '@packages/entities/patient';
+import moment from 'moment';
 import Mail from 'nodemailer/lib/mailer';
 import { ENVIRONMENT_VARIABLES } from 'src/enums/environment.enums';
 import { InsuranceTypesService } from 'src/insuranceTypes/insuranceTypes.service';
@@ -15,6 +16,7 @@ import { TransporterService } from 'src/transporter';
 import { SystemTemplates } from 'src/transporter/transporter.types';
 import { UsersService } from 'src/users/users.service';
 import { In, Repository } from 'typeorm';
+import { CalendarService } from '../calendar/calendar.service';
 import { PatientMailData } from './types';
 
 @Injectable()
@@ -36,6 +38,8 @@ export class SurgeryService {
     private surgeryConfigurationService: SurgeryConfigurationsService,
     @Inject(forwardRef(() => UsersService))
     private userService: UsersService,
+    @Inject(forwardRef(() => CalendarService))
+    private calendarService: CalendarService,
     private readonly configService: ConfigService,
     private readonly transporterService: TransporterService,
   ) {}
@@ -119,6 +123,50 @@ export class SurgeryService {
       surgeryConfiguration: surgeryConfigurationEntity,
     });
 
+    // first create surgery in every case and then find if calendar exist for that date or not by using surgeryconfiguration
+    // if exist then update the slots otherwise create one entry for that surgeryname in calendar
+    // if for that date another surgery is booked and user selected some other surgery we will update the calendar slots values for that date
+
+    // ques - if yag is selected for the lasik surgery date then should lasik slots be updated, because we can't make new entry for the same date in calendar already lasik is there for that date
+
+    console.log(createSurgeryDto.date, 'dtodate');
+
+    if (surgeryConfigurationEntity && practiceEntity && doctorEntity) {
+      const calendars = await this.calendarService.getAllCalendars({
+        practiceId: practiceEntity?.id,
+        userId: doctorEntity?.id,
+      });
+
+      console.log(calendars, 'calendars');
+
+      const selectedCalendar = calendars.find(
+        (calendar: ICalendar) =>
+          moment(calendar.date).format('YYYY-MM-DD') ===
+          moment(createSurgeryDto.date).format('YYYY-MM-DD'),
+      );
+
+      console.log(selectedCalendar, 'selectedcalendar');
+
+      if (selectedCalendar) {
+        await this.calendarService.updateCalendar({
+          id: selectedCalendar.id,
+          bookedSlots: selectedCalendar.bookedSlots + 1,
+        });
+      } else {
+        await this.calendarService.createCalendar(
+          {
+            practiceId: practiceEntity.id,
+            userId: doctorEntity.id,
+          },
+          {
+            date: createSurgeryDto.date,
+            bookedSlots: 1,
+            maxSlots: 14,
+            surgeryConfigurationId: surgeryConfigurationEntity.id,
+          },
+        );
+      }
+    }
     const mailOptions: Mail.Options = {
       to: createSurgeryDto.email,
       subject: 'Eval/surgery registered',
