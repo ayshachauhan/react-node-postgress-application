@@ -48,7 +48,7 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
   const [bodyPart, setBodyPart] = useState<string>('');
   const [referrerId, setReferrerId] = useState<string>('');
   const [doctorId, setDoctorId] = useState<string | null>(getSelectedUserId);
-  const [surgeryDate, SetSurgeryDate] = useState<Date>(new Date());
+  const [surgeryDate, SetSurgeryDate] = useState<Date | null>(null);
   const [pcp, setPcp] = useState('');
   const [notes, setNotes] = useState('');
   const [checkboxes, setCheckboxes] = React.useState([true, false]);
@@ -189,7 +189,7 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
           firstName,
           lastName,
           email,
-          date: surgeryDate,
+          date: surgeryDate ?? new Date(),
           phoneNumber,
           mrn,
           practiceHomeId,
@@ -245,7 +245,7 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
     const dates = (calendars as ICalendar[])
       .filter(
         (calendar: ICalendar) =>
-          moment(calendar.date).format('YYYY-MM-DD') >
+          moment(calendar.date).format('YYYY-MM-DD') >=
           moment(new Date()).format('YYYY-MM-DD'),
       )
       .map((calendar) => moment(calendar.date).format('YYYY-MM-DD'));

@@ -215,6 +215,7 @@ const UpcomingSection: React.FC = () => {
         <ModalBody>
           <UpsertCalendar
             onClose={handleCloseModal}
+            //@ts-expect-error sending date as null
             calendarData={
               isUpdating
                 ? filteredCalendars
@@ -223,7 +224,7 @@ const UpcomingSection: React.FC = () => {
                       id: '',
                       maxSlots: DEFAULT_MAX_SLOTS,
                       bookedSlots: 0,
-                      date: new Date(),
+                      date: null,
                       surgeryName: selectedSurgery?.name
                         .charAt(0)
                         .toUpperCase() as string,
