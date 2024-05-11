@@ -233,6 +233,12 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
     onClose();
   };
 
+  const [currentMonth, setCurrentMonth] = useState(new Date().getMonth() + 1);
+
+  const handleMonthChange = ({ date }) => {
+    setCurrentMonth(date.getMonth() + 1);
+  };
+
   const isCalendarDates = (date: Date): boolean => {
     const formattedDate = moment(date).format('YYYY-MM-DD'); // Get date part only
 
@@ -265,7 +271,7 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
         }
       : {
           backgroundColor: 'transparent',
-          outline: `${calendar.surgeryConfiguration.color} solid 3px`,
+          border: `${calendar.surgeryConfiguration.color} solid 3px`,
           borderTopColor: calendar.surgeryConfiguration.color,
           borderBottomColor: calendar.surgeryConfiguration.color,
           borderRightColor: calendar.surgeryConfiguration.color,
@@ -274,10 +280,15 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
   };
 
   const getBackGroundColorCss = (date: Date): Record<string, unknown> => {
-    return isCalendarDates(date)
-      ? isSlotsAvailable(date)
-      : { backgroundColor: 'transparent' };
+    // checking selected month here because sometimes bgcolors are refelcring in next month
+    return date.getMonth() + 1 == currentMonth
+      ? isCalendarDates(date)
+        ? isSlotsAvailable(date)
+        : { backgroundColor: 'transparent' }
+      : {};
   };
+
+  console.log(currentMonth, 'currmonth');
 
   return (
     <div>
@@ -656,20 +667,30 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
                     onChange={({ date }) => SetSurgeryDate(date)}
                     placeholder="Surgery Date"
                     required
+                    onMonthChange={handleMonthChange}
                     overrides={{
                       Day: {
-                        style: ({ $date }) => ({
-                          height: '53px',
-                          width: '53px',
-                          borderRadius: '50%',
-                          boxSizing: 'border-box',
-                          paddingTop: '6px',
-                          paddingBottom: '6px',
-                          color: '#000000',
-                          margin: '2px',
-                          ...getBackGroundColorCss($date),
-                          ':after': '',
-                        }),
+                        style: ({ $date, $selected }) => {
+                          return {
+                            height: '53px',
+                            width: '53px',
+                            borderRadius: '50%',
+                            boxSizing: 'border-box',
+                            paddingTop: '6px',
+                            paddingBottom: '6px',
+                            margin: '2px',
+                            ...getBackGroundColorCss($date),
+                            ':after': '',
+                            ...($selected
+                              ? {
+                                  color: '#ffffff',
+                                  ...($date.getMonth() + 1 == currentMonth
+                                    ? { backgroundColor: '#000000' }
+                                    : {}),
+                                }
+                              : {}),
+                          };
+                        },
                       },
                     }}
                     minDate={new Date()}
