@@ -1,5 +1,5 @@
 'use client';
-import { IInsuranceType } from '@packages/entities';
+import { IInsuranceType } from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import { AddIcon, DeleteIcon } from '@root/components/Icons';
 import AddPracticeHome from '@root/components/settings/configurationSettings/insuranceTypes/addInsuranceType';

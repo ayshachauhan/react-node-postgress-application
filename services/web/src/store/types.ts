@@ -9,8 +9,7 @@ import {
   ISurgeryConfiguration,
   ISurgeryType,
   IUser,
-} from '@packages/entities';
-import {} from '@packages/entities/index.browser';
+} from '@packages/entities/index.browser';
 import { PracticesGetInterface } from 'src/store/requests/practices';
 import { GetUserResponse } from './requests/login/types';
 

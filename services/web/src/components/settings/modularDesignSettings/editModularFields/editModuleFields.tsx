@@ -1,7 +1,7 @@
 import {
   CreateSurgeryConfigurationPayload,
   ISurgeryConfiguration,
-} from '@packages/entities';
+} from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import { AddIcon, CloseIcon } from '@root/components/Icons';
 import TextInput from '@root/components/TextInput';

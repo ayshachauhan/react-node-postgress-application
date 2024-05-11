@@ -1,4 +1,4 @@
-import { ISurgery } from '@packages/entities';
+import { ISurgery } from '@packages/entities/index.browser';
 import { HomeIcon, RoundIcon } from '@root/components/Icons';
 import { useAppSelector } from '@root/store';
 import { usDateFormatter } from '@root/utils';

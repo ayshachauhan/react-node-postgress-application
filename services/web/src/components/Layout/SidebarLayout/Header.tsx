@@ -1,6 +1,6 @@
 'use client';
 
-import { UserType } from '@packages/entities';
+import { UserType } from '@packages/entities/index.browser';
 import Dropdown from '@root/components/Dropdown';
 import { AvatarIcon } from '@root/components/Icons';
 import { State, useAppDispatch, useAppSelector } from '@root/store';
