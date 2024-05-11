@@ -123,29 +123,18 @@ export class SurgeryService {
       surgeryConfiguration: surgeryConfigurationEntity,
     });
 
-    // first create surgery in every case and then find if calendar exist for that date or not by using surgeryconfiguration
-    // if exist then update the slots otherwise create one entry for that surgeryname in calendar
-    // if for that date another surgery is booked and user selected some other surgery we will update the calendar slots values for that date
-
-    // ques - if yag is selected for the lasik surgery date then should lasik slots be updated, because we can't make new entry for the same date in calendar already lasik is there for that date
-
-    console.log(createSurgeryDto.date, 'dtodate');
-
+    // upsert calendar after creating surgery
     if (surgeryConfigurationEntity && practiceEntity && doctorEntity) {
       const calendars = await this.calendarService.getAllCalendars({
         practiceId: practiceEntity?.id,
         userId: doctorEntity?.id,
       });
 
-      console.log(calendars, 'calendars');
-
       const selectedCalendar = calendars.find(
         (calendar: ICalendar) =>
           moment(calendar.date).format('YYYY-MM-DD') ===
           moment(createSurgeryDto.date).format('YYYY-MM-DD'),
       );
-
-      console.log(selectedCalendar, 'selectedcalendar');
 
       if (selectedCalendar) {
         await this.calendarService.updateCalendar({
