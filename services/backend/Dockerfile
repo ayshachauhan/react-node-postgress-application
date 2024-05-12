@@ -5,7 +5,7 @@ WORKDIR /app
 
 # Create a new image for production dependencies
 FROM base as prod-deps
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --prod --frozen-lockfile
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 
 # Create build image for building the web
 FROM base AS build
