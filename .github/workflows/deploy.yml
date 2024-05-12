@@ -103,6 +103,9 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
+      - name: version
+        run: node ./scripts/version.js
+
       - name: Load .env file
         uses: aarcangeli/load-dotenv@v1.0.0
         with:
@@ -116,12 +119,11 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: azentia-backend-image-repository
         run: |
-          VERSION_TAG=(node ./scripts/version.js)
-          echo "VERSION_TAG: $VERSION_TAG"
+          echo $VERSION_TAG
           echo $ECR_REGISTRY/$ECR_REPOSITORY:$VERSION_TAG
-          docker tag azentia_backend:latest $ECR_REGISTRY/$ECR_REPOSITORY:$TAG
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$TAG
-          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$TAG"
+          docker tag azentia_backend:latest $ECR_REGISTRY/$ECR_REPOSITORY:$VERSION_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$VERSION_TAG
+          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$VERSION_TAG"
 
       - name: tag and push web docker image
         id: push_web_image
@@ -129,12 +131,11 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: azentia-web-image-repository
         run: |
-          VERSION_TAG=(node ./scripts/version.js)
-          echo "VERSION_TAG: $VERSION_TAG"
+          echo $VERSION_TAG
           echo $ECR_REGISTRY/$ECR_REPOSITORY:$VERSION_TAG
-          docker tag azentia_web:latest $ECR_REGISTRY/$ECR_REPOSITORY:$TAG
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$TAG
-          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$TAG"
+          docker tag azentia_web:latest $ECR_REGISTRY/$ECR_REPOSITORY:$VERSION_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$VERSION_TAG
+          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$VERSION_TAG"
 
 
       - name: Terraform generate workspace
