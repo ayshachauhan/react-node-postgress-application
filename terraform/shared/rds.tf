@@ -7,7 +7,7 @@ resource "aws_db_instance" "main" {
   apply_immediately    = true
   engine               = "postgres"
   engine_version       = "16.1"
-  instance_class       = "db.t2.micro"
+  instance_class       = "db.t4g.micro"
   storage_type         = "gp2"
 
   allocated_storage            = 20
