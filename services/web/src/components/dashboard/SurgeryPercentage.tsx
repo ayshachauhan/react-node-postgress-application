@@ -1,49 +1,96 @@
 'use client';
+import { ICalendar } from '@packages/entities/index.browser';
 import { useAppSelector } from '@root/store';
-import { getPracticeId, getUserId } from '@root/utils';
 import React from 'react';
-// import {
-//   ICalendar
-// } from '@packages/entities/index.browser';
 
 export type CalendarData = {
-  id: string;
-  date: Date;
   maxSlots: number;
   bookedSlots: number;
-  surgeryName: string;
-  surgeryNameColor: string;
 };
 
 const SurgeryPercentage: React.FC = () => {
-  console.log(getUserId(), 'getuser');
-  const selectedDoctorId = getUserId();
-  console.log(selectedDoctorId, 'doctor');
-  const practiceId = getPracticeId();
-  console.log(practiceId);
-  const { surgeryConfigurations } = useAppSelector((state) => ({
+  const { calendars, surgeryConfigurations } = useAppSelector((state) => ({
     calendars: Object.values(state.calendars.entities),
     surgeryConfigurations: Object.values(state.surgeryConfigurations.entities),
   }));
-  // const upcomingDates: CalendarData[] = calendars
-  //   .filter(
-  //     (data: ICalendar) => data.surgeryConfiguration.id === selectedSurgery?.id,
-  //   )
-  //   .map((data: ICalendar) => ({
-  //     maxSlots: data.maxSlots,
-  //     bookedSlots: data.bookedSlots,
-  //   }));
-  //   console.log(upcomingDates)
 
-  const surgeryPercentage = surgeryConfigurations.map((config, index) => ({
+  function calculateSurgeryPercentageForRange(
+    rangeInMonths: number | 'all',
+  ): { name: string; id: string; percentage: number }[] {
+    const today = new Date();
+    const surgeryPercentage: {
+      name: string;
+      id: string;
+      percentage: number;
+    }[] = [];
+
+    surgeryConfigurations.forEach((config) => {
+      const selectedSurgeryId = config.id;
+      let matchingDates: CalendarData[] = [];
+
+      if (rangeInMonths === 'all') {
+        matchingDates = calendars
+          .filter(
+            (data: ICalendar) =>
+              data.surgeryConfiguration.id === selectedSurgeryId,
+          )
+          .map((data: ICalendar) => ({
+            maxSlots: data.maxSlots,
+            bookedSlots: data.bookedSlots,
+          }));
+      } else {
+        const endDate = new Date(
+          today.getFullYear(),
+          today.getMonth() + rangeInMonths,
+          today.getDate(),
+        );
+        matchingDates = calendars
+          .filter((data: ICalendar) => {
+            const calendarDate = new Date(data.date);
+            return (
+              data.surgeryConfiguration.id === selectedSurgeryId &&
+              calendarDate >= today &&
+              calendarDate <= endDate
+            );
+          })
+          .map((data: ICalendar) => ({
+            maxSlots: data.maxSlots,
+            bookedSlots: data.bookedSlots,
+          }));
+      }
+
+      const totalMaxSlots = matchingDates.reduce(
+        (acc, cur) => acc + cur.maxSlots,
+        0,
+      );
+      const totalBookedSlots = matchingDates.reduce(
+        (acc, cur) => acc + cur.bookedSlots,
+        0,
+      );
+      const percentage =
+        totalMaxSlots !== 0 ? (totalBookedSlots / totalMaxSlots) * 100 : 0;
+
+      surgeryPercentage.push({
+        name: config.name,
+        id: selectedSurgeryId,
+        percentage: percentage,
+      });
+    });
+
+    return surgeryPercentage;
+  }
+
+  const surgeryPercentageData = surgeryConfigurations.map((config) => ({
     name: config.name,
-    percentage: `${index + 10}`, // Example percentage based on index
     id: config.id,
+    percentages: [1, 2, 3, 6, 12, 'all'].map((range) => ({
+      range: range,
+      percentage:
+        calculateSurgeryPercentageForRange(range).find(
+          (surgery) => surgery.id === config.id,
+        )?.percentage || 0,
+    })),
   }));
-
-  const appendPercentageSign = (cellValue: string) => {
-    return cellValue + '%';
-  };
 
   return (
     <div>
@@ -52,7 +99,7 @@ const SurgeryPercentage: React.FC = () => {
         <hr className="h-px my-2.5 bg-gray-100 border-1 border-gray-100"></hr>
       </div>
       <div className="mt-2 text-xs overflow-x-auto">
-        <div className="text-gray-50 w-full items-center bg-gray-50 rounded-lg">
+        <div className="text-gray-50 w-full items-center rounded-lg">
           <div className="bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 flex">
             <div className="font-bold text-white p-4 w-20">Surgery</div>
             <div className="font-bold text-white p-4 w-10">1</div>
@@ -62,35 +109,35 @@ const SurgeryPercentage: React.FC = () => {
             <div className="font-bold text-white p-4 w-10">12</div>
             <div className="font-bold text-white p-4 w-10">All</div>
           </div>
-          {surgeryPercentage.map((surgery, index) => (
+          {surgeryPercentageData.map((surgery, index) => (
             <React.Fragment key={surgery.id}>
               <div
                 className={`flex ${
-                  index !== surgeryPercentage.length - 1
+                  index !== surgeryPercentageData.length - 1
                     ? 'border-b border-gray-300'
                     : ''
                 }`}
               >
-                <div className="text-black bg-gray-50 pt-2 pb-2 px-4 w-20">
+                <div className="text-black pt-2 pb-2 px-4 w-20">
                   {surgery.name}
                 </div>
-                <div className="text-black bg-gray-50 pt-2 pb-2 px-4 w-10">
-                  {appendPercentageSign(surgery.percentage)}
+                <div className="text-black pt-2 pb-2 px-4 w-10">
+                  {surgery?.percentages[0].percentage.toFixed(0)}%
                 </div>
-                <div className="text-black bg-gray-50 pt-2 pb-2 px-4 w-10">
-                  {appendPercentageSign(surgery.percentage)}
+                <div className="text-black pt-2 pb-2 px-4 w-10">
+                  {surgery?.percentages[1].percentage.toFixed(0)}%
                 </div>
-                <div className="text-black bg-gray-50 pt-2 pb-2 px-4 w-10">
-                  {appendPercentageSign(surgery.percentage)}
+                <div className="text-black pt-2 pb-2 px-4 w-10">
+                  {surgery?.percentages[2].percentage.toFixed(0)}%
                 </div>
-                <div className="text-black bg-gray-50 pt-2 pb-2 px-4 w-10">
-                  {appendPercentageSign(surgery.percentage)}
+                <div className="text-black pt-2 pb-2 px-4 w-10">
+                  {surgery?.percentages[3].percentage.toFixed(0)}%
                 </div>
-                <div className="text-black bg-gray-50 pt-2 pb-2 px-4 w-10">
-                  {appendPercentageSign(surgery.percentage)}
+                <div className="text-black pt-2 pb-2 px-4 w-10">
+                  {surgery?.percentages[4].percentage.toFixed(0)}%
                 </div>
-                <div className="text-black bg-gray-50 pt-2 pb-2 px-4 w-10">
-                  {appendPercentageSign(surgery.percentage)}
+                <div className="text-black pt-2 pb-2 px-4 w-10">
+                  {surgery?.percentages[5].percentage.toFixed(0)}%
                 </div>
               </div>
             </React.Fragment>
