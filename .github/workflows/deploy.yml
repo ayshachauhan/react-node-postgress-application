@@ -56,7 +56,8 @@ jobs:
   build:
     name: build and push docker images
     runs-on: ubuntu-latest
-
+    needs:
+      - create-shared-infra
     steps:
       - name: Checkout
         uses: actions/checkout@v4
