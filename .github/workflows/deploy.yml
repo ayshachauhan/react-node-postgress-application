@@ -114,7 +114,7 @@ jobs:
         id: generate-version
         run: |
           node ./scripts/version.js
-          echo "::set-output name=tag::VERSION_TAG"
+          echo "::set-output name=tag::$VERSION_TAG"
 
       - name: List docker images
         run: |
@@ -147,7 +147,6 @@ jobs:
 
       - name: Terraform generate workspace
         run: |
-          source .env
           node ./scripts/start.js
 
       - name: Setup Terraform
