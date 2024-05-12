@@ -62,7 +62,7 @@ resource "aws_ecs_service" "azentia_service" {
   force_new_deployment = true
 
   load_balancer {
-    target_group_arn = aws_lb_target_group.azentia_push_target_group.arn # Referencing our target group
+    target_group_arn = aws_alb_target_group.microservice.arn # Referencing our target group
     container_name   = aws_ecs_task_definition.azentia_task.family
     container_port   = var.port # Specifying the container port
   }
@@ -85,7 +85,7 @@ resource "aws_security_group" "service_security_group" {
     to_port   = 0
     protocol  = "-1"
     # Only allowing traffic in from the load balancer security group
-    security_groups = ["${aws_security_group.load_balancer_security_group.id}"]
+    security_groups = ["${var.load_balancer_security_group_id}"]
   }
 
   egress {

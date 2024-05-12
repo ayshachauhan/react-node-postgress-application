@@ -33,5 +33,20 @@ variable "aws_region" {
   description = "The AWS region resources are created in."
 }
 
+variable "host_names" {
+  description = "The host name for the microservice, e.g. `cerberus.useparagon.com`."
+  type        = list(string)
+}
+
+variable "alb_listeners" {
+  description = "The listeners for the application load balancer for the environment."
+  type        = map(any)
+}
+
+variable "load_balancer_security_group_id" {
+  description = "service you want to deploy"
+}
+
+
 
 

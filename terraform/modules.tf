@@ -16,10 +16,14 @@ module "azentia-backend" {
   environment_variables = var.environment_variables
   cluster_id            = module.shared.cluster_id
   aws_region            = var.aws_region
+  alb_listeners           = module.shared.alb_listeners
+  load_balancer_security_group_id = module.shared.load_balancer_security_group_id
 
   environment_variables_override = {
     DB_HOST = module.shared.rds_endpoint
   }
+
+  host_names = ["api-qa-azentia.anakshiant.in"]
 }
 
 
@@ -33,6 +37,10 @@ module "azentia-web" {
   environment_variables = var.environment_variables
   cluster_id            = module.shared.cluster_id
   aws_region            = var.aws_region
+  alb_listeners           = module.shared.alb_listeners
+  load_balancer_security_group_id = module.shared.load_balancer_security_group_id
 
   environment_variables_override = {}
+
+  host_names = ["qa-azentia.anakshiant.in"]
 }
