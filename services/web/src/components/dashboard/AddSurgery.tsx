@@ -1,12 +1,17 @@
-import { SelectedSurgeryOption } from '@packages/entities';
+import {
+  ICalendar,
+  SelectedSurgeryOption,
+} from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
 import { useAppDispatch, useAppSelector } from '@root/store';
+import { fetchCalendars } from '@root/store/reducers/calendar';
 import { addRecordAsync as addSurgeryRecord } from '@root/store/reducers/surgery';
 import { getPracticeId, toFullName } from '@utils/index';
 import { Checkbox } from 'baseui/checkbox';
 import { DatePicker } from 'baseui/datepicker';
 import { Select } from 'baseui/select';
+import moment from 'moment';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 
@@ -14,8 +19,13 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
   onClose,
   items,
 }) => {
-  const { practiceHomesList, insuranceTypesList, referrersList, usersList } =
-    items;
+  const {
+    practiceHomesList,
+    insuranceTypesList,
+    referrersList,
+    usersList,
+    calendars,
+  } = items;
 
   const SELECTED_DOCTOR_KEY: string = 'SELECTED_DOCTOR';
   const getSelectedUserId: string | null =
@@ -40,7 +50,7 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
   const [bodyPart, setBodyPart] = useState<string>('');
   const [referrerId, setReferrerId] = useState<string>('');
   const [doctorId, setDoctorId] = useState<string | null>(getSelectedUserId);
-  const [surgeryDate, SetSurgeryDate] = useState<Date>(new Date());
+  const [surgeryDate, SetSurgeryDate] = useState<Date | null>(null);
   const [pcp, setPcp] = useState('');
   const [notes, setNotes] = useState('');
   const [checkboxes, setCheckboxes] = React.useState([true, false]);
@@ -181,7 +191,7 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
           firstName,
           lastName,
           email,
-          date: surgeryDate,
+          date: surgeryDate ?? new Date(),
           phoneNumber,
           mrn,
           practiceHomeId,
@@ -199,6 +209,8 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
           totalProfessionalPricing: 0,
         }),
       );
+
+      dispatch(fetchCalendars({ practiceId, userId: doctorId }));
 
       try {
         setFirstName('');
@@ -222,6 +234,63 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
     router.refresh();
     onClose();
   };
+
+  const [currentMonth, setCurrentMonth] = useState(new Date().getMonth() + 1);
+
+  const handleMonthChange = ({ date }) => {
+    setCurrentMonth(date.getMonth() + 1);
+  };
+
+  const isCalendarDates = (date: Date): boolean => {
+    const formattedDate = moment(date).format('YYYY-MM-DD'); // Get date part only
+
+    const dates = (calendars as ICalendar[])
+      .filter(
+        (calendar: ICalendar) =>
+          moment(calendar.date).format('YYYY-MM-DD') >=
+          moment(new Date()).format('YYYY-MM-DD'),
+      )
+      .map((calendar) => moment(calendar.date).format('YYYY-MM-DD'));
+
+    return Boolean(dates.find((date) => date === formattedDate));
+  };
+
+  const isSlotsAvailable = (date: Date): Record<string, unknown> => {
+    const formattedDate = moment(date).format('YYYY-MM-DD'); // Get date part only
+
+    const calendar = (calendars as ICalendar[]).find(
+      (calendar: ICalendar) =>
+        moment(calendar.date).format('YYYY-MM-DD') === formattedDate,
+    ) as ICalendar;
+
+    return calendar.maxSlots > calendar.bookedSlots
+      ? {
+          backgroundColor: calendar.surgeryConfiguration.color,
+          borderTopColor: calendar.surgeryConfiguration.color,
+          borderBottomColor: calendar.surgeryConfiguration.color,
+          borderRightColor: calendar.surgeryConfiguration.color,
+          borderLeftColor: calendar.surgeryConfiguration.color,
+        }
+      : {
+          backgroundColor: 'transparent',
+          border: `${calendar.surgeryConfiguration.color} solid 3px`,
+          borderTopColor: calendar.surgeryConfiguration.color,
+          borderBottomColor: calendar.surgeryConfiguration.color,
+          borderRightColor: calendar.surgeryConfiguration.color,
+          borderLeftColor: calendar.surgeryConfiguration.color,
+        };
+  };
+
+  const getBackGroundColorCss = (date: Date): Record<string, unknown> => {
+    // checking selected month here because sometimes bgcolors are refelcring in next month
+    return date.getMonth() + 1 == currentMonth
+      ? isCalendarDates(date)
+        ? isSlotsAvailable(date)
+        : { backgroundColor: 'transparent' }
+      : {};
+  };
+
+  console.log(currentMonth, 'currmonth');
 
   return (
     <div>
@@ -600,6 +669,33 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
                     onChange={({ date }) => SetSurgeryDate(date)}
                     placeholder="Surgery Date"
                     required
+                    onMonthChange={handleMonthChange}
+                    overrides={{
+                      Day: {
+                        style: ({ $date, $selected }) => {
+                          return {
+                            height: '53px',
+                            width: '53px',
+                            borderRadius: '50%',
+                            boxSizing: 'border-box',
+                            paddingTop: '6px',
+                            paddingBottom: '6px',
+                            margin: '2px',
+                            ...getBackGroundColorCss($date),
+                            ':after': '',
+                            ...($selected
+                              ? {
+                                  color: '#ffffff',
+                                  ...($date.getMonth() + 1 == currentMonth
+                                    ? { backgroundColor: '#000000' }
+                                    : {}),
+                                }
+                              : {}),
+                          };
+                        },
+                      },
+                    }}
+                    minDate={new Date()}
                   />
                 </div>
               </div>

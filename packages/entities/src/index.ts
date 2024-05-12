@@ -1,4 +1,5 @@
 export * from './base.entity';
+export * from './calendar';
 export * from './eval';
 export * from './insuranceType';
 export * from './media';

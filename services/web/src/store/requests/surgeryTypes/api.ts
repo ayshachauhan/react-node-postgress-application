@@ -1,4 +1,4 @@
-import { SurgeryType } from '@packages/entities';
+import { SurgeryType } from '@packages/entities/index.browser';
 import Cookies from 'js-cookie';
 import { publicRuntimeConfig } from 'next.config';
 const { API_BASE_URL } = publicRuntimeConfig;

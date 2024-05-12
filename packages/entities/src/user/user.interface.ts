@@ -33,17 +33,5 @@ export enum UserStatus {
   INACTIVE = 'inactive',
   PENDING = 'pending',
 }
-export interface ISanitizedUser extends IBaseEntity {
-  email: string;
-  userName: string;
-  firstName: string;
-  lastName: string;
-  fullName: string;
-  url: string;
-  status: UserStatus;
-  type: UserType;
-  contactNumber: string;
-  practices: IPractice[];
-  permissions: IPermission[];
-  surgeries: ISurgery[];
-}
+
+export type ISanitizedUser = Omit<IUser, 'password'>;

@@ -9,6 +9,7 @@ import { PracticesModule } from 'src/practices/practices.module';
 import { SurgeryConfigurationsModule } from 'src/surgeryConfiguration/surgeryConfiguration.module';
 import { SurgeryTypesModule } from 'src/surgeryTypes/surgeryTypes.module';
 import { UsersModule } from 'src/users/users.module';
+import { CalendarModule } from '../calendar/calendar.module';
 import { SurgeryController } from './surgery.controller';
 import { SurgeryService } from './surgery.service';
 
@@ -22,6 +23,7 @@ import { SurgeryService } from './surgery.service';
     forwardRef(() => InsuranceTypesModule),
     forwardRef(() => SurgeryConfigurationsModule),
     forwardRef(() => UsersModule),
+    forwardRef(() => CalendarModule),
   ],
   providers: [
     practiceNotFoundInterceptor,

@@ -4,8 +4,8 @@ import {
   IReferrer,
   ISurgery,
   ISurgeryConfiguration,
-} from '@packages/entities';
-import { ISurgeryType } from '@packages/entities/index.browser';
+  ISurgeryType,
+} from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import { AddIcon, DeleteIcon, EditIcon } from '@root/components/Icons';
 import Form from '@root/components/dashboard/AddSurgery';
