@@ -110,23 +110,13 @@ jobs:
           filenames: |
             .env
 
-      - name: Generate version
-        id: generate-version
-        run: |
-          node ./scripts/version.js
-          echo "::set-output name=tag::$VERSION_TAG"
-
-      - name: List docker images
-        run: |
-          docker image ls
-
       - name: tag and push backend docker image
         id: push_backend_image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: azentia-backend-image-repository
-          TAG: ${{ steps.generate-version.outputs.tag }}
         run: |
+          VERSION_TAG=(node ./scripts/version.js)
           echo $ECR_REGISTRY/$ECR_REPOSITORY:$VERSION_TAG
           docker tag azentia_backend:latest $ECR_REGISTRY/$ECR_REPOSITORY:$TAG
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$TAG
@@ -137,9 +127,9 @@ jobs:
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: azentia-web-image-repository
-          TAG: ${{ steps.generate-version.outputs.tag }}
         run: |
-          echo $ECR_REGISTRY/$ECR_REPOSITORY:$TAG
+          VERSION_TAG=(node ./scripts/version.js)
+          echo $ECR_REGISTRY/$ECR_REPOSITORY:$VERSION_TAG
           docker tag azentia_web:latest $ECR_REGISTRY/$ECR_REPOSITORY:$TAG
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$TAG
           echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$TAG"
