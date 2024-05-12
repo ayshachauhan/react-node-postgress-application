@@ -116,6 +116,10 @@ jobs:
           node ./scripts/version.js
           echo "::set-output name=tag::VERSION_TAG"
 
+      - name: List docker images
+        run: |
+          docker image ls
+
       - name: tag and push backend docker image
         id: push_backend_image
         env:
