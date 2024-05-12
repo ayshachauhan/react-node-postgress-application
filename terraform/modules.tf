@@ -16,7 +16,7 @@ module "azentia-backend" {
   environment_variables = var.environment_variables
   cluster_id            = module.shared.cluster_id
   aws_region            = var.aws_region
-  
+
   environment_variables_override = {
     DB_HOST = module.shared.rds_endpoint
   }
