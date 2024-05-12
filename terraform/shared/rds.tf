@@ -1,0 +1,27 @@
+resource "aws_db_instance" "main" {
+  identifier = "azentia-infra-${var.environment}-db"
+  port       = "5432"
+  username   = lookup(var.environment_variables, "DB_USERNAME")
+  password   = lookup(var.environment_variables, "DB_PASSWORD")
+  db_name    = lookup(var.environment_variables, "DB_DATABASE")
+  apply_immediately    = true
+  engine               = "postgres"
+  engine_version       = "16.1"
+  instance_class       = "db.t2.micro"
+  storage_type         = "gp2"
+
+  allocated_storage            = 20
+  max_allocated_storage        = 50
+  backup_retention_period      = 3
+  performance_insights_enabled = false
+  monitoring_interval          = 0
+
+  # db_subnet_group_name      = aws_db_subnet_group.postgres_public.id
+  # vpc_security_group_ids    = [aws_security_group.postgres_public.id]
+  storage_encrypted         = false
+
+  tags = {
+    Name = "azentia-infra-${var.environment}-db"
+    Creator = "Terraform"
+  }
+}
