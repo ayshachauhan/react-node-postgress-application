@@ -9,14 +9,14 @@ module "shared" {
 module "azentia-backend" {
   source = "./service"
 
-  environment           = var.environment
-  image_tag             = var.image_tag
-  service               = "backend"
-  port                  = 80
-  environment_variables = var.environment_variables
-  cluster_id            = module.shared.cluster_id
-  aws_region            = var.aws_region
-  alb_listeners           = module.shared.alb_listeners
+  environment                     = var.environment
+  image_tag                       = var.image_tag
+  service                         = "backend"
+  port                            = 80
+  environment_variables           = var.environment_variables
+  cluster_id                      = module.shared.cluster_id
+  aws_region                      = var.aws_region
+  alb_listeners                   = module.shared.alb_listeners
   load_balancer_security_group_id = module.shared.load_balancer_security_group_id
 
   environment_variables_override = {
@@ -30,14 +30,14 @@ module "azentia-backend" {
 module "azentia-web" {
   source = "./service"
 
-  environment           = var.environment
-  image_tag             = var.image_tag
-  service               = "web"
-  port                  = 80
-  environment_variables = var.environment_variables
-  cluster_id            = module.shared.cluster_id
-  aws_region            = var.aws_region
-  alb_listeners           = module.shared.alb_listeners
+  environment                     = var.environment
+  image_tag                       = var.image_tag
+  service                         = "web"
+  port                            = 80
+  environment_variables           = var.environment_variables
+  cluster_id                      = module.shared.cluster_id
+  aws_region                      = var.aws_region
+  alb_listeners                   = module.shared.alb_listeners
   load_balancer_security_group_id = module.shared.load_balancer_security_group_id
 
   environment_variables_override = {}
