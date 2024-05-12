@@ -61,16 +61,6 @@ export class PatientsService {
     return await this.patientRepository.save(newPatient);
   }
 
-  async update({ id, practiceId }): Promise<PatientEntity | null> {
-    await this.patientRepository.update(id, {
-      //  ÷
-    });
-
-    return await this.patientRepository.findOne({
-      where: { id, practice: { id: practiceId } },
-    });
-  }
-
   async getUsersByPractice(practiceId: string): Promise<PatientEntity[]> {
     return this.patientRepository.find({
       where: { practice: { id: practiceId } },

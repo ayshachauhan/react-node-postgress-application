@@ -18,6 +18,10 @@ export class AddSurgeryConfigurationDto {
 
   @ApiProperty()
   checkList: SurgeryChecklist;
+
+  @IsNotEmpty({ message: 'Color is required' })
+  @ApiProperty()
+  color: string;
 }
 
 export class UpdateSurgeryConfigurationDto {

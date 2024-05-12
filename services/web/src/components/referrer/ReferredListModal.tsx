@@ -2,7 +2,11 @@
 import BaseUIModal from '@root/components/BaseUiModal/BaseUiModal';
 import ReferedPatients from '@root/components/referrer/ReferedPatients';
 
-const ReferredListModal = ({ isListModalOpen, handleCloseListModal }) => {
+const ReferredListModal = ({
+  isListModalOpen,
+  referrerId,
+  handleCloseListModal,
+}) => {
   return (
     <BaseUIModal
       isOpen={isListModalOpen}
@@ -16,7 +20,7 @@ const ReferredListModal = ({ isListModalOpen, handleCloseListModal }) => {
         },
       }}
     >
-      <ReferedPatients />
+      <ReferedPatients referrerId={referrerId} />
     </BaseUIModal>
   );
 };

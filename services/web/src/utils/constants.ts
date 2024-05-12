@@ -41,3 +41,5 @@ export const monthOptions = [
   { label: 'November', value: '11', id: '11' },
   { label: 'December', value: '12', id: '12' },
 ];
+
+export const DEFAULT_SURGERYNAME_COLOR = '#299479';

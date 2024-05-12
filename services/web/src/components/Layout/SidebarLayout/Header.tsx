@@ -1,6 +1,6 @@
 'use client';
 
-import { UserType } from '@packages/entities';
+import { UserType } from '@packages/entities/index.browser';
 import Dropdown from '@root/components/Dropdown';
 import { AvatarIcon } from '@root/components/Icons';
 import { State, useAppDispatch, useAppSelector } from '@root/store';
@@ -13,12 +13,10 @@ import {
 import { getPracticeInfo } from '@root/store/reducers/practices';
 import { fetchListings } from '@root/store/reducers/users';
 import { SanitizedUser } from '@root/store/types';
-import { getPracticeId } from '@utils/index';
+import { SELECTED_DOCTOR_KEY, getPracticeId } from '@utils/index';
 import { ChevronDown } from 'baseui/icon';
 import { usePathname, useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
-
-const SELECTED_DOCTOR_KEY: string = 'SELECTED_DOCTOR';
 
 const Header: React.FC = () => {
   const dispatch = useAppDispatch();
