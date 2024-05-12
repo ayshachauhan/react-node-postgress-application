@@ -37,9 +37,15 @@ jobs:
           SECRET_NAME: ${{ github.event.inputs.environment }}
           OUTPUT_PATH: '.env' # optional
 
+      - name: Load .env file
+        uses: aarcangeli/load-dotenv@v1.0.0
+        with:
+          path: './'
+          filenames: |
+            .env
+
       - name: Terraform generate workspace
         run: |
-          source .env
           node ./scripts/start.js
 
       - name: Setup Terraform
@@ -97,10 +103,16 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
+      - name: Load .env file
+        uses: aarcangeli/load-dotenv@v1.0.0
+        with:
+          path: './'
+          filenames: |
+            .env
+
       - name: Generate version
         id: generate-version
         run: |
-          source .env
           node ./scripts/version.js
           echo "::set-output name=tag::VERSION_TAG"
 
