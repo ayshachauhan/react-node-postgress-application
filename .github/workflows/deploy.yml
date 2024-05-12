@@ -127,7 +127,7 @@ jobs:
           ECR_REPOSITORY: azentia-backend-image-repository
           TAG: ${{ steps.generate-version.outputs.tag }}
         run: |
-          echo $ECR_REGISTRY/$ECR_REPOSITORY:$TAG
+          echo $ECR_REGISTRY/$ECR_REPOSITORY:$VERSION_TAG
           docker tag azentia_backend:latest $ECR_REGISTRY/$ECR_REPOSITORY:$TAG
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$TAG
           echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$TAG"
