@@ -14,6 +14,7 @@ resource "aws_db_instance" "main" {
   max_allocated_storage        = 50
   backup_retention_period      = 3
   performance_insights_enabled = false
+  publicly_accessible          = true
   monitoring_interval          = 0
 
   # db_subnet_group_name      = aws_db_subnet_group.postgres_public.id
