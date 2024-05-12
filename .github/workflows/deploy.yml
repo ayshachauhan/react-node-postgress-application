@@ -128,7 +128,7 @@ jobs:
           TAG: ${{ steps.generate-version.outputs.tag }}
         run: |
           echo $ECR_REGISTRY/$ECR_REPOSITORY:$TAG
-          docker tag azentia-backend:latest $ECR_REGISTRY/$ECR_REPOSITORY:$TAG
+          docker tag azentia_backend:latest $ECR_REGISTRY/$ECR_REPOSITORY:$TAG
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$TAG
           echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$TAG"
 
@@ -140,7 +140,7 @@ jobs:
           TAG: ${{ steps.generate-version.outputs.tag }}
         run: |
           echo $ECR_REGISTRY/$ECR_REPOSITORY:$TAG
-          docker tag azentia-web:latest $ECR_REGISTRY/$ECR_REPOSITORY:$TAG
+          docker tag azentia_web:latest $ECR_REGISTRY/$ECR_REPOSITORY:$TAG
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$TAG
           echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$TAG"
 
