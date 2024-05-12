@@ -117,6 +117,7 @@ jobs:
           ECR_REPOSITORY: azentia-backend-image-repository
         run: |
           VERSION_TAG=(node ./scripts/version.js)
+          echo "VERSION_TAG: $VERSION_TAG"
           echo $ECR_REGISTRY/$ECR_REPOSITORY:$VERSION_TAG
           docker tag azentia_backend:latest $ECR_REGISTRY/$ECR_REPOSITORY:$TAG
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$TAG
@@ -129,6 +130,7 @@ jobs:
           ECR_REPOSITORY: azentia-web-image-repository
         run: |
           VERSION_TAG=(node ./scripts/version.js)
+          echo "VERSION_TAG: $VERSION_TAG"
           echo $ECR_REGISTRY/$ECR_REPOSITORY:$VERSION_TAG
           docker tag azentia_web:latest $ECR_REGISTRY/$ECR_REPOSITORY:$TAG
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$TAG
