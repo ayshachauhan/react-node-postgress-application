@@ -5,7 +5,7 @@ function getVersion() {
   const version = pack.version;
   const environment = process.env.ENVIRONMENT;
   const hash = execSync('git rev-parse HEAD').toString();
-  execSync(`export VERSION_TAG=${environment}-${version}-${hash.trim('')}`);
+  process.env.VERSION_TAG = `${environment}-${version}-${hash.trim('')}`;
   return `${environment}-${version}-${hash.trim('')}`;
 }
 
