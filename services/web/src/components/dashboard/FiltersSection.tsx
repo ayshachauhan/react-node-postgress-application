@@ -116,20 +116,21 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
 
       ele.selectedCheckListOptions &&
         Object.keys(ele.selectedCheckListOptions).forEach((data) => {
-          console.log(data);
-          console.log(ele.selectedCheckListOptions);
-
           viewData[data] = ele.selectedCheckListOptions[data].value;
         });
-      console.log(viewData);
 
-      const modifiedObjKey: string =
-        modifiedDate + ' - ' + ele.surgeryConfiguration.name;
+      const modifiedObjKey: string = ele.surgeryConfiguration.name;
 
       if (modifiedObj[modifiedObjKey]) {
-        modifiedObj[modifiedObjKey].push(viewData);
+        if (modifiedObj[modifiedObjKey][modifiedDate]) {
+          modifiedObj[modifiedObjKey][modifiedDate].push(viewData);
+        } else {
+          modifiedObj[modifiedObjKey][modifiedDate] = [viewData];
+        }
       } else {
-        modifiedObj[modifiedObjKey] = [viewData];
+        modifiedObj[modifiedObjKey] = {
+          [modifiedDate]: [viewData],
+        };
       }
 
       return viewData;
@@ -352,313 +353,342 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
           {Object.keys(modifiedObj).map((key, index) => {
             const ele = modifiedObj[key];
 
-            const separateKey: string[] = key.split(' - ');
-
             const customOptionsHeaders: string[] =
-              surgeryOptionsHeadersObj[separateKey[1]].surgeryOptionsHeaders;
+              surgeryOptionsHeadersObj[key].surgeryOptionsHeaders;
             const customCheckListHeaders: string[] =
-              surgeryOptionsHeadersObj[separateKey[1]].checkListHeaders;
+              surgeryOptionsHeadersObj[key].checkListHeaders;
+
             return (
               <div key={index} className="w-max">
                 <div
-                  className={`border-solid px-2.5 py-0.5 text-white text-sm font-normal ${
+                  className={`border-solid px-2.5 py-0.5 text-white text-base font-normal   ${
                     index == 0 ? 'rounded-t-lg' : ''
                   }`}
                   style={{ backgroundColor: 'rgba(53, 165, 118, 1)' }}
                 >
-                  {`${separateKey[1] + ' ---- ' + separateKey[0]}/2024 - ${
-                    ele.length
-                  } cases (${14} Max)`}
+                  {key}
                 </div>
-                <div className="bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 flex gap-2  px-2.5 text-xs">
-                  <div className="font-bold text-white py-1 px-1 w-20">
-                    Date
-                  </div>
-                  <div className="font-bold text-white py-1 px-1 w-10">
-                    <HomeIcon></HomeIcon>
-                  </div>
-                  <div className="font-bold text-white py-1 px-1 w-20">
-                    Status
-                  </div>
-                  <div className="font-bold text-white py-1 px-1 w-20">
-                    Last Name
-                  </div>
-                  <div className="font-bold text-white py-1 px-1 w-20">
-                    First Name
-                  </div>
-                  <div className="font-bold text-white py-1 px-1 w-20">MRN</div>
-
-                  <div className="font-bold text-white py-1 px-1 w-20">
-                    Surgery
-                  </div>
-                  <div className="font-bold text-white py-1 px-1 w-20">
-                    Body Part
-                  </div>
-                  {customOptionsHeaders.map(
-                    (optionsHeader, optionsHeaderIndex) => (
+                {Object.keys(ele).map((date, dateIndex) => {
+                  return (
+                    <div key={dateIndex}>
                       <div
-                        className="font-bold text-white py-1 px-1 w-20"
-                        key={optionsHeaderIndex}
-                      >
-                        {optionsHeader}
-                      </div>
-                    ),
-                  )}
-                  <div className="font-bold text-white py-1 px-1 w-20">
-                    Notes
-                  </div>
-                  <div className="font-bold text-white py-1 px-1 w-20">#</div>
-                  {customCheckListHeaders.map(
-                    (checkListHeader, checkListHeaderIndex) => (
-                      <div
-                        className="font-bold text-white py-1 px-1 w-20"
-                        key={checkListHeaderIndex}
-                      >
-                        {checkListHeader}
-                      </div>
-                    ),
-                  )}
-                  <div className="font-bold text-white py-1 px-1 w-20">
-                    Prof
-                  </div>
-                  <div className="font-bold text-white py-1 px-1 w-20">
-                    Hospital
-                  </div>
-                  <div className="font-bold text-white py-1 px-1 w-20">
-                    Insurance
-                  </div>
-                  <div className="font-bold text-white py-1 px-1 w-40">
-                    Action
-                  </div>
-                </div>
-                {ele.map((row, index) =>
-                  selectedRow === row.id &&
-                  selectedAction == 'edit' &&
-                  surgeryInfo ? (
-                    <EditableRow
-                      key={row.id}
-                      handleCancelClick={handleCancelClick}
-                      customHeaders={surgeryOptionsHeadersObj}
-                      surgeryInfo={surgeryInfo}
-                      setSelectedAction={setSelectedAction}
-                    />
-                  ) : (
-                    <>
-                      <div
-                        key={row.id}
-                        id={row.id}
-                        className={`div-clone flex gap-2 px-2.5 text-xs items-center ${
-                          index !== ele.length - 1
-                            ? 'border-b border-gray-300'
-                            : ''
+                        className={`border-solid px-2.5 py-0 text-white text-sm font-normal ${
+                          index == 0 ? 'rounded-t-lg' : ''
                         }`}
-                      >
-                        <div className="text-black  py-0.5 px-1 w-20">
-                          {row.date}
+                        style={{ backgroundColor: 'rgba(53, 165, 118, 1)' }}
+                      ></div>
+                      <div className="bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 flex gap-2  px-2.5 text-xs">
+                        <div className="font-bold text-white py-1 px-1 w-20">
+                          Date
                         </div>
-                        <div className="text-black py-0.5 px-1 w-10">
-                          {row.home[0]}
+                        <div className="font-bold text-white py-1 px-1 w-10">
+                          <HomeIcon></HomeIcon>
                         </div>
-                        <div className="text-gray-900 py-2 px-0.5 flex text-center items-center w-20">
-                          <div className="rounded-md text-white p-1 bg-indigo-500">
-                            {row.status}
-                          </div>
+                        <div className="font-bold text-white py-1 px-1 w-20">
+                          Status
                         </div>
-                        <div className="text-black py-0.5 px-1 overflow-hidden whitespace-nowrap w-20">
-                          {row.lastName}
+                        <div className="font-bold text-white py-1 px-1 w-20">
+                          Last Name
                         </div>
-                        <div className="text-black py-0.5 px-1 overflow-hidden whitespace-nowrap w-20">
-                          {row.firstName}
+                        <div className="font-bold text-white py-1 px-1 w-20">
+                          First Name
                         </div>
-                        <div className="text-black py-0.5 px-1 overflow-hidden whitespace-nowrap w-20">
-                          {row.mrn}
-                        </div>
-                        <div className="text-black py-0.5 px-1 overflow-hidden whitespace-nowrap w-20">
-                          {row.surgery}
-                        </div>
-                        <div className="text-black py-0.5 px-1 w-20">
-                          {row.bodyPart}
+                        <div className="font-bold text-white py-1 px-1 w-20">
+                          MRN
                         </div>
 
+                        <div className="font-bold text-white py-1 px-1 w-20">
+                          Surgery
+                        </div>
+                        <div className="font-bold text-white py-1 px-1 w-20">
+                          Body Part
+                        </div>
                         {customOptionsHeaders.map(
                           (optionsHeader, optionsHeaderIndex) => (
                             <div
-                              className="text-black py-0.5 px-1 w-20"
+                              className="font-bold text-white py-1 px-1 w-20"
                               key={optionsHeaderIndex}
                             >
-                              {row[optionsHeader]}
+                              {optionsHeader}
                             </div>
                           ),
                         )}
-                        <div className="text-black py-0.5 px-1 w-20">
-                          {row.details}
+                        <div className="font-bold text-white py-1 px-1 w-20">
+                          Notes
                         </div>
-                        <div className="text-black py-0.5 px-1 w-20">
-                          {row.hash}
+                        <div className="font-bold text-white py-1 px-1 w-20">
+                          #
                         </div>
                         {customCheckListHeaders.map(
                           (checkListHeader, checkListHeaderIndex) => (
                             <div
-                              className=" text-black py-0.5px-1 w-20"
+                              className="font-bold text-white py-1 px-1 w-20"
                               key={checkListHeaderIndex}
                             >
-                              {row[checkListHeader]}
+                              {checkListHeader}
                             </div>
                           ),
                         )}
-                        <div className="text-black py-0.5 px-1 w-20">
-                          {row.prof}
+                        <div className="font-bold text-white py-1 px-1 w-20">
+                          Prof
                         </div>
-                        <div className="text-black py-0.5 px-1 w-20">
-                          {row.hospital}
+                        <div className="font-bold text-white py-1 px-1 w-20">
+                          Hospital
                         </div>
-                        <div className="text-black py-0.5 px-1 w-20">
-                          {row.insurance}
+                        <div className="font-bold text-white py-1 px-1 w-20">
+                          Insurance
                         </div>
-                        <div className="text-black py-0.5 px-1 w-40">
-                          {actionIcons(row.id)}
+                        <div className="font-bold text-white py-1 px-1 w-40">
+                          Action
                         </div>
                       </div>
-                      {selectedRow === row.id &&
-                        selectedSurgery &&
-                        selectedAction == 'view' && (
-                          <div className="flex gap-2 p-2.5 text-xs">
-                            <div className="flex-1">
-                              <p>
-                                <span className="font-bold">Date: </span>
-                                <span>{selectedSurgery.date}</span>
-                              </p>
-                              <p>
-                                <span className="font-bold">
-                                  Home Location:{' '}
-                                </span>
-                                <span>Westwood</span>
-                              </p>
-                              <p>
-                                <span className="font-bold">
-                                  COVID Testing Status:{' '}
-                                </span>
-                                <span>Needs COVID Test </span>
-                              </p>
-                              <p>
-                                <span className="font-bold">
-                                  Appointment Status:{' '}
-                                </span>
-                                <span>{selectedSurgery.status}</span>
-                              </p>
-                              <p>
-                                <span className="font-bold">Calcs: </span>
-                                <span>{selectedSurgery.calcs}</span>
-                              </p>
+                      {ele[date].map((row, index) =>
+                        selectedRow === row.id &&
+                        selectedAction == 'edit' &&
+                        surgeryInfo ? (
+                          <EditableRow
+                            key={row.id}
+                            handleCancelClick={handleCancelClick}
+                            customHeaders={surgeryOptionsHeadersObj}
+                            surgeryInfo={surgeryInfo}
+                            setSelectedAction={setSelectedAction}
+                          />
+                        ) : (
+                          <>
+                            <div
+                              key={row.id}
+                              id={row.id}
+                              className={`div-clone flex gap-2 px-2.5 text-xs items-center ${
+                                index !== ele.length - 1
+                                  ? 'border-b border-gray-300'
+                                  : ''
+                              }`}
+                            >
+                              <div className="text-black  py-0.5 px-1 w-20">
+                                {row.date}
+                              </div>
+                              <div className="text-black py-0.5 px-1 w-10">
+                                {row.home[0]}
+                              </div>
+                              <div className="text-gray-900 py-2 px-0.5 flex text-center items-center w-20">
+                                <div className="rounded-md text-white p-1 bg-indigo-500">
+                                  {row.status}
+                                </div>
+                              </div>
+                              <div className="text-black py-0.5 px-1 overflow-hidden whitespace-nowrap w-20">
+                                {row.lastName}
+                              </div>
+                              <div className="text-black py-0.5 px-1 overflow-hidden whitespace-nowrap w-20">
+                                {row.firstName}
+                              </div>
+                              <div className="text-black py-0.5 px-1 overflow-hidden whitespace-nowrap w-20">
+                                {row.mrn}
+                              </div>
+                              <div className="text-black py-0.5 px-1 overflow-hidden whitespace-nowrap w-20">
+                                {row.surgery}
+                              </div>
+                              <div className="text-black py-0.5 px-1 w-20">
+                                {row.bodyPart}
+                              </div>
+
+                              {customOptionsHeaders.map(
+                                (optionsHeader, optionsHeaderIndex) => (
+                                  <div
+                                    className="text-black py-0.5 px-1 w-20"
+                                    key={optionsHeaderIndex}
+                                  >
+                                    {row[optionsHeader]}
+                                  </div>
+                                ),
+                              )}
+                              <div className="text-black py-0.5 px-1 w-20">
+                                {row.details}
+                              </div>
+                              <div className="text-black py-0.5 px-1 w-20">
+                                {row.hash}
+                              </div>
+                              {customCheckListHeaders.map(
+                                (checkListHeader, checkListHeaderIndex) => (
+                                  <div
+                                    className=" text-black py-0.5px-1 w-20"
+                                    key={checkListHeaderIndex}
+                                  >
+                                    {row[checkListHeader]}
+                                  </div>
+                                ),
+                              )}
+                              <div className="text-black py-0.5 px-1 w-20">
+                                {row.prof}
+                              </div>
+                              <div className="text-black py-0.5 px-1 w-20">
+                                {row.hospital}
+                              </div>
+                              <div className="text-black py-0.5 px-1 w-20">
+                                {row.insurance}
+                              </div>
+                              <div className="text-black py-0.5 px-1 w-40">
+                                {actionIcons(row.id)}
+                              </div>
                             </div>
-                            <div className="flex-1">
-                              <p>
-                                <span className="font-bold">Last Name: </span>
-                                <span>{selectedSurgery.firstName}</span>
-                              </p>
-                              <p>
-                                <span className="font-bold">First Name: </span>
-                                <span>{selectedSurgery.lastName}</span>
-                              </p>
-                              <p>
-                                <span className="font-bold">MRN: </span>
-                                <span>{selectedSurgery.mrn}</span>
-                              </p>
-                              <p>
-                                <span className="font-bold">Eye: </span>
-                                <span>{selectedSurgery.bodyPart}</span>
-                              </p>
-                              <p>
-                                <span className="font-bold">Auth: </span>
-                                <span>{selectedSurgery.auth}</span>
-                              </p>
-                            </div>
-                            <div className="flex-1">
-                              <p>
-                                <span className="font-bold">Surgery: </span>
-                                <span>{selectedSurgery.surgery}</span>
-                              </p>
-                              <p>
-                                <span className="font-bold">AM: </span>
-                                <span>{selectedSurgery.am}</span>
-                              </p>
-                              <p>
-                                <span className="font-bold">Femto: </span>
-                                <span>{selectedSurgery.femto}</span>
-                              </p>
-                              <p>
-                                <span className="font-bold">ORA: </span>
-                                <span>{selectedSurgery.ora}</span>
-                              </p>
-                              <p>
-                                <span className="font-bold">H&P: </span>
-                                <span>{selectedSurgery.hp}</span>
-                              </p>
-                            </div>
-                            <div className="flex-1">
-                              <p>
-                                <span className="font-bold">Lens: </span>
-                                <span>{selectedSurgery.lens}</span>
-                              </p>
-                              <p>
-                                <span className="font-bold">Implant: </span>
-                                <span>{selectedSurgery.implant}</span>
-                              </p>
-                              <p>
-                                <span className="font-bold">Details: </span>
-                                <span>{selectedSurgery.details}</span>
-                              </p>
-                              <p>
-                                <span className="font-bold">#: </span>
-                                <span>{selectedSurgery.hash}</span>
-                              </p>
-                            </div>
-                            <div className="flex-1">
-                              <p>
-                                <span className="font-bold">Prof: </span>
-                                <span>{selectedSurgery.prof}</span>
-                              </p>
-                              <p>
-                                <span className="font-bold">Hospital: </span>
-                                <span>{selectedSurgery.hospital}</span>
-                              </p>
-                              <p>
-                                <span className="font-bold">Insurance: </span>
-                                <span>{selectedSurgery.insurance}</span>
-                              </p>
-                              <p>
-                                <span className="font-bold">Consent: </span>
-                                <span>{selectedSurgery.consent}</span>
-                              </p>
-                              <p>
-                                <span className="font-bold">
-                                  Contact Info:{' '}
-                                </span>
-                                <span>rfq@fantasticaltech.enigm</span>
-                              </p>
-                              <p>
-                                <span>(246) 276 9618</span>
-                              </p>
-                            </div>
-                          </div>
-                        )}
-                      {selectedRow === row.id &&
-                        clonedDivs.length > 0 &&
-                        selectedAction == 'clone' && (
-                          <div className="border border-red-400 w-max text-xs">
-                            {clonedDivs.map((clonedDivHTML, index) => (
-                              <div
-                                key={index}
-                                dangerouslySetInnerHTML={{
-                                  __html: clonedDivHTML,
-                                }}
-                              />
-                            ))}
-                          </div>
-                        )}
-                    </>
-                  ),
-                )}
+                            {selectedRow === row.id &&
+                              selectedSurgery &&
+                              selectedAction == 'view' && (
+                                <div className="flex gap-2 p-2.5 text-xs">
+                                  <div className="flex-1">
+                                    <p>
+                                      <span className="font-bold">Date: </span>
+                                      <span>{selectedSurgery.date}</span>
+                                    </p>
+                                    <p>
+                                      <span className="font-bold">
+                                        Home Location:{' '}
+                                      </span>
+                                      <span>Westwood</span>
+                                    </p>
+                                    <p>
+                                      <span className="font-bold">
+                                        COVID Testing Status:{' '}
+                                      </span>
+                                      <span>Needs COVID Test </span>
+                                    </p>
+                                    <p>
+                                      <span className="font-bold">
+                                        Appointment Status:{' '}
+                                      </span>
+                                      <span>{selectedSurgery.status}</span>
+                                    </p>
+                                    <p>
+                                      <span className="font-bold">Calcs: </span>
+                                      <span>{selectedSurgery.calcs}</span>
+                                    </p>
+                                  </div>
+                                  <div className="flex-1">
+                                    <p>
+                                      <span className="font-bold">
+                                        Last Name:{' '}
+                                      </span>
+                                      <span>{selectedSurgery.firstName}</span>
+                                    </p>
+                                    <p>
+                                      <span className="font-bold">
+                                        First Name:{' '}
+                                      </span>
+                                      <span>{selectedSurgery.lastName}</span>
+                                    </p>
+                                    <p>
+                                      <span className="font-bold">MRN: </span>
+                                      <span>{selectedSurgery.mrn}</span>
+                                    </p>
+                                    <p>
+                                      <span className="font-bold">Eye: </span>
+                                      <span>{selectedSurgery.bodyPart}</span>
+                                    </p>
+                                    <p>
+                                      <span className="font-bold">Auth: </span>
+                                      <span>{selectedSurgery.auth}</span>
+                                    </p>
+                                  </div>
+                                  <div className="flex-1">
+                                    <p>
+                                      <span className="font-bold">
+                                        Surgery:{' '}
+                                      </span>
+                                      <span>{selectedSurgery.surgery}</span>
+                                    </p>
+                                    <p>
+                                      <span className="font-bold">AM: </span>
+                                      <span>{selectedSurgery.am}</span>
+                                    </p>
+                                    <p>
+                                      <span className="font-bold">Femto: </span>
+                                      <span>{selectedSurgery.femto}</span>
+                                    </p>
+                                    <p>
+                                      <span className="font-bold">ORA: </span>
+                                      <span>{selectedSurgery.ora}</span>
+                                    </p>
+                                    <p>
+                                      <span className="font-bold">H&P: </span>
+                                      <span>{selectedSurgery.hp}</span>
+                                    </p>
+                                  </div>
+                                  <div className="flex-1">
+                                    <p>
+                                      <span className="font-bold">Lens: </span>
+                                      <span>{selectedSurgery.lens}</span>
+                                    </p>
+                                    <p>
+                                      <span className="font-bold">
+                                        Implant:{' '}
+                                      </span>
+                                      <span>{selectedSurgery.implant}</span>
+                                    </p>
+                                    <p>
+                                      <span className="font-bold">
+                                        Details:{' '}
+                                      </span>
+                                      <span>{selectedSurgery.details}</span>
+                                    </p>
+                                    <p>
+                                      <span className="font-bold">#: </span>
+                                      <span>{selectedSurgery.hash}</span>
+                                    </p>
+                                  </div>
+                                  <div className="flex-1">
+                                    <p>
+                                      <span className="font-bold">Prof: </span>
+                                      <span>{selectedSurgery.prof}</span>
+                                    </p>
+                                    <p>
+                                      <span className="font-bold">
+                                        Hospital:{' '}
+                                      </span>
+                                      <span>{selectedSurgery.hospital}</span>
+                                    </p>
+                                    <p>
+                                      <span className="font-bold">
+                                        Insurance:{' '}
+                                      </span>
+                                      <span>{selectedSurgery.insurance}</span>
+                                    </p>
+                                    <p>
+                                      <span className="font-bold">
+                                        Consent:{' '}
+                                      </span>
+                                      <span>{selectedSurgery.consent}</span>
+                                    </p>
+                                    <p>
+                                      <span className="font-bold">
+                                        Contact Info:{' '}
+                                      </span>
+                                      <span>rfq@fantasticaltech.enigm</span>
+                                    </p>
+                                    <p>
+                                      <span>(246) 276 9618</span>
+                                    </p>
+                                  </div>
+                                </div>
+                              )}
+                            {selectedRow === row.id &&
+                              clonedDivs.length > 0 &&
+                              selectedAction == 'clone' && (
+                                <div className="border border-red-400 w-max text-xs">
+                                  {clonedDivs.map((clonedDivHTML, index) => (
+                                    <div
+                                      key={index}
+                                      dangerouslySetInnerHTML={{
+                                        __html: clonedDivHTML,
+                                      }}
+                                    />
+                                  ))}
+                                </div>
+                              )}
+                          </>
+                        ),
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             );
           })}

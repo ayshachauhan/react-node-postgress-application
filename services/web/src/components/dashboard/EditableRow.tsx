@@ -9,7 +9,6 @@ import { SIZE, Select } from 'baseui/select';
 import React, { useState } from 'react';
 
 function EditableRow({
-  // handleEditFormChange,
   handleCancelClick,
   customHeaders,
   surgeryInfo,

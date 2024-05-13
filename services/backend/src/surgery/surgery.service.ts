@@ -1,7 +1,11 @@
 import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ICalendar, SurgeryEntity } from '@packages/entities';
+import {
+  ICalendar,
+  SelectedSurgeryOption,
+  SurgeryEntity,
+} from '@packages/entities';
 import { PatientEntity } from '@packages/entities/patient';
 import moment from 'moment';
 import Mail from 'nodemailer/lib/mailer';
@@ -120,6 +124,13 @@ export class SurgeryService {
       await this.surgeryConfigurationService.getSurgeryConfigurationById(
         createSurgeryDto.surgeryConfigurationId,
       );
+    const optionsArr: SelectedSurgeryOption[] = Object.values(
+      createSurgeryDto.selectedSurgeryOptions,
+    );
+    optionsArr.forEach((option) => {
+      createSurgeryDto.totalHospitalPricing += +option.hospitalPricing;
+      createSurgeryDto.totalProfessionalPricing += +option.professionalPricing;
+    });
 
     const resultSurgery = await this.surgeryRepository.save({
       ...newSurgery,

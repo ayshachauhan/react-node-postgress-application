@@ -50,7 +50,7 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
   const [bodyPart, setBodyPart] = useState<string>('');
   const [referrerId, setReferrerId] = useState<string>('');
   const [doctorId, setDoctorId] = useState<string | null>(getSelectedUserId);
-  const [surgeryDate, SetSurgeryDate] = useState<Date | null>(null);
+  const [surgeryDate, SetSurgeryDate] = useState<Date | null>(new Date());
   const [pcp, setPcp] = useState('');
   const [notes, setNotes] = useState('');
   const [checkboxes, setCheckboxes] = React.useState([true, false]);
