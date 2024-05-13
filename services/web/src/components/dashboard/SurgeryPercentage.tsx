@@ -79,11 +79,12 @@ const SurgeryPercentage: React.FC = () => {
 
     return surgeryPercentage;
   }
+  const ranges: (number | 'all')[] = [1, 2, 3, 6, 12, 'all'];
 
   const surgeryPercentageData = surgeryConfigurations.map((config) => ({
     name: config.name,
     id: config.id,
-    percentages: [1, 2, 3, 6, 12, 'all'].map((range) => ({
+    percentages: ranges.map((range) => ({
       range: range,
       percentage:
         calculateSurgeryPercentageForRange(range).find(
