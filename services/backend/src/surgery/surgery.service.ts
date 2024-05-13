@@ -211,8 +211,6 @@ export class SurgeryService {
     id,
     practiceId,
   }): Promise<SurgeryEntity | null> {
-    console.log(createSurgeryDto);
-
     const surgeryToUpdate = await this.getSurgeryById(id);
 
     if (createSurgeryDto.insuranceTypeId) {

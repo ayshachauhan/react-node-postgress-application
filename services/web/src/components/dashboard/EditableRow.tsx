@@ -54,8 +54,6 @@ function EditableRow({
   });
 
   const handleObjChange = (keyToUpdate: string, newValue) => {
-    console.log(keyToUpdate, newValue);
-
     setObj((prevState) => ({
       ...prevState,
       [keyToUpdate]: newValue,
@@ -288,8 +286,6 @@ function EditableRow({
           </div>
           {customCheckListHeaders.map(
             (checkListHeader, checkListHeaderIndex) => {
-              console.log(obj.selectedCheckListOption);
-
               const selectedChecklistOption =
                 obj.selectedCheckListOption[checkListHeader];
 
