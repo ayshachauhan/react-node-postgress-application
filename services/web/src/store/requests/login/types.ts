@@ -1,4 +1,4 @@
-import { IPractice } from '@packages/entities';
+import { IPractice } from '@packages/entities/index.browser';
 
 export interface User {
   id: string;

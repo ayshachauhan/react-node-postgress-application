@@ -32,7 +32,10 @@ export class SurgeryEntity extends BaseEntity {
   @Column({ type: 'varchar' })
   insuranceDetails: string;
 
-  @Column()
+  @Column({
+    default: null,
+    nullable: true,
+  })
   date: Date;
 
   @Column()

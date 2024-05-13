@@ -1,6 +1,5 @@
 'use client';
-import { IInsuranceType, IPracticeHomes, IReferrer } from '@packages/entities';
-import { ISurgeryType } from '@packages/entities/index.browser';
+
 import Button from '@root/components/Button';
 import { AddIcon } from '@root/components/Icons';
 import Form from '@root/components/dashboard/AddSurgery';
@@ -9,6 +8,7 @@ import SurgeryPercentage from '@root/components/dashboard/SurgeryPercentage';
 import UpcomingSection from '@root/components/dashboard/UpcomingSection';
 import UsersListing from '@root/components/dashboard/UsersListing';
 import { useAppDispatch, useAppSelector } from '@root/store';
+import { fetchCalendars } from '@root/store/reducers/calendar';
 import {
   clearSuccessMessage as clearEvalSuccessMessage,
   fetchListings as fetchEvalsList,
@@ -24,20 +24,21 @@ import {
 import { fetchListings as fetchSurgeryConfigurationsListing } from '@root/store/reducers/surgeryConfigurations';
 import { fetchListings as fetchSurgeryTypesListing } from '@root/store/reducers/surgeryTypes';
 import { fetchListings as fetchUsersList } from '@root/store/reducers/users';
-import { SanitizedUser } from '@root/store/types';
-import { getPracticeId } from '@root/utils';
+
+import { getPracticeId, getUserId } from '@root/utils';
 import { Modal, ModalBody, ROLE, SIZE } from 'baseui/modal';
 
 import React, { useEffect, useState } from 'react';
 const DashboardPage: React.FC = () => {
   const dispatch = useAppDispatch();
   const practiceId = getPracticeId();
-  const { successMessage: addSurgerySuccessMessage } = useAppSelector(
-    (state) => ({
+  const userId = getUserId();
+  const { successMessage: addSurgerySuccessMessage, calendarSuccessMessage } =
+    useAppSelector((state) => ({
       successMessage: state.surgeries.successMessage,
       errorMessage: state.surgeries.errorMessage,
-    }),
-  );
+      calendarSuccessMessage: state.calendars.successMessage,
+    }));
   const { successMessage: addEvalSuccessMessage } = useAppSelector((state) => ({
     successMessage: state.evals.successMessage,
     errorMessage: state.evals.errorMessage,
@@ -64,9 +65,15 @@ const DashboardPage: React.FC = () => {
         dispatch(clearSurgerySuccessMessage());
         dispatch(clearEvalSuccessMessage());
         dispatch(fetchSurgeryConfigurationsListing({ practiceId }));
+        if (userId) dispatch(fetchCalendars({ practiceId, userId }));
       }
     }
-  }, [addSurgerySuccessMessage, addEvalSuccessMessage, dispatch]);
+  }, [
+    addSurgerySuccessMessage,
+    addEvalSuccessMessage,
+    calendarSuccessMessage,
+    dispatch,
+  ]);
 
   useEffect(() => {
     let timer;
@@ -85,25 +92,21 @@ const DashboardPage: React.FC = () => {
     };
   }, [addSurgerySuccessMessage, addEvalSuccessMessage, dispatch]);
 
-  const practiceHomesList: IPracticeHomes[] = useAppSelector((state) =>
-    Object.values(state.practiceHomes.entities),
-  );
-
-  const surgeryTypesList: ISurgeryType[] = useAppSelector((state) =>
-    Object.values(state.surgeryTypes.entities),
-  );
-
-  const insuranceTypesList: IInsuranceType[] = useAppSelector((state) =>
-    Object.values(state.insuranceTypes.entities),
-  );
-
-  const referrersList: IReferrer[] = useAppSelector((state) =>
-    Object.values(state.referrers.entities),
-  );
-
-  const usersList: SanitizedUser[] = useAppSelector((state) =>
-    Object.values(state.users.entities),
-  );
+  const {
+    practiceHomesList,
+    surgeryTypesList,
+    insuranceTypesList,
+    referrersList,
+    usersList,
+    calendars,
+  } = useAppSelector((state) => ({
+    practiceHomesList: Object.values(state.practiceHomes.entities),
+    surgeryTypesList: Object.values(state.surgeryTypes.entities),
+    insuranceTypesList: Object.values(state.insuranceTypes.entities),
+    referrersList: Object.values(state.referrers.entities),
+    usersList: Object.values(state.users.entities),
+    calendars: Object.values(state.calendars.entities),
+  }));
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const FormModal = () => {
@@ -142,6 +145,7 @@ const DashboardPage: React.FC = () => {
               insuranceTypesList,
               referrersList,
               usersList,
+              calendars,
             }}
           />
         </ModalBody>
