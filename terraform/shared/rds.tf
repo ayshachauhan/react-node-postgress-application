@@ -1,3 +1,35 @@
+resource "aws_security_group" "postgres" {
+  name_prefix = "azentia-infra-${var.environment}-db-sg"
+  description = "Security access rules for Postgres."
+  vpc_id      = aws_default_vpc.default_vpc.id
+
+  ingress {
+    description = "AAllow all incoming traffic."
+    protocol    = "-1"
+    from_port   = 0
+    to_port     = 0
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    description = "Allow all outbound traffic."
+    protocol    = "-1"
+    from_port   = 0
+    to_port     = 0
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+
+  tags = {
+    Name = "azentia-infra-${var.environment}-db"
+    Creator = "Terraform"
+  }
+}
+
+
 resource "aws_db_instance" "main" {
   identifier = "azentia-infra-${var.environment}-db"
   port       = "5432"
@@ -20,6 +52,7 @@ resource "aws_db_instance" "main" {
   # db_subnet_group_name      = aws_db_subnet_group.postgres_public.id
   # vpc_security_group_ids    = [aws_security_group.postgres_public.id]
   storage_encrypted         = false
+  vpc_security_group_ids = [aws_security_group.postgres.id]
 
   tags = {
     Name = "azentia-infra-${var.environment}-db"
