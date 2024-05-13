@@ -1,6 +1,7 @@
 'use client';
 import { ICalendar } from '@packages/entities/index.browser';
 import { useAppSelector } from '@root/store';
+import { getUserId } from '@root/utils';
 import React from 'react';
 
 export type CalendarData = {
@@ -10,7 +11,9 @@ export type CalendarData = {
 
 const SurgeryPercentage: React.FC = () => {
   const { calendars, surgeryConfigurations } = useAppSelector((state) => ({
-    calendars: Object.values(state.calendars.entities),
+    calendars: Object.values(state.calendars.entities).filter(
+      (calendar) => calendar.user.id === getUserId(),
+    ),
     surgeryConfigurations: Object.values(state.surgeryConfigurations.entities),
   }));
 
