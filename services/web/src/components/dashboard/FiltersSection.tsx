@@ -114,6 +114,15 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
         viewData[data] = ele.selectedSurgeryOptions[data].value;
       });
 
+      ele.selectedCheckListOptions &&
+        Object.keys(ele.selectedCheckListOptions).forEach((data) => {
+          console.log(data);
+          console.log(ele.selectedCheckListOptions);
+
+          viewData[data] = ele.selectedCheckListOptions[data].value;
+        });
+      console.log(viewData);
+
       const modifiedObjKey: string =
         modifiedDate + ' - ' + ele.surgeryConfiguration.name;
 
@@ -352,7 +361,7 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
             return (
               <div key={index} className="w-max">
                 <div
-                  className={`border-solid px-2.5 py-3 text-white text-base font-normal ${
+                  className={`border-solid px-2.5 py-0.5 text-white text-sm font-normal ${
                     index == 0 ? 'rounded-t-lg' : ''
                   }`}
                   style={{ backgroundColor: 'rgba(53, 165, 118, 1)' }}
@@ -361,64 +370,64 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
                     ele.length
                   } cases (${14} Max)`}
                 </div>
-                <div className="bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 flex gap-2 py-2 px-2.5 text-sm">
-                  <div className="font-bold text-white py-2 px-1 w-20">
+                <div className="bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 flex gap-2  px-2.5 text-xs">
+                  <div className="font-bold text-white py-1 px-1 w-20">
                     Date
                   </div>
-                  <div className="font-bold text-white py-2 px-1 w-10">
+                  <div className="font-bold text-white py-1 px-1 w-10">
                     <HomeIcon></HomeIcon>
                   </div>
-                  <div className="font-bold text-white py-2 px-1 w-20">
+                  <div className="font-bold text-white py-1 px-1 w-20">
                     Status
                   </div>
-                  <div className="font-bold text-white py-2 px-1 w-20">
+                  <div className="font-bold text-white py-1 px-1 w-20">
                     Last Name
                   </div>
-                  <div className="font-bold text-white py-2 px-1 w-20">
+                  <div className="font-bold text-white py-1 px-1 w-20">
                     First Name
                   </div>
-                  <div className="font-bold text-white py-2 px-1 w-20">MRN</div>
+                  <div className="font-bold text-white py-1 px-1 w-20">MRN</div>
 
-                  <div className="font-bold text-white py-2 px-1 w-20">
+                  <div className="font-bold text-white py-1 px-1 w-20">
                     Surgery
                   </div>
-                  <div className="font-bold text-white py-2 px-1 w-20">
+                  <div className="font-bold text-white py-1 px-1 w-20">
                     Body Part
                   </div>
                   {customOptionsHeaders.map(
                     (optionsHeader, optionsHeaderIndex) => (
                       <div
-                        className="font-bold text-white py-2 px-1 w-20"
+                        className="font-bold text-white py-1 px-1 w-20"
                         key={optionsHeaderIndex}
                       >
                         {optionsHeader}
                       </div>
                     ),
                   )}
-                  <div className="font-bold text-white py-2 px-1 w-20">
+                  <div className="font-bold text-white py-1 px-1 w-20">
                     Notes
                   </div>
-                  <div className="font-bold text-white py-2 px-1 w-20">#</div>
+                  <div className="font-bold text-white py-1 px-1 w-20">#</div>
                   {customCheckListHeaders.map(
                     (checkListHeader, checkListHeaderIndex) => (
                       <div
-                        className="font-bold text-white py-2 px-1 w-20"
+                        className="font-bold text-white py-1 px-1 w-20"
                         key={checkListHeaderIndex}
                       >
                         {checkListHeader}
                       </div>
                     ),
                   )}
-                  <div className="font-bold text-white py-2 px-1 w-20">
+                  <div className="font-bold text-white py-1 px-1 w-20">
                     Prof
                   </div>
-                  <div className="font-bold text-white py-2 px-1 w-20">
+                  <div className="font-bold text-white py-1 px-1 w-20">
                     Hospital
                   </div>
-                  <div className="font-bold text-white py-2 px-1 w-20">
+                  <div className="font-bold text-white py-1 px-1 w-20">
                     Insurance
                   </div>
-                  <div className="font-bold text-white py-2 px-1 w-40">
+                  <div className="font-bold text-white py-1 px-1 w-40">
                     Action
                   </div>
                 </div>
@@ -444,10 +453,10 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
                             : ''
                         }`}
                       >
-                        <div className="text-black  pt-2 pb-2 px-1 w-20">
+                        <div className="text-black  py-0.5 px-1 w-20">
                           {row.date}
                         </div>
-                        <div className="text-black pt-2 pb-2 px-1 w-10">
+                        <div className="text-black py-0.5 px-1 w-10">
                           {row.home[0]}
                         </div>
                         <div className="text-gray-900 py-2 px-0.5 flex text-center items-center w-20">
@@ -455,58 +464,58 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
                             {row.status}
                           </div>
                         </div>
-                        <div className="text-black pt-2 pb-2 px-1 overflow-hidden whitespace-nowrap w-20">
+                        <div className="text-black py-0.5 px-1 overflow-hidden whitespace-nowrap w-20">
                           {row.lastName}
                         </div>
-                        <div className="text-black pt-2 pb-2 px-1 overflow-hidden whitespace-nowrap w-20">
+                        <div className="text-black py-0.5 px-1 overflow-hidden whitespace-nowrap w-20">
                           {row.firstName}
                         </div>
-                        <div className="text-black pt-2 pb-2 px-1 overflow-hidden whitespace-nowrap w-20">
+                        <div className="text-black py-0.5 px-1 overflow-hidden whitespace-nowrap w-20">
                           {row.mrn}
                         </div>
-                        <div className="text-black pt-2 pb-2 px-1 overflow-hidden whitespace-nowrap w-20">
+                        <div className="text-black py-0.5 px-1 overflow-hidden whitespace-nowrap w-20">
                           {row.surgery}
                         </div>
-                        <div className="text-black pt-2 pb-2 px-1 w-20">
+                        <div className="text-black py-0.5 px-1 w-20">
                           {row.bodyPart}
                         </div>
 
                         {customOptionsHeaders.map(
                           (optionsHeader, optionsHeaderIndex) => (
                             <div
-                              className="text-black pt-2 pb-2 px-1 w-20"
+                              className="text-black py-0.5 px-1 w-20"
                               key={optionsHeaderIndex}
                             >
                               {row[optionsHeader]}
                             </div>
                           ),
                         )}
-                        <div className="text-black pt-2 pb-2 px-1 w-20">
+                        <div className="text-black py-0.5 px-1 w-20">
                           {row.details}
                         </div>
-                        <div className="text-black pt-2 pb-2 px-1 w-20">
+                        <div className="text-black py-0.5 px-1 w-20">
                           {row.hash}
                         </div>
                         {customCheckListHeaders.map(
                           (checkListHeader, checkListHeaderIndex) => (
                             <div
-                              className="font-bold text-white py-2 px-1 w-20"
+                              className=" text-black py-0.5px-1 w-20"
                               key={checkListHeaderIndex}
                             >
-                              {ele[checkListHeader]}
+                              {row[checkListHeader]}
                             </div>
                           ),
                         )}
-                        <div className="text-black pt-2 pb-2 px-1 w-20">
+                        <div className="text-black py-0.5 px-1 w-20">
                           {row.prof}
                         </div>
-                        <div className="text-black pt-2 pb-2 px-1 w-20">
+                        <div className="text-black py-0.5 px-1 w-20">
                           {row.hospital}
                         </div>
-                        <div className="text-black pt-2 pb-2 px-1 w-20">
+                        <div className="text-black py-0.5 px-1 w-20">
                           {row.insurance}
                         </div>
-                        <div className="text-black pt-2 pb-2 px-1 w-40">
+                        <div className="text-black py-0.5 px-1 w-40">
                           {actionIcons(row.id)}
                         </div>
                       </div>

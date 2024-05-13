@@ -200,6 +200,8 @@ export class SurgeryService {
     id,
     practiceId,
   }): Promise<SurgeryEntity | null> {
+    console.log(createSurgeryDto);
+
     const surgeryToUpdate = await this.getSurgeryById(id);
 
     if (createSurgeryDto.insuranceTypeId) {
@@ -226,7 +228,11 @@ export class SurgeryService {
         : null,
       date: createSurgeryDto.date,
       selectedSurgeryOptions: createSurgeryDto.selectedSurgeryOptions,
+      totalHospitalPricing: createSurgeryDto.totalHospitalPricing,
+      totalProfessionalPricing: createSurgeryDto.totalProfessionalPricing,
+      selectedCheckListOptions: createSurgeryDto.selectedCheckListOption,
     };
+
     await this.surgeryRepository.update(id, {
       ...surgeryToUpdate,
       ...dataToUpdate,

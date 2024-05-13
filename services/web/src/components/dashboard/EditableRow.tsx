@@ -45,6 +45,9 @@ function EditableRow({
     details: surgeryInfo.patient.details,
     bodyPart: surgeryInfo.bodyPart,
     selectedSurgeryOptions: surgeryInfo.selectedSurgeryOptions,
+    selectedCheckListOption: surgeryInfo.selectedCheckListOptions
+      ? surgeryInfo.selectedCheckListOptions
+      : {},
     totalHospitalPricing: surgeryInfo.totalHospitalPricing,
     totalProfessionalPricing: surgeryInfo.totalProfessionalPricing,
     home: surgeryInfo.practiceHome.name[0],
@@ -52,6 +55,8 @@ function EditableRow({
   });
 
   const handleObjChange = (keyToUpdate: string, newValue) => {
+    console.log(keyToUpdate, newValue);
+
     setObj((prevState) => ({
       ...prevState,
       [keyToUpdate]: newValue,
@@ -88,6 +93,7 @@ function EditableRow({
             <DatePicker
               value={obj.date}
               onChange={({ date }) => handleObjChange('date', date)}
+              size={SIZE.mini}
               overrides={{
                 Root: {
                   style: {
@@ -99,15 +105,16 @@ function EditableRow({
           </div>
           <div className="w-10">
             <TextInput
+              size={SIZE.mini}
               disabled
               name="home"
               value={obj.home}
               onChange={(value) => handleObjChange('home', value)}
-              size={SIZE.mini}
             />
           </div>
           <div className=" w-20">
             <TextInput
+              size={SIZE.mini}
               disabled
               name="status"
               value="booked"
@@ -116,6 +123,7 @@ function EditableRow({
           </div>
           <div className="py-2 w-20">
             <TextInput
+              size={SIZE.mini}
               name="lastName"
               value={obj.lastName}
               onChange={(value) => handleObjChange('lastName', value)}
@@ -123,6 +131,7 @@ function EditableRow({
           </div>
           <div className="py-2 w-20">
             <TextInput
+              size={SIZE.mini}
               name="firstName"
               value={obj.firstName}
               onChange={(value) => handleObjChange('firstName', value)}
@@ -131,13 +140,15 @@ function EditableRow({
           <div className="w-20">
             <TextInput
               name="mrn"
-              value={surgeryInfo.patient.mrn}
+              value={obj.mrn}
               onChange={(value) => handleObjChange('mrn', value)}
               size={SIZE.mini}
             />
           </div>
           <div className="py-2 w-20">
             <Select
+              backspaceRemoves={false}
+              escapeClearsValue={false}
               disabled
               options={surgeryConfigurationsOptions}
               value={
@@ -174,6 +185,7 @@ function EditableRow({
           </div>
           <div className="py-2 w-20">
             <Select
+              backspaceRemoves={false}
               options={surgeryConfiguration.bodyPart.map((ele) => ({
                 id: ele,
                 label: ele,
@@ -207,10 +219,12 @@ function EditableRow({
             return (
               <div className="py-2 w-20" key={optionsHeaderIndex}>
                 <Select
+                  backspaceRemoves={false}
+                  escapeClearsValue={false}
                   key={optionsHeaderIndex}
                   options={surgeryInfo.surgeryConfiguration.options[
                     optionsHeader
-                  ].allowedValues?.map((ele) => {
+                  ]?.allowedValues?.map((ele) => {
                     return {
                       id: ele.name,
                       label: ele.name,
@@ -258,29 +272,42 @@ function EditableRow({
           })}
           <div className="py-2 w-20">
             <TextInput
+              size={SIZE.mini}
               name="details"
               value={obj.details}
               onChange={(value) => handleObjChange('details', value)}
             />
           </div>
           <div className="py-2 w-20">
-            <TextInput name="hash" value="10" disabled onChange={() => ''} />
+            <TextInput
+              name="hash"
+              value="10"
+              disabled
+              onChange={() => ''}
+              size={SIZE.mini}
+            />
           </div>
           {customCheckListHeaders.map(
             (checkListHeader, checkListHeaderIndex) => {
-              const columnValue: string = '';
-              //  surgeryInfo.selectedSurgeryOptions[
-              //   optionsHeader
-              // ]
-              //   ? surgeryInfo.selectedSurgeryOptions[optionsHeader].value
-              //   : '';
+              console.log(obj.selectedCheckListOption);
+
+              const selectedChecklistOption =
+                obj.selectedCheckListOption[checkListHeader];
 
               return (
                 <div className="py-2 px-1.5 w-20" key={checkListHeaderIndex}>
                   <TextInput
-                    value={columnValue}
+                    size={SIZE.mini}
+                    value={
+                      selectedChecklistOption
+                        ? selectedChecklistOption.value
+                        : ''
+                    }
                     onChange={(value) =>
-                      handleObjChange(checkListHeader, value)
+                      handleObjChange('selectedCheckListOption', {
+                        ...obj.selectedCheckListOption,
+                        [checkListHeader]: { value },
+                      })
                     }
                   />
                 </div>
@@ -289,26 +316,32 @@ function EditableRow({
           )}
           <div className="py-2 w-20">
             <TextInput
+              size={SIZE.mini}
               name="prof"
               value={obj.totalProfessionalPricing}
               onChange={(value) =>
                 handleObjChange('totalProfessionalPricing', value)
               }
               type="number"
+              min={0}
             />
           </div>
           <div className="py-2 w-20">
             <TextInput
+              size={SIZE.mini}
               name="hospital"
               value={obj.totalHospitalPricing}
               onChange={(value) =>
                 handleObjChange('totalHospitalPricing', value)
               }
               type="number"
+              min={0}
             />
           </div>
           <div className="py-2 w-20">
             <Select
+              backspaceRemoves={false}
+              escapeClearsValue={false}
               options={insuranceTypesList.map((ele) => ({
                 id: ele.id,
                 label: ele.name,

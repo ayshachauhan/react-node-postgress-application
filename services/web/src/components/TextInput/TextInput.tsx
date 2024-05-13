@@ -1,6 +1,6 @@
 'use client';
 
-import { Input, InputOverrides, InputProps } from 'baseui/input';
+import { Input, InputOverrides, InputProps, SIZE } from 'baseui/input';
 import React from 'react';
 
 type Props = Partial<Omit<InputProps, 'onChange'>> & {
@@ -10,11 +10,17 @@ type Props = Partial<Omit<InputProps, 'onChange'>> & {
   ) => void;
   onBlur?: (event: React.FocusEvent) => void;
   onFocus?: () => void;
+  size?: string | undefined;
 };
 
 const TextInputOverrides: InputOverrides = {
   Root: {
-    style: { border: 0, height: '48px' },
+    style: {
+      borderTopRightRadius: '0',
+      borderBottomRightRadius: '0',
+      borderRight: '0',
+      border: '0',
+    },
     props: { className: 'shadow-md' },
   },
 };
@@ -23,6 +29,7 @@ const TextInput: React.FC<Props> = ({
   onChange,
   onBlur,
   onFocus,
+  size,
   ...props
 }) => {
   function handleChange(
@@ -61,6 +68,7 @@ const TextInput: React.FC<Props> = ({
         onChange={handleChange}
         onBlur={handleBlur}
         onFocus={handleFocus}
+        size={size ? size : SIZE.default}
       />
     </div>
   );
