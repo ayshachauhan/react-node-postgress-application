@@ -11,7 +11,9 @@ export interface ISurgery extends IBaseEntity {
   insuranceType: IInsuranceType;
   insuranceDetails: string;
   date: Date;
+  eye: string;
   doctor: ISanitizedUser;
+  surgeryOption: string[];
   bodyPart: string;
   selectedSurgeryOptions: SelectedSurgeryOption;
   totalHospitalPricing: number;

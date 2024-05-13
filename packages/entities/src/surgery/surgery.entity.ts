@@ -49,4 +49,10 @@ export class SurgeryEntity extends BaseEntity {
 
   @Column()
   totalProfessionalPricing: number;
+
+  @Column()
+  eye: string;
+
+  @Column()
+  surgeryOption: string[];
 }
