@@ -5,13 +5,13 @@ import {
   Param,
   Patch,
   Post,
-  // UseGuards,
+  UseGuards,
   UseInterceptors,
   ValidationPipe,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CalendarEntity } from '@packages/entities';
-//import { AuthGuard } from 'src/auth/auth.guard';
+import { AuthGuard } from 'src/auth/auth.guard';
 import { practiceNotFoundInterceptor } from '../interceptors/practiceNotFoundInterceptor';
 import { CalendarService } from './calendar.service';
 import {
@@ -31,7 +31,7 @@ import type {
 @ApiTags('Calendar')
 @ApiBearerAuth('normal')
 @Controller('/practices/:practiceId/users/:userId/calendar')
-// @UseGuards(AuthGuard)
+@UseGuards(AuthGuard)
 export class CalendarController {
   constructor(private calendarService: CalendarService) {}
 
@@ -70,7 +70,7 @@ export class CalendarController {
     @Param() params: UpdateCalendarParams,
     @Body(new ValidationPipe()) updateDTO: UpdateCalendarDto,
   ): Promise<CalendarEntity | null> {
-    return this.calendarService.updateCalendar(params, updateDTO);
+    return this.calendarService.updateCalendar({ id: params.id, ...updateDTO });
   }
 
   @Patch('')

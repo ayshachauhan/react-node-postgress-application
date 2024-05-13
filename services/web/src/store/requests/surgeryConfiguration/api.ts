@@ -1,7 +1,7 @@
 import {
   CreateSurgeryConfigurationPayload,
   UpdateSurgeryConfigPayload,
-} from '@packages/entities';
+} from '@packages/entities/index.browser';
 import Cookies from 'js-cookie';
 import { publicRuntimeConfig } from 'next.config';
 const { API_BASE_URL } = publicRuntimeConfig;

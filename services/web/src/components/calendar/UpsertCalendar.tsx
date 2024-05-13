@@ -37,7 +37,6 @@ const UpsertCalendar: React.FC<{
     value: string,
     event?: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
-    // Update the corresponding field in the state
     setUpsertCalendarData((prevData) =>
       prevData.map((calendar: CalendarData) => ({
         ...calendar,
@@ -75,18 +74,13 @@ const UpsertCalendar: React.FC<{
           }
         }
       } else {
-        const formattedDate = new Date(
-          upsertCalendarData[0].date.getTime() -
-            upsertCalendarData[0].date.getTimezoneOffset() * 60000,
-        );
-
         const payload: CreateCalendarPayload = {
           practiceId,
           userId,
           surgeryConfigurationId: selectedSurgery.id,
           maxSlots: upsertCalendarData[0].maxSlots,
           bookedSlots: upsertCalendarData[0].bookedSlots,
-          date: formattedDate,
+          date: upsertCalendarData[0].date,
         };
 
         dispatch(createCalendarEntry(payload));

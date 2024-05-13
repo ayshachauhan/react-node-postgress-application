@@ -25,7 +25,10 @@ const AddReferrerForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     setReferrerType(value[0] ? value[0].label : null);
   };
 
-  type AddReferrerDto = Omit<IReferrer, 'dateCreated' | 'dateUpdated' | 'id'>;
+  type AddReferrerDto = Omit<
+    IReferrer,
+    'dateCreated' | 'dateUpdated' | 'id' | 'patients'
+  >;
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (practiceId) {

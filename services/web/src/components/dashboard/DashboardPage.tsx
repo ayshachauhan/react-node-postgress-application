@@ -8,6 +8,7 @@ import SurgeryPercentage from '@root/components/dashboard/SurgeryPercentage';
 import UpcomingSection from '@root/components/dashboard/UpcomingSection';
 import UsersListing from '@root/components/dashboard/UsersListing';
 import { useAppDispatch, useAppSelector } from '@root/store';
+import { fetchCalendars } from '@root/store/reducers/calendar';
 import {
   clearSuccessMessage as clearEvalSuccessMessage,
   fetchListings as fetchEvalsList,
@@ -24,19 +25,20 @@ import { fetchListings as fetchSurgeryConfigurationsListing } from '@root/store/
 import { fetchListings as fetchSurgeryTypesListing } from '@root/store/reducers/surgeryTypes';
 import { fetchListings as fetchUsersList } from '@root/store/reducers/users';
 
-import { getPracticeId } from '@root/utils';
+import { getPracticeId, getUserId } from '@root/utils';
 import { Modal, ModalBody, ROLE, SIZE } from 'baseui/modal';
 
 import React, { useEffect, useState } from 'react';
 const DashboardPage: React.FC = () => {
   const dispatch = useAppDispatch();
   const practiceId = getPracticeId();
-  const { successMessage: addSurgerySuccessMessage } = useAppSelector(
-    (state) => ({
+  const userId = getUserId();
+  const { successMessage: addSurgerySuccessMessage, calendarSuccessMessage } =
+    useAppSelector((state) => ({
       successMessage: state.surgeries.successMessage,
       errorMessage: state.surgeries.errorMessage,
-    }),
-  );
+      calendarSuccessMessage: state.calendars.successMessage,
+    }));
   const { successMessage: addEvalSuccessMessage } = useAppSelector((state) => ({
     successMessage: state.evals.successMessage,
     errorMessage: state.evals.errorMessage,
@@ -63,9 +65,15 @@ const DashboardPage: React.FC = () => {
         dispatch(clearSurgerySuccessMessage());
         dispatch(clearEvalSuccessMessage());
         dispatch(fetchSurgeryConfigurationsListing({ practiceId }));
+        if (userId) dispatch(fetchCalendars({ practiceId, userId }));
       }
     }
-  }, [addSurgerySuccessMessage, addEvalSuccessMessage, dispatch]);
+  }, [
+    addSurgerySuccessMessage,
+    addEvalSuccessMessage,
+    calendarSuccessMessage,
+    dispatch,
+  ]);
 
   useEffect(() => {
     let timer;

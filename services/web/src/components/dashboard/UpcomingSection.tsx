@@ -29,7 +29,9 @@ const UpcomingSection: React.FC = () => {
   const dispatch = useAppDispatch();
 
   const { calendars, surgeryConfigurations } = useAppSelector((state) => ({
-    calendars: Object.values(state.calendars.entities),
+    calendars: Object.values(state.calendars.entities).filter(
+      (calendar) => calendar.user.id === getUserId(),
+    ),
     surgeryConfigurations: Object.values(state.surgeryConfigurations.entities),
   }));
 
@@ -47,7 +49,7 @@ const UpcomingSection: React.FC = () => {
    * @param cellValue number
    */
   const appendAddSign = (cellValue: number): string => {
-    return '+' + cellValue;
+    return cellValue > 0 ? '+' + cellValue : cellValue.toString();
   };
 
   /**
@@ -57,7 +59,7 @@ const UpcomingSection: React.FC = () => {
    */
   const maxCellStyle = (availableSlots: number): Record<string, string> => {
     const isMax = availableSlots === DEFAULT_MAX_SLOTS;
-    const isRed = availableSlots === 0;
+    const isRed = availableSlots <= 0;
     const isGreen = availableSlots > 0;
 
     const cssObject = {
@@ -215,6 +217,7 @@ const UpcomingSection: React.FC = () => {
         <ModalBody>
           <UpsertCalendar
             onClose={handleCloseModal}
+            //@ts-expect-error sending date as null
             calendarData={
               isUpdating
                 ? filteredCalendars
@@ -223,7 +226,7 @@ const UpcomingSection: React.FC = () => {
                       id: '',
                       maxSlots: DEFAULT_MAX_SLOTS,
                       bookedSlots: 0,
-                      date: new Date(),
+                      date: null,
                       surgeryName: selectedSurgery?.name
                         .charAt(0)
                         .toUpperCase() as string,
@@ -287,7 +290,7 @@ const UpcomingSection: React.FC = () => {
           ))}
         </div>
       </div>
-      <div className="mt-2 flex justify-between overflow-x-auto text-xs">
+      <div className="mt-2 flex gap-5 overflow-x-auto text-xs">
         {splitCalendarData(filteredCalendars).map(
           (calendar: CalendarData[], index: number) => (
             <div className="border-r-4 border-gray-200 pr-4 flex" key={index}>

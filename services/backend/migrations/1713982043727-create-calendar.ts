@@ -24,7 +24,7 @@ export class CreateCalendar1713982043727 implements MigrationInterface {
             isNullable: false,
           },
           {
-            name: 'surgeryTypeId',
+            name: 'surgeryConfigurationId',
             type: 'uuid',
             isNullable: false,
           },
@@ -69,8 +69,8 @@ export class CreateCalendar1713982043727 implements MigrationInterface {
             onDelete: 'CASCADE',
           },
           {
-            columnNames: ['surgeryTypeId'],
-            referencedTableName: 'surgery_types',
+            columnNames: ['surgeryConfigurationId'],
+            referencedTableName: 'surgery_configurations',
             referencedColumnNames: ['id'],
             onDelete: 'CASCADE',
           },

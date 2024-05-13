@@ -1,7 +1,8 @@
-import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 import { BaseEntity } from '../base.entity';
 import { PracticeEntity } from '../practice';
 import { ReferrersEntity } from '../referrer';
+import { SurgeryEntity } from '../surgery';
 
 @Entity('patients')
 export class PatientEntity extends BaseEntity {
@@ -36,4 +37,7 @@ export class PatientEntity extends BaseEntity {
 
   @Column({ type: 'varchar' })
   details: string;
+
+  @OneToMany(() => SurgeryEntity, (surgery) => surgery.patient)
+  surgeries: SurgeryEntity[];
 }

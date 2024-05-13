@@ -120,6 +120,9 @@ importers:
       jsonwebtoken:
         specifier: ^9.0.2
         version: 9.0.2
+      moment:
+        specifier: 2.30.1
+        version: 2.30.1
       nestjs-pino:
         specifier: ^4.0.0
         version: 4.0.0(@nestjs/common@10.3.3)(pino-http@9.0.0)

@@ -1,8 +1,11 @@
-import { SelectedSurgeryOption } from '@packages/entities';
-import { ICalendar } from '@packages/entities/index.browser';
+import {
+  ICalendar,
+  SelectedSurgeryOption,
+} from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
 import { useAppDispatch, useAppSelector } from '@root/store';
+import { fetchCalendars } from '@root/store/reducers/calendar';
 import { addRecordAsync as addSurgeryRecord } from '@root/store/reducers/surgery';
 import { getPracticeId, toFullName } from '@utils/index';
 import { Checkbox } from 'baseui/checkbox';
@@ -47,7 +50,7 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
   const [bodyPart, setBodyPart] = useState<string>('');
   const [referrerId, setReferrerId] = useState<string>('');
   const [doctorId, setDoctorId] = useState<string | null>(getSelectedUserId);
-  const [surgeryDate, SetSurgeryDate] = useState<Date>(new Date());
+  const [surgeryDate, SetSurgeryDate] = useState<Date | null>(null);
   const [pcp, setPcp] = useState('');
   const [notes, setNotes] = useState('');
   const [checkboxes, setCheckboxes] = React.useState([true, false]);
@@ -188,7 +191,7 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
           firstName,
           lastName,
           email,
-          date: surgeryDate,
+          date: surgeryDate ?? new Date(),
           phoneNumber,
           mrn,
           practiceHomeId,
@@ -206,6 +209,8 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
           totalProfessionalPricing: 0,
         }),
       );
+
+      dispatch(fetchCalendars({ practiceId, userId: doctorId }));
 
       try {
         setFirstName('');
@@ -230,13 +235,19 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
     onClose();
   };
 
+  const [currentMonth, setCurrentMonth] = useState(new Date().getMonth() + 1);
+
+  const handleMonthChange = ({ date }) => {
+    setCurrentMonth(date.getMonth() + 1);
+  };
+
   const isCalendarDates = (date: Date): boolean => {
     const formattedDate = moment(date).format('YYYY-MM-DD'); // Get date part only
 
     const dates = (calendars as ICalendar[])
       .filter(
         (calendar: ICalendar) =>
-          moment(calendar.date).format('YYYY-MM-DD') >
+          moment(calendar.date).format('YYYY-MM-DD') >=
           moment(new Date()).format('YYYY-MM-DD'),
       )
       .map((calendar) => moment(calendar.date).format('YYYY-MM-DD'));
@@ -252,23 +263,34 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
         moment(calendar.date).format('YYYY-MM-DD') === formattedDate,
     ) as ICalendar;
 
-    console.log(calendar, date, formattedDate, 'findcal');
-
-    return Boolean(calendar.maxSlots - calendar.bookedSlots)
+    return calendar.maxSlots > calendar.bookedSlots
       ? {
           backgroundColor: calendar.surgeryConfiguration.color,
+          borderTopColor: calendar.surgeryConfiguration.color,
+          borderBottomColor: calendar.surgeryConfiguration.color,
+          borderRightColor: calendar.surgeryConfiguration.color,
+          borderLeftColor: calendar.surgeryConfiguration.color,
         }
       : {
           backgroundColor: 'transparent',
-          outline: `${calendar.surgeryConfiguration.color} solid`,
+          border: `${calendar.surgeryConfiguration.color} solid 3px`,
+          borderTopColor: calendar.surgeryConfiguration.color,
+          borderBottomColor: calendar.surgeryConfiguration.color,
+          borderRightColor: calendar.surgeryConfiguration.color,
+          borderLeftColor: calendar.surgeryConfiguration.color,
         };
   };
 
   const getBackGroundColorCss = (date: Date): Record<string, unknown> => {
-    return isCalendarDates(date)
-      ? isSlotsAvailable(date)
-      : { backgroundColor: 'transparent' };
+    // checking selected month here because sometimes bgcolors are refelcring in next month
+    return date.getMonth() + 1 == currentMonth
+      ? isCalendarDates(date)
+        ? isSlotsAvailable(date)
+        : { backgroundColor: 'transparent' }
+      : {};
   };
+
+  console.log(currentMonth, 'currmonth');
 
   return (
     <div>
@@ -647,15 +669,30 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
                     onChange={({ date }) => SetSurgeryDate(date)}
                     placeholder="Surgery Date"
                     required
+                    onMonthChange={handleMonthChange}
                     overrides={{
                       Day: {
-                        style: ({ $date }) => ({
-                          marginTop: '2px',
-                          marginBottom: '2px',
-                          marginLeft: '2px',
-                          marginRight: '2px',
-                          ...getBackGroundColorCss($date),
-                        }),
+                        style: ({ $date, $selected }) => {
+                          return {
+                            height: '53px',
+                            width: '53px',
+                            borderRadius: '50%',
+                            boxSizing: 'border-box',
+                            paddingTop: '6px',
+                            paddingBottom: '6px',
+                            margin: '2px',
+                            ...getBackGroundColorCss($date),
+                            ':after': '',
+                            ...($selected
+                              ? {
+                                  color: '#ffffff',
+                                  ...($date.getMonth() + 1 == currentMonth
+                                    ? { backgroundColor: '#000000' }
+                                    : {}),
+                                }
+                              : {}),
+                          };
+                        },
                       },
                     }}
                     minDate={new Date()}
