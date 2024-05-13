@@ -10,12 +10,12 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 # Create build image for building the web
 FROM base AS build
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
-RUN pnpm turbo build --filter=backend
+RUN pnpm turbo build
 
 # Create an image base
 FROM base
 COPY --from=prod-deps /app/node_modules /app/node_modules
-COPY --from=build /app/services/backend/dist /app/services/backend/dist
+COPY --from=build /app /app
 
 ENV NODE_ENV=production
 
