@@ -126,24 +126,11 @@ const SurgeryPercentage: React.FC = () => {
                 <div className="text-black pt-2 pb-2 px-4 w-20">
                   {surgery.name}
                 </div>
-                <div className="text-black pt-2 pb-2 px-4 w-10">
-                  {surgery?.percentages[0].percentage.toFixed(0)}%
-                </div>
-                <div className="text-black pt-2 pb-2 px-4 w-10">
-                  {surgery?.percentages[1].percentage.toFixed(0)}%
-                </div>
-                <div className="text-black pt-2 pb-2 px-4 w-10">
-                  {surgery?.percentages[2].percentage.toFixed(0)}%
-                </div>
-                <div className="text-black pt-2 pb-2 px-4 w-10">
-                  {surgery?.percentages[3].percentage.toFixed(0)}%
-                </div>
-                <div className="text-black pt-2 pb-2 px-4 w-10">
-                  {surgery?.percentages[4].percentage.toFixed(0)}%
-                </div>
-                <div className="text-black pt-2 pb-2 px-4 w-10">
-                  {surgery?.percentages[5].percentage.toFixed(0)}%
-                </div>
+                {surgery?.percentages.map((percentageObj, index) => (
+                  <div key={index} className="text-black pt-2 pb-2 px-4 w-10">
+                    {percentageObj.percentage.toFixed(0)}%
+                  </div>
+                ))}
               </div>
             </React.Fragment>
           ))}
