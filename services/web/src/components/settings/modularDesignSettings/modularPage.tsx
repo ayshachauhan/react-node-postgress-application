@@ -182,8 +182,6 @@ const Dashboard: React.FC = () => {
   };
 
   const ConfigurationEditModal = () => {
-    console.log(surgeryTypeId, 'im in edit modal');
-
     return (
       <Modal
         isOpen={isEditModalOpen}

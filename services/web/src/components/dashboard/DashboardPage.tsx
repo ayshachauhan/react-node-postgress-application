@@ -192,7 +192,7 @@ const DashboardPage: React.FC = () => {
         </div>
       </div>
       <div className="mt-2 mb-12">
-        <FiltersSection />
+        {practiceId && <FiltersSection practiceId={practiceId} />}
       </div>
       <FormModal />
     </div>

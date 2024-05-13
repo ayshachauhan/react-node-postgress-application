@@ -70,7 +70,17 @@ export class SurgeryService {
   }
 
   async getSurgeryById(id: string): Promise<SurgeryEntity | null> {
-    return await this.surgeryRepository.findOneBy({ id });
+    return await this.surgeryRepository.findOne({
+      where: { id },
+      relations: [
+        'practiceHome',
+        'surgeryConfiguration',
+        'patient',
+        'insuranceType',
+        'patient.referrer',
+        'doctor',
+      ],
+    });
   }
 
   async create({ practiceId, createSurgeryDto }): Promise<SurgeryEntity> {
@@ -148,12 +158,41 @@ export class SurgeryService {
     return resultSurgery;
   }
 
-  async update({ createSurgeryDto, id }): Promise<SurgeryEntity | null> {
+  async update({
+    createSurgeryDto,
+    id,
+    practiceId,
+  }): Promise<SurgeryEntity | null> {
     const surgeryToUpdate = await this.getSurgeryById(id);
 
+    if (createSurgeryDto.insuranceTypeId) {
+      const insuranceTypeEntity =
+        await this.insuranceTypesService.getInsuranceTypeById(
+          createSurgeryDto.insuranceTypeId,
+          practiceId,
+        );
+
+      delete createSurgeryDto.insuranceTypeId;
+      createSurgeryDto.insuranceType = insuranceTypeEntity;
+    }
+
+    if (surgeryToUpdate) {
+      await this.patientService.update({
+        id: surgeryToUpdate.patient.id,
+        practiceId,
+        data: createSurgeryDto,
+      });
+    }
+    const dataToUpdate = {
+      insuranceType: createSurgeryDto.insuranceType
+        ? createSurgeryDto.insuranceType
+        : null,
+      date: createSurgeryDto.date,
+      selectedSurgeryOptions: createSurgeryDto.selectedSurgeryOptions,
+    };
     await this.surgeryRepository.update(id, {
       ...surgeryToUpdate,
-      ...createSurgeryDto,
+      ...dataToUpdate,
     });
 
     return await this.surgeryRepository.findOne({

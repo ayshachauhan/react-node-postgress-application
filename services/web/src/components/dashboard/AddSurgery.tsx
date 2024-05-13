@@ -492,7 +492,6 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
                     ? [{ label: insuranceTypeId, id: insuranceTypeId }]
                     : []
                 }
-                // required
                 overrides={{
                   ControlContainer: {
                     style: {
