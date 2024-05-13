@@ -27,16 +27,16 @@ export const DEFAULT_MAX_SLOTS: number = 14;
 
 const UpcomingSection: React.FC = () => {
   const dispatch = useAppDispatch();
+  const userId: string | null = getUserId();
 
   const { calendars, surgeryConfigurations } = useAppSelector((state) => ({
     calendars: Object.values(state.calendars.entities).filter(
-      (calendar) => calendar.user.id === getUserId(),
+      (calendar) => calendar.user.id === userId,
     ),
     surgeryConfigurations: Object.values(state.surgeryConfigurations.entities),
   }));
 
   const practiceId: string | null = getPracticeId();
-  const userId: string | null = getUserId();
 
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isUpdating, setIsUpdating] = useState<boolean>(false);

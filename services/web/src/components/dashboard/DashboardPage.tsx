@@ -32,7 +32,7 @@ import React, { useEffect, useState } from 'react';
 const DashboardPage: React.FC = () => {
   const dispatch = useAppDispatch();
   const practiceId = getPracticeId();
-  const userId = getUserId();
+  const userId: string | null = getUserId();
   const { successMessage: addSurgerySuccessMessage, calendarSuccessMessage } =
     useAppSelector((state) => ({
       successMessage: state.surgeries.successMessage,
