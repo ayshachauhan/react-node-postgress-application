@@ -30,7 +30,7 @@ resource "aws_security_group" "postgres" {
 }
 
 resource "aws_db_parameter_group" "postgres16" {
-  name   = "${var.platform}-env-${var.environment}-postgres16"
+  name   = "azentia-infra-${var.environment}-db-parameter-group"
   family = "postgres16"
 
   dynamic "parameter" {
