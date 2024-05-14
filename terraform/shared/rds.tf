@@ -40,11 +40,6 @@ resource "aws_db_parameter_group" "postgres16" {
         value        = "0"
         apply_method = "pending-reboot"
       },
-       {
-        name         = "ssl"
-        value        = "0"
-        apply_method = "pending-reboot"
-      },
     ]
     content {
       apply_method = lookup(parameter.value, "apply_method", null)
