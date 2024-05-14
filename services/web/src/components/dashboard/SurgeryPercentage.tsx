@@ -18,6 +18,25 @@ const SurgeryPercentage: React.FC = () => {
     surgeryConfigurations: Object.values(state.surgeryConfigurations.entities),
   }));
 
+  const maxCellStyle = (cellValue: string) => {
+    const numericValue =
+      typeof cellValue === 'string'
+        ? parseInt(cellValue.replace('%', ''), 10)
+        : cellValue;
+    const isRed = numericValue < 50;
+    const isYellow = numericValue >= 50 && numericValue < 80;
+    const isGreen = numericValue >= 80;
+    if (isRed) {
+      return { color: 'rgba(239, 68, 68, 1)' };
+    } else if (isYellow) {
+      return { color: 'rgba(234, 179, 8, 1)' };
+    } else if (isGreen) {
+      return { color: 'rgb(53, 165, 118)' };
+    } else {
+      return {};
+    }
+  };
+
   function calculateSurgeryPercentageForRange(
     rangeInMonths: number | 'all',
   ): { name: string; id: string; percentage: number }[] {
@@ -127,7 +146,11 @@ const SurgeryPercentage: React.FC = () => {
                   {surgery.name}
                 </div>
                 {surgery?.percentages.map((percentageObj, index) => (
-                  <div key={index} className="text-black pt-2 pb-2 px-4 w-10">
+                  <div
+                    key={index}
+                    className="text-black pt-2 pb-2 px-4 w-10"
+                    style={maxCellStyle(percentageObj.percentage.toFixed(0))}
+                  >
                     {percentageObj.percentage.toFixed(0)}%
                   </div>
                 ))}
