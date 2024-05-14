@@ -1,3 +1,5 @@
+import { IUser } from '@packages/entities/index.browser';
+
 export function indexBy<K extends keyof T, T>(
   key: K,
   array: T[],
@@ -93,4 +95,13 @@ export function formatHeaderDate(dateString: string) {
   }).format(date);
   const finalDate = formattedDate.replace(/(?<=^\w+),/, '');
   return finalDate;
+}
+
+export function hasPermission(
+  user: IUser | undefined,
+  requiredPermissions: string[],
+) {
+  return requiredPermissions.every(
+    (permission) => user?.permissions.includes(permission),
+  );
 }

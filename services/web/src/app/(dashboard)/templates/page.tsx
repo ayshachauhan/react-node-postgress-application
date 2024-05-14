@@ -10,7 +10,8 @@ import {
   clearSuccessMessage,
   fetchListings,
 } from '@root/store/reducers/templates';
-import { getPracticeId } from '@utils/index';
+// import { SanitizedUser } from '@root/store/types';
+// import { getPracticeId, hasPermission } from '@utils/index';
 import React, { useEffect, useState } from 'react';
 const Templates: React.FC = () => {
   const templates = useAppSelector((state) =>
@@ -57,6 +58,15 @@ const Templates: React.FC = () => {
   };
   const userInfo = useAppSelector(selectRecords);
   const userId = userInfo?.id;
+  // console.log(userInfo)
+  // const detailedUserInfo = useAppSelector((state) =>
+  //   userId
+  //     ? Object.values(state.users.entities).find(
+  //         ({ id }: SanitizedUser) => id === userId,
+  //       )
+  //     : undefined,
+  // );
+  // const canViewVideos = hasPermission(detailedUserInfo, ['view_templates']);
 
   useEffect(() => {
     if (practiceId && userId) {
