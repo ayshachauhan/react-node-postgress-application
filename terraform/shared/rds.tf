@@ -29,6 +29,35 @@ resource "aws_security_group" "postgres" {
   }
 }
 
+resource "aws_db_parameter_group" "postgres16" {
+  name   = "${var.platform}-env-${var.environment}-postgres16"
+  family = "postgres16"
+
+  dynamic "parameter" {
+    for_each = [
+      {
+        name         = "rds.force_ssl"
+        value        = "ddl"
+        apply_method = "0"
+      },
+    ]
+    content {
+      apply_method = lookup(parameter.value, "apply_method", null)
+      name         = parameter.value.name
+      value        = parameter.value.value
+    }
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+
+  tags = {
+     Name = "azentia-infra-${var.environment}-db"
+     Creator = "Terraform"
+  }
+}
+
 
 resource "aws_db_instance" "main" {
   identifier = "azentia-infra-${var.environment}-db"
@@ -36,6 +65,7 @@ resource "aws_db_instance" "main" {
   username   = lookup(var.environment_variables, "DB_USERNAME")
   password   = lookup(var.environment_variables, "DB_PASSWORD")
   db_name    = lookup(var.environment_variables, "DB_DATABASE")
+  parameter_group_name = aws_db_parameter_group.postgres16.name
   apply_immediately    = true
   engine               = "postgres"
   engine_version       = "16.1"
