@@ -5,8 +5,11 @@ import { ENVIRONMENT_VARIABLES } from './environment.enums';
 
 export const ENV_VARIABLES_SCHEMA: Record<ENVIRONMENT_VARIABLES, Joi.Schema> = {
   [ENVIRONMENT_VARIABLES.NODE_ENV]: Joi.string()
-    .valid('development', 'production', 'test', 'staging')
+    .valid('development', 'production')
     .default('development'),
+  [ENVIRONMENT_VARIABLES.ENVIRONMENT]: Joi.string()
+    .valid('dev', 'qa', 'prod')
+    .default('dev'),
   [ENVIRONMENT_VARIABLES.DB_HOST]: Joi.string().required(),
   [ENVIRONMENT_VARIABLES.BACKEND_PORT]: Joi.number().default(4000),
   [ENVIRONMENT_VARIABLES.DB_PORT]: Joi.number().required(),
