@@ -15,7 +15,7 @@
     "lint": "turbo lint",
     "lint:fix": "turbo lint:fix",
     "clean": "turbo clean",
-    "prepare": "husky install",
+    "prepare": "npx husky install",
     "commit": "git-cz",
     "lint-staged": "lint-staged",
     "migrate": "dotenv -e .env -- pnpm turbo run run-migrations"

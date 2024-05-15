@@ -1,10 +1,60 @@
 version: '3.6'
 services:
+  web:
+    container_name: web
+    build:
+      context: .
+      dockerfile: ./services/web/Dockerfile
+      args:
+        - NEXT_PUBLIC_API_BASE_URL=http://localhost:1600
+    restart: always
+    env_file: .env
+    environment:
+      - NODE_ENV=production
+      - WEB_PORT=8081
+      - NEXT_PUBLIC_API_BASE_URL=http://localhost:1600
+    ports:
+      - ${WEB_PORT:-1611}:${WEB_PORT:-1611}
+    networks:
+      - azentia_network
+    depends_on:
+      - db
+
+  backend:
+    container_name: backend
+    build:
+      context: .
+      dockerfile: ./services/backend/Dockerfile
+    restart: always
+    env_file: .env
+    environment:
+      - NODE_ENV=production
+      - BACKEND_PORT=${BACKEND_PORT:-1611}
+      - DB_HOST=${DB_HOST:-db}
+      - DB_PORT=${DB_PORT:-5432}
+      - DB_USERNAME=${DB_USERNAME:-azentia}
+      - DB_PASSWORD=${DB_PASSWORD:-azentia}
+      - DB_DATABASE=${DB_DATABASE:-azentia}
+      - FRONT_END_BASE_URL=http://localhost:8081
+      - SMTP_PORT=587
+      - SMTP_HOST=${SMTP_HOST}
+      - SMTP_EMAIL=${SMTP_EMAIL}
+      - SMTP_PASSWORD=${SMTP_PASSWORD}
+      - DEFAULT_USER_PASSWORD=${DEFAULT_USER_PASSWORD}
+      - TWILLIO_PASSWORD=${TWILLIO_PASSWORD}
+      - TWILLIO_USER=${TWILLIO_USER}
+    ports:
+      - ${BACKEND_PORT:-1600}:${BACKEND_PORT:-1600}
+    networks:
+      - azentia_network
+    depends_on:
+      - db
+
   db:
     image: postgres:16.0
     restart: always
     ports:
-      - 5432:5432
+      - ${DB_PORT:-5432}:${DB_PORT:-5432}
     environment:
       POSTGRES_PASSWORD: azentia
       POSTGRES_USER: azentia
@@ -12,6 +62,12 @@ services:
     volumes:
       - db_data:/var/lib/postgresql/data
       - ./pg:/docker-entrypoint-initdb.d/
+    networks:
+      - azentia_network
 
 volumes:
   db_data:
+
+networks:
+  azentia_network:
+    driver: bridge

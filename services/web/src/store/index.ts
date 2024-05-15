@@ -1,7 +1,8 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
-
+import apiMiddleware from './apiMiddleware'; // Import the API middleware
 import authReducer from './reducers/auth';
+import calendarReducer from './reducers/calendar';
 import evalsReducer from './reducers/evals';
 import insuranceTypesReducer from './reducers/insuranceTypes';
 import mediaReducer from './reducers/media';
@@ -9,6 +10,7 @@ import practiceHomesReducer from './reducers/practiceHomes';
 import practicesReducer from './reducers/practices';
 import referrersReducer from './reducers/referrer';
 import surgeryReducer from './reducers/surgery';
+import surgeryConfigurationReducer from './reducers/surgeryConfigurations';
 import surgeryTypeReducer from './reducers/surgeryTypes';
 import templatesReducer from './reducers/templates';
 import permissionsReducer from './reducers/userPermissions';
@@ -27,8 +29,12 @@ export const store = configureStore({
     evals: evalsReducer,
     referrers: referrersReducer,
     surgeries: surgeryReducer,
+    calendars: calendarReducer,
+    surgeryConfigurations: surgeryConfigurationReducer,
     permissions: permissionsReducer,
   },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().concat(apiMiddleware),
 });
 
 export type State = ReturnType<typeof store.getState>;

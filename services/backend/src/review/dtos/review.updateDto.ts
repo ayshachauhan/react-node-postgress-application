@@ -1,25 +1,30 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { ReferrerType } from '@packages/entities/referrer';
+import { ReviewStatus } from '@packages/entities/review';
 import { IsEnum, IsNotEmpty, IsOptional } from 'class-validator';
 
 export class updateReviewDto {
   @IsOptional()
   @IsNotEmpty()
   @ApiProperty()
-  firstName?: string;
+  practiceId?: string;
 
   @IsOptional()
   @IsNotEmpty()
   @ApiProperty()
-  lastName?: string;
-
-  @IsOptional()
-  @ApiProperty()
-  email?: string;
+  reviewDate?: Date;
 
   @IsOptional()
   @IsNotEmpty()
   @ApiProperty()
-  @IsEnum(ReferrerType)
-  referrerType?: ReferrerType;
+  reviewComment?: string;
+
+  @IsOptional()
+  @ApiProperty()
+  patientId?: string;
+
+  @IsOptional()
+  @IsNotEmpty()
+  @ApiProperty()
+  @IsEnum(ReviewStatus)
+  reviewStatus?: ReviewStatus;
 }

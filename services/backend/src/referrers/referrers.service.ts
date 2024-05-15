@@ -31,10 +31,26 @@ export class ReferrersService {
   ): Promise<ReferrersEntity> {
     const referrer = await this.referrers.findOne({
       where: { id: referrerId, practiceId },
+      relations: ['patients', 'patients.surgeries'],
     });
+
     if (!referrer) {
       throw new NotFoundException('Referrer not exists');
     }
+
+    if (referrer.patients && referrer.patients.length > 0) {
+      referrer.patients.forEach((patient) => {
+        if (patient.surgeries && patient.surgeries.length > 0) {
+          patient.surgeries.sort((a, b) => {
+            return (
+              new Date(b.dateCreated).getTime() -
+              new Date(a.dateCreated).getTime()
+            );
+          });
+        }
+      });
+    }
+
     return referrer;
   }
 
@@ -51,6 +67,7 @@ export class ReferrersService {
   async getReferrer(practiceId: string) {
     const referrers = await this.referrers.find({
       where: { practiceId },
+      relations: ['patients'],
     });
     return referrers;
   }

@@ -3,15 +3,15 @@ import { BaseEntity } from '../base.entity';
 import { InsuranceTypeEntity } from '../insuranceType';
 import { PatientEntity } from '../patient';
 import { PracticeHomesEntity } from '../practiceHomes';
-import { SurgeryTypeEntity } from '../surgeryType';
+import { SurgeryConfigurationEntity } from '../surgeryConfiguration';
 import { UserEntity } from '../user';
-import { ProcedureStatus } from './surgery.interface';
+import { ProcedureStatus, SelectedSurgeryOption } from './surgery.interface';
 
 @Entity('surgeries')
 export class SurgeryEntity extends BaseEntity {
-  @ManyToOne(() => SurgeryTypeEntity)
-  @JoinColumn({ name: 'surgeryTypeId' })
-  surgeryType: SurgeryTypeEntity;
+  @ManyToOne(() => SurgeryConfigurationEntity)
+  @JoinColumn({ name: 'surgeryConfigurationId' })
+  surgeryConfiguration: SurgeryConfigurationEntity;
 
   @ManyToOne(() => PatientEntity)
   @JoinColumn({ name: 'patientId' })
@@ -32,15 +32,25 @@ export class SurgeryEntity extends BaseEntity {
   @Column({ type: 'varchar' })
   insuranceDetails: string;
 
-  @Column()
+  @Column({
+    default: null,
+    nullable: true,
+  })
   date: Date;
 
   @Column()
-  eye: string;
+  bodyPart: string;
+
+  @Column({ type: 'jsonb' })
+  selectedSurgeryOptions: SelectedSurgeryOption;
 
   @Column()
   lensType: string;
 
   @Column({ type: 'enum', enum: ProcedureStatus })
   surgeryStatus: ProcedureStatus;
+  totalHospitalPricing: number;
+
+  @Column()
+  totalProfessionalPricing: number;
 }

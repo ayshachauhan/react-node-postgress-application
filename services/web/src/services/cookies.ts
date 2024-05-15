@@ -15,5 +15,8 @@ export const getCookie = (key: COOKIES): string | undefined => Cookies.get(key);
  * @param key {{COOKIES}}
  * @param value value to set for cookie
  */
-export const setCookie = (key: COOKIES, value: string): string | undefined =>
-  Cookies.set(key, value);
+export const setCookie = (
+  key: COOKIES,
+  value: string,
+  options?: Cookies.CookieAttributes,
+): string | undefined => Cookies.set(key, value, options);

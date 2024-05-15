@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Param,
   Post,
   Req,
   UnauthorizedException,
@@ -34,5 +35,11 @@ export class AuthController {
       await this.authService.setUserPractices(request.user);
     }
     return request.user;
+  }
+
+  @Get('/resetLink/:email')
+  async sendPasswordResetEmail(@Param('email') email: string): Promise<string> {
+    await this.authService.sendPasswordResetEmail(email);
+    return 'Mail sent Successfully';
   }
 }

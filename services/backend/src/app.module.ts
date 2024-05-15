@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { AuthModule } from './auth/auth.module';
+import { CalendarModule } from './calendar/calendar.module';
 import { EvalsModule } from './evals/evals.module';
 import { HealthModule } from './healthz/health.module';
 import { createInfraModuleProviders } from './infra.module.provider';
@@ -12,6 +13,7 @@ import { PracticesModule } from './practices/practices.module';
 import { ReferrersModule } from './referrers/referrers.module';
 import { ReviewsModule } from './review/review.module';
 import { SurgeryModule } from './surgery/surgery.module';
+import { SurgeryConfigurationsModule } from './surgeryConfiguration/surgeryConfiguration.module';
 import { SurgeryTypesModule } from './surgeryTypes/surgeryTypes.module';
 import { TemplatesModule } from './templates/templates.module';
 import { UsersModule } from './users/users.module';
@@ -37,6 +39,8 @@ import { UsersModule } from './users/users.module';
     PatientsModule,
     EvalsModule,
     SurgeryModule,
+    CalendarModule,
+    SurgeryConfigurationsModule,
   ],
 })
 export class AppModule {}

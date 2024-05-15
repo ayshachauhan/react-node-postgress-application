@@ -1,4 +1,4 @@
-import { IPracticeHomes } from '@packages/entities';
+import { IPracticeHomes } from '@packages/entities/index.browser';
 import { ApiService } from '@root/services/apiclient';
 import { CreatePracticeHomeInterface } from '.';
 

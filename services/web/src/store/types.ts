@@ -6,10 +6,10 @@ import {
   IPracticeHomes,
   IReferrer,
   ISurgery,
+  ISurgeryConfiguration,
   ISurgeryType,
   IUser,
-} from '@packages/entities';
-import {} from '@packages/entities/index.browser';
+} from '@packages/entities/index.browser';
 import { PracticesGetInterface } from 'src/store/requests/practices';
 import { GetUserResponse } from './requests/login/types';
 
@@ -40,7 +40,7 @@ export type InsuranceTypeState = EntitiesState<IInsuranceType> & {
 };
 
 export type SurgeryTypeState = EntitiesState<ISurgeryType> & {
-  surgeryTypeInfo: IInsuranceType | null;
+  surgeryTypeInfo: ISurgeryType | null;
 };
 
 export type EvalState = EntitiesState<IEval> & {
@@ -49,6 +49,10 @@ export type EvalState = EntitiesState<IEval> & {
 
 export type SurgeryState = EntitiesState<ISurgery> & {
   surgeryInfo: ISurgery | null;
+};
+
+export type SurgeryConfigurationState = EntitiesState<ISurgeryConfiguration> & {
+  surgeryConfigurationInfo: ISurgeryConfiguration | null;
 };
 
 export type PracticeHomeState = EntitiesState<IPracticeHomes>;

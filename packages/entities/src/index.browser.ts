@@ -1,4 +1,5 @@
 export * from './base.interface';
+export * from './calendar/calendar.interface';
 export * from './eval/eval.interface';
 export * from './insuranceType/insuranceType.interface';
 export * from './media/media.interface';
@@ -8,6 +9,7 @@ export * from './practice/practice.interface';
 export * from './practiceHomes/practiceHomes.interface';
 export * from './referrer/referrrer.interface';
 export * from './surgery/surgery.interface';
+export * from './surgeryConfiguration/surgeryConfiguration.interface';
 export * from './surgeryType/surgeryType.interface';
 export * from './template/template.interface';
 export * from './user/user.interface';
