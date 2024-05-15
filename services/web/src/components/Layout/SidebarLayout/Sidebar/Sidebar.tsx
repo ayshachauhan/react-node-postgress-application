@@ -2,6 +2,7 @@
 
 import { useAppSelector } from '@root/store';
 import { selectRecords } from '@root/store/reducers/auth';
+import { SanitizedUser } from '@root/store/types';
 import { ChevronDown, ChevronRightSmall } from 'baseui/icon';
 import clsx from 'clsx';
 import Link from 'next/link';
@@ -15,8 +16,18 @@ const Sidebar: React.FC = () => {
   const userInfo = useAppSelector(selectRecords);
   const is_super_admin = userInfo ? userInfo.isSuperAdmin : false;
   const userType = is_super_admin ? 'super_admin' : 'admin';
+  const userId = userInfo?.id;
+  const detailedUserInfo = useAppSelector((state) =>
+    userId
+      ? Object.values(state.users.entities).find(
+          ({ id }: SanitizedUser) => id === userId,
+        )
+      : undefined,
+  );
+  const userPermissions = detailedUserInfo?.permissions ?? [];
   const filteredSidebarItems: SideBarItem[] = filterSidebarItems(
     userType,
+    userPermissions,
     sidebarItems,
   );
 
