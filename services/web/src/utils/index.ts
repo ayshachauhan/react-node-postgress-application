@@ -101,7 +101,14 @@ export function hasPermission(
   user: IUser | undefined,
   requiredPermissions: string[],
 ) {
-  return requiredPermissions.every(
-    (permission) => user?.permissions.includes(permission),
+  if (!user) {
+    return false;
+  }
+
+  const userPermissionNames = user.permissions.map(
+    (permission) => permission.name,
+  );
+  return requiredPermissions.every((permission) =>
+    userPermissionNames.includes(permission),
   );
 }

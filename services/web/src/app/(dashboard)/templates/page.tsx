@@ -10,8 +10,7 @@ import {
   clearSuccessMessage,
   fetchListings,
 } from '@root/store/reducers/templates';
-// import { SanitizedUser } from '@root/store/types';
-// import { getPracticeId, hasPermission } from '@utils/index';
+import { getPracticeId } from '@utils/index';
 import React, { useEffect, useState } from 'react';
 const Templates: React.FC = () => {
   const templates = useAppSelector((state) =>

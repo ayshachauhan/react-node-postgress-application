@@ -13,6 +13,7 @@ import {
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
+import { Permission, UserPermissionsGuard } from 'src/userPermissions.guard';
 import { CreateVideoDto } from './dtos/createVideo.dto';
 import { UpdateVideoDto } from './dtos/update.video.dto';
 import { MediaService } from './media.service';
@@ -25,12 +26,16 @@ export class MediaController {
   constructor(private mediaService: MediaService) {}
 
   @Get()
+  @UseGuards(UserPermissionsGuard)
+  @Permission('view_videos')
   @UseInterceptors(practiceNotFoundInterceptor)
   getVideosByPractice(@Param('practiceId') practiceId: string) {
     return this.mediaService.getVideosByPracticeId(practiceId);
   }
 
   @Get(':id')
+  @UseGuards(UserPermissionsGuard)
+  @Permission('view_videos')
   @UseInterceptors(practiceNotFoundInterceptor)
   getVideoById(@Param() params: { practiceId: string; id: string }) {
     const { practiceId, id } = params;
@@ -38,6 +43,8 @@ export class MediaController {
   }
 
   @Post()
+  @UseGuards(UserPermissionsGuard)
+  @Permission('add_case')
   @UseInterceptors(practiceNotFoundInterceptor)
   createVideo(
     @Param('practiceId') practiceId: string,
@@ -47,6 +54,8 @@ export class MediaController {
   }
 
   @Delete(':id')
+  @UseGuards(UserPermissionsGuard)
+  @Permission('delete_case')
   @UseInterceptors(practiceNotFoundInterceptor)
   deleteVideoById(
     @Param('practiceId') practiceId: string,
@@ -56,6 +65,8 @@ export class MediaController {
   }
 
   @Patch(':id')
+  @UseGuards(UserPermissionsGuard)
+  @Permission('edit_case')
   @UseInterceptors(practiceNotFoundInterceptor)
   updateVideoByPracticeId(
     @Param('practiceId') practiceId: string,

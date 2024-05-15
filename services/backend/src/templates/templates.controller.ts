@@ -14,6 +14,7 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { TemplateEntity } from '@packages/entities/template';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
+import { Permission, UserPermissionsGuard } from 'src/userPermissions.guard';
 import { TemplateCreateDto } from './dto/template.createDto';
 import { TemplatePatchDto } from './dto/template.patchDto';
 import { TemplatesService } from './templates.service';
@@ -26,6 +27,8 @@ export class TemplatesController {
   constructor(private readonly templateService: TemplatesService) {}
 
   @Get()
+  @UseGuards(UserPermissionsGuard)
+  @Permission('view_templates')
   @UseInterceptors(practiceNotFoundInterceptor)
   async findAll(
     @Param() { practiceId, userId }: { practiceId: string; userId: string },
@@ -34,6 +37,8 @@ export class TemplatesController {
   }
 
   @Post()
+  @UseGuards(UserPermissionsGuard)
+  @Permission('add_case')
   @UseInterceptors(practiceNotFoundInterceptor)
   async create(
     @Body(new ValidationPipe()) templateCreateDto: TemplateCreateDto,
@@ -47,6 +52,8 @@ export class TemplatesController {
   }
 
   @Patch(':id')
+  @UseGuards(UserPermissionsGuard)
+  @Permission('edit_case')
   @UseInterceptors(practiceNotFoundInterceptor)
   async update(
     @Body(new ValidationPipe()) templatePatchDto: TemplatePatchDto,
@@ -66,6 +73,8 @@ export class TemplatesController {
   }
 
   @Delete(':id')
+  @UseGuards(UserPermissionsGuard)
+  @Permission('delete_case')
   async remove(@Param('id') id: string): Promise<void> {
     return await this.templateService.remove(id);
   }
