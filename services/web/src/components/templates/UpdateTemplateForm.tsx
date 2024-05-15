@@ -9,7 +9,8 @@ import {
   fetchListings,
   updateRecordAsync,
 } from '@root/store/reducers/templates';
-import { getPracticeId } from '@utils/index';
+import { SanitizedUser } from '@root/store/types';
+import { getPracticeId, hasPermission } from '@utils/index';
 import { Checkbox, STYLE_TYPE } from 'baseui/checkbox';
 import { Select } from 'baseui/select';
 import { Textarea } from 'baseui/textarea';
@@ -34,6 +35,22 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
   };
   const userInfo = useAppSelector(selectRecords);
   const userId = userInfo?.id;
+  const detailedInfoUser = useAppSelector((state) =>
+    userId
+      ? Object.values(state.users.entities).find(
+          ({ id }: SanitizedUser) => id === userId,
+        )
+      : undefined,
+  );
+  const userPermissions = detailedInfoUser?.permissions;
+  const deleteCaseAllowed =
+    userPermissions !== undefined
+      ? hasPermission(userPermissions, ['delete_case'])
+      : false;
+  const editCaseAllowed =
+    userPermissions !== undefined
+      ? hasPermission(userPermissions, ['edit_case'])
+      : false;
   const dispatch = useAppDispatch();
   const practiceId = getPracticeId();
   const templateId = data.id;
@@ -399,17 +416,21 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
           </div>
         </div>
         <div className="flex justify-end gap-5 mt-4">
-          <Button
-            type="button"
-            kind="tertiary"
-            title="Delete"
-            width={136}
-            onClick={onConfirmDelete}
-            style={{
-              backgroundColor: '#DC2626',
-            }}
-          />
-          <Button kind="primary" title="Update" width={136} />
+          {deleteCaseAllowed && (
+            <Button
+              type="button"
+              kind="tertiary"
+              title="Delete"
+              width={136}
+              onClick={onConfirmDelete}
+              style={{
+                backgroundColor: '#DC2626',
+              }}
+            />
+          )}
+          {editCaseAllowed && (
+            <Button kind="primary" title="Update" width={136} />
+          )}
         </div>
       </form>
     </div>

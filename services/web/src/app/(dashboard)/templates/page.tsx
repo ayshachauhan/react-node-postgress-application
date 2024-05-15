@@ -10,8 +10,11 @@ import {
   clearSuccessMessage,
   fetchListings,
 } from '@root/store/reducers/templates';
+import { SanitizedUser } from '@root/store/types';
+import { hasPermission } from '@root/utils';
 import { getPracticeId } from '@utils/index';
 import React, { useEffect, useState } from 'react';
+
 const Templates: React.FC = () => {
   const templates = useAppSelector((state) =>
     Object.values(state.templates.entities),
@@ -57,6 +60,18 @@ const Templates: React.FC = () => {
   };
   const userInfo = useAppSelector(selectRecords);
   const userId = userInfo?.id;
+  const detailedInfoUser = useAppSelector((state) =>
+    userId
+      ? Object.values(state.users.entities).find(
+          ({ id }: SanitizedUser) => id === userId,
+        )
+      : undefined,
+  );
+  const userPermissions = detailedInfoUser?.permissions;
+  const addCaseAllowed =
+    userPermissions !== undefined
+      ? hasPermission(userPermissions, ['add_case'])
+      : false;
 
   useEffect(() => {
     if (practiceId && userId) {
@@ -113,12 +128,16 @@ const Templates: React.FC = () => {
         {showErrorMessage && <div className="text-red-700">{errorMessage}</div>}
         <div className="flex w-2/6 justify-between">
           <div className="flex ml-5"></div>
-          <Button
-            kind="secondary"
-            title="Add New"
-            onClick={handleOpenAddModal}
-            startEnhancer={() => <AddIcon className="mt-2" size={25}></AddIcon>}
-          />
+          {addCaseAllowed && (
+            <Button
+              kind="secondary"
+              title="Add New"
+              onClick={handleOpenAddModal}
+              startEnhancer={() => (
+                <AddIcon className="mt-2" size={25}></AddIcon>
+              )}
+            />
+          )}
         </div>
       </div>
       <hr className="h-px my-2.5 px-0 mx-0 bg-gray-100 border-1 border-gray-100"></hr>
