@@ -1,5 +1,6 @@
 import { IsEmpty } from 'class-validator';
 import {
+  Column,
   CreateDateColumn,
   DeleteDateColumn,
   PrimaryGeneratedColumn,
@@ -22,4 +23,13 @@ export abstract class BaseEntity implements IBaseEntity {
 
   @DeleteDateColumn({ nullable: true, type: 'timestamp', select: false })
   dateDeleted?: Date;
+
+  @Column({ nullable: true, type: 'uuid' })
+  createdBy?: string;
+
+  @Column({ nullable: true, type: 'uuid' })
+  updatedBy?: string;
+
+  @Column({ nullable: true, type: 'uuid' })
+  deletedBy?: string;
 }

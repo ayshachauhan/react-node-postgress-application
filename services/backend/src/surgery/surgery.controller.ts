@@ -6,13 +6,13 @@ import {
   Param,
   Patch,
   Post,
-  UseGuards,
+  //UseGuards,
   UseInterceptors,
   ValidationPipe,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { SurgeryEntity } from '@packages/entities';
-import { AuthGuard } from 'src/auth/auth.guard';
+//import { AuthGuard } from 'src/auth/auth.guard';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
 import { CreateSurgeryDto } from './dto/createSurgery.dto';
 import { SurgeryService } from './surgery.service';
@@ -20,7 +20,7 @@ import { SurgeryService } from './surgery.service';
 @ApiTags('Surgery')
 @ApiBearerAuth('normal')
 @Controller('practices/:practiceId/surgery')
-@UseGuards(AuthGuard)
+//@UseGuards(AuthGuard)
 export class SurgeryController {
   constructor(private readonly surgeryService: SurgeryService) {}
 
@@ -53,14 +53,14 @@ export class SurgeryController {
   @Patch(':id')
   @UseInterceptors(practiceNotFoundInterceptor)
   async update(
-    @Body(new ValidationPipe()) createSurgeryDto: CreateSurgeryDto,
+    @Body() createSurgeryDto: CreateSurgeryDto,
     @Param()
-    { id }: { id: string },
+    { id, practiceId }: { id: string; practiceId: string },
   ): Promise<SurgeryEntity | null> {
     return this.surgeryService.update({
       createSurgeryDto,
-
       id,
+      practiceId
     });
   }
 

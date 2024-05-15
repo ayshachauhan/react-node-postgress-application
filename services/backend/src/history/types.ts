@@ -1,3 +1,5 @@
+import { EntityChanges, HistoryAction, HistoryType } from '@packages/entities';
+
 export type GetHistoryParams = {
   practiceId: string;
   userId: string;
@@ -5,12 +7,9 @@ export type GetHistoryParams = {
 
 export type GetHistoryByIdParams = GetHistoryParams & { id: string };
 
-export type GetCalendarBySurgeryTypeIdParams = GetCalendarsParams & {
-  surgeryConfigurationId: string;
-};
-
-export type CreateHistoryParams = Required<GetHistoryParams>;
-
-export type UpdateCalendarParams = GetCalendarByIdParams;
-
-export type UpdateCalendarsParams = GetCalendarsParams;
+export type CreateHistoryParams = {
+  entityId: string;
+  entityType: HistoryType;
+  action: HistoryAction;
+  changes?: EntityChanges
+} & Required<GetHistoryParams>;

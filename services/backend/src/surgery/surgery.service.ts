@@ -1,11 +1,17 @@
 import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ICalendar, SurgeryEntity } from '@packages/entities';
+import {
+  HistoryAction,
+  HistoryType,
+  ICalendar,
+  SurgeryEntity,
+} from '@packages/entities';
 import { PatientEntity } from '@packages/entities/patient';
 import moment from 'moment';
 import Mail from 'nodemailer/lib/mailer';
 import { ENVIRONMENT_VARIABLES } from 'src/enums/environment.enums';
+import { findChangedValues } from 'src/history/utils';
 import { InsuranceTypesService } from 'src/insuranceTypes/insuranceTypes.service';
 import { PatientsService } from 'src/patients/patients.service';
 import { PracticeHomesService } from 'src/practiceHomes/practiceHomes.service';
@@ -17,6 +23,7 @@ import { SystemTemplates } from 'src/transporter/transporter.types';
 import { UsersService } from 'src/users/users.service';
 import { In, Repository } from 'typeorm';
 import { CalendarService } from '../calendar/calendar.service';
+import { HistoryService } from '../history/history.service';
 import { PatientMailData } from './types';
 
 @Injectable()
@@ -42,6 +49,8 @@ export class SurgeryService {
     private calendarService: CalendarService,
     private readonly configService: ConfigService,
     private readonly transporterService: TransporterService,
+    @Inject(forwardRef(() => HistoryService))
+    private historyService: HistoryService,
   ) {}
 
   getFrontEndBaseUrl() {
@@ -156,6 +165,16 @@ export class SurgeryService {
         );
       }
     }
+
+    // create history entry after creating surgery
+    await this.historyService.createHistory({
+      practiceId,
+      userId: doctorEntity ? doctorEntity.id : createSurgeryDto.doctorId,
+      entityId: resultSurgery.id,
+      entityType: HistoryType.SURGERY,
+      action: HistoryAction.CREATE,
+    });
+
     const mailOptions: Mail.Options = {
       to: createSurgeryDto.email,
       subject: 'Eval/surgery registered',
@@ -185,12 +204,33 @@ export class SurgeryService {
     return resultSurgery;
   }
 
-  async update({ createSurgeryDto, id }): Promise<SurgeryEntity | null> {
+  async update({
+    createSurgeryDto,
+    id,
+    practiceId,
+  }): Promise<SurgeryEntity | null> {
     const surgeryToUpdate = await this.getSurgeryById(id);
+
+    console.log(surgeryToUpdate, 'sud');
 
     await this.surgeryRepository.update(id, {
       ...surgeryToUpdate,
       ...createSurgeryDto,
+    });
+
+    console.log(surgeryToUpdate, createSurgeryDto, 'current');
+
+    // to get changes we need to get the current entity first and then find out all those
+
+    await this.historyService.createHistory({
+      practiceId,
+      // confirm which doctor is this or are ewe even sending this from frontend is this a doctorid or loggedin userId ?
+      userId: createSurgeryDto.doctorId,
+      action: HistoryAction.UPDATE,
+      entityId: id,
+      entityType: HistoryType.SURGERY,
+      //@ts-expect-error error cdudodf
+      changes: findChangedValues(surgeryToUpdate, createSurgeryDto),
     });
 
     return await this.surgeryRepository.findOne({

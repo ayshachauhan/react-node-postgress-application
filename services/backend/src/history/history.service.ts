@@ -6,10 +6,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { HistoryEntity, UserEntity } from '@packages/entities';
-import { CalendarEntity } from '@packages/entities/calendar';
-import { SurgeryService } from 'src/surgery/surgery.service';
 import { Repository } from 'typeorm';
-import { EvalsService } from '../evals/evals.service';
 import { PracticesService } from '../practices/practices.service';
 import {
   CreateHistoryParams,
@@ -21,13 +18,9 @@ import {
 export class HistoryService {
   constructor(
     @InjectRepository(HistoryEntity)
-    private historyRepo: Repository<HistoryEntity>,
+    private readonly historyRepo: Repository<HistoryEntity>,
     @Inject(forwardRef(() => PracticesService))
     private practiceService: PracticesService,
-    @Inject(forwardRef(() => SurgeryService))
-    private surgeryService: SurgeryService,
-    @Inject(forwardRef(() => EvalsService))
-    private evalService: EvalsService,
   ) {}
 
   /**
@@ -68,62 +61,30 @@ export class HistoryService {
     return response;
   }
 
-//   /**
-//    * Get calendar by calendarid
-//    * @param params
-//    * @returns CalendarEntity
-//    */
-//   async getCalendarBySurgeryConfiguration(
-//     params: GetCalendarBySurgeryTypeIdParams,
-//   ): Promise<CalendarEntity[]> {
-//     const response: CalendarEntity[] | null = await this.calendarRepo.find({
-//       where: {
-//         surgeryConfiguration: {
-//           id: params.surgeryConfigurationId,
-//         },
-//       },
-//       relations: ['practice', 'surgeryConfiguration', 'user'],
-//     });
-//     if (!response) {
-//       throw new NotFoundException(
-//         'Calendar does not exists for this surgerytype',
-//       );
-//     }
-//     return response;
-//   }
-
   /**
    * Create Calendar
    * @param param0
    * @param dto
    * @returns
    */
-  async createHistory(
-    { practiceId, userId }: CreateHistoryParams,
-    dto: CreateCalendarDto,
-  ): Promise<CalendarEntity> {
-    const practiceEntity = await this.practiceService.findOne(practiceId);
+  async createHistory(dto: CreateHistoryParams): Promise<HistoryEntity> {
+    const practiceEntity = await this.practiceService.findOne(dto.practiceId);
 
     const userEntity = practiceEntity?.users.find(
-      (user: UserEntity) => user.id === userId,
+      (user: UserEntity) => user.id === dto.userId,
     );
 
-    const surgeryConfigurationEntity =
-      await this.surgeryConfifurationService.getSurgeryConfigurationById(
-        dto.surgeryConfigurationId,
-      );
+    console.log(dto, dto.changes, 'dtos');
 
-    console.log(dto, 'dtocreate');
-
-    //TODO: need to check why we need to add the ! operator here, giving typeerror whithout them about DeepPartialEntity
-    const calendar = this.calendarRepo.create({
-      ...dto,
-      bookedSlots: dto.bookedSlots ?? 0,
+    const history = this.historyRepo.create({
       practice: practiceEntity!,
-      surgeryConfiguration: surgeryConfigurationEntity!,
-      user: userEntity!,
+      user: userEntity,
+      entityType: dto.entityType,
+      entityId: dto.entityId,
+      action: dto.action,
+      changes: dto.changes,
     });
 
-    return this.calendarRepo.save(calendar);
+    return await this.historyRepo.save(history);
   }
 }

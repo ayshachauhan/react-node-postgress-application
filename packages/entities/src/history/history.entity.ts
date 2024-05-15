@@ -2,7 +2,12 @@ import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { BaseEntity } from '../base.entity';
 import { PracticeEntity } from '../practice/practice.entity';
 import { UserEntity } from '../user/user.entity';
-import { HistoryAction, HistoryType, IHistory } from './history.interface';
+import {
+  EntityChanges,
+  HistoryAction,
+  HistoryType,
+  IHistory,
+} from './history.interface';
 
 @Entity('history')
 export class HistoryEntity extends BaseEntity implements IHistory {
@@ -11,7 +16,7 @@ export class HistoryEntity extends BaseEntity implements IHistory {
   practice: PracticeEntity;
 
   @ManyToOne(() => UserEntity)
-  @JoinColumn({ name: 'surgeonId' })
+  @JoinColumn({ name: 'userId' })
   user: UserEntity;
 
   // ID of the entity that this history entry is related to
@@ -30,5 +35,5 @@ export class HistoryEntity extends BaseEntity implements IHistory {
   action: HistoryAction;
 
   @Column({ type: 'jsonb', nullable: true })
-  changes?: Record<string, unknown>;
+  changes?: EntityChanges;
 }
