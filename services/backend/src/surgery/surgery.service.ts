@@ -99,6 +99,7 @@ export class SurgeryService {
       createSurgeryDto,
       practiceEntity,
     );
+
     const surgeryTypeEntity = await this.surgeryTypeService.getSurgeryTypeById(
       createSurgeryDto.surgeryTypeId,
       practiceId,

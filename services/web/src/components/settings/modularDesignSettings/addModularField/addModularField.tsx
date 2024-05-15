@@ -86,8 +86,10 @@ const AddModularField: React.FC<{ onClose: () => void; items }> = ({
     if (key === 'category') {
       values[index][key] = event;
     } else {
-      if (optionIndex) values[index].options[optionIndex][key] = event;
+      if (typeof optionIndex === 'number')
+        values[index].options[optionIndex][key] = event;
     }
+
     setOptionsFields(values);
   };
 
@@ -249,9 +251,8 @@ const AddModularField: React.FC<{ onClose: () => void; items }> = ({
                   },
                 }}
               />
-              <div className="space-y-4"></div>
             </div>
-            <div className="space-y-2 flex-1">
+            <div className="space-y-2 flex-2">
               <label htmlFor="surgeryName" className="text-black text-sm">
                 Surgery Name
               </label>
@@ -326,7 +327,6 @@ const AddModularField: React.FC<{ onClose: () => void; items }> = ({
                     onClick={handleAddFields}
                   />
                 </div>
-                <div className="space-y-4"></div>
               </div>
             </div>
 
@@ -376,7 +376,7 @@ const AddModularField: React.FC<{ onClose: () => void; items }> = ({
           <div className="mt-4">
             <div className="flex">
               <div>
-                <label htmlFor="lastName" className="text-black text-lg">
+                <label htmlFor="options" className="text-black text-lg">
                   Options
                 </label>
               </div>
@@ -516,6 +516,7 @@ const AddModularField: React.FC<{ onClose: () => void; items }> = ({
                                 Hospital Pricing
                               </label>
                               <TextInput
+                                type="number"
                                 size={SIZE.mini}
                                 name="hospitalPricing"
                                 value={inputField.hospitalPricing}
@@ -540,6 +541,7 @@ const AddModularField: React.FC<{ onClose: () => void; items }> = ({
                               </label>
                               <TextInput
                                 size={SIZE.mini}
+                                type="number"
                                 name="professionalPricing"
                                 value={inputField.professionalPricing}
                                 onChange={(event) =>

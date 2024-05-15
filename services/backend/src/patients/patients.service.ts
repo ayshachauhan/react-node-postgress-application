@@ -53,12 +53,26 @@ export class PatientsService {
         );
       }
     }
-    const newPatient = this.patientRepository.create({
-      practice: practiceEntity,
-      referrer: referrerEntity,
-      ...createPatientDto,
-    });
-    return await this.patientRepository.save(newPatient);
+    const mrnCheck = await this.getPatientsByMrn(
+      practiceEntity.id,
+      createPatientDto.mrn,
+    );
+
+    if (mrnCheck) {
+      if (referrerEntity)
+        await this.patientRepository.update(mrnCheck.id, {
+          referrer: referrerEntity,
+        });
+
+      return (await this.getPatientsByPractice(practiceEntity.id))[0];
+    } else {
+      const newPatient = this.patientRepository.create({
+        practice: practiceEntity,
+        referrer: referrerEntity,
+        ...createPatientDto,
+      });
+      return await this.patientRepository.save(newPatient);
+    }
   }
 
   async update({ id, practiceId, data }): Promise<PatientEntity | null> {
@@ -74,9 +88,20 @@ export class PatientsService {
     });
   }
 
-  async getUsersByPractice(practiceId: string): Promise<PatientEntity[]> {
+  async getPatientsByPractice(practiceId: string): Promise<PatientEntity[]> {
     return this.patientRepository.find({
       where: { practice: { id: practiceId } },
+      relations: ['referrer'],
+    });
+  }
+
+  async getPatientsByMrn(
+    practiceId: string,
+    mrn: number,
+  ): Promise<PatientEntity | null> {
+    return this.patientRepository.findOne({
+      where: { practice: { id: practiceId }, mrn },
+      relations: ['referrer'],
     });
   }
 }

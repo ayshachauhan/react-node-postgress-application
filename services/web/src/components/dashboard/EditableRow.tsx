@@ -137,6 +137,7 @@ function EditableRow({
           <div className="w-20">
             <TextInput
               name="mrn"
+              type="number"
               value={obj.mrn}
               onChange={(value) => handleObjChange('mrn', value)}
               size={SIZE.mini}

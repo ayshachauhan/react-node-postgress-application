@@ -39,7 +39,7 @@ const Sidebar: React.FC = () => {
   return (
     <aside
       aria-label="Sidebar"
-      className="fixed top-0 left-0 w-64 h-screen translate-x-0 bg-gradient-to-b from-primary-dark to-primary-light"
+      className="fixed top-0 left-0 w-40 h-screen translate-x-0 bg-gradient-to-b from-primary-dark to-primary-light"
     >
       <div className="h-[168px] flex px-4 items-center justify-start">
         <Link href="/dashboard">
