@@ -1,4 +1,4 @@
-import { IUser } from '@packages/entities/index.browser';
+import { IPermission } from '@packages/entities/index.browser';
 
 export function indexBy<K extends keyof T, T>(
   key: K,
@@ -98,14 +98,10 @@ export function formatHeaderDate(dateString: string) {
 }
 
 export function hasPermission(
-  user: IUser | undefined,
+  userPermissions: IPermission[],
   requiredPermissions: string[],
 ) {
-  if (!user) {
-    return false;
-  }
-
-  const userPermissionNames = user.permissions.map(
+  const userPermissionNames = userPermissions.map(
     (permission) => permission.name,
   );
   return requiredPermissions.every((permission) =>
