@@ -1,13 +1,8 @@
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { BaseEntity } from '../base.entity';
-import { EvalEntity } from '../eval/eval.entity';
 import { PracticeEntity } from '../practice/practice.entity';
-import { SurgeryEntity } from '../surgery';
-import {
-  HistoryLogAction,
-  HistoryLogType,
-  IHistory,
-} from './history.interface';
+import { UserEntity } from '../user/user.entity';
+import { HistoryAction, HistoryType, IHistory } from './history.interface';
 
 @Entity('history')
 export class HistoryEntity extends BaseEntity implements IHistory {
@@ -15,23 +10,24 @@ export class HistoryEntity extends BaseEntity implements IHistory {
   @JoinColumn({ name: 'practiceId' })
   practice: PracticeEntity;
 
-  @ManyToOne(() => SurgeryEntity)
-  @JoinColumn({ name: 'surgeryId' })
-  surgery: SurgeryEntity;
+  @ManyToOne(() => UserEntity)
+  @JoinColumn({ name: 'surgeonId' })
+  user: UserEntity;
 
-  @ManyToOne(() => EvalEntity)
-  @JoinColumn({ name: 'evalId' })
-  eval: EvalEntity;
+  // ID of the entity that this history entry is related to
+  @Column({ type: 'uuid' })
+  entityId: string;
 
+  // Indicates the type of entity that this history entry is related to ('surgery' or 'eval')
   @Column({
     type: 'enum',
-    enum: HistoryLogType,
+    enum: HistoryType,
     nullable: true,
   })
-  historyLogType: HistoryLogType;
+  entityType: HistoryType;
 
-  @Column({ type: 'enum', enum: HistoryLogAction, nullable: true })
-  action: HistoryLogAction;
+  @Column({ type: 'enum', enum: HistoryAction, nullable: true })
+  action: HistoryAction;
 
   @Column({ type: 'jsonb', nullable: true })
   changes?: Record<string, unknown>;
