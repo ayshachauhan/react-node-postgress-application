@@ -1,14 +1,33 @@
 'use client';
+import { HistoryType, IHistory } from '@packages/entities/index.browser';
 import { DeleteIcon } from '@root/components/Icons';
-import { formatColumnDate, generateFullName } from '@utils/index';
-import React, { useState } from 'react';
+import { useAppDispatch, useAppSelector } from '@root/store';
+import { fetchHistory } from '@root/store/reducers/history';
+import {
+  formatColumnDate,
+  generateFullName,
+  getPracticeId,
+  getUserId,
+} from '@utils/index';
+import React, { useEffect, useState } from 'react';
 import DeleteHistoryModal from './DeleteHistoryModal';
 
 export default function HistoryTable() {
+  const dispatch = useAppDispatch();
+
+  const practiceId = getPracticeId();
+  const userId = getUserId() as string;
+
+  const { historyLogs, evals, surgeries } = useAppSelector((state) => ({
+    historyLogs: Object.values(state.history.entities),
+    evals: Object.values(state.evals.entities),
+    surgeries: Object.values(state.surgeries.entities),
+  }));
+
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const handleOpenDeleteModal = (): void => {
-    setIsDeleteModalOpen(true);
-  };
+  // const handleOpenDeleteModal = (): void => {
+  //   setIsDeleteModalOpen(true);
+  // };
   const handleCloseDeleteModal = (): void => {
     setIsDeleteModalOpen(false);
   };
@@ -18,6 +37,32 @@ export default function HistoryTable() {
     } catch (error) {
       console.log(error);
     }
+  };
+
+  useEffect(() => {
+    if (practiceId) fetchHistory({ practiceId, userId });
+  }, [practiceId, dispatch, userId]);
+
+  const getResolvedHistoryData = () => {
+    historyLogs.map((history: IHistory) => {
+      switch (history.entityType) {
+        case HistoryType.SURGERY: {
+          const surgeryData = surgeries.find(
+            (surgery) => surgery.id === history.entityId,
+          );
+          return {
+            ...surgeryData,
+          };
+        }
+
+        case HistoryType.EVAL: {
+          const evalData = evals.find((data) => data.id === history.entityId);
+          return {
+            ...evalData,
+          };
+        }
+      }
+    });
   };
 
   const historyData = [
@@ -139,10 +184,7 @@ export default function HistoryTable() {
               <div className="text-black pt-2 pb-2 px-1 w-40">{row.new}</div>
               <div className="text-black pt-2 pb-2 px-1 w-40">{row.ip}</div>
               <div className="text-black pt-2 pb-2 px-1 w-40">
-                <DeleteIcon
-                  style={{ cursor: 'pointer' }}
-                  onClick={() => handleOpenDeleteModal()}
-                />
+                <DeleteIcon style={{ cursor: 'pointer' }} />
               </div>
             </div>
           ))}
