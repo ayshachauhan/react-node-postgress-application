@@ -57,15 +57,6 @@ const Templates: React.FC = () => {
   };
   const userInfo = useAppSelector(selectRecords);
   const userId = userInfo?.id;
-  // console.log(userInfo)
-  // const detailedUserInfo = useAppSelector((state) =>
-  //   userId
-  //     ? Object.values(state.users.entities).find(
-  //         ({ id }: SanitizedUser) => id === userId,
-  //       )
-  //     : undefined,
-  // );
-  // const canViewVideos = hasPermission(detailedUserInfo, ['view_templates']);
 
   useEffect(() => {
     if (practiceId && userId) {
