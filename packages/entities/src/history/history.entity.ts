@@ -36,4 +36,7 @@ export class HistoryEntity extends BaseEntity implements IHistory {
 
   @Column({ type: 'jsonb', nullable: true })
   changes?: EntityChanges;
+
+  @Column({ nullable: true })
+  ipAddress: string;
 }

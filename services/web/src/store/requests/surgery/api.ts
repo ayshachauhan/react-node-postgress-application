@@ -6,13 +6,16 @@ const { API_BASE_URL } = publicRuntimeConfig;
 export const getSurgeries = async (
   payloadData: {
     practiceId: string;
+    includeDeleted?: boolean;
   },
   { rejectWithValue },
 ) => {
   try {
     const accessToken = Cookies.get('access_token');
     const response = await fetch(
-      `${API_BASE_URL}/practices/${payloadData.practiceId}/surgery`,
+      `${API_BASE_URL}/practices/${
+        payloadData.practiceId
+      }/surgery?includeDeleted=${payloadData.includeDeleted ?? false}`,
       {
         method: 'GET',
         headers: {

@@ -22,6 +22,8 @@ export const getHistory = async (
   try {
     const response: Response = await apiClient.get(getUrlPath(payload));
 
+    console.log(response, 'responsehistory');
+
     if (!response.ok) {
       throw new Error('Failed to fetch history');
     }

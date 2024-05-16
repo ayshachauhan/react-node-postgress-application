@@ -1,12 +1,13 @@
 import { IsEmpty } from 'class-validator';
 import {
-  Column,
   CreateDateColumn,
   DeleteDateColumn,
+  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { IBaseEntity } from './base.interface';
+import { UserEntity } from './user/user.entity';
 
 export const CREATE = 'CREATE';
 
@@ -24,12 +25,12 @@ export abstract class BaseEntity implements IBaseEntity {
   @DeleteDateColumn({ nullable: true, type: 'timestamp', select: false })
   dateDeleted?: Date;
 
-  @Column({ nullable: true, type: 'uuid' })
+  @ManyToOne(() => UserEntity, { nullable: true })
   createdBy?: string;
 
-  @Column({ nullable: true, type: 'uuid' })
+  @ManyToOne(() => UserEntity, { nullable: true })
   updatedBy?: string;
 
-  @Column({ nullable: true, type: 'uuid' })
+  @ManyToOne(() => UserEntity, { nullable: true })
   deletedBy?: string;
 }

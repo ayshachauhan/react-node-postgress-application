@@ -32,14 +32,15 @@ export class HistoryService {
     practiceId,
     userId,
   }: GetHistoryParams): Promise<HistoryEntity[]> {
+    console.log(practiceId, userId, 'inhservice');
     return await this.historyRepo.find({
       where: {
         practice: { id: practiceId },
-        user: {
-          id: userId,
-        },
+        // user: {
+        //   id: userId,
+        // },
       },
-      relations: ['practice', 'surgery', 'user'],
+      relations: ['practice', 'user'],
     });
   }
 
@@ -74,8 +75,6 @@ export class HistoryService {
       (user: UserEntity) => user.id === dto.userId,
     );
 
-    console.log(dto, dto.changes, 'dtos');
-
     const history = this.historyRepo.create({
       practice: practiceEntity!,
       user: userEntity,
@@ -83,6 +82,7 @@ export class HistoryService {
       entityId: dto.entityId,
       action: dto.action,
       changes: dto.changes,
+      ipAddress: dto.ipAddress,
     });
 
     return await this.historyRepo.save(history);

@@ -10,6 +10,7 @@ import {
 import { PatientEntity } from '@packages/entities/patient';
 import moment from 'moment';
 import Mail from 'nodemailer/lib/mailer';
+import { SanitizedUser } from 'src/auth/types';
 import { ENVIRONMENT_VARIABLES } from 'src/enums/environment.enums';
 import { findChangedValues } from 'src/history/utils';
 import { InsuranceTypesService } from 'src/insuranceTypes/insuranceTypes.service';
@@ -57,7 +58,10 @@ export class SurgeryService {
     return this.configService.get(ENVIRONMENT_VARIABLES.FRONT_END_BASE_URL);
   }
 
-  async findAll(practiceId: string): Promise<SurgeryEntity[]> {
+  async findAll(
+    practiceId: string,
+    includeDelete: boolean = false,
+  ): Promise<SurgeryEntity[]> {
     const dbPracticeHomesByPractice =
       await this.practiceHomesService.getPracticeHomesByPractice(practiceId);
 
@@ -67,6 +71,7 @@ export class SurgeryService {
           id: In(dbPracticeHomesByPractice.map((ele) => ele.id)),
         },
       },
+      withDeleted: includeDelete,
       relations: [
         'practiceHome',
         'surgeryConfiguration',
@@ -86,7 +91,10 @@ export class SurgeryService {
     return await this.surgeryRepository.findOneBy({ id });
   }
 
-  async create({ practiceId, createSurgeryDto }): Promise<SurgeryEntity> {
+  async create(
+    { practiceId, createSurgeryDto },
+    request: Request & { user: SanitizedUser },
+  ): Promise<SurgeryEntity> {
     const newSurgery: SurgeryEntity = new SurgeryEntity();
 
     const practiceEntity = await this.practiceService.findOne(practiceId);
@@ -169,7 +177,7 @@ export class SurgeryService {
     // create history entry after creating surgery
     await this.historyService.createHistory({
       practiceId,
-      userId: doctorEntity ? doctorEntity.id : createSurgeryDto.doctorId,
+      userId: request?.user.id,
       entityId: resultSurgery.id,
       entityType: HistoryType.SURGERY,
       action: HistoryAction.CREATE,
@@ -204,11 +212,10 @@ export class SurgeryService {
     return resultSurgery;
   }
 
-  async update({
-    createSurgeryDto,
-    id,
-    practiceId,
-  }): Promise<SurgeryEntity | null> {
+  async update(
+    { createSurgeryDto, id, practiceId },
+    request: Request & { user: SanitizedUser },
+  ): Promise<SurgeryEntity | null> {
     const surgeryToUpdate = await this.getSurgeryById(id);
 
     console.log(surgeryToUpdate, 'sud');
@@ -220,17 +227,15 @@ export class SurgeryService {
 
     console.log(surgeryToUpdate, createSurgeryDto, 'current');
 
-    // to get changes we need to get the current entity first and then find out all those
-
     await this.historyService.createHistory({
       practiceId,
-      // confirm which doctor is this or are ewe even sending this from frontend is this a doctorid or loggedin userId ?
-      userId: createSurgeryDto.doctorId,
+      userId: request?.user.id,
       action: HistoryAction.UPDATE,
       entityId: id,
       entityType: HistoryType.SURGERY,
-      //@ts-expect-error error cdudodf
       changes: findChangedValues(surgeryToUpdate, createSurgeryDto),
+      //@ts-expect-error fix this
+      ipAddress: request?.connection?.remoteAddress,
     });
 
     return await this.surgeryRepository.findOne({
@@ -238,7 +243,21 @@ export class SurgeryService {
     });
   }
 
-  async remove(id: string): Promise<void> {
+  async remove(
+    id: string,
+    practiceId: string,
+    request: Request & { user: SanitizedUser },
+  ): Promise<void> {
     await this.surgeryRepository.softDelete(id);
+
+    await this.historyService.createHistory({
+      practiceId,
+      userId: request?.user.id,
+      entityId: id,
+      entityType: HistoryType.SURGERY,
+      action: HistoryAction.DELETE,
+      //@ts-expect-error fix this
+      ipAddress: request?.connection?.remoteAddress,
+    });
   }
 }

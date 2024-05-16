@@ -11,5 +11,6 @@ export type CreateHistoryParams = {
   entityId: string;
   entityType: HistoryType;
   action: HistoryAction;
-  changes?: EntityChanges
+  changes?: EntityChanges;
+  ipAddress?: string;
 } & Required<GetHistoryParams>;
