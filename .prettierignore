@@ -7,10 +7,20 @@ tmp/**
 .prettierignore
 .gitignore
 .eslintignore
+.dockerignore
 favicon.ico
 
 /packages/*/dist
 
 /services/*/dist
+/services/*/Dockerfile
 /services/*/.next
 *.svg
+pnpm-lock.yaml
+
+terraform/provider.tf
+terraform/terraform.auto.tfvars
+
+.terraform
+terraform
+.terraform-version
