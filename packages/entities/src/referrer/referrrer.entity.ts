@@ -9,10 +9,10 @@ export class ReferrersEntity extends BaseEntity implements IReferrer {
   @Column({ type: 'uuid' })
   practiceId: string;
 
-  @Column({ type: 'varchar' })
+  @Column({ type: 'varchar', nullable: true })
   firstName: string;
 
-  @Column({ type: 'varchar' })
+  @Column({ type: 'varchar', nullable: true })
   lastName: string;
 
   @Column({ type: 'varchar' })
