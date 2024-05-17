@@ -10,27 +10,13 @@ import { SIZE, Select } from 'baseui/select';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 
-const SurgeryPage: React.FC<{ onClose: () => void }> = ({
-  onClose,
-  // items,
-}) => {
-  // const {
-  //   practiceHomesList,
-  //   surgeryTypesList,
-  //   insuranceTypesList,
-  //   referrersList,
-  //   usersList,
-  // } = items;
-
+const SurgeryPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const {
     practiceHomesList,
-    // surgeryTypesList,
     insuranceTypesList,
     referrersList,
     usersList,
-    // calendars,
     patientsList,
-    // surgeryConfigurationsList
   } = useAppSelector((state) => ({
     practiceHomesList: Object.values(state.practiceHomes.entities),
     surgeryTypesList: Object.values(state.surgeryTypes.entities),
