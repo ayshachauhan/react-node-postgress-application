@@ -3,6 +3,7 @@ export * from './calendar';
 export * from './eval';
 export * from './insuranceType';
 export * from './media';
+export * from './message';
 export * from './patient';
 export * from './permission';
 export * from './practice';

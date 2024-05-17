@@ -2,6 +2,7 @@ import {
   GetTemplatesResponse,
   IEval,
   IInsuranceType,
+  IMessage,
   IPermission,
   IPracticeHomes,
   IReferrer,
@@ -77,4 +78,8 @@ export type TemplateState = EntitiesState<GetTemplatesResponse> & {
 
 export type PermissionState = EntitiesState<IPermission> & {
   permissionInfo: IPermission | null;
+};
+
+export type MessageState = EntitiesState<IMessage> & {
+  messageInfo: IMessage | null;
 };

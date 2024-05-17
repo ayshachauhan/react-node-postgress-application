@@ -3,6 +3,7 @@ export * from './calendar/calendar.interface';
 export * from './eval/eval.interface';
 export * from './insuranceType/insuranceType.interface';
 export * from './media/media.interface';
+export * from './message/message.interface';
 export * from './patient/patient.interface';
 export * from './permission/permission.interface';
 export * from './practice/practice.interface';

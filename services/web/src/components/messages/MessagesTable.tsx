@@ -1,138 +1,114 @@
 'use client';
+import { IMessage } from '@packages/entities';
 import Button from '@root/components/Button';
+import { useAppDispatch, useAppSelector } from '@root/store';
+import {
+  clearErrorMessage,
+  clearSuccessMessage,
+  fetchListings,
+} from '@root/store/reducers/messages';
 import {
   formatColumnDate,
   formatHeaderDate,
   generateFullName,
+  getPracticeId,
 } from '@utils/index';
 import { Input } from 'baseui/input';
-import React, { useEffect, useState } from 'react';
-import { DeleteIcon, SearchIcon } from '../Icons';
-import DeleteMessageModal from './DeleteMessageModal';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { SearchIcon } from '../Icons';
+import MessageWithReadMore from './MessageWithReadMore';
 
 export default function MessagesTable() {
-  const [activeButton, setActiveButton] = useState<number | null>(0);
-  const toggleActive = (id: number) => {
+  const [activeButton, setActiveButton] = useState<string | null>('All');
+  const toggleActive = (id: string) => {
     setActiveButton(id);
+    filterData();
   };
+  const { successMessage, errorMessage } = useAppSelector((state) => ({
+    successMessage: state.referrers.successMessage,
+    errorMessage: state.referrers.errorMessage,
+  }));
   const [searchMRN, setSearchMRN] = useState('');
   const [groupedData, setGroupedData] = useState<{
-    [date: string]: MessageRecord[];
+    [date: string]: IMessage[];
   }>({});
   const handleClearClick = () => {};
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const handleOpenDeleteModal = (): void => {
-    setIsDeleteModalOpen(true);
-  };
-  const handleCloseDeleteModal = (): void => {
-    setIsDeleteModalOpen(false);
-  };
+  const practiceId = getPracticeId();
+  const [showModal, setShowModal] = useState(false);
+  const [showErrorMessage, setShowErrorMessage] = useState(false);
+  const dispatch = useAppDispatch();
 
-  const onConfirmDelete = (): void => {
-    try {
-      setIsDeleteModalOpen(false);
-    } catch (error) {
-      console.log(error);
+  useEffect(() => {
+    if (practiceId !== null) {
+      dispatch(fetchListings({ practiceId: practiceId }));
     }
-  };
+  }, [practiceId, dispatch]);
 
-  const messagesData = [
-    {
-      id: '1',
-      date: '2024-04-20T03:43:06.686Z',
-      surgery: 'Right Cataract',
-      firstName: 'Victoria',
-      lastName: 'Maxwell',
-      mrn: '787125',
-      contactNo: '243645612',
-      email: 'y@mythicalmarketplace.elysium',
-      emailContent:
-        '<h1>Welcome to My Website</h1><p>This is a sample paragraph with <strong>bold</strong> and <em>italic</em> text.</p><p>Here is a list:</p><ul><li>Item 1</li><li>Item 2</li><li>Item 3</li></ul><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore .</p><h1>Welcome to My Website</h1><p>This is a sample paragraph with <strong>bold</strong> and <em>italic</em> text.</p><p>Here is a list:</p><ul><li>Item 1</li><li>Item 2</li><li>Item 3</li></ul><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore .</p><h1>Welcome to My Website</h1><p>This is a sample paragraph with <strong>bold</strong> and <em>italic</em> text.</p><p>Here is a list:</p><ul><li>Item 1</li><li>Item 2</li><li>Item 3</li></ul><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore .</p>',
-      text: '<h1>Welcome to My Website</h1><p>This is a sample paragraph with <strong>bold</strong> and <em>italic</em> text.</p><p>Here is a list:</p><ul><li>Item 1</li><li>Item 2</li><li>Item 3</li></ul><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore .</p><h1>Welcome to My Website</h1><p>This is a sample paragraph with <strong>bold</strong> and <em>italic</em> text.</p><p>Here is a list:</p><ul><li>Item 1</li><li>Item 2</li><li>Item 3</li></ul><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore .</p><h1>Welcome to My Website</h1><p>This is a sample paragraph with <strong>bold</strong> and <em>italic</em> text.</p><p>Here is a list:</p><ul><li>Item 1</li><li>Item 2</li><li>Item 3</li></ul><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore .</p>',
-      deleteAction: <DeleteIcon />,
-    },
-    {
-      id: '1',
-      date: '2024-04-25T03:43:06.686Z',
-      surgery: 'Right Cataract',
-      firstName: 'Victoria',
-      lastName: 'Maxwell',
-      mrn: '707135',
-      contactNo: '243645612',
-      email: 'y@mythicalmarketplace.elysium',
-      emailContent:
-        '<h1>Welcome to My Website</h1><p>This is a sample paragraph with <strong>bold</strong> and <em>italic</em> text.</p><p>Here is a list:</p><ul><li>Item 1</li><li>Item 2</li><li>Item 3</li></ul><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore .</p><h1>Welcome to My Website</h1><p>This is a sample paragraph with <strong>bold</strong> and <em>italic</em> text.</p><p>Here is a list:</p><ul><li>Item 1</li><li>Item 2</li><li>Item 3</li></ul><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore .</p><h1>Welcome to My Website</h1><p>This is a sample paragraph with <strong>bold</strong> and <em>italic</em> text.</p><p>Here is a list:</p><ul><li>Item 1</li><li>Item 2</li><li>Item 3</li></ul><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore .</p>',
-      text: '<h1>Welcome to My Website</h1><p>This is a sample paragraph with <strong>bold</strong> and <em>italic</em> text.</p><p>Here is a list:</p><ul><li>Item 1</li><li>Item 2</li><li>Item 3</li></ul><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore .</p><h1>Welcome to My Website</h1><p>This is a sample paragraph with <strong>bold</strong> and <em>italic</em> text.</p><p>Here is a list:</p><ul><li>Item 1</li><li>Item 2</li><li>Item 3</li></ul><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore .</p><h1>Welcome to My Website</h1><p>This is a sample paragraph with <strong>bold</strong> and <em>italic</em> text.</p><p>Here is a list:</p><ul><li>Item 1</li><li>Item 2</li><li>Item 3</li></ul><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore .</p>',
-      deleteAction: <DeleteIcon />,
-    },
-    {
-      id: '1',
-      date: '2024-04-15T03:43:06.686Z',
-      surgery: 'Right Cataract',
-      firstName: 'Victoria',
-      lastName: 'Maxwell',
-      mrn: '087135',
-      contactNo: '243645612',
-      email: 'y@mythicalmarketplace.elysium',
-      emailContent:
-        '<h1>Welcome to My Website</h1><p>This is a sample paragraph with <strong>bold</strong> and <em>italic</em> text.</p><p>Here is a list:</p><ul><li>Item 1</li><li>Item 2</li><li>Item 3</li></ul><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore .</p><h1>Welcome to My Website</h1><p>This is a sample paragraph with <strong>bold</strong> and <em>italic</em> text.</p><p>Here is a list:</p><ul><li>Item 1</li><li>Item 2</li><li>Item 3</li></ul><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore .</p><h1>Welcome to My Website</h1><p>This is a sample paragraph with <strong>bold</strong> and <em>italic</em> text.</p><p>Here is a list:</p><ul><li>Item 1</li><li>Item 2</li><li>Item 3</li></ul><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore .</p>',
-      text: '<h1>Welcome to My Website</h1><p>This is a sample paragraph with <strong>bold</strong> and <em>italic</em> text.</p><p>Here is a list:</p><ul><li>Item 1</li><li>Item 2</li><li>Item 3</li></ul><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore .</p><h1>Welcome to My Website</h1><p>This is a sample paragraph with <strong>bold</strong> and <em>italic</em> text.</p><p>Here is a list:</p><ul><li>Item 1</li><li>Item 2</li><li>Item 3</li></ul><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore .</p><h1>Welcome to My Website</h1><p>This is a sample paragraph with <strong>bold</strong> and <em>italic</em> text.</p><p>Here is a list:</p><ul><li>Item 1</li><li>Item 2</li><li>Item 3</li></ul><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore .</p>',
-      deleteAction: <DeleteIcon />,
-    },
-    {
-      id: '1',
-      date: '2024-04-15T03:43:06.686Z',
-      surgery: 'Right Cataract',
-      firstName: 'Victoria',
-      lastName: 'Maxwell',
-      mrn: '217135',
-      contactNo: '243645612',
-      email: 'y@mythicalmarketplace.elysium',
-      emailContent:
-        '<h1>Welcome to My Website</h1><p>This is a sample paragraph with <strong>bold</strong> and <em>italic</em> text.</p><p>Here is a list:</p><ul><li>Item 1</li><li>Item 2</li><li>Item 3</li></ul><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore .</p><h1>Welcome to My Website</h1><p>This is a sample paragraph with <strong>bold</strong> and <em>italic</em> text.</p><p>Here is a list:</p><ul><li>Item 1</li><li>Item 2</li><li>Item 3</li></ul><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore .</p><h1>Welcome to My Website</h1><p>This is a sample paragraph with <strong>bold</strong> and <em>italic</em> text.</p><p>Here is a list:</p><ul><li>Item 1</li><li>Item 2</li><li>Item 3</li></ul><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore .</p>',
-      text: '<h1>Welcome to My Website</h1><p>This is a sample paragraph with <strong>bold</strong> and <em>italic</em> text.</p><p>Here is a list:</p><ul><li>Item 1</li><li>Item 2</li><li>Item 3</li></ul><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore .</p><h1>Welcome to My Website</h1><p>This is a sample paragraph with <strong>bold</strong> and <em>italic</em> text.</p><p>Here is a list:</p><ul><li>Item 1</li><li>Item 2</li><li>Item 3</li></ul><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore .</p><h1>Welcome to My Website</h1><p>This is a sample paragraph with <strong>bold</strong> and <em>italic</em> text.</p><p>Here is a list:</p><ul><li>Item 1</li><li>Item 2</li><li>Item 3</li></ul><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore .</p>',
-      deleteAction: <DeleteIcon />,
-    },
-    {
-      id: '2',
-      date: '2024-04-15T03:43:06.686Z',
-      surgery: 'Right Cataract',
-      firstName: 'Victoria',
-      lastName: 'Maxwell',
-      mrn: '452135',
-      contactNo: '43658760802',
-      email: 'y@mythicalmarketplace.elysium',
-      emailContent:
-        '<h1>Welcome to My Website</h1><p>This is a sample paragraph with <strong>bold</strong> and <em>italic</em> text.</p><p>Here is a list:</p><ul><li>Item 1</li><li>Item 2</li><li>Item 3</li></ul><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore .</p><h1>Welcome to My Website</h1><p>This is a sample paragraph with <strong>bold</strong> and <em>italic</em> text.</p><p>Here is a list:</p><ul><li>Item 1</li><li>Item 2</li><li>Item 3</li></ul><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore .</p><h1>Welcome to My Website</h1><p>This is a sample paragraph with <strong>bold</strong> and <em>italic</em> text.</p><p>Here is a list:</p><ul><li>Item 1</li><li>Item 2</li><li>Item 3</li></ul><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore .</p>',
-      text: '<h1>Welcome to My Website</h1><p>This is a sample paragraph with <strong>bold</strong> and <em>italic</em> text.</p><p>Here is a list:</p><ul><li>Item 1</li><li>Item 2</li><li>Item 3</li></ul><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore .</p><h1>Welcome to My Website</h1><p>This is a sample paragraph with <strong>bold</strong> and <em>italic</em> text.</p><p>Here is a list:</p><ul><li>Item 1</li><li>Item 2</li><li>Item 3</li></ul><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore .</p><h1>Welcome to My Website</h1><p>This is a sample paragraph with <strong>bold</strong> and <em>italic</em> text.</p><p>Here is a list:</p><ul><li>Item 1</li><li>Item 2</li><li>Item 3</li></ul><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore .</p>',
-      deleteAction: <DeleteIcon />,
-    },
-  ];
+  useEffect(() => {
+    let timer;
+    if (successMessage) {
+      setShowModal(true);
+      timer = setTimeout(() => {
+        setShowModal(false);
+        dispatch(clearSuccessMessage());
+      }, 2000);
+    }
+    if (errorMessage) {
+      setShowErrorMessage(true);
+      timer = setTimeout(() => {
+        setShowErrorMessage(false);
+        dispatch(clearErrorMessage());
+      }, 2000);
+    }
+    return () => {
+      if (timer) {
+        clearTimeout(timer);
+      }
+    };
+  }, [successMessage, errorMessage, dispatch]);
 
-  interface MessageRecord {
-    id: string;
-    date: string;
-    surgery: string;
-    firstName: string;
-    lastName: string;
-    mrn: string;
-    contactNo: string;
-    email: string;
-    emailContent: string;
-    text: string;
-    deleteAction: JSX.Element;
-  }
+  const messagesData = useAppSelector((state) =>
+    Object.values(state.messages.entities),
+  );
 
-  const [filteredData, setFilteredData] = useState<MessageRecord[]>([]);
-  const filterData = () => {
+  const [filteredData, setFilteredData] = useState<IMessage[]>([]);
+  const filterData = useCallback(() => {
+    if (!messagesData) return [];
+
     let filtered = [...messagesData];
+
     if (searchMRN) {
-      filtered = filtered.filter((row) =>
-        row.mrn.toLowerCase().includes(searchMRN.toLowerCase()),
+      const searchValue = searchMRN.toLowerCase();
+      filtered = filtered.filter(
+        (row) =>
+          row.mrn.toLowerCase().includes(searchValue) ||
+          row.firstName.toLowerCase().includes(searchValue) ||
+          row.lastName.toLowerCase().includes(searchValue),
       );
     }
-    setFilteredData(filtered);
-  };
+
+    if (activeButton === 'Referrers') {
+      filtered = filtered.filter((row) =>
+        row.emailType.toLowerCase().includes('referrer'),
+      );
+    }
+
+    if (activeButton === 'Emails') {
+      filtered = filtered.filter(
+        (row) =>
+          row.emailType.toLowerCase().includes('timed') ||
+          row.emailType.toLowerCase().includes('eval'),
+      );
+    }
+
+    if (activeButton === 'Texts') {
+      filtered = filtered.filter((row) =>
+        row.emailType.toLowerCase().includes('immediate'),
+      );
+    }
+
+    return filtered;
+  }, [messagesData, searchMRN, activeButton]);
 
   const handleSearchMRNChange = (event) => {
     const mrn = event.target.value.toLowerCase();
@@ -140,17 +116,28 @@ export default function MessagesTable() {
     filterData();
   };
 
+  const filteredDataRef = useRef<IMessage[]>([]);
   useEffect(() => {
-    filterData();
-  }, [searchMRN]);
+    const filteredData = filterData();
+    if (
+      JSON.stringify(filteredData) !== JSON.stringify(filteredDataRef.current)
+    ) {
+      setFilteredData(filteredData);
+      filteredDataRef.current = filteredData;
+    }
+  }, [messagesData, searchMRN, filterData]);
 
-  const generateGroupedData = (data: MessageRecord[]) => {
+  const generateGroupedData = (data: IMessage[]) => {
     return data.reduce(
-      (acc: { [date: string]: MessageRecord[] }, curr: MessageRecord) => {
-        if (!acc[curr.date]) {
-          acc[curr.date] = [curr];
+      (acc: { [date: string]: IMessage[] }, curr: IMessage) => {
+        const currentDate = new Date(curr.dateCreated)
+          .toISOString()
+          .split('T')[0];
+
+        if (!acc[currentDate]) {
+          acc[currentDate] = [curr];
         } else {
-          acc[curr.date].push(curr);
+          acc[currentDate].push(curr);
         }
         return acc;
       },
@@ -165,8 +152,11 @@ export default function MessagesTable() {
   return (
     <div className="mt-4 mb-8">
       <div className="flex justify-between border-gray-400">
-        <span className="text-xl font-bold">All Messages(30)</span>
-
+        <span className="text-xl font-bold">
+          All Messages({messagesData.length})
+        </span>
+        {showModal && <div className="text-green-700">{successMessage}</div>}
+        {showErrorMessage && <div className="text-red-700">{errorMessage}</div>}
         <div className="flex justify-between">
           <Input
             name="search"
@@ -176,6 +166,7 @@ export default function MessagesTable() {
             overrides={{
               Root: {
                 style: {
+                  width: '300px',
                   borderTopRightRadius: '0',
                   borderBottomRightRadius: '0',
                   borderRight: '0',
@@ -208,12 +199,12 @@ export default function MessagesTable() {
       <hr className="h-px my-2.5 bg-gray-100 border-1 dark:bg-gray-700"></hr>
       <div className="flex w-full bg-green-50 pr-2 border-b border-green-200 items-center">
         <div className="flex items-center">
-          {['All', 'Emails', 'Texts', 'Referrers'].map((item, index) => (
-            <div className="mr-1" key={index}>
+          {['All', 'Emails', 'Texts', 'Referrers'].map((item) => (
+            <div className="mr-1" key={item}>
               <button
                 className="py-2 px-4 text-xs text-black text-normal border-b-2 border-transparent hover:text-white hover:bg-gradient-to-r from-primary-light to-primary-dark hover:rounded-t-lg"
                 style={{
-                  ...(activeButton === index && {
+                  ...(activeButton === item && {
                     backgroundImage:
                       'linear-gradient(to right, rgba(53, 165, 118, 1), rgba(17, 113, 128, 1))',
                     color: 'white',
@@ -221,7 +212,7 @@ export default function MessagesTable() {
                     borderTopRightRadius: '0.5rem',
                   }),
                 }}
-                onClick={() => toggleActive(index)}
+                onClick={() => toggleActive(item)}
               >
                 {item}
               </button>
@@ -257,9 +248,6 @@ export default function MessagesTable() {
                 </div>
                 <div className="font-bold text-white py-2 px-1 w-80">Email</div>
                 <div className="font-bold text-white py-2 px-1 w-80">Text</div>
-                <div className="font-bold text-white py-2 px-1 w-10">
-                  Action
-                </div>
               </div>
               {records.map((row, index) => (
                 <div
@@ -272,10 +260,10 @@ export default function MessagesTable() {
                   }`}
                 >
                   <div className="text-black  pt-2 pb-2 px-1 w-20">
-                    {formatColumnDate(row.date)}
+                    {formatColumnDate(row.dateCreated)}
                   </div>
                   <div className="text-black  pt-2 pb-2 px-1 w-40">
-                    {row.surgery}
+                    {row.emailDetail}
                   </div>
                   <div className="text-black  pt-2 pb-2 px-1 w-40">
                     {row ? generateFullName(row.firstName, row.lastName) : null}
@@ -283,35 +271,18 @@ export default function MessagesTable() {
                   <div className="text-black  pt-2 pb-2 px-1 w-20">
                     {row.mrn}
                   </div>
-                  <div className="text-black  pt-2 pb-2 px-1 overflow-hidden whitespace-nowrap w-40">
-                    <p>Cell: {row.contactNo}</p>
+                  <div className="text-black  pt-2 pb-2 px-1 overflow-hidden w-40">
+                    <p>Cell: {row.phone}</p>
                     <p>Email: {row.email}</p>
                   </div>
-                  <div className="text-black  pt-2 pb-2 px-1 overflow-hidden whitespace-nowrap w-80">
-                    <div
-                      dangerouslySetInnerHTML={{ __html: row.emailContent }}
-                    />
-                  </div>
-                  <div className="text-black  pt-2 pb-2 px-1 overflow-hidden whitespace-nowrap w-80">
-                    <div dangerouslySetInnerHTML={{ __html: row.text }} />
-                  </div>
-                  <div className="text-black  pt-2 pb-2 px-1 w-10">
-                    <DeleteIcon
-                      style={{ cursor: 'pointer' }}
-                      onClick={() => handleOpenDeleteModal()}
-                    />
-                  </div>
+                  <MessageWithReadMore key={index} message={row.message} />
+                  <MessageWithReadMore key={index} message={row.textBody} />
                 </div>
               ))}
             </div>
           ))}
         </div>
       )}
-      <DeleteMessageModal
-        onConfirmDelete={onConfirmDelete}
-        isDeleteModalOpen={isDeleteModalOpen}
-        handleCloseDeleteModal={handleCloseDeleteModal}
-      />
     </div>
   );
 }

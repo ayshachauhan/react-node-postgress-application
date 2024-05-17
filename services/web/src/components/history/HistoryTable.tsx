@@ -124,7 +124,7 @@ export default function HistoryTable() {
               }`}
             >
               <div className="text-black pt-2 pb-2 px-1 w-40">
-                {formatColumnDate(row.date)}
+                {formatColumnDate(new Date(row.date))}
               </div>
               <div className="text-black pt-2 pb-2 px-1 w-40">
                 {row ? generateFullName(row.firstName, row.lastName) : null}
