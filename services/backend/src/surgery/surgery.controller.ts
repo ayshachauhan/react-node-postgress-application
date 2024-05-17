@@ -17,6 +17,7 @@ import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundIn
 import { CreateSurgeryDto } from 'src/surgery/dto/createSurgery.dto';
 import { UpdateSurgeryDto } from 'src/surgery/dto/updateSurgery.dto';
 import { SurgeryService } from 'src/surgery/surgery.service';
+import { Permission, UserPermissionsGuard } from 'src/userPermissions.guard';
 
 @ApiTags('Surgery')
 @ApiBearerAuth('normal')
@@ -40,6 +41,8 @@ export class SurgeryController {
   }
 
   @Post()
+  @UseGuards(UserPermissionsGuard)
+  @Permission('add_case')
   @UseInterceptors(practiceNotFoundInterceptor)
   async create(
     @Body(new ValidationPipe()) createSurgeryDto: CreateSurgeryDto,
@@ -67,6 +70,8 @@ export class SurgeryController {
   }
 
   @Delete(':id')
+  @UseGuards(UserPermissionsGuard)
+  @Permission('delete_case')
   async remove(@Param('id') id: string): Promise<void> {
     return await this.surgeryService.remove(id);
   }

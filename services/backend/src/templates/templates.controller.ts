@@ -37,8 +37,6 @@ export class TemplatesController {
   }
 
   @Post()
-  @UseGuards(UserPermissionsGuard)
-  @Permission('add_case')
   @UseInterceptors(practiceNotFoundInterceptor)
   async create(
     @Body(new ValidationPipe()) templateCreateDto: TemplateCreateDto,
@@ -73,8 +71,6 @@ export class TemplatesController {
   }
 
   @Delete(':id')
-  @UseGuards(UserPermissionsGuard)
-  @Permission('delete_case')
   async remove(@Param('id') id: string): Promise<void> {
     return await this.templateService.remove(id);
   }

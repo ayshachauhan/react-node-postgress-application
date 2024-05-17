@@ -43,8 +43,6 @@ export class MediaController {
   }
 
   @Post()
-  @UseGuards(UserPermissionsGuard)
-  @Permission('add_case')
   @UseInterceptors(practiceNotFoundInterceptor)
   createVideo(
     @Param('practiceId') practiceId: string,
@@ -54,8 +52,6 @@ export class MediaController {
   }
 
   @Delete(':id')
-  @UseGuards(UserPermissionsGuard)
-  @Permission('delete_case')
   @UseInterceptors(practiceNotFoundInterceptor)
   deleteVideoById(
     @Param('practiceId') practiceId: string,

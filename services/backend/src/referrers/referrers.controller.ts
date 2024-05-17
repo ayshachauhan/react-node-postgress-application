@@ -29,8 +29,6 @@ export class ReferrersController {
   constructor(private referrerService: ReferrersService) {}
 
   @Post()
-  @UseGuards(UserPermissionsGuard)
-  @Permission('add_case')
   @UseInterceptors(practiceNotFoundInterceptor)
   createReferrer(
     @Param('practiceId') practiceId: string,
@@ -40,8 +38,6 @@ export class ReferrersController {
   }
 
   @Delete('/:id')
-  @UseGuards(UserPermissionsGuard)
-  @Permission('delete_case')
   deleteReferrerById(
     @Param('practiceId') practiceId: string,
     @Param('id') id: string,

@@ -91,17 +91,9 @@ export default function ReferrerTable() {
       : undefined,
   );
   const userPermissions = detailedInfoUser?.permissions;
-  const addCaseAllowed =
-    userPermissions !== undefined
-      ? hasPermission(userPermissions, ['add_case'])
-      : false;
   const editCaseAllowed =
     userPermissions !== undefined
       ? hasPermission(userPermissions, ['edit_case'])
-      : false;
-  const deleteCaseAllowed =
-    userPermissions !== undefined
-      ? hasPermission(userPermissions, ['delete_case'])
       : false;
   const isChecked = (firstName: string, lastName: string): boolean => {
     return firstName.trim() !== '' || lastName.trim() !== '';
@@ -140,14 +132,12 @@ export default function ReferrerTable() {
         <span className="text-xl font-bold">Referrer</span>
         {showModal && <div className="text-green-700">{successMessage}</div>}
         {showErrorMessage && <div className="text-red-700">{errorMessage}</div>}
-        {addCaseAllowed && (
-          <Button
-            kind="secondary"
-            title="Add"
-            onClick={handleOpenModal}
-            startEnhancer={() => <AddIcon className="mt-2" size={25}></AddIcon>}
-          />
-        )}
+        <Button
+          kind="secondary"
+          title="Add"
+          onClick={handleOpenModal}
+          startEnhancer={() => <AddIcon className="mt-2" size={25}></AddIcon>}
+        />
       </div>
       <hr className="h-px my-2.5 bg-gray-100 border-1 border-gray-100"></hr>
       <div className="w-full overflow-x-auto mt-2 border rounded-t-lg rounded-b-lg border-gray-200">
@@ -218,14 +208,12 @@ export default function ReferrerTable() {
                     <EditIcon className="mt-2"></EditIcon>
                   </div>
                 )}
-                {deleteCaseAllowed && (
-                  <div
-                    onClick={() => data.id && handleOpenDeleteModal(data.id)}
-                    className="cursor-pointer"
-                  >
-                    <DeleteIcon className="mt-2"></DeleteIcon>
-                  </div>
-                )}
+                <div
+                  onClick={() => data.id && handleOpenDeleteModal(data.id)}
+                  className="cursor-pointer"
+                >
+                  <DeleteIcon className="mt-2"></DeleteIcon>
+                </div>
               </div>
             </div>
           </React.Fragment>
