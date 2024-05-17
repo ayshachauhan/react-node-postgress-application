@@ -18,6 +18,7 @@ export interface ISurgery extends IBaseEntity {
   selectedSurgeryOptions: SelectedSurgeryOption;
   totalHospitalPricing: number;
   totalProfessionalPricing: number;
+  selectedCheckListOptions: CheckListOptions;
 }
 
 export interface CreateSurgeryPayload {
@@ -40,6 +41,7 @@ export interface CreateSurgeryPayload {
   selectedSurgeryOptions: SelectedSurgeryOption;
   totalHospitalPricing: number;
   totalProfessionalPricing: number;
+  selectedCheckListOptions?: CheckListOptions;
 }
 
 export interface SelectedSurgeryOption {
@@ -48,4 +50,25 @@ export interface SelectedSurgeryOption {
     hospitalPricing: number;
     value: string;
   };
+}
+
+export interface CheckListOptions {
+  [ket: string]: {
+    value: string;
+  };
+}
+
+export interface UpdateSurgeryPayload {
+  practiceId?: string;
+  insuranceTypeId?: string;
+  date: Date;
+  firstName: string;
+  lastName: string;
+  mrn: string;
+  bodyPart: string;
+  selectedSurgeryOptions: SelectedSurgeryOption;
+  selectedCheckListOptions?: CheckListOptions;
+  totalHospitalPricing: number;
+  totalProfessionalPricing: number;
+  details?: string;
 }

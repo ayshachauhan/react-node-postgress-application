@@ -15,6 +15,7 @@ import { SurgeryEntity } from '@packages/entities';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
 import { CreateSurgeryDto } from './dto/createSurgery.dto';
+import { UpdateSurgeryDto } from './dto/updateSurgery.dto';
 import { SurgeryService } from './surgery.service';
 
 @ApiTags('Surgery')
@@ -53,14 +54,15 @@ export class SurgeryController {
   @Patch(':id')
   @UseInterceptors(practiceNotFoundInterceptor)
   async update(
-    @Body(new ValidationPipe()) createSurgeryDto: CreateSurgeryDto,
+    @Body(new ValidationPipe()) createSurgeryDto: UpdateSurgeryDto,
     @Param()
-    { id }: { id: string },
+    { id, practiceId }: { id: string; practiceId: string },
   ): Promise<SurgeryEntity | null> {
     return this.surgeryService.update({
       createSurgeryDto,
 
       id,
+      practiceId,
     });
   }
 

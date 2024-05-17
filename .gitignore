@@ -51,3 +51,8 @@ out/
 # typescript
 *.tsbuildinfo
 
+terraform/provider.tf
+terraform/terraform.auto.tfvars
+
+.terraform
+

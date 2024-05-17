@@ -48,7 +48,7 @@ const UpsertCalendar: React.FC<{
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const practiceId = getPracticeId();
-    const userId = getUserId();
+    const userId: string | null = getUserId();
 
     if (practiceId && userId)
       if (isUpdating) {
