@@ -1,7 +1,11 @@
 import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ICalendar, SurgeryEntity } from '@packages/entities';
+import {
+  ICalendar,
+  SelectedSurgeryOption,
+  SurgeryEntity,
+} from '@packages/entities';
 import { PatientEntity } from '@packages/entities/patient';
 import moment from 'moment';
 import Mail from 'nodemailer/lib/mailer';
@@ -74,7 +78,17 @@ export class SurgeryService {
   }
 
   async getSurgeryById(id: string): Promise<SurgeryEntity | null> {
-    return await this.surgeryRepository.findOneBy({ id });
+    return await this.surgeryRepository.findOne({
+      where: { id },
+      relations: [
+        'practiceHome',
+        'surgeryConfiguration',
+        'patient',
+        'insuranceType',
+        'patient.referrer',
+        'doctor',
+      ],
+    });
   }
 
   async create({ practiceId, createSurgeryDto }): Promise<SurgeryEntity> {
@@ -110,6 +124,13 @@ export class SurgeryService {
       await this.surgeryConfigurationService.getSurgeryConfigurationById(
         createSurgeryDto.surgeryConfigurationId,
       );
+    const optionsArr: SelectedSurgeryOption[] = Object.values(
+      createSurgeryDto.selectedSurgeryOptions,
+    );
+    optionsArr.forEach((option) => {
+      createSurgeryDto.totalHospitalPricing += +option.hospitalPricing;
+      createSurgeryDto.totalProfessionalPricing += +option.professionalPricing;
+    });
 
     const resultSurgery = await this.surgeryRepository.save({
       ...newSurgery,
@@ -185,12 +206,47 @@ export class SurgeryService {
     return resultSurgery;
   }
 
-  async update({ createSurgeryDto, id }): Promise<SurgeryEntity | null> {
+  async update({
+    createSurgeryDto,
+    id,
+    practiceId,
+  }): Promise<SurgeryEntity | null> {
+    console.log(createSurgeryDto);
+
     const surgeryToUpdate = await this.getSurgeryById(id);
+
+    if (createSurgeryDto.insuranceTypeId) {
+      const insuranceTypeEntity =
+        await this.insuranceTypesService.getInsuranceTypeById(
+          createSurgeryDto.insuranceTypeId,
+          practiceId,
+        );
+
+      delete createSurgeryDto.insuranceTypeId;
+      createSurgeryDto.insuranceType = insuranceTypeEntity;
+    }
+
+    if (surgeryToUpdate) {
+      await this.patientService.update({
+        id: surgeryToUpdate.patient.id,
+        practiceId,
+        data: createSurgeryDto,
+      });
+    }
+    const dataToUpdate = {
+      insuranceType: createSurgeryDto.insuranceType
+        ? createSurgeryDto.insuranceType
+        : null,
+      date: createSurgeryDto.date,
+      selectedSurgeryOptions: createSurgeryDto.selectedSurgeryOptions,
+      totalHospitalPricing: createSurgeryDto.totalHospitalPricing,
+      totalProfessionalPricing: createSurgeryDto.totalProfessionalPricing,
+      selectedCheckListOptions: createSurgeryDto.selectedCheckListOption,
+    };
 
     await this.surgeryRepository.update(id, {
       ...surgeryToUpdate,
-      ...createSurgeryDto,
+      ...dataToUpdate,
     });
 
     return await this.surgeryRepository.findOne({
