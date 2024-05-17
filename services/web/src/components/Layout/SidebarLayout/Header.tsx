@@ -10,6 +10,7 @@ import {
   selectedPracticeName,
   userPractices,
 } from '@root/store/reducers/auth';
+import { fetchCalendars } from '@root/store/reducers/calendar';
 import { getPracticeInfo } from '@root/store/reducers/practices';
 import { fetchListings } from '@root/store/reducers/users';
 import { SanitizedUser } from '@root/store/types';
@@ -84,8 +85,12 @@ const Header: React.FC = () => {
     const user = findSelectedUser(userId);
 
     if (user) {
+      const userId = user.id;
       setSelectedUser(user);
       localStorage.setItem(SELECTED_DOCTOR_KEY, user.id);
+      if (practiceId !== null && userId !== null) {
+        dispatch(fetchCalendars({ practiceId, userId }));
+      }
     }
   };
 
