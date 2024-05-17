@@ -7,8 +7,9 @@ import {
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { fetchCalendars } from '@root/store/reducers/calendar';
 import { fetchListings } from '@root/store/reducers/surgeryConfigurations';
+import { SanitizedUser } from '@root/store/types';
 import { DEFAULT_SURGERYNAME_COLOR } from '@root/utils/constants';
-import { getPracticeId, getUserId } from '@root/utils/index';
+import { getPracticeId, getUserId, hasPermission } from '@root/utils/index';
 import { Modal, ModalBody, ModalHeader, ROLE } from 'baseui/modal';
 import moment from 'moment';
 import React, { useEffect, useState } from 'react';
@@ -28,6 +29,21 @@ export const DEFAULT_MAX_SLOTS: number = 14;
 const UpcomingSection: React.FC = () => {
   const dispatch = useAppDispatch();
   const userId: string | null = getUserId();
+  const userInfo = useAppSelector((state) => state.auth.user);
+  const loggedInUserId = userInfo?.id;
+  const detailedInfoUser = useAppSelector((state) =>
+    loggedInUserId
+      ? Object.values(state.users.entities).find(
+          ({ id }: SanitizedUser) => id === loggedInUserId,
+        )
+      : undefined,
+  );
+  const userPermissions = detailedInfoUser?.permissions;
+
+  const viewUpcomingSection =
+    userPermissions !== undefined
+      ? hasPermission(userPermissions, ['view_future_cases'])
+      : false;
 
   const { calendars, surgeryConfigurations } = useAppSelector((state) => ({
     calendars: Object.values(state.calendars.entities).filter(
@@ -248,7 +264,7 @@ const UpcomingSection: React.FC = () => {
     <div>
       <div className="text-lg font-normal flex justify-between">
         <span>Calendar</span>
-        {selectedSurgery && (
+        {selectedSurgery && viewUpcomingSection && (
           <div className="flex">
             <div
               className="cursor-pointer px-2"
@@ -267,88 +283,103 @@ const UpcomingSection: React.FC = () => {
         )}
       </div>
       <hr className="h-px my-2.5 bg-gray-100 border-1 border-gray-100"></hr>
-      <div className="flex w-full bg-green-50 pr-2 border-b border-green-200 items-center">
-        <div className="flex items-center">
-          {surgeryConfigurations.map((item: ISurgeryConfiguration, index) => (
-            <div className="mr-1" key={index}>
-              <button
-                className="py-2 px-4 text-xs text-black text-normal border-b-2 border-transparent hover:text-white hover:bg-gradient-to-r from-primary-light to-primary-dark hover:rounded-t-lg"
-                style={{
-                  ...(selectedSurgery?.id === item.id && {
-                    backgroundImage:
-                      'linear-gradient(to right, rgba(53, 165, 118, 1), rgba(17, 113, 128, 1))',
-                    color: 'white',
-                    borderTopLeftRadius: '0.5rem',
-                    borderTopRightRadius: '0.5rem',
-                  }),
-                }}
-                onClick={() => toggleActive(item)}
-              >
-                {item.name}
-              </button>
+      {viewUpcomingSection && (
+        <div>
+          <div className="flex w-full bg-green-50 pr-2 border-b border-green-200 items-center">
+            <div className="flex items-center">
+              {surgeryConfigurations.map(
+                (item: ISurgeryConfiguration, index) => (
+                  <div className="mr-1" key={index}>
+                    <button
+                      className="py-2 px-4 text-xs text-black text-normal border-b-2 border-transparent hover:text-white hover:bg-gradient-to-r from-primary-light to-primary-dark hover:rounded-t-lg"
+                      style={{
+                        ...(selectedSurgery?.id === item.id && {
+                          backgroundImage:
+                            'linear-gradient(to right, rgba(53, 165, 118, 1), rgba(17, 113, 128, 1))',
+                          color: 'white',
+                          borderTopLeftRadius: '0.5rem',
+                          borderTopRightRadius: '0.5rem',
+                        }),
+                      }}
+                      onClick={() => toggleActive(item)}
+                    >
+                      {item.name}
+                    </button>
+                  </div>
+                ),
+              )}
             </div>
-          ))}
-        </div>
-      </div>
-      <div className="mt-2 flex gap-5 overflow-x-auto text-xs">
-        {splitCalendarData(filteredCalendars).map(
-          (calendar: CalendarData[], index: number) => (
-            <div className="border-r-4 border-gray-200 pr-4 flex" key={index}>
-              <div className="mt-2 text-xs">
-                <div className="text-gray-50 w-full items-center bg-gray-50 rounded-lg">
-                  <>
-                    <div className="bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 flex">
-                      <div className="font-bold text-white p-4 w-10">T</div>
-                      <div className="font-bold text-white p-4 w-40">Date</div>
-                      <div className="font-bold text-white p-4 w-10">Now</div>
-                      <div className="font-bold text-white p-4 w-10">Max</div>
-                      <div className="font-bold text-white p-4 w-10"></div>
-                    </div>
-                    {calendar.map((data: CalendarData, index) => {
-                      const availableSlots: number =
-                        data.maxSlots - data.bookedSlots;
-                      return (
-                        <React.Fragment key={data.id}>
-                          <div
-                            className={`flex items-center ${
-                              index !== calendar.length - 1
-                                ? 'border-b border-gray-300'
-                                : ''
-                            }`}
-                          >
-                            <div
-                              className="text-black bg-gray-50 pt-2 pb-2 px-4 w-10"
-                              style={{ background: data.surgeryNameColor }}
-                            >
-                              {data.surgeryName}
-                            </div>
-                            <div className="text-black bg-gray-50 pt-2 pb-2 px-4 w-40">
-                              {moment(data.date).format('YYYY-MM-DD')}
-                            </div>
-                            <div className="text-black bg-gray-50 pt-2 pb-2 px-4 w-10">
-                              {data.bookedSlots}
-                            </div>
-                            <div className="text-black bg-gray-50 pt-2 pb-2 px-4 w-10">
-                              {data.maxSlots}
-                            </div>
-                            <div
-                              className="text-black bg-gray-50 pt-2 pb-2 px-4 w-10 text-center"
-                              style={maxCellStyle(availableSlots)}
-                            >
-                              {appendAddSign(availableSlots)}
-                            </div>
+          </div>
+          <div className="mt-2 flex gap-5 overflow-x-auto text-xs">
+            {splitCalendarData(filteredCalendars).map(
+              (calendar: CalendarData[], index: number) => (
+                <div
+                  className="border-r-4 border-gray-200 pr-4 flex"
+                  key={index}
+                >
+                  <div className="mt-2 text-xs">
+                    <div className="text-gray-50 w-full items-center bg-gray-50 rounded-lg">
+                      <>
+                        <div className="bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 flex">
+                          <div className="font-bold text-white p-4 w-10">T</div>
+                          <div className="font-bold text-white p-4 w-40">
+                            Date
                           </div>
-                        </React.Fragment>
-                      );
-                    })}
-                  </>
+                          <div className="font-bold text-white p-4 w-10">
+                            Now
+                          </div>
+                          <div className="font-bold text-white p-4 w-10">
+                            Max
+                          </div>
+                          <div className="font-bold text-white p-4 w-10"></div>
+                        </div>
+                        {calendar.map((data: CalendarData, index) => {
+                          const availableSlots: number =
+                            data.maxSlots - data.bookedSlots;
+                          return (
+                            <React.Fragment key={data.id}>
+                              <div
+                                className={`flex items-center ${
+                                  index !== calendar.length - 1
+                                    ? 'border-b border-gray-300'
+                                    : ''
+                                }`}
+                              >
+                                <div
+                                  className="text-black bg-gray-50 pt-2 pb-2 px-4 w-10"
+                                  style={{ background: data.surgeryNameColor }}
+                                >
+                                  {data.surgeryName}
+                                </div>
+                                <div className="text-black bg-gray-50 pt-2 pb-2 px-4 w-40">
+                                  {moment(data.date).format('YYYY-MM-DD')}
+                                </div>
+                                <div className="text-black bg-gray-50 pt-2 pb-2 px-4 w-10">
+                                  {data.bookedSlots}
+                                </div>
+                                <div className="text-black bg-gray-50 pt-2 pb-2 px-4 w-10">
+                                  {data.maxSlots}
+                                </div>
+                                <div
+                                  className="text-black bg-gray-50 pt-2 pb-2 px-4 w-10 text-center"
+                                  style={maxCellStyle(availableSlots)}
+                                >
+                                  {appendAddSign(availableSlots)}
+                                </div>
+                              </div>
+                            </React.Fragment>
+                          );
+                        })}
+                      </>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
-          ),
-        )}
-      </div>
-      <UpsertCalendarModal isUpdating={isUpdating} />
+              ),
+            )}
+          </div>
+          <UpsertCalendarModal isUpdating={isUpdating} />
+        </div>
+      )}
     </div>
   );
 };
