@@ -5,7 +5,7 @@ export interface CreateEvalInterface {
   insuranceTypeId?: string;
   insuranceDetails?: string;
   date: Date;
-  mrn: string;
+  mrn: number;
   firstName: string;
   lastName: string;
   email: string;
@@ -26,7 +26,7 @@ export interface EvalResponse {
   insuranceTypeId?: string;
   insuranceDetails?: string;
   date: Date;
-  mrn: string;
+  mrn: number;
   firstName: string;
   lastName: string;
   email: string;

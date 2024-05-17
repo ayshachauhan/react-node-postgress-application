@@ -6,7 +6,7 @@ export interface SurgeryResponse {
   insuranceTypeId?: string;
   insuranceDetails?: string;
   date: Date;
-  mrn: string;
+  mrn: number;
   firstName: string;
   lastName: string;
   email: string;

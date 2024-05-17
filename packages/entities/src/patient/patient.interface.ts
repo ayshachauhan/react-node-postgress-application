@@ -5,7 +5,7 @@ import { ISurgery } from '../surgery';
 
 export interface IPatient extends IBaseEntity {
   practice: IPractice;
-  mrn: string;
+  mrn: number;
   firstName: string;
   lastName: string;
   phoneNumber: string;

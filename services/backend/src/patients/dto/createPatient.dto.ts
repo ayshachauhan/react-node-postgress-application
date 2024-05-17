@@ -4,7 +4,7 @@ import { IsNotEmpty, IsOptional } from 'class-validator';
 export class CreatePatientDto {
   @IsNotEmpty({ message: 'MRN is required' })
   @ApiProperty()
-  mrn: string;
+  mrn: number;
 
   @IsNotEmpty({ message: 'first name is required' })
   @ApiProperty()

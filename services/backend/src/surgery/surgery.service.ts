@@ -99,6 +99,7 @@ export class SurgeryService {
       createSurgeryDto,
       practiceEntity,
     );
+
     const surgeryTypeEntity = await this.surgeryTypeService.getSurgeryTypeById(
       createSurgeryDto.surgeryTypeId,
       practiceId,
@@ -211,8 +212,6 @@ export class SurgeryService {
     id,
     practiceId,
   }): Promise<SurgeryEntity | null> {
-    console.log(createSurgeryDto);
-
     const surgeryToUpdate = await this.getSurgeryById(id);
 
     if (createSurgeryDto.insuranceTypeId) {
