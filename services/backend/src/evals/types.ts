@@ -2,7 +2,7 @@ export type PatientMailData = {
   practiceName?: string;
   firstName: string;
   email: string;
-  mrn: string;
+  mrn: number;
   phoneNumber: string;
   lastName: string;
   date: string;

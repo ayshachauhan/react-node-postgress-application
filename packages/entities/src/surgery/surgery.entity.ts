@@ -5,7 +5,11 @@ import { PatientEntity } from '../patient';
 import { PracticeHomesEntity } from '../practiceHomes';
 import { SurgeryConfigurationEntity } from '../surgeryConfiguration';
 import { UserEntity } from '../user';
-import { ISurgery, SelectedSurgeryOption } from './surgery.interface';
+import {
+  CheckListOptions,
+  ISurgery,
+  SelectedSurgeryOption,
+} from './surgery.interface';
 
 @Entity('surgeries')
 export class SurgeryEntity extends BaseEntity implements ISurgery {
@@ -49,4 +53,7 @@ export class SurgeryEntity extends BaseEntity implements ISurgery {
 
   @Column()
   totalProfessionalPricing: number;
+
+  @Column({ type: 'jsonb', nullable: true })
+  selectedCheckListOptions: CheckListOptions;
 }

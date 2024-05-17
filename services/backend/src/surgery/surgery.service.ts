@@ -5,6 +5,7 @@ import {
   HistoryAction,
   HistoryType,
   ICalendar,
+  SelectedSurgeryOption,
   SurgeryEntity,
 } from '@packages/entities';
 import { PatientEntity } from '@packages/entities/patient';
@@ -88,7 +89,17 @@ export class SurgeryService {
   }
 
   async getSurgeryById(id: string): Promise<SurgeryEntity | null> {
-    return await this.surgeryRepository.findOneBy({ id });
+    return await this.surgeryRepository.findOne({
+      where: { id },
+      relations: [
+        'practiceHome',
+        'surgeryConfiguration',
+        'patient',
+        'insuranceType',
+        'patient.referrer',
+        'doctor',
+      ],
+    });
   }
 
   async create(
@@ -102,6 +113,7 @@ export class SurgeryService {
       createSurgeryDto,
       practiceEntity,
     );
+
     const surgeryTypeEntity = await this.surgeryTypeService.getSurgeryTypeById(
       createSurgeryDto.surgeryTypeId,
       practiceId,
@@ -127,6 +139,13 @@ export class SurgeryService {
       await this.surgeryConfigurationService.getSurgeryConfigurationById(
         createSurgeryDto.surgeryConfigurationId,
       );
+    const optionsArr: SelectedSurgeryOption[] = Object.values(
+      createSurgeryDto.selectedSurgeryOptions,
+    );
+    optionsArr.forEach((option) => {
+      createSurgeryDto.totalHospitalPricing += +option.hospitalPricing;
+      createSurgeryDto.totalProfessionalPricing += +option.professionalPricing;
+    });
 
     const resultSurgery = await this.surgeryRepository.save({
       ...newSurgery,
@@ -218,11 +237,38 @@ export class SurgeryService {
   ): Promise<SurgeryEntity | null> {
     const surgeryToUpdate = await this.getSurgeryById(id);
 
-    console.log(surgeryToUpdate, 'sud');
+    if (createSurgeryDto.insuranceTypeId) {
+      const insuranceTypeEntity =
+        await this.insuranceTypesService.getInsuranceTypeById(
+          createSurgeryDto.insuranceTypeId,
+          practiceId,
+        );
+
+      delete createSurgeryDto.insuranceTypeId;
+      createSurgeryDto.insuranceType = insuranceTypeEntity;
+    }
+
+    if (surgeryToUpdate) {
+      await this.patientService.update({
+        id: surgeryToUpdate.patient.id,
+        practiceId,
+        data: createSurgeryDto,
+      });
+    }
+    const dataToUpdate = {
+      insuranceType: createSurgeryDto.insuranceType
+        ? createSurgeryDto.insuranceType
+        : null,
+      date: createSurgeryDto.date,
+      selectedSurgeryOptions: createSurgeryDto.selectedSurgeryOptions,
+      totalHospitalPricing: createSurgeryDto.totalHospitalPricing,
+      totalProfessionalPricing: createSurgeryDto.totalProfessionalPricing,
+      selectedCheckListOptions: createSurgeryDto.selectedCheckListOption,
+    };
 
     await this.surgeryRepository.update(id, {
       ...surgeryToUpdate,
-      ...createSurgeryDto,
+      ...dataToUpdate,
     });
 
     console.log(surgeryToUpdate, createSurgeryDto, 'current');

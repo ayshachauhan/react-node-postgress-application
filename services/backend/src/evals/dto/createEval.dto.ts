@@ -28,7 +28,7 @@ export class CreateEvalDto {
 
   @IsNotEmpty({ message: 'mrn is required' })
   @ApiProperty()
-  mrn: string;
+  mrn: number;
 
   @IsNotEmpty({ message: 'first name is required' })
   @ApiProperty()

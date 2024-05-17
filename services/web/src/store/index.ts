@@ -7,6 +7,7 @@ import evalsReducer from './reducers/evals';
 import historyReducer from './reducers/history';
 import insuranceTypesReducer from './reducers/insuranceTypes';
 import mediaReducer from './reducers/media';
+import patientReducer from './reducers/patient';
 import practiceHomesReducer from './reducers/practiceHomes';
 import practicesReducer from './reducers/practices';
 import referrersReducer from './reducers/referrer';
@@ -34,6 +35,7 @@ export const store = configureStore({
     surgeryConfigurations: surgeryConfigurationReducer,
     permissions: permissionsReducer,
     history: historyReducer,
+    patients: patientReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(apiMiddleware),

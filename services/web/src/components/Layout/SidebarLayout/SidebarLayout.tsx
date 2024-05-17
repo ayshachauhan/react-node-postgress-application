@@ -10,7 +10,7 @@ const SidebarLayout: React.FC<{ children: React.ReactNode }> = ({
     <div className="w-full">
       <Sidebar />
 
-      <div className="ml-64">
+      <div className="ml-40">
         <Header />
 
         <div className="p-4 mt-14">{children}</div>

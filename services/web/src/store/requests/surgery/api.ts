@@ -1,4 +1,4 @@
-import { CreateSurgeryPayload } from '@packages/entities/index.browser';
+import { CreateSurgeryPayload, UpdateSurgeryPayload } from '@packages/entities';
 import Cookies from 'js-cookie';
 import { publicRuntimeConfig } from 'next.config';
 const { API_BASE_URL } = publicRuntimeConfig;
@@ -106,17 +106,46 @@ export const getSurgeryInfo = async (
     const response = await fetch(
       `${API_BASE_URL}/practices/${payloadData.practiceId}/surgery/${payloadData.id}`,
       {
-        method: 'POST',
+        method: 'GET',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${accessToken}`,
         },
-        body: JSON.stringify(payloadData),
+      },
+    );
+    const data = await response.json();
+
+    return data;
+  } catch (error) {
+    return rejectWithValue(error);
+  }
+};
+
+export const updateSurgery = async ({
+  payload,
+  id,
+}: {
+  payload: UpdateSurgeryPayload;
+  id: string;
+}) => {
+  try {
+    const { practiceId } = payload;
+    delete payload.practiceId;
+    const accessToken = Cookies.get('access_token');
+    const response = await fetch(
+      `${API_BASE_URL}/practices/${practiceId}/surgery/${id}`,
+      {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify(payload),
       },
     );
     const data = await response.json();
     return data;
   } catch (error) {
-    return rejectWithValue(error);
+    return error;
   }
 };

@@ -41,7 +41,6 @@ const historySlice = createSlice({
         state.errorMessage = 'No records found';
       }
 
-      //@ts-expect-error need to fix type
       state.entities = {
         ...state.entities,
         ...indexBy('id', action.payload),

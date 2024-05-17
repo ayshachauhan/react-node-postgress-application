@@ -15,6 +15,7 @@ import {
 } from '@root/store/reducers/evals';
 
 import { fetchListings as fetchInsuranceTypesList } from '@root/store/reducers/insuranceTypes';
+import { fetchListings as fetchPatients } from '@root/store/reducers/patient';
 import { fetchListings as fetchPracticeHomesListing } from '@root/store/reducers/practiceHomes';
 import { fetchListings as fetchReferrerList } from '@root/store/reducers/referrer';
 import {
@@ -54,6 +55,7 @@ const DashboardPage: React.FC = () => {
       dispatch(fetchReferrerList({ practiceId }));
       dispatch(fetchUsersList({ practiceId }));
       dispatch(fetchSurgeryConfigurationsListing({ practiceId }));
+      dispatch(fetchPatients({ practiceId }));
     }
   }, [practiceId, dispatch]);
 
@@ -65,6 +67,7 @@ const DashboardPage: React.FC = () => {
         dispatch(clearSurgerySuccessMessage());
         dispatch(clearEvalSuccessMessage());
         dispatch(fetchSurgeryConfigurationsListing({ practiceId }));
+        dispatch(fetchPatients({ practiceId }));
         if (userId) dispatch(fetchCalendars({ practiceId, userId }));
       }
     }
@@ -122,7 +125,7 @@ const DashboardPage: React.FC = () => {
         overrides={{
           Dialog: {
             style: () => ({
-              width: '1300px',
+              width: '900px',
               maxWidth: '90%',
               maxHeight: '90vh',
               overflowY: 'auto',
@@ -161,10 +164,10 @@ const DashboardPage: React.FC = () => {
   };
 
   return (
-    <div id="__next" className="mt-4">
+    <div id="__next" className="">
       <div className="flex justify-between border-gray-400 items-center">
         <span className="text-xl font-bold">Dashboard </span>
-        <div className="flex w-2/6 justify-between">
+        <div className="flex  justify-between">
           {showModal && (
             <div className="text-green-700">
               {addSurgerySuccessMessage
@@ -172,16 +175,21 @@ const DashboardPage: React.FC = () => {
                 : addEvalSuccessMessage}
             </div>
           )}
-          <div className="flex ml-5"></div>
-          <Button
-            kind="secondary"
-            title="Add"
-            onClick={handleOpenAddModal}
-            startEnhancer={() => <AddIcon className="mt-2" size={25}></AddIcon>}
-          />{' '}
+          <div className="flex">
+            <Button
+              kind="secondary"
+              title="Add"
+              height={40}
+              width={80}
+              onClick={handleOpenAddModal}
+              startEnhancer={() => (
+                <AddIcon className="mt-2" size={25}></AddIcon>
+              )}
+            />
+          </div>
         </div>
       </div>
-      <hr className="h-px my-2.5 px-0 mx-0 bg-gray-100 border-1 border-gray-100"></hr>
+      <hr className="h-px my-1 px-0 mx-0 bg-gray-100 border-1 border-gray-100"></hr>
       <div className="mt-1">
         <div className="flex justify-between gap-4">
           <div className="w-7/12 border border-solid rounded-lg px-2.5 py-2">
@@ -196,7 +204,7 @@ const DashboardPage: React.FC = () => {
         </div>
       </div>
       <div className="mt-2 mb-12">
-        <FiltersSection />
+        {practiceId && <FiltersSection practiceId={practiceId} />}
       </div>
       <FormModal />
     </div>

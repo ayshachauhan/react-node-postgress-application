@@ -16,9 +16,10 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { SurgeryEntity } from '@packages/entities';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
+import { CreateSurgeryDto } from '../surgery/dto/createSurgery.dto';
+import { UpdateSurgeryDto } from '../surgery/dto/updateSurgery.dto';
+import { SurgeryService } from '../surgery/surgery.service';
 import { SanitizedUser } from '../auth/types';
-import { CreateSurgeryDto } from './dto/createSurgery.dto';
-import { SurgeryService } from './surgery.service';
 
 @ApiTags('Surgery')
 @ApiBearerAuth('normal')
@@ -61,7 +62,7 @@ export class SurgeryController {
   @Patch(':id')
   @UseInterceptors(practiceNotFoundInterceptor)
   async update(
-    @Body() createSurgeryDto: CreateSurgeryDto,
+    @Body(new ValidationPipe()) createSurgeryDto: UpdateSurgeryDto,
     @Param()
     { id, practiceId }: { id: string; practiceId: string },
     @Req() request: Request & { user: SanitizedUser },

@@ -6,6 +6,7 @@ import {
   deleteSurgery,
   getSurgeries,
   getSurgeryInfo,
+  updateSurgery,
 } from '@store/requests/surgery';
 import { EntityLoadingState, SurgeryState } from 'src/store/types';
 
@@ -51,17 +52,17 @@ const surgeriesSlicer = createSlice({
         state.errorMessage = 'Failed to fetch records';
       }
     });
-    builder.addCase(fetchSurgeryTypeInfo.pending, (state) => {
+    builder.addCase(fetchSurgeryInfo.pending, (state) => {
       state.processing = true;
       state.status = EntityLoadingState.PENDING;
     });
 
-    builder.addCase(fetchSurgeryTypeInfo.fulfilled, (state, action) => {
+    builder.addCase(fetchSurgeryInfo.fulfilled, (state, action) => {
       state.status = EntityLoadingState.SUCCEEDED;
       state.surgeryInfo = action.payload;
     });
 
-    builder.addCase(fetchSurgeryTypeInfo.rejected, (state, action) => {
+    builder.addCase(fetchSurgeryInfo.rejected, (state, action) => {
       state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
         state.errorMessage = action.payload ?? 'Failed to fetch record info';
@@ -92,29 +93,23 @@ const surgeriesSlicer = createSlice({
       }
     });
 
-    builder.addCase(deleteRecordAsync.pending, (state) => {
+    builder.addCase(updateRecordAsync.pending, (state) => {
       state.processing = true;
       state.status = EntityLoadingState.PENDING;
     });
 
-    builder.addCase(deleteRecordAsync.fulfilled, (state, action) => {
+    builder.addCase(updateRecordAsync.fulfilled, (state) => {
       state.status = EntityLoadingState.SUCCEEDED;
-      const deletedSurgeryId = action?.meta?.arg?.id;
-      const {
-        // eslint-disable-next-line
-        [deletedSurgeryId]: deletedInsuranceType,
-        ...remainingRecord
-      } = state.entities;
-      state.entities = remainingRecord;
-      state.successMessage = 'Record deleted successfully';
+
+      state.successMessage = 'Record updated successfully';
     });
 
-    builder.addCase(deleteRecordAsync.rejected, (state, action) => {
+    builder.addCase(updateRecordAsync.rejected, (state, action) => {
       state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
-        state.errorMessage = action.payload ?? 'Failed to delete surgery type';
+        state.errorMessage = action.payload ?? 'Failed to update surgery.';
       } else {
-        state.errorMessage = 'Failed to delete surgery type';
+        state.errorMessage = 'Failed to update surgery.';
       }
     });
   },
@@ -127,7 +122,7 @@ export const fetchListings = createAsyncThunk(
   getSurgeries,
 );
 
-export const fetchSurgeryTypeInfo = createAsyncThunk(
+export const fetchSurgeryInfo = createAsyncThunk(
   'surgery/fetchSurgeryTypeInfo',
   getSurgeryInfo,
 );
@@ -140,6 +135,11 @@ export const addRecordAsync = createAsyncThunk(
 export const deleteRecordAsync = createAsyncThunk(
   'surgery/deleteRecordAsync',
   deleteSurgery,
+);
+
+export const updateRecordAsync = createAsyncThunk(
+  'surgery/updateRecordAsync',
+  updateSurgery,
 );
 
 export const selectRecords = (state: State) => state.surgeries;

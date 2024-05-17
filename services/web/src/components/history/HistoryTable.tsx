@@ -12,8 +12,7 @@ import { fetchHistory } from '@root/store/reducers/history';
 import { fetchListings as fetchSurgeryList } from '@root/store/reducers/surgery';
 import { generateFullName, getPracticeId, getUserId } from '@utils/index';
 import moment from 'moment';
-import React, { useEffect, useState } from 'react';
-import DeleteHistoryModal from './DeleteHistoryModal';
+import React, { useEffect } from 'react';
 
 export type HistoryData = {
   id: string;
@@ -21,7 +20,7 @@ export type HistoryData = {
   surgery: string;
   firstName: string;
   lastName: string;
-  mrn: string;
+  mrn: number;
   field: string;
   user: string;
   prior?: string;
@@ -43,20 +42,7 @@ export default function HistoryTable() {
     historySuccessMessage: state.history.successMessage,
   }));
 
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  // const handleOpenDeleteModal = (): void => {
-  //   setIsDeleteModalOpen(true);
-  // };
-  const handleCloseDeleteModal = (): void => {
-    setIsDeleteModalOpen(false);
-  };
-  const onConfirmDelete = (): void => {
-    try {
-      setIsDeleteModalOpen(false);
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  console.log(historyLogs, 'historylogs');
 
   useEffect(() => {
     if (practiceId) {
@@ -85,7 +71,6 @@ export default function HistoryTable() {
       .map((history: IHistory) => {
         switch (history.entityType) {
           case HistoryType.SURGERY: {
-            console.log(surgeries, 'surgeries');
             const surgeryData = surgeries.find(
               (surgery) => surgery.id === history.entityId,
             );
@@ -208,11 +193,6 @@ export default function HistoryTable() {
           ))}
         </div>
       )}
-      <DeleteHistoryModal
-        onConfirmDelete={onConfirmDelete}
-        isDeleteModalOpen={isDeleteModalOpen}
-        handleCloseDeleteModal={handleCloseDeleteModal}
-      />
     </div>
   );
 }
