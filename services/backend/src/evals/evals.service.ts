@@ -2,13 +2,10 @@ import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EvalEntity } from '@packages/entities/eval';
 import { PatientEntity } from '@packages/entities/patient';
-import * as fs from 'fs';
 import Mail from 'nodemailer/lib/mailer';
-import * as path from 'path';
 import { PatientsService } from 'src/patients/patients.service';
 import { PracticeHomesService } from 'src/practiceHomes/practiceHomes.service';
 import { PracticesService } from 'src/practices/practices.service';
-import { SurgeryTypesService } from 'src/surgeryTypes/surgeryTypes.service';
 import { TransporterService } from 'src/transporter';
 import { In, Repository } from 'typeorm';
 
@@ -16,6 +13,8 @@ import { ConfigService } from '@nestjs/config';
 import { InsuranceTypeEntity } from '@packages/entities';
 import { ENVIRONMENT_VARIABLES } from 'src/enums/environment.enums';
 import { InsuranceTypesService } from 'src/insuranceTypes/insuranceTypes.service';
+import { SurgeryConfigurationsService } from 'src/surgeryConfiguration/surgeryConfiguration.service';
+import { SystemTemplates } from 'src/transporter/transporter.types';
 import { UsersService } from 'src/users/users.service';
 import { PatientMailData } from './types';
 
@@ -28,14 +27,14 @@ export class EvalsService {
     private practiceService: PracticesService,
     @Inject(forwardRef(() => PatientsService))
     private patientService: PatientsService,
-    @Inject(forwardRef(() => SurgeryTypesService))
-    private surgeryTypeService: SurgeryTypesService,
     @Inject(forwardRef(() => PracticeHomesService))
     private practiceHomesService: PracticeHomesService,
     @Inject(forwardRef(() => InsuranceTypesService))
     private insuranceTypesService: InsuranceTypesService,
     @Inject(forwardRef(() => UsersService))
     private userService: UsersService,
+    @Inject(forwardRef(() => SurgeryConfigurationsService))
+    private surgeryConfigurationService: SurgeryConfigurationsService,
     private readonly configService: ConfigService,
     private readonly transporterService: TransporterService,
   ) {}
@@ -56,13 +55,14 @@ export class EvalsService {
       },
       relations: [
         'practiceHome',
-        'surgeryType',
+        'surgeryConfiguration',
         'patient',
         'insuranceType',
         'patient.referrer',
         'doctor',
       ],
     });
+    console.log(dbEvalsByPractice);
 
     dbEvalsByPractice.forEach((ele) => (ele.doctor.password = ''));
 
@@ -75,15 +75,19 @@ export class EvalsService {
 
   async create({ practiceId, createEvalDto }): Promise<EvalEntity> {
     const newEval: EvalEntity = new EvalEntity();
+    console.log(createEvalDto);
+
     const practiceEntity = await this.practiceService.findOne(practiceId);
     const newPatient: PatientEntity = await this.patientService.create(
       createEvalDto,
       practiceEntity,
     );
-    const surgeryTypeEntity = await this.surgeryTypeService.getSurgeryTypeById(
-      createEvalDto.surgeryTypeId,
-      practiceId,
-    );
+    console.log(newPatient);
+
+    const surgeryConfigurationEntity =
+      await this.surgeryConfigurationService.getSurgeryConfigurationById(
+        createEvalDto.surgeryConfigurationId,
+      );
 
     let insuranceTypeEntity: InsuranceTypeEntity | null =
       new InsuranceTypeEntity();
@@ -105,27 +109,21 @@ export class EvalsService {
       createEvalDto.doctorId,
     );
 
+    console.log(surgeryConfigurationEntity);
+
     const resultEval = await this.evalRepository.save({
       ...newEval,
       ...createEvalDto,
       practice: practiceEntity,
       patient: newPatient,
-      surgeryType: surgeryTypeEntity,
+      surgeryConfiguration: surgeryConfigurationEntity,
       practiceHome: practiceHomeEntity,
       insuranceType: insuranceTypeEntity,
       doctor: doctorEntity,
     });
-
-    // Read the HTML file content
-    const htmlFilePath = path.join(
-      __dirname,
-      '../emailTemplates/notifyPatient.html',
-    );
-    const htmlFileContent = fs.readFileSync(htmlFilePath, 'utf8');
     const mailOptions: Mail.Options = {
       to: createEvalDto.email,
       subject: 'Eval/surgery registered',
-      html: htmlFileContent,
       text: 'text message',
     };
 
@@ -137,13 +135,17 @@ export class EvalsService {
       email: createEvalDto.email,
       phoneNumber: createEvalDto.phoneNumber,
       date: createEvalDto.date,
-      surgeryType: surgeryTypeEntity?.name,
+      surgeryType: surgeryConfigurationEntity?.name,
       practiceHome: practiceHomeEntity?.name,
       insuranceType: insuranceTypeEntity?.name,
       insuranceDetails: createEvalDto.insuranceDetails,
     };
 
-    await this.transporterService.sendEmail(mailOptions, mailData);
+    await this.transporterService.sendSystemEmails(
+      mailOptions,
+      mailData,
+      SystemTemplates.NOTIFY_PATIENT,
+    );
 
     return resultEval;
   }

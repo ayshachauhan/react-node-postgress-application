@@ -1,6 +1,6 @@
 export interface CreateEvalInterface {
   practiceId: string;
-  surgeryTypeId: string;
+  surgeryConfigurationId: string;
   practiceHomeId: string;
   insuranceTypeId?: string;
   insuranceDetails?: string;
@@ -14,7 +14,7 @@ export interface CreateEvalInterface {
   referrerId?: string;
   details?: string;
   status: string;
-  eye: string;
+  bodyPart: string;
   doctorId: string;
 }
 
