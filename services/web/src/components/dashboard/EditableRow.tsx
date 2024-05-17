@@ -54,8 +54,6 @@ function EditableRow({
   });
 
   const handleObjChange = (keyToUpdate: string, newValue) => {
-    console.log(keyToUpdate, newValue);
-
     setObj((prevState) => ({
       ...prevState,
       [keyToUpdate]: newValue,
@@ -139,6 +137,7 @@ function EditableRow({
           <div className="w-20">
             <TextInput
               name="mrn"
+              type="number"
               value={obj.mrn}
               onChange={(value) => handleObjChange('mrn', value)}
               size={SIZE.mini}
@@ -288,8 +287,6 @@ function EditableRow({
           </div>
           {customCheckListHeaders.map(
             (checkListHeader, checkListHeaderIndex) => {
-              console.log(obj.selectedCheckListOption);
-
               const selectedChecklistOption =
                 obj.selectedCheckListOption[checkListHeader];
 

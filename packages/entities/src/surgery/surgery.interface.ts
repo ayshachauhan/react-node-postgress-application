@@ -28,7 +28,7 @@ export interface CreateSurgeryPayload {
   insuranceTypeId?: string;
   insuranceDetails?: string;
   date: Date;
-  mrn: string;
+  mrn: number;
   firstName: string;
   lastName: string;
   email: string;
@@ -64,7 +64,7 @@ export interface UpdateSurgeryPayload {
   date: Date;
   firstName: string;
   lastName: string;
-  mrn: string;
+  mrn: number;
   bodyPart: string;
   selectedSurgeryOptions: SelectedSurgeryOption;
   selectedCheckListOptions?: CheckListOptions;

@@ -6,6 +6,7 @@ import calendarReducer from './reducers/calendar';
 import evalsReducer from './reducers/evals';
 import insuranceTypesReducer from './reducers/insuranceTypes';
 import mediaReducer from './reducers/media';
+import patientReducer from './reducers/patient';
 import practiceHomesReducer from './reducers/practiceHomes';
 import practicesReducer from './reducers/practices';
 import referrersReducer from './reducers/referrer';
@@ -32,6 +33,7 @@ export const store = configureStore({
     calendars: calendarReducer,
     surgeryConfigurations: surgeryConfigurationReducer,
     permissions: permissionsReducer,
+    patients: patientReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(apiMiddleware),

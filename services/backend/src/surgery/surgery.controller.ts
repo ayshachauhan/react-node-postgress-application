@@ -14,9 +14,9 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { SurgeryEntity } from '@packages/entities';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
-import { CreateSurgeryDto } from './dto/createSurgery.dto';
-import { UpdateSurgeryDto } from './dto/updateSurgery.dto';
-import { SurgeryService } from './surgery.service';
+import { CreateSurgeryDto } from 'src/surgery/dto/createSurgery.dto';
+import { UpdateSurgeryDto } from 'src/surgery/dto/updateSurgery.dto';
+import { SurgeryService } from 'src/surgery/surgery.service';
 
 @ApiTags('Surgery')
 @ApiBearerAuth('normal')
