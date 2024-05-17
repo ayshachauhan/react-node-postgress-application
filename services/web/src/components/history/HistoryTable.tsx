@@ -95,7 +95,12 @@ export default function HistoryTable() {
             if (surgeryData) {
               const historyData = {
                 id: surgeryData.id,
-                date: surgeryData.dateCreated,
+                date:
+                  history.action === HistoryAction.CREATE
+                    ? surgeryData.dateCreated
+                    : history.action === HistoryAction.DELETE
+                      ? (surgeryData.dateDeleted as Date)
+                      : surgeryData.dateUpdated,
                 surgery: surgeryData.surgeryConfiguration.name,
                 firstName: surgeryData.patient.firstName,
                 lastName: surgeryData.patient.lastName,
@@ -183,7 +188,7 @@ export default function HistoryTable() {
               }`}
             >
               <div className="text-black pt-2 pb-2 px-1 w-40">
-                {moment(row.date).format('YYYY-MM-DD')}
+                {moment(row.date).format('YYYY-MM-DD HH:mm:ss')}
               </div>
               <div className="text-black pt-2 pb-2 px-1 w-40">
                 {row ? generateFullName(row.firstName, row.lastName) : null}
