@@ -32,7 +32,7 @@ import React, { useEffect, useState } from 'react';
 const DashboardPage: React.FC = () => {
   const dispatch = useAppDispatch();
   const practiceId = getPracticeId();
-  const userId = getUserId();
+  const userId: string | null = getUserId();
   const { successMessage: addSurgerySuccessMessage, calendarSuccessMessage } =
     useAppSelector((state) => ({
       successMessage: state.surgeries.successMessage,
@@ -196,7 +196,7 @@ const DashboardPage: React.FC = () => {
         </div>
       </div>
       <div className="mt-2 mb-12">
-        <FiltersSection />
+        {practiceId && <FiltersSection practiceId={practiceId} />}
       </div>
       <FormModal />
     </div>

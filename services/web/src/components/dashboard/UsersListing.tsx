@@ -16,7 +16,7 @@ const UsersListing: React.FC = () => {
         <hr className="h-px my-2.5 bg-gray-100 border-1 border-gray-100"></hr>
       </div>
       <div className="mt-2 text-xs">
-        <div className="text-gray-50 w-full items-center bg-gray-50 rounded-lg">
+        <div className="text-gray-50 w-full items-center rounded-lg">
           <div className="bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 flex">
             <div className="font-bold text-white p-4 flex-1">User</div>
             <div className="font-bold text-white p-4 flex-1">Day</div>

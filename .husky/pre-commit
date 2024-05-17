@@ -3,3 +3,4 @@
 
 pnpm lint:fix
 pnpm lint-staged
+# terraform -chdir=./terraform fmt
