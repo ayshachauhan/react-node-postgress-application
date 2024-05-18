@@ -12,7 +12,7 @@ const dbdatasource = {
   synchronize: false,
 };
 
-console.log('dbdatasource', dataSource);
+console.log('dbdatasource', dbdatasource);
 
 const dataSource = new DataSource(dbdatasource);
 
