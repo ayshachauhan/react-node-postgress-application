@@ -13,7 +13,12 @@ import moment from 'moment';
 import Mail from 'nodemailer/lib/mailer';
 import { SanitizedUser } from 'src/auth/types';
 import { ENVIRONMENT_VARIABLES } from 'src/enums/environment.enums';
-import { findChangedValues } from 'src/history/utils';
+import {
+  ChangesKeyValues,
+  findChangedValues,
+  transformSurgeryObject,
+  transformUpdateSurgeryDTO,
+} from 'src/history/utils';
 import { InsuranceTypesService } from 'src/insuranceTypes/insuranceTypes.service';
 import { PatientsService } from 'src/patients/patients.service';
 import { PracticeHomesService } from 'src/practiceHomes/practiceHomes.service';
@@ -200,6 +205,7 @@ export class SurgeryService {
       entityId: resultSurgery.id,
       entityType: HistoryType.SURGERY,
       action: HistoryAction.CREATE,
+      ipAddress: createSurgeryDto.ipAddress,
     });
 
     const mailOptions: Mail.Options = {
@@ -271,7 +277,10 @@ export class SurgeryService {
       ...dataToUpdate,
     });
 
-    console.log(surgeryToUpdate, createSurgeryDto, 'current');
+    const transformedCurrentSurgeryValues: ChangesKeyValues =
+      transformSurgeryObject(surgeryToUpdate!);
+    const transformedUpdatedDTOValues: ChangesKeyValues =
+      transformUpdateSurgeryDTO(createSurgeryDto);
 
     await this.historyService.createHistory({
       practiceId,
@@ -279,9 +288,12 @@ export class SurgeryService {
       action: HistoryAction.UPDATE,
       entityId: id,
       entityType: HistoryType.SURGERY,
-      changes: findChangedValues(surgeryToUpdate, createSurgeryDto),
-      //@ts-expect-error fix this
-      ipAddress: request?.connection?.remoteAddress,
+      // this depends on dto values, make sure to update this function object if dto updates
+      changes: findChangedValues(
+        transformedCurrentSurgeryValues,
+        transformedUpdatedDTOValues,
+      ),
+      ipAddress: createSurgeryDto.ipAddress,
     });
 
     return await this.surgeryRepository.findOne({
@@ -293,6 +305,7 @@ export class SurgeryService {
     id: string,
     practiceId: string,
     request: Request & { user: SanitizedUser },
+    ipAddress: string,
   ): Promise<void> {
     await this.surgeryRepository.softDelete(id);
 
@@ -302,8 +315,7 @@ export class SurgeryService {
       entityId: id,
       entityType: HistoryType.SURGERY,
       action: HistoryAction.DELETE,
-      //@ts-expect-error fix this
-      ipAddress: request?.connection?.remoteAddress,
+      ipAddress,
     });
   }
 }

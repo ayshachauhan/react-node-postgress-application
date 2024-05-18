@@ -16,10 +16,10 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { SurgeryEntity } from '@packages/entities';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
+import { SanitizedUser } from '../auth/types';
 import { CreateSurgeryDto } from '../surgery/dto/createSurgery.dto';
 import { UpdateSurgeryDto } from '../surgery/dto/updateSurgery.dto';
 import { SurgeryService } from '../surgery/surgery.service';
-import { SanitizedUser } from '../auth/types';
 
 @ApiTags('Surgery')
 @ApiBearerAuth('normal')
@@ -82,8 +82,14 @@ export class SurgeryController {
     @Param()
     { id, practiceId }: { id: string; practiceId: string },
     @Req() request: Request & { user: SanitizedUser },
+    @Body(new ValidationPipe()) deleteSurgeryDto: { ipAddress: string },
   ): Promise<void> {
     console.log(request, 'requestobj');
-    return await this.surgeryService.remove(id, practiceId, request);
+    return await this.surgeryService.remove(
+      id,
+      practiceId,
+      request,
+      deleteSurgeryDto.ipAddress,
+    );
   }
 }

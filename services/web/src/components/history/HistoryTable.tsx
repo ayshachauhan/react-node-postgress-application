@@ -10,8 +10,12 @@ import { useAppDispatch, useAppSelector } from '@root/store';
 import { fetchListings as fetchEvalsList } from '@root/store/reducers/evals';
 import { fetchHistory } from '@root/store/reducers/history';
 import { fetchListings as fetchSurgeryList } from '@root/store/reducers/surgery';
-import { generateFullName, getPracticeId, getUserId } from '@utils/index';
-import moment from 'moment';
+import {
+  formatColumnDate,
+  generateFullName,
+  getPracticeId,
+  getUserId,
+} from '@utils/index';
 import React, { useEffect } from 'react';
 
 export type HistoryData = {
@@ -42,8 +46,6 @@ export default function HistoryTable() {
     historySuccessMessage: state.history.successMessage,
   }));
 
-  console.log(historyLogs, 'historylogs');
-
   useEffect(() => {
     if (practiceId) {
       dispatch(fetchHistory({ practiceId, userId }));
@@ -60,8 +62,14 @@ export default function HistoryTable() {
       ([key, data]: [string, ChangedValue]) => ({
         ...historyData,
         field: key,
-        prior: data.oldValue,
-        new: data.newValue,
+        prior:
+          typeof data.oldValue === 'string'
+            ? data.oldValue
+            : JSON.stringify(data.oldValue),
+        new:
+          typeof data.newValue === 'string'
+            ? data.newValue
+            : JSON.stringify(data.newValue),
       }),
     );
   };
@@ -91,7 +99,7 @@ export default function HistoryTable() {
                 lastName: surgeryData.patient.lastName,
                 mrn: surgeryData.patient.mrn,
                 user: history.user.fullName,
-                ip: '58.84.62.123',
+                ip: history.ipAddress ?? '',
                 field:
                   history.action === HistoryAction.CREATE
                     ? 'Initial'
@@ -123,7 +131,7 @@ export default function HistoryTable() {
                 mrn: evalData.patient.mrn,
                 field: evalData.eye,
                 user: history.user.fullName,
-                ip: '',
+                ip: history.ipAddress ?? '',
                 action: history.action,
               };
 
@@ -149,7 +157,7 @@ export default function HistoryTable() {
         <span className="text-xl font-bold">History</span>
       </div>
       <hr className="h-px my-2.5 bg-gray-100 border-1 dark:bg-gray-700"></hr>
-      {Object.keys(historyLogs).length !== 0 && (
+      {historyLogs && historyLogs.length > 0 && (
         <div className="w-full overflow-x-auto mt-2 border border-gray-200 rounded-t-lg rounded-b-lg">
           <div className="bg-gradient-to-br from-teal-600 to-green-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 flex gap-2 py-2 px-2.5 text-sm">
             <div className="font-bold text-white py-2 px-1 w-40">Date</div>
@@ -173,7 +181,7 @@ export default function HistoryTable() {
               }`}
             >
               <div className="text-black pt-2 pb-2 px-1 w-40">
-                {moment(row.date).format('YYYY-MM-DD HH:mm:ss')}
+                {formatColumnDate(new Date(row.date).toISOString())}
               </div>
               <div className="text-black pt-2 pb-2 px-1 w-40">
                 {row ? generateFullName(row.firstName, row.lastName) : null}
