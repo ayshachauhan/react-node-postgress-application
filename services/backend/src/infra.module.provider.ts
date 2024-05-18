@@ -95,7 +95,7 @@ export const createInfraModuleProviders = (): Array<
           SurgeryConfigurationEntity,
           HistoryEntity
         ],
-        synchronize: true,
+        synchronize: false,
       }),
     }),
     TransporterModule.forRootAsync({
