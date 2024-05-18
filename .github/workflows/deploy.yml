@@ -158,6 +158,12 @@ jobs:
       - name: Terraform Apply
         run: terraform -chdir=./terraform apply -auto-approve
 
+      - name: create tag
+        run: git tag $ENVIRONMENT-$VERSION_TAG
+
+      - name: push tag
+        run: git push origin $ENVIRONMENT-$VERSION_TAG
+
   run-migrations:
     name: run db migrations
     runs-on: ubuntu-latest
