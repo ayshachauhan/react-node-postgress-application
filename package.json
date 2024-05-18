@@ -18,7 +18,8 @@
     "prepare": "npx husky install",
     "commit": "git-cz",
     "lint-staged": "lint-staged",
-    "migrate": "dotenv -e .env -- pnpm turbo run run-migrations"
+    "migrate": "dotenv -e .env -- pnpm turbo run run-migrations",
+    "list-migrations": "dotenv -e .env -- pnpm turbo run list-migrations"
   },
   "devDependencies": {
     "@trivago/prettier-plugin-sort-imports": "^4.3.0",
