@@ -79,7 +79,7 @@ export class PracticesService {
   async findOne(id: string): Promise<PracticeEntity | null> {
     return await this.practicesRepository.findOne({
       where: { id },
-      relations: ['users', 'users.permissions'],
+      relations: ['users', 'users.permissions', 'users.surgeries'],
     });
   }
 
