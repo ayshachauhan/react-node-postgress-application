@@ -93,7 +93,7 @@ export const createInfraModuleProviders = (): Array<
           PatientEntity,
           EvalEntity,
           SurgeryConfigurationEntity,
-          HistoryEntity
+          HistoryEntity,
         ],
         synchronize: false,
       }),
