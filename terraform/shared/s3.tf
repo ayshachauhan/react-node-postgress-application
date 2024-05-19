@@ -57,6 +57,6 @@ data "aws_iam_policy_document" "bucket_user_ro" {
 
 resource "aws_iam_user_policy" "bucket_user_ro" {
   name   = "bucket-policy-${var.environment}"
-  user   = aws_iam_user.lb.name
-  policy = data.aws_iam_policy_document.lb_ro.json
+  user   = aws_iam_user.bucket_user.name
+  policy = data.aws_iam_policy_document.bucket_user_ro.json
 }
