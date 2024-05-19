@@ -13,7 +13,6 @@ import {
   clearSuccessMessage as clearEvalSuccessMessage,
   fetchListings as fetchEvalsList,
 } from '@root/store/reducers/evals';
-import { fetchHistory } from '@root/store/reducers/history';
 
 import { fetchListings as fetchInsuranceTypesList } from '@root/store/reducers/insuranceTypes';
 import { fetchListings as fetchPatients } from '@root/store/reducers/patient';
@@ -71,7 +70,6 @@ const DashboardPage: React.FC = () => {
         dispatch(fetchPatients({ practiceId }));
         if (userId) {
           dispatch(fetchCalendars({ practiceId, userId }));
-          dispatch(fetchHistory({ practiceId, userId }));
         }
       }
     }

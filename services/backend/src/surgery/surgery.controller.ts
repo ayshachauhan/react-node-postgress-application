@@ -28,7 +28,7 @@ import { SurgeryService } from '../surgery/surgery.service';
 export class SurgeryController {
   constructor(private readonly surgeryService: SurgeryService) {}
 
-  @Get('')
+  @Get()
   @UseInterceptors(practiceNotFoundInterceptor)
   async findAll(
     @Param() { practiceId }: { practiceId: string },
@@ -84,7 +84,6 @@ export class SurgeryController {
     @Req() request: Request & { user: SanitizedUser },
     @Body(new ValidationPipe()) deleteSurgeryDto: { ipAddress: string },
   ): Promise<void> {
-    console.log(request, 'requestobj');
     return await this.surgeryService.remove(
       id,
       practiceId,

@@ -32,13 +32,12 @@ export class HistoryService {
     practiceId,
     userId,
   }: GetHistoryParams): Promise<HistoryEntity[]> {
-    console.log(practiceId, userId, 'inhservice');
     return await this.historyRepo.find({
       where: {
         practice: { id: practiceId },
-        // user: {
-        //   id: userId,
-        // },
+        user: {
+          id: userId,
+        },
       },
       relations: ['practice', 'user'],
     });
