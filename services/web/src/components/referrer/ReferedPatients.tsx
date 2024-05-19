@@ -6,7 +6,13 @@ import {
   clearSuccessMessage,
   fetchReferrerInfo,
 } from '@root/store/reducers/referrer';
-import { formatDate, generateFullName, getPracticeId } from '@utils/index';
+import { SanitizedUser } from '@root/store/types';
+import {
+  formatDate,
+  generateFullName,
+  getPracticeId,
+  hasPermission,
+} from '@utils/index';
 import React, { useEffect, useState } from 'react';
 
 const ReferedPatients = ({ referrerId }) => {
@@ -22,6 +28,21 @@ const ReferedPatients = ({ referrerId }) => {
   );
   const referredPatients = referrerInfo?.patients;
   const dispatch = useAppDispatch();
+  const userInfo = useAppSelector((state) => state.auth.user);
+  const loggedInUserId = userInfo?.id;
+  const detailedInfoUser = useAppSelector((state) =>
+    loggedInUserId
+      ? Object.values(state.users.entities).find(
+          ({ id }: SanitizedUser) => id === loggedInUserId,
+        )
+      : undefined,
+  );
+  const userPermissions = detailedInfoUser?.permissions;
+
+  const viewBillingColumn =
+    userPermissions !== undefined
+      ? hasPermission(userPermissions, ['view_billing'])
+      : false;
 
   useEffect(() => {
     if (practiceId !== null && referrerId !== null) {
@@ -67,7 +88,9 @@ const ReferedPatients = ({ referrerId }) => {
             Surgery Date
           </div>
           <div className="font-bold text-white py-4 w-40">Options</div>
-          <div className="font-bold text-white px-2 py-4 flex-1">Billing</div>
+          {viewBillingColumn && (
+            <div className="font-bold text-white px-2 py-4 flex-1">Billing</div>
+          )}
         </div>
         <div className="border border-gray-300 rounded-b-md">
           {referredPatients && referredPatients.length > 0 ? (
@@ -104,7 +127,9 @@ const ReferedPatients = ({ referrerId }) => {
                           .join(', ')
                       : 'NA'}
                   </div>
-                  <div className="text-gray-900 px-2 flex-1">Billing</div>
+                  {viewBillingColumn && (
+                    <div className="text-gray-900 px-2 flex-1">Billing</div>
+                  )}
                 </div>
               </React.Fragment>
             ))

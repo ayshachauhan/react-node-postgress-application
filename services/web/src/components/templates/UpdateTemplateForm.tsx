@@ -313,7 +313,7 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
 
                   <Textarea
                     rows={8}
-                    value={updatedTemplateInfo?.emailBody}
+                    value={updatedTemplateInfo?.emailBody || ''}
                     onChange={handleHtmlChange}
                     clearOnEscape
                     overrides={{
@@ -343,7 +343,7 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
               <div className="mt-3">
                 <Textarea
                   rows={4}
-                  value={updatedTemplateInfo?.messageText}
+                  value={updatedTemplateInfo?.messageText || ''}
                   onChange={handleMessageTextChange}
                   clearOnEscape
                   overrides={{

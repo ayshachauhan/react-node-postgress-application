@@ -12,8 +12,11 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from 'src/auth/auth.guard';
+import {
+  Permission,
+  UserPermissionsGuard,
+} from 'src/auth/userPermissions.guard';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
-import { Permission, UserPermissionsGuard } from 'src/userPermissions.guard';
 import { CreateVideoDto } from './dtos/createVideo.dto';
 import { UpdateVideoDto } from './dtos/update.video.dto';
 import { MediaService } from './media.service';
@@ -61,8 +64,6 @@ export class MediaController {
   }
 
   @Patch(':id')
-  @UseGuards(UserPermissionsGuard)
-  @Permission('edit_case')
   @UseInterceptors(practiceNotFoundInterceptor)
   updateVideoByPracticeId(
     @Param('practiceId') practiceId: string,

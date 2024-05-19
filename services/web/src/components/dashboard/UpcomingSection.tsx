@@ -45,6 +45,11 @@ const UpcomingSection: React.FC = () => {
       ? hasPermission(userPermissions, ['view_future_cases'])
       : false;
 
+  const editCaseAllowed =
+    userPermissions !== undefined
+      ? hasPermission(userPermissions, ['edit_case'])
+      : false;
+
   const { calendars, surgeryConfigurations } = useAppSelector((state) => ({
     calendars: Object.values(state.calendars.entities).filter(
       (calendar) => calendar.user.id === userId,
@@ -273,12 +278,14 @@ const UpcomingSection: React.FC = () => {
               <AddIcon className="mt-2" size={25}></AddIcon>
               {''}
             </div>
-            <div
-              className="cursor-pointer px-2"
-              onClick={() => handleOpenModal(true)}
-            >
-              <EditIcon className="mt-2"></EditIcon>
-            </div>
+            {editCaseAllowed && (
+              <div
+                className="cursor-pointer px-2"
+                onClick={() => handleOpenModal(true)}
+              >
+                <EditIcon className="mt-2"></EditIcon>
+              </div>
+            )}
           </div>
         )}
       </div>

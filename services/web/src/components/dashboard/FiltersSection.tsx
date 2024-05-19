@@ -11,7 +11,12 @@ import {
 } from '@root/components/Icons';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { fetchSurgeryInfo } from '@root/store/reducers/surgery';
-import { usDateFormatter } from '@root/utils';
+import { SanitizedUser } from '@root/store/types';
+import {
+  hasPermission,
+  removePastSurgeries,
+  usDateFormatter,
+} from '@root/utils';
 import { monthOptions } from '@root/utils/constants';
 import { Input } from 'baseui/input';
 import { Select } from 'baseui/select';
@@ -62,14 +67,18 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
         style={{ marginRight: '8px', cursor: 'pointer' }}
         onClick={() => handleViewClick(id)}
       />
-      <EditIcon
-        style={{ marginRight: '8px', cursor: 'pointer' }}
-        onClick={() => handleEditClick(id)}
-      />
-      <DeleteIcon
-        style={{ cursor: 'pointer' }}
-        onClick={() => handleOpenDeleteModal()}
-      />
+      {editCaseAllowed && (
+        <EditIcon
+          style={{ marginRight: '8px', cursor: 'pointer' }}
+          onClick={() => handleEditClick(id)}
+        />
+      )}
+      {deleteCaseAllowed && (
+        <DeleteIcon
+          style={{ cursor: 'pointer' }}
+          onClick={() => handleOpenDeleteModal()}
+        />
+      )}
     </div>
   );
 
@@ -264,6 +273,32 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
     setSelectedRow(null);
   };
 
+  const userInfo = useAppSelector((state) => state.auth.user);
+  const loggedInUserId = userInfo?.id;
+  const detailedInfoUser = useAppSelector((state) =>
+    loggedInUserId
+      ? Object.values(state.users.entities).find(
+          ({ id }: SanitizedUser) => id === loggedInUserId,
+        )
+      : undefined,
+  );
+  const userPermissions = detailedInfoUser?.permissions;
+
+  const viewPastCases =
+    userPermissions !== undefined
+      ? hasPermission(userPermissions, ['view_past_cases'])
+      : false;
+
+  const deleteCaseAllowed =
+    userPermissions !== undefined
+      ? hasPermission(userPermissions, ['delete_case'])
+      : false;
+
+  const editCaseAllowed =
+    userPermissions !== undefined
+      ? hasPermission(userPermissions, ['edit_case'])
+      : false;
+
   return (
     <div>
       <div className="flex w-full bg-purple-50 px-2 border-t border-b border-gray-200 items-center">
@@ -351,8 +386,10 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
       {surgeryConfigList.length && Object.keys(modifiedObj).length && (
         <div className="w-full overflow-x-auto mt-2 border rounded-t-lg rounded-b-lg border-gray-200">
           {Object.keys(modifiedObj).map((key, index) => {
-            const ele = modifiedObj[key];
-
+            let ele = modifiedObj[key];
+            if (!viewPastCases) {
+              ele = removePastSurgeries(ele);
+            }
             const customOptionsHeaders: string[] =
               surgeryOptionsHeadersObj[key].surgeryOptionsHeaders;
             const customCheckListHeaders: string[] =

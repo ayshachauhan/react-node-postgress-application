@@ -15,8 +15,11 @@ import {
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { ReferrersEntity } from '@packages/entities/*';
 import { AuthGuard } from 'src/auth/auth.guard';
+import {
+  Permission,
+  UserPermissionsGuard,
+} from 'src/auth/userPermissions.guard';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
-import { Permission, UserPermissionsGuard } from 'src/userPermissions.guard';
 import { CreateReferrerDto } from './dtos/referrer.createDto';
 import { updateReferrerDto } from './dtos/referrer.updateDto';
 import { ReferrersService } from './referrers.service';
@@ -46,8 +49,6 @@ export class ReferrersController {
   }
 
   @Patch(':id')
-  @UseGuards(UserPermissionsGuard)
-  @Permission('edit_case')
   updateReferrerById(
     @Param('practiceId') practiceId: string,
     @Param('id') id: string,

@@ -5,15 +5,13 @@ import AddReferrerModal from '@root/components/referrer/AddReferrerModal';
 import EditReferrerModal from '@root/components/referrer/EditReferrerModal';
 import ReferredListModal from '@root/components/referrer/ReferredListModal';
 import { useAppDispatch, useAppSelector } from '@root/store';
-import { selectRecords } from '@root/store/reducers/auth';
 import {
   clearErrorMessage,
   clearSuccessMessage,
   deleteRecordAsync,
   fetchListings,
 } from '@root/store/reducers/referrer';
-import { SanitizedUser } from '@root/store/types';
-import { generateFullName, getPracticeId, hasPermission } from '@utils/index';
+import { generateFullName, getPracticeId } from '@utils/index';
 import { Checkbox } from 'baseui/checkbox';
 import React, { useEffect, useState } from 'react';
 import DeleteReferrerModal from './DeleteReferrerModal';
@@ -81,20 +79,6 @@ export default function ReferrerTable() {
     setReferrerId(null);
   };
   const dispatch = useAppDispatch();
-  const userInfo = useAppSelector(selectRecords);
-  const userId = userInfo?.id;
-  const detailedInfoUser = useAppSelector((state) =>
-    userId
-      ? Object.values(state.users.entities).find(
-          ({ id }: SanitizedUser) => id === userId,
-        )
-      : undefined,
-  );
-  const userPermissions = detailedInfoUser?.permissions;
-  const editCaseAllowed =
-    userPermissions !== undefined
-      ? hasPermission(userPermissions, ['edit_case'])
-      : false;
   const isChecked = (firstName: string, lastName: string): boolean => {
     return firstName.trim() !== '' || lastName.trim() !== '';
   };
@@ -200,14 +184,12 @@ export default function ReferrerTable() {
                 {data?.email}
               </div>
               <div className="text-gray-900 bg-gray-50 pt-2 px-4 flex-1 flex gap-4">
-                {editCaseAllowed && (
-                  <div
-                    onClick={() => data.id && handleOpenEditModal(data.id)}
-                    className="cursor-pointer"
-                  >
-                    <EditIcon className="mt-2"></EditIcon>
-                  </div>
-                )}
+                <div
+                  onClick={() => data.id && handleOpenEditModal(data.id)}
+                  className="cursor-pointer"
+                >
+                  <EditIcon className="mt-2"></EditIcon>
+                </div>
                 <div
                   onClick={() => data.id && handleOpenDeleteModal(data.id)}
                   className="cursor-pointer"

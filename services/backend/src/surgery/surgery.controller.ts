@@ -13,11 +13,14 @@ import {
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { SurgeryEntity } from '@packages/entities';
 import { AuthGuard } from 'src/auth/auth.guard';
+import {
+  Permission,
+  UserPermissionsGuard,
+} from 'src/auth/userPermissions.guard';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
 import { CreateSurgeryDto } from 'src/surgery/dto/createSurgery.dto';
 import { UpdateSurgeryDto } from 'src/surgery/dto/updateSurgery.dto';
 import { SurgeryService } from 'src/surgery/surgery.service';
-import { Permission, UserPermissionsGuard } from 'src/userPermissions.guard';
 
 @ApiTags('Surgery')
 @ApiBearerAuth('normal')
@@ -55,6 +58,8 @@ export class SurgeryController {
   }
 
   @Patch(':id')
+  @UseGuards(UserPermissionsGuard)
+  @Permission('edit_case')
   @UseInterceptors(practiceNotFoundInterceptor)
   async update(
     @Body(new ValidationPipe()) createSurgeryDto: UpdateSurgeryDto,

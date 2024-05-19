@@ -117,3 +117,21 @@ export function formatDate(dateString: Date) {
 
   return `${month}/${day}/${year}`;
 }
+
+export function removePastSurgeries(ele) {
+  const currentDate = new Date();
+  const filteredObj = {};
+
+  for (const key in ele) {
+    if (Object.prototype.hasOwnProperty.call(ele, key)) {
+      const [month, day] = key.split('/').map(Number);
+      const recordDate = new Date(currentDate.getFullYear(), month - 1, day);
+
+      if (recordDate >= currentDate) {
+        filteredObj[key] = ele[key];
+      }
+    }
+  }
+
+  return filteredObj;
+}

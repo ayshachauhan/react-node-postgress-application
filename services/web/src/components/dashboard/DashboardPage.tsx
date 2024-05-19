@@ -25,8 +25,8 @@ import {
 import { fetchListings as fetchSurgeryConfigurationsListing } from '@root/store/reducers/surgeryConfigurations';
 import { fetchListings as fetchSurgeryTypesListing } from '@root/store/reducers/surgeryTypes';
 import { fetchListings as fetchUsersList } from '@root/store/reducers/users';
-
-import { getPracticeId, getUserId } from '@root/utils';
+import { SanitizedUser } from '@root/store/types';
+import { getPracticeId, getUserId, hasPermission } from '@root/utils';
 import { Modal, ModalBody, ROLE, SIZE } from 'baseui/modal';
 
 import React, { useEffect, useState } from 'react';
@@ -34,6 +34,22 @@ const DashboardPage: React.FC = () => {
   const dispatch = useAppDispatch();
   const practiceId = getPracticeId();
   const userId: string | null = getUserId();
+  const userInfo = useAppSelector((state) => state.auth.user);
+  const loggedInUserId = userInfo?.id;
+  const detailedInfoUser = useAppSelector((state) =>
+    loggedInUserId
+      ? Object.values(state.users.entities).find(
+          ({ id }: SanitizedUser) => id === loggedInUserId,
+        )
+      : undefined,
+  );
+  const userPermissions = detailedInfoUser?.permissions;
+
+  const addCaseAllowed =
+    userPermissions !== undefined
+      ? hasPermission(userPermissions, ['add_case'])
+      : false;
+
   const { successMessage: addSurgerySuccessMessage, calendarSuccessMessage } =
     useAppSelector((state) => ({
       successMessage: state.surgeries.successMessage,
@@ -176,16 +192,18 @@ const DashboardPage: React.FC = () => {
             </div>
           )}
           <div className="flex">
-            <Button
-              kind="secondary"
-              title="Add"
-              height={40}
-              width={80}
-              onClick={handleOpenAddModal}
-              startEnhancer={() => (
-                <AddIcon className="mt-2" size={25}></AddIcon>
-              )}
-            />
+            {addCaseAllowed && (
+              <Button
+                kind="secondary"
+                title="Add"
+                height={40}
+                width={80}
+                onClick={handleOpenAddModal}
+                startEnhancer={() => (
+                  <AddIcon className="mt-2" size={25}></AddIcon>
+                )}
+              />
+            )}
           </div>
         </div>
       </div>
