@@ -1,5 +1,5 @@
 resource "aws_s3_bucket" "azentia-bucket" {
-  bucket = "azentia-sdk-${var.environment}"
+  bucket = "azentia-${var.environment}"
 }
 
 resource "aws_s3_bucket_ownership_controls" "azentia-bucket-control" {
