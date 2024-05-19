@@ -5,7 +5,6 @@ import {
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
 import { useAppDispatch, useAppSelector } from '@root/store';
-import { selectRecords } from '@root/store/reducers/auth';
 import { fetchListings as fetchSurgeryTypes } from '@root/store/reducers/surgeryTypes';
 import { addRecordAsync } from '@root/store/reducers/templates';
 import { getPracticeId } from '@utils/index';
@@ -20,7 +19,7 @@ const AddTemplateForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     }),
   );
   const practiceId = getPracticeId();
-  const userInfo = useAppSelector(selectRecords);
+  const userInfo = useAppSelector((state) => state.auth.user);
   const dispatch = useAppDispatch();
   const surgeryTypes = useAppSelector((state) => state.surgeryTypes.entities);
   const surgeryTypeOptions = Object.keys(surgeryTypes).map((key) => ({

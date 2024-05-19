@@ -1,7 +1,6 @@
 'use client';
 
 import { useAppSelector } from '@root/store';
-import { selectRecords } from '@root/store/reducers/auth';
 import { SanitizedUser } from '@root/store/types';
 import { ChevronDown, ChevronRightSmall } from 'baseui/icon';
 import clsx from 'clsx';
@@ -13,7 +12,7 @@ const Sidebar: React.FC = () => {
   const [activeMenuItemId, setActiveMenuItemId] = useState<string>('');
   const [activeChildMenuItemId, setActiveChildMenuItemId] =
     useState<string>('');
-  const userInfo = useAppSelector(selectRecords);
+  const userInfo = useAppSelector((state) => state.auth.user);
   const is_super_admin = userInfo ? userInfo.isSuperAdmin : false;
   const userType = is_super_admin ? 'super_admin' : 'admin';
   const userId = userInfo?.id;

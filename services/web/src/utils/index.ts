@@ -48,14 +48,13 @@ export function generateFullName(firstName: string, lastName: string): string {
   }
 }
 
-export function toFullName({
-  firstName,
-  lastName,
-}: {
-  firstName: string;
-  lastName: string;
-}) {
-  return generateFullName(firstName, lastName);
+export function toFullName(
+  input: { firstName?: string; lastName?: string } | undefined,
+) {
+  if (!input) {
+    return '';
+  }
+  return generateFullName(input.firstName ?? '', input.lastName ?? '');
 }
 
 export function usDateFormatter(date: Date): string {

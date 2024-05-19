@@ -1,18 +1,9 @@
 'use client';
-import { useAppSelector } from '@root/store';
+import { UserType } from '@packages/entities';
+import { State, useAppSelector } from '@root/store';
 import { SanitizedUser } from '@root/store/types';
 import { hasPermission } from '@root/utils';
 import React from 'react';
-
-const userData = [
-  { id: 1, name: 'Marlyn', age: 10, month: 0 },
-  { id: 2, name: 'Luther', age: 15, month: 0 },
-  { id: 3, name: 'Kiera', age: 13, month: 0 },
-  { id: 4, name: 'Edna', age: 20, month: 0 },
-  { id: 5, name: 'Soraya', age: 18, month: 0 },
-  { id: 6, name: 'Dorris', age: 32, month: 0 },
-  { id: 7, name: 'Astrid', age: 26, month: 0 },
-];
 
 const UsersListing: React.FC = () => {
   const userInfo = useAppSelector((state) => state.auth.user);
@@ -30,6 +21,11 @@ const UsersListing: React.FC = () => {
     userPermissions !== undefined
       ? hasPermission(userPermissions, ['leaderboard_display'])
       : false;
+
+  const { entities } = useAppSelector((state: State) => state.users);
+  const userData = Object.values(entities).filter(
+    (user) => user.type == UserType.DOCTOR,
+  );
 
   return (
     <div>
@@ -54,14 +50,31 @@ const UsersListing: React.FC = () => {
                       : ''
                   }`}
                 >
-                  <div className="text-black pt-2 pb-2 px-4 flex-1">
-                    {user.name}
+                  <div className="text-black bg-gray-50 pt-2 pb-2 px-4 flex-1">
+                    {user?.firstName}
                   </div>
-                  <div className="text-black pt-2 pb-2 px-4 flex-1">
-                    {user.age}
+                  <div className="text-black bg-gray-50 pt-2 pb-2 px-4 flex-1">
+                    {user.surgeries?.filter((surgery) => {
+                      const surgeryDate = new Date(surgery.date);
+                      const currentDate = new Date();
+                      return (
+                        surgeryDate.getFullYear() ===
+                          currentDate.getFullYear() &&
+                        surgeryDate.getMonth() === currentDate.getMonth() &&
+                        surgeryDate.getDate() === currentDate.getDate()
+                      );
+                    }).length || 0}
                   </div>
-                  <div className="text-black pt-2 pb-2 px-4 flex-1">
-                    {user.month}
+                  <div className="text-black bg-gray-50 pt-2 pb-2 px-4 flex-1">
+                    {user.surgeries?.filter((surgery) => {
+                      const surgeryDate = new Date(surgery.date);
+                      const currentDate = new Date();
+                      return (
+                        surgeryDate.getFullYear() ===
+                          currentDate.getFullYear() &&
+                        surgeryDate.getMonth() === currentDate.getMonth()
+                      );
+                    }).length || 0}
                   </div>
                 </div>
               </React.Fragment>

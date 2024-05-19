@@ -4,7 +4,6 @@ import { AddIcon } from '@root/components/Icons';
 import AddTemplateModal from '@root/components/templates/AddTemplateModal';
 import UpdateTemplateModal from '@root/components/templates/UpdateTemplateModal';
 import { useAppDispatch, useAppSelector } from '@root/store';
-import { selectRecords } from '@root/store/reducers/auth';
 import {
   clearErrorMessage,
   clearSuccessMessage,
@@ -56,7 +55,7 @@ const Templates: React.FC = () => {
   const handleCloseAddModal = (): void => {
     setIsAddModalOpen(false);
   };
-  const userInfo = useAppSelector(selectRecords);
+  const userInfo = useAppSelector((state) => state.auth.user);
   const userId = userInfo?.id;
 
   useEffect(() => {

@@ -2,7 +2,6 @@ import { ITemplateUpdate } from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
 import { useAppDispatch, useAppSelector } from '@root/store';
-import { selectRecords } from '@root/store/reducers/auth';
 import { fetchListings as fetchSurgeryTypes } from '@root/store/reducers/surgeryTypes';
 import {
   deleteRecordAsync,
@@ -33,7 +32,7 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
       surgeryType: selectedSurgeryType,
     });
   };
-  const userInfo = useAppSelector(selectRecords);
+  const userInfo = useAppSelector((state) => state.auth.user);
   const userId = userInfo?.id;
   const detailedInfoUser = useAppSelector((state) =>
     userId

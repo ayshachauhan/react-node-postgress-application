@@ -335,9 +335,9 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
                 options={usersOptions}
                 onChange={handleDoctorChange}
                 value={
-                  doctorId
-                    ? [{ label: doctorId, id: doctorId }]
-                    : [{ label: toFullName(defaultUser), id: defaultUser.id }]
+                  defaultUser
+                    ? [{ label: toFullName(defaultUser), id: defaultUser.id }]
+                    : []
                 }
                 overrides={{
                   ControlContainer: {
