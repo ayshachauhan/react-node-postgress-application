@@ -17,6 +17,7 @@ import {
   getUserId,
 } from '@utils/index';
 import React, { useEffect } from 'react';
+import { SurgeryFields } from './constants';
 
 export type HistoryData = {
   id: string;
@@ -39,12 +40,14 @@ export default function HistoryTable() {
   const practiceId = getPracticeId();
   const userId = getUserId() as string;
 
-  const { historyLogs, evals, surgeries } = useAppSelector((state) => ({
-    historyLogs: Object.values(state.history.entities),
-    evals: Object.values(state.evals.entities),
-    surgeries: Object.values(state.surgeries.entities),
-    historySuccessMessage: state.history.successMessage,
-  }));
+  const { historyLogs, surgeries, surgerySuccessMessage } = useAppSelector(
+    (state) => ({
+      historyLogs: Object.values(state.history.entities),
+      evals: Object.values(state.evals.entities),
+      surgeries: Object.values(state.surgeries.entities),
+      surgerySuccessMessage: state.surgeries.successMessage,
+    }),
+  );
 
   useEffect(() => {
     if (practiceId) {
@@ -54,6 +57,12 @@ export default function HistoryTable() {
     }
   }, [practiceId, dispatch, userId]);
 
+  useEffect(() => {
+    if (practiceId) {
+      dispatch(fetchHistory({ practiceId, userId }));
+    }
+  }, [surgerySuccessMessage, dispatch, practiceId, userId]);
+
   const resolvedHistoryChanges = (
     historyData: HistoryData,
     changes: EntityChanges,
@@ -61,7 +70,7 @@ export default function HistoryTable() {
     return Object.entries(changes).map(
       ([key, data]: [string, ChangedValue]) => ({
         ...historyData,
-        field: key,
+        field: SurgeryFields[key] ?? key,
         prior:
           typeof data.oldValue === 'string'
             ? data.oldValue
@@ -76,6 +85,10 @@ export default function HistoryTable() {
 
   const getResolvedHistoryData = (): HistoryData[] => {
     return historyLogs
+      .sort(
+        (a, b) =>
+          new Date(b.dateCreated).getTime() - new Date(a.dateCreated).getTime(),
+      )
       .map((history: IHistory) => {
         switch (history.entityType) {
           case HistoryType.SURGERY: {
@@ -116,33 +129,33 @@ export default function HistoryTable() {
             return [];
           }
 
-          case HistoryType.EVAL: {
-            const evalData = evals.find((data) => data.id === history.entityId);
+          // case HistoryType.EVAL: {
+          //   const evalData = evals.find((data) => data.id === history.entityId);
 
-            let resolvedData: HistoryData[];
+          //   let resolvedData: HistoryData[];
 
-            if (evalData) {
-              const historyData = {
-                id: evalData.id,
-                date: evalData.dateCreated,
-                surgery: evalData.surgeryType?.name,
-                firstName: evalData.patient.firstName,
-                lastName: evalData.patient.lastName,
-                mrn: evalData.patient.mrn,
-                field: evalData.eye,
-                user: history.user.fullName,
-                ip: history.ipAddress ?? '',
-                action: history.action,
-              };
+          //   if (evalData) {
+          //     const historyData = {
+          //       id: evalData.id,
+          //       date: evalData.dateCreated,
+          //       surgery: evalData.surgeryType?.name,
+          //       firstName: evalData.patient.firstName,
+          //       lastName: evalData.patient.lastName,
+          //       mrn: evalData.patient.mrn,
+          //       field: evalData.eye,
+          //       user: history.user.fullName,
+          //       ip: history.ipAddress ?? '',
+          //       action: history.action,
+          //     };
 
-              resolvedData = history.changes
-                ? resolvedHistoryChanges(historyData, history.changes)
-                : [historyData];
+          //     resolvedData = history.changes
+          //       ? resolvedHistoryChanges(historyData, history.changes)
+          //       : [historyData];
 
-              return resolvedData;
-            }
-            return [];
-          }
+          //     return resolvedData;
+          //   }
+          //   return [];
+          // }
 
           default:
             return [];

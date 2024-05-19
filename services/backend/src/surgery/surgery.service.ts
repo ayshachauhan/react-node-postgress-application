@@ -14,7 +14,7 @@ import Mail from 'nodemailer/lib/mailer';
 import { SanitizedUser } from 'src/auth/types';
 import { ENVIRONMENT_VARIABLES } from 'src/enums/environment.enums';
 import {
-  ChangesKeyValues,
+  SurgeryChangesKeyValues,
   findChangedValues,
   transformSurgeryObject,
   transformUpdateSurgeryDTO,
@@ -277,9 +277,10 @@ export class SurgeryService {
       ...dataToUpdate,
     });
 
-    const transformedCurrentSurgeryValues: ChangesKeyValues =
+    // depends on dto values, make sure to update the obj values if dot changes
+    const transformedCurrentSurgeryValues: SurgeryChangesKeyValues =
       transformSurgeryObject(surgeryToUpdate!);
-    const transformedUpdatedDTOValues: ChangesKeyValues =
+    const transformedUpdatedDTOValues: SurgeryChangesKeyValues =
       transformUpdateSurgeryDTO(createSurgeryDto);
 
     await this.historyService.createHistory({
@@ -311,7 +312,7 @@ export class SurgeryService {
 
     await this.historyService.createHistory({
       practiceId,
-      userId: request?.user.id,
+      userId: request?.user?.id,
       entityId: id,
       entityType: HistoryType.SURGERY,
       action: HistoryAction.DELETE,

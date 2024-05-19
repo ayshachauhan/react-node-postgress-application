@@ -12,7 +12,6 @@ export const findChangedValues = (oldObj, newObj): EntityChanges => {
   const findChanges = (oldVal, newVal, path = '') => {
     if (typeof oldVal !== 'object' && typeof newVal !== 'object') {
       if (oldVal !== newVal) {
-        console.log(oldVal, newVal, 'innotobj');
         changedValues[path] = { oldValue: oldVal, newValue: newVal };
       }
       return;
@@ -20,8 +19,10 @@ export const findChangedValues = (oldObj, newObj): EntityChanges => {
 
     for (const key in newVal) {
       if (key === 'value') {
-        if (oldVal === undefined) {
+        if (oldVal === undefined || oldVal === null) {
           changedValues[path] = { oldValue: oldVal, newValue: newVal[key] };
+        } else if (newVal === undefined || newVal === null) {
+          changedValues[path] = { oldValue: oldVal[key], newValue: newVal };
         } else if (oldVal[key] !== newVal[key]) {
           changedValues[path] = {
             oldValue: oldVal[key],
@@ -30,7 +31,9 @@ export const findChangedValues = (oldObj, newObj): EntityChanges => {
         }
         return;
       } else {
-        findChanges(oldVal[key], newVal[key], key);
+        const oldObjVal = oldVal ? oldVal[key] : oldVal;
+        const newObjVal = newVal ? newVal[key] : newVal;
+        findChanges(oldObjVal, newObjVal, key);
       }
     }
   };
@@ -40,7 +43,7 @@ export const findChangedValues = (oldObj, newObj): EntityChanges => {
   return changedValues as EntityChanges;
 };
 
-export type ChangesKeyValues = {
+export type SurgeryChangesKeyValues = {
   bodyPart: string;
   date: Date;
   details: string;
@@ -56,7 +59,7 @@ export type ChangesKeyValues = {
 
 export const transformSurgeryObject = (
   data: SurgeryEntity,
-): ChangesKeyValues => {
+): SurgeryChangesKeyValues => {
   return {
     bodyPart: data.bodyPart,
     date: new Date(data.date),
@@ -74,7 +77,7 @@ export const transformSurgeryObject = (
 
 export const transformUpdateSurgeryDTO = (
   data: UpdateSurgeryDto,
-): ChangesKeyValues => {
+): SurgeryChangesKeyValues => {
   return {
     bodyPart: data.bodyPart,
     date: new Date(data.date),
