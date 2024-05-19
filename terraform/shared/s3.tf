@@ -1,5 +1,10 @@
 resource "aws_s3_bucket" "azentia-bucket" {
   bucket = "azentia-${var.environment}"
+
+  tags = {
+    Name = "azentia-infra-${var.environment}-db"
+    Creator = "Terraform"
+  }
 }
 
 resource "aws_s3_bucket_ownership_controls" "azentia-bucket-control" {
@@ -26,4 +31,32 @@ resource "aws_s3_bucket_acl" "azentia-bucket-acl" {
 
   bucket = aws_s3_bucket.azentia-bucket.id
   acl    = "public-read"
+}
+
+resource "aws_iam_user" "bucket_user" {
+  name = "bucket-user-${var.environment}"
+  path = "/${var.environment}/"
+
+  tags = {
+    Name = "azentia-infra-${var.environment}-db"
+    Creator = "Terraform"
+  }
+}
+
+resource "aws_iam_access_key" "bucket_user" {
+  user = aws_iam_user.bucket_user.name
+}
+
+data "aws_iam_policy_document" "bucket_user_ro" {
+  statement {
+    effect    = "Allow"
+    actions   = ["s3:*"]
+    resources = ["${aws_s3_bucket.azentia-bucket.arn}"]
+  }
+}
+
+resource "aws_iam_user_policy" "bucket_user_ro" {
+  name   = "bucket-policy-${var.environment}"
+  user   = aws_iam_user.lb.name
+  policy = data.aws_iam_policy_document.lb_ro.json
 }
