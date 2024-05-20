@@ -3,7 +3,7 @@ import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { updateRecordAsync } from '@root/store/reducers/surgery';
-import { getPracticeId } from '@root/utils';
+import { getPracticeId, hasPermission } from '@root/utils';
 import { DatePicker } from 'baseui/datepicker';
 import { SIZE, Select } from 'baseui/select';
 import React, { useState } from 'react';
@@ -16,6 +16,12 @@ function EditableRow({
 }) {
   const practiceId = getPracticeId();
   const dispatch = useAppDispatch();
+  const userInfo = useAppSelector((state) => state.auth.user);
+  const userPermissions = userInfo?.permissions;
+  const viewBillingColumn =
+    userPermissions !== undefined
+      ? hasPermission(userPermissions, ['view_billing'])
+      : false;
 
   const insuranceTypesList: IInsuranceType[] = useAppSelector((state) =>
     Object.values(state.insuranceTypes.entities),
@@ -310,30 +316,34 @@ function EditableRow({
               );
             },
           )}
-          <div className="py-2 w-20">
-            <TextInput
-              size={SIZE.mini}
-              name="prof"
-              value={obj.totalProfessionalPricing}
-              onChange={(value) =>
-                handleObjChange('totalProfessionalPricing', value)
-              }
-              type="number"
-              min={0}
-            />
-          </div>
-          <div className="py-2 w-20">
-            <TextInput
-              size={SIZE.mini}
-              name="hospital"
-              value={obj.totalHospitalPricing}
-              onChange={(value) =>
-                handleObjChange('totalHospitalPricing', value)
-              }
-              type="number"
-              min={0}
-            />
-          </div>
+          {viewBillingColumn && (
+            <div className="py-2 w-20">
+              <TextInput
+                size={SIZE.mini}
+                name="prof"
+                value={obj.totalProfessionalPricing}
+                onChange={(value) =>
+                  handleObjChange('totalProfessionalPricing', value)
+                }
+                type="number"
+                min={0}
+              />
+            </div>
+          )}
+          {viewBillingColumn && (
+            <div className="py-2 w-20">
+              <TextInput
+                size={SIZE.mini}
+                name="hospital"
+                value={obj.totalHospitalPricing}
+                onChange={(value) =>
+                  handleObjChange('totalHospitalPricing', value)
+                }
+                type="number"
+                min={0}
+              />
+            </div>
+          )}
           <div className="py-2 w-20">
             <Select
               backspaceRemoves={false}

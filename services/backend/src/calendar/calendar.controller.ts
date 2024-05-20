@@ -12,6 +12,10 @@ import {
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CalendarEntity } from '@packages/entities';
 import { AuthGuard } from 'src/auth/auth.guard';
+import {
+  Permission,
+  UserPermissionsGuard,
+} from 'src/auth/userPermissions.guard';
 import { practiceNotFoundInterceptor } from '../interceptors/practiceNotFoundInterceptor';
 import { CalendarService } from './calendar.service';
 import {
@@ -36,6 +40,8 @@ export class CalendarController {
   constructor(private calendarService: CalendarService) {}
 
   @Get()
+  @UseGuards(UserPermissionsGuard)
+  @Permission('view_future_cases')
   getCalendars(
     @Param()
     params: GetCalendarsParams,
@@ -44,6 +50,8 @@ export class CalendarController {
   }
 
   @Get(':id')
+  @UseGuards(UserPermissionsGuard)
+  @Permission('view_future_cases')
   getCalendarById(
     @Param() params: GetCalendarByIdParams,
   ): Promise<CalendarEntity> {

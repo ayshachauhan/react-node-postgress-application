@@ -290,6 +290,11 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
       ? hasPermission(userPermissions, ['edit_case'])
       : false;
 
+  const viewBillingColumn =
+    userPermissions !== undefined
+      ? hasPermission(userPermissions, ['view_billing'])
+      : false;
+
   return (
     <div>
       <div className="flex w-full bg-purple-50 px-2 border-t border-b border-gray-200 items-center">
@@ -457,12 +462,16 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
                             </div>
                           ),
                         )}
-                        <div className="font-bold text-white py-1 px-1 w-20">
-                          Prof
-                        </div>
-                        <div className="font-bold text-white py-1 px-1 w-20">
-                          Hospital
-                        </div>
+                        {viewBillingColumn && (
+                          <div className="font-bold text-white py-1 px-1 w-20">
+                            Prof
+                          </div>
+                        )}
+                        {viewBillingColumn && (
+                          <div className="font-bold text-white py-1 px-1 w-20">
+                            Hospital
+                          </div>
+                        )}
                         <div className="font-bold text-white py-1 px-1 w-20">
                           Insurance
                         </div>
@@ -545,12 +554,16 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
                                   </div>
                                 ),
                               )}
-                              <div className="text-black py-0.5 px-1 w-20">
-                                {row.prof}
-                              </div>
-                              <div className="text-black py-0.5 px-1 w-20">
-                                {row.hospital}
-                              </div>
+                              {viewBillingColumn && (
+                                <div className="text-black py-0.5 px-1 w-20">
+                                  {row.prof}
+                                </div>
+                              )}
+                              {viewBillingColumn && (
+                                <div className="text-black py-0.5 px-1 w-20">
+                                  {row.hospital}
+                                </div>
+                              )}
                               <div className="text-black py-0.5 px-1 w-20">
                                 {row.insurance}
                               </div>
@@ -663,16 +676,22 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
                                     </p>
                                   </div>
                                   <div className="flex-1">
-                                    <p>
-                                      <span className="font-bold">Prof: </span>
-                                      <span>{selectedSurgery.prof}</span>
-                                    </p>
-                                    <p>
-                                      <span className="font-bold">
-                                        Hospital:{' '}
-                                      </span>
-                                      <span>{selectedSurgery.hospital}</span>
-                                    </p>
+                                    {viewBillingColumn && (
+                                      <p>
+                                        <span className="font-bold">
+                                          Prof:{' '}
+                                        </span>
+                                        <span>{selectedSurgery.prof}</span>
+                                      </p>
+                                    )}
+                                    {viewBillingColumn && (
+                                      <p>
+                                        <span className="font-bold">
+                                          Hospital:{' '}
+                                        </span>
+                                        <span>{selectedSurgery.hospital}</span>
+                                      </p>
+                                    )}
                                     <p>
                                       <span className="font-bold">
                                         Insurance:{' '}
