@@ -34,12 +34,4 @@ export class HistoryController {
   ): Promise<HistoryEntity> {
     return this.historyService.getHistoryById(params);
   }
-
-  // @Post()
-  // createHistory(
-  //   @Param() params: CreateHistoryParams,
-  //   @Body(new ValidationPipe()) calendarDTO: CreateCalendarDto,
-  // ): Promise<CalendarEntity> {
-  //   return this.historyService.createHistory(params, calendarDTO);
-  // }
 }
