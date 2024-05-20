@@ -15,3 +15,38 @@ export interface IEval extends IBaseEntity {
   bodyPart: string;
   doctor: ISanitizedUser;
 }
+
+export interface CreateEvalInterface {
+  practiceId: string;
+  surgeryConfigurationId: string;
+  practiceHomeId: string;
+  insuranceTypeId?: string;
+  insuranceDetails?: string;
+  date: Date;
+  mrn: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phoneNumber: string;
+  pcp?: string;
+  referrerId?: string;
+  details?: string;
+  status: string;
+  bodyPart: string;
+  doctorId: string;
+}
+
+export interface UpdateEValInterface {
+  practiceId?: string;
+  insuranceTypeId?: string;
+  date: Date;
+  firstName: string;
+  lastName: string;
+  mrn: number;
+  bodyPart: string;
+  details?: string;
+  insuranceDetails?: string;
+  email: string;
+  phoneNumber: string;
+  status: string;
+}

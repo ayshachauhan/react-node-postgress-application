@@ -59,7 +59,6 @@ const SurgeryPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const [checkboxes, setCheckboxes] = React.useState([true, false]);
   const [surgeryNameId, setSurgeryNameId] = useState<string>('');
   const [bodyPart, setBodyPart] = useState<string>('');
-  const [isMrnExists, setIsMrnExists] = useState<boolean>(false);
   const [bodyPartOptions, setBodyPartOptions] = useState([
     { id: '', label: '' },
   ]);
@@ -67,17 +66,14 @@ const SurgeryPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   useEffect(() => {
     if (mrn) {
       const patientCheck = patientsList.find((ele) => String(ele.mrn) === mrn);
-      console.log(isMrnExists);
 
       if (patientCheck) {
-        setIsMrnExists(true);
         setFirstName(patientCheck.firstName);
         setLastName(patientCheck.lastName);
         setEmail(patientCheck.email);
         setPhoneNumber(patientCheck.phoneNumber);
         setReferrerId(patientCheck.referrer ? patientCheck?.referrer.id : '');
       } else {
-        setIsMrnExists(false);
         setFirstName('');
         setLastName('');
         setEmail('');
@@ -101,14 +97,10 @@ const SurgeryPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     }
   }, [surgeryNameId]);
 
-  const surgeryConfigurationsOptions = surgeryConfigurations.map((key) => {
-    console.log(key);
-
-    return {
-      label: key.name,
-      id: key.id,
-    };
-  });
+  const surgeryConfigurationsOptions = surgeryConfigurations.map((key) => ({
+    label: key.name,
+    id: key.id,
+  }));
 
   const practiceHomesOptions = Object.keys(practiceHomesList).map((key) => ({
     label: practiceHomesList[key].name,
@@ -719,6 +711,7 @@ const SurgeryPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                   backgroundColor: 'rgba(212, 212, 216, 1)',
                   color: 'black',
                 }}
+                onClick={onClose}
               />
             </div>
           </div>

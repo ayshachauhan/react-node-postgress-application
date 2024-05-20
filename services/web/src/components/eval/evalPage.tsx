@@ -12,6 +12,8 @@ import { useAppDispatch, useAppSelector } from '@root/store';
 import { fetchCalendars } from '@root/store/reducers/calendar';
 import {
   clearSuccessMessage as clearEvalSuccessMessage,
+  deleteRecordAsync,
+  fetchEvalInfo,
   fetchListings as fetchEvalsList,
 } from '@root/store/reducers/evals';
 import { fetchListings as fetchInsuranceTypesList } from '@root/store/reducers/insuranceTypes';
@@ -30,6 +32,9 @@ import {
 import { Modal, ModalBody, ROLE, SIZE } from 'baseui/modal';
 
 import React, { useEffect, useState } from 'react';
+import EditableRow from 'src/components/eval/editEval/editableRow';
+import DeleteEvalModal from './DeleteEvalModal';
+
 const EvalPage: React.FC = () => {
   const dispatch = useAppDispatch();
   const practiceId = getPracticeId();
@@ -38,12 +43,18 @@ const EvalPage: React.FC = () => {
     calendarSuccessMessage: state.calendars.successMessage,
   }));
 
-  const { successMessage: addEvalSuccessMessage } = useAppSelector((state) => ({
-    successMessage: state.evals.successMessage,
-    errorMessage: state.evals.errorMessage,
-  }));
+  const { successMessage: addEvalSuccessMessage, evalInfo } = useAppSelector(
+    (state) => ({
+      successMessage: state.evals.successMessage,
+      errorMessage: state.evals.errorMessage,
+      evalInfo: state.evals.evalInfo,
+    }),
+  );
 
   const [showModal, setShowModal] = useState(false);
+  const [selectedAction, setSelectedAction] = useState<string | null>(null);
+  const [selectedRow, setSelectedRow] = useState<string | null>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   useEffect(() => {
     if (practiceId) {
@@ -89,7 +100,7 @@ const EvalPage: React.FC = () => {
   const { evalsList } = useAppSelector((state) => ({
     evalsList: Object.values(state.evals.entities),
   }));
-  console.log(evalsList);
+
   const modifyEvalList = evalsList
     .map((ele, index) => {
       const viewData = {
@@ -118,7 +129,43 @@ const EvalPage: React.FC = () => {
     })
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
+  const handleEditClick = (rowId: string) => {
+    if (practiceId) {
+      setSelectedAction('edit');
+      dispatch(fetchEvalInfo({ practiceId, id: rowId }));
+      setSelectedRow(selectedRow === rowId ? null : rowId);
+    }
+  };
+
+  const handleCancelClick = () => {
+    setSelectedAction('cancel');
+    setSelectedRow(null);
+  };
+  const handleCloseAddModal = (): void => {
+    setIsAddModalOpen(false);
+  };
+
+  const handleCloseDeleteModal = (): void => {
+    setIsDeleteModalOpen(false);
+    setSelectedRow(null);
+  };
+
+  const onConfirmDelete = (): void => {
+    if (practiceId && selectedRow) {
+      try {
+        const id = selectedRow;
+        dispatch(deleteRecordAsync({ practiceId, id }));
+        setIsDeleteModalOpen(false);
+        setSelectedRow(null);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+    setSelectedRow(null);
+  };
+
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+
   const AddFormModal = () => {
     return (
       <Modal
@@ -152,17 +199,19 @@ const EvalPage: React.FC = () => {
       </Modal>
     );
   };
-  const handleCloseAddModal = (): void => {
-    setIsAddModalOpen(false);
-  };
 
   const handleOpenAddModal = (): void => {
     setIsAddModalOpen(true);
   };
 
+  const handleOpenDeleteModal = (Id: string): void => {
+    setIsDeleteModalOpen(true);
+    setSelectedRow(Id);
+  };
+
   return (
-    <div id="__next" className="">
-      <div className="flex justify-between border-gray-400 items-center">
+    <div id="__next" className="w-full text-center">
+      <div className="flex justify-between border-gray-400 items-center ">
         <span className="text-xl font-bold">Evals </span>
         <div className="flex  justify-between">
           {showModal && (
@@ -183,7 +232,7 @@ const EvalPage: React.FC = () => {
         </div>
       </div>
       <hr className="h-px my-1 px-0 mx-0 bg-gray-100 border-1 border-gray-100"></hr>
-      <div className="text-gray-50 w-full items-center bg-gray-50 border-l border rounded-t-lg rounded-b-lg border-gray-200 text-sm overflow-x-auto mt-2">
+      <div className="text-gray-50  items-center bg-gray-50 border-l border rounded-t-lg rounded-b-lg border-gray-200 text-sm overflow-x-auto mt-2">
         <div className="bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 flex flex-row gap-4 p-2">
           <div className="font-bold text-white py-1 px-1 w-20">Date</div>
           <div className="font-bold text-white py-1 px-1 w-10">
@@ -195,62 +244,78 @@ const EvalPage: React.FC = () => {
           <div className="font-bold text-white py-1 px-1 w-20">Last Name</div>
           <div className="font-bold text-white py-1 px-1 w-20">First Name</div>
           <div className="font-bold text-white py-1 px-1 w-20">MRN</div>
-
+          <div className="font-bold text-white py-1 px-1 w-40">Email</div>
           <div className="font-bold text-white py-1 px-1 w-20">Surgery</div>
           <div className="font-bold text-white py-1 px-1 w-20">Body Part</div>
+          <div className="font-bold text-white py-1 px-1 w-40">Insurance</div>
           <div className="font-bold text-white">Action</div>
         </div>
-        {modifyEvalList.map((data) => (
-          <React.Fragment key={data.id}>
-            <div className="flex flex-row gap-4 bg-gray-50 px-4 py-2">
-              <div className="text-black  py-0.5 px-1 w-20">{data.date}</div>
-              <div className="text-black py-0.5 px-1 w-10">{data.home[0]}</div>
-              <div className="text-gray-900 py-2 px-0.5 flex text-center flex justify-around items-center w-40">
-                <div className="rounded-md text-white text-center p-1 bg-indigo-500">
-                  {data.status}
+        {modifyEvalList.map((data) =>
+          selectedRow === data.id && selectedAction == 'edit' && evalInfo ? (
+            <EditableRow
+              key={data.id}
+              handleCancelClick={handleCancelClick}
+              evalInfo={evalInfo}
+              setSelectedAction={setSelectedAction}
+            />
+          ) : (
+            <React.Fragment key={data.id}>
+              <div className="flex flex-row gap-4 bg-gray-50 px-2 py-0.5 text-center">
+                <div className="text-black  py-0.5 px-1 w-20">{data.date}</div>
+                <div className="text-black py-0.5 px-1 w-10">
+                  {data.home[0]}
+                </div>
+                <div className="text-gray-900 py-0.5 px-0.5 text-center flex justify-around items-center w-40">
+                  <div className="rounded-md text-white text-center px-1 bg-indigo-500">
+                    {data.status}
+                  </div>
+                </div>
+                <div className="text-black py-0.5 px-1 overflow-hidden whitespace-nowrap w-20">
+                  {data.lastName}
+                </div>
+                <div className="text-black py-0.5 px-1 overflow-hidden whitespace-nowrap w-20">
+                  {data.firstName}
+                </div>
+                <div className="text-black py-0.5 px-1 overflow-hidden whitespace-nowrap w-20">
+                  {data.mrn}
+                </div>
+                <div className="text-black py-0.5 px-1 w-40">{data.email}</div>
+                <div className="text-black py-0.5 px-1 overflow-hidden whitespace-nowrap w-20">
+                  {data.surgeryConfigName}
+                </div>
+                <div className="text-black py-0.5 px-1 w-20">
+                  {data.bodyPart}
+                </div>
+                <div className="text-black py-0.5 px-1 w-40">
+                  {data.insuranceTypeName}
+                </div>
+                <div className="text-gray-900 flex gap-4">
+                  <div className="cursor-pointer">
+                    <EditIcon
+                      style={{ marginRight: '8px', cursor: 'pointer' }}
+                      onClick={() => handleEditClick(data.id)}
+                    ></EditIcon>
+                  </div>
+                  <div className="cursor-pointer">
+                    <DeleteIcon
+                      onClick={() => {
+                        setSelectedRow(data.id);
+                        handleOpenDeleteModal(data.id);
+                      }}
+                    ></DeleteIcon>
+                  </div>
                 </div>
               </div>
-              <div className="text-black py-0.5 px-1 overflow-hidden whitespace-nowrap w-20">
-                {data.lastName}
-              </div>
-              <div className="text-black py-0.5 px-1 overflow-hidden whitespace-nowrap w-20">
-                {data.firstName}
-              </div>
-              <div className="text-black py-0.5 px-1 overflow-hidden whitespace-nowrap w-20">
-                {data.mrn}
-              </div>
-              <div className="text-black py-0.5 px-1 overflow-hidden whitespace-nowrap w-20">
-                {data.surgeryConfigName}
-              </div>
-              <div className="text-black py-0.5 px-1 w-20">{data.bodyPart}</div>
-              <div className="text-gray-900 flex gap-4">
-                <div
-                  // onClick={() => data.id && handleOpenEditModal(data.id)}
-                  className="cursor-pointer"
-                >
-                  <EditIcon></EditIcon>
-                </div>
-                <div
-                  // onClick={() => data.id && handleOpenDeleteModal(data.id)}
-                  className="cursor-pointer"
-                >
-                  <DeleteIcon></DeleteIcon>
-                </div>
-              </div>
-            </div>
-          </React.Fragment>
-        ))}
+            </React.Fragment>
+          ),
+        )}
       </div>
-      <AddFormModal
-      // isModalOpen={isModalOpen}
-      // handleCloseModal={handleCloseModal}
+      <AddFormModal />
+      <DeleteEvalModal
+        onConfirmDelete={onConfirmDelete}
+        isDeleteModalOpen={isDeleteModalOpen}
+        handleCloseDeleteModal={handleCloseDeleteModal}
       />
-      {/* <EditUserModal
-        isEditModalOpen={isEditModalOpen}
-        handleCloseEditModal={handleCloseEditModal}
-        userId={userId}
-      />*/}
-      {/* <UserDeleteModal />  */}
     </div>
   );
 };

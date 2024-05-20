@@ -62,27 +62,33 @@ export class EvalsService {
         'doctor',
       ],
     });
-    console.log(dbEvalsByPractice);
-
     dbEvalsByPractice.forEach((ele) => (ele.doctor.password = ''));
 
     return dbEvalsByPractice;
   }
 
   async getEvalById(id: string): Promise<EvalEntity | null> {
-    return await this.evalRepository.findOneBy({ id });
+    return await this.evalRepository.findOne({
+      where: { id },
+      relations: [
+        'practiceHome',
+        'surgeryConfiguration',
+        'patient',
+        'insuranceType',
+        'patient.referrer',
+        'doctor',
+      ],
+    });
   }
 
   async create({ practiceId, createEvalDto }): Promise<EvalEntity> {
     const newEval: EvalEntity = new EvalEntity();
-    console.log(createEvalDto);
 
     const practiceEntity = await this.practiceService.findOne(practiceId);
     const newPatient: PatientEntity = await this.patientService.create(
       createEvalDto,
       practiceEntity,
     );
-    console.log(newPatient);
 
     const surgeryConfigurationEntity =
       await this.surgeryConfigurationService.getSurgeryConfigurationById(
@@ -108,8 +114,6 @@ export class EvalsService {
     const doctorEntity = await this.userService.getUserById(
       createEvalDto.doctorId,
     );
-
-    console.log(surgeryConfigurationEntity);
 
     const resultEval = await this.evalRepository.save({
       ...newEval,
@@ -153,9 +157,34 @@ export class EvalsService {
   async update({ createEvalDto, id }): Promise<EvalEntity | null> {
     const evalToUpdate = await this.getEvalById(id);
 
+    let insuranceTypeEntity: InsuranceTypeEntity | null =
+      new InsuranceTypeEntity();
+
+    if (createEvalDto.insuranceTypeId) {
+      insuranceTypeEntity =
+        await this.insuranceTypesService.getInsuranceTypeById(
+          createEvalDto.insuranceTypeId,
+          createEvalDto.practiceId,
+        );
+    }
+
+    const newPatient: PatientEntity | null = await this.patientService.update({
+      id: evalToUpdate?.patient.id,
+      practiceId: createEvalDto.practiceId,
+      data: createEvalDto,
+    });
+
+    delete createEvalDto.practiceId;
+    delete createEvalDto.insuranceTypeId;
+
     await this.evalRepository.update(id, {
       ...evalToUpdate,
-      ...createEvalDto,
+      insuranceType: insuranceTypeEntity ? insuranceTypeEntity : undefined,
+      patient: newPatient ? newPatient : evalToUpdate?.patient,
+      status: createEvalDto.status,
+      bodyPart: createEvalDto.bodyPart,
+      date: createEvalDto.date,
+      insuranceDetails: createEvalDto.insuranceDetails,
     });
 
     return await this.evalRepository.findOne({

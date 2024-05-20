@@ -59,7 +59,7 @@ export class PatientsService {
     );
 
     if (mrnCheck) {
-      if (referrerEntity) {
+      if (referrerEntity.dateCreated) {
         await this.patientRepository.update(mrnCheck.id, {
           referrer: referrerEntity,
         });
@@ -74,7 +74,9 @@ export class PatientsService {
         } else {
           return mrnCheck;
         }
-      } else return mrnCheck;
+      } else {
+        return mrnCheck;
+      }
     } else {
       const newPatient = this.patientRepository.create({
         practice: practiceEntity,
