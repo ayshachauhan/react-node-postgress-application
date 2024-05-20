@@ -66,4 +66,7 @@ export class CreateSurgeryDto {
   @IsNotEmpty({ message: 'doctorId is required' })
   @ApiProperty()
   doctorId: string;
+
+  @IsNotEmpty()
+  ipAddress: string;
 }

@@ -68,7 +68,9 @@ const DashboardPage: React.FC = () => {
         dispatch(clearEvalSuccessMessage());
         dispatch(fetchSurgeryConfigurationsListing({ practiceId }));
         dispatch(fetchPatients({ practiceId }));
-        if (userId) dispatch(fetchCalendars({ practiceId, userId }));
+        if (userId) {
+          dispatch(fetchCalendars({ practiceId, userId }));
+        }
       }
     }
   }, [
@@ -76,6 +78,8 @@ const DashboardPage: React.FC = () => {
     addEvalSuccessMessage,
     calendarSuccessMessage,
     dispatch,
+    practiceId,
+    userId,
   ]);
 
   useEffect(() => {

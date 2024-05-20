@@ -3,6 +3,7 @@ import { AuthModule } from './auth/auth.module';
 import { CalendarModule } from './calendar/calendar.module';
 import { EvalsModule } from './evals/evals.module';
 import { HealthModule } from './healthz/health.module';
+import { HistoryModule } from './history/history.module';
 import { createInfraModuleProviders } from './infra.module.provider';
 import { InsuranceTypesModule } from './insuranceTypes/insuranceTypes.module';
 import { MediaModule } from './media/media.module';
@@ -39,6 +40,7 @@ import { UsersModule } from './users/users.module';
     SurgeryModule,
     CalendarModule,
     SurgeryConfigurationsModule,
+    HistoryModule,
   ],
 })
 export class AppModule {}
