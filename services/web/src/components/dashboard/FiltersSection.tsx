@@ -17,9 +17,9 @@ import {
   usDateFormatter,
 } from '@root/utils';
 import { monthOptions } from '@root/utils/constants';
-import { Input } from 'baseui/input';
 import { Select } from 'baseui/select';
 import React, { useState } from 'react';
+import TextInput from '../TextInput';
 import DeleteFilterModal from './DeleteFilterModal';
 import EditableRow from './EditableRow';
 
@@ -204,8 +204,8 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
   //   setGroupedData(newGroupedData);
   // }, [filteredData]);
 
-  const handleSearchMRNChange = (event) => {
-    const mrn = event.target.value.toLowerCase();
+  const handleSearchMRNChange = (value) => {
+    const mrn = value.toLowerCase();
     setSearchMRN(mrn);
     // filterData();
   };
@@ -310,30 +310,16 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
         </div>
         <div className="flex w-3/4 justify-end gap-3 items-center text-sm">
           <div className="flex">
-            <Input
-              name="search"
-              value={searchMRN}
-              onChange={handleSearchMRNChange}
-              placeholder="Search MRN or Name"
-              overrides={{
-                Root: {
-                  style: {
-                    borderTopRightRadius: '0',
-                    borderBottomRightRadius: '0',
-                    borderRight: '0',
-                    border: '0',
-                  },
-                },
-                Input: {
-                  style: {
-                    border: 'rgba(212, 212, 216, 1)',
-                    backgroundColor: 'rgba(250, 250, 250, 1)',
-                  },
-                },
-              }}
-            />
-            <div className="bg-gradient-to-br from-teal-600 to-green-500 text-white p-2 items-center rounded-r-lg border-r border-gray-300">
-              <SearchIcon className="mt-2" size={25}></SearchIcon>
+            <div className="items-center">
+              <TextInput
+                name="search"
+                value={searchMRN}
+                onChange={handleSearchMRNChange}
+                placeholder="Search MRN or Name"
+              />
+            </div>
+            <div className="bg-gradient-to-br from-teal-600 to-green-500 px-2 py-2 text-white flex items-center rounded-r-lg border-r border-gray-300">
+              <SearchIcon size={20} />
             </div>
           </div>
           <div>
