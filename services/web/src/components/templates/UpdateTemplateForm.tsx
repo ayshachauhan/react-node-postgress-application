@@ -8,7 +8,6 @@ import {
   fetchListings,
   updateRecordAsync,
 } from '@root/store/reducers/templates';
-import { SanitizedUser } from '@root/store/types';
 import { getPracticeId, hasPermission } from '@utils/index';
 import { Checkbox, STYLE_TYPE } from 'baseui/checkbox';
 import { Select } from 'baseui/select';
@@ -34,14 +33,7 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
   };
   const userInfo = useAppSelector((state) => state.auth.user);
   const userId = userInfo?.id;
-  const detailedInfoUser = useAppSelector((state) =>
-    userId
-      ? Object.values(state.users.entities).find(
-          ({ id }: SanitizedUser) => id === userId,
-        )
-      : undefined,
-  );
-  const userPermissions = detailedInfoUser?.permissions;
+  const userPermissions = userInfo?.permissions;
   const editCaseAllowed =
     userPermissions !== undefined
       ? hasPermission(userPermissions, ['edit_case'])

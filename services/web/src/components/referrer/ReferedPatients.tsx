@@ -29,15 +29,7 @@ const ReferedPatients = ({ referrerId }) => {
   const referredPatients = referrerInfo?.patients;
   const dispatch = useAppDispatch();
   const userInfo = useAppSelector((state) => state.auth.user);
-  const loggedInUserId = userInfo?.id;
-  const detailedInfoUser = useAppSelector((state) =>
-    loggedInUserId
-      ? Object.values(state.users.entities).find(
-          ({ id }: SanitizedUser) => id === loggedInUserId,
-        )
-      : undefined,
-  );
-  const userPermissions = detailedInfoUser?.permissions;
+  const userPermissions = userInfo?.permissions;
 
   const viewBillingColumn =
     userPermissions !== undefined

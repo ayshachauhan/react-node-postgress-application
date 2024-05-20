@@ -25,7 +25,6 @@ import {
 import { fetchListings as fetchSurgeryConfigurationsListing } from '@root/store/reducers/surgeryConfigurations';
 import { fetchListings as fetchSurgeryTypesListing } from '@root/store/reducers/surgeryTypes';
 import { fetchListings as fetchUsersList } from '@root/store/reducers/users';
-import { SanitizedUser } from '@root/store/types';
 import { getPracticeId, getUserId, hasPermission } from '@root/utils';
 import { Modal, ModalBody, ROLE, SIZE } from 'baseui/modal';
 
@@ -35,15 +34,7 @@ const DashboardPage: React.FC = () => {
   const practiceId = getPracticeId();
   const userId: string | null = getUserId();
   const userInfo = useAppSelector((state) => state.auth.user);
-  const loggedInUserId = userInfo?.id;
-  const detailedInfoUser = useAppSelector((state) =>
-    loggedInUserId
-      ? Object.values(state.users.entities).find(
-          ({ id }: SanitizedUser) => id === loggedInUserId,
-        )
-      : undefined,
-  );
-  const userPermissions = detailedInfoUser?.permissions;
+  const userPermissions = userInfo?.permissions;
 
   const addCaseAllowed =
     userPermissions !== undefined

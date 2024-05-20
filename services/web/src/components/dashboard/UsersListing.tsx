@@ -1,21 +1,12 @@
 'use client';
 import { UserType } from '@packages/entities';
 import { State, useAppSelector } from '@root/store';
-import { SanitizedUser } from '@root/store/types';
 import { hasPermission } from '@root/utils';
 import React from 'react';
 
 const UsersListing: React.FC = () => {
   const userInfo = useAppSelector((state) => state.auth.user);
-  const loggedInUserId = userInfo?.id;
-  const detailedInfoUser = useAppSelector((state) =>
-    loggedInUserId
-      ? Object.values(state.users.entities).find(
-          ({ id }: SanitizedUser) => id === loggedInUserId,
-        )
-      : undefined,
-  );
-  const userPermissions = detailedInfoUser?.permissions;
+  const userPermissions = userInfo?.permissions;
 
   const viewUserMetrics =
     userPermissions !== undefined

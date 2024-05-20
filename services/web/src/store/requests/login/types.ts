@@ -1,3 +1,4 @@
+import { IPermission } from '@packages/entities';
 import { IPractice } from '@packages/entities/index.browser';
 
 export interface User {
@@ -29,6 +30,7 @@ export interface GetUserResponse {
   isSuperAdmin: string;
   userPractices: UserPractice[];
   practices?: IPractice[];
+  permissions?: IPermission[];
 }
 
 export interface UserPractice {

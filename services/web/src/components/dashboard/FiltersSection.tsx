@@ -274,15 +274,7 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
   };
 
   const userInfo = useAppSelector((state) => state.auth.user);
-  const loggedInUserId = userInfo?.id;
-  const detailedInfoUser = useAppSelector((state) =>
-    loggedInUserId
-      ? Object.values(state.users.entities).find(
-          ({ id }: SanitizedUser) => id === loggedInUserId,
-        )
-      : undefined,
-  );
-  const userPermissions = detailedInfoUser?.permissions;
+  const userPermissions = userInfo?.permissions;
 
   const viewPastCases =
     userPermissions !== undefined

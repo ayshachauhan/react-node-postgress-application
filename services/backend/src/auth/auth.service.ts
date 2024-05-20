@@ -75,6 +75,7 @@ export class AuthService {
   async setUserPractices(payloadUser): Promise<void> {
     const user = await this.usersService.getUserById(payloadUser.id);
     payloadUser['practices'] = user?.practices;
+    payloadUser['permissions'] = user?.permissions;
   }
 
   async sendPasswordResetEmail(email: string): Promise<void> {
