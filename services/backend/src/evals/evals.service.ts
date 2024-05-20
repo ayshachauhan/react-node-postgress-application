@@ -12,11 +12,11 @@ import { In, Repository } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 import { InsuranceTypeEntity } from '@packages/entities';
 import { ENVIRONMENT_VARIABLES } from 'src/enums/environment.enums';
+import { PatientMailData } from 'src/evals/types';
 import { InsuranceTypesService } from 'src/insuranceTypes/insuranceTypes.service';
 import { SurgeryConfigurationsService } from 'src/surgeryConfiguration/surgeryConfiguration.service';
 import { SystemTemplates } from 'src/transporter/transporter.types';
 import { UsersService } from 'src/users/users.service';
-import { PatientMailData } from './types';
 
 @Injectable()
 export class EvalsService {

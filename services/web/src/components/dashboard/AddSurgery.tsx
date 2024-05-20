@@ -161,11 +161,9 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
   }));
 
   const referrersOptions = Object.keys(referrersList).map((key) => ({
-    label:
-      referrersList[key].email +
-      (referrersList[key].firstName
-        ? ` (${toFullName(referrersList[key])})`
-        : ''),
+    label: referrersList[key].email
+      ? `${toFullName(referrersList[key])} (${referrersList[key].email})`
+      : `${toFullName(referrersList[key])}`,
     id: referrersList[key].id,
   }));
   console.log(usersList);
