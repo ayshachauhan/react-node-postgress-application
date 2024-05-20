@@ -11,7 +11,6 @@ import {
 } from '@root/components/Icons';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { fetchSurgeryInfo } from '@root/store/reducers/surgery';
-import { SanitizedUser } from '@root/store/types';
 import {
   hasPermission,
   removePastSurgeries,

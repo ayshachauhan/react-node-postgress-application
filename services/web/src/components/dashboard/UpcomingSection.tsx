@@ -7,7 +7,6 @@ import {
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { fetchCalendars } from '@root/store/reducers/calendar';
 import { fetchListings } from '@root/store/reducers/surgeryConfigurations';
-import { SanitizedUser } from '@root/store/types';
 import { DEFAULT_SURGERYNAME_COLOR } from '@root/utils/constants';
 import { getPracticeId, getUserId, hasPermission } from '@root/utils/index';
 import { Modal, ModalBody, ModalHeader, ROLE } from 'baseui/modal';

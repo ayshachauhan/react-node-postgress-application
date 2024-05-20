@@ -6,7 +6,6 @@ import {
   clearSuccessMessage,
   fetchReferrerInfo,
 } from '@root/store/reducers/referrer';
-import { SanitizedUser } from '@root/store/types';
 import {
   formatDate,
   generateFullName,
