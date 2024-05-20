@@ -9,9 +9,9 @@ import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { PermissionEntity } from '@packages/entities';
 import { Request } from 'express';
+import { SanitizedUser, SuperAdminUser } from 'src/auth/types';
+import { ENVIRONMENT_VARIABLES } from 'src/enums/environment.enums';
 import { UsersService } from 'src/users/users.service';
-import { ENVIRONMENT_VARIABLES } from '../enums/environment.enums';
-import { SanitizedUser, SuperAdminUser } from './types';
 
 @Injectable()
 export class UserPermissionsGuard implements CanActivate {
