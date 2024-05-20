@@ -41,6 +41,16 @@ const DashboardPage: React.FC = () => {
       ? hasPermission(userPermissions, ['add_case'])
       : false;
 
+  const viewUpcomingSection =
+    userPermissions !== undefined
+      ? hasPermission(userPermissions, ['view_future_cases'])
+      : false;
+
+  const viewUserMetrics =
+    userPermissions !== undefined
+      ? hasPermission(userPermissions, ['leaderboard_display'])
+      : false;
+
   const { successMessage: addSurgerySuccessMessage, calendarSuccessMessage } =
     useAppSelector((state) => ({
       successMessage: state.surgeries.successMessage,
@@ -201,12 +211,16 @@ const DashboardPage: React.FC = () => {
       <hr className="h-px my-1 px-0 mx-0 bg-gray-100 border-1 border-gray-100"></hr>
       <div className="mt-1">
         <div className="flex justify-between gap-4">
-          <div className="w-7/12 border border-solid rounded-lg px-2.5 py-2">
-            <UpcomingSection />
-          </div>
-          <div className="w-2/12 border border-solid rounded-lg px-2.5 py-2 text-lg">
-            <UsersListing />
-          </div>
+          {viewUpcomingSection && (
+            <div className="w-7/12 border border-solid rounded-lg px-2.5 py-2">
+              <UpcomingSection />
+            </div>
+          )}
+          {viewUserMetrics && (
+            <div className="w-2/12 border border-solid rounded-lg px-2.5 py-2 text-lg">
+              <UsersListing />
+            </div>
+          )}
           <div className="w-3/12 border border-solid rounded-lg px-2.5 py-2 text-lg">
             <SurgeryPercentage />
           </div>
