@@ -1,15 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsOptional } from 'class-validator';
 
-export class CreateEvalDto {
-  @IsNotEmpty({ message: 'surgeryConfig is required' })
-  @ApiProperty()
-  surgeryConfigurationId: string;
-
-  @IsNotEmpty({ message: 'practice home id is required' })
-  @ApiProperty()
-  practiceHomeId: string;
-
+export class UpdateEvalDto {
   @IsOptional()
   @ApiProperty()
   insuranceTypeId: string;
@@ -61,8 +53,4 @@ export class CreateEvalDto {
   @IsNotEmpty()
   @ApiProperty()
   status: string;
-
-  @IsNotEmpty({ message: 'doctorId is required' })
-  @ApiProperty()
-  doctorId: string;
 }
