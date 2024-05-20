@@ -31,7 +31,7 @@ export class HistoryService {
   async getAllHistoryLogs({
     practiceId,
     userId,
-  }: GetHistoryParams): Promise<HistoryEntity[]> {
+  }: GetHistoryParams & { userId: string }): Promise<HistoryEntity[]> {
     return await this.historyRepo.find({
       where: {
         practice: { id: practiceId },
@@ -67,7 +67,9 @@ export class HistoryService {
    * @param dto
    * @returns
    */
-  async createHistory(dto: CreateHistoryParams): Promise<HistoryEntity> {
+  async createHistory(
+    dto: CreateHistoryParams & { userId: string },
+  ): Promise<HistoryEntity> {
     const practiceEntity = await this.practiceService.findOne(dto.practiceId);
 
     const userEntity = practiceEntity?.users.find(

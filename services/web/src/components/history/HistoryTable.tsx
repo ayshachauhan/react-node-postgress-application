@@ -14,7 +14,6 @@ import {
   formatColumnDate,
   generateFullName,
   getPracticeId,
-  getUserId,
 } from '@utils/index';
 import React, { useEffect } from 'react';
 import { SurgeryFields } from './constants';
@@ -38,7 +37,6 @@ export default function HistoryTable() {
   const dispatch = useAppDispatch();
 
   const practiceId = getPracticeId();
-  const userId = getUserId() as string;
 
   const { historyLogs, surgeries, surgerySuccessMessage } = useAppSelector(
     (state) => ({
@@ -51,17 +49,17 @@ export default function HistoryTable() {
 
   useEffect(() => {
     if (practiceId) {
-      dispatch(fetchHistory({ practiceId, userId }));
+      dispatch(fetchHistory({ practiceId }));
       dispatch(fetchEvalsList({ practiceId }));
       dispatch(fetchSurgeryList({ practiceId }));
     }
-  }, [practiceId, dispatch, userId]);
+  }, [practiceId, dispatch]);
 
   useEffect(() => {
     if (practiceId) {
-      dispatch(fetchHistory({ practiceId, userId }));
+      dispatch(fetchHistory({ practiceId }));
     }
-  }, [surgerySuccessMessage, dispatch, practiceId, userId]);
+  }, [surgerySuccessMessage, dispatch, practiceId]);
 
   const resolvedHistoryChanges = (
     historyData: HistoryData,

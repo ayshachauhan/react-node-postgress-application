@@ -6,7 +6,7 @@ import { GetHistoryPayload, HistoryPayload } from './types';
 const apiClient = new ApiService();
 
 export const getUrlPath = (payload: HistoryPayload) => {
-  return `/practices/${payload.practiceId}/users/${payload.userId}/history`;
+  return `/practices/${payload.practiceId}/history`;
 };
 
 /**
@@ -27,8 +27,6 @@ export const getHistory = async (
     }
 
     const data: IHistory[] = await response.json();
-
-    console.log(data, 'datahistory');
 
     return data;
   } catch (error) {
