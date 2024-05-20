@@ -84,6 +84,14 @@ export const sidebarItems: SideBarItem[] = [
     userPermissions: ['view_referrers'],
     Icon: AddReferrerIcon,
   },
+
+  {
+    id: 'eval',
+    title: 'Eval',
+    path: '/eval',
+    permissions: ['admin'],
+    Icon: DashboardIcon,
+  },
   {
     id: 'setting',
     title: 'Settings',

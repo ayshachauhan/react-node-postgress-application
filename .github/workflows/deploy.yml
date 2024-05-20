@@ -201,6 +201,9 @@ jobs:
           SECRET_NAME: ${{ github.event.inputs.environment }}
           OUTPUT_PATH: '.env' # optional
 
+      - name : build packages
+        run : pnpm build
+
       - name: show migrations
         run: |
           pnpm list-migrations

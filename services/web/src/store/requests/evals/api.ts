@@ -1,6 +1,6 @@
+import { CreateEvalInterface, UpdateEValInterface } from '@packages/entities';
 import Cookies from 'js-cookie';
 import { publicRuntimeConfig } from 'next.config';
-import { CreateEvalInterface } from './types';
 const { API_BASE_URL } = publicRuntimeConfig;
 
 export const getEvals = async (
@@ -38,6 +38,33 @@ export const addEval = async (payloadData: CreateEvalInterface) => {
       `${API_BASE_URL}/practices/${payloadData.practiceId}/evals`,
       {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify(payloadData),
+      },
+    );
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    return error;
+  }
+};
+
+export const updateEval = async ({
+  payloadData,
+  id,
+}: {
+  payloadData: Partial<UpdateEValInterface>;
+  id: string;
+}) => {
+  try {
+    const accessToken = Cookies.get('access_token');
+    const response = await fetch(
+      `${API_BASE_URL}/practices/${payloadData.practiceId}/evals/${id}`,
+      {
+        method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${accessToken}`,
@@ -103,12 +130,11 @@ export const getEvalInfo = async (
     const response = await fetch(
       `${API_BASE_URL}/practices/${payloadData.practiceId}/evals/${payloadData.id}`,
       {
-        method: 'POST',
+        method: 'GET',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${accessToken}`,
         },
-        body: JSON.stringify(payloadData),
       },
     );
     const data = await response.json();

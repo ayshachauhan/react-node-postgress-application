@@ -6,6 +6,8 @@ import {
   Param,
   Patch,
   Post,
+  Query,
+  Req,
   UseGuards,
   UseInterceptors,
   ValidationPipe,
@@ -18,9 +20,10 @@ import {
   UserPermissionsGuard,
 } from 'src/auth/userPermissions.guard';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
-import { CreateSurgeryDto } from 'src/surgery/dto/createSurgery.dto';
-import { UpdateSurgeryDto } from 'src/surgery/dto/updateSurgery.dto';
-import { SurgeryService } from 'src/surgery/surgery.service';
+import { SanitizedUser } from '../auth/types';
+import { CreateSurgeryDto } from '../surgery/dto/createSurgery.dto';
+import { UpdateSurgeryDto } from '../surgery/dto/updateSurgery.dto';
+import { SurgeryService } from '../surgery/surgery.service';
 
 @ApiTags('Surgery')
 @ApiBearerAuth('normal')
@@ -33,8 +36,9 @@ export class SurgeryController {
   @UseInterceptors(practiceNotFoundInterceptor)
   async findAll(
     @Param() { practiceId }: { practiceId: string },
+    @Query('includeDeleted') includeDeleted: boolean = false,
   ): Promise<SurgeryEntity[]> {
-    return this.surgeryService.findAll(practiceId);
+    return this.surgeryService.findAll(practiceId, includeDeleted);
   }
 
   @Get(':id')
@@ -50,11 +54,15 @@ export class SurgeryController {
   async create(
     @Body(new ValidationPipe()) createSurgeryDto: CreateSurgeryDto,
     @Param() { practiceId }: { practiceId: string },
+    @Req() request: Request & { user: SanitizedUser },
   ): Promise<SurgeryEntity> {
-    return this.surgeryService.create({
-      createSurgeryDto,
-      practiceId,
-    });
+    return this.surgeryService.create(
+      {
+        createSurgeryDto,
+        practiceId,
+      },
+      request,
+    );
   }
 
   @Patch(':id')
@@ -65,19 +73,32 @@ export class SurgeryController {
     @Body(new ValidationPipe()) createSurgeryDto: UpdateSurgeryDto,
     @Param()
     { id, practiceId }: { id: string; practiceId: string },
+    @Req() request: Request & { user: SanitizedUser },
   ): Promise<SurgeryEntity | null> {
-    return this.surgeryService.update({
-      createSurgeryDto,
-
-      id,
-      practiceId,
-    });
+    return this.surgeryService.update(
+      {
+        createSurgeryDto,
+        id,
+        practiceId,
+      },
+      request,
+    );
   }
 
   @Delete(':id')
   @UseGuards(UserPermissionsGuard)
   @Permission('delete_case')
-  async remove(@Param('id') id: string): Promise<void> {
-    return await this.surgeryService.remove(id);
+  async remove(
+    @Param()
+    { id, practiceId }: { id: string; practiceId: string },
+    @Req() request: Request & { user: SanitizedUser },
+    @Body(new ValidationPipe()) deleteSurgeryDto: { ipAddress: string },
+  ): Promise<void> {
+    return await this.surgeryService.remove(
+      id,
+      practiceId,
+      request,
+      deleteSurgeryDto.ipAddress,
+    );
   }
 }

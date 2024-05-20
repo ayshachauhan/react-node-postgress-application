@@ -39,7 +39,10 @@ export class UpdateSurgeryDto {
   @ApiProperty()
   selectedSurgeryOptions: SelectedSurgeryOption;
 
-  //   @IsNotEmpty({ message: 'doctorId is required' })
+  //@IsNotEmpty({ message: 'doctorId is required' })
   @ApiProperty()
   selectedCheckListOptions: CheckListOptions;
+
+  @IsNotEmpty()
+  ipAddress: string;
 }

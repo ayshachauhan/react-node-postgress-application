@@ -296,7 +296,7 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
       : false;
 
   return (
-    <div>
+    <div className="overflow-x-auto">
       <div className="flex w-full bg-purple-50 px-2 border-t border-b border-gray-200 items-center">
         <div className="flex w-1/4 items-center">
           <div className="text-xl font-bold border-r border-gray-300 py-4 pr-4">
@@ -366,7 +366,7 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
         </div>
       </div>
       {surgeryConfigList.length && Object.keys(modifiedObj).length && (
-        <div className="w-full overflow-x-auto mt-2 border rounded-t-lg rounded-b-lg border-gray-200">
+        <div className="w-max overflow-x-auto mt-2 border rounded-t-lg rounded-b-lg border-gray-200">
           {Object.keys(modifiedObj).map((key, index) => {
             let ele = modifiedObj[key];
             if (!viewPastCases) {
@@ -378,7 +378,7 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
               surgeryOptionsHeadersObj[key].checkListHeaders;
 
             return (
-              <div key={index} className="w-max">
+              <div key={index} className="w-full">
                 <div
                   className={`border-solid px-2.5 py-0.5 text-white text-base font-normal   ${
                     index == 0 ? 'rounded-t-lg' : ''
