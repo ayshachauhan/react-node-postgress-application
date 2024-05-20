@@ -210,7 +210,7 @@ const DashboardPage: React.FC = () => {
       </div>
       <hr className="h-px my-1 px-0 mx-0 bg-gray-100 border-1 border-gray-100"></hr>
       <div className="mt-1">
-        <div className="flex justify-between gap-4">
+        <div className="flex gap-4">
           {viewUpcomingSection && (
             <div className="w-7/12 border border-solid rounded-lg px-2.5 py-2">
               <UpcomingSection />
