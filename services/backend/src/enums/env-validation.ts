@@ -34,6 +34,9 @@ export const ENV_VARIABLES_SCHEMA: Record<ENVIRONMENT_VARIABLES, Joi.Schema> = {
     .optional()
     .default('Test@123'),
   [ENVIRONMENT_VARIABLES.FRONT_END_BASE_URL]: Joi.string(),
+  [ENVIRONMENT_VARIABLES.AWS_ACCESS_KEY_ID]: Joi.string().optional(),
+  [ENVIRONMENT_VARIABLES.AWS_SECRET_ACCESS_KEY]: Joi.string().optional(),
+  [ENVIRONMENT_VARIABLES.AWS_DEFAULT_REGION]: Joi.string().optional(),
 };
 
 export const ENV_VALIDATIONS = Joi.object(ENV_VARIABLES_SCHEMA);
