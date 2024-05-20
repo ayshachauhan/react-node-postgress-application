@@ -9,6 +9,7 @@ import {
   StarIcon,
   ViewIcon,
 } from '@root/components/Icons';
+import TextInput from '@root/components/TextInput';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { fetchSurgeryInfo } from '@root/store/reducers/surgery';
 import {
@@ -19,7 +20,6 @@ import {
 import { monthOptions } from '@root/utils/constants';
 import { Select } from 'baseui/select';
 import React, { useState } from 'react';
-import TextInput from '../TextInput';
 import DeleteFilterModal from './DeleteFilterModal';
 import EditableRow from './EditableRow';
 
