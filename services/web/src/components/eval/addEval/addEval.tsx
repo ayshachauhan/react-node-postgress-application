@@ -1,31 +1,34 @@
-import {
-  ICalendar,
-  SelectedSurgeryOption,
-} from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
+import { EVAL_STATUS } from '@root/enums/evalStatus.enum';
 import { useAppDispatch, useAppSelector } from '@root/store';
-import { fetchCalendars } from '@root/store/reducers/calendar';
-import { addRecordAsync as addSurgeryRecord } from '@root/store/reducers/surgery';
+import { addRecordAsync as addEvalRecord } from '@root/store/reducers/evals';
 import { getPracticeId, toFullName } from '@utils/index';
 import { Checkbox } from 'baseui/checkbox';
 import { DatePicker } from 'baseui/datepicker';
 import { SIZE, Select } from 'baseui/select';
-import moment from 'moment';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 
-const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
-  onClose,
-  items,
-}) => {
+const SurgeryPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const {
     practiceHomesList,
     insuranceTypesList,
     referrersList,
     usersList,
-    calendars,
-  } = items;
+    patientsList,
+  } = useAppSelector((state) => ({
+    practiceHomesList: Object.values(state.practiceHomes.entities),
+    surgeryTypesList: Object.values(state.surgeryTypes.entities),
+    insuranceTypesList: Object.values(state.insuranceTypes.entities),
+    referrersList: Object.values(state.referrers.entities),
+    usersList: Object.values(state.users.entities),
+    calendars: Object.values(state.calendars.entities),
+    patientsList: Object.values(state.patients.entities),
+    surgeryConfigurationsList: Object.values(
+      state.surgeryConfigurations.entities,
+    ),
+  }));
 
   const SELECTED_DOCTOR_KEY: string = 'SELECTED_DOCTOR';
   const getSelectedUserId: string | null =
@@ -35,10 +38,6 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
   const surgeryConfigurationsList = useAppSelector(
     (state) => state.surgeryConfigurations.entities,
   );
-  const patientsList = Object.values(
-    useAppSelector((state) => state.patients.entities),
-  );
-
   const surgeryConfigurations = Object.values(surgeryConfigurationsList);
   const practiceId = getPracticeId();
   const router = useRouter();
@@ -51,64 +50,30 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
   const [insuranceDetails, setInsuranceDetails] = useState('');
   const [insuranceTypeId, setInsuranceTypeId] = useState<string>('');
   const [practiceHomeId, setPracticeHomeId] = useState<string>('');
-  const [bodyPart, setBodyPart] = useState<string>('');
+  const [evalStatus, setEvalStatus] = useState<string>('');
   const [referrerId, setReferrerId] = useState<string>('');
   const [doctorId, setDoctorId] = useState<string | null>(getSelectedUserId);
-  const [surgeryDate, SetSurgeryDate] = useState<Date | null>(new Date());
+  const [date, setDate] = useState<Date>(new Date());
   const [pcp, setPcp] = useState('');
   const [notes, setNotes] = useState('');
   const [checkboxes, setCheckboxes] = React.useState([true, false]);
   const [surgeryNameId, setSurgeryNameId] = useState<string>('');
-  const [isMrnExists, setIsMrnExists] = useState<boolean>(false);
-  const [surgeryDropdownOptions, setSurgeryDropdownOptions] = useState([
-    {
-      id: 0,
-      label: '',
-      checked: false,
-      allowedValues: [
-        {
-          id: 0,
-          label: '',
-          selected: false,
-          hospitalPricing: 0,
-          professionalPricing: 0,
-        },
-      ],
-    },
+  const [bodyPart, setBodyPart] = useState<string>('');
+  const [bodyPartOptions, setBodyPartOptions] = useState([
+    { id: '', label: '' },
   ]);
-
-  const handleCheckboxChange = (index: number) => {
-    surgeryDropdownOptions[index].checked =
-      !surgeryDropdownOptions[index].checked;
-
-    setSurgeryDropdownOptions([...surgeryDropdownOptions]);
-  };
-
-  const handleAllowedValueChange = (
-    optionsIndex: number,
-    allowedValueIndex,
-  ) => {
-    surgeryDropdownOptions[optionsIndex].allowedValues.forEach((ele, i) => {
-      if (i === allowedValueIndex) ele.selected = true;
-      else ele.selected = false;
-    });
-
-    setSurgeryDropdownOptions([...surgeryDropdownOptions]);
-  };
 
   useEffect(() => {
     if (mrn) {
       const patientCheck = patientsList.find((ele) => String(ele.mrn) === mrn);
 
       if (patientCheck) {
-        setIsMrnExists(true);
         setFirstName(patientCheck.firstName);
         setLastName(patientCheck.lastName);
         setEmail(patientCheck.email);
         setPhoneNumber(patientCheck.phoneNumber);
         setReferrerId(patientCheck.referrer ? patientCheck?.referrer.id : '');
       } else {
-        setIsMrnExists(false);
         setFirstName('');
         setLastName('');
         setEmail('');
@@ -123,25 +88,12 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
       const selectedSurgeryConfiguration =
         surgeryConfigurationsList[surgeryNameId];
 
-      setBodyPart(selectedSurgeryConfiguration.bodyPart[0]);
-
-      const selectedSurgeryOptions = Object.values(
-        selectedSurgeryConfiguration.options,
-      ).map((ele, i) => {
-        const allowedValues = ele.allowedValues.map(
-          (allowedValue, allowedValueIndex) => ({
-            id: allowedValueIndex,
-            label: allowedValue.name,
-            selected: allowedValueIndex === 0 ? true : false,
-            hospitalPricing: allowedValue.hospitalPricing,
-            professionalPricing: allowedValue.professionalPricing,
-          }),
-        );
-
-        return { id: i, label: ele.label, checked: true, allowedValues };
-      });
-
-      setSurgeryDropdownOptions([...selectedSurgeryOptions]);
+      setBodyPartOptions(
+        selectedSurgeryConfiguration.bodyPart.map((ele) => ({
+          id: ele,
+          label: ele,
+        })),
+      );
     }
   }, [surgeryNameId]);
 
@@ -160,6 +112,11 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
     id: insuranceTypesList[key].id,
   }));
 
+  const evalStatusOption = Object.keys(EVAL_STATUS).map((key) => ({
+    label: key,
+    id: key,
+  }));
+
   const referrersOptions = Object.keys(referrersList).map((key) => ({
     label:
       referrersList[key].email +
@@ -168,14 +125,11 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
         : ''),
     id: referrersList[key].id,
   }));
-  console.log(usersList);
 
-  const usersOptions = usersList
-    .filter((ele) => ele.type === 'doctor')
-    .map((key) => ({
-      label: key ? toFullName(key) : '',
-      id: key.id,
-    }));
+  const usersOptions = usersList.map((key) => ({
+    label: key ? toFullName(key) : '',
+    id: key.id,
+  }));
 
   const handleSurgeryNameChange = ({ value }) => {
     setSurgeryNameId(value[0] ? value[0].id : null);
@@ -184,16 +138,18 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
   const handlePracticeHomeChange = ({ value }) => {
     setPracticeHomeId(value[0] ? value[0].id : null);
   };
-
   const handleInsuranceTypeChange = ({ value }) => {
     setInsuranceTypeId(value[0] ? value[0].id : null);
   };
-
   const handleReferrerChange = ({ value }) => {
     setReferrerId(value[0] ? value[0].id : null);
   };
 
-  const handleBodyPartTypeChange = ({ value }) => {
+  const handleEvalStatusChange = ({ value }) => {
+    setEvalStatus(value[0] ? value[0].id : null);
+  };
+
+  const handleBodyPartChange = ({ value }) => {
     setBodyPart(value[0] ? value[0].id : null);
   };
 
@@ -205,27 +161,19 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
     setMrn(value[0] ? value[0].id : null);
   };
 
+  const handleQuickDateChange = (offset: number) => {
+    setDate(new Date(Date.now() + (1 + offset * (24 * 60 * 60 * 1000))));
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const surgeryOptionObj: SelectedSurgeryOption = {};
-    surgeryDropdownOptions.forEach((ele) => {
-      const allowedValue = ele.allowedValues.find((ele) => ele.selected);
-      if (ele.checked && allowedValue) {
-        surgeryOptionObj[ele.label] = {
-          professionalPricing: allowedValue.professionalPricing,
-          hospitalPricing: allowedValue.hospitalPricing,
-          value: allowedValue.label,
-        };
-      }
-    });
-
     if (practiceId && doctorId) {
       dispatch(
-        addSurgeryRecord({
+        addEvalRecord({
           firstName,
           lastName,
           email,
-          date: surgeryDate ?? new Date(),
+          date,
           phoneNumber,
           mrn: mrn ? Number(mrn) : 0,
           practiceHomeId,
@@ -237,14 +185,10 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
           pcp,
           referrerId,
           details: notes,
-          selectedSurgeryOptions: surgeryOptionObj,
+          status: evalStatus,
           bodyPart,
-          totalHospitalPricing: 0,
-          totalProfessionalPricing: 0,
         }),
       );
-
-      dispatch(fetchCalendars({ practiceId, userId: doctorId }));
 
       try {
         setFirstName('');
@@ -258,7 +202,7 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
         setPcp('');
         setReferrerId('');
         setNotes('');
-        setBodyPart('');
+        setEvalStatus('');
         onClose();
       } catch (error) {
         onClose();
@@ -269,79 +213,24 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
     onClose();
   };
 
-  const [currentMonth, setCurrentMonth] = useState(new Date().getMonth() + 1);
-
-  const handleMonthChange = ({ date }) => {
-    setCurrentMonth(date.getMonth() + 1);
-  };
-
-  const isCalendarDates = (date: Date): boolean => {
-    const formattedDate = moment(date).format('YYYY-MM-DD'); // Get date part only
-
-    const dates = (calendars as ICalendar[])
-      .filter(
-        (calendar: ICalendar) =>
-          moment(calendar.date).format('YYYY-MM-DD') >=
-          moment(new Date()).format('YYYY-MM-DD'),
-      )
-      .map((calendar) => moment(calendar.date).format('YYYY-MM-DD'));
-
-    return Boolean(dates.find((date) => date === formattedDate));
-  };
-
-  const isSlotsAvailable = (date: Date): Record<string, unknown> => {
-    const formattedDate = moment(date).format('YYYY-MM-DD'); // Get date part only
-
-    const calendar = (calendars as ICalendar[]).find(
-      (calendar: ICalendar) =>
-        moment(calendar.date).format('YYYY-MM-DD') === formattedDate,
-    ) as ICalendar;
-
-    return calendar.maxSlots > calendar.bookedSlots
-      ? {
-          backgroundColor: calendar.surgeryConfiguration.color,
-          borderTopColor: calendar.surgeryConfiguration.color,
-          borderBottomColor: calendar.surgeryConfiguration.color,
-          borderRightColor: calendar.surgeryConfiguration.color,
-          borderLeftColor: calendar.surgeryConfiguration.color,
-        }
-      : {
-          backgroundColor: 'transparent',
-          border: `${calendar.surgeryConfiguration.color} solid 3px`,
-          borderTopColor: calendar.surgeryConfiguration.color,
-          borderBottomColor: calendar.surgeryConfiguration.color,
-          borderRightColor: calendar.surgeryConfiguration.color,
-          borderLeftColor: calendar.surgeryConfiguration.color,
-        };
-  };
-
-  const getBackGroundColorCss = (date: Date): Record<string, unknown> => {
-    // checking selected month here because sometimes bgcolors are refelcring in next month
-    return date.getMonth() + 1 == currentMonth
-      ? isCalendarDates(date)
-        ? isSlotsAvailable(date)
-        : { backgroundColor: 'transparent' }
-      : {};
-  };
-
   return (
     <div>
       <div className="border-border-l border-b border-gray-100">
         <form onSubmit={handleSubmit} className="flex flex-col flex-wrap">
           <div className="flex mt-4 pb-2 border-b border-gray-100 items-center">
-            <div className="text-xl font-bold text-black w-full">
-              Add Surgery
-            </div>
+            <div className="text-xl font-bold text-black w-full">Add Eval</div>
             <div>
               <Select
-                size={SIZE.mini}
                 required
+                size={SIZE.mini}
                 options={usersOptions}
                 onChange={handleDoctorChange}
                 value={
-                  defaultUser
-                    ? [{ label: toFullName(defaultUser), id: defaultUser.id }]
-                    : []
+                  doctorId
+                    ? [{ label: doctorId, id: doctorId }]
+                    : defaultUser
+                      ? [{ label: toFullName(defaultUser), id: defaultUser.id }]
+                      : []
                 }
                 overrides={{
                   ControlContainer: {
@@ -350,7 +239,7 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
                       border: 'none',
                       boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
                       color: '#52525B',
-                      width: '250px',
+                      width: '250px', // Adjust the width as needed
                     },
                   },
                   ClearIcon: {
@@ -400,16 +289,14 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
                 First Name
               </label>
               <TextInput
-                size={SIZE.mini}
-                disabled={isMrnExists}
                 name="name"
+                size={SIZE.mini}
                 value={firstName}
                 onChange={(value) => {
                   setFirstName(value);
                 }}
                 required
               />
-              <div className="space-y-4"></div>
             </div>
             <div className="space-y-1 flex-1">
               <label htmlFor="lastName" className="text-black text-xs">
@@ -417,7 +304,6 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
               </label>
               <TextInput
                 size={SIZE.mini}
-                disabled={isMrnExists}
                 name="lastName"
                 value={lastName}
                 onChange={(value) => {
@@ -425,17 +311,16 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
                 }}
                 required
               />
-              <div className="space-y-4"></div>
+              <div className="space-y-1"></div>
             </div>
           </div>
-          <div className="flex gap-5 mt-2">
+          <div className="flex gap-5">
             <div className="space-y-1 flex-1">
               <label htmlFor="email" className="text-black text-xs">
                 Email
               </label>
               <TextInput
                 size={SIZE.mini}
-                disabled={isMrnExists}
                 name="email"
                 value={email}
                 onChange={(value) => {
@@ -443,7 +328,7 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
                 }}
                 required
               />
-              <div className="space-y-4"></div>
+              <div className="space-y-1"></div>
             </div>
             <div className="space-y-1 flex-1">
               <label htmlFor="phoneNumber" className="text-black text-xs">
@@ -452,24 +337,23 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
               <TextInput
                 size={SIZE.mini}
                 name="phoneNumber"
-                disabled={isMrnExists}
                 value={phoneNumber}
                 onChange={(value) => {
                   setPhoneNumber(value);
                 }}
                 required
               />
-              <div className="space-y-4"></div>
+              <div className="space-y-1"></div>
             </div>
             <div className="space-y-1 flex-1">
               <label htmlFor="urlEmbed" className="text-black text-xs">
                 No Wait list
               </label>
               <Select size={SIZE.mini} />
-              <div className="space-y-4"></div>
+              <div className="space-y-1"></div>
             </div>
           </div>
-          <div className="flex gap-5 mt-2">
+          <div className="flex gap-5">
             <div className="space-y-1 flex-1">
               <label htmlFor="referrer" className="text-black text-xs">
                 Referrer
@@ -496,6 +380,7 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
                   },
                 }}
               />
+              <div className="space-y-1"></div>
             </div>
             <div className="space-y-1 flex-1">
               <label htmlFor="practiceHome" className="text-black text-xs">
@@ -528,7 +413,7 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
             </div>
             <div className="space-y-1 flex-1">
               <Checkbox
-                //  size={SIZE.mini}
+                // size={SIZE.mini}
                 overrides={{
                   Checkmark: {
                     style: ({ $checked }) => ({
@@ -601,10 +486,15 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
                     }),
                   },
                 }}
-                checked={referrerId ? true : false}
+                checked={checkboxes[1]}
+                onChange={(e) => {
+                  const target = e.target as HTMLInputElement;
+                  setCheckboxes([checkboxes[0], target.checked]);
+                }}
               >
                 Notify referrer
               </Checkbox>
+              <div className="space-y-1"></div>
             </div>
             <div className="space-y-1 flex-1">
               <label htmlFor="insuranceType" className="text-black text-xs">
@@ -619,6 +509,7 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
                     ? [{ label: insuranceTypeId, id: insuranceTypeId }]
                     : []
                 }
+                // required
                 overrides={{
                   ControlContainer: {
                     style: {
@@ -633,6 +524,7 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
                   },
                 }}
               />
+              <div className="space-y-1"></div>
             </div>
             <div className="space-y-1 flex-1">
               <label htmlFor="insuranceDetails" className="text-black text-xs">
@@ -645,11 +537,13 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
                 onChange={(value) => {
                   setInsuranceDetails(value);
                 }}
+                // required
               />
+              <div className="space-y-1"></div>
             </div>
           </div>
-          <div className="space-y-1 mt-1">
-            <label htmlFor="notes" className="text-black text-sm">
+          <div>
+            <label htmlFor="notes" className="text-black text-xs">
               Notes
             </label>
             <TextInput
@@ -660,14 +554,15 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
                 setNotes(value);
               }}
             />
+            <div className="space-y-1"></div>
           </div>
-          <div className="mt-2 flex gap-5">
+          <div className="mt-2 flex">
             <div className="px-6 border border-gray-100 pb-6 rounded-xl flex-1 w-4/12">
-              <div className="mt-2 text-lg pb-2 font-bold border-b border-gray-100 text-black w-full">
-                Add Surgery
+              <div className="mt-2 text-xl font-bold border-b border-gray-100 text-black w-full">
+                Add Eval
               </div>
               <div className="flex gap-5 mt-2">
-                <div className="space-y-4 flex-1">
+                <div className="space-y-1 flex-1">
                   <Select
                     size={SIZE.mini}
                     options={surgeryConfigurationsOptions}
@@ -691,21 +586,15 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
                       },
                     }}
                   />
+                  <div className="space-y-1"></div>
                 </div>
-                <div className="space-y-4 flex-1 w-1/3">
+                <div className="space-y-1 flex-1">
                   <Select
-                    size={SIZE.mini}
-                    required
-                    options={
-                      surgeryNameId
-                        ? surgeryConfigurationsList[surgeryNameId].bodyPart.map(
-                            (ele) => ({ id: ele, label: ele }),
-                          )
-                        : []
-                    }
-                    onChange={handleBodyPartTypeChange}
-                    value={bodyPart ? [{ label: bodyPart, id: bodyPart }] : []}
                     disabled={surgeryNameId ? false : true}
+                    size={SIZE.mini}
+                    options={bodyPartOptions}
+                    onChange={(value) => handleBodyPartChange(value)}
+                    value={bodyPart ? [{ label: bodyPart, id: bodyPart }] : []}
                     overrides={{
                       ControlContainer: {
                         style: {
@@ -720,119 +609,109 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
                       },
                     }}
                   />
+                  <div className="space-y-1"></div>
                 </div>
-                <div className="space-y-4 flex-1 w-1/3">
+
+                <div className="space-y-1 flex-1">
                   <DatePicker
                     size={SIZE.mini}
-                    value={surgeryDate}
-                    onChange={({ date }) => SetSurgeryDate(date)}
-                    placeholder="Surgery Date"
+                    value={date}
+                    onChange={({ date }) => setDate(date)}
+                    placeholder="Eval Date"
                     required
-                    onMonthChange={handleMonthChange}
-                    overrides={{
-                      Day: {
-                        style: ({ $date, $selected }) => {
-                          return {
-                            height: '53px',
-                            width: '53px',
-                            borderRadius: '50%',
-                            boxSizing: 'border-box',
-                            paddingTop: '6px',
-                            paddingBottom: '6px',
-                            margin: '2px',
-                            ...getBackGroundColorCss($date),
-                            ':after': '',
-                            ...($selected
-                              ? {
-                                  color: '#ffffff',
-                                  ...($date.getMonth() + 1 == currentMonth
-                                    ? { backgroundColor: '#000000' }
-                                    : {}),
-                                }
-                              : {}),
-                          };
+                  />
+                  <div className="space-y-1"></div>
+                </div>
+              </div>
+              <div className="flex flex-row justify-between">
+                <div className="flex gap-5 mt-4 items-center w-2/3">
+                  <label htmlFor="title" className="text-black text-xs">
+                    Eval Status:
+                  </label>
+                  <div className="space-y-1 flex-1">
+                    <Select
+                      required
+                      size={SIZE.mini}
+                      options={evalStatusOption}
+                      onChange={handleEvalStatusChange}
+                      value={
+                        evalStatus
+                          ? [{ label: evalStatus, id: evalStatus }]
+                          : []
+                      }
+                      overrides={{
+                        ControlContainer: {
+                          style: {
+                            backgroundColor: 'rgba(250, 250, 250, 1)',
+                            border: 'none',
+                            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                            color: '#52525B',
+                          },
                         },
-                      },
-                    }}
-                    minDate={new Date()}
+                        ClearIcon: {
+                          component: () => null,
+                        },
+                      }}
+                    />
+                    <div className="space-y-1"></div>
+                  </div>
+                </div>
+                <div className="flex gap-2 mt-4 justify-end">
+                  <Button
+                    kind="secondary"
+                    type="button"
+                    size={SIZE.mini}
+                    onClick={() => handleQuickDateChange(0)}
+                    title="Today"
+                  />
+                  <Button
+                    kind="secondary"
+                    type="button"
+                    size={SIZE.mini}
+                    onClick={() => handleQuickDateChange(1)}
+                    title="+1"
+                  />
+                  <Button
+                    kind="secondary"
+                    type="button"
+                    size={SIZE.mini}
+                    onClick={() => handleQuickDateChange(3)}
+                    title="+3"
+                  />
+                  <Button
+                    kind="secondary"
+                    type="button"
+                    size={SIZE.mini}
+                    onClick={() => handleQuickDateChange(6)}
+                    title="+6"
+                  />
+                  <Button
+                    kind="secondary"
+                    type="button"
+                    size={SIZE.mini}
+                    onClick={() => handleQuickDateChange(12)}
+                    title="+12"
                   />
                 </div>
               </div>
-              <div className="flex flex-col gap-5 mt-2">
-                {surgeryNameId &&
-                  surgeryDropdownOptions.map((option, index) => (
-                    <div
-                      className="flex flex-row items-center w-1/3"
-                      key={index}
-                    >
-                      <div key={index} className="w-1/2 text-xs">
-                        <Checkbox
-                          overrides={{
-                            Checkmark: {
-                              style: ({ $checked }) => ({
-                                backgroundColor: $checked
-                                  ? 'rgba(59, 130, 246, 1)'
-                                  : 'white',
-                                borderColor: $checked
-                                  ? 'rgba(59, 130, 246, 1)'
-                                  : 'rgba(161, 161, 170, 1)',
-                                borderRadius: '4px',
-                              }),
-                            },
-                          }}
-                          checked={option.checked}
-                          onChange={() => {
-                            handleCheckboxChange(index);
-                          }}
-                        >
-                          {option.label}
-                        </Checkbox>
-                      </div>
-                      <div className="w-1/2">
-                        <Select
-                          size={SIZE.mini}
-                          options={option.allowedValues}
-                          value={option.allowedValues.filter(
-                            (ele) => ele.selected === true,
-                          )}
-                          onChange={({ value }) =>
-                            handleAllowedValueChange(index, value[0].id)
-                          }
-                          disabled={!option.checked}
-                          overrides={{
-                            ControlContainer: {
-                              style: {
-                                backgroundColor: 'rgba(250, 250, 250, 1)',
-                                border: 'none',
-                                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-                                color: '#52525B',
-                              },
-                            },
-                            ClearIcon: {
-                              component: () => null,
-                            },
-                          }}
-                        />
-                      </div>
-                    </div>
-                  ))}
-              </div>
             </div>
           </div>
-          <div className="flex flex-row gap-3 right-1 mt-2">
-            <div className="text-right text-xs">
-              <Button kind="primary" title="Add Surgery" width={100} />
+          <div className="flex flex-row gap-3 justify-end">
+            {' '}
+            <div className="text-left text-xs mt-2">
+              <Button kind="primary" title="Add Eval" width={90} />
             </div>
-            <div className="text-right text-xs">
+            <div className="text-right text-xs mt-2">
               <Button
                 type="button"
                 kind="tertiary"
                 title="Cancel"
-                width={100}
+                width={90}
                 style={{
                   backgroundColor: 'rgba(212, 212, 216, 1)',
                   color: 'black',
                 }}
+                onClick={onClose}
               />
             </div>
           </div>

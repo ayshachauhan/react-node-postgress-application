@@ -4,6 +4,7 @@ import apiMiddleware from './apiMiddleware'; // Import the API middleware
 import authReducer from './reducers/auth';
 import calendarReducer from './reducers/calendar';
 import evalsReducer from './reducers/evals';
+import historyReducer from './reducers/history';
 import insuranceTypesReducer from './reducers/insuranceTypes';
 import mediaReducer from './reducers/media';
 import patientReducer from './reducers/patient';
@@ -33,6 +34,7 @@ export const store = configureStore({
     calendars: calendarReducer,
     surgeryConfigurations: surgeryConfigurationReducer,
     permissions: permissionsReducer,
+    history: historyReducer,
     patients: patientReducer,
   },
   middleware: (getDefaultMiddleware) =>

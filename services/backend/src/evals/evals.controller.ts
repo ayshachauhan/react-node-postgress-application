@@ -16,6 +16,7 @@ import { AuthGuard } from 'src/auth/auth.guard';
 import { CreateEvalDto } from 'src/evals/dto/createEval.dto';
 import { EvalsService } from 'src/evals/evals.service';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
+import { UpdateEvalDto } from './dto/updateEval.dto';
 
 @ApiTags('Evals')
 @ApiBearerAuth('normal')
@@ -53,13 +54,12 @@ export class EvalsController {
   @Patch(':id')
   @UseInterceptors(practiceNotFoundInterceptor)
   async update(
-    @Body(new ValidationPipe()) createEvalDto: CreateEvalDto,
+    @Body(new ValidationPipe()) createEvalDto: UpdateEvalDto,
     @Param()
     { id }: { id: string },
   ): Promise<EvalEntity | null> {
     return this.evalService.update({
       createEvalDto,
-
       id,
     });
   }
