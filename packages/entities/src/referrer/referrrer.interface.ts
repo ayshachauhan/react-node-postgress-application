@@ -8,6 +8,7 @@ export interface IReferrer extends IBaseEntity {
   practiceId: string;
   referrerType: ReferrerType;
   patients: IPatient[];
+  fromDashboard: boolean;
 }
 
 export enum ReferrerType {

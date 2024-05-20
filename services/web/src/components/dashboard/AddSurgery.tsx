@@ -168,11 +168,14 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
         : ''),
     id: referrersList[key].id,
   }));
+  console.log(usersList);
 
-  const usersOptions = usersList.map((key) => ({
-    label: key ? toFullName(key) : '',
-    id: key.id,
-  }));
+  const usersOptions = usersList
+    .filter((ele) => ele.type === 'doctor')
+    .map((key) => ({
+      label: key ? toFullName(key) : '',
+      id: key.id,
+    }));
 
   const handleSurgeryNameChange = ({ value }) => {
     setSurgeryNameId(value[0] ? value[0].id : null);
