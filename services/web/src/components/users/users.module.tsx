@@ -9,7 +9,6 @@ import {
 import AddUserModal from '@root/components/users/AddUserModal';
 import EditUserModal from '@root/components/users/EditUserModal';
 import { useAppDispatch, useAppSelector } from '@root/store';
-import { selectRecords } from '@root/store/reducers/auth';
 import { getPracticeInfo } from '@root/store/reducers/practices';
 import { fetchListings as fetchPermissions } from '@root/store/reducers/userPermissions';
 import {
@@ -35,7 +34,7 @@ export default function UserPage() {
   const [showModal, setShowModal] = useState(false);
   const dispatch = useAppDispatch();
   const users = useAppSelector((state) => Object.values(state.users.entities));
-  const userInfo = useAppSelector(selectRecords);
+  const userInfo = useAppSelector((state) => state.auth.user);
   const filteredUsers = users.filter((user) => user.id !== userInfo?.id);
   const [userId, setUserId] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
