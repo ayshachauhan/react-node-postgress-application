@@ -31,6 +31,15 @@ export class UpdateReferrer1716195053357 implements MigrationInterface {
         isNullable: true,
       }),
     );
+
+    await queryRunner.addColumn(
+      'referrers',
+      new TableColumn({
+        name: 'fromDashboard',
+        type: 'boolean',
+        default: false,
+      }),
+    );
   }
 
   public async down(): Promise<void> {}

@@ -104,7 +104,12 @@ const ReferedPatients = ({ referrerId }) => {
                           .join(', ')
                       : 'NA'}
                   </div>
-                  <div className="text-gray-900 px-2 flex-1">Billing</div>
+                  <div className="text-gray-900 px-2 flex-1">
+                    {data?.surgeries && data?.surgeries[0]
+                      ? +data.surgeries[0].totalProfessionalPricing +
+                        +data.surgeries[0].totalHospitalPricing
+                      : 0}
+                  </div>
                 </div>
               </React.Fragment>
             ))
