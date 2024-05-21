@@ -31,7 +31,7 @@ const AddTemplateForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       id: surgeryConfigurations[key].id,
     }),
   );
-  const [surgeryConfigurationId, setsurgeryConfigurationId] = useState('');
+  const [surgeryConfigurationId, setSurgeryConfigurationId] = useState('');
   const [messageType, setMsgType] = useState('');
   const [dateOffset, setDateOffset] = useState<number>(0);
 
@@ -50,7 +50,7 @@ const AddTemplateForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         dispatch(addRecordAsync(data));
         setDateOffset(0);
         setMsgType('');
-        setsurgeryConfigurationId('');
+        setSurgeryConfigurationId('');
         onClose();
       } catch (error) {
         onClose();
@@ -58,7 +58,7 @@ const AddTemplateForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     }
   };
   const handleSurgeryConfigurationChange = ({ value }) => {
-    setsurgeryConfigurationId(value[0] ? value[0].id : null);
+    setSurgeryConfigurationId(value[0] ? value[0].id : null);
   };
 
   const handleInputChange = (value: string) => {
