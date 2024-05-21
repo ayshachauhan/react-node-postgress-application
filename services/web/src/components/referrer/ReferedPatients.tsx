@@ -1,17 +1,13 @@
 'use client';
 import { IPatient } from '@packages/entities';
+import { useUserPermission } from '@root/hooks/userHasPermission';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import {
   clearErrorMessage,
   clearSuccessMessage,
   fetchReferrerInfo,
 } from '@root/store/reducers/referrer';
-import {
-  formatDate,
-  generateFullName,
-  getPracticeId,
-  hasPermission,
-} from '@utils/index';
+import { formatDate, generateFullName, getPracticeId } from '@utils/index';
 import React, { useEffect, useState } from 'react';
 
 const ReferedPatients = ({ referrerId }) => {
@@ -29,11 +25,9 @@ const ReferedPatients = ({ referrerId }) => {
   const dispatch = useAppDispatch();
   const userInfo = useAppSelector((state) => state.auth.user);
   const userPermissions = userInfo?.permissions;
-
-  const viewBillingColumn =
-    userPermissions !== undefined
-      ? hasPermission(userPermissions, ['view_billing'])
-      : false;
+  const viewBillingColumn = useUserPermission(userPermissions, [
+    'view_billing',
+  ]);
 
   useEffect(() => {
     if (practiceId !== null && referrerId !== null) {

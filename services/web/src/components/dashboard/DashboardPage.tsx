@@ -14,6 +14,7 @@ import {
   fetchListings as fetchEvalsList,
 } from '@root/store/reducers/evals';
 
+import { useUserPermission } from '@root/hooks/userHasPermission';
 import { fetchListings as fetchInsuranceTypesList } from '@root/store/reducers/insuranceTypes';
 import { fetchListings as fetchPatients } from '@root/store/reducers/patient';
 import { fetchListings as fetchPracticeHomesListing } from '@root/store/reducers/practiceHomes';
@@ -25,10 +26,10 @@ import {
 import { fetchListings as fetchSurgeryConfigurationsListing } from '@root/store/reducers/surgeryConfigurations';
 import { fetchListings as fetchSurgeryTypesListing } from '@root/store/reducers/surgeryTypes';
 import { fetchListings as fetchUsersList } from '@root/store/reducers/users';
-import { getPracticeId, getUserId, hasPermission } from '@root/utils';
+import { getPracticeId, getUserId } from '@root/utils';
 import { Modal, ModalBody, ROLE, SIZE } from 'baseui/modal';
-
 import React, { useEffect, useState } from 'react';
+
 const DashboardPage: React.FC = () => {
   const dispatch = useAppDispatch();
   const practiceId = getPracticeId();
@@ -36,20 +37,15 @@ const DashboardPage: React.FC = () => {
   const userInfo = useAppSelector((state) => state.auth.user);
   const userPermissions = userInfo?.permissions;
 
-  const addCaseAllowed =
-    userPermissions !== undefined
-      ? hasPermission(userPermissions, ['add_case'])
-      : false;
+  const addCaseAllowed = useUserPermission(userPermissions, ['add_case']);
 
-  const viewUpcomingSection =
-    userPermissions !== undefined
-      ? hasPermission(userPermissions, ['view_future_cases'])
-      : false;
+  const viewUpcomingSection = useUserPermission(userPermissions, [
+    'view_future_cases',
+  ]);
 
-  const viewUserMetrics =
-    userPermissions !== undefined
-      ? hasPermission(userPermissions, ['leaderboard_display'])
-      : false;
+  const viewUserMetrics = useUserPermission(userPermissions, [
+    'leaderboard_display',
+  ]);
 
   const { successMessage: addSurgerySuccessMessage, calendarSuccessMessage } =
     useAppSelector((state) => ({

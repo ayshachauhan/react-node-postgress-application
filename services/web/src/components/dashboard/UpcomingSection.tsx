@@ -4,11 +4,12 @@ import {
   ICalendar,
   ISurgeryConfiguration,
 } from '@packages/entities/index.browser';
+import { useUserPermission } from '@root/hooks/userHasPermission';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { fetchCalendars } from '@root/store/reducers/calendar';
 import { fetchListings } from '@root/store/reducers/surgeryConfigurations';
 import { DEFAULT_SURGERYNAME_COLOR } from '@root/utils/constants';
-import { getPracticeId, getUserId, hasPermission } from '@root/utils/index';
+import { getPracticeId, getUserId } from '@root/utils/index';
 import { Modal, ModalBody, ModalHeader, ROLE } from 'baseui/modal';
 import moment from 'moment';
 import React, { useEffect, useState } from 'react';
@@ -31,10 +32,7 @@ const UpcomingSection: React.FC = () => {
   const userInfo = useAppSelector((state) => state.auth.user);
   const userPermissions = userInfo?.permissions;
 
-  const editCaseAllowed =
-    userPermissions !== undefined
-      ? hasPermission(userPermissions, ['edit_case'])
-      : false;
+  const editCaseAllowed = useUserPermission(userPermissions, ['edit_case']);
 
   const { calendars, surgeryConfigurations } = useAppSelector((state) => ({
     calendars: Object.values(state.calendars.entities).filter(

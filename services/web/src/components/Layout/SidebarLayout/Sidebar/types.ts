@@ -10,7 +10,7 @@ import {
   UsersIcon,
 } from '@components/Icons';
 import { IPermission } from '@packages/entities/index.browser';
-import { hasPermission } from '@root/utils';
+import { useUserPermission } from '@root/hooks/userHasPermission';
 
 export type SideBarItem = {
   id: string;
@@ -124,7 +124,7 @@ export function filterSidebarItems(
     const userTypeAllowed = item.permissions.includes(userType);
 
     const userPermissionsAllowed = item.userPermissions
-      ? hasPermission(userPermissions, item.userPermissions)
+      ? useUserPermission(userPermissions, item.userPermissions)
       : true;
 
     return userTypeAllowed && userPermissionsAllowed;

@@ -1,6 +1,7 @@
 import { ITemplateUpdate } from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
+import { useUserPermission } from '@root/hooks/userHasPermission';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { fetchListings as fetchSurgeryTypes } from '@root/store/reducers/surgeryTypes';
 import {
@@ -8,7 +9,7 @@ import {
   fetchListings,
   updateRecordAsync,
 } from '@root/store/reducers/templates';
-import { getPracticeId, hasPermission } from '@utils/index';
+import { getPracticeId } from '@utils/index';
 import { Checkbox, STYLE_TYPE } from 'baseui/checkbox';
 import { Select } from 'baseui/select';
 import { Textarea } from 'baseui/textarea';
@@ -34,10 +35,7 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
   const userInfo = useAppSelector((state) => state.auth.user);
   const userId = userInfo?.id;
   const userPermissions = userInfo?.permissions;
-  const editCaseAllowed =
-    userPermissions !== undefined
-      ? hasPermission(userPermissions, ['edit_case'])
-      : false;
+  const editCaseAllowed = useUserPermission(userPermissions, ['edit_case']);
   const dispatch = useAppDispatch();
   const practiceId = getPracticeId();
   const templateId = data.id;

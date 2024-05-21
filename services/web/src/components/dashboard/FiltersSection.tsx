@@ -10,13 +10,10 @@ import {
   ViewIcon,
 } from '@root/components/Icons';
 import TextInput from '@root/components/TextInput';
+import { useUserPermission } from '@root/hooks/userHasPermission';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { fetchSurgeryInfo } from '@root/store/reducers/surgery';
-import {
-  hasPermission,
-  removePastSurgeries,
-  usDateFormatter,
-} from '@root/utils';
+import { removePastSurgeries, usDateFormatter } from '@root/utils';
 import { monthOptions } from '@root/utils/constants';
 import { Select } from 'baseui/select';
 import React, { useState } from 'react';
@@ -275,25 +272,15 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
   const userInfo = useAppSelector((state) => state.auth.user);
   const userPermissions = userInfo?.permissions;
 
-  const viewPastCases =
-    userPermissions !== undefined
-      ? hasPermission(userPermissions, ['view_past_cases'])
-      : false;
+  const viewPastCases = useUserPermission(userPermissions, ['view_past_cases']);
 
-  const deleteCaseAllowed =
-    userPermissions !== undefined
-      ? hasPermission(userPermissions, ['delete_case'])
-      : false;
+  const deleteCaseAllowed = useUserPermission(userPermissions, ['delete_case']);
 
-  const editCaseAllowed =
-    userPermissions !== undefined
-      ? hasPermission(userPermissions, ['edit_case'])
-      : false;
+  const editCaseAllowed = useUserPermission(userPermissions, ['edit_case']);
 
-  const viewBillingColumn =
-    userPermissions !== undefined
-      ? hasPermission(userPermissions, ['view_billing'])
-      : false;
+  const viewBillingColumn = useUserPermission(userPermissions, [
+    'view_billing',
+  ]);
 
   return (
     <div className="overflow-x-auto">

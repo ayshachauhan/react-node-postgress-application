@@ -1,9 +1,10 @@
 import { IInsuranceType, UpdateSurgeryPayload } from '@packages/entities';
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
+import { useUserPermission } from '@root/hooks/userHasPermission';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { updateRecordAsync } from '@root/store/reducers/surgery';
-import { getPracticeId, hasPermission } from '@root/utils';
+import { getPracticeId } from '@root/utils';
 import { DatePicker } from 'baseui/datepicker';
 import { SIZE, Select } from 'baseui/select';
 import React, { useState } from 'react';
@@ -18,10 +19,9 @@ function EditableRow({
   const dispatch = useAppDispatch();
   const userInfo = useAppSelector((state) => state.auth.user);
   const userPermissions = userInfo?.permissions;
-  const viewBillingColumn =
-    userPermissions !== undefined
-      ? hasPermission(userPermissions, ['view_billing'])
-      : false;
+  const viewBillingColumn = useUserPermission(userPermissions, [
+    'view_billing',
+  ]);
 
   const insuranceTypesList: IInsuranceType[] = useAppSelector((state) =>
     Object.values(state.insuranceTypes.entities),

@@ -1,5 +1,4 @@
 import { ISurgery } from '@packages/entities';
-import { IPermission } from '@packages/entities/index.browser';
 type RecordsByDate = {
   [key: string]: ISurgery[];
 };
@@ -98,18 +97,6 @@ export function formatHeaderDate(dateString: string) {
   }).format(date);
   const finalDate = formattedDate.replace(/(?<=^\w+),/, '');
   return finalDate;
-}
-
-export function hasPermission(
-  userPermissions: IPermission[],
-  requiredPermissions: string[],
-) {
-  const userPermissionNames = userPermissions.map(
-    (permission) => permission.name,
-  );
-  return requiredPermissions.every((permission) =>
-    userPermissionNames.includes(permission),
-  );
 }
 
 export function formatDate(dateString: Date) {
