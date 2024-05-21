@@ -96,6 +96,8 @@ const UpcomingSection: React.FC = () => {
     }
   };
 
+  const currentDate = new Date();
+
   useEffect(() => {
     if (practiceId !== null) {
       dispatch(fetchListings({ practiceId }));
@@ -117,7 +119,6 @@ const UpcomingSection: React.FC = () => {
   };
 
   const filterCalendarByMonth = (calendars: CalendarData[]): CalendarData[] => {
-    const currentDate = new Date();
     const currentMonth = currentDate.getMonth();
     const currentYear = currentDate.getFullYear();
     const startDate = new Date(currentYear, currentMonth, 1);
@@ -156,7 +157,7 @@ const UpcomingSection: React.FC = () => {
     return splitData;
   };
 
-  const upcomingDates: CalendarData[] = calendars
+  const allDates: CalendarData[] = calendars
     .filter(
       (data: ICalendar) => data.surgeryConfiguration.id === selectedSurgery?.id,
     )
@@ -170,10 +171,14 @@ const UpcomingSection: React.FC = () => {
         data.surgeryConfiguration.color ?? DEFAULT_SURGERYNAME_COLOR,
     }));
 
+  const upcomingDates = allDates.filter((record) => {
+    const recordDate = new Date(record.date);
+    return recordDate >= currentDate;
+  });
+
   const filteredCalendars = filterCalendarByMonth(upcomingDates);
 
   const handleOpenModal = (isUpdating: boolean): void => {
-    console.log(isModalOpen, 'modalopen');
     setIsModalOpen(true);
     setIsUpdating(isUpdating);
   };
