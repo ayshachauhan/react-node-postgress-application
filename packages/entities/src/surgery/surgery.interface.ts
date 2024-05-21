@@ -17,6 +17,7 @@ export interface ISurgery extends IBaseEntity {
   totalHospitalPricing: number;
   totalProfessionalPricing: number;
   selectedCheckListOptions: CheckListOptions;
+  dateDeleted?: Date | undefined;
 }
 
 export interface CreateSurgeryPayload {

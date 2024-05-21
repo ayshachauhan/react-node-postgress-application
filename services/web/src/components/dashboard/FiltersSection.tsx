@@ -10,7 +10,10 @@ import {
   ViewIcon,
 } from '@root/components/Icons';
 import { useAppDispatch, useAppSelector } from '@root/store';
-import { fetchSurgeryInfo } from '@root/store/reducers/surgery';
+import {
+  deleteRecordAsync,
+  fetchSurgeryInfo,
+} from '@root/store/reducers/surgery';
 import { usDateFormatter } from '@root/utils';
 import { monthOptions } from '@root/utils/constants';
 import { Input } from 'baseui/input';
@@ -68,7 +71,7 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
       />
       <DeleteIcon
         style={{ cursor: 'pointer' }}
-        onClick={() => handleOpenDeleteModal()}
+        onClick={() => handleOpenDeleteModal(id)}
       />
     </div>
   );
@@ -204,10 +207,6 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
-  const handleOpenDeleteModal = (): void => {
-    setIsDeleteModalOpen(true);
-  };
-
   const [clonedDivs, setClonedDivs] = useState<string[]>([]);
 
   const handleCloneClick = (rowId: string) => {
@@ -220,12 +219,21 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
     }
   };
 
+  const handleOpenDeleteModal = (rowId: string): void => {
+    setSelectedRow(rowId);
+    setIsDeleteModalOpen(true);
+  };
+
   const handleCloseDeleteModal = (): void => {
     setIsDeleteModalOpen(false);
   };
 
   const onConfirmDelete = (): void => {
     try {
+      if (selectedRow) {
+        dispatch(deleteRecordAsync({ practiceId, id: selectedRow }));
+        setSelectedRow(null);
+      }
       setIsDeleteModalOpen(false);
     } catch (error) {
       console.log(error);
@@ -249,15 +257,6 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
     dispatch(fetchSurgeryInfo({ practiceId, id: rowId }));
     setSelectedRow(selectedRow === rowId ? null : rowId);
   };
-
-  // const handleEditFormChange = () => (event) => {
-  //   const fieldName = event.value;
-  //   const fieldValue = event.value;
-  //   setEditFormData({
-  //     ...editFormData,
-  //     [fieldName]: fieldValue,
-  //   });
-  // };
 
   const handleCancelClick = () => {
     setSelectedAction('cancel');
