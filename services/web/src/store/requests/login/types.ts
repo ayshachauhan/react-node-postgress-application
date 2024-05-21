@@ -14,6 +14,7 @@ export interface User {
   email: string;
   isSuperAdmin: string;
   userPractices: UserPractice[];
+  permissions: IPermission[];
 }
 
 export interface GetUserResponse {
