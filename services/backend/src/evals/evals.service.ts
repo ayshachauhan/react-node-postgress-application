@@ -220,30 +220,31 @@ export class EvalsService {
       insuranceDetails: createEvalDto.insuranceDetails,
     });
 
-    // depends on dto values, make sure to update the obj values if dot changes
-    const transformedCurrentEvalValues: EvalChangesKeyValues =
-      transformEvalObject(evalToUpdate!);
-    const transformedUpdatedDTOValues: EvalChangesKeyValues =
-      transformUpdateEvalDTO({
-        ...createEvalDto,
-        insuranceName: insuranceTypeEntity?.name,
+    if (evalToUpdate) {
+      // depends on dto values, make sure to update the obj values if dto changes
+      const transformedCurrentEvalValues: EvalChangesKeyValues =
+        transformEvalObject(evalToUpdate);
+      const transformedUpdatedDTOValues: EvalChangesKeyValues =
+        transformUpdateEvalDTO({
+          ...createEvalDto,
+          insuranceName: insuranceTypeEntity?.name,
+        });
+
+      // create history logs for updated values in evals
+      await this.historyService.createHistory({
+        practiceId,
+        userId: user?.id,
+        action: HistoryAction.UPDATE,
+        entityId: id,
+        entityType: HistoryType.EVAL,
+        // this depends on dto values, make sure to update this function object if dto updates
+        changes: findChangedValues(
+          transformedCurrentEvalValues,
+          transformedUpdatedDTOValues,
+        ),
+        ipAddress: createEvalDto.ipAddress,
       });
-
-    // create history logs for updated values in evals
-    await this.historyService.createHistory({
-      practiceId,
-      userId: user?.id,
-      action: HistoryAction.UPDATE,
-      entityId: id,
-      entityType: HistoryType.EVAL,
-      // this depends on dto values, make sure to update this function object if dto updates
-      changes: findChangedValues(
-        transformedCurrentEvalValues,
-        transformedUpdatedDTOValues,
-      ),
-      ipAddress: createEvalDto.ipAddress,
-    });
-
+    }
     return await this.evalRepository.findOne({
       where: { id },
     });

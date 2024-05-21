@@ -18,6 +18,7 @@ import { AuthGuard } from 'src/auth/auth.guard';
 import { CreateEvalDto } from 'src/evals/dto/createEval.dto';
 import { EvalsService } from 'src/evals/evals.service';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
+import { ParseStringToBooleanPipe } from 'src/utils/pipes/stringToBoolean.pipes';
 import { UpdateEvalDto } from './dto/updateEval.dto';
 import { AuthenticatedRequest } from './types';
 
@@ -32,7 +33,8 @@ export class EvalsController {
   @UseInterceptors(practiceNotFoundInterceptor)
   async findAll(
     @Param() { practiceId }: { practiceId: string },
-    @Query('includeDeleted') includeDeleted: boolean = false,
+    @Query('includeDeleted', ParseStringToBooleanPipe)
+    includeDeleted: boolean = false,
   ): Promise<EvalEntity[]> {
     return this.evalService.findAll(practiceId, includeDeleted);
   }

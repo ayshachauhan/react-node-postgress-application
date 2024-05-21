@@ -16,6 +16,7 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { SurgeryEntity } from '@packages/entities';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
+import { ParseStringToBooleanPipe } from 'src/utils/pipes/stringToBoolean.pipes';
 import { SanitizedUser } from '../auth/types';
 import { CreateSurgeryDto } from '../surgery/dto/createSurgery.dto';
 import { UpdateSurgeryDto } from '../surgery/dto/updateSurgery.dto';
@@ -32,7 +33,8 @@ export class SurgeryController {
   @UseInterceptors(practiceNotFoundInterceptor)
   async findAll(
     @Param() { practiceId }: { practiceId: string },
-    @Query('includeDeleted') includeDeleted: boolean = false,
+    @Query('includeDeleted', ParseStringToBooleanPipe)
+    includeDeleted: boolean = false,
   ): Promise<SurgeryEntity[]> {
     return this.surgeryService.findAll(practiceId, includeDeleted);
   }
