@@ -32,7 +32,7 @@ export class AuthController {
   @ApiBearerAuth('normal')
   async validateToken(@Req() request): Promise<Record<string, string>> {
     if (!request.user.isSuperAdmin) {
-      await this.authService.setUserPractices(request.user);
+      await this.authService.setUserDetails(request.user);
     }
     return request.user;
   }

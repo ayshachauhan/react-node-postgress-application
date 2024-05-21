@@ -2,83 +2,79 @@ import {
   CanActivate,
   ExecutionContext,
   Injectable,
-  SetMetadata,
+  Type,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
-import { PermissionEntity } from '@packages/entities';
+import { PermissionEntity, UserEntity } from '@packages/entities/*';
 import { Request } from 'express';
-import { SanitizedUser, SuperAdminUser } from 'src/auth/types';
 import { ENVIRONMENT_VARIABLES } from 'src/enums/environment.enums';
+import { USER_PERMISSIONS } from 'src/enums/userPermissions.enums';
 import { UsersService } from 'src/users/users.service';
+import { SanitizedUser, SuperAdminUser } from './types';
 
-@Injectable()
-export class UserPermissionsGuard implements CanActivate {
-  constructor(
-    private readonly userService: UsersService,
-    private readonly reflector: Reflector,
-    private configService: ConfigService,
-    private jwtService: JwtService,
-  ) {}
+export const PermissionGuard = (
+  ...permissions: USER_PERMISSIONS[]
+): Type<CanActivate> => {
+  @Injectable()
+  class PermissionGuard implements CanActivate {
+    constructor(
+      private readonly userService: UsersService,
+      private configService: ConfigService,
+      private jwtService: JwtService,
+    ) {}
 
-  async canActivate(context: ExecutionContext): Promise<boolean> {
-    const requiredPermission = this.reflector.get<string>(
-      'permission',
-      context.getHandler(),
-    );
-    if (!requiredPermission) {
-      return false;
-    }
-
-    const request: Request = context.switchToHttp().getRequest();
-    const token = this.extractTokenFromHeader(request);
-    if (!token) {
-      return false;
-    }
-
-    try {
-      const payload = await this.verify(token);
-      request['user'] = payload;
-      const userId = request['user']?.id;
-      const userPermissions = await this.getUserPermissions(userId);
-
-      if (!userPermissions) {
+    async canActivate(context: ExecutionContext): Promise<boolean> {
+      const request: Request = context.switchToHttp().getRequest();
+      const token = this.extractTokenFromHeader(request);
+      if (!token) {
         return false;
       }
 
-      return userPermissions.some(
-        (permissionEntity: PermissionEntity) =>
-          permissionEntity.name === requiredPermission,
+      try {
+        const payload = await this.verify(token);
+        request['user'] = payload;
+        const userId = request['user']?.id;
+
+        if (!userId) {
+          return false;
+        }
+
+        const userInfo: UserEntity | null =
+          await this.userService.getUserById(userId);
+
+        if (!userInfo) {
+          return false;
+        }
+
+        const userPermissions: PermissionEntity[] = userInfo.permissions || [];
+
+        return permissions.some((permission) =>
+          userPermissions.some(
+            (userPermission) => userPermission.name === permission,
+          ),
+        );
+      } catch (error) {
+        console.error(error);
+        return false;
+      }
+    }
+
+    async verify(token: string): Promise<SanitizedUser | SuperAdminUser> {
+      return this.jwtService.verify(
+        token,
+        this.configService.get(ENVIRONMENT_VARIABLES.JWT_SECRET_KEY)!,
       );
-    } catch (error) {
-      return false;
+    }
+
+    extractTokenFromHeader(request: Request): string | undefined {
+      const authHeader = request.headers.authorization;
+
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return undefined;
+      }
+      return authHeader.substring('Bearer '.length);
     }
   }
-
-  async verify(token: string): Promise<SanitizedUser | SuperAdminUser> {
-    return this.jwtService.verify(
-      token,
-      this.configService.get(ENVIRONMENT_VARIABLES.JWT_SECRET_KEY)!,
-    );
-  }
-
-  private async getUserPermissions(
-    userId: string,
-  ): Promise<PermissionEntity[] | undefined> {
-    const userInfo = await this.userService.getUserById(userId);
-    return userInfo?.permissions;
-  }
-
-  extractTokenFromHeader(request: Request): string | undefined {
-    const authHeader = request.headers.authorization;
-
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return undefined;
-    }
-    return authHeader.substring('Bearer '.length);
-  }
-}
-
-export const Permission = (permission: string) =>
-  SetMetadata('permission', permission);
+  return PermissionGuard;
+};

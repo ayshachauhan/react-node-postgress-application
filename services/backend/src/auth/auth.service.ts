@@ -72,10 +72,13 @@ export class AuthService {
     return null;
   }
 
-  async setUserPractices(payloadUser): Promise<void> {
-    const user = await this.usersService.getUserById(payloadUser.id);
-    payloadUser['practices'] = user?.practices;
-    payloadUser['permissions'] = user?.permissions;
+  async setUserDetails(payloadUser: SanitizedUser): Promise<void> {
+    const userData = await this.usersService.getUserById(payloadUser.id);
+
+    if (userData) {
+      payloadUser['practices'] = userData?.practices;
+      payloadUser['permissions'] = userData?.permissions;
+    }
   }
 
   async sendPasswordResetEmail(email: string): Promise<void> {

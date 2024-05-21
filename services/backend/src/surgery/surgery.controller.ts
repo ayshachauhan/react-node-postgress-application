@@ -15,10 +15,8 @@ import {
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { SurgeryEntity } from '@packages/entities';
 import { AuthGuard } from 'src/auth/auth.guard';
-import {
-  Permission,
-  UserPermissionsGuard,
-} from 'src/auth/userPermissions.guard';
+import { PermissionGuard } from 'src/auth/userPermissions.guard';
+import { USER_PERMISSIONS } from 'src/enums/userPermissions.enums';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
 import { SanitizedUser } from '../auth/types';
 import { CreateSurgeryDto } from '../surgery/dto/createSurgery.dto';
@@ -48,8 +46,7 @@ export class SurgeryController {
   }
 
   @Post()
-  @UseGuards(UserPermissionsGuard)
-  @Permission('add_case')
+  @UseGuards(PermissionGuard(USER_PERMISSIONS.ADD_CASE))
   @UseInterceptors(practiceNotFoundInterceptor)
   async create(
     @Body(new ValidationPipe()) createSurgeryDto: CreateSurgeryDto,
@@ -66,8 +63,7 @@ export class SurgeryController {
   }
 
   @Patch(':id')
-  @UseGuards(UserPermissionsGuard)
-  @Permission('edit_case')
+  @UseGuards(PermissionGuard(USER_PERMISSIONS.EDIT_CASE))
   @UseInterceptors(practiceNotFoundInterceptor)
   async update(
     @Body(new ValidationPipe()) createSurgeryDto: UpdateSurgeryDto,
@@ -86,8 +82,7 @@ export class SurgeryController {
   }
 
   @Delete(':id')
-  @UseGuards(UserPermissionsGuard)
-  @Permission('delete_case')
+  @UseGuards(PermissionGuard(USER_PERMISSIONS.DELETE_CASE))
   async remove(
     @Param()
     { id, practiceId }: { id: string; practiceId: string },

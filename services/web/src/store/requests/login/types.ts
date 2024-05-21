@@ -30,7 +30,7 @@ export interface GetUserResponse {
   isSuperAdmin: string;
   userPractices: UserPractice[];
   practices?: IPractice[];
-  permissions?: IPermission[];
+  permissions: IPermission[];
 }
 
 export interface UserPractice {

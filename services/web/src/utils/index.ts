@@ -1,4 +1,8 @@
+import { ISurgery } from '@packages/entities';
 import { IPermission } from '@packages/entities/index.browser';
+type RecordsByDate = {
+  [key: string]: ISurgery[];
+};
 
 export function indexBy<K extends keyof T, T>(
   key: K,
@@ -117,20 +121,20 @@ export function formatDate(dateString: Date) {
   return `${month}/${day}/${year}`;
 }
 
-export function removePastSurgeries(ele) {
+export function removePastSurgeries(surgeries: RecordsByDate) {
   const currentDate = new Date();
-  const filteredObj = {};
+  const filteredSurgeries = {};
 
-  for (const key in ele) {
-    if (Object.prototype.hasOwnProperty.call(ele, key)) {
+  for (const key in surgeries) {
+    if (Object.prototype.hasOwnProperty.call(surgeries, key)) {
       const [month, day] = key.split('/').map(Number);
       const recordDate = new Date(currentDate.getFullYear(), month - 1, day);
 
       if (recordDate >= currentDate) {
-        filteredObj[key] = ele[key];
+        filteredSurgeries[key] = surgeries[key];
       }
     }
   }
 
-  return filteredObj;
+  return filteredSurgeries;
 }

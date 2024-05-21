@@ -9,10 +9,8 @@ import {
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { HistoryEntity } from '@packages/entities';
 import { AuthGuard } from 'src/auth/auth.guard';
-import {
-  Permission,
-  UserPermissionsGuard,
-} from 'src/auth/userPermissions.guard';
+import { PermissionGuard } from 'src/auth/userPermissions.guard';
+import { USER_PERMISSIONS } from 'src/enums/userPermissions.enums';
 import { SanitizedUser } from '../auth/types';
 import { practiceNotFoundInterceptor } from '../interceptors/practiceNotFoundInterceptor';
 import { HistoryService } from './history.service';
@@ -27,8 +25,7 @@ export class HistoryController {
   constructor(private historyService: HistoryService) {}
 
   @Get()
-  @UseGuards(UserPermissionsGuard)
-  @Permission('view_hx')
+  @UseGuards(PermissionGuard(USER_PERMISSIONS.VIEW_HX))
   getAllHistory(
     @Param()
     params: GetHistoryParams,
@@ -41,8 +38,7 @@ export class HistoryController {
   }
 
   @Get(':id')
-  @UseGuards(UserPermissionsGuard)
-  @Permission('view_hx')
+  @UseGuards(PermissionGuard(USER_PERMISSIONS.VIEW_HX))
   getHistoryById(
     @Param() params: GetHistoryByIdParams,
   ): Promise<HistoryEntity> {
