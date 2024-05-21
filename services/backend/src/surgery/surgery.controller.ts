@@ -16,11 +16,11 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { SurgeryEntity } from '@packages/entities';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
-import { ParseStringToBooleanPipe } from 'src/utils/pipes/stringToBoolean.pipes';
 import { SanitizedUser } from '../auth/types';
 import { CreateSurgeryDto } from '../surgery/dto/createSurgery.dto';
 import { UpdateSurgeryDto } from '../surgery/dto/updateSurgery.dto';
 import { SurgeryService } from '../surgery/surgery.service';
+import { ParseStringToBooleanPipe } from '../utils/pipes/stringToBoolean.pipes';
 
 @ApiTags('Surgery')
 @ApiBearerAuth('normal')

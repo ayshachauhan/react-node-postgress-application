@@ -1,5 +1,5 @@
 import { Request } from 'express';
-import { SanitizedUser } from 'src/auth/types';
+import { SanitizedUser } from '../auth/types';
 
 export type PatientMailData = {
   practiceName?: string;

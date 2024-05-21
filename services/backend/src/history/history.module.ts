@@ -2,7 +2,7 @@ import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { HistoryEntity } from '@packages/entities';
-import { practiceNotFoundInterceptor as PracticeNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
+import { practiceNotFoundInterceptor as PracticeNotFoundInterceptor } from '../interceptors/practiceNotFoundInterceptor';
 import { PracticesModule } from '../practices/practices.module';
 import { SurgeryModule } from '../surgery/surgery.module';
 import { HistoryController } from './history.controller';
