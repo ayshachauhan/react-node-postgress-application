@@ -22,6 +22,7 @@ import { SanitizedUser } from '../auth/types';
 import { CreateSurgeryDto } from '../surgery/dto/createSurgery.dto';
 import { UpdateSurgeryDto } from '../surgery/dto/updateSurgery.dto';
 import { SurgeryService } from '../surgery/surgery.service';
+import { QueryDto } from './dto/getSurgery.dto';
 
 @ApiTags('Surgery')
 @ApiBearerAuth('normal')
@@ -34,7 +35,7 @@ export class SurgeryController {
   @UseInterceptors(practiceNotFoundInterceptor)
   async findAll(
     @Param() { practiceId }: { practiceId: string },
-    @Query('includeDeleted') includeDeleted: boolean = false,
+    @Query(new ValidationPipe()) { includeDeleted }: QueryDto,
   ): Promise<SurgeryEntity[]> {
     return this.surgeryService.findAll(practiceId, includeDeleted);
   }

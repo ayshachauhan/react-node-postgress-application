@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { VideoEntity } from '@packages/entities/media';
-import { SurgeryTypeEntity } from '@packages/entities/surgeryType';
+import { SurgeryConfigurationEntity } from '@packages/entities/surgeryConfiguration';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -9,14 +9,14 @@ export class MediaService {
   constructor(
     @InjectRepository(VideoEntity)
     private readonly videos: Repository<VideoEntity>,
-    @InjectRepository(SurgeryTypeEntity)
-    private readonly surgeryType: Repository<SurgeryTypeEntity>,
+    @InjectRepository(SurgeryConfigurationEntity)
+    private readonly surgeryConfiguration: Repository<SurgeryConfigurationEntity>,
   ) {}
 
   async getVideosByPracticeId(practiceId: string) {
     return await this.videos.find({
       where: { practiceId },
-      relations: ['surgeryType'],
+      relations: ['surgeryConfiguration'],
     });
   }
 
@@ -35,15 +35,19 @@ export class MediaService {
 
   async createVideo(
     practiceId: string,
-    videoData: { surgeryTypeId: string } & Partial<VideoEntity>,
+    videoData: { surgeryConfigurationId: string } & Partial<VideoEntity>,
   ): Promise<VideoEntity> {
-    const surgeryType = await this.surgeryType.findOne({
-      where: { id: videoData.surgeryTypeId },
+    const surgeryConfiguration = await this.surgeryConfiguration.findOne({
+      where: { id: videoData.surgeryConfigurationId },
     });
-    if (!surgeryType) {
+    if (!surgeryConfiguration) {
       throw new NotFoundException('Surgery type not found');
     }
-    const video = this.videos.create({ ...videoData, practiceId, surgeryType });
+    const video = this.videos.create({
+      ...videoData,
+      practiceId,
+      surgeryConfiguration,
+    });
     return await this.videos.save(video);
   }
 

@@ -1,6 +1,6 @@
 import { IBaseEntity } from '../base.interface';
 import { IPractice } from '../practice';
-import { ISurgeryType } from '../surgeryType';
+import { ISurgeryConfiguration } from '../surgeryConfiguration/surgeryConfiguration.interface';
 import { IUser } from '../user/user.interface';
 
 export interface ITemplate extends IBaseEntity {
@@ -10,7 +10,7 @@ export interface ITemplate extends IBaseEntity {
   messageType: TemplateMessageType;
   dateOffset: number;
   meridiem?: Meridiem;
-  surgeryType: ISurgeryType;
+  surgeryConfiguration: ISurgeryConfiguration;
   emailSubject: string;
   emailBody: string;
   emailAttachment: string;
@@ -18,7 +18,7 @@ export interface ITemplate extends IBaseEntity {
   email2ndCataract: string;
   messageText: string;
   version: string;
-  surgeryTypeName?: string;
+  surgeryConfigurationName?: string;
 }
 
 export enum TemplateMessageType {
@@ -41,7 +41,7 @@ export interface ITemplateRequest {
   dateOffset?: number;
   meridiem?: string;
   messageType: string;
-  surgeryTypeId: string;
+  surgeryConfigurationId: string;
   emailSubject?: string;
   emailBody?: string;
   emailAttachment?: string;
@@ -58,8 +58,8 @@ export interface ITemplateUpdate {
   dateOffset?: number;
   meridiem?: string;
   messageType?: string;
-  surgeryType?: ISurgeryType;
-  surgeryTypeId?: string;
+  surgeryConfiguration?: ISurgeryConfiguration;
+  surgeryConfigurationId?: string;
   emailSubject?: string;
   emailBody?: string;
   emailAttachment?: string;
@@ -69,8 +69,8 @@ export interface ITemplateUpdate {
 }
 
 export interface GetTemplatesResponse {
-  surgeryType: ISurgeryType;
-  surgeryTypeName?: string;
+  surgeryConfiguration: ISurgeryConfiguration;
+  surgeryConfigurationName?: string;
   booking?: ITemplate[];
   pcp?: ITemplate[];
   preop?: ITemplate[];

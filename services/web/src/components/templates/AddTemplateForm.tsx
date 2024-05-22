@@ -5,7 +5,7 @@ import {
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
 import { useAppDispatch, useAppSelector } from '@root/store';
-import { fetchListings as fetchSurgeryTypes } from '@root/store/reducers/surgeryTypes';
+import { fetchListings as fetchSurgeryConfigurations } from '@root/store/reducers/surgeryConfigurations';
 import { addRecordAsync } from '@root/store/reducers/templates';
 import { getPracticeId } from '@utils/index';
 import { Select } from 'baseui/select';
@@ -21,12 +21,17 @@ const AddTemplateForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const practiceId = getPracticeId();
   const userInfo = useAppSelector((state) => state.auth.user);
   const dispatch = useAppDispatch();
-  const surgeryTypes = useAppSelector((state) => state.surgeryTypes.entities);
-  const surgeryTypeOptions = Object.keys(surgeryTypes).map((key) => ({
-    label: surgeryTypes[key].name,
-    id: surgeryTypes[key].id,
-  }));
-  const [surgeryTypeId, setsurgeryTypeId] = useState('');
+  const surgeryConfigurations = useAppSelector(
+    (state) => state.surgeryConfigurations.entities,
+  );
+
+  const surgeryConfigurationOptions = Object.keys(surgeryConfigurations).map(
+    (key) => ({
+      label: surgeryConfigurations[key].name,
+      id: surgeryConfigurations[key].id,
+    }),
+  );
+  const [surgeryConfigurationId, setSurgeryConfigurationId] = useState('');
   const [messageType, setMsgType] = useState('');
   const [dateOffset, setDateOffset] = useState<number>(0);
 
@@ -39,21 +44,21 @@ const AddTemplateForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         active: true,
         dateOffset,
         messageType,
-        surgeryTypeId,
+        surgeryConfigurationId,
       };
       try {
         dispatch(addRecordAsync(data));
         setDateOffset(0);
         setMsgType('');
-        setsurgeryTypeId('');
+        setSurgeryConfigurationId('');
         onClose();
       } catch (error) {
         onClose();
       }
     }
   };
-  const handleSurgeryTypeChange = ({ value }) => {
-    setsurgeryTypeId(value[0] ? value[0].id : null);
+  const handleSurgeryConfigurationChange = ({ value }) => {
+    setSurgeryConfigurationId(value[0] ? value[0].id : null);
   };
 
   const handleInputChange = (value: string) => {
@@ -67,7 +72,7 @@ const AddTemplateForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
 
   useEffect(() => {
     if (practiceId !== null) {
-      dispatch(fetchSurgeryTypes({ practiceId: practiceId })); // Fetch listings from PostgreSQL database
+      dispatch(fetchSurgeryConfigurations({ practiceId }));
     }
   }, [practiceId, dispatch]);
 
@@ -76,13 +81,20 @@ const AddTemplateForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       <form onSubmit={handleSubmit}>
         <div className="space-y-4">
           <label htmlFor="title" className="text-black text-sm font-normal">
-            Surgery Type
+            Surgery
           </label>
           <Select
-            options={surgeryTypeOptions}
-            onChange={handleSurgeryTypeChange}
+            options={surgeryConfigurationOptions}
+            onChange={handleSurgeryConfigurationChange}
             value={
-              surgeryTypeId ? [{ label: surgeryTypeId, id: surgeryTypeId }] : []
+              surgeryConfigurationId
+                ? [
+                    {
+                      label: surgeryConfigurationId,
+                      id: surgeryConfigurationId,
+                    },
+                  ]
+                : []
             }
             required
             overrides={{
