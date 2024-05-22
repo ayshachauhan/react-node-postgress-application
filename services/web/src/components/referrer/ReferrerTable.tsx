@@ -1,5 +1,4 @@
 'use client';
-import { IReferrer } from '@packages/entities';
 import Button from '@root/components/Button';
 import { AddIcon, DeleteIcon, EditIcon } from '@root/components/Icons';
 import AddReferrerModal from '@root/components/referrer/AddReferrerModal';
@@ -80,15 +79,6 @@ export default function ReferrerTable() {
     setReferrerId(null);
   };
   const dispatch = useAppDispatch();
-  const isChecked = (data: IReferrer): boolean => {
-    if (data.verified === true) {
-      return true;
-    } else {
-      if (data.dateCreated !== data.dateUpdated) {
-        return true;
-      } else return false;
-    }
-  };
 
   useEffect(() => {
     if (practiceId !== null) {
