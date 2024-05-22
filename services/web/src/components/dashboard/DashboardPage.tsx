@@ -1,5 +1,6 @@
 'use client';
 
+import { UserType } from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import { AddIcon } from '@root/components/Icons';
 import Form from '@root/components/dashboard/AddSurgery';
@@ -111,7 +112,9 @@ const DashboardPage: React.FC = () => {
     surgeryTypesList: Object.values(state.surgeryTypes.entities),
     insuranceTypesList: Object.values(state.insuranceTypes.entities),
     referrersList: Object.values(state.referrers.entities),
-    usersList: Object.values(state.users.entities),
+    usersList: Object.values(state.users.entities).filter(
+      (user) => user.type == UserType.DOCTOR,
+    ),
     calendars: Object.values(state.calendars.entities),
   }));
 
