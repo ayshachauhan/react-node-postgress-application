@@ -65,7 +65,7 @@ export const transformSurgeryObject = (
     date: new Date(data.date),
     details: data.patient.details,
     firstName: data.patient.firstName,
-    insuranceName: data.insuranceType.name,
+    insuranceName: data?.insuranceType?.name,
     lastName: data.patient.lastName,
     mrn: data.patient.mrn,
     selectedCheckListOptions: data.selectedCheckListOptions,
@@ -87,12 +87,9 @@ export const transformUpdateSurgeryDTO = (
     insuranceName: data?.insuranceType?.name,
     lastName: data.lastName,
     mrn: data.mrn,
-    // @ts-expect-error getting this as like selectedCheckListOption from frontend it should be selectedCheckListOptions
-    selectedCheckListOptions: data.selectedCheckListOption,
+    selectedCheckListOptions: data.selectedCheckListOptions,
     selectedSurgeryOptions: data.selectedSurgeryOptions,
-    //@ts-expect-error types are not right in dto, but we are gettig these in body
     totalHospitalPricing: data.totalHospitalPricing,
-    //@ts-expect-error types are not right in dto, but we are gettig these in body
     totalProfessionalPricing: data.totalProfessionalPricing,
   };
 };
