@@ -1,12 +1,12 @@
 import { IBaseEntity } from '../base.interface';
-import { ISurgeryType } from '../surgeryType';
+import { ISurgeryConfiguration } from '../surgeryConfiguration';
 
 export interface IMedia extends IBaseEntity {
   name: string;
   urlEmbed: string;
   url: string;
   practiceId: string;
-  surgeryType: ISurgeryType;
+  surgeryConfiguration: ISurgeryConfiguration;
 }
 
 export type IMediaRequest = {
@@ -14,5 +14,5 @@ export type IMediaRequest = {
   urlEmbed: string;
   url: string;
   practiceId: string;
-  surgeryTypeId: string;
+  surgeryConfigurationId: string;
 };
