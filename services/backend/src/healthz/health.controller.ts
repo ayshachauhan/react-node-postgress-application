@@ -1,26 +1,7 @@
-import {
-  Controller,
-  FileTypeValidator,
-  Get,
-  MaxFileSizeValidator,
-  ParseFilePipe,
-  Post,
-  UploadedFile,
-  UseInterceptors,
-} from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express/multer';
+import { Controller, Get } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { HealthCheck } from '@nestjs/terminus';
-import * as AWS from 'aws-sdk';
 import { HealthService } from './health.service';
-
-const s3 = new AWS.S3({
-  credentials: {
-    accessKeyId: '',
-    secretAccessKey: '',
-  },
-  region: 'us-east-1',
-});
 
 @ApiTags('Healthz')
 @Controller('health')
@@ -29,37 +10,41 @@ export class HealthController {
 
   @Get()
   @HealthCheck()
-  check() {
+  async check() {
     return this.healthService.check();
   }
 
-  @Post('upload')
-  @UseInterceptors(FileInterceptor('file'))
-  async uploadFile(
-    @UploadedFile(
-      new ParseFilePipe({
-        validators: [
-          new MaxFileSizeValidator({ maxSize: 1000000 }),
-          new FileTypeValidator({ fileType: 'image/*' }),
-        ],
-      }),
-    )
-    file,
-  ) {
-    console.log(file);
+  // @Post('upload')
+  // @UseInterceptors(FileInterceptor('file'))
+  // async uploadFile(
+  //   @UploadedFile(
+  //     new ParseFilePipe({
+  //       validators: [
+  //         new MaxFileSizeValidator({ maxSize: 1000000 }),
+  //         new FileTypeValidator({ fileType: 'image/*' }),
+  //       ],
+  //     }),
+  //   )
+  //   file,
+  // ) {
+  //   console.log(file);
+  //   const x = await s3
+  //     .upload({
+  //       Bucket: 'azentia-qa',
+  //       Key: file.originalname,
+  //       Body: file.buffer,
+  //       ACL: 'public-read',
+  //       ContentType: file.mimetype,
+  //     })
+  //     .promise();
 
-    s3.listBuckets().promise().then(console.log);
+  //   console.log(x, 'uploadf');
+  //   const listObjectsResult = await s3
+  //     .listObjectsV2({ Bucket: 'azentia-qa' }) // Replace 'qa' with your bucket name
+  //     .promise();
 
-    await s3
-      .upload({
-        Bucket: 'azentia-qa',
-        Key: file.originalname,
-        Body: file.buffer,
-        ACL: 'public-read',
-        ContentType: file.mimetype,
-      })
-      .promise();
+  //   console.log(listObjectsResult, 'listObjectsResult');
 
-    return 'ok';
-  }
+  //   return 'ok';
+  // }
 }
