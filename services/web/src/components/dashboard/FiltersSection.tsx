@@ -13,10 +13,10 @@ import TextInput from '@root/components/TextInput';
 import { useUserPermission } from '@root/hooks/userHasPermission';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { fetchSurgeryInfo } from '@root/store/reducers/surgery';
-import { removePastSurgeries, usDateFormatter } from '@root/utils';
+import { usDateFormatter } from '@root/utils';
 import { monthOptions } from '@root/utils/constants';
 import { Select } from 'baseui/select';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import DeleteFilterModal from './DeleteFilterModal';
 import EditableRow from './EditableRow';
 
@@ -77,6 +77,23 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
       )}
     </div>
   );
+
+  const userInfo = useAppSelector((state) => state.auth.user);
+  const userPermissions = userInfo?.permissions;
+
+  const viewPastCases = useUserPermission(userPermissions, ['view_past_cases']);
+
+  const viewFutureCases = useUserPermission(userPermissions, [
+    'view_future_cases',
+  ]);
+
+  const deleteCaseAllowed = useUserPermission(userPermissions, ['delete_case']);
+
+  const editCaseAllowed = useUserPermission(userPermissions, ['edit_case']);
+
+  const viewBillingColumn = useUserPermission(userPermissions, [
+    'view_billing',
+  ]);
 
   const modifiedObj = {};
   const modifyEvalList = surgeryList
@@ -148,9 +165,48 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
     value: monthOptions[currentMonthIndex - 1].value,
   };
 
+  const getMonthOptions = (
+    viewPastCases: boolean,
+    viewFutureCases: boolean,
+  ) => {
+    const currentMonth = new Date().getMonth() + 1;
+    return monthOptions.map((option) => {
+      const optionMonth = parseInt(option.value, 10);
+      const isPastMonth = optionMonth < currentMonth;
+      const isFutureMonth = optionMonth > currentMonth;
+      return {
+        ...option,
+        disabled:
+          (!viewPastCases && isPastMonth) ||
+          (!viewFutureCases && isFutureMonth),
+      };
+    });
+  };
+
   const [selectedMonth, setSelectedMonth] = React.useState<MonthOption[]>([
     currentMonthOption,
   ]);
+
+  const updatedMonthOptions = useMemo(
+    () => getMonthOptions(viewPastCases, viewFutureCases),
+    [viewPastCases, viewFutureCases],
+  );
+  const [selectedValue, setSelectedValue] = useState([]);
+  const handleChangeValue = ({ value }) => {
+    setSelectedValue(value);
+  };
+
+  const getUpdatedOptions = (viewPastCases: boolean) => [
+    { label: 'Waitlist', value: '1' },
+    { label: 'IOL', value: '2' },
+    { label: 'Past', value: '3', disabled: !viewPastCases },
+    { label: 'Reset', value: '4' },
+  ];
+
+  const updatedOptions = useMemo(
+    () => getUpdatedOptions(viewPastCases),
+    [viewPastCases],
+  );
 
   const handleChangeMonth = ({ value }) => {
     setSelectedMonth(value);
@@ -269,19 +325,6 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
     setSelectedRow(null);
   };
 
-  const userInfo = useAppSelector((state) => state.auth.user);
-  const userPermissions = userInfo?.permissions;
-
-  const viewPastCases = useUserPermission(userPermissions, ['view_past_cases']);
-
-  const deleteCaseAllowed = useUserPermission(userPermissions, ['delete_case']);
-
-  const editCaseAllowed = useUserPermission(userPermissions, ['edit_case']);
-
-  const viewBillingColumn = useUserPermission(userPermissions, [
-    'view_billing',
-  ]);
-
   return (
     <div className="overflow-x-auto">
       <div className="flex w-full bg-purple-50 px-2 border-t border-b border-gray-200 items-center">
@@ -312,7 +355,7 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
           <div>
             <Select
               required
-              options={monthOptions}
+              options={updatedMonthOptions}
               value={selectedMonth}
               onChange={handleChangeMonth}
               overrides={{
@@ -334,6 +377,9 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
           <div>
             <Select
               required
+              options={updatedOptions}
+              value={selectedValue}
+              onChange={handleChangeValue}
               overrides={{
                 ControlContainer: {
                   style: {
@@ -356,9 +402,6 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
         <div className="w-max overflow-x-auto mt-2 border rounded-t-lg rounded-b-lg border-gray-200">
           {Object.keys(modifiedObj).map((key, index) => {
             let ele = modifiedObj[key];
-            if (!viewPastCases) {
-              ele = removePastSurgeries(ele);
-            }
             const customOptionsHeaders: string[] =
               surgeryOptionsHeadersObj[key].surgeryOptionsHeaders;
             const customCheckListHeaders: string[] =

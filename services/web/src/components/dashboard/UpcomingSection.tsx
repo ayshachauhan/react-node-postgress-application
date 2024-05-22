@@ -155,7 +155,7 @@ const UpcomingSection: React.FC = () => {
     return splitData;
   };
 
-  const allDates: CalendarData[] = calendars
+  const upcomingDates: CalendarData[] = calendars
     .filter(
       (data: ICalendar) => data.surgeryConfiguration.id === selectedSurgery?.id,
     )
@@ -168,11 +168,6 @@ const UpcomingSection: React.FC = () => {
       surgeryNameColor:
         data.surgeryConfiguration.color ?? DEFAULT_SURGERYNAME_COLOR,
     }));
-
-  const upcomingDates = allDates.filter((record) => {
-    const recordDate = new Date(record.date);
-    return recordDate >= currentDate;
-  });
 
   const filteredCalendars = filterCalendarByMonth(upcomingDates);
 

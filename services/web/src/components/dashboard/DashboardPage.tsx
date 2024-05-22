@@ -39,10 +39,6 @@ const DashboardPage: React.FC = () => {
 
   const addCaseAllowed = useUserPermission(userPermissions, ['add_case']);
 
-  const viewUpcomingSection = useUserPermission(userPermissions, [
-    'view_future_cases',
-  ]);
-
   const viewUserMetrics = useUserPermission(userPermissions, [
     'leaderboard_display',
   ]);
@@ -211,11 +207,9 @@ const DashboardPage: React.FC = () => {
       <hr className="h-px my-1 px-0 mx-0 bg-gray-100 border-1 border-gray-100"></hr>
       <div className="mt-1">
         <div className="flex gap-4">
-          {viewUpcomingSection && (
-            <div className="w-7/12 border border-solid rounded-lg px-2.5 py-2">
-              <UpcomingSection />
-            </div>
-          )}
+          <div className="w-7/12 border border-solid rounded-lg px-2.5 py-2">
+            <UpcomingSection />
+          </div>
           {viewUserMetrics && (
             <div className="w-2/12 border border-solid rounded-lg px-2.5 py-2 text-lg">
               <UsersListing />
