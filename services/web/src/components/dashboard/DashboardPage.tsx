@@ -14,6 +14,7 @@ import {
   fetchListings as fetchEvalsList,
 } from '@root/store/reducers/evals';
 
+import { USER_PERMISSIONS } from '@root/enums/userPermissions.enums';
 import { useUserPermission } from '@root/hooks/userHasPermission';
 import { fetchListings as fetchInsuranceTypesList } from '@root/store/reducers/insuranceTypes';
 import { fetchListings as fetchPatients } from '@root/store/reducers/patient';
@@ -37,10 +38,12 @@ const DashboardPage: React.FC = () => {
   const userInfo = useAppSelector((state) => state.auth.user);
   const userPermissions = userInfo?.permissions;
 
-  const addCaseAllowed = useUserPermission(userPermissions, ['add_case']);
+  const addCaseAllowed = useUserPermission(userPermissions, [
+    USER_PERMISSIONS.ADD_CASE,
+  ]);
 
   const viewUserMetrics = useUserPermission(userPermissions, [
-    'leaderboard_display',
+    USER_PERMISSIONS.LEADERBOARD_DISPLAY,
   ]);
 
   const { successMessage: addSurgerySuccessMessage, calendarSuccessMessage } =

@@ -1,13 +1,14 @@
 import { IInsuranceType, UpdateSurgeryPayload } from '@packages/entities';
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
+import { USER_PERMISSIONS } from '@root/enums/userPermissions.enums';
 import { useUserPermission } from '@root/hooks/userHasPermission';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { updateRecordAsync } from '@root/store/reducers/surgery';
 import { getPracticeId } from '@root/utils';
 import { DatePicker } from 'baseui/datepicker';
 import { SIZE, Select } from 'baseui/select';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 
 function EditableRow({
   handleCancelClick,
@@ -20,8 +21,14 @@ function EditableRow({
   const userInfo = useAppSelector((state) => state.auth.user);
   const userPermissions = userInfo?.permissions;
   const viewBillingColumn = useUserPermission(userPermissions, [
-    'view_billing',
+    USER_PERMISSIONS.VIEW_BILLING,
   ]);
+  const editDatesCaseAllowed = useUserPermission(userPermissions, [
+    USER_PERMISSIONS.EDIT_DATES,
+  ]);
+  const isDisabled = useMemo(() => {
+    return !editDatesCaseAllowed;
+  }, [editDatesCaseAllowed]);
 
   const insuranceTypesList: IInsuranceType[] = useAppSelector((state) =>
     Object.values(state.insuranceTypes.entities),
@@ -95,6 +102,7 @@ function EditableRow({
           <div className="py-2 w-20">
             <DatePicker
               value={obj.date}
+              disabled={isDisabled}
               onChange={({ date }) => handleObjChange('date', date)}
               size={SIZE.mini}
               overrides={{

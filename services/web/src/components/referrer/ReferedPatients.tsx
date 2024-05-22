@@ -1,5 +1,6 @@
 'use client';
 import { IPatient } from '@packages/entities';
+import { USER_PERMISSIONS } from '@root/enums/userPermissions.enums';
 import { useUserPermission } from '@root/hooks/userHasPermission';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import {
@@ -26,7 +27,7 @@ const ReferedPatients = ({ referrerId }) => {
   const userInfo = useAppSelector((state) => state.auth.user);
   const userPermissions = userInfo?.permissions;
   const viewBillingColumn = useUserPermission(userPermissions, [
-    'view_billing',
+    USER_PERMISSIONS.VIEW_BILLING,
   ]);
 
   useEffect(() => {

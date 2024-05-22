@@ -4,7 +4,6 @@ import {
   ICalendar,
   ISurgeryConfiguration,
 } from '@packages/entities/index.browser';
-import { useUserPermission } from '@root/hooks/userHasPermission';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { fetchCalendars } from '@root/store/reducers/calendar';
 import { fetchListings } from '@root/store/reducers/surgeryConfigurations';
@@ -29,10 +28,6 @@ export const DEFAULT_MAX_SLOTS: number = 14;
 const UpcomingSection: React.FC = () => {
   const dispatch = useAppDispatch();
   const userId: string | null = getUserId();
-  const userInfo = useAppSelector((state) => state.auth.user);
-  const userPermissions = userInfo?.permissions;
-
-  const editCaseAllowed = useUserPermission(userPermissions, ['edit_case']);
 
   const { calendars, surgeryConfigurations } = useAppSelector((state) => ({
     calendars: Object.values(state.calendars.entities).filter(
@@ -262,14 +257,12 @@ const UpcomingSection: React.FC = () => {
               <AddIcon className="mt-2" size={25}></AddIcon>
               {''}
             </div>
-            {editCaseAllowed && (
-              <div
-                className="cursor-pointer px-2"
-                onClick={() => handleOpenModal(true)}
-              >
-                <EditIcon className="mt-2"></EditIcon>
-              </div>
-            )}
+            <div
+              className="cursor-pointer px-2"
+              onClick={() => handleOpenModal(true)}
+            >
+              <EditIcon className="mt-2"></EditIcon>
+            </div>
           </div>
         )}
       </div>

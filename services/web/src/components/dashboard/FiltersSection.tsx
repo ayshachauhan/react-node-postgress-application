@@ -10,6 +10,7 @@ import {
   ViewIcon,
 } from '@root/components/Icons';
 import TextInput from '@root/components/TextInput';
+import { USER_PERMISSIONS } from '@root/enums/userPermissions.enums';
 import { useUserPermission } from '@root/hooks/userHasPermission';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import {
@@ -100,18 +101,24 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
   const userInfo = useAppSelector((state) => state.auth.user);
   const userPermissions = userInfo?.permissions;
 
-  const viewPastCases = useUserPermission(userPermissions, ['view_past_cases']);
-
-  const viewFutureCases = useUserPermission(userPermissions, [
-    'view_future_cases',
+  const viewPastCases = useUserPermission(userPermissions, [
+    USER_PERMISSIONS.VIEW_PAST_CASES,
   ]);
 
-  const deleteCaseAllowed = useUserPermission(userPermissions, ['delete_case']);
+  const viewFutureCases = useUserPermission(userPermissions, [
+    USER_PERMISSIONS.VIEW_FUTURE_CASES,
+  ]);
 
-  const editCaseAllowed = useUserPermission(userPermissions, ['edit_case']);
+  const deleteCaseAllowed = useUserPermission(userPermissions, [
+    USER_PERMISSIONS.DELETE_CASE,
+  ]);
+
+  const editCaseAllowed = useUserPermission(userPermissions, [
+    USER_PERMISSIONS.EDIT_CASE,
+  ]);
 
   const viewBillingColumn = useUserPermission(userPermissions, [
-    'view_billing',
+    USER_PERMISSIONS.VIEW_BILLING,
   ]);
 
   const modifiedObj = {};
