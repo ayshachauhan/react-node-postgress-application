@@ -16,7 +16,7 @@ export class TemplatePatchDto {
 
   @IsOptional()
   @ApiProperty()
-  surgeryType: string;
+  surgeryConfiguration: string;
 
   @IsOptional()
   @ApiProperty()
