@@ -36,7 +36,7 @@ resource "aws_security_group" "load_balancer_security_group" {
 
 
 data "aws_acm_certificate" "tl_issued" {
-  domain   = "*.anakshiant.in"
+  domain   = "*.pod111.com"
   statuses = ["ISSUED"]
 }
 

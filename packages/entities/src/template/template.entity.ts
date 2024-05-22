@@ -1,7 +1,7 @@
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { BaseEntity } from '../base.entity';
 import { PracticeEntity } from '../practice/practice.entity';
-import { SurgeryTypeEntity } from '../surgeryType';
+import { SurgeryConfigurationEntity } from '../surgeryConfiguration';
 import { UserEntity } from '../user/user.entity';
 import { ITemplate, Meridiem, TemplateMessageType } from './template.interface';
 
@@ -37,9 +37,9 @@ export class TemplateEntity extends BaseEntity implements ITemplate {
   })
   meridiem?: Meridiem;
 
-  @ManyToOne(() => SurgeryTypeEntity)
-  @JoinColumn({ name: 'surgeryTypeId' })
-  surgeryType: SurgeryTypeEntity;
+  @ManyToOne(() => SurgeryConfigurationEntity)
+  @JoinColumn({ name: 'surgeryConfigurationId' })
+  surgeryConfiguration: SurgeryConfigurationEntity;
 
   @Column({ type: 'varchar', nullable: true })
   emailSubject: string;

@@ -10,7 +10,10 @@ import {
   ViewIcon,
 } from '@root/components/Icons';
 import { useAppDispatch, useAppSelector } from '@root/store';
-import { fetchSurgeryInfo } from '@root/store/reducers/surgery';
+import {
+  deleteRecordAsync,
+  fetchSurgeryInfo,
+} from '@root/store/reducers/surgery';
 import { usDateFormatter } from '@root/utils';
 import { monthOptions } from '@root/utils/constants';
 import { Input } from 'baseui/input';
@@ -26,6 +29,22 @@ interface MonthOption {
 
 const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
   const dispatch = useAppDispatch();
+
+  const currentMonthIndex = new Date().getMonth() + 1;
+  const currentMonthOption = {
+    label: monthOptions[currentMonthIndex - 1].label,
+    value: monthOptions[currentMonthIndex - 1].value,
+  };
+
+  const [searchMRN, setSearchMRN] = useState('');
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [clonedDivs, setClonedDivs] = useState<string[]>([]);
+  const [selectedAction, setSelectedAction] = useState<string | null>(null);
+  const [selectedRow, setSelectedRow] = useState<string | null>(null);
+  const [selectedMonth, setSelectedMonth] = React.useState<MonthOption[]>([
+    currentMonthOption,
+  ]);
+
   const surgeryOptionsHeadersObj: {
     [key: string]: {
       surgeryOptionsHeaders: string[];
@@ -68,7 +87,7 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
       />
       <DeleteIcon
         style={{ cursor: 'pointer' }}
-        onClick={() => handleOpenDeleteModal()}
+        onClick={() => handleOpenDeleteModal(id)}
       />
     </div>
   );
@@ -137,78 +156,31 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
     })
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
-  const currentMonthIndex = new Date().getMonth() + 1;
-  const currentMonthOption = {
-    label: monthOptions[currentMonthIndex - 1].label,
-    value: monthOptions[currentMonthIndex - 1].value,
-  };
+  const selectedSurgery = modifyEvalList.find(
+    (surgery) => surgery.id === selectedRow,
+  );
 
-  const [selectedMonth, setSelectedMonth] = React.useState<MonthOption[]>([
-    currentMonthOption,
-  ]);
+  const onConfirmDelete = (): void => {
+    try {
+      if (selectedRow) {
+        dispatch(deleteRecordAsync({ practiceId, id: selectedRow }));
+        setSelectedRow(null);
+      }
+      setIsDeleteModalOpen(false);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const handleChangeMonth = ({ value }) => {
     setSelectedMonth(value);
   };
-
-  // const [filteredData, setFilteredData] = useState<SurgeryRecord[]>([]);
-  const [searchMRN, setSearchMRN] = useState('');
-  // const [groupedData, setGroupedData] = useState<{
-  //   [date: string]: SurgeryRecord[];
-  // }>({});
-
-  // const filterData = () => {
-  //   let filtered = [...surgeryData];
-  //   if (selectedMonth.length) {
-  //     filtered = filtered.filter((item) => {
-  //       const itemMonth = new Date(item.date).getMonth() + 1;
-  //       return itemMonth.toString() === selectedMonth[0].value;
-  //     });
-  //   }
-  //   if (searchMRN) {
-  //     filtered = filtered.filter((row) =>
-  //       row.mrn.toLowerCase().includes(searchMRN.toLowerCase()),
-  //     );
-  //   }
-  //   setFilteredData(filtered);
-  // };
-
-  // useEffect(() => {
-  //   // filterData();
-  // }, [selectedMonth, searchMRN]);
-
-  // const generateGroupedData = (data: SurgeryRecord[]) => {
-  //   return data.reduce(
-  //     (acc: { [date: string]: SurgeryRecord[] }, curr: SurgeryRecord) => {
-  //       if (!acc[curr.date]) {
-  //         acc[curr.date] = [curr];
-  //       } else {
-  //         acc[curr.date].push(curr);
-  //       }
-  //       return acc;
-  //     },
-  //     {},
-  //   );
-  // };
-
-  // useEffect(() => {
-  //   const newGroupedData = generateGroupedData(filteredData);
-  //   setGroupedData(newGroupedData);
-  // }, [filteredData]);
+  ('');
 
   const handleSearchMRNChange = (event) => {
     const mrn = event.target.value.toLowerCase();
     setSearchMRN(mrn);
-    // filterData();
   };
-
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-
-  const handleOpenDeleteModal = (): void => {
-    setIsDeleteModalOpen(true);
-  };
-
-  const [clonedDivs, setClonedDivs] = useState<string[]>([]);
 
   const handleCloneClick = (rowId: string) => {
     setSelectedAction('clone');
@@ -220,24 +192,14 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
     }
   };
 
+  const handleOpenDeleteModal = (rowId: string): void => {
+    setSelectedRow(rowId);
+    setIsDeleteModalOpen(true);
+  };
+
   const handleCloseDeleteModal = (): void => {
     setIsDeleteModalOpen(false);
   };
-
-  const onConfirmDelete = (): void => {
-    try {
-      setIsDeleteModalOpen(false);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const [selectedRow, setSelectedRow] = useState<string | null>(null);
-  const selectedSurgery = modifyEvalList.find(
-    (surgery) => surgery.id === selectedRow,
-  );
-
-  const [selectedAction, setSelectedAction] = useState<string | null>(null);
 
   const handleViewClick = (rowId: string) => {
     setSelectedRow(selectedRow === rowId ? null : rowId);
@@ -249,15 +211,6 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
     dispatch(fetchSurgeryInfo({ practiceId, id: rowId }));
     setSelectedRow(selectedRow === rowId ? null : rowId);
   };
-
-  // const handleEditFormChange = () => (event) => {
-  //   const fieldName = event.value;
-  //   const fieldValue = event.value;
-  //   setEditFormData({
-  //     ...editFormData,
-  //     [fieldName]: fieldValue,
-  //   });
-  // };
 
   const handleCancelClick = () => {
     setSelectedAction('cancel');

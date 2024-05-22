@@ -31,18 +31,18 @@ export const getTemplates = async (
 
     const modifiedDataObject = {};
     data.forEach((element: ITemplate) => {
-      const surgeryType: string = element.surgeryType.name;
+      const surgeryConfiguration: string = element.surgeryConfiguration.name;
       const messageType: string = element.messageType;
-      if (modifiedDataObject[surgeryType]) {
-        if (modifiedDataObject[surgeryType][messageType]) {
-          modifiedDataObject[surgeryType][messageType].push(element);
+      if (modifiedDataObject[surgeryConfiguration]) {
+        if (modifiedDataObject[surgeryConfiguration][messageType]) {
+          modifiedDataObject[surgeryConfiguration][messageType].push(element);
         } else {
-          modifiedDataObject[surgeryType][messageType] = [element];
+          modifiedDataObject[surgeryConfiguration][messageType] = [element];
         }
       } else {
-        modifiedDataObject[surgeryType] = {
+        modifiedDataObject[surgeryConfiguration] = {
           [messageType]: [element],
-          surgeryTypeName: surgeryType,
+          surgeryConfigurationName: surgeryConfiguration,
         };
       }
     });
