@@ -6,9 +6,9 @@ import { fetchListings as fetchPermissions } from '@root/store/reducers/userPerm
 import { addRecordAsync } from '@root/store/reducers/users';
 import { generateFullName, getPracticeId } from '@utils/index';
 import { Checkbox } from 'baseui/checkbox';
+import { FileUploader } from 'baseui/file-uploader';
 import { Select } from 'baseui/select';
 import React, { useEffect, useState } from 'react';
-
 const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const userTypeOptions = Object.keys(UserType).map((key) => ({
     label: UserType[key as keyof typeof UserType],
@@ -213,6 +213,14 @@ const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                   },
                 }}
               />
+            </div>
+          </div>
+          <div className="flex flex-row justify-between gap-7 pt-4">
+            <div className="w-1/2 space-y-2">
+              <label htmlFor="type" className="text-black text-sm font-normal">
+                User Photo
+              </label>
+              <FileUploader />
             </div>
             <div className="w-1/2 space-y-2 flex flex-col">
               <label
