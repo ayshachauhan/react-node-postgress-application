@@ -35,7 +35,7 @@ export class UpdateReferrer1716195053357 implements MigrationInterface {
     await queryRunner.addColumn(
       'referrers',
       new TableColumn({
-        name: 'fromDashboard',
+        name: 'verified',
         type: 'boolean',
         default: false,
       }),

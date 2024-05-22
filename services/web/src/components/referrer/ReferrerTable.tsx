@@ -81,7 +81,7 @@ export default function ReferrerTable() {
   };
   const dispatch = useAppDispatch();
   const isChecked = (data: IReferrer): boolean => {
-    if (data.fromDashboard === false) {
+    if (data.verified === true) {
       return true;
     } else {
       if (data.dateCreated !== data.dateUpdated) {
@@ -154,7 +154,7 @@ export default function ReferrerTable() {
                   {data
                     ? generateFullName(data.firstName, data.lastName)
                     : null}
-                  {data && isChecked(data) && (
+                  {data && data.verified && (
                     <Checkbox
                       key={index}
                       checked={true}

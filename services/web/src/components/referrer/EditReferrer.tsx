@@ -51,7 +51,7 @@ const EditReferrerForm: React.FC<ChildProps> = ({ data, onClose }) => {
         email: updatedReferrerInfo.email ?? '',
         referrerType: updatedReferrerInfo.referrerType ?? ReferrerType.PCP,
         practiceId: practiceId,
-        fromDashboard: false,
+        verified: true,
         id: referrerId,
       };
       try {

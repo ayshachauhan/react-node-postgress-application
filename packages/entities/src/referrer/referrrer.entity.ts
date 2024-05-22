@@ -22,7 +22,7 @@ export class ReferrersEntity extends BaseEntity implements IReferrer {
   referrerType: ReferrerType;
 
   @Column({ type: 'boolean', default: false })
-  fromDashboard: boolean;
+  verified: boolean;
 
   @OneToMany(() => PatientEntity, (patient) => patient.referrer)
   patients: IPatient[];

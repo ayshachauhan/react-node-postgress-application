@@ -38,7 +38,7 @@ const AddReferrerForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         firstName,
         lastName,
         referrerType,
-        fromDashboard: false,
+        verified: true,
       };
       try {
         dispatch(addRecordAsync(referrerPayloadData));

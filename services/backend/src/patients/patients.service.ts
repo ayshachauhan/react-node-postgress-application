@@ -49,7 +49,7 @@ export class PatientsService {
           {
             firstName: createPatientDto.referrerId,
             referrerType: ReferrerType.PCP,
-            fromDashboard: true,
+            verified: false,
           },
         );
       }
