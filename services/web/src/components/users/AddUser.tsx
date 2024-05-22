@@ -220,7 +220,19 @@ const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               <label htmlFor="type" className="text-black text-sm font-normal">
                 User Photo
               </label>
-              <FileUploader />
+              <FileUploader
+                errorMessage={''}
+                onDrop={() => {}}
+                overrides={{
+                  FileDragAndDrop: {
+                    style: {
+                      marginBottom: '16px',
+                      borderColor: '#22C55E',
+                      color: '##F0FDF4',
+                    },
+                  },
+                }}
+              />
             </div>
             <div className="w-1/2 space-y-2 flex flex-col">
               <label
