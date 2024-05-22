@@ -401,7 +401,7 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
       {surgeryConfigList.length && Object.keys(modifiedObj).length && (
         <div className="w-max overflow-x-auto mt-2 border rounded-t-lg rounded-b-lg border-gray-200">
           {Object.keys(modifiedObj).map((key, index) => {
-            let ele = modifiedObj[key];
+            const ele = modifiedObj[key];
             const customOptionsHeaders: string[] =
               surgeryOptionsHeadersObj[key].surgeryOptionsHeaders;
             const customCheckListHeaders: string[] =
