@@ -25,11 +25,6 @@ import React, { useEffect, useMemo, useState } from 'react';
 import DeleteFilterModal from './DeleteFilterModal';
 import EditableRow from './EditableRow';
 
-interface OtherOption {
-  label: string;
-  value: string;
-}
-
 interface MonthOption {
   label: string;
   value: string;
@@ -153,9 +148,9 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
   );
 
   const getUpdatedOptions = (viewPastCases: boolean) => [
-    { label: 'Waitlist', value: '1' },
-    { label: 'IOL', value: '2' },
-    { label: 'Past', value: '3', disabled: !viewPastCases },
+    { label: 'Waitlist', value: 'waitlist' },
+    { label: 'IOL', value: 'iol' },
+    { label: 'Past', value: 'past', disabled: !viewPastCases },
   ];
 
   const updatedOptions = useMemo(
@@ -163,7 +158,7 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
     [viewPastCases],
   );
 
-  const [selectedValue, setSelectedValue] = React.useState<OtherOption[]>([]);
+  const [selectedValue, setSelectedValue] = React.useState('');
 
   const modifiedObj = {};
   const modifyEvalList = surgeryList
@@ -246,9 +241,10 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
   };
 
   const handleChangeValue = ({ value }) => {
-    console.log('Selected value:', value);
-    setSelectedValue(value);
-    if (value.length > 0 && value[0].label === 'Past') {
+    setSelectedValue(value[0] ? value[0].label : null);
+
+    const selectedLabel = value.length > 0 ? value[0].label.toLowerCase() : '';
+    if (selectedLabel === 'past') {
       setSelectedMonth([]);
     }
   };
@@ -308,13 +304,12 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
   const dispatchFetchFilteredSurgeryList = (
     selectedMonth: MonthOption[],
     searchMRNName: string,
-    selectedValue: OtherOption[],
+    selectedValue: string,
   ) => {
     const monthLabels = selectedMonth.map((month) => month.label);
     const month = monthLabels.join(',');
-    const selectedOption = selectedValue
-      .map((option) => option.label)
-      .join(',');
+    const selectedOption = selectedValue;
+
     dispatch(
       fetchFilteredSurgeryList({
         practiceId,
@@ -324,6 +319,8 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
       }),
     );
   };
+  const isDisabled =
+    selectedValue.length > 0 && selectedValue.toLowerCase() === 'past';
 
   useEffect(() => {
     dispatchFetchFilteredSurgeryList(
@@ -367,9 +364,7 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
               options={updatedMonthOptions}
               value={selectedMonth}
               onChange={handleChangeMonth}
-              disabled={
-                selectedValue.length > 0 && selectedValue[0].value === 'Past'
-              } // Disable the select if "Past" option is selected
+              disabled={isDisabled}
               multi
               overrides={{
                 ControlContainer: {
@@ -391,7 +386,16 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
             <Select
               required
               options={updatedOptions}
-              value={selectedValue}
+              value={
+                selectedValue
+                  ? [
+                      {
+                        label: selectedValue,
+                        id: selectedValue,
+                      },
+                    ]
+                  : []
+              }
               onChange={handleChangeValue}
               overrides={{
                 ControlContainer: {
