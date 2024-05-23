@@ -28,7 +28,15 @@ import { SurgeryTypesService } from 'src/surgeryTypes/surgeryTypes.service';
 import { TransporterService } from 'src/transporter';
 import { SystemTemplates } from 'src/transporter/transporter.types';
 import { UsersService } from 'src/users/users.service';
-import { In, Repository } from 'typeorm';
+import {
+  Between,
+  Equal,
+  FindManyOptions,
+  ILike,
+  In,
+  LessThanOrEqual,
+  Repository,
+} from 'typeorm';
 import { CalendarService } from '../calendar/calendar.service';
 import { HistoryService } from '../history/history.service';
 import { PatientMailData } from './types';
@@ -318,5 +326,126 @@ export class SurgeryService {
       action: HistoryAction.DELETE,
       ipAddress,
     });
+  }
+
+  async findSelected(
+    practiceId: string,
+    includeDelete: boolean = false,
+    months: string[] = [],
+    searchMRNName?: string,
+    option?: string,
+  ): Promise<SurgeryEntity[]> {
+    const monthMap: Record<string, number> = {
+      January: 0,
+      February: 1,
+      March: 2,
+      April: 3,
+      May: 4,
+      June: 5,
+      July: 6,
+      August: 7,
+      September: 8,
+      October: 9,
+      November: 10,
+      December: 11,
+    };
+
+    const dbPracticeHomesByPractice =
+      await this.practiceHomesService.getPracticeHomesByPractice(practiceId);
+
+    // Initialize where clause
+    const whereClause = {
+      practiceHome: {
+        id: In(dbPracticeHomesByPractice.map((ele) => ele.id)),
+      },
+    };
+
+    const searchConditions: FindManyOptions<SurgeryEntity> = {
+      where: whereClause,
+      withDeleted: includeDelete,
+      relations: [
+        'practiceHome',
+        'surgeryConfiguration',
+        'patient',
+        'insuranceType',
+        'patient.referrer',
+        'doctor',
+      ],
+    };
+
+    if (option && option.toLowerCase() === 'past') {
+      const today = new Date();
+      whereClause['date'] = LessThanOrEqual(today);
+    }
+
+    if (months && months.length > 0) {
+      const invalidMonths = months.filter((month) => !(month in monthMap));
+      if (invalidMonths.length > 0) {
+        throw new Error(
+          'Invalid month format. Expected array with valid month names.',
+        );
+      }
+      const currentYear = new Date().getFullYear();
+
+      const dateConditions = months.map((month) => {
+        const monthIndex = monthMap[month];
+        const startDate = new Date(currentYear, monthIndex, 1);
+        const endDate = new Date(currentYear, monthIndex + 1, 0);
+        return { date: Between(startDate, endDate) };
+      });
+
+      if (
+        searchMRNName !== undefined &&
+        searchMRNName !== null &&
+        searchMRNName !== ''
+      ) {
+        const mrnNumber = parseInt(searchMRNName, 10);
+        if (!isNaN(mrnNumber)) {
+          searchConditions.where = dateConditions.map((condition) => ({
+            ...whereClause,
+            ...condition,
+            patient: { mrn: Equal(mrnNumber) },
+          }));
+        } else {
+          searchConditions.where = dateConditions.map((condition) => ({
+            ...whereClause,
+            ...condition,
+            patient: [
+              { firstName: ILike(`%${searchMRNName}%`) },
+              { lastName: ILike(`%${searchMRNName}%`) },
+            ],
+          }));
+        }
+      } else {
+        searchConditions.where = dateConditions.map((condition) => ({
+          ...whereClause,
+          ...condition,
+        }));
+      }
+    } else if (
+      searchMRNName !== undefined &&
+      searchMRNName !== null &&
+      searchMRNName !== ''
+    ) {
+      const mrnNumber = parseInt(searchMRNName, 10);
+      if (!isNaN(mrnNumber)) {
+        whereClause['patient'] = {
+          ...whereClause['patient'],
+          mrn: Equal(mrnNumber),
+        };
+      } else {
+        whereClause['patient'] = [
+          { firstName: ILike(`%${searchMRNName}%`) },
+          { lastName: ILike(`%${searchMRNName}%`) },
+        ];
+      }
+    }
+
+    const dbSurgeryByPractice =
+      await this.surgeryRepository.find(searchConditions);
+
+    dbSurgeryByPractice.forEach((ele) => (ele.doctor.password = ''));
+
+    return dbSurgeryByPractice;
   }
 }

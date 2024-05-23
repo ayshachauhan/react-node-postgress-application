@@ -15,35 +15,89 @@ import { useUserPermission } from '@root/hooks/userHasPermission';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import {
   deleteRecordAsync,
+  fetchFilteredSurgeryList,
   fetchSurgeryInfo,
 } from '@root/store/reducers/surgery';
 import { usDateFormatter } from '@root/utils';
 import { monthOptions } from '@root/utils/constants';
 import { Select } from 'baseui/select';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import DeleteFilterModal from './DeleteFilterModal';
 import EditableRow from './EditableRow';
 
-interface MonthOption {
+interface OtherOption {
   label: string;
   value: string;
 }
 
+interface MonthOption {
+  label: string;
+  value: string;
+  id: string;
+}
+
 const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
   const dispatch = useAppDispatch();
-
-  const currentMonthIndex = new Date().getMonth() + 1;
-  const currentMonthOption = {
-    label: monthOptions[currentMonthIndex - 1].label,
-    value: monthOptions[currentMonthIndex - 1].value,
-  };
-
-  const [searchMRN, setSearchMRN] = useState('');
+  const [searchMRNName, setSearchMRNName] = useState('');
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [clonedDivs, setClonedDivs] = useState<string[]>([]);
   const [selectedAction, setSelectedAction] = useState<string | null>(null);
   const [selectedRow, setSelectedRow] = useState<string | null>(null);
-  const [selectedMonth, setSelectedMonth] = React.useState<MonthOption[]>([
+  const userInfo = useAppSelector((state) => state.auth.user);
+  const userPermissions = userInfo?.permissions;
+
+  const viewPastCases = useUserPermission(userPermissions, [
+    USER_PERMISSIONS.VIEW_PAST_CASES,
+  ]);
+
+  const viewFutureCases = useUserPermission(userPermissions, [
+    USER_PERMISSIONS.VIEW_FUTURE_CASES,
+  ]);
+
+  const deleteCaseAllowed = useUserPermission(userPermissions, [
+    USER_PERMISSIONS.DELETE_CASE,
+  ]);
+
+  const editCaseAllowed = useUserPermission(userPermissions, [
+    USER_PERMISSIONS.EDIT_CASE,
+  ]);
+
+  const viewBillingColumn = useUserPermission(userPermissions, [
+    USER_PERMISSIONS.VIEW_BILLING,
+  ]);
+
+  const getMonthOptions = (
+    viewPastCases: boolean,
+    viewFutureCases: boolean,
+  ) => {
+    const currentMonth = new Date().getMonth() + 1;
+    return monthOptions.map((option) => {
+      const optionMonth = parseInt(option.value, 10);
+      const isPastMonth = optionMonth < currentMonth;
+      const isFutureMonth = optionMonth > currentMonth;
+      return {
+        ...option,
+        disabled:
+          (!viewPastCases && isPastMonth) ||
+          (!viewFutureCases && isFutureMonth),
+      };
+    });
+  };
+
+  const updatedMonthOptions: MonthOption[] = useMemo(
+    () => getMonthOptions(viewPastCases, viewFutureCases),
+    [viewPastCases, viewFutureCases],
+  );
+
+  const getCurrentMonthOption = (): MonthOption => {
+    const currentMonth = new Date().getMonth() + 1;
+    return updatedMonthOptions.find(
+      (option) => option.value === currentMonth.toString(),
+    )!;
+  };
+  const currentMonthOption = getCurrentMonthOption();
+
+  const [selectedMonth, setSelectedMonth] = useState<MonthOption[]>([
     currentMonthOption,
   ]);
 
@@ -98,28 +152,18 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
     </div>
   );
 
-  const userInfo = useAppSelector((state) => state.auth.user);
-  const userPermissions = userInfo?.permissions;
+  const getUpdatedOptions = (viewPastCases: boolean) => [
+    { label: 'Waitlist', value: '1' },
+    { label: 'IOL', value: '2' },
+    { label: 'Past', value: '3', disabled: !viewPastCases },
+  ];
 
-  const viewPastCases = useUserPermission(userPermissions, [
-    USER_PERMISSIONS.VIEW_PAST_CASES,
-  ]);
+  const updatedOptions = useMemo(
+    () => getUpdatedOptions(viewPastCases),
+    [viewPastCases],
+  );
 
-  const viewFutureCases = useUserPermission(userPermissions, [
-    USER_PERMISSIONS.VIEW_FUTURE_CASES,
-  ]);
-
-  const deleteCaseAllowed = useUserPermission(userPermissions, [
-    USER_PERMISSIONS.DELETE_CASE,
-  ]);
-
-  const editCaseAllowed = useUserPermission(userPermissions, [
-    USER_PERMISSIONS.EDIT_CASE,
-  ]);
-
-  const viewBillingColumn = useUserPermission(userPermissions, [
-    USER_PERMISSIONS.VIEW_BILLING,
-  ]);
+  const [selectedValue, setSelectedValue] = React.useState<OtherOption[]>([]);
 
   const modifiedObj = {};
   const modifyEvalList = surgeryList
@@ -201,53 +245,21 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
     }
   };
 
-  const getMonthOptions = (
-    viewPastCases: boolean,
-    viewFutureCases: boolean,
-  ) => {
-    const currentMonth = new Date().getMonth() + 1;
-    return monthOptions.map((option) => {
-      const optionMonth = parseInt(option.value, 10);
-      const isPastMonth = optionMonth < currentMonth;
-      const isFutureMonth = optionMonth > currentMonth;
-      return {
-        ...option,
-        disabled:
-          (!viewPastCases && isPastMonth) ||
-          (!viewFutureCases && isFutureMonth),
-      };
-    });
-  };
-
-  const updatedMonthOptions = useMemo(
-    () => getMonthOptions(viewPastCases, viewFutureCases),
-    [viewPastCases, viewFutureCases],
-  );
-  const [selectedValue, setSelectedValue] = useState([]);
   const handleChangeValue = ({ value }) => {
+    console.log('Selected value:', value);
     setSelectedValue(value);
+    if (value.length > 0 && value[0].label === 'Past') {
+      setSelectedMonth([]);
+    }
   };
-
-  const getUpdatedOptions = (viewPastCases: boolean) => [
-    { label: 'Waitlist', value: '1' },
-    { label: 'IOL', value: '2' },
-    { label: 'Past', value: '3', disabled: !viewPastCases },
-    { label: 'Reset', value: '4' },
-  ];
-
-  const updatedOptions = useMemo(
-    () => getUpdatedOptions(viewPastCases),
-    [viewPastCases],
-  );
 
   const handleChangeMonth = ({ value }) => {
     setSelectedMonth(value);
   };
-  ('');
 
-  const handleSearchMRNChange = (value) => {
+  const handleSearchMRNNameChange = (value) => {
     const mrn = value.toLowerCase();
-    setSearchMRN(mrn);
+    setSearchMRNName(mrn);
   };
 
   const handleCloneClick = (rowId: string) => {
@@ -285,6 +297,42 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
     setSelectedRow(null);
   };
 
+  useEffect(() => {
+    dispatchFetchFilteredSurgeryList(
+      selectedMonth,
+      searchMRNName,
+      selectedValue,
+    );
+  }, [dispatch, selectedMonth, searchMRNName, selectedValue]);
+
+  const dispatchFetchFilteredSurgeryList = (
+    selectedMonth: MonthOption[],
+    searchMRNName: string,
+    selectedValue: OtherOption[],
+  ) => {
+    const monthLabels = selectedMonth.map((month) => month.label);
+    const month = monthLabels.join(',');
+    const selectedOption = selectedValue
+      .map((option) => option.label)
+      .join(',');
+    dispatch(
+      fetchFilteredSurgeryList({
+        practiceId,
+        month: month,
+        searchMRNName,
+        option: selectedOption,
+      }),
+    );
+  };
+
+  useEffect(() => {
+    dispatchFetchFilteredSurgeryList(
+      selectedMonth,
+      searchMRNName,
+      selectedValue,
+    );
+  }, [dispatch]);
+
   return (
     <div className="overflow-x-auto">
       <div className="flex w-full bg-purple-50 px-2 border-t border-b border-gray-200 items-center">
@@ -303,8 +351,8 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
             <div className="items-center">
               <TextInput
                 name="search"
-                value={searchMRN}
-                onChange={handleSearchMRNChange}
+                value={searchMRNName}
+                onChange={handleSearchMRNNameChange}
                 placeholder="Search MRN or Name"
               />
             </div>
@@ -315,9 +363,14 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
           <div>
             <Select
               required
+              placeholder="Select Month"
               options={updatedMonthOptions}
               value={selectedMonth}
               onChange={handleChangeMonth}
+              disabled={
+                selectedValue.length > 0 && selectedValue[0].value === 'Past'
+              } // Disable the select if "Past" option is selected
+              multi
               overrides={{
                 ControlContainer: {
                   style: {

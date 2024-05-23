@@ -1,6 +1,8 @@
 import { CreateSurgeryPayload, UpdateSurgeryPayload } from '@packages/entities';
+import { constructQueryParams } from '@utils/index';
 import Cookies from 'js-cookie';
 import { publicRuntimeConfig } from 'next.config';
+
 const { API_BASE_URL } = publicRuntimeConfig;
 
 const getIpAddress = async (): Promise<string> => {
@@ -32,6 +34,49 @@ export const getSurgeries = async (
         },
       },
     );
+    if (!response.ok) {
+      throw new Error('Failed to get surgery');
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    return rejectWithValue(error);
+  }
+};
+
+export const getFilteredSurgeries = async (
+  payloadData: {
+    practiceId: string;
+    includeDeleted?: boolean;
+    month?: string;
+    searchMRNName?: string;
+    option?: string;
+  },
+  { rejectWithValue },
+) => {
+  try {
+    const accessToken = Cookies.get('access_token');
+    const queryParams = constructQueryParams({
+      includeDeleted: payloadData.includeDeleted,
+      month: payloadData.month,
+      searchMRNName: payloadData.searchMRNName,
+      option: payloadData.option,
+    });
+    const response = await fetch(
+      `${API_BASE_URL}/practices/${
+        payloadData.practiceId
+      }/surgery/search${queryParams}&includeDeleted=${
+        payloadData.includeDeleted ?? false
+      }`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+      },
+    );
+
     if (!response.ok) {
       throw new Error('Failed to get surgery');
     }
