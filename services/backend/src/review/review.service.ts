@@ -103,8 +103,21 @@ export class ReviewService {
   async getReviews(practiceId: string) {
     const reviews = await this.reviews.find({
       where: { practiceId },
+      relations: ['practice', 'patient'],
     });
-    return reviews;
+
+    return reviews.map(review => ({
+      practiceId: review.practiceId,
+      practiceName: review.practice.name,
+      patientId: review.patientId,
+      patientName: `${review.patient.firstName} ${review.patient.lastName}`,
+      MRN: review.patient.mrn,
+      reviewStatus: review.reviewStatus,
+      reviewDate: review.reviewDate,
+      reviewComment: review.reviewComment,
+      source: review.source,
+      emailOpened: review.emailOpened,
+    }));
   }
 
   async getReviewByName(practiceId: string): Promise<ReviewEntity[]> {

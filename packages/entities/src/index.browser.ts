@@ -13,3 +13,4 @@ export * from './surgeryConfiguration/surgeryConfiguration.interface';
 export * from './surgeryType/surgeryType.interface';
 export * from './template/template.interface';
 export * from './user/user.interface';
+export * from './review/review.interface';

@@ -9,6 +9,7 @@ import {
   ISurgeryConfiguration,
   ISurgeryType,
   IUser,
+  IReview,
 } from '@packages/entities/index.browser';
 import { PracticesGetInterface } from 'src/store/requests/practices';
 import { GetUserResponse } from './requests/login/types';
@@ -77,4 +78,8 @@ export type TemplateState = EntitiesState<GetTemplatesResponse> & {
 
 export type PermissionState = EntitiesState<IPermission> & {
   permissionInfo: IPermission | null;
+};
+
+export type ReviewState = EntitiesState<IReview> & {
+  reviewInfo: IReview | null;
 };

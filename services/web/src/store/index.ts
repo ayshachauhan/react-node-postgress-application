@@ -15,6 +15,7 @@ import surgeryTypeReducer from './reducers/surgeryTypes';
 import templatesReducer from './reducers/templates';
 import permissionsReducer from './reducers/userPermissions';
 import usersReducer from './reducers/users';
+import reviewReducer from './reducers/review';
 
 export const store = configureStore({
   reducer: {
@@ -32,6 +33,7 @@ export const store = configureStore({
     calendars: calendarReducer,
     surgeryConfigurations: surgeryConfigurationReducer,
     permissions: permissionsReducer,
+    reviews: reviewReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(apiMiddleware),

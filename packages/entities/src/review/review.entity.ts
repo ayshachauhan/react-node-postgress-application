@@ -1,16 +1,12 @@
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { BaseEntity } from '../base.entity';
 import { IReview } from '../review';
 import { ReviewStatus } from '../review/review.interface';
+import { PracticeEntity } from '../practice';
+import { PatientEntity } from '../patient';
 
 @Entity('review')
 export class ReviewEntity extends BaseEntity implements IReview {
-  @Column({ type: 'uuid' })
-  practiceId: string;
-
-  @Column({ type: 'varchar' })
-  patientId: string;
-
   @Column({ type: 'enum', enum: ReviewStatus })
   reviewStatus: ReviewStatus;
 
@@ -19,4 +15,18 @@ export class ReviewEntity extends BaseEntity implements IReview {
 
   @Column({ type: 'varchar', default: null })
   reviewComment: string;
+
+  @Column({ type: 'varchar', default: null })
+  source: string;
+
+  @Column({ type: 'boolean', default: false })
+  emailOpened: boolean;
+
+  @ManyToOne(() => PracticeEntity)
+  @JoinColumn({ name: 'practiceId' })
+  practice: PracticeEntity;
+
+  @ManyToOne(() => PatientEntity)
+  @JoinColumn({ name: 'patientId' })
+  patient: PatientEntity;
 }

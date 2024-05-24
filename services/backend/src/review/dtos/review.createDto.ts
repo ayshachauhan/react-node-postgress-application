@@ -7,14 +7,6 @@ export class CreateReviewDto {
   @ApiProperty()
   patientId: string;
 
-  @IsNotEmpty({ message: 'MRN is required' })
-  @ApiProperty()
-  MRN: string;
-
-  @IsNotEmpty({ message: 'Patient email is required' })
-  @ApiProperty()
-  email: string;
-
   @IsNotEmpty({ message: 'Status is required' })
   @ApiProperty()
   @IsEnum(ReviewStatus)
@@ -31,4 +23,8 @@ export class CreateReviewDto {
   @IsOptional()
   @ApiProperty()
   source: string;
+
+  @IsOptional()
+  @ApiProperty()
+  emailOpened: boolean;
 }

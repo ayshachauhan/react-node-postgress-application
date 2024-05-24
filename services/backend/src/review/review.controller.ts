@@ -76,8 +76,8 @@ export class ReviewController {
       throw new NotFoundException('Keyword must be provided for search.');
     }
     try {
-      const referrers = await this.reviewService.getReviewByName(practiceId);
-      return referrers;
+      const reviews = await this.reviewService.getReviewByName(practiceId);
+      return reviews;
     } catch (error) {
       throw new NotFoundException('No referrers found.');
     }

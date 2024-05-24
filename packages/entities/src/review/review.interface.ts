@@ -1,11 +1,14 @@
+import { IPatient } from 'src/patient';
 import { IBaseEntity } from '../base.interface';
+import { IPractice } from 'src/practice';
 
 export interface IReview extends IBaseEntity {
-  patientId: string;
-  practiceId: string;
+  patient: IPatient;
+  practice: IPractice;
   reviewDate: Date;
   reviewComment: string;
   reviewStatus: ReviewStatus;
+  source: string;
 }
 
 export enum ReviewStatus {
