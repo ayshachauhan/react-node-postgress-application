@@ -1,7 +1,6 @@
 'use client';
 
 import { useAppSelector } from '@root/store';
-import { selectRecords } from '@root/store/reducers/auth';
 import { ChevronDown, ChevronRightSmall } from 'baseui/icon';
 import clsx from 'clsx';
 import Link from 'next/link';
@@ -12,7 +11,7 @@ const Sidebar: React.FC = () => {
   const [activeMenuItemId, setActiveMenuItemId] = useState<string>('');
   const [activeChildMenuItemId, setActiveChildMenuItemId] =
     useState<string>('');
-  const userInfo = useAppSelector(selectRecords);
+  const userInfo = useAppSelector((state) => state.auth.user);
   const is_super_admin = userInfo ? userInfo.isSuperAdmin : false;
   const userType = is_super_admin ? 'super_admin' : 'admin';
   const filteredSidebarItems: SideBarItem[] = filterSidebarItems(
@@ -39,7 +38,7 @@ const Sidebar: React.FC = () => {
   return (
     <aside
       aria-label="Sidebar"
-      className="fixed top-0 left-0 w-64 h-screen translate-x-0 bg-gradient-to-b from-primary-dark to-primary-light"
+      className="fixed top-0 left-0 w-40 h-screen translate-x-0 bg-gradient-to-b from-primary-dark to-primary-light"
     >
       <div className="h-[168px] flex px-4 items-center justify-start">
         <Link href="/dashboard">

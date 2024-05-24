@@ -53,17 +53,67 @@ export class PatientsService {
         );
       }
     }
-    const newPatient = this.patientRepository.create({
-      practice: practiceEntity,
-      referrer: referrerEntity,
-      ...createPatientDto,
-    });
-    return await this.patientRepository.save(newPatient);
+    const mrnCheck = await this.getPatientsByMrn(
+      practiceEntity.id,
+      createPatientDto.mrn,
+    );
+
+    if (mrnCheck) {
+      if (referrerEntity.dateCreated) {
+        await this.patientRepository.update(mrnCheck.id, {
+          referrer: referrerEntity,
+        });
+
+        const updatedPatient = await this.getPatientsByMrn(
+          practiceEntity.id,
+          createPatientDto.mrn,
+        );
+
+        if (updatedPatient) {
+          return updatedPatient;
+        } else {
+          return mrnCheck;
+        }
+      } else {
+        return mrnCheck;
+      }
+    } else {
+      const newPatient = this.patientRepository.create({
+        practice: practiceEntity,
+        referrer: referrerEntity,
+        ...createPatientDto,
+      });
+      return await this.patientRepository.save(newPatient);
+    }
   }
 
-  async getUsersByPractice(practiceId: string): Promise<PatientEntity[]> {
+  async update({ id, practiceId, data }): Promise<PatientEntity | null> {
+    await this.patientRepository.update(id, {
+      firstName: data.firstName,
+      lastName: data.lastName,
+      mrn: data.mrn,
+      details: data.details,
+    });
+
+    return await this.patientRepository.findOne({
+      where: { id, practice: { id: practiceId } },
+    });
+  }
+
+  async getPatientsByPractice(practiceId: string): Promise<PatientEntity[]> {
     return this.patientRepository.find({
       where: { practice: { id: practiceId } },
+      relations: ['referrer'],
+    });
+  }
+
+  async getPatientsByMrn(
+    practiceId: string,
+    mrn: number,
+  ): Promise<PatientEntity | null> {
+    return this.patientRepository.findOne({
+      where: { practice: { id: practiceId }, mrn },
+      relations: ['referrer'],
     });
   }
 }

@@ -1,3 +1,4 @@
+import { IPatient } from '@packages/entities';
 import {
   GetTemplatesResponse,
   IEval,
@@ -82,4 +83,7 @@ export type PermissionState = EntitiesState<IPermission> & {
 
 export type ReviewState = EntitiesState<IReview> & {
   reviewInfo: IReview | null;
+};
+export type PatientState = EntitiesState<IPatient> & {
+  patientInfo: IPatient | null;
 };

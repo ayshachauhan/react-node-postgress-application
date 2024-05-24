@@ -46,14 +46,13 @@ export function generateFullName(firstName: string, lastName: string): string {
   }
 }
 
-export function toFullName({
-  firstName,
-  lastName,
-}: {
-  firstName: string;
-  lastName: string;
-}) {
-  return generateFullName(firstName, lastName);
+export function toFullName(
+  input: { firstName?: string; lastName?: string } | undefined,
+) {
+  if (!input) {
+    return '';
+  }
+  return generateFullName(input.firstName ?? '', input.lastName ?? '');
 }
 
 export function usDateFormatter(date: Date): string {
@@ -93,4 +92,13 @@ export function formatHeaderDate(dateString: string) {
   }).format(date);
   const finalDate = formattedDate.replace(/(?<=^\w+),/, '');
   return finalDate;
+}
+
+export function formatDate(dateString: Date) {
+  const date = new Date(dateString);
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const day = date.getDate().toString().padStart(2, '0');
+  const year = date.getFullYear().toString();
+
+  return `${month}/${day}/${year}`;
 }

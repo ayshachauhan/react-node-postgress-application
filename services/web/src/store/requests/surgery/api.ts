@@ -1,18 +1,29 @@
-import { CreateSurgeryPayload } from '@packages/entities/index.browser';
+import { CreateSurgeryPayload, UpdateSurgeryPayload } from '@packages/entities';
 import Cookies from 'js-cookie';
 import { publicRuntimeConfig } from 'next.config';
 const { API_BASE_URL } = publicRuntimeConfig;
 
+const getIpAddress = async (): Promise<string> => {
+  const response = await fetch('https://api.ipify.org?format=json&ipv=4');
+
+  const data = await response.json();
+
+  return data.ip;
+};
+
 export const getSurgeries = async (
   payloadData: {
     practiceId: string;
+    includeDeleted?: boolean;
   },
   { rejectWithValue },
 ) => {
   try {
     const accessToken = Cookies.get('access_token');
     const response = await fetch(
-      `${API_BASE_URL}/practices/${payloadData.practiceId}/surgery`,
+      `${API_BASE_URL}/practices/${
+        payloadData.practiceId
+      }/surgery?includeDeleted=${payloadData.includeDeleted ?? false}`,
       {
         method: 'GET',
         headers: {
@@ -42,7 +53,10 @@ export const addSurgery = async (payloadData: CreateSurgeryPayload) => {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${accessToken}`,
         },
-        body: JSON.stringify(payloadData),
+        body: JSON.stringify({
+          ...payloadData,
+          ipAddress: await getIpAddress(),
+        }),
       },
     );
     const data = await response.json();
@@ -69,6 +83,9 @@ export const deleteSurgery = async (
           'Content-Type': 'application/json',
           Authorization: `Bearer ${accessToken}`,
         },
+        body: JSON.stringify({
+          ipAddress: await getIpAddress(),
+        }),
       },
     );
     if (!response.ok) {
@@ -103,17 +120,46 @@ export const getSurgeryInfo = async (
     const response = await fetch(
       `${API_BASE_URL}/practices/${payloadData.practiceId}/surgery/${payloadData.id}`,
       {
-        method: 'POST',
+        method: 'GET',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${accessToken}`,
         },
-        body: JSON.stringify(payloadData),
+      },
+    );
+    const data = await response.json();
+
+    return data;
+  } catch (error) {
+    return rejectWithValue(error);
+  }
+};
+
+export const updateSurgery = async ({
+  payload,
+  id,
+}: {
+  payload: UpdateSurgeryPayload;
+  id: string;
+}) => {
+  try {
+    const { practiceId } = payload;
+    delete payload.practiceId;
+    const accessToken = Cookies.get('access_token');
+    const response = await fetch(
+      `${API_BASE_URL}/practices/${practiceId}/surgery/${id}`,
+      {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({ ...payload, ipAddress: await getIpAddress() }),
       },
     );
     const data = await response.json();
     return data;
   } catch (error) {
-    return rejectWithValue(error);
+    return error;
   }
 };

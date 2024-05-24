@@ -5,6 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import {
   CalendarEntity,
   EvalEntity,
+  HistoryEntity,
   InsuranceTypeEntity,
   PatientEntity,
   PermissionEntity,
@@ -94,8 +95,9 @@ export const createInfraModuleProviders = (): Array<
           EvalEntity,
           ReviewEntity,
           SurgeryConfigurationEntity,
+          HistoryEntity,
         ],
-        synchronize: true,
+        synchronize: false,
       }),
     }),
     TransporterModule.forRootAsync({

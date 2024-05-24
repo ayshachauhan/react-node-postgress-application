@@ -2,8 +2,7 @@ import { ITemplateUpdate } from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
 import { useAppDispatch, useAppSelector } from '@root/store';
-import { selectRecords } from '@root/store/reducers/auth';
-import { fetchListings as fetchSurgeryTypes } from '@root/store/reducers/surgeryTypes';
+import { fetchListings as fetchSurgeryConfigurations } from '@root/store/reducers/surgeryConfigurations';
 import {
   deleteRecordAsync,
   fetchListings,
@@ -25,14 +24,14 @@ interface ChildProps {
 }
 
 const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
-  const handleSurgeryTypeChange = ({ value }) => {
-    const selectedSurgeryType = value[0];
+  const handleSurgeryConfiguration = ({ value }) => {
+    const selectedSurgeryConfiguration = value[0];
     setTemplateInfo({
       ...updatedTemplateInfo,
-      surgeryType: selectedSurgeryType,
+      surgeryConfiguration: selectedSurgeryConfiguration,
     });
   };
-  const userInfo = useAppSelector(selectRecords);
+  const userInfo = useAppSelector((state) => state.auth.user);
   const userId = userInfo?.id;
   const dispatch = useAppDispatch();
   const practiceId = getPracticeId();
@@ -112,15 +111,19 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
 
   useEffect(() => {
     if (practiceId !== null) {
-      dispatch(fetchSurgeryTypes({ practiceId: practiceId }));
+      dispatch(fetchSurgeryConfigurations({ practiceId: practiceId }));
     }
   }, [practiceId, dispatch]);
 
-  const surgeryTypes = useAppSelector((state) => state.surgeryTypes.entities);
-  const surgeryTypeOptions = Object.keys(surgeryTypes).map((key) => ({
-    label: surgeryTypes[key].name,
-    id: surgeryTypes[key].id,
-  }));
+  const surgeryConfigurations = useAppSelector(
+    (state) => state.surgeryConfigurations.entities,
+  );
+  const surgeryConfigurationOptions = Object.keys(surgeryConfigurations).map(
+    (key) => ({
+      label: surgeryConfigurations[key].name,
+      id: surgeryConfigurations[key].id,
+    }),
+  );
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -132,9 +135,9 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
         emailAttachment: updatedTemplateInfo.emailAttachment ?? '',
         emailBody: updatedTemplateInfo.emailBody ?? '',
         messageText: updatedTemplateInfo.messageText ?? '',
-        surgeryTypeId: updatedTemplateInfo.surgeryType
-          ? updatedTemplateInfo.surgeryType.id
-          : surgeryTypeOptions[0].id,
+        surgeryConfigurationId: updatedTemplateInfo.surgeryConfiguration
+          ? updatedTemplateInfo.surgeryConfiguration.id
+          : surgeryConfigurationOptions[0].id,
         practiceId: practiceId,
         userId: userId,
         id: templateId,
@@ -170,21 +173,22 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
             </div>
             <div className="flex flex-row items-center gap-2">
               <label
-                htmlFor="surgeryType"
+                htmlFor="surgeryConfiguration"
                 className="text-black text-sm font-normal"
               >
                 Surgery:
               </label>
               <div className="w-56 text-sm text-gray-600">
                 <Select
-                  options={surgeryTypeOptions}
-                  onChange={handleSurgeryTypeChange}
+                  options={surgeryConfigurationOptions}
+                  onChange={handleSurgeryConfiguration}
                   value={
-                    updatedTemplateInfo?.surgeryType
+                    updatedTemplateInfo?.surgeryConfiguration
                       ? [
                           {
-                            label: updatedTemplateInfo.surgeryType?.name,
-                            id: updatedTemplateInfo.surgeryType?.id,
+                            label:
+                              updatedTemplateInfo.surgeryConfiguration?.name,
+                            id: updatedTemplateInfo.surgeryConfiguration?.id,
                           },
                         ]
                       : []

@@ -23,7 +23,7 @@ module "azentia-backend" {
     DB_HOST = module.shared.rds_endpoint
   }
 
-  host_names = ["api-qa-azentia.anakshiant.in"]
+  host_names = ["api-qa.pod111.com"]
 }
 
 
@@ -42,5 +42,5 @@ module "azentia-web" {
 
   environment_variables_override = {}
 
-  host_names = ["qa-azentia.anakshiant.in"]
+  host_names = ["app-qa.pod111.com"]
 }

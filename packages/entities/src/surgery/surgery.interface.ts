@@ -11,13 +11,13 @@ export interface ISurgery extends IBaseEntity {
   insuranceType: IInsuranceType;
   insuranceDetails: string;
   date: Date;
-  eye: string;
   doctor: ISanitizedUser;
-  surgeryOption: string[];
   bodyPart: string;
   selectedSurgeryOptions: SelectedSurgeryOption;
   totalHospitalPricing: number;
   totalProfessionalPricing: number;
+  selectedCheckListOptions: CheckListOptions;
+  dateDeleted?: Date;
 }
 
 export interface CreateSurgeryPayload {
@@ -27,7 +27,7 @@ export interface CreateSurgeryPayload {
   insuranceTypeId?: string;
   insuranceDetails?: string;
   date: Date;
-  mrn: string;
+  mrn: number;
   firstName: string;
   lastName: string;
   email: string;
@@ -40,6 +40,7 @@ export interface CreateSurgeryPayload {
   selectedSurgeryOptions: SelectedSurgeryOption;
   totalHospitalPricing: number;
   totalProfessionalPricing: number;
+  selectedCheckListOptions?: CheckListOptions;
 }
 
 export interface SelectedSurgeryOption {
@@ -54,4 +55,24 @@ export enum ProcedureStatus {
   BOOKED = 'Booked',
   INPROGRESS = 'In progress',
   COMPLETE = 'Complete',
+}
+export interface CheckListOptions {
+  [ket: string]: {
+    value: string;
+  };
+}
+
+export interface UpdateSurgeryPayload {
+  practiceId?: string;
+  insuranceTypeId?: string;
+  date: Date;
+  firstName: string;
+  lastName: string;
+  mrn: number;
+  bodyPart: string;
+  selectedSurgeryOptions: SelectedSurgeryOption;
+  selectedCheckListOptions?: CheckListOptions;
+  totalHospitalPricing: number;
+  totalProfessionalPricing: number;
+  details?: string;
 }

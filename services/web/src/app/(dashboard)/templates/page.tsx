@@ -4,7 +4,6 @@ import { AddIcon } from '@root/components/Icons';
 import AddTemplateModal from '@root/components/templates/AddTemplateModal';
 import UpdateTemplateModal from '@root/components/templates/UpdateTemplateModal';
 import { useAppDispatch, useAppSelector } from '@root/store';
-import { selectRecords } from '@root/store/reducers/auth';
 import {
   clearErrorMessage,
   clearSuccessMessage,
@@ -55,7 +54,7 @@ const Templates: React.FC = () => {
   const handleCloseAddModal = (): void => {
     setIsAddModalOpen(false);
   };
-  const userInfo = useAppSelector(selectRecords);
+  const userInfo = useAppSelector((state) => state.auth.user);
   const userId = userInfo?.id;
 
   useEffect(() => {
@@ -127,7 +126,7 @@ const Templates: React.FC = () => {
           <React.Fragment key={i}>
             <div className="rounded-lg shadow-md w-[370px] h-292 relative">
               <div className="text-white py-2.5 text-center bg-gradient-to-r from-primary-light to-primary-dark uppercase rounded-t-lg font-bold">
-                {data?.surgeryTypeName}
+                {data?.surgeryConfigurationName}
               </div>
               <div className="rounded-lg" style={{ height: '245px' }}>
                 <div className="grid grid-rows-5 h-full p-2">

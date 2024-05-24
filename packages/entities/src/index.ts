@@ -1,6 +1,7 @@
 export * from './base.entity';
 export * from './calendar';
 export * from './eval';
+export * from './history';
 export * from './insuranceType';
 export * from './media';
 export * from './patient';

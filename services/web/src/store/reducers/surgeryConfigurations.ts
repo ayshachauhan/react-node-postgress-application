@@ -144,9 +144,10 @@ const surgeryConfigurationsSlice = createSlice({
     builder.addCase(editRecordAsync.rejected, (state, action) => {
       state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
-        state.errorMessage = action.payload ?? 'Failed to delete surgery type';
+        state.errorMessage =
+          action.payload ?? 'Failed to update surgery config';
       } else {
-        state.errorMessage = 'Failed to delete surgery config';
+        state.errorMessage = 'Failed to update surgery config';
       }
     });
   },
