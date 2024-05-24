@@ -43,10 +43,8 @@ export class SurgeryController {
   @Get('search')
   async searchSurgeries(
     @Param() { practiceId }: { practiceId: string },
-    @Query(new ValidationPipe()) { includeDeleted }: QueryDto,
-    @Query('month') monthQueryParam: string,
-    @Query('searchMRNName') searchMRNName?: string,
-    @Query('option') option?: string,
+    @Query(new ValidationPipe())
+    { includeDeleted, monthQueryParam, searchMRNName, option }: QueryDto,
   ): Promise<SurgeryEntity[]> {
     let month: string[] = [];
     if (monthQueryParam && monthQueryParam.trim() !== '') {

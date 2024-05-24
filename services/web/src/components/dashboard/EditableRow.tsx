@@ -264,6 +264,10 @@ function EditableRow({
                     })
                   }
                   size={SIZE.mini}
+                  disabled={
+                    !surgeryInfo.surgeryConfiguration.options[optionsHeader]
+                      ?.edit_admin_option
+                  }
                   overrides={{
                     ControlContainer: {
                       style: {
