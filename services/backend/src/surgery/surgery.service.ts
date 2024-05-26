@@ -32,6 +32,8 @@ import {
   Between,
   Equal,
   FindManyOptions,
+  FindOperator,
+  FindOptionsWhere,
   ILike,
   In,
   LessThanOrEqual,
@@ -40,6 +42,14 @@ import {
 import { CalendarService } from '../calendar/calendar.service';
 import { HistoryService } from '../history/history.service';
 import { PatientMailData } from './types';
+
+type WhereClause = {
+  practiceHome: {
+    id: ReturnType<typeof In>;
+  };
+  date?: Date | FindOperator<Date>;
+  patient?: FindOptionsWhere<PatientEntity> | FindOptionsWhere<PatientEntity>[];
+};
 
 @Injectable()
 export class SurgeryService {
@@ -335,26 +345,33 @@ export class SurgeryService {
     searchMRNName?: string,
     option?: string,
   ): Promise<SurgeryEntity[]> {
-    const monthMap: Record<string, number> = {
-      January: 0,
-      February: 1,
-      March: 2,
-      April: 3,
-      May: 4,
-      June: 5,
-      July: 6,
-      August: 7,
-      September: 8,
-      October: 9,
-      November: 10,
-      December: 11,
-    };
+    const monthNames = [
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
+    ];
+
+    const monthMap: Record<string, number> = monthNames.reduce(
+      (acc, month, index) => {
+        acc[month] = index;
+        return acc;
+      },
+      {} as Record<string, number>,
+    );
 
     const dbPracticeHomesByPractice =
       await this.practiceHomesService.getPracticeHomesByPractice(practiceId);
 
-    // Initialize where clause
-    const whereClause = {
+    const whereClause: WhereClause = {
       practiceHome: {
         id: In(dbPracticeHomesByPractice.map((ele) => ele.id)),
       },
@@ -373,79 +390,69 @@ export class SurgeryService {
       ],
     };
 
-    if (option && option.toLowerCase() === 'past') {
+    if (option?.toLowerCase() === 'past') {
       const today = new Date();
-      whereClause['date'] = LessThanOrEqual(today);
+      whereClause.date = LessThanOrEqual(today);
     }
 
-    if (months && months.length > 0) {
+    const currentYear = new Date().getFullYear();
+
+    if (months.length > 0) {
       const invalidMonths = months.filter((month) => !(month in monthMap));
       if (invalidMonths.length > 0) {
         throw new Error(
           'Invalid month format. Expected array with valid month names.',
         );
       }
-      const currentYear = new Date().getFullYear();
 
       const dateConditions = months.map((month) => {
         const monthIndex = monthMap[month];
         const startDate = new Date(currentYear, monthIndex, 1);
-        const endDate = new Date(currentYear, monthIndex + 1, 0);
+        const endDate = new Date(
+          currentYear,
+          monthIndex + 1,
+          0,
+          23,
+          59,
+          59,
+          999,
+        );
         return { date: Between(startDate, endDate) };
       });
 
-      if (
-        searchMRNName !== undefined &&
-        searchMRNName !== null &&
-        searchMRNName !== ''
-      ) {
-        const mrnNumber = parseInt(searchMRNName, 10);
-        if (!isNaN(mrnNumber)) {
-          searchConditions.where = dateConditions.map((condition) => ({
-            ...whereClause,
-            ...condition,
-            patient: { mrn: Equal(mrnNumber) },
-          }));
-        } else {
-          searchConditions.where = dateConditions.map((condition) => ({
-            ...whereClause,
-            ...condition,
-            patient: [
-              { firstName: ILike(`%${searchMRNName}%`) },
-              { lastName: ILike(`%${searchMRNName}%`) },
-            ],
-          }));
-        }
-      } else {
-        searchConditions.where = dateConditions.map((condition) => ({
-          ...whereClause,
-          ...condition,
-        }));
+      if (searchMRNName) {
+        updateWhereClauseWithSearchName(whereClause, searchMRNName);
       }
-    } else if (
-      searchMRNName !== undefined &&
-      searchMRNName !== null &&
-      searchMRNName !== ''
-    ) {
-      const mrnNumber = parseInt(searchMRNName, 10);
-      if (!isNaN(mrnNumber)) {
-        whereClause['patient'] = {
-          ...whereClause['patient'],
-          mrn: Equal(mrnNumber),
-        };
-      } else {
-        whereClause['patient'] = [
-          { firstName: ILike(`%${searchMRNName}%`) },
-          { lastName: ILike(`%${searchMRNName}%`) },
-        ];
-      }
+
+      searchConditions.where = dateConditions.map((condition) => ({
+        ...whereClause,
+        ...condition,
+      }));
+    } else if (searchMRNName) {
+      updateWhereClauseWithSearchName(whereClause, searchMRNName);
     }
 
     const dbSurgeryByPractice =
       await this.surgeryRepository.find(searchConditions);
-
-    dbSurgeryByPractice.forEach((ele) => (ele.doctor.password = ''));
+    dbSurgeryByPractice.forEach((ele) => {
+      ele.doctor.password = '';
+    });
 
     return dbSurgeryByPractice;
+  }
+}
+
+function updateWhereClauseWithSearchName(
+  whereClause: WhereClause,
+  searchMRNName: string,
+): void {
+  const mrnNumber = parseInt(searchMRNName, 10);
+  if (!isNaN(mrnNumber)) {
+    whereClause.patient = { mrn: Equal(mrnNumber) };
+  } else {
+    whereClause.patient = [
+      { firstName: ILike(`%${searchMRNName}%`) },
+      { lastName: ILike(`%${searchMRNName}%`) },
+    ];
   }
 }
