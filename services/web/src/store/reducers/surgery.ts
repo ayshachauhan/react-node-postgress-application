@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { State } from '@root/store';
+import { indexBy } from '@root/utils/index';
 import {
   addSurgery,
   deleteSurgery,
@@ -37,7 +38,7 @@ const surgeriesSlicer = createSlice({
 
     builder.addCase(fetchListings.fulfilled, (state, action) => {
       state.status = EntityLoadingState.SUCCEEDED;
-      state.entities = action.payload;
+      state.entities = indexBy('id', action.payload);
     });
 
     builder.addCase(fetchListings.rejected, (state, action) => {
