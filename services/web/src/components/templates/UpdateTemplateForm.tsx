@@ -1,7 +1,7 @@
 import { ITemplateUpdate } from '@packages/entities/index.browser';
+import { USER_PERMISSIONS } from '@packages/entities/permission';
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
-import { USER_PERMISSIONS } from '@root/enums/userPermissions.enums';
 import { useUserPermission } from '@root/hooks/userHasPermission';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { fetchListings as fetchSurgeryConfigurations } from '@root/store/reducers/surgeryConfigurations';

@@ -10,6 +10,7 @@ import {
   UsersIcon,
 } from '@components/Icons';
 import { IPermission } from '@packages/entities/index.browser';
+import { USER_PERMISSIONS } from '@packages/entities/permission';
 import { useUserPermission } from '@root/hooks/userHasPermission';
 
 export type SideBarItem = {
@@ -49,7 +50,7 @@ export const sidebarItems: SideBarItem[] = [
     title: 'Templates',
     path: '/templates',
     permissions: ['admin'],
-    userPermissions: ['view_templates'],
+    userPermissions: [USER_PERMISSIONS.VIEW_TEMPLATES],
     Icon: TemplateIcon,
   },
   {
@@ -57,7 +58,7 @@ export const sidebarItems: SideBarItem[] = [
     title: 'Messages',
     path: '/messages',
     permissions: ['admin'],
-    userPermissions: ['view_msg'],
+    userPermissions: [USER_PERMISSIONS.VIEW_MSG],
     Icon: MessageIcon,
   },
   {
@@ -65,7 +66,7 @@ export const sidebarItems: SideBarItem[] = [
     title: 'History',
     path: '/history',
     permissions: ['admin'],
-    userPermissions: ['view_hx'],
+    userPermissions: [USER_PERMISSIONS.VIEW_HX],
     Icon: HistoryIcon,
   },
   {
@@ -73,7 +74,7 @@ export const sidebarItems: SideBarItem[] = [
     title: 'Media',
     path: '/media',
     permissions: ['admin'],
-    userPermissions: ['view_videos'],
+    userPermissions: [USER_PERMISSIONS.VIEW_VIDEOS],
     Icon: MediaIcon,
   },
   {
@@ -81,7 +82,7 @@ export const sidebarItems: SideBarItem[] = [
     title: 'Referrer',
     path: '/referrer',
     permissions: ['admin'],
-    userPermissions: ['view_referrers'],
+    userPermissions: [USER_PERMISSIONS.VIEW_REFERRERS],
     Icon: AddReferrerIcon,
   },
 
@@ -90,6 +91,7 @@ export const sidebarItems: SideBarItem[] = [
     title: 'Eval',
     path: '/eval',
     permissions: ['admin'],
+    userPermissions: [USER_PERMISSIONS.VIEW_NURTURE],
     Icon: DashboardIcon,
   },
   {

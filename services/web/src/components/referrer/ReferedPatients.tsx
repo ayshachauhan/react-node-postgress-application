@@ -1,6 +1,6 @@
 'use client';
 import { IPatient } from '@packages/entities';
-import { USER_PERMISSIONS } from '@root/enums/userPermissions.enums';
+import { USER_PERMISSIONS } from '@packages/entities/permission';
 import { useUserPermission } from '@root/hooks/userHasPermission';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import {

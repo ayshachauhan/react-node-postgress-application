@@ -7,9 +7,9 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { PermissionEntity, UserEntity } from '@packages/entities/*';
+import { USER_PERMISSIONS } from '@packages/entities/permission';
 import { Request } from 'express';
 import { ENVIRONMENT_VARIABLES } from 'src/enums/environment.enums';
-import { USER_PERMISSIONS } from 'src/enums/userPermissions.enums';
 import { UsersService } from 'src/users/users.service';
 import { SanitizedUser, SuperAdminUser } from './types';
 
