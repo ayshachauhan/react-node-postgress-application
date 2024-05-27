@@ -19,6 +19,7 @@ export class UpdateReferrer1716195053357 implements MigrationInterface {
         name: 'firstName',
         type: 'varchar',
         isNullable: false,
+        default: "''",
       }),
     );
 
