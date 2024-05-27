@@ -11,9 +11,11 @@ import { In, Repository } from 'typeorm';
 
 import { ConfigService } from '@nestjs/config';
 import { InsuranceTypeEntity } from '@packages/entities';
+import { EmailHandlerService } from 'src/emailHandler/emailHandler.service';
 import { ENVIRONMENT_VARIABLES } from 'src/enums/environment.enums';
 import { InsuranceTypesService } from 'src/insuranceTypes/insuranceTypes.service';
 import { SurgeryConfigurationsService } from 'src/surgeryConfiguration/surgeryConfiguration.service';
+import { TemplatesService } from 'src/templates/templates.service';
 import { SystemTemplates } from 'src/transporter/transporter.types';
 import { UsersService } from 'src/users/users.service';
 import { PatientMailData } from './types';
@@ -35,6 +37,10 @@ export class EvalsService {
     private userService: UsersService,
     @Inject(forwardRef(() => SurgeryConfigurationsService))
     private surgeryConfigurationService: SurgeryConfigurationsService,
+    @Inject(forwardRef(() => TemplatesService))
+    private templatesService: TemplatesService,
+    @Inject(forwardRef(() => EmailHandlerService))
+    private emailHandlerService: EmailHandlerService,
     private readonly configService: ConfigService,
     private readonly transporterService: TransporterService,
   ) {}
@@ -125,31 +131,45 @@ export class EvalsService {
       insuranceType: insuranceTypeEntity,
       doctor: doctorEntity,
     });
-    const mailOptions: Mail.Options = {
-      to: createEvalDto.email,
-      subject: 'Eval/surgery registered',
-      text: 'text message',
-    };
 
-    const mailData: PatientMailData = {
-      practiceName: practiceEntity?.name,
-      firstName: createEvalDto.firstName,
-      lastName: createEvalDto.lastName,
-      mrn: createEvalDto.mrn,
-      email: createEvalDto.email,
-      phoneNumber: createEvalDto.phoneNumber,
-      date: createEvalDto.date,
-      surgeryType: surgeryConfigurationEntity?.name,
-      practiceHome: practiceHomeEntity?.name,
-      insuranceType: insuranceTypeEntity?.name,
-      insuranceDetails: createEvalDto.insuranceDetails,
-    };
+    const templateExists = await this.templatesService.getFilteredTemplates({
+      surgeryConfigurationId: createEvalDto.surgeryConfigurationId,
+      messageType: 'booking',
+    });
 
-    await this.transporterService.sendSystemEmails(
-      mailOptions,
-      mailData,
-      SystemTemplates.NOTIFY_PATIENT,
-    );
+    if (templateExists[0]) {
+      await this.emailHandlerService.checkAndMakeEmailContent(
+        createEvalDto.surgeryConfigurationId,
+        resultEval.id,
+        resultEval.date,
+      );
+    } else {
+      const mailOptions: Mail.Options = {
+        to: createEvalDto.email,
+        subject: 'Eval/surgery registered',
+        text: 'text message',
+      };
+
+      const mailData: PatientMailData = {
+        practiceName: practiceEntity?.name,
+        firstName: createEvalDto.firstName,
+        lastName: createEvalDto.lastName,
+        mrn: createEvalDto.mrn,
+        email: createEvalDto.email,
+        phoneNumber: createEvalDto.phoneNumber,
+        date: createEvalDto.date,
+        surgeryType: surgeryConfigurationEntity?.name,
+        practiceHome: practiceHomeEntity?.name,
+        insuranceType: insuranceTypeEntity?.name,
+        insuranceDetails: createEvalDto.insuranceDetails,
+      };
+
+      await this.transporterService.sendSystemEmails(
+        mailOptions,
+        mailData,
+        SystemTemplates.NOTIFY_PATIENT,
+      );
+    }
 
     return resultEval;
   }

@@ -1,5 +1,6 @@
 export * from './base.entity';
 export * from './calendar';
+export * from './emailLogs';
 export * from './eval';
 export * from './history';
 export * from './insuranceType';

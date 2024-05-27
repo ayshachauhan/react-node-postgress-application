@@ -1,5 +1,6 @@
 export * from './base.interface';
 export * from './calendar/calendar.interface';
+export * from './emailLogs/emailLogs.interface';
 export * from './eval/eval.interface';
 export * from './history/history.interface';
 export * from './insuranceType/insuranceType.interface';

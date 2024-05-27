@@ -90,6 +90,7 @@ export class TemplatesService {
         TemplateMessageType[templatePatchDto.messageType];
     }
 
+    delete templatePatchDto.surgeryConfigurationId;
     await this.templateRepository.update(id, {
       ...templateToUpdate,
       ...templatePatchDto,
@@ -126,5 +127,20 @@ export class TemplatesService {
     } else {
       return 'V1';
     }
+  }
+
+  async getFilteredTemplates(query: {
+    [key: string]: string;
+  }): Promise<TemplateEntity[]> {
+    const where = {};
+
+    if (query.surgeryConfigurationId) {
+      where['surgeryConfiguration'] = { id: query.surgeryConfigurationId };
+    }
+
+    if (query.messageType) {
+      where['messageType'] = query.messageType;
+    }
+    return this.templateRepository.find({ where });
   }
 }

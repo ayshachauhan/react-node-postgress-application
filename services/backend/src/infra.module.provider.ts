@@ -4,6 +4,7 @@ import { JwtModule, JwtService } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import {
   CalendarEntity,
+  EmailLogEntity,
   EvalEntity,
   HistoryEntity,
   InsuranceTypeEntity,
@@ -94,6 +95,7 @@ export const createInfraModuleProviders = (): Array<
           EvalEntity,
           SurgeryConfigurationEntity,
           HistoryEntity,
+          EmailLogEntity,
         ],
         synchronize: false,
       }),

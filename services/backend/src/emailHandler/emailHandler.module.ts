@@ -1,9 +1,7 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { EvalEntity } from '@packages/entities/eval';
-import { EmailHandlerModule } from 'src/emailHandler/emailHandler.module';
-import { EvalsController } from 'src/evals/evals.controller';
-import { EvalsService } from 'src/evals/evals.service';
+import { EmailLogEntity } from '@packages/entities';
+import { EmailHandlerService } from 'src/emailHandler/emailHandler.service';
 import { InsuranceTypesModule } from 'src/insuranceTypes/insuranceTypes.module';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
 import { PatientsModule } from 'src/patients/patients.module';
@@ -15,7 +13,7 @@ import { UsersModule } from 'src/users/users.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([EvalEntity]),
+    TypeOrmModule.forFeature([EmailLogEntity]),
     forwardRef(() => PracticesModule),
     forwardRef(() => PatientsModule),
     forwardRef(() => SurgeryConfigurationsModule),
@@ -23,7 +21,6 @@ import { UsersModule } from 'src/users/users.module';
     forwardRef(() => InsuranceTypesModule),
     forwardRef(() => UsersModule),
     forwardRef(() => TemplatesModule),
-    forwardRef(() => EmailHandlerModule),
   ],
   providers: [
     practiceNotFoundInterceptor,
@@ -31,9 +28,8 @@ import { UsersModule } from 'src/users/users.module';
       provide: 'PRACTICE_NOT_FOUND_MESSAGE',
       useValue: 'Practice not found',
     },
-    EvalsService,
+    EmailHandlerService,
   ],
-  controllers: [EvalsController],
-  exports: [EvalsService],
+  exports: [EmailHandlerService],
 })
-export class EvalsModule {}
+export class EmailHandlerModule {}
