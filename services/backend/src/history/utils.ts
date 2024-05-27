@@ -1,11 +1,18 @@
 import {
   CheckListOptions,
   EntityChanges,
+  EvalEntity,
   SelectedSurgeryOption,
   SurgeryEntity,
 } from '@packages/entities';
+import { UpdateEvalDto } from 'src/evals/dto/updateEval.dto';
 import { UpdateSurgeryDto } from '../surgery/dto/updateSurgery.dto';
 
+/**
+ * @param oldObj Current Object
+ * @param newObj New Object with updated values
+ * @returns Changes key with their values in both object by comparing the values upto one nested level object
+ */
 export const findChangedValues = (oldObj, newObj): EntityChanges => {
   const changedValues: Partial<EntityChanges> = {};
 
@@ -57,6 +64,17 @@ export type SurgeryChangesKeyValues = {
   insuranceName: string;
 };
 
+export type EvalChangesKeyValues = {
+  bodyPart: string;
+  date: Date;
+  details: string;
+  firstName: string;
+  lastName: string;
+  mrn: number;
+  status: string;
+  insuranceName: string;
+};
+
 export const transformSurgeryObject = (
   data: SurgeryEntity,
 ): SurgeryChangesKeyValues => {
@@ -65,7 +83,7 @@ export const transformSurgeryObject = (
     date: new Date(data.date),
     details: data.patient.details,
     firstName: data.patient.firstName,
-    insuranceName: data.insuranceType.name,
+    insuranceName: data?.insuranceType?.name,
     lastName: data.patient.lastName,
     mrn: data.patient.mrn,
     selectedCheckListOptions: data.selectedCheckListOptions,
@@ -94,5 +112,43 @@ export const transformUpdateSurgeryDTO = (
     totalHospitalPricing: data.totalHospitalPricing,
     //@ts-expect-error types are not right in dto, but we are gettig these in body
     totalProfessionalPricing: data.totalProfessionalPricing,
+  };
+};
+
+/**
+ *
+ * @param data
+ * @returns transformed udpateeval dto for finding changed values
+ */
+export const transformUpdateEvalDTO = (
+  data: UpdateEvalDto & { insuranceName: string },
+): EvalChangesKeyValues => {
+  return {
+    bodyPart: data.bodyPart,
+    date: new Date(data.date),
+    details: data.details,
+    firstName: data.firstName,
+    insuranceName: data?.insuranceName,
+    lastName: data.lastName,
+    mrn: data.mrn,
+    status: data.status,
+  };
+};
+
+/**
+ *
+ * @param data
+ * @returns transformed eval entity object to find changed values
+ */
+export const transformEvalObject = (data: EvalEntity): EvalChangesKeyValues => {
+  return {
+    bodyPart: data.bodyPart,
+    date: new Date(data.date),
+    details: data.patient.details,
+    firstName: data.patient.firstName,
+    insuranceName: data?.insuranceType?.name,
+    lastName: data.patient.lastName,
+    mrn: data.patient.mrn,
+    status: data.status,
   };
 };

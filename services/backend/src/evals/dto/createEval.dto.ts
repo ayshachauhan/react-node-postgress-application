@@ -65,4 +65,7 @@ export class CreateEvalDto {
   @IsNotEmpty({ message: 'doctorId is required' })
   @ApiProperty()
   doctorId: string;
+
+  @IsNotEmpty()
+  ipAddress: string;
 }

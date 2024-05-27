@@ -1,4 +1,5 @@
 import { CreateEvalInterface, UpdateEValInterface } from '@packages/entities';
+import { getIpAddress } from '@root/utils';
 import Cookies from 'js-cookie';
 import { publicRuntimeConfig } from 'next.config';
 const { API_BASE_URL } = publicRuntimeConfig;
@@ -6,13 +7,16 @@ const { API_BASE_URL } = publicRuntimeConfig;
 export const getEvals = async (
   payloadData: {
     practiceId: string;
+    includeDeleted?: boolean;
   },
   { rejectWithValue },
 ) => {
   try {
     const accessToken = Cookies.get('access_token');
     const response = await fetch(
-      `${API_BASE_URL}/practices/${payloadData.practiceId}/evals`,
+      `${API_BASE_URL}/practices/${
+        payloadData.practiceId
+      }/evals?includeDeleted=${payloadData.includeDeleted ?? false}`,
       {
         method: 'GET',
         headers: {
@@ -42,7 +46,10 @@ export const addEval = async (payloadData: CreateEvalInterface) => {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${accessToken}`,
         },
-        body: JSON.stringify(payloadData),
+        body: JSON.stringify({
+          ...payloadData,
+          ipAddress: await getIpAddress(),
+        }),
       },
     );
     const data = await response.json();
@@ -69,7 +76,10 @@ export const updateEval = async ({
           'Content-Type': 'application/json',
           Authorization: `Bearer ${accessToken}`,
         },
-        body: JSON.stringify(payloadData),
+        body: JSON.stringify({
+          ...payloadData,
+          ipAddress: await getIpAddress(),
+        }),
       },
     );
     const data = await response.json();
@@ -96,6 +106,9 @@ export const deleteEval = async (
           'Content-Type': 'application/json',
           Authorization: `Bearer ${accessToken}`,
         },
+        body: JSON.stringify({
+          ipAddress: await getIpAddress(),
+        }),
       },
     );
     if (!response.ok) {

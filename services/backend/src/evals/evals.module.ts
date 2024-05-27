@@ -10,6 +10,7 @@ import { PracticeHomesModule } from 'src/practiceHomes/practiceHomes.module';
 import { PracticesModule } from 'src/practices/practices.module';
 import { SurgeryConfigurationsModule } from 'src/surgeryConfiguration/surgeryConfiguration.module';
 import { UsersModule } from 'src/users/users.module';
+import { HistoryModule } from '../history/history.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { UsersModule } from 'src/users/users.module';
     forwardRef(() => PracticeHomesModule),
     forwardRef(() => InsuranceTypesModule),
     forwardRef(() => UsersModule),
+    forwardRef(() => HistoryModule),
   ],
   providers: [
     practiceNotFoundInterceptor,

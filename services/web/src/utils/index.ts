@@ -102,3 +102,10 @@ export function formatDate(dateString: Date) {
 
   return `${month}/${day}/${year}`;
 }
+
+export const getIpAddress = async (): Promise<string> => {
+  const response = await fetch('https://api.ipify.org?format=json&ipv=4');
+
+  const data = await response.json();
+  return data.ip;
+};
