@@ -53,4 +53,7 @@ export class UpdateEvalDto {
   @IsNotEmpty()
   @ApiProperty()
   status: string;
+
+  @IsNotEmpty()
+  ipAddress: string;
 }

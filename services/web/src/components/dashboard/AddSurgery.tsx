@@ -43,6 +43,9 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
   const practiceId = getPracticeId();
   const router = useRouter();
   const defaultUser = usersList.find((ele) => ele.id === getSelectedUserId);
+  const [selectedUser, setSelectedUser] = useState(
+    defaultUser ? [{ label: toFullName(defaultUser), id: defaultUser.id }] : [],
+  );
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -161,18 +164,19 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
   }));
 
   const referrersOptions = Object.keys(referrersList).map((key) => ({
-    label:
-      referrersList[key].email +
-      (referrersList[key].firstName
-        ? ` (${toFullName(referrersList[key])})`
-        : ''),
+    label: referrersList[key].email
+      ? `${toFullName(referrersList[key])} (${referrersList[key].email})`
+      : `${toFullName(referrersList[key])}`,
     id: referrersList[key].id,
   }));
+  console.log(usersList);
 
-  const usersOptions = usersList.map((key) => ({
-    label: key ? toFullName(key) : '',
-    id: key.id,
-  }));
+  const usersOptions = usersList
+    .filter((ele) => ele.type === 'doctor')
+    .map((key) => ({
+      label: key ? toFullName(key) : '',
+      id: key.id,
+    }));
 
   const handleSurgeryNameChange = ({ value }) => {
     setSurgeryNameId(value[0] ? value[0].id : null);
@@ -195,7 +199,9 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
   };
 
   const handleDoctorChange = ({ value }) => {
-    setDoctorId(value[0] ? value[0].id : null);
+    const newDoctorId = value[0] ? value[0].id : null;
+    setDoctorId(newDoctorId);
+    setSelectedUser(value);
   };
 
   const handleMrnChange = ({ value }) => {
@@ -335,11 +341,7 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
                 required
                 options={usersOptions}
                 onChange={handleDoctorChange}
-                value={
-                  defaultUser
-                    ? [{ label: toFullName(defaultUser), id: defaultUser.id }]
-                    : []
-                }
+                value={selectedUser}
                 overrides={{
                   ControlContainer: {
                     style: {

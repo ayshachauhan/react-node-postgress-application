@@ -1,5 +1,7 @@
 'use client';
 import { IPatient } from '@packages/entities';
+import { USER_PERMISSIONS } from '@packages/entities/permission';
+import { useUserPermission } from '@root/hooks/userHasPermission';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import {
   clearErrorMessage,
@@ -22,6 +24,11 @@ const ReferedPatients = ({ referrerId }) => {
   );
   const referredPatients = referrerInfo?.patients;
   const dispatch = useAppDispatch();
+  const userInfo = useAppSelector((state) => state.auth.user);
+  const userPermissions = userInfo?.permissions;
+  const viewBillingColumn = useUserPermission(userPermissions, [
+    USER_PERMISSIONS.VIEW_BILLING,
+  ]);
 
   useEffect(() => {
     if (practiceId !== null && referrerId !== null) {
@@ -67,7 +74,9 @@ const ReferedPatients = ({ referrerId }) => {
             Surgery Date
           </div>
           <div className="font-bold text-white py-4 w-40">Options</div>
-          <div className="font-bold text-white px-2 py-4 flex-1">Billing</div>
+          {viewBillingColumn && (
+            <div className="font-bold text-white px-2 py-4 flex-1">Billing</div>
+          )}
         </div>
         <div className="border border-gray-300 rounded-b-md">
           {referredPatients && referredPatients.length > 0 ? (
@@ -104,7 +113,14 @@ const ReferedPatients = ({ referrerId }) => {
                           .join(', ')
                       : 'NA'}
                   </div>
-                  <div className="text-gray-900 px-2 flex-1">Billing</div>
+                  {viewBillingColumn && (
+                    <div className="text-gray-900 px-2 flex-1">
+                      {data?.surgeries && data?.surgeries[0]
+                        ? +data.surgeries[0].totalProfessionalPricing +
+                          +data.surgeries[0].totalHospitalPricing
+                        : 0}
+                    </div>
+                  )}
                 </div>
               </React.Fragment>
             ))

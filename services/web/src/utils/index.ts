@@ -1,3 +1,8 @@
+import { ISurgery } from '@packages/entities';
+type RecordsByDate = {
+  [key: string]: ISurgery[];
+};
+
 export function indexBy<K extends keyof T, T>(
   key: K,
   array: T[],
@@ -102,3 +107,28 @@ export function formatDate(dateString: Date) {
 
   return `${month}/${day}/${year}`;
 }
+
+export function removePastSurgeries(surgeries: RecordsByDate) {
+  const currentDate = new Date();
+  const filteredSurgeries = {};
+
+  for (const key in surgeries) {
+    if (Object.prototype.hasOwnProperty.call(surgeries, key)) {
+      const [month, day] = key.split('/').map(Number);
+      const recordDate = new Date(currentDate.getFullYear(), month - 1, day);
+
+      if (recordDate >= currentDate) {
+        filteredSurgeries[key] = surgeries[key];
+      }
+    }
+  }
+
+  return filteredSurgeries;
+}
+
+export const getIpAddress = async (): Promise<string> => {
+  const response = await fetch('https://api.ipify.org?format=json&ipv=4');
+
+  const data = await response.json();
+  return data.ip;
+};

@@ -118,11 +118,9 @@ const SurgeryPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   }));
 
   const referrersOptions = Object.keys(referrersList).map((key) => ({
-    label:
-      referrersList[key].email +
-      (referrersList[key].firstName
-        ? ` (${toFullName(referrersList[key])})`
-        : ''),
+    label: referrersList[key].email
+      ? `${toFullName(referrersList[key])} (${referrersList[key].email})`
+      : `${toFullName(referrersList[key])}`,
     id: referrersList[key].id,
   }));
 
@@ -280,6 +278,7 @@ const SurgeryPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                     component: () => null,
                   },
                 }}
+                onBlurResetsInput={false}
                 required
               />
               <div className="space-y-4"></div>
@@ -486,11 +485,7 @@ const SurgeryPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                     }),
                   },
                 }}
-                checked={checkboxes[1]}
-                onChange={(e) => {
-                  const target = e.target as HTMLInputElement;
-                  setCheckboxes([checkboxes[0], target.checked]);
-                }}
+                checked={referrerId ? true : false}
               >
                 Notify referrer
               </Checkbox>
