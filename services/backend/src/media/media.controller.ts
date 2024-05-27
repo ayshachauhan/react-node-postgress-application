@@ -11,7 +11,9 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { USER_PERMISSIONS } from '@packages/entities/permission';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { PermissionGuard } from 'src/auth/userPermissions.guard';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
 import { CreateVideoDto } from './dtos/createVideo.dto';
 import { UpdateVideoDto } from './dtos/update.video.dto';
@@ -25,12 +27,14 @@ export class MediaController {
   constructor(private mediaService: MediaService) {}
 
   @Get()
+  @UseGuards(PermissionGuard(USER_PERMISSIONS.VIEW_VIDEOS))
   @UseInterceptors(practiceNotFoundInterceptor)
   getVideosByPractice(@Param('practiceId') practiceId: string) {
     return this.mediaService.getVideosByPracticeId(practiceId);
   }
 
   @Get(':id')
+  @UseGuards(PermissionGuard(USER_PERMISSIONS.VIEW_VIDEOS))
   @UseInterceptors(practiceNotFoundInterceptor)
   getVideoById(@Param() params: { practiceId: string; id: string }) {
     const { practiceId, id } = params;

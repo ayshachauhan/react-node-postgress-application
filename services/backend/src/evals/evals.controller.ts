@@ -14,7 +14,9 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { EvalEntity } from '@packages/entities/eval';
+import { USER_PERMISSIONS } from '@packages/entities/permission';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { PermissionGuard } from 'src/auth/userPermissions.guard';
 import { CreateEvalDto } from 'src/evals/dto/createEval.dto';
 import { EvalsService } from 'src/evals/evals.service';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
@@ -30,6 +32,7 @@ export class EvalsController {
   constructor(private readonly evalService: EvalsService) {}
 
   @Get()
+  @UseGuards(PermissionGuard(USER_PERMISSIONS.VIEW_NURTURE))
   @UseInterceptors(practiceNotFoundInterceptor)
   async findAll(
     @Param() { practiceId }: { practiceId: string },
@@ -40,12 +43,14 @@ export class EvalsController {
   }
 
   @Get(':id')
+  @UseGuards(PermissionGuard(USER_PERMISSIONS.VIEW_NURTURE))
   @UseInterceptors(practiceNotFoundInterceptor)
   async getEvalById(@Param('id') id: string): Promise<EvalEntity | null> {
     return await this.evalService.getEvalById(id);
   }
 
   @Post()
+  @UseGuards(PermissionGuard(USER_PERMISSIONS.ADD_CASE))
   @UseInterceptors(practiceNotFoundInterceptor)
   async create(
     @Body(new ValidationPipe()) createEvalDto: CreateEvalDto,
@@ -76,6 +81,7 @@ export class EvalsController {
   }
 
   @Delete(':id')
+  @UseGuards(PermissionGuard(USER_PERMISSIONS.DELETE_CASE))
   async remove(
     @Param()
     { id, practiceId }: { id: string; practiceId: string },

@@ -89,6 +89,8 @@ const UpcomingSection: React.FC = () => {
     }
   };
 
+  const currentDate = new Date();
+
   useEffect(() => {
     if (practiceId !== null) {
       dispatch(fetchListings({ practiceId }));
@@ -110,7 +112,6 @@ const UpcomingSection: React.FC = () => {
   };
 
   const filterCalendarByMonth = (calendars: CalendarData[]): CalendarData[] => {
-    const currentDate = new Date();
     const currentMonth = currentDate.getMonth();
     const currentYear = currentDate.getFullYear();
     const startDate = new Date(currentYear, currentMonth, 1);
@@ -166,7 +167,6 @@ const UpcomingSection: React.FC = () => {
   const filteredCalendars = filterCalendarByMonth(upcomingDates);
 
   const handleOpenModal = (isUpdating: boolean): void => {
-    console.log(isModalOpen, 'modalopen');
     setIsModalOpen(true);
     setIsUpdating(isUpdating);
   };

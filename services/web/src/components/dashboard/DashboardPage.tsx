@@ -15,6 +15,8 @@ import {
   fetchListings as fetchEvalsList,
 } from '@root/store/reducers/evals';
 
+import { USER_PERMISSIONS } from '@packages/entities/permission';
+import { useUserPermission } from '@root/hooks/userHasPermission';
 import { fetchListings as fetchInsuranceTypesList } from '@root/store/reducers/insuranceTypes';
 import { fetchListings as fetchPatients } from '@root/store/reducers/patient';
 import { fetchListings as fetchPracticeHomesListing } from '@root/store/reducers/practiceHomes';
@@ -26,15 +28,25 @@ import {
 import { fetchListings as fetchSurgeryConfigurationsListing } from '@root/store/reducers/surgeryConfigurations';
 import { fetchListings as fetchSurgeryTypesListing } from '@root/store/reducers/surgeryTypes';
 import { fetchListings as fetchUsersList } from '@root/store/reducers/users';
-
 import { getPracticeId, getUserId } from '@root/utils';
 import { Modal, ModalBody, ROLE, SIZE } from 'baseui/modal';
-
 import React, { useEffect, useState } from 'react';
+
 const DashboardPage: React.FC = () => {
   const dispatch = useAppDispatch();
   const practiceId = getPracticeId();
   const userId: string | null = getUserId();
+  const userInfo = useAppSelector((state) => state.auth.user);
+  const userPermissions = userInfo?.permissions;
+
+  const addCaseAllowed = useUserPermission(userPermissions, [
+    USER_PERMISSIONS.ADD_CASE,
+  ]);
+
+  const viewUserMetrics = useUserPermission(userPermissions, [
+    USER_PERMISSIONS.LEADERBOARD_DISPLAY,
+  ]);
+
   const { successMessage: addSurgerySuccessMessage, calendarSuccessMessage } =
     useAppSelector((state) => ({
       successMessage: state.surgeries.successMessage,
@@ -183,28 +195,32 @@ const DashboardPage: React.FC = () => {
             </div>
           )}
           <div className="flex">
-            <Button
-              kind="secondary"
-              title="Add"
-              height={40}
-              width={80}
-              onClick={handleOpenAddModal}
-              startEnhancer={() => (
-                <AddIcon className="mt-2" size={25}></AddIcon>
-              )}
-            />
+            {addCaseAllowed && (
+              <Button
+                kind="secondary"
+                title="Add"
+                height={40}
+                width={80}
+                onClick={handleOpenAddModal}
+                startEnhancer={() => (
+                  <AddIcon className="mt-2" size={25}></AddIcon>
+                )}
+              />
+            )}
           </div>
         </div>
       </div>
       <hr className="h-px my-1 px-0 mx-0 bg-gray-100 border-1 border-gray-100"></hr>
       <div className="mt-1">
-        <div className="flex justify-between gap-4">
+        <div className="flex gap-4">
           <div className="w-7/12 border border-solid rounded-lg px-2.5 py-2">
             <UpcomingSection />
           </div>
-          <div className="w-2/12 border border-solid rounded-lg px-2.5 py-2 text-lg">
-            <UsersListing />
-          </div>
+          {viewUserMetrics && (
+            <div className="w-2/12 border border-solid rounded-lg px-2.5 py-2 text-lg">
+              <UsersListing />
+            </div>
+          )}
           <div className="w-3/12 border border-solid rounded-lg px-2.5 py-2 text-lg">
             <SurgeryPercentage />
           </div>

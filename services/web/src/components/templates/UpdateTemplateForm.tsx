@@ -1,6 +1,8 @@
 import { ITemplateUpdate } from '@packages/entities/index.browser';
+import { USER_PERMISSIONS } from '@packages/entities/permission';
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
+import { useUserPermission } from '@root/hooks/userHasPermission';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { fetchListings as fetchSurgeryConfigurations } from '@root/store/reducers/surgeryConfigurations';
 import {
@@ -13,6 +15,7 @@ import { Checkbox, STYLE_TYPE } from 'baseui/checkbox';
 import { Select } from 'baseui/select';
 import { Textarea } from 'baseui/textarea';
 import React, { useEffect, useState } from 'react';
+
 interface Data {
   id: string;
   messageType: string;
@@ -33,6 +36,10 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
   };
   const userInfo = useAppSelector((state) => state.auth.user);
   const userId = userInfo?.id;
+  const userPermissions = userInfo?.permissions;
+  const editCaseAllowed = useUserPermission(userPermissions, [
+    USER_PERMISSIONS.EDIT_CASE,
+  ]);
   const dispatch = useAppDispatch();
   const practiceId = getPracticeId();
   const templateId = data.id;
@@ -304,7 +311,7 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
 
                   <Textarea
                     rows={8}
-                    value={updatedTemplateInfo?.emailBody}
+                    value={updatedTemplateInfo?.emailBody || ''}
                     onChange={handleHtmlChange}
                     clearOnEscape
                     overrides={{
@@ -334,7 +341,7 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
               <div className="mt-3">
                 <Textarea
                   rows={4}
-                  value={updatedTemplateInfo?.messageText}
+                  value={updatedTemplateInfo?.messageText || ''}
                   onChange={handleMessageTextChange}
                   clearOnEscape
                   overrides={{
@@ -413,7 +420,9 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
               backgroundColor: '#DC2626',
             }}
           />
-          <Button kind="primary" title="Update" width={136} />
+          {editCaseAllowed && (
+            <Button kind="primary" title="Update" width={136} />
+          )}
         </div>
       </form>
     </div>
