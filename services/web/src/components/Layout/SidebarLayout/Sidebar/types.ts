@@ -10,7 +10,7 @@ import {
   UsersIcon,
 } from '@components/Icons';
 import { IPermission } from '@packages/entities/index.browser';
-import { USER_PERMISSIONS } from '@root/enums/userPermissions.enums';
+import { USER_PERMISSIONS } from '@packages/entities/permission';
 import { useUserPermission } from '@root/hooks/userHasPermission';
 
 export type SideBarItem = {

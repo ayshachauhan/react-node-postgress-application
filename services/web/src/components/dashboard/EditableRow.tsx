@@ -1,7 +1,7 @@
 import { IInsuranceType, UpdateSurgeryPayload } from '@packages/entities';
+import { USER_PERMISSIONS } from '@packages/entities/permission';
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
-import { USER_PERMISSIONS } from '@root/enums/userPermissions.enums';
 import { useUserPermission } from '@root/hooks/userHasPermission';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { updateRecordAsync } from '@root/store/reducers/surgery';

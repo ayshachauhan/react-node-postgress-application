@@ -12,9 +12,9 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { EvalEntity } from '@packages/entities/eval';
+import { USER_PERMISSIONS } from '@packages/entities/permission';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { PermissionGuard } from 'src/auth/userPermissions.guard';
-import { USER_PERMISSIONS } from 'src/enums/userPermissions.enums';
 import { CreateEvalDto } from 'src/evals/dto/createEval.dto';
 import { EvalsService } from 'src/evals/evals.service';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';

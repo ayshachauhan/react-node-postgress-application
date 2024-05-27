@@ -1,5 +1,6 @@
 'use client';
 
+import { USER_PERMISSIONS } from '@packages/entities/permission';
 import Button from '@root/components/Button';
 import {
   AddIcon,
@@ -8,6 +9,7 @@ import {
   HomeIcon,
 } from '@root/components/Icons';
 import Form from '@root/components/eval/addEval/addEval';
+import { useUserPermission } from '@root/hooks/userHasPermission';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { fetchCalendars } from '@root/store/reducers/calendar';
 import {
@@ -30,9 +32,6 @@ import {
   usDateFormatter,
 } from '@root/utils';
 import { Modal, ModalBody, ROLE, SIZE } from 'baseui/modal';
-
-import { USER_PERMISSIONS } from '@root/enums/userPermissions.enums';
-import { useUserPermission } from '@root/hooks/userHasPermission';
 import React, { useEffect, useState } from 'react';
 import EditableRow from 'src/components/eval/editEval/editableRow';
 import DeleteEvalModal from './DeleteEvalModal';

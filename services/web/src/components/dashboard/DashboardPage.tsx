@@ -14,7 +14,7 @@ import {
   fetchListings as fetchEvalsList,
 } from '@root/store/reducers/evals';
 
-import { USER_PERMISSIONS } from '@root/enums/userPermissions.enums';
+import { USER_PERMISSIONS } from '@packages/entities/permission';
 import { useUserPermission } from '@root/hooks/userHasPermission';
 import { fetchListings as fetchInsuranceTypesList } from '@root/store/reducers/insuranceTypes';
 import { fetchListings as fetchPatients } from '@root/store/reducers/patient';
