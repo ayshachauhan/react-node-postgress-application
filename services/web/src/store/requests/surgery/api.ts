@@ -132,7 +132,7 @@ export const updateSurgery = async ({
   payload,
   id,
 }: {
-  payload: UpdateSurgeryPayload;
+  payload: Partial<UpdateSurgeryPayload>;
   id: string;
 }) => {
   try {
