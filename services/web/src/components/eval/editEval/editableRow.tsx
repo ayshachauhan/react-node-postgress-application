@@ -13,7 +13,6 @@ function EditableRow({ handleCancelClick, evalInfo, setSelectedAction }) {
   const practiceId = getPracticeId();
   const dispatch = useAppDispatch();
   const [obj, setObj] = useState<Partial<UpdateEValInterface>>({});
-
   const [insuranceTypeId, setInsuranceTypeId] = useState<string>('');
 
   const insuranceTypesList: IInsuranceType[] = useAppSelector((state) =>

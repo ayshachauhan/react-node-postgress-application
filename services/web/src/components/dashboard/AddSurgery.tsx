@@ -43,6 +43,9 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
   const practiceId = getPracticeId();
   const router = useRouter();
   const defaultUser = usersList.find((ele) => ele.id === getSelectedUserId);
+  const [selectedUser, setSelectedUser] = useState(
+    defaultUser ? [{ label: toFullName(defaultUser), id: defaultUser.id }] : [],
+  );
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -196,7 +199,9 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
   };
 
   const handleDoctorChange = ({ value }) => {
-    setDoctorId(value[0] ? value[0].id : null);
+    const newDoctorId = value[0] ? value[0].id : null;
+    setDoctorId(newDoctorId);
+    setSelectedUser(value);
   };
 
   const handleMrnChange = ({ value }) => {
@@ -336,11 +341,7 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
                 required
                 options={usersOptions}
                 onChange={handleDoctorChange}
-                value={
-                  defaultUser
-                    ? [{ label: toFullName(defaultUser), id: defaultUser.id }]
-                    : []
-                }
+                value={selectedUser}
                 overrides={{
                   ControlContainer: {
                     style: {

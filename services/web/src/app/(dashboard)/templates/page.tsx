@@ -11,6 +11,7 @@ import {
 } from '@root/store/reducers/templates';
 import { getPracticeId } from '@utils/index';
 import React, { useEffect, useState } from 'react';
+
 const Templates: React.FC = () => {
   const templates = useAppSelector((state) =>
     Object.values(state.templates.entities),
