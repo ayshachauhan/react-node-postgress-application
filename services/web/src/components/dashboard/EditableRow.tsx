@@ -6,7 +6,7 @@ import { updateRecordAsync } from '@root/store/reducers/surgery';
 import { getPracticeId } from '@root/utils';
 import { DatePicker } from 'baseui/datepicker';
 import { SIZE, Select } from 'baseui/select';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 function EditableRow({
   handleCancelClick,
@@ -16,6 +16,27 @@ function EditableRow({
 }) {
   const practiceId = getPracticeId();
   const dispatch = useAppDispatch();
+  const [obj, setObj] = useState<Partial<UpdateSurgeryPayload>>({});
+  const [insuranceTypeId, setInsuranceTypeId] = useState<string>('');
+
+  useEffect(() => {
+    if (surgeryInfo.id && surgeryInfo) {
+      setObj({
+        insuranceTypeId: surgeryInfo?.insuranceType?.name,
+        date: new Date(surgeryInfo.date),
+        firstName: surgeryInfo.patient.firstName,
+        lastName: surgeryInfo.patient.lastName,
+        details: surgeryInfo.patient.details,
+        bodyPart: surgeryInfo.bodyPart,
+        mrn: surgeryInfo.patient.mrn,
+        selectedSurgeryOptions: surgeryInfo.selectedSurgeryOptions,
+        selectedCheckListOptions: surgeryInfo.selectedCheckListOptions,
+        totalHospitalPricing: surgeryInfo.totalHospitalPricing,
+        totalProfessionalPricing: surgeryInfo.totalProfessionalPricing,
+      });
+      setInsuranceTypeId(surgeryInfo?.insuranceType?.id);
+    }
+  }, [surgeryInfo.id, surgeryInfo]);
 
   const insuranceTypesList: IInsuranceType[] = useAppSelector((state) =>
     Object.values(state.insuranceTypes.entities),
@@ -32,46 +53,44 @@ function EditableRow({
     id: key.id,
   }));
 
-  const [obj, setObj] = useState({
-    surgeryConfigurationId: surgeryInfo.surgeryConfiguration.id,
-    insuranceTypeId: surgeryInfo.insuranceType?.id,
-    insuranceDetails: '',
-    date: new Date(surgeryInfo.date),
-    firstName: surgeryInfo.patient.firstName,
-    lastName: surgeryInfo.patient.lastName,
-    email: surgeryInfo.patient.email,
-    phoneNumber: surgeryInfo.patient.phoneNumber,
-    details: surgeryInfo.patient.details,
-    bodyPart: surgeryInfo.bodyPart,
-    selectedSurgeryOptions: surgeryInfo.selectedSurgeryOptions,
-    selectedCheckListOption: surgeryInfo.selectedCheckListOptions
-      ? surgeryInfo.selectedCheckListOptions
-      : {},
-    totalHospitalPricing: surgeryInfo.totalHospitalPricing,
-    totalProfessionalPricing: surgeryInfo.totalProfessionalPricing,
-    home: surgeryInfo.practiceHome.name[0],
-    mrn: surgeryInfo.patient.mrn,
-  });
-
   const handleObjChange = (keyToUpdate: string, newValue) => {
     setObj((prevState) => ({
       ...prevState,
       [keyToUpdate]: newValue,
     }));
   };
+
+  const handleInsuranceTypeChange = ({ value }) => {
+    setInsuranceTypeId(value[0] ? value[0].id : null);
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (practiceId) {
-      delete obj.surgeryConfigurationId;
-      const payload: UpdateSurgeryPayload = {
+      const payload: Partial<UpdateSurgeryPayload> = {
         practiceId,
         ...obj,
+        insuranceTypeId,
       };
 
       await dispatch(updateRecordAsync({ payload, id: surgeryInfo.id }));
 
       setSelectedAction(null);
+      setInsuranceTypeId('');
+      setObj({
+        insuranceTypeId: '',
+        date: new Date(),
+        firstName: '',
+        lastName: '',
+        details: '',
+        bodyPart: '',
+        mrn: 0,
+        selectedSurgeryOptions: {},
+        selectedCheckListOptions: {},
+        totalHospitalPricing: 0,
+        totalProfessionalPricing: 0,
+      });
     }
   };
 
@@ -105,7 +124,7 @@ function EditableRow({
               size={SIZE.mini}
               disabled
               name="home"
-              value={obj.home}
+              value={surgeryInfo.practiceHome.name}
               onChange={(value) => handleObjChange('home', value)}
             />
           </div>
@@ -150,13 +169,14 @@ function EditableRow({
               disabled
               options={surgeryConfigurationsOptions}
               value={
-                obj.surgeryConfigurationId
+                surgeryInfo.surgeryConfiguration.id
                   ? [
                       {
-                        id: obj.surgeryConfigurationId,
+                        id: surgeryInfo.surgeryConfiguration.id,
                         label:
-                          surgeryConfigurationsList[obj.surgeryConfigurationId]
-                            .name,
+                          surgeryConfigurationsList[
+                            surgeryInfo.surgeryConfiguration.id
+                          ].name,
                       },
                     ]
                   : []
@@ -213,7 +233,14 @@ function EditableRow({
           </div>
 
           {customOptionsHeaders.map((optionsHeader, optionsHeaderIndex) => {
-            const selectOptionObj = obj.selectedSurgeryOptions[optionsHeader];
+            const selectOptionObj = obj.selectedSurgeryOptions
+              ? obj.selectedSurgeryOptions[optionsHeader]
+              : {
+                  id: '',
+                  value: '',
+                  hospitalPricing: 0,
+                  professionalPricing: 0,
+                };
             return (
               <div className="py-2 w-20" key={optionsHeaderIndex}>
                 <Select
@@ -226,8 +253,8 @@ function EditableRow({
                     return {
                       id: ele.name,
                       label: ele.name,
-                      hospitalPrice: ele.hospitalPrice,
-                      professionalPrice: ele.professionalPrice,
+                      hospitalPricing: ele.hospitalPricing,
+                      professionalPricing: ele.professionalPricing,
                     };
                   })}
                   value={
@@ -236,9 +263,9 @@ function EditableRow({
                           {
                             id: selectOptionObj.value,
                             value: selectOptionObj.value,
-                            hospitalPrice: selectOptionObj.hospitalPrice,
-                            professionalPrice:
-                              selectOptionObj.professionalPrice,
+                            hospitalPricing: selectOptionObj.hospitalPricing,
+                            professionalPricing:
+                              selectOptionObj.professionalPricing,
                           },
                         ]
                       : []
@@ -287,8 +314,9 @@ function EditableRow({
           </div>
           {customCheckListHeaders.map(
             (checkListHeader, checkListHeaderIndex) => {
-              const selectedChecklistOption =
-                obj.selectedCheckListOption[checkListHeader];
+              const selectedChecklistOption = obj.selectedCheckListOptions
+                ? obj.selectedCheckListOptions[checkListHeader]
+                : '';
 
               return (
                 <div className="py-2 px-1.5 w-20" key={checkListHeaderIndex}>
@@ -300,8 +328,8 @@ function EditableRow({
                         : ''
                     }
                     onChange={(value) =>
-                      handleObjChange('selectedCheckListOption', {
-                        ...obj.selectedCheckListOption,
+                      handleObjChange('selectedCheckListOptions', {
+                        ...obj.selectedCheckListOptions,
                         [checkListHeader]: { value },
                       })
                     }
@@ -343,15 +371,11 @@ function EditableRow({
                 label: ele.name,
               }))}
               value={
-                obj.insuranceTypeId
-                  ? insuranceTypesList.filter(
-                      (ele) => ele.id === obj.insuranceTypeId,
-                    )
+                insuranceTypeId
+                  ? [{ label: insuranceTypeId, id: insuranceTypeId }]
                   : []
               }
-              onChange={({ value }) =>
-                handleObjChange('insuranceTypeId', value[0].id)
-              }
+              onChange={handleInsuranceTypeChange}
               size={SIZE.mini}
               overrides={{
                 ControlContainer: {
