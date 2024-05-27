@@ -15,7 +15,7 @@ import { useUserPermission } from '@root/hooks/userHasPermission';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import {
   deleteRecordAsync,
-  fetchFilteredSurgeryList,
+  fetchListings,
   fetchSurgeryInfo,
 } from '@root/store/reducers/surgery';
 import { usDateFormatter } from '@root/utils';
@@ -311,7 +311,7 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
     const selectedOption = selectedValue;
 
     dispatch(
-      fetchFilteredSurgeryList({
+      fetchListings({
         practiceId,
         month: month,
         searchMRNName,

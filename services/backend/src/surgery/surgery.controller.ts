@@ -31,16 +31,8 @@ import { QueryDto } from './dto/getSurgery.dto';
 export class SurgeryController {
   constructor(private readonly surgeryService: SurgeryService) {}
 
-  @Get()
-  @UseInterceptors(practiceNotFoundInterceptor)
-  async findAll(
-    @Param() { practiceId }: { practiceId: string },
-    @Query(new ValidationPipe()) { includeDeleted }: QueryDto,
-  ): Promise<SurgeryEntity[]> {
-    return this.surgeryService.findAll(practiceId, includeDeleted);
-  }
-
   @Get('search')
+  @UseInterceptors(practiceNotFoundInterceptor)
   async searchSurgeries(
     @Param() { practiceId }: { practiceId: string },
     @Query(new ValidationPipe()) { includeDeleted }: QueryDto,

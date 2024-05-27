@@ -82,19 +82,47 @@ export class SurgeryService {
     return this.configService.get(ENVIRONMENT_VARIABLES.FRONT_END_BASE_URL);
   }
 
-  async findAll(
+  async findSelected(
     practiceId: string,
     includeDelete: boolean = false,
+    months: string[] = [],
+    searchMRNName?: string,
+    option?: string,
   ): Promise<SurgeryEntity[]> {
+    const monthNames = [
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
+    ];
+
+    const monthMap: Record<string, number> = monthNames.reduce(
+      (acc, month, index) => {
+        acc[month] = index;
+        return acc;
+      },
+      {} as Record<string, number>,
+    );
+
     const dbPracticeHomesByPractice =
       await this.practiceHomesService.getPracticeHomesByPractice(practiceId);
 
-    const dbSurgeryByPractice = await this.surgeryRepository.find({
-      where: {
-        practiceHome: {
-          id: In(dbPracticeHomesByPractice.map((ele) => ele.id)),
-        },
+    const whereClause: WhereClause = {
+      practiceHome: {
+        id: In(dbPracticeHomesByPractice.map((ele) => ele.id)),
       },
+    };
+
+    const searchConditions: FindManyOptions<SurgeryEntity> = {
+      where: whereClause,
       withDeleted: includeDelete,
       relations: [
         'practiceHome',
@@ -104,9 +132,55 @@ export class SurgeryService {
         'patient.referrer',
         'doctor',
       ],
-    });
+    };
 
-    dbSurgeryByPractice.forEach((ele) => (ele.doctor.password = ''));
+    if (option?.toLowerCase() === 'past') {
+      const today = new Date();
+      whereClause.date = LessThanOrEqual(today);
+    }
+
+    const currentYear = new Date().getFullYear();
+
+    if (months.length > 0) {
+      const invalidMonths = months.filter((month) => !(month in monthMap));
+      if (invalidMonths.length > 0) {
+        throw new Error(
+          'Invalid month format. Expected array with valid month names.',
+        );
+      }
+
+      const dateConditions = months.map((month) => {
+        const monthIndex = monthMap[month];
+        const startDate = new Date(currentYear, monthIndex, 1);
+        const endDate = new Date(
+          currentYear,
+          monthIndex + 1,
+          0,
+          23,
+          59,
+          59,
+          999,
+        );
+        return { date: Between(startDate, endDate) };
+      });
+
+      if (searchMRNName) {
+        updateWhereClauseWithSearchName(whereClause, searchMRNName);
+      }
+
+      searchConditions.where = dateConditions.map((condition) => ({
+        ...whereClause,
+        ...condition,
+      }));
+    } else if (searchMRNName) {
+      updateWhereClauseWithSearchName(whereClause, searchMRNName);
+    }
+
+    const dbSurgeryByPractice =
+      await this.surgeryRepository.find(searchConditions);
+    dbSurgeryByPractice.forEach((ele) => {
+      ele.doctor.password = '';
+    });
 
     return dbSurgeryByPractice;
   }
@@ -336,109 +410,6 @@ export class SurgeryService {
       action: HistoryAction.DELETE,
       ipAddress,
     });
-  }
-
-  async findSelected(
-    practiceId: string,
-    includeDelete: boolean = false,
-    months: string[] = [],
-    searchMRNName?: string,
-    option?: string,
-  ): Promise<SurgeryEntity[]> {
-    const monthNames = [
-      'January',
-      'February',
-      'March',
-      'April',
-      'May',
-      'June',
-      'July',
-      'August',
-      'September',
-      'October',
-      'November',
-      'December',
-    ];
-
-    const monthMap: Record<string, number> = monthNames.reduce(
-      (acc, month, index) => {
-        acc[month] = index;
-        return acc;
-      },
-      {} as Record<string, number>,
-    );
-
-    const dbPracticeHomesByPractice =
-      await this.practiceHomesService.getPracticeHomesByPractice(practiceId);
-
-    const whereClause: WhereClause = {
-      practiceHome: {
-        id: In(dbPracticeHomesByPractice.map((ele) => ele.id)),
-      },
-    };
-
-    const searchConditions: FindManyOptions<SurgeryEntity> = {
-      where: whereClause,
-      withDeleted: includeDelete,
-      relations: [
-        'practiceHome',
-        'surgeryConfiguration',
-        'patient',
-        'insuranceType',
-        'patient.referrer',
-        'doctor',
-      ],
-    };
-
-    if (option?.toLowerCase() === 'past') {
-      const today = new Date();
-      whereClause.date = LessThanOrEqual(today);
-    }
-
-    const currentYear = new Date().getFullYear();
-
-    if (months.length > 0) {
-      const invalidMonths = months.filter((month) => !(month in monthMap));
-      if (invalidMonths.length > 0) {
-        throw new Error(
-          'Invalid month format. Expected array with valid month names.',
-        );
-      }
-
-      const dateConditions = months.map((month) => {
-        const monthIndex = monthMap[month];
-        const startDate = new Date(currentYear, monthIndex, 1);
-        const endDate = new Date(
-          currentYear,
-          monthIndex + 1,
-          0,
-          23,
-          59,
-          59,
-          999,
-        );
-        return { date: Between(startDate, endDate) };
-      });
-
-      if (searchMRNName) {
-        updateWhereClauseWithSearchName(whereClause, searchMRNName);
-      }
-
-      searchConditions.where = dateConditions.map((condition) => ({
-        ...whereClause,
-        ...condition,
-      }));
-    } else if (searchMRNName) {
-      updateWhereClauseWithSearchName(whereClause, searchMRNName);
-    }
-
-    const dbSurgeryByPractice =
-      await this.surgeryRepository.find(searchConditions);
-    dbSurgeryByPractice.forEach((ele) => {
-      ele.doctor.password = '';
-    });
-
-    return dbSurgeryByPractice;
   }
 }
 
