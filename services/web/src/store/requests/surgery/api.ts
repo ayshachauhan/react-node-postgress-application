@@ -1,15 +1,8 @@
 import { CreateSurgeryPayload, UpdateSurgeryPayload } from '@packages/entities';
+import { getIpAddress } from '@root/utils';
 import Cookies from 'js-cookie';
 import { publicRuntimeConfig } from 'next.config';
 const { API_BASE_URL } = publicRuntimeConfig;
-
-const getIpAddress = async (): Promise<string> => {
-  const response = await fetch('https://api.ipify.org?format=json&ipv=4');
-
-  const data = await response.json();
-
-  return data.ip;
-};
 
 export const getSurgeries = async (
   payloadData: {
