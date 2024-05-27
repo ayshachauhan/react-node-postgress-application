@@ -47,8 +47,9 @@ export class PatientsService {
         referrerEntity = await this.referrerService.createReferrer(
           practiceEntity.id,
           {
-            email: createPatientDto.referrerId,
+            firstName: createPatientDto.referrerId,
             referrerType: ReferrerType.PCP,
+            verified: false,
           },
         );
       }

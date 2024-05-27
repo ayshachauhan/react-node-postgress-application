@@ -16,18 +16,18 @@ import {
   InsuranceTypeEntity,
 } from '@packages/entities';
 import { ENVIRONMENT_VARIABLES } from 'src/enums/environment.enums';
+import { DeleteEvalData, PatientMailData } from 'src/evals/types';
+import { HistoryService } from 'src/history/history.service';
 import { InsuranceTypesService } from 'src/insuranceTypes/insuranceTypes.service';
 import { SurgeryConfigurationsService } from 'src/surgeryConfiguration/surgeryConfiguration.service';
 import { SystemTemplates } from 'src/transporter/transporter.types';
 import { UsersService } from 'src/users/users.service';
-import { HistoryService } from '../history/history.service';
 import {
   EvalChangesKeyValues,
   findChangedValues,
   transformEvalObject,
   transformUpdateEvalDTO,
 } from '../history/utils';
-import { DeleteEvalData, PatientMailData } from './types';
 
 @Injectable()
 export class EvalsService {
