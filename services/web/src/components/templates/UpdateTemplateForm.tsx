@@ -1,8 +1,10 @@
 import { ITemplateUpdate } from '@packages/entities/index.browser';
+import { USER_PERMISSIONS } from '@packages/entities/permission';
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
+import { useUserPermission } from '@root/hooks/userHasPermission';
 import { useAppDispatch, useAppSelector } from '@root/store';
-import { fetchListings as fetchSurgeryTypes } from '@root/store/reducers/surgeryTypes';
+import { fetchListings as fetchSurgeryConfigurations } from '@root/store/reducers/surgeryConfigurations';
 import {
   deleteRecordAsync,
   fetchListings,
@@ -13,6 +15,7 @@ import { Checkbox, STYLE_TYPE } from 'baseui/checkbox';
 import { Select } from 'baseui/select';
 import { Textarea } from 'baseui/textarea';
 import React, { useEffect, useState } from 'react';
+
 interface Data {
   id: string;
   messageType: string;
@@ -24,15 +27,19 @@ interface ChildProps {
 }
 
 const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
-  const handleSurgeryTypeChange = ({ value }) => {
-    const selectedSurgeryType = value[0];
+  const handleSurgeryConfiguration = ({ value }) => {
+    const selectedSurgeryConfiguration = value[0];
     setTemplateInfo({
       ...updatedTemplateInfo,
-      surgeryType: selectedSurgeryType,
+      surgeryConfiguration: selectedSurgeryConfiguration,
     });
   };
   const userInfo = useAppSelector((state) => state.auth.user);
   const userId = userInfo?.id;
+  const userPermissions = userInfo?.permissions;
+  const editCaseAllowed = useUserPermission(userPermissions, [
+    USER_PERMISSIONS.EDIT_CASE,
+  ]);
   const dispatch = useAppDispatch();
   const practiceId = getPracticeId();
   const templateId = data.id;
@@ -111,15 +118,19 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
 
   useEffect(() => {
     if (practiceId !== null) {
-      dispatch(fetchSurgeryTypes({ practiceId: practiceId }));
+      dispatch(fetchSurgeryConfigurations({ practiceId: practiceId }));
     }
   }, [practiceId, dispatch]);
 
-  const surgeryTypes = useAppSelector((state) => state.surgeryTypes.entities);
-  const surgeryTypeOptions = Object.keys(surgeryTypes).map((key) => ({
-    label: surgeryTypes[key].name,
-    id: surgeryTypes[key].id,
-  }));
+  const surgeryConfigurations = useAppSelector(
+    (state) => state.surgeryConfigurations.entities,
+  );
+  const surgeryConfigurationOptions = Object.keys(surgeryConfigurations).map(
+    (key) => ({
+      label: surgeryConfigurations[key].name,
+      id: surgeryConfigurations[key].id,
+    }),
+  );
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -131,9 +142,9 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
         emailAttachment: updatedTemplateInfo.emailAttachment ?? '',
         emailBody: updatedTemplateInfo.emailBody ?? '',
         messageText: updatedTemplateInfo.messageText ?? '',
-        surgeryTypeId: updatedTemplateInfo.surgeryType
-          ? updatedTemplateInfo.surgeryType.id
-          : surgeryTypeOptions[0].id,
+        surgeryConfigurationId: updatedTemplateInfo.surgeryConfiguration
+          ? updatedTemplateInfo.surgeryConfiguration.id
+          : surgeryConfigurationOptions[0].id,
         practiceId: practiceId,
         userId: userId,
         id: templateId,
@@ -169,21 +180,22 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
             </div>
             <div className="flex flex-row items-center gap-2">
               <label
-                htmlFor="surgeryType"
+                htmlFor="surgeryConfiguration"
                 className="text-black text-sm font-normal"
               >
                 Surgery:
               </label>
               <div className="w-56 text-sm text-gray-600">
                 <Select
-                  options={surgeryTypeOptions}
-                  onChange={handleSurgeryTypeChange}
+                  options={surgeryConfigurationOptions}
+                  onChange={handleSurgeryConfiguration}
                   value={
-                    updatedTemplateInfo?.surgeryType
+                    updatedTemplateInfo?.surgeryConfiguration
                       ? [
                           {
-                            label: updatedTemplateInfo.surgeryType?.name,
-                            id: updatedTemplateInfo.surgeryType?.id,
+                            label:
+                              updatedTemplateInfo.surgeryConfiguration?.name,
+                            id: updatedTemplateInfo.surgeryConfiguration?.id,
                           },
                         ]
                       : []
@@ -299,7 +311,7 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
 
                   <Textarea
                     rows={8}
-                    value={updatedTemplateInfo?.emailBody}
+                    value={updatedTemplateInfo?.emailBody || ''}
                     onChange={handleHtmlChange}
                     clearOnEscape
                     overrides={{
@@ -329,7 +341,7 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
               <div className="mt-3">
                 <Textarea
                   rows={4}
-                  value={updatedTemplateInfo?.messageText}
+                  value={updatedTemplateInfo?.messageText || ''}
                   onChange={handleMessageTextChange}
                   clearOnEscape
                   overrides={{
@@ -408,7 +420,9 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
               backgroundColor: '#DC2626',
             }}
           />
-          <Button kind="primary" title="Update" width={136} />
+          {editCaseAllowed && (
+            <Button kind="primary" title="Update" width={136} />
+          )}
         </div>
       </form>
     </div>

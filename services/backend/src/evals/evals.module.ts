@@ -8,18 +8,20 @@ import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundIn
 import { PatientsModule } from 'src/patients/patients.module';
 import { PracticeHomesModule } from 'src/practiceHomes/practiceHomes.module';
 import { PracticesModule } from 'src/practices/practices.module';
-import { SurgeryTypesModule } from 'src/surgeryTypes/surgeryTypes.module';
+import { SurgeryConfigurationsModule } from 'src/surgeryConfiguration/surgeryConfiguration.module';
 import { UsersModule } from 'src/users/users.module';
+import { HistoryModule } from '../history/history.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([EvalEntity]),
     forwardRef(() => PracticesModule),
     forwardRef(() => PatientsModule),
-    forwardRef(() => SurgeryTypesModule),
+    forwardRef(() => SurgeryConfigurationsModule),
     forwardRef(() => PracticeHomesModule),
     forwardRef(() => InsuranceTypesModule),
     forwardRef(() => UsersModule),
+    forwardRef(() => HistoryModule),
   ],
   providers: [
     practiceNotFoundInterceptor,

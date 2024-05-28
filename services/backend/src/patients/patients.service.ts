@@ -47,8 +47,9 @@ export class PatientsService {
         referrerEntity = await this.referrerService.createReferrer(
           practiceEntity.id,
           {
-            email: createPatientDto.referrerId,
+            firstName: createPatientDto.referrerId,
             referrerType: ReferrerType.PCP,
+            verified: false,
           },
         );
       }
@@ -59,12 +60,24 @@ export class PatientsService {
     );
 
     if (mrnCheck) {
-      if (referrerEntity)
+      if (referrerEntity.dateCreated) {
         await this.patientRepository.update(mrnCheck.id, {
           referrer: referrerEntity,
         });
 
-      return (await this.getPatientsByPractice(practiceEntity.id))[0];
+        const updatedPatient = await this.getPatientsByMrn(
+          practiceEntity.id,
+          createPatientDto.mrn,
+        );
+
+        if (updatedPatient) {
+          return updatedPatient;
+        } else {
+          return mrnCheck;
+        }
+      } else {
+        return mrnCheck;
+      }
     } else {
       const newPatient = this.patientRepository.create({
         practice: practiceEntity,

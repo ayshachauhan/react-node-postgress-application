@@ -11,6 +11,7 @@ import {
 } from '@root/store/reducers/templates';
 import { getPracticeId } from '@utils/index';
 import React, { useEffect, useState } from 'react';
+
 const Templates: React.FC = () => {
   const templates = useAppSelector((state) =>
     Object.values(state.templates.entities),
@@ -126,7 +127,7 @@ const Templates: React.FC = () => {
           <React.Fragment key={i}>
             <div className="rounded-lg shadow-md w-[370px] h-292 relative">
               <div className="text-white py-2.5 text-center bg-gradient-to-r from-primary-light to-primary-dark uppercase rounded-t-lg font-bold">
-                {data?.surgeryTypeName}
+                {data?.surgeryConfigurationName}
               </div>
               <div className="rounded-lg" style={{ height: '245px' }}>
                 <div className="grid grid-rows-5 h-full p-2">

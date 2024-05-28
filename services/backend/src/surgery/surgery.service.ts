@@ -2,6 +2,8 @@ import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
+  HistoryAction,
+  HistoryType,
   ICalendar,
   SelectedSurgeryOption,
   SurgeryEntity,
@@ -9,7 +11,14 @@ import {
 import { PatientEntity } from '@packages/entities/patient';
 import moment from 'moment';
 import Mail from 'nodemailer/lib/mailer';
+import { SanitizedUser } from 'src/auth/types';
 import { ENVIRONMENT_VARIABLES } from 'src/enums/environment.enums';
+import {
+  SurgeryChangesKeyValues,
+  findChangedValues,
+  transformSurgeryObject,
+  transformUpdateSurgeryDTO,
+} from 'src/history/utils';
 import { InsuranceTypesService } from 'src/insuranceTypes/insuranceTypes.service';
 import { PatientsService } from 'src/patients/patients.service';
 import { PracticeHomesService } from 'src/practiceHomes/practiceHomes.service';
@@ -21,6 +30,7 @@ import { SystemTemplates } from 'src/transporter/transporter.types';
 import { UsersService } from 'src/users/users.service';
 import { In, Repository } from 'typeorm';
 import { CalendarService } from '../calendar/calendar.service';
+import { HistoryService } from '../history/history.service';
 import { PatientMailData } from './types';
 
 @Injectable()
@@ -46,13 +56,18 @@ export class SurgeryService {
     private calendarService: CalendarService,
     private readonly configService: ConfigService,
     private readonly transporterService: TransporterService,
+    @Inject(forwardRef(() => HistoryService))
+    private historyService: HistoryService,
   ) {}
 
   getFrontEndBaseUrl() {
     return this.configService.get(ENVIRONMENT_VARIABLES.FRONT_END_BASE_URL);
   }
 
-  async findAll(practiceId: string): Promise<SurgeryEntity[]> {
+  async findAll(
+    practiceId: string,
+    includeDelete: boolean = false,
+  ): Promise<SurgeryEntity[]> {
     const dbPracticeHomesByPractice =
       await this.practiceHomesService.getPracticeHomesByPractice(practiceId);
 
@@ -62,6 +77,7 @@ export class SurgeryService {
           id: In(dbPracticeHomesByPractice.map((ele) => ele.id)),
         },
       },
+      withDeleted: includeDelete,
       relations: [
         'practiceHome',
         'surgeryConfiguration',
@@ -91,7 +107,10 @@ export class SurgeryService {
     });
   }
 
-  async create({ practiceId, createSurgeryDto }): Promise<SurgeryEntity> {
+  async create(
+    { practiceId, createSurgeryDto },
+    request: Request & { user: SanitizedUser },
+  ): Promise<SurgeryEntity> {
     const newSurgery: SurgeryEntity = new SurgeryEntity();
 
     const practiceEntity = await this.practiceService.findOne(practiceId);
@@ -178,6 +197,17 @@ export class SurgeryService {
         );
       }
     }
+
+    // create history entry after creating surgery
+    await this.historyService.createHistory({
+      practiceId,
+      userId: request?.user.id,
+      entityId: resultSurgery.id,
+      entityType: HistoryType.SURGERY,
+      action: HistoryAction.CREATE,
+      ipAddress: createSurgeryDto.ipAddress,
+    });
+
     const mailOptions: Mail.Options = {
       to: createSurgeryDto.email,
       subject: 'Eval/surgery registered',
@@ -207,11 +237,10 @@ export class SurgeryService {
     return resultSurgery;
   }
 
-  async update({
-    createSurgeryDto,
-    id,
-    practiceId,
-  }): Promise<SurgeryEntity | null> {
+  async update(
+    { createSurgeryDto, id, practiceId },
+    request: Request & { user: SanitizedUser },
+  ): Promise<SurgeryEntity | null> {
     const surgeryToUpdate = await this.getSurgeryById(id);
 
     if (createSurgeryDto.insuranceTypeId) {
@@ -240,7 +269,8 @@ export class SurgeryService {
       selectedSurgeryOptions: createSurgeryDto.selectedSurgeryOptions,
       totalHospitalPricing: createSurgeryDto.totalHospitalPricing,
       totalProfessionalPricing: createSurgeryDto.totalProfessionalPricing,
-      selectedCheckListOptions: createSurgeryDto.selectedCheckListOption,
+      selectedCheckListOptions: createSurgeryDto.selectedCheckListOptions,
+      bodyPart: createSurgeryDto.bodyPart,
     };
 
     await this.surgeryRepository.update(id, {
@@ -248,12 +278,46 @@ export class SurgeryService {
       ...dataToUpdate,
     });
 
+    // depends on dto values, make sure to update the obj values if dot changes
+    const transformedCurrentSurgeryValues: SurgeryChangesKeyValues =
+      transformSurgeryObject(surgeryToUpdate!);
+    const transformedUpdatedDTOValues: SurgeryChangesKeyValues =
+      transformUpdateSurgeryDTO(createSurgeryDto);
+
+    await this.historyService.createHistory({
+      practiceId,
+      userId: request?.user.id,
+      action: HistoryAction.UPDATE,
+      entityId: id,
+      entityType: HistoryType.SURGERY,
+      // this depends on dto values, make sure to update this function object if dto updates
+      changes: findChangedValues(
+        transformedCurrentSurgeryValues,
+        transformedUpdatedDTOValues,
+      ),
+      ipAddress: createSurgeryDto.ipAddress,
+    });
+
     return await this.surgeryRepository.findOne({
       where: { id },
     });
   }
 
-  async remove(id: string): Promise<void> {
+  async remove(
+    id: string,
+    practiceId: string,
+    request: Request & { user: SanitizedUser },
+    ipAddress: string,
+  ): Promise<void> {
     await this.surgeryRepository.softDelete(id);
+
+    await this.historyService.createHistory({
+      practiceId,
+      userId: request?.user?.id,
+      entityId: id,
+      entityType: HistoryType.SURGERY,
+      action: HistoryAction.DELETE,
+      ipAddress,
+    });
   }
 }

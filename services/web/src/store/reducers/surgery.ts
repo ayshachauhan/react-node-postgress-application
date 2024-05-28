@@ -112,6 +112,32 @@ const surgeriesSlicer = createSlice({
         state.errorMessage = 'Failed to update surgery.';
       }
     });
+
+    builder.addCase(deleteRecordAsync.pending, (state) => {
+      state.processing = true;
+      state.status = EntityLoadingState.PENDING;
+    });
+
+    builder.addCase(deleteRecordAsync.fulfilled, (state, action) => {
+      state.status = EntityLoadingState.SUCCEEDED;
+      const deletedEvalId = action?.meta?.arg?.id;
+      const {
+        // eslint-disable-next-line
+        [deletedEvalId]: deletedInsuranceType,
+        ...remainingRecord
+      } = state.entities;
+      state.entities = remainingRecord;
+      state.successMessage = 'Record deleted successfully';
+    });
+
+    builder.addCase(deleteRecordAsync.rejected, (state, action) => {
+      state.status = EntityLoadingState.FAILED;
+      if (typeof action.payload === 'string') {
+        state.errorMessage = action.payload ?? 'Failed to delete surgery';
+      } else {
+        state.errorMessage = 'Failed to delete surgery';
+      }
+    });
   },
 });
 export const { clearSuccessMessage, clearErrorMessage } =

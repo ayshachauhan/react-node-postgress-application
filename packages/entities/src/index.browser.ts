@@ -1,6 +1,7 @@
 export * from './base.interface';
 export * from './calendar/calendar.interface';
 export * from './eval/eval.interface';
+export * from './history/history.interface';
 export * from './insuranceType/insuranceType.interface';
 export * from './media/media.interface';
 export * from './patient/patient.interface';
