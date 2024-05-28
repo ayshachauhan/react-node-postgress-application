@@ -108,12 +108,14 @@ export function constructQueryParams(params: {
   month?: string;
   searchMRNName?: string;
   option?: string;
-}) {
-  const queryString = Object.keys(params)
-    .filter((key) => params[key] !== undefined && params[key] !== null)
+}): string {
+  const queryString = Object.entries(params)
+    .filter(([_, value]) => value !== undefined && value !== null)
     .map(
-      (key) => `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`,
+      ([key, value]) =>
+        `${encodeURIComponent(key)}=${encodeURIComponent(value as string)}`,
     )
     .join('&');
+
   return queryString ? `?${queryString}` : '';
 }
