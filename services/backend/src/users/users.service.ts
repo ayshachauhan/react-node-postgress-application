@@ -150,7 +150,6 @@ export class UsersService {
   }
 
   async getUsersByPractice(practiceId: string): Promise<UserEntity[]> {
-    console.log(await this.s3Service.listBucketObjects(), 'list');
     const practice: PracticeEntity | null =
       await this.practicesService.findOne(practiceId);
 
@@ -336,8 +335,6 @@ export class UsersService {
   }
 
   async uploadUserImg({ id, practiceId, file }: UploadUserImgData) {
-    console.log(file, 'filed');
-
     const key: string = getUploadFileKey(UploadType.USER, {
       practiceId,
       userId: id,

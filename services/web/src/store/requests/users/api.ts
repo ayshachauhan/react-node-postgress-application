@@ -1,7 +1,10 @@
 import { IUser } from '@packages/entities/index.browser';
 import { ApiService } from '@root/services/apiclient';
 import { SanitizedUser } from '@root/store/types';
-import { AddUserDto, ChangePasswordInterface } from '.';
+import Cookies from 'js-cookie';
+import { publicRuntimeConfig } from 'next.config';
+import { AddUserDto, ChangePasswordInterface, UploadImgPayload } from '.';
+const { API_BASE_URL } = publicRuntimeConfig;
 
 const apiClient = new ApiService();
 
@@ -71,19 +74,8 @@ export const addUser = async (
   { rejectWithValue },
 ): Promise<SanitizedUser> => {
   try {
-    const { practiceId, userImg, ...restPayload } = payloadData;
+    const { practiceId, file, ...restPayload } = payloadData;
     const sanitizedPayload = { ...restPayload };
-
-    // Create a FormData object
-    const formData = new FormData();
-
-    // Append normal data
-    Object.entries(sanitizedPayload).forEach(([key, value]) => {
-      formData.append(key, value);
-    });
-
-    // Append the file
-    if (userImg) formData.append('file', userImg);
 
     const response = await apiClient.post(
       `/practices/${practiceId}/users`,
@@ -93,6 +85,14 @@ export const addUser = async (
       throw new Error('Failed to add user');
     }
     const data: SanitizedUser = await response.json();
+
+    if (file && practiceId && data.id) {
+      return await uploadImg({
+        practiceId,
+        id: data.id,
+        file,
+      });
+    }
     return data;
   } catch (error) {
     if (error instanceof Error) {
@@ -199,5 +199,41 @@ export const changePassword = async (
       return rejectWithValue(error.message);
     }
     return rejectWithValue('An unknown error occurred');
+  }
+};
+
+/**
+ *
+ * @param payloadData
+ * @returns Updated user with Imgurl
+ */
+export const uploadImg = async (
+  payloadData: UploadImgPayload,
+): Promise<SanitizedUser> => {
+  try {
+    const { practiceId, id, file } = payloadData;
+    const formdata = new FormData();
+    formdata.append('file', file, 'user.png');
+
+    const accessToken = Cookies.get('access_token');
+
+    const response = await fetch(
+      `${API_BASE_URL}/practices/${practiceId}/users/${id}/upload`,
+      {
+        method: 'PATCH',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: formdata,
+      },
+    );
+
+    if (!response.ok) {
+      throw new Error('Failed to upload img.');
+    }
+    const data: SanitizedUser = await response.json();
+    return data;
+  } catch (error) {
+    throw new Error();
   }
 };

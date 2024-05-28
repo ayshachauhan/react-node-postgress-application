@@ -73,5 +73,11 @@ export type AddUserDto = Omit<
   | 'surgeries'
   | 'imgUrl'
 > & {
-  userImg: File | null;
+  file: File | null;
+};
+
+export type UploadImgPayload = {
+  id: string;
+  practiceId: string;
+  file: File;
 };

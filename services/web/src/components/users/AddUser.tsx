@@ -70,7 +70,7 @@ const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         status: UserStatus.ACTIVE,
         contactNumber,
         permissionIds: selectedUserPermissions,
-        userImg,
+        file: userImg,
       };
       try {
         dispatch(addRecordAsync(userPayloadData));
