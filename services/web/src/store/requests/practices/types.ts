@@ -5,6 +5,7 @@ export interface PracticeCreateInterface {
   adminEmail: string;
   adminContactNumber: string;
   code: string;
+  practiceImg?: File | null;
 }
 
 export interface PracticesGetInterface {
@@ -27,3 +28,8 @@ export interface PracticesEditInterface {
   code: string;
   photoUrl?: string;
 }
+
+export type UploadImgPayload = {
+  practiceId: string;
+  file: File;
+};

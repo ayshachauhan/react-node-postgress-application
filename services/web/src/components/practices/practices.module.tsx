@@ -4,6 +4,7 @@ import TextInput from '@root/components/TextInput';
 import { useAppDispatch } from '@root/store';
 import { addRecordAsync } from '@root/store/reducers/practices';
 import { PracticeCreateInterface } from '@store/requests/practices';
+import { FileUploader } from 'baseui/file-uploader';
 import React, { useState } from 'react';
 
 const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
@@ -19,6 +20,7 @@ const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     return Math.floor(Math.random() * (max - min + 1)) + min;
   };
   const [code, setCode] = useState(generateRandomCode().toString());
+  const [practiceImg, setPracticeImg] = useState<File | null>(null);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -30,6 +32,7 @@ const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       adminEmail,
       adminContactNumber,
       code,
+      practiceImg,
     };
     try {
       dispatch(addRecordAsync(data));
@@ -132,6 +135,28 @@ const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                   setAdminContactNumber(value);
                 }}
                 required
+              />
+            </div>
+          </div>
+          <div className="justify-between pt-4">
+            <div className="">
+              <label htmlFor="adminEmail" className="text-black text-sm">
+                Practice Photo
+              </label>
+              <FileUploader
+                errorMessage={''}
+                onDrop={(acceptedFiles: File[]) => {
+                  setPracticeImg(acceptedFiles[0]);
+                }}
+                overrides={{
+                  FileDragAndDrop: {
+                    style: {
+                      marginBottom: '16px',
+                      borderColor: '#22C55E',
+                      color: '##F0FDF4',
+                    },
+                  },
+                }}
               />
             </div>
           </div>

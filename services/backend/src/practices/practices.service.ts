@@ -190,7 +190,10 @@ export class PracticesService {
     return await this.practicesRepository.findOne({ where: { id } });
   }
 
-  async uploadPracticeImg({ practiceId, file }: UploadPracticeImgData) {
+  async uploadPracticeImg({
+    practiceId,
+    file,
+  }: UploadPracticeImgData): Promise<PracticeEntity> {
     const key: string = getUploadFileKey(UploadType.PRACTICE, {
       practiceId,
       file,
