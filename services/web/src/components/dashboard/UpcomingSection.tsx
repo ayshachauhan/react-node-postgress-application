@@ -4,7 +4,9 @@ import {
   ICalendar,
   ISurgeryConfiguration,
   MonthOption,
+  USER_PERMISSIONS,
 } from '@packages/entities/index.browser';
+import { useUserPermission } from '@root/hooks/userHasPermission';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { fetchFilteredCalendars } from '@root/store/reducers/calendar';
 import { fetchListings } from '@root/store/reducers/surgeryConfigurations';
@@ -29,7 +31,8 @@ export const DEFAULT_MAX_SLOTS: number = 14;
 const UpcomingSection: React.FC = () => {
   const dispatch = useAppDispatch();
   const userId: string | null = getUserId();
-
+  const userInfo = useAppSelector((state) => state.auth.user);
+  const userPermissions = userInfo?.permissions;
   const { calendars, surgeryConfigurations } = useAppSelector((state) => ({
     calendars: Object.values(state.calendars.entities).filter(
       (calendar) => calendar.user.id === userId,
@@ -210,6 +213,10 @@ const UpcomingSection: React.FC = () => {
     setIsModalOpen(false);
   };
 
+  const editCalendar = useUserPermission(userPermissions, [
+    USER_PERMISSIONS.EDIT_CALENDAR,
+  ]);
+
   /**
    * @summary Upsert calendar modal to add or update the data
    * @param param0
@@ -293,12 +300,14 @@ const UpcomingSection: React.FC = () => {
               <AddIcon className="mt-2" size={25}></AddIcon>
               {''}
             </div>
-            <div
-              className="cursor-pointer px-2"
-              onClick={() => handleOpenModal(true)}
-            >
-              <EditIcon className="mt-2"></EditIcon>
-            </div>
+            {editCalendar && (
+              <div
+                className="cursor-pointer px-2"
+                onClick={() => handleOpenModal(true)}
+              >
+                <EditIcon className="mt-2"></EditIcon>
+              </div>
+            )}
           </div>
         )}
       </div>
