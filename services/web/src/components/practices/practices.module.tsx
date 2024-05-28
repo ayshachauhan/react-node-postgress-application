@@ -52,7 +52,7 @@ const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     <div>
       <form onSubmit={handleSubmit}>
         <div className="flex flex-col">
-          <div className="flex flex-row justify-between pt-4">
+          <div className="justify-between pt-4">
             <div className="space-y-2">
               <label htmlFor="name" className="text-black text-sm font-normal">
                 Practice Name
@@ -64,18 +64,6 @@ const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                   setName(value);
                 }}
                 required
-              />
-            </div>
-            <div className="">
-              <label htmlFor="status" className="text-black text-sm">
-                Practice Photo
-              </label>
-              <TextInput
-                name="practicePhoto"
-                value=""
-                onChange={(value) => {
-                  setCode(value);
-                }}
               />
             </div>
           </div>
