@@ -220,7 +220,21 @@ const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 onDrop={(acceptedFiles: File[]) => {
                   setUserImg(acceptedFiles[0]);
                 }}
+                accept="image/*"
                 overrides={{
+                  ContentMessage: {
+                    component: () => (
+                      <div>
+                        {userImg ? (
+                          <div>
+                            <p>{userImg.name}</p>
+                          </div>
+                        ) : (
+                          <span>Drag and drop or click to upload</span>
+                        )}
+                      </div>
+                    ),
+                  },
                   FileDragAndDrop: {
                     style: {
                       marginBottom: '16px',

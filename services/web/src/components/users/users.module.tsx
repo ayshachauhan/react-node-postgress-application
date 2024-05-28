@@ -212,7 +212,12 @@ export default function UserPage() {
                     alt={data.id}
                     width={50}
                     height={50}
-                    className="inline-block mr-2"
+                    className="inline-block mr-2 rounded-[10px]"
+                    style={{
+                      width: '50px',
+                      height: '50px',
+                      objectFit: 'cover',
+                    }}
                   />
                 ) : (
                   <div className="bg-gray-300 flex justify-center items-center">
