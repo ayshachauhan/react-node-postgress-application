@@ -24,11 +24,14 @@ export class S3Service {
   }
 
   // add type here
-  async uploadFile(file): Promise<AWS.S3.ManagedUpload.SendData> {
+  async uploadFile(
+    file: Express.Multer.File,
+    key: string,
+  ): Promise<AWS.S3.ManagedUpload.SendData> {
     const uploadResult = await this.s3
       .upload({
         Bucket: this.bucketName,
-        Key: file.originalname,
+        Key: key,
         Body: file.buffer,
         ACL: 'public-read',
         ContentType: file.mimetype,

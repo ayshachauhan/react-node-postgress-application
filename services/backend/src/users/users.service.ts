@@ -24,10 +24,17 @@ import { PermissionsService } from 'src/permissions/permissions.service';
 import { PracticesService } from 'src/practices/practices.service';
 import { TransporterService } from 'src/transporter';
 import { SystemTemplates } from 'src/transporter/transporter.types';
-import { NewUserMailData, SanitizedUser } from 'src/users/types';
+import {
+  NewUserMailData,
+  SanitizedUser,
+  UploadType,
+  UploadUserImgData,
+} from 'src/users/types';
 import { DataSource, Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create.dto';
 import { UpdateUserDto } from './dto/update.dto';
+import { S3Service } from './s3.service';
+import { getUploadFileKey } from './utils';
 
 @Injectable()
 export class UsersService {
@@ -41,6 +48,7 @@ export class UsersService {
     private readonly transporterService: TransporterService,
     private jwtService: JwtService,
     private dataSource: DataSource,
+    private readonly s3Service: S3Service,
   ) {}
 
   defaultUserPassword() {
@@ -142,6 +150,7 @@ export class UsersService {
   }
 
   async getUsersByPractice(practiceId: string): Promise<UserEntity[]> {
+    console.log(await this.s3Service.listBucketObjects(), 'list');
     const practice: PracticeEntity | null =
       await this.practicesService.findOne(practiceId);
 
@@ -324,5 +333,23 @@ export class UsersService {
       where: { email },
       relations: ['practices'],
     });
+  }
+
+  async uploadUserImg({ id, practiceId, file }: UploadUserImgData) {
+    console.log(file, 'filed');
+
+    const key: string = getUploadFileKey(UploadType.USER, {
+      practiceId,
+      userId: id,
+      file,
+    });
+
+    const uploadImg = await this.s3Service.uploadFile(file, key);
+
+    console.log(uploadImg, 'upimg', await this.s3Service.listBucketObjects());
+
+    const updatedUser = this.updateUser(id, { imgUrl: uploadImg.Location });
+
+    return updatedUser;
   }
 }

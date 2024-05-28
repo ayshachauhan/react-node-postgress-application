@@ -1,7 +1,7 @@
 import { IUser } from '@packages/entities/index.browser';
 import { ApiService } from '@root/services/apiclient';
 import { SanitizedUser } from '@root/store/types';
-import { ChangePasswordInterface } from '.';
+import { AddUserDto, ChangePasswordInterface } from '.';
 
 const apiClient = new ApiService();
 
@@ -67,21 +67,24 @@ export const getUserInfo = async (
  * @returns
  */
 export const addUser = async (
-  payloadData: Omit<
-    IUser,
-    | 'password'
-    | 'practices'
-    | 'id'
-    | 'dateCreated'
-    | 'dateUpdated'
-    | 'permissions'
-    | 'surgeries'
-  >,
+  payloadData: AddUserDto,
   { rejectWithValue },
 ): Promise<SanitizedUser> => {
   try {
-    const { practiceId, ...restPayload } = payloadData;
+    const { practiceId, userImg, ...restPayload } = payloadData;
     const sanitizedPayload = { ...restPayload };
+
+    // Create a FormData object
+    const formData = new FormData();
+
+    // Append normal data
+    Object.entries(sanitizedPayload).forEach(([key, value]) => {
+      formData.append(key, value);
+    });
+
+    // Append the file
+    if (userImg) formData.append('file', userImg);
+
     const response = await apiClient.post(
       `/practices/${practiceId}/users`,
       sanitizedPayload,

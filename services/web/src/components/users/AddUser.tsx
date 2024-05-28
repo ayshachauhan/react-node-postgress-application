@@ -1,9 +1,10 @@
-import { IUser, UserStatus, UserType } from '@packages/entities/index.browser';
+import { UserStatus, UserType } from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { fetchListings as fetchPermissions } from '@root/store/reducers/userPermissions';
 import { addRecordAsync } from '@root/store/reducers/users';
+import { AddUserDto } from '@root/store/requests/users/types';
 import { generateFullName, getPracticeId } from '@utils/index';
 import { Checkbox } from 'baseui/checkbox';
 import { FileUploader } from 'baseui/file-uploader';
@@ -28,7 +29,10 @@ const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const [lastName, setLastName] = useState('');
   const [url, setUrl] = useState('');
   const [type, setType] = useState<UserType>(UserType.ADMIN);
+  const [userImg, setUserImg] = useState<File | null>(null);
   const practiceId = getPracticeId();
+
+  console.log(userImg, 'userimg');
 
   const handleTypeChange = ({ value }) => {
     setType(value[0] ? value[0].label : null);
@@ -49,16 +53,6 @@ const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     }, []);
   };
 
-  type AddUserDto = Omit<
-    IUser,
-    | 'password'
-    | 'practices'
-    | 'id'
-    | 'dateCreated'
-    | 'dateUpdated'
-    | 'permissions'
-    | 'surgeries'
-  >;
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const selectedUserPermissions = getSelectedCheckboxIds();
@@ -76,6 +70,7 @@ const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         status: UserStatus.ACTIVE,
         contactNumber,
         permissionIds: selectedUserPermissions,
+        userImg,
       };
       try {
         dispatch(addRecordAsync(userPayloadData));
@@ -222,7 +217,9 @@ const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               </label>
               <FileUploader
                 errorMessage={''}
-                onDrop={() => {}}
+                onDrop={(acceptedFiles: File[]) => {
+                  setUserImg(acceptedFiles[0]);
+                }}
                 overrides={{
                   FileDragAndDrop: {
                     style: {

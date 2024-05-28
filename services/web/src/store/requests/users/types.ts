@@ -1,4 +1,4 @@
-import { UserStatus, UserType } from '@packages/entities/index.browser';
+import { IUser, UserStatus, UserType } from '@packages/entities/index.browser';
 
 export interface User {
   id: string;
@@ -61,3 +61,17 @@ export interface ChangePasswordInterface {
   newPassword: string;
   practiceId: string;
 }
+
+export type AddUserDto = Omit<
+  IUser,
+  | 'password'
+  | 'practices'
+  | 'id'
+  | 'dateCreated'
+  | 'dateUpdated'
+  | 'permissions'
+  | 'surgeries'
+  | 'imgUrl'
+> & {
+  userImg: File | null;
+};
