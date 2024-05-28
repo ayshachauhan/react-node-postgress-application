@@ -19,3 +19,8 @@ export type CreatePracticeInviteMailData = {
   contactEmail: string;
   contactPhone: string;
 };
+
+export type UploadPracticeImgData = {
+  file: Express.Multer.File;
+  practiceId: string;
+};

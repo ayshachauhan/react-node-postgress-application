@@ -6,9 +6,12 @@ import {
   Param,
   Patch,
   Post,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
   ValidationPipe,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express/multer';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { PracticeEntity } from '@packages/entities/practice';
 import { AuthGuard } from '../auth/auth.guard';
@@ -61,5 +64,17 @@ export class PracticesController {
     @Body() practicePatchDto: PracticePatchDto,
   ): Promise<PracticeEntity | null> {
     return this.practiceService.update(id, practicePatchDto);
+  }
+
+  @Patch(':id/upload')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadUserImg(
+    @Param() params: { id: string },
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    return this.practiceService.uploadPracticeImg({
+      practiceId: params.id,
+      file,
+    });
   }
 }

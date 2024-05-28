@@ -12,12 +12,20 @@ import { PracticeEntity } from '@packages/entities/practice';
 import { UserEntity, UserType } from '@packages/entities/user';
 import Mail from 'nodemailer/lib/mailer';
 import { SystemTemplates } from 'src/transporter/transporter.types';
+import { UploadType } from 'src/users/types';
+import { getUploadFileKey } from 'src/users/utils';
 import { DataSource, Repository, UpdateResult } from 'typeorm';
 import { ENVIRONMENT_VARIABLES } from '../enums/environment.enums';
 import { TransporterService } from '../transporter';
+import { S3Service } from '../users/s3.service';
 import { UsersService } from '../users/users.service';
 import { PracticeCreateDto } from './dto/create.dto';
-import { CreatePracticeInviteMailData, PracticesGetInterface } from './types';
+import { PracticePatchDto } from './dto/patch.dto';
+import {
+  CreatePracticeInviteMailData,
+  PracticesGetInterface,
+  UploadPracticeImgData,
+} from './types';
 
 @Injectable()
 export class PracticesService {
@@ -30,6 +38,7 @@ export class PracticesService {
     private dataSource: DataSource,
     private jwtService: JwtService,
     private configService: ConfigService,
+    private readonly s3Service: S3Service,
   ) {}
 
   getFrontEndBaseUrl(): string | undefined {
@@ -162,7 +171,10 @@ export class PracticesService {
     }
   }
 
-  async update(id: string, practicePatchDto): Promise<PracticeEntity | null> {
+  async update(
+    id: string,
+    practicePatchDto: PracticePatchDto,
+  ): Promise<PracticeEntity | null> {
     const updateResult: UpdateResult = await this.practicesRepository.update(
       id,
       practicePatchDto,
@@ -176,5 +188,17 @@ export class PracticesService {
     }
 
     return await this.practicesRepository.findOne({ where: { id } });
+  }
+
+  async uploadPracticeImg({ practiceId, file }: UploadPracticeImgData) {
+    const key: string = getUploadFileKey(UploadType.PRACTICE, {
+      practiceId,
+      file,
+    });
+
+    const uploadImg = await this.s3Service.uploadFile(file, key);
+
+    //@ts-expect-error only need to send url from here
+    return this.update(practiceId, { imgUrl: uploadImg.Location });
   }
 }
