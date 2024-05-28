@@ -110,7 +110,7 @@ export function constructQueryParams(params: {
   option?: string;
 }): string {
   const queryString = Object.entries(params)
-    .filter(([_, value]) => value !== undefined && value !== null)
+    .filter(([, value]) => value !== undefined && value !== null)
     .map(
       ([key, value]) =>
         `${encodeURIComponent(key)}=${encodeURIComponent(value as string)}`,
