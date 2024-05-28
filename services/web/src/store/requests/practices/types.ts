@@ -19,6 +19,7 @@ export interface PracticesGetInterface {
   code: string;
   dateCreated?: string;
   dateUpdated?: string;
+  imgUrl?: string;
 }
 
 export interface PracticesEditInterface {

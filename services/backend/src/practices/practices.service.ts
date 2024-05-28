@@ -55,7 +55,7 @@ export class PracticesService {
     });
 
     dbPractices.forEach((element: PracticeEntity) => {
-      const { id, name, code, status } = element;
+      const { id, name, code, status, imgUrl } = element;
       const dbUsersByPractice: UserEntity[] = element.users.sort((a, b) => {
         // sorting on the basis of createdAt to get oldest admin in the for the practice. considering it the actual practice admin
         const timestampA = a.dateCreated.getTime();
@@ -71,7 +71,13 @@ export class PracticesService {
       });
 
       const adminUser = dbUsersByPractice.find((ele) => ele.type === 'admin');
-      const finalPractice: PracticesGetInterface = { id, name, code, status };
+      const finalPractice: PracticesGetInterface = {
+        id,
+        name,
+        code,
+        status,
+        imgUrl,
+      };
 
       if (adminUser) {
         finalPractice.adminFirstName = adminUser.firstName;
@@ -173,7 +179,7 @@ export class PracticesService {
 
   async update(
     id: string,
-    practicePatchDto: PracticePatchDto,
+    practicePatchDto: Partial<PracticePatchDto>,
   ): Promise<PracticeEntity | null> {
     const updateResult: UpdateResult = await this.practicesRepository.update(
       id,

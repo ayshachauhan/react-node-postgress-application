@@ -68,7 +68,7 @@ export class PracticesController {
 
   @Patch(':id/upload')
   @UseInterceptors(FileInterceptor('file'))
-  async uploadUserImg(
+  async uploadPracticeImg(
     @Param() params: { id: string },
     @UploadedFile() file: Express.Multer.File,
   ) {

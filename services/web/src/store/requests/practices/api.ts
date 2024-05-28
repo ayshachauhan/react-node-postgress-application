@@ -74,13 +74,15 @@ export const addPractice = async (
   { rejectWithValue },
 ): Promise<IPractice> => {
   try {
-    const response = await apiClient.post(`/practices`, payloadData);
+    const { practiceImg, ...restPayload } = payloadData;
+
+    const response = await apiClient.post(`/practices`, restPayload);
     const data: IPractice = await response.json();
 
-    if (payloadData.practiceImg && data.id) {
+    if (practiceImg && data.id) {
       return await uploadImg({
         practiceId: data.id,
-        file: payloadData.practiceImg,
+        file: practiceImg,
       });
     }
     return data;
