@@ -3,9 +3,10 @@ import { AddIcon, EditIcon } from '@components/Icons';
 import {
   ICalendar,
   ISurgeryConfiguration,
+  MonthOption,
 } from '@packages/entities/index.browser';
 import { useAppDispatch, useAppSelector } from '@root/store';
-import { fetchCalendars } from '@root/store/reducers/calendar';
+import { fetchFilteredCalendars } from '@root/store/reducers/calendar';
 import { fetchListings } from '@root/store/reducers/surgeryConfigurations';
 import { DEFAULT_SURGERYNAME_COLOR } from '@root/utils/constants';
 import { getPracticeId, getUserId } from '@root/utils/index';
@@ -90,6 +91,25 @@ const UpcomingSection: React.FC = () => {
   };
 
   const currentDate = new Date();
+  const { selectedMonth, selectedValue } = useAppSelector(
+    (state) => state.surgeries.surgeryFilters,
+  );
+  const selectedValueStr = selectedValue || '';
+  const getSelectedMonths = (selectedMonth: MonthOption[]) => {
+    const monthLabels = selectedMonth.map((month) => month.label);
+    const month = monthLabels.join(',');
+    return month;
+  };
+
+  const dispatchFetchFilteredCalendars = (
+    practiceId: string,
+    userId: string,
+    selectedMonth: MonthOption[],
+    option: string,
+  ) => {
+    const month = getSelectedMonths(selectedMonth);
+    dispatch(fetchFilteredCalendars({ practiceId, userId, month, option }));
+  };
 
   useEffect(() => {
     if (practiceId !== null) {
@@ -97,9 +117,25 @@ const UpcomingSection: React.FC = () => {
     }
 
     if (practiceId !== null && userId !== null) {
-      dispatch(fetchCalendars({ practiceId, userId }));
+      dispatchFetchFilteredCalendars(
+        practiceId,
+        userId,
+        selectedMonth,
+        selectedValueStr,
+      );
     }
   }, [practiceId, userId, dispatch]);
+
+  useEffect(() => {
+    if (practiceId !== null && userId !== null && selectedMonth) {
+      dispatchFetchFilteredCalendars(
+        practiceId,
+        userId,
+        selectedMonth,
+        selectedValueStr,
+      );
+    }
+  }, [practiceId, userId, selectedMonth, selectedValue]);
 
   useEffect(() => {
     if (surgeryConfigurations.length > 0 && selectedSurgery === null) {

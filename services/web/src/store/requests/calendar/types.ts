@@ -2,6 +2,8 @@ export type CalendarsPayload = {
   practiceId: string;
   surgeryConfigurationId?: string;
   userId: string;
+  month?: string;
+  option?: string;
 };
 
 export type GetCalendarsPayload = CalendarsPayload;

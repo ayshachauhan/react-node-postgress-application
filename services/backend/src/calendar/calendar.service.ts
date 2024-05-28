@@ -9,7 +9,13 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from '@packages/entities/*';
 import { CalendarEntity } from '@packages/entities/calendar';
-import { Repository } from 'typeorm';
+import { getStartEndDate } from 'src/utils';
+import {
+  FindManyOptions,
+  FindOperator,
+  LessThanOrEqual,
+  Repository,
+} from 'typeorm';
 import { PracticesService } from '../practices/practices.service';
 import { SurgeryConfigurationsService } from '../surgeryConfiguration/surgeryConfiguration.service';
 import {
@@ -23,6 +29,16 @@ import {
   GetCalendarBySurgeryTypeIdParams,
   GetCalendarsParams,
 } from './types';
+
+type WhereClause = {
+  practice: {
+    id: string;
+  };
+  date?: Date | FindOperator<Date>;
+  user: {
+    id: string;
+  };
+};
 
 @Injectable()
 export class CalendarService {
@@ -196,5 +212,46 @@ export class CalendarService {
     );
 
     return updatedCalendars;
+  }
+
+  /**
+   * Get filered calendars based on search on dashboard for a specific practice > user > surgerytype
+   * @param params
+   * @returns CalendarEntity[]
+   */
+  async getFilteredCalendars({
+    practiceId,
+    userId,
+    months = [],
+    option,
+  }: {
+    practiceId: string;
+    userId: string;
+    months: string[];
+    option?: string;
+  }): Promise<CalendarEntity[]> {
+    const whereClause: WhereClause = {
+      practice: { id: practiceId },
+      user: { id: userId },
+    };
+    if (option?.toLowerCase() === 'past') {
+      const today = new Date();
+      whereClause.date = LessThanOrEqual(today);
+    }
+
+    const searchConditions: FindManyOptions<CalendarEntity> = {
+      where: whereClause,
+      relations: ['practice', 'surgeryConfiguration', 'user'],
+    };
+
+    if (months.length > 0) {
+      const dateConditions = getStartEndDate(months);
+      searchConditions.where = dateConditions.map((condition) => ({
+        ...whereClause,
+        ...condition,
+      }));
+    }
+
+    return await this.calendarRepo.find(searchConditions);
   }
 }

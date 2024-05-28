@@ -1,5 +1,10 @@
-import { ISurgery, ISurgeryConfiguration } from '@packages/entities';
+import {
+  ISurgery,
+  ISurgeryConfiguration,
+  MonthOption,
+} from '@packages/entities';
 import { USER_PERMISSIONS } from '@packages/entities/permission';
+import Button from '@root/components/Button';
 import {
   CopyIcon,
   DeleteIcon,
@@ -17,6 +22,9 @@ import {
   deleteRecordAsync,
   fetchListings,
   fetchSurgeryInfo,
+  setSearchMRNName,
+  setSelectedMonth,
+  setSelectedValue,
 } from '@root/store/reducers/surgery';
 import { usDateFormatter } from '@root/utils';
 import { monthOptions } from '@root/utils/constants';
@@ -25,15 +33,11 @@ import React, { useEffect, useMemo, useState } from 'react';
 import DeleteFilterModal from './DeleteFilterModal';
 import EditableRow from './EditableRow';
 
-interface MonthOption {
-  label: string;
-  value: string;
-  id: string;
-}
-
 const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
   const dispatch = useAppDispatch();
-  const [searchMRNName, setSearchMRNName] = useState('');
+  const { selectedMonth, searchMRNName, selectedValue } = useAppSelector(
+    (state) => state.surgeries.surgeryFilters,
+  );
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [clonedDivs, setClonedDivs] = useState<string[]>([]);
   const [selectedAction, setSelectedAction] = useState<string | null>(null);
@@ -83,18 +87,6 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
     () => getMonthOptions(viewPastCases, viewFutureCases),
     [viewPastCases, viewFutureCases],
   );
-
-  const getCurrentMonthOption = (): MonthOption => {
-    const currentMonth = new Date().getMonth() + 1;
-    return updatedMonthOptions.find(
-      (option) => option.value === currentMonth.toString(),
-    )!;
-  };
-  const currentMonthOption = getCurrentMonthOption();
-
-  const [selectedMonth, setSelectedMonth] = useState<MonthOption[]>([
-    currentMonthOption,
-  ]);
 
   const surgeryOptionsHeadersObj: {
     [key: string]: {
@@ -157,8 +149,6 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
     () => getUpdatedOptions(viewPastCases),
     [viewPastCases],
   );
-
-  const [selectedValue, setSelectedValue] = React.useState('');
 
   const modifiedObj = {};
   const modifyEvalList = surgeryList
@@ -241,21 +231,20 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
   };
 
   const handleChangeValue = ({ value }) => {
-    setSelectedValue(value[0] ? value[0].label : null);
-
+    dispatch(setSelectedValue(value[0] ? value[0].label : null));
     const selectedLabel = value.length > 0 ? value[0].label.toLowerCase() : '';
     if (selectedLabel === 'past') {
-      setSelectedMonth([]);
+      dispatch(setSelectedMonth([]));
     }
   };
 
   const handleChangeMonth = ({ value }) => {
-    setSelectedMonth(value);
+    dispatch(setSelectedMonth(value));
   };
 
-  const handleSearchMRNNameChange = (value) => {
+  const handleSearchMRNNameChange = (value: string) => {
     const mrn = value.toLowerCase();
-    setSearchMRNName(mrn);
+    dispatch(setSearchMRNName(mrn));
   };
 
   const handleCloneClick = (rowId: string) => {
@@ -282,6 +271,12 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
     setSelectedAction('view');
   };
 
+  const resetFilters = (): void => {
+    dispatch(setSelectedMonth([]));
+    dispatch(setSearchMRNName(null));
+    dispatch(setSelectedValue(null));
+  };
+
   const handleEditClick = (rowId: string) => {
     setSelectedAction('edit');
     dispatch(fetchSurgeryInfo({ practiceId, id: rowId }));
@@ -292,15 +287,8 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
     setSelectedAction('cancel');
     setSelectedRow(null);
   };
-
-  useEffect(() => {
-    dispatchFetchFilteredSurgeryList(
-      selectedMonth,
-      searchMRNName,
-      selectedValue,
-    );
-  }, [dispatch, selectedMonth, searchMRNName, selectedValue]);
-
+  const searchMRNNameStr = searchMRNName || '';
+  const selectedValueStr = selectedValue || '';
   const dispatchFetchFilteredSurgeryList = (
     selectedMonth: MonthOption[],
     searchMRNName: string,
@@ -319,14 +307,21 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
       }),
     );
   };
-  const isDisabled =
-    selectedValue.length > 0 && selectedValue.toLowerCase() === 'past';
+  const isDisabled = selectedValue && selectedValue.toLowerCase() === 'past';
 
   useEffect(() => {
     dispatchFetchFilteredSurgeryList(
       selectedMonth,
-      searchMRNName,
-      selectedValue,
+      searchMRNNameStr,
+      selectedValueStr,
+    );
+  }, [dispatch, selectedMonth, searchMRNName, selectedValue]);
+
+  useEffect(() => {
+    dispatchFetchFilteredSurgeryList(
+      selectedMonth,
+      searchMRNNameStr,
+      selectedValueStr,
     );
   }, [dispatch]);
 
@@ -348,7 +343,7 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
             <div className="items-center">
               <TextInput
                 name="search"
-                value={searchMRNName}
+                value={searchMRNName || ''}
                 onChange={handleSearchMRNNameChange}
                 placeholder="Search MRN or Name"
               />
@@ -364,7 +359,7 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
               options={updatedMonthOptions}
               value={selectedMonth}
               onChange={handleChangeMonth}
-              disabled={isDisabled}
+              disabled={isDisabled || false}
               multi
               overrides={{
                 ControlContainer: {
@@ -410,6 +405,18 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
                 ClearIcon: {
                   component: () => null,
                 },
+              }}
+            />
+          </div>
+          <div>
+            <Button
+              type="button"
+              kind="tertiary"
+              title="Reset"
+              onClick={resetFilters}
+              style={{
+                backgroundColor: 'rgba(212, 212, 216, 1)',
+                color: 'black',
               }}
             />
           </div>

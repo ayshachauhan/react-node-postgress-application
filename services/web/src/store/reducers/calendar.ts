@@ -4,6 +4,7 @@ import { indexBy } from '@root/utils/index';
 import {
   createCalendar,
   getCalendars,
+  getFilteredCalendars,
   updateCalendars,
 } from '../requests/calendar/api';
 import { EntitiesState, EntityLoadingState } from '../types';
@@ -51,6 +52,29 @@ const calendarSlice = createSlice({
     });
 
     builder.addCase(fetchCalendars.rejected, (state, action) => {
+      state.status = EntityLoadingState.FAILED;
+      state.processing = false;
+      if (typeof action.payload === 'string') {
+        state.errorMessage = action.payload ?? 'Failed to fetch calendars';
+      } else {
+        state.errorMessage = 'Failed to fetch calndars';
+      }
+    });
+
+    builder.addCase(fetchFilteredCalendars.pending, (state) => {
+      state.processing = true;
+      state.status = EntityLoadingState.PENDING;
+    });
+
+    builder.addCase(fetchFilteredCalendars.fulfilled, (state, action) => {
+      state.status = EntityLoadingState.SUCCEEDED;
+      if (action.payload.length === 0) {
+        state.errorMessage = 'No records found';
+      }
+      state.entities = indexBy('id', action.payload);
+    });
+
+    builder.addCase(fetchFilteredCalendars.rejected, (state, action) => {
       state.status = EntityLoadingState.FAILED;
       state.processing = false;
       if (typeof action.payload === 'string') {
@@ -116,6 +140,11 @@ export const { addCalendarItem, clearSuccessMessage, clearErrorMessage } =
 export const fetchCalendars = createAsyncThunk(
   'calendar/fetchCalendars',
   getCalendars,
+);
+
+export const fetchFilteredCalendars = createAsyncThunk(
+  'calendar/fetchFilteredCalendars',
+  getFilteredCalendars,
 );
 
 export const createCalendarEntry = createAsyncThunk(

@@ -1,8 +1,8 @@
-import { IPatient } from '@packages/entities';
 import {
   GetTemplatesResponse,
   IEval,
   IInsuranceType,
+  IPatient,
   IPermission,
   IPracticeHomes,
   IReferrer,
@@ -10,9 +10,16 @@ import {
   ISurgeryConfiguration,
   ISurgeryType,
   IUser,
+  MonthOption,
 } from '@packages/entities/index.browser';
 import { PracticesGetInterface } from 'src/store/requests/practices';
 import { GetUserResponse } from './requests/login/types';
+
+interface SurgeryFilters {
+  selectedMonth: MonthOption[];
+  searchMRNName: string | null;
+  selectedValue: string | null;
+}
 
 export enum EntityLoadingState {
   IDLE = 'idle',
@@ -50,6 +57,7 @@ export type EvalState = EntitiesState<IEval> & {
 
 export type SurgeryState = EntitiesState<ISurgery> & {
   surgeryInfo: ISurgery | null;
+  surgeryFilters: SurgeryFilters;
 };
 
 export type SurgeryConfigurationState = EntitiesState<ISurgeryConfiguration> & {

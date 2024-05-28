@@ -5,6 +5,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UseGuards,
   UseInterceptors,
   ValidationPipe,
@@ -41,6 +42,25 @@ export class CalendarController {
     params: GetCalendarsParams,
   ): Promise<CalendarEntity[]> {
     return this.calendarService.getAllCalendars(params);
+  }
+
+  @Get('search')
+  async getFilteredCalendars(
+    @Param() params: GetCalendarsParams,
+    @Query('month') monthQueryParam: string,
+    @Query('option') option?: string,
+  ): Promise<CalendarEntity[]> {
+    let months: string[] = [];
+    if (monthQueryParam && monthQueryParam.trim() !== '') {
+      months = monthQueryParam.split(',');
+    }
+    const calendars = await this.calendarService.getFilteredCalendars({
+      practiceId: params.practiceId,
+      userId: params.userId,
+      months,
+      option,
+    });
+    return calendars;
   }
 
   @Get(':id')

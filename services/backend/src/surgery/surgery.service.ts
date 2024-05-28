@@ -28,8 +28,8 @@ import { SurgeryTypesService } from 'src/surgeryTypes/surgeryTypes.service';
 import { TransporterService } from 'src/transporter';
 import { SystemTemplates } from 'src/transporter/transporter.types';
 import { UsersService } from 'src/users/users.service';
+import { getStartEndDate } from 'src/utils';
 import {
-  Between,
   Equal,
   FindManyOptions,
   FindOperator,
@@ -89,29 +89,6 @@ export class SurgeryService {
     searchMRNName?: string,
     option?: string,
   ): Promise<SurgeryEntity[]> {
-    const monthNames = [
-      'January',
-      'February',
-      'March',
-      'April',
-      'May',
-      'June',
-      'July',
-      'August',
-      'September',
-      'October',
-      'November',
-      'December',
-    ];
-
-    const monthMap: Record<string, number> = monthNames.reduce(
-      (acc, month, index) => {
-        acc[month] = index;
-        return acc;
-      },
-      {} as Record<string, number>,
-    );
-
     const dbPracticeHomesByPractice =
       await this.practiceHomesService.getPracticeHomesByPractice(practiceId);
 
@@ -139,30 +116,8 @@ export class SurgeryService {
       whereClause.date = LessThanOrEqual(today);
     }
 
-    const currentYear = new Date().getFullYear();
-
     if (months.length > 0) {
-      const invalidMonths = months.filter((month) => !(month in monthMap));
-      if (invalidMonths.length > 0) {
-        throw new Error(
-          'Invalid month format. Expected array with valid month names.',
-        );
-      }
-
-      const dateConditions = months.map((month) => {
-        const monthIndex = monthMap[month];
-        const startDate = new Date(currentYear, monthIndex, 1);
-        const endDate = new Date(
-          currentYear,
-          monthIndex + 1,
-          0,
-          23,
-          59,
-          59,
-          999,
-        );
-        return { date: Between(startDate, endDate) };
-      });
+      const dateConditions = getStartEndDate(months);
 
       if (searchMRNName) {
         updateWhereClauseWithSearchName(whereClause, searchMRNName);

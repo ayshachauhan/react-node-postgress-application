@@ -71,3 +71,9 @@ export interface UpdateSurgeryPayload {
   totalProfessionalPricing: number;
   details?: string;
 }
+
+export interface MonthOption {
+  label: string;
+  value: string;
+  id: string;
+}

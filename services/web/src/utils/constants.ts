@@ -1,8 +1,4 @@
-interface MonthOption {
-  label: string;
-  value: string;
-  id: string;
-}
+import { MonthOption } from '@packages/entities';
 
 export const AzentiaLogo: string = `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="300px" height="168px" viewBox="0 0 299 168" version="1.1">

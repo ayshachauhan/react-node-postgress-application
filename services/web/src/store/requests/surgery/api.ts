@@ -26,31 +26,33 @@ export const getSurgeries = async (
   try {
     const accessToken = Cookies.get('access_token');
     const queryParams = constructQueryParams({
-      includeDeleted: payloadData.includeDeleted,
+      includeDeleted: payloadData.includeDeleted ?? false,
       month: payloadData.month,
       searchMRNName: payloadData.searchMRNName,
       option: payloadData.option,
     });
-    const response = await fetch(
-      `${API_BASE_URL}/practices/${
-        payloadData.practiceId
-      }/surgery/search${queryParams}&includeDeleted=${
-        payloadData.includeDeleted ?? false
-      }`,
-      {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        },
-      },
-    );
 
-    if (!response.ok) {
-      throw new Error('Failed to get surgery');
+    // Check if there are any query parameters
+    if (queryParams) {
+      const response = await fetch(
+        `${API_BASE_URL}/practices/${payloadData.practiceId}/surgery/search${queryParams}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${accessToken}`,
+          },
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to get surgery');
+      }
+      const data = await response.json();
+      return data;
+    } else {
+      throw new Error('No query parameters provided');
     }
-    const data = await response.json();
-    return data;
   } catch (error) {
     return rejectWithValue(error);
   }

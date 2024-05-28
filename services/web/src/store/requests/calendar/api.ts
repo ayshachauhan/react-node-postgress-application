@@ -1,5 +1,6 @@
 import { ICalendar } from '@packages/entities/index.browser';
 import { ApiService } from '@root/services/apiclient';
+import { constructQueryParams } from '@root/utils';
 import {
   CalendarsPayload,
   CreateCalendarPayload,
@@ -13,6 +14,13 @@ const apiClient = new ApiService();
 
 export const getUrlPath = (payload: CalendarsPayload) => {
   return `/practices/${payload.practiceId}/users/${payload.userId}/calendar`;
+};
+
+export const getSearchUrlPath = (
+  payload: CalendarsPayload,
+  queryParams: string,
+): string => {
+  return `/practices/${payload.practiceId}/users/${payload.userId}/calendar/search${queryParams}`;
 };
 
 /**
@@ -52,7 +60,7 @@ export const getCalendars = async (
  * @returns Icalendar
  */
 export const createCalendar = async (
-  payload: CreateCalendarPayload,
+  payload: Omit<CreateCalendarPayload, 'month' | 'option'>,
   { rejectWithValue },
 ): Promise<ICalendar> => {
   try {
@@ -157,6 +165,47 @@ export const updateCalendars = async (
     }
     const data: ICalendar[] = await response.json();
     return data;
+  } catch (error) {
+    if (error instanceof Error) {
+      return rejectWithValue(error.message);
+    }
+    return rejectWithValue('An unknown error occurred');
+  }
+};
+
+/**
+ * @summary Get filtered calendar by Practice, user, surgerytype id, month and option
+ * @param payloadData
+ * @param param1
+ * @query month, option
+ * @returns calendar entity array as a response
+ */
+export const getFilteredCalendars = async (
+  payload: GetCalendarsPayload,
+  { rejectWithValue },
+): Promise<ICalendar[]> => {
+  try {
+    const queryParams = constructQueryParams({
+      month: payload.month,
+      option: payload.option,
+    });
+
+    // Check if there are any query parameters
+    if (queryParams) {
+      const response: Response = await apiClient.get(
+        getSearchUrlPath(payload, queryParams),
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch calendars');
+      }
+
+      const data: ICalendar[] = await response.json();
+
+      return data;
+    } else {
+      throw new Error('No query parameters provided');
+    }
   } catch (error) {
     if (error instanceof Error) {
       return rejectWithValue(error.message);

@@ -1,3 +1,4 @@
+import { MonthOption } from '@packages/entities';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { State } from '@root/store';
 import { indexBy } from '@root/utils/index';
@@ -10,6 +11,21 @@ import {
 } from '@store/requests/surgery';
 import { EntityLoadingState, SurgeryState } from 'src/store/types';
 
+const getCurrentMonthOption = (): MonthOption => {
+  const currentDate = new Date();
+  const monthLabel = currentDate.toLocaleString('default', { month: 'long' });
+  const monthValue = currentDate.toLocaleString('default', {
+    month: 'numeric',
+  });
+  const id = `${currentDate.getFullYear()}-${monthValue}`;
+
+  return {
+    label: monthLabel,
+    value: monthValue,
+    id: id,
+  };
+};
+
 const initialState: SurgeryState = {
   processing: false,
   entities: {},
@@ -17,6 +33,11 @@ const initialState: SurgeryState = {
   successMessage: undefined,
   errorMessage: undefined,
   surgeryInfo: null,
+  surgeryFilters: {
+    selectedMonth: [getCurrentMonthOption()],
+    searchMRNName: null,
+    selectedValue: null,
+  },
 };
 
 const surgeriesSlicer = createSlice({
@@ -28,6 +49,18 @@ const surgeriesSlicer = createSlice({
     },
     clearErrorMessage(state) {
       state.errorMessage = undefined;
+    },
+    setSelectedMonth: (state, action) => {
+      state.surgeryFilters.selectedMonth = action.payload;
+    },
+    setSearchMRNName: (state, action) => {
+      state.surgeryFilters.searchMRNName = action.payload;
+    },
+    setSelectedValue: (state, action) => {
+      state.surgeryFilters.selectedValue = action.payload;
+    },
+    setSurgeryFilters: (state, action) => {
+      state.surgeryFilters = { ...state.surgeryFilters, ...action.payload };
     },
   },
   extraReducers(builder) {
@@ -172,4 +205,10 @@ export const selectErrorMessage = (state: State) =>
   state.surgeries.errorMessage;
 export const selectSuccessMessage = (state: State) =>
   state.surgeries.successMessage;
+export const {
+  setSelectedMonth,
+  setSearchMRNName,
+  setSelectedValue,
+  setSurgeryFilters,
+} = surgeriesSlicer.actions;
 export default surgeriesSlicer.reducer;
