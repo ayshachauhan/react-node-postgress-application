@@ -346,10 +346,7 @@ export class UsersService {
 
     const uploadImg = await this.s3Service.uploadFile(file, key);
 
-    console.log(uploadImg, 'upimg', await this.s3Service.listBucketObjects());
-
-    const updatedUser = this.updateUser(id, { imgUrl: uploadImg.Location });
-
-    return updatedUser;
+    //@ts-expect-error only need to send url from here
+    return this.updateUser(id, { imgUrl: uploadImg.Location });
   }
 }
