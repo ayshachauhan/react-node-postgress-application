@@ -50,3 +50,8 @@ variable "region" {
 # variable "security_group_id" {
 #   description = "ID of the security group attached to the load balancer"
 # }
+
+variable "subnet_ids" {
+  type        = list(string)
+  description = "List of subnet IDs for the RDS subnet group."
+}

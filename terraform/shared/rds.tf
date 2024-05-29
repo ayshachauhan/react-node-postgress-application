@@ -74,6 +74,10 @@ resource "aws_db_parameter_group" "postgres16" {
   }
 }
 
+resource "aws_db_subnet_group" "postgres_public" {
+  name       = "main-app"
+  subnet_ids = var.subnet_ids
+}
 
 resource "aws_db_instance" "main" {
   identifier = "azentia-infra-${var.environment}-db"
@@ -94,8 +98,7 @@ resource "aws_db_instance" "main" {
   performance_insights_enabled = false
   publicly_accessible          = true
   monitoring_interval          = 0
-
-  # db_subnet_group_name      = aws_db_subnet_group.postgres_public.id
+  db_subnet_group_name      = aws_db_subnet_group.postgres_public.id
   # vpc_security_group_ids    = [aws_security_group.postgres_public.id]
   storage_encrypted         = false
   vpc_security_group_ids = [aws_security_group.postgres.id]
