@@ -1,7 +1,13 @@
+import { PermissionEntity } from '@packages/entities/*';
+import { USER_PERMISSIONS } from '@packages/entities/permission';
 import { Between } from 'typeorm';
 
-export function getStartEndDate(months: string[] = []) {
+export function getStartEndDate(
+  months: string[] = [],
+  userPermissions: PermissionEntity[],
+) {
   const currentYear = new Date().getFullYear();
+  const currentDate = new Date();
   const monthNames = [
     'January',
     'February',
@@ -25,6 +31,13 @@ export function getStartEndDate(months: string[] = []) {
     {} as Record<string, number>,
   );
 
+  const hasViewPastCasesPermission = userPermissions.some(
+    (permission) => permission.name === USER_PERMISSIONS.VIEW_PAST_CASES,
+  );
+  const hasViewFutureCasesPermission = userPermissions.some(
+    (permission) => permission.name === USER_PERMISSIONS.VIEW_FUTURE_CASES,
+  );
+
   const invalidMonths = months.filter((month) => !(month in monthMap));
   if (invalidMonths.length > 0) {
     throw new Error(
@@ -34,10 +47,44 @@ export function getStartEndDate(months: string[] = []) {
 
   const dateConditions = months.map((month) => {
     const monthIndex = monthMap[month];
-    const startDate = new Date(currentYear, monthIndex, 1);
-    const endDate = new Date(currentYear, monthIndex + 1, 0, 23, 59, 59, 999);
+    let startDate = new Date(currentYear, monthIndex, 1);
+    let endDate = new Date(currentYear, monthIndex + 1, 0, 23, 59, 59, 999);
+    if (monthIndex === currentDate.getMonth()) {
+      if (!hasViewPastCasesPermission) {
+        startDate = currentDate;
+      }
+      if (!hasViewFutureCasesPermission) {
+        endDate = currentDate;
+      }
+    }
     return { date: Between(startDate, endDate) };
   });
 
   return dateConditions;
+}
+
+export function getFullYearDateConditions(userPermissions: PermissionEntity[]) {
+  const currentYear = new Date().getFullYear();
+  const currentDate = new Date();
+
+  const hasViewPastCasesPermission = userPermissions.some(
+    (permission) => permission.name === USER_PERMISSIONS.VIEW_PAST_CASES,
+  );
+  const hasViewFutureCasesPermission = userPermissions.some(
+    (permission) => permission.name === USER_PERMISSIONS.VIEW_FUTURE_CASES,
+  );
+
+  let startDate = new Date(currentYear, 0, 1);
+
+  let endDate = new Date(currentYear, 11, 31, 23, 59, 59, 999);
+
+  if (!hasViewPastCasesPermission) {
+    startDate = currentDate;
+  }
+
+  if (!hasViewFutureCasesPermission) {
+    endDate = currentDate;
+  }
+
+  return [{ date: Between(startDate, endDate) }];
 }

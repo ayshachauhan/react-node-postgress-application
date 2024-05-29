@@ -20,7 +20,7 @@ import { useUserPermission } from '@root/hooks/userHasPermission';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import {
   deleteRecordAsync,
-  fetchListings,
+  fetchFilteredSurgeries,
   fetchSurgeryInfo,
   setSearchMRNName,
   setSelectedMonth,
@@ -43,6 +43,7 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
   const [selectedAction, setSelectedAction] = useState<string | null>(null);
   const [selectedRow, setSelectedRow] = useState<string | null>(null);
   const userInfo = useAppSelector((state) => state.auth.user);
+  const loggedInUserId = userInfo?.id ?? null;
   const userPermissions = userInfo?.permissions;
 
   const viewPastCases = useUserPermission(userPermissions, [
@@ -289,6 +290,7 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
   };
   const searchMRNNameStr = searchMRNName || '';
   const selectedValueStr = selectedValue || '';
+
   const dispatchFetchFilteredSurgeryList = (
     selectedMonth: MonthOption[],
     searchMRNName: string,
@@ -298,32 +300,46 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
     const month = monthLabels.join(',');
     const selectedOption = selectedValue;
 
-    dispatch(
-      fetchListings({
-        practiceId,
-        month: month,
-        searchMRNName,
-        option: selectedOption,
-      }),
-    );
+    if (practiceId && loggedInUserId !== null) {
+      dispatch(
+        fetchFilteredSurgeries({
+          loggedInUserId,
+          practiceId,
+          month: month,
+          searchMRNName,
+          option: selectedOption,
+        }),
+      );
+    }
   };
   const isDisabled = selectedValue && selectedValue.toLowerCase() === 'past';
 
   useEffect(() => {
-    dispatchFetchFilteredSurgeryList(
-      selectedMonth,
-      searchMRNNameStr,
-      selectedValueStr,
-    );
-  }, [dispatch, selectedMonth, searchMRNName, selectedValue]);
+    if (practiceId && loggedInUserId !== null) {
+      dispatchFetchFilteredSurgeryList(
+        selectedMonth,
+        searchMRNNameStr,
+        selectedValueStr,
+      );
+    }
+  }, [
+    dispatch,
+    practiceId,
+    loggedInUserId,
+    selectedMonth,
+    searchMRNNameStr,
+    selectedValueStr,
+  ]);
 
   useEffect(() => {
-    dispatchFetchFilteredSurgeryList(
-      selectedMonth,
-      searchMRNNameStr,
-      selectedValueStr,
-    );
-  }, [dispatch]);
+    if (practiceId && loggedInUserId !== null) {
+      dispatchFetchFilteredSurgeryList(
+        selectedMonth,
+        searchMRNNameStr,
+        selectedValueStr,
+      );
+    }
+  }, [dispatch, practiceId, loggedInUserId]);
 
   return (
     <div className="overflow-x-auto">
@@ -422,7 +438,7 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
           </div>
         </div>
       </div>
-      {surgeryConfigList.length && Object.keys(modifiedObj).length && (
+      {surgeryConfigList.length > 0 && Object.keys(modifiedObj).length > 0 ? (
         <div className="w-max overflow-x-auto mt-2 border rounded-t-lg rounded-b-lg border-gray-200">
           {Object.keys(modifiedObj).map((key, index) => {
             const ele = modifiedObj[key];
@@ -785,6 +801,8 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
             handleCloseDeleteModal={handleCloseDeleteModal}
           />
         </div>
+      ) : (
+        <div>No records found.</div>
       )}
     </div>
   );

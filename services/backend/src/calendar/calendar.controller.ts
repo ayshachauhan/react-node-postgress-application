@@ -49,6 +49,7 @@ export class CalendarController {
     @Param() params: GetCalendarsParams,
     @Query('month') monthQueryParam: string,
     @Query('option') option?: string,
+    @Query('loggedInUserId') loggedInUserId?: string,
   ): Promise<CalendarEntity[]> {
     let months: string[] = [];
     if (monthQueryParam && monthQueryParam.trim() !== '') {
@@ -59,6 +60,7 @@ export class CalendarController {
       userId: params.userId,
       months,
       option,
+      loggedInUserId,
     });
     return calendars;
   }

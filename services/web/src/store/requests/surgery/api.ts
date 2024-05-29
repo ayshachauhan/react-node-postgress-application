@@ -17,6 +17,38 @@ export const getSurgeries = async (
   payloadData: {
     practiceId: string;
     includeDeleted?: boolean;
+  },
+  { rejectWithValue },
+) => {
+  try {
+    const accessToken = Cookies.get('access_token');
+    const response = await fetch(
+      `${API_BASE_URL}/practices/${
+        payloadData.practiceId
+      }/surgery?includeDeleted=${payloadData.includeDeleted ?? false}`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+      },
+    );
+    if (!response.ok) {
+      throw new Error('Failed to get surgery');
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    return rejectWithValue(error);
+  }
+};
+
+export const getFilteredSurgeries = async (
+  payloadData: {
+    loggedInUserId: string;
+    practiceId: string;
+    includeDeleted?: boolean;
     month?: string;
     searchMRNName?: string;
     option?: string;
@@ -30,6 +62,7 @@ export const getSurgeries = async (
       month: payloadData.month,
       searchMRNName: payloadData.searchMRNName,
       option: payloadData.option,
+      loggedInUserId: payloadData.loggedInUserId,
     });
 
     // Check if there are any query parameters

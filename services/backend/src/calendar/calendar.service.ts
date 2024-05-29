@@ -7,9 +7,10 @@ import {
   forwardRef,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { UserEntity } from '@packages/entities/*';
+import { PermissionEntity, UserEntity } from '@packages/entities/*';
 import { CalendarEntity } from '@packages/entities/calendar';
-import { getStartEndDate } from 'src/utils';
+import { UsersService } from 'src/users/users.service';
+import { getFullYearDateConditions, getStartEndDate } from 'src/utils';
 import {
   FindManyOptions,
   FindOperator,
@@ -49,6 +50,8 @@ export class CalendarService {
     private practiceService: PracticesService,
     @Inject(forwardRef(() => SurgeryConfigurationsService))
     private surgeryConfifurationService: SurgeryConfigurationsService,
+    @Inject(forwardRef(() => UsersService))
+    private userService: UsersService,
   ) {}
 
   /**
@@ -224,12 +227,22 @@ export class CalendarService {
     userId,
     months = [],
     option,
+    loggedInUserId,
   }: {
     practiceId: string;
     userId: string;
     months: string[];
     option?: string;
+    loggedInUserId?: string;
   }): Promise<CalendarEntity[]> {
+    let userPermissions: PermissionEntity[] = [];
+
+    if (loggedInUserId) {
+      const userInfo: UserEntity | null =
+        await this.userService.getUserById(loggedInUserId);
+      userPermissions = userInfo ? userInfo.permissions || [] : [];
+    }
+
     const whereClause: WhereClause = {
       practice: { id: practiceId },
       user: { id: userId },
@@ -244,8 +257,17 @@ export class CalendarService {
       relations: ['practice', 'surgeryConfiguration', 'user'],
     };
 
+    const dateConditions =
+      months.length > 0
+        ? getStartEndDate(months, userPermissions)
+        : getFullYearDateConditions(userPermissions);
+
     if (months.length > 0) {
-      const dateConditions = getStartEndDate(months);
+      searchConditions.where = dateConditions.map((condition) => ({
+        ...whereClause,
+        ...condition,
+      }));
+    } else if (months.length === 0 && option?.toLowerCase() !== 'past') {
       searchConditions.where = dateConditions.map((condition) => ({
         ...whereClause,
         ...condition,

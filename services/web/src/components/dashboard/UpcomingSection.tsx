@@ -33,6 +33,7 @@ const UpcomingSection: React.FC = () => {
   const userId: string | null = getUserId();
   const userInfo = useAppSelector((state) => state.auth.user);
   const userPermissions = userInfo?.permissions;
+  const loggedInUserId = userInfo?.id;
   const { calendars, surgeryConfigurations } = useAppSelector((state) => ({
     calendars: Object.values(state.calendars.entities).filter(
       (calendar) => calendar.user.id === userId,
@@ -109,9 +110,18 @@ const UpcomingSection: React.FC = () => {
     userId: string,
     selectedMonth: MonthOption[],
     option: string,
+    loggedInUserId: string,
   ) => {
     const month = getSelectedMonths(selectedMonth);
-    dispatch(fetchFilteredCalendars({ practiceId, userId, month, option }));
+    dispatch(
+      fetchFilteredCalendars({
+        practiceId,
+        userId,
+        month,
+        option,
+        loggedInUserId,
+      }),
+    );
   };
 
   useEffect(() => {
@@ -119,26 +129,33 @@ const UpcomingSection: React.FC = () => {
       dispatch(fetchListings({ practiceId }));
     }
 
-    if (practiceId !== null && userId !== null) {
+    if (practiceId !== null && userId !== null && loggedInUserId) {
       dispatchFetchFilteredCalendars(
         practiceId,
         userId,
         selectedMonth,
         selectedValueStr,
+        loggedInUserId,
       );
     }
-  }, [practiceId, userId, dispatch]);
+  }, [practiceId, userId, loggedInUserId, dispatch]);
 
   useEffect(() => {
-    if (practiceId !== null && userId !== null && selectedMonth) {
+    if (
+      practiceId !== null &&
+      userId !== null &&
+      selectedMonth &&
+      loggedInUserId
+    ) {
       dispatchFetchFilteredCalendars(
         practiceId,
         userId,
         selectedMonth,
         selectedValueStr,
+        loggedInUserId,
       );
     }
-  }, [practiceId, userId, selectedMonth, selectedValue]);
+  }, [practiceId, userId, selectedMonth, selectedValue, loggedInUserId]);
 
   useEffect(() => {
     if (surgeryConfigurations.length > 0 && selectedSurgery === null) {
@@ -216,6 +233,8 @@ const UpcomingSection: React.FC = () => {
   const editCalendar = useUserPermission(userPermissions, [
     USER_PERMISSIONS.EDIT_CALENDAR,
   ]);
+
+  const calendarData = splitCalendarData(filteredCalendars);
 
   /**
    * @summary Upsert calendar modal to add or update the data
@@ -336,8 +355,8 @@ const UpcomingSection: React.FC = () => {
         </div>
       </div>
       <div className="mt-2 flex gap-5 overflow-x-auto text-xs">
-        {splitCalendarData(filteredCalendars).map(
-          (calendar: CalendarData[], index: number) => (
+        {calendarData.length > 0 ? (
+          calendarData.map((calendar: CalendarData[], index: number) => (
             <div className="border-r-4 border-gray-200 pr-4 flex" key={index}>
               <div className="mt-2 text-xs">
                 <div className="text-gray-50 w-full items-center bg-gray-50 rounded-lg">
@@ -390,7 +409,9 @@ const UpcomingSection: React.FC = () => {
                 </div>
               </div>
             </div>
-          ),
+          ))
+        ) : (
+          <div>No records found.</div>
         )}
       </div>
       <UpsertCalendarModal isUpdating={isUpdating} />

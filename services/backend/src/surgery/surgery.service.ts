@@ -5,8 +5,10 @@ import {
   HistoryAction,
   HistoryType,
   ICalendar,
+  PermissionEntity,
   SelectedSurgeryOption,
   SurgeryEntity,
+  UserEntity,
 } from '@packages/entities';
 import { PatientEntity } from '@packages/entities/patient';
 import moment from 'moment';
@@ -28,7 +30,7 @@ import { SurgeryTypesService } from 'src/surgeryTypes/surgeryTypes.service';
 import { TransporterService } from 'src/transporter';
 import { SystemTemplates } from 'src/transporter/transporter.types';
 import { UsersService } from 'src/users/users.service';
-import { getStartEndDate } from 'src/utils';
+import { getFullYearDateConditions, getStartEndDate } from 'src/utils';
 import {
   Equal,
   FindManyOptions,
@@ -82,13 +84,51 @@ export class SurgeryService {
     return this.configService.get(ENVIRONMENT_VARIABLES.FRONT_END_BASE_URL);
   }
 
+  async findAll(
+    practiceId: string,
+    includeDelete: boolean = false,
+  ): Promise<SurgeryEntity[]> {
+    const dbPracticeHomesByPractice =
+      await this.practiceHomesService.getPracticeHomesByPractice(practiceId);
+
+    const dbSurgeryByPractice = await this.surgeryRepository.find({
+      where: {
+        practiceHome: {
+          id: In(dbPracticeHomesByPractice.map((ele) => ele.id)),
+        },
+      },
+      withDeleted: includeDelete,
+      relations: [
+        'practiceHome',
+        'surgeryConfiguration',
+        'patient',
+        'insuranceType',
+        'patient.referrer',
+        'doctor',
+      ],
+    });
+
+    dbSurgeryByPractice.forEach((ele) => (ele.doctor.password = ''));
+
+    return dbSurgeryByPractice;
+  }
+
   async findSelected(
     practiceId: string,
     includeDelete: boolean = false,
     months: string[] = [],
     searchMRNName?: string,
     option?: string,
+    loggedInUserId?: string,
   ): Promise<SurgeryEntity[]> {
+    let userPermissions: PermissionEntity[] = [];
+
+    if (loggedInUserId) {
+      const userInfo: UserEntity | null =
+        await this.userService.getUserById(loggedInUserId);
+      userPermissions = userInfo ? userInfo.permissions || [] : [];
+    }
+
     const dbPracticeHomesByPractice =
       await this.practiceHomesService.getPracticeHomesByPractice(practiceId);
 
@@ -116,9 +156,12 @@ export class SurgeryService {
       whereClause.date = LessThanOrEqual(today);
     }
 
-    if (months.length > 0) {
-      const dateConditions = getStartEndDate(months);
+    const dateConditions =
+      months.length > 0
+        ? getStartEndDate(months, userPermissions)
+        : getFullYearDateConditions(userPermissions);
 
+    if (months.length > 0) {
       if (searchMRNName) {
         updateWhereClauseWithSearchName(whereClause, searchMRNName);
       }
@@ -129,6 +172,11 @@ export class SurgeryService {
       }));
     } else if (searchMRNName) {
       updateWhereClauseWithSearchName(whereClause, searchMRNName);
+    } else if (months.length === 0 && option?.toLowerCase() !== 'past') {
+      searchConditions.where = dateConditions.map((condition) => ({
+        ...whereClause,
+        ...condition,
+      }));
     }
 
     const dbSurgeryByPractice =

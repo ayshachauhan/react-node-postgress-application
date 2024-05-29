@@ -4,6 +4,7 @@ export type CalendarsPayload = {
   userId: string;
   month?: string;
   option?: string;
+  loggedInUserId?: string;
 };
 
 export type GetCalendarsPayload = CalendarsPayload;

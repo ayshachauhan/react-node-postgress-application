@@ -60,7 +60,7 @@ export const getCalendars = async (
  * @returns Icalendar
  */
 export const createCalendar = async (
-  payload: Omit<CreateCalendarPayload, 'month' | 'option'>,
+  payload: Omit<CreateCalendarPayload, 'month' | 'option' | 'loggedInUserId'>,
   { rejectWithValue },
 ): Promise<ICalendar> => {
   try {
@@ -174,10 +174,10 @@ export const updateCalendars = async (
 };
 
 /**
- * @summary Get filtered calendar by Practice, user, surgerytype id, month and option
+ * @summary Get filtered calendar by Practice, user, surgerytype id, month, loggedInUserId and option
  * @param payloadData
  * @param param1
- * @query month, option
+ * @query month, option, loggedInUserId
  * @returns calendar entity array as a response
  */
 export const getFilteredCalendars = async (
@@ -188,6 +188,7 @@ export const getFilteredCalendars = async (
     const queryParams = constructQueryParams({
       month: payload.month,
       option: payload.option,
+      loggedInUserId: payload.loggedInUserId,
     });
 
     // Check if there are any query parameters

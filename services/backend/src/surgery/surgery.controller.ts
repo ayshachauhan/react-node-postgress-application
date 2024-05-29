@@ -31,6 +31,15 @@ import { QueryDto } from './dto/getSurgery.dto';
 export class SurgeryController {
   constructor(private readonly surgeryService: SurgeryService) {}
 
+  @Get()
+  @UseInterceptors(practiceNotFoundInterceptor)
+  async findAll(
+    @Param() { practiceId }: { practiceId: string },
+    @Query(new ValidationPipe()) { includeDeleted }: QueryDto,
+  ): Promise<SurgeryEntity[]> {
+    return this.surgeryService.findAll(practiceId, includeDeleted);
+  }
+
   @Get('search')
   @UseInterceptors(practiceNotFoundInterceptor)
   async searchSurgeries(
@@ -39,6 +48,7 @@ export class SurgeryController {
     @Query('month') monthQueryParam: string,
     @Query('searchMRNName') searchMRNName?: string,
     @Query('option') option?: string,
+    @Query('loggedInUserId') loggedInUserId?: string,
   ): Promise<SurgeryEntity[]> {
     let month: string[] = [];
     if (monthQueryParam && monthQueryParam.trim() !== '') {
@@ -50,6 +60,7 @@ export class SurgeryController {
       month,
       searchMRNName,
       option,
+      loggedInUserId,
     );
     return surgeries;
   }
