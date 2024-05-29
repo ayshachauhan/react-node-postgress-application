@@ -1,9 +1,4 @@
-import {
-  MigrationInterface,
-  QueryRunner,
-  Table,
-  TableForeignKey,
-} from 'typeorm';
+import { MigrationInterface, QueryRunner, Table } from 'typeorm';
 
 export class CreateEmailLogs1716528969058 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
@@ -17,15 +12,6 @@ export class CreateEmailLogs1716528969058 implements MigrationInterface {
             isPrimary: true,
             generationStrategy: 'uuid',
             default: 'uuid_generate_v4()',
-          },
-          {
-            name: 'surgeryId',
-            type: 'uuid',
-          },
-          {
-            name: 'templateId',
-            type: 'uuid',
-            isNullable: true,
           },
           {
             name: 'status',
@@ -46,15 +32,6 @@ export class CreateEmailLogs1716528969058 implements MigrationInterface {
             type: 'date',
           },
           {
-            name: 'isEval',
-            type: 'boolean',
-          },
-          {
-            name: 'systemTemplateName',
-            type: 'varchar',
-            isNullable: true,
-          },
-          {
             name: 'dateCreated',
             type: 'timestamp',
             default: 'CURRENT_TIMESTAMP',
@@ -73,23 +50,6 @@ export class CreateEmailLogs1716528969058 implements MigrationInterface {
         ],
       }),
       true,
-    );
-
-    // await queryRunner.createForeignKey("email_logs", new TableForeignKey({
-    //   columnNames: ["surgeryId"],
-    //   referencedColumnNames: ["id"],
-    //   referencedTableName: "surgeries",
-    //   onDelete: "CASCADE"
-    // }));
-
-    await queryRunner.createForeignKey(
-      'email_logs',
-      new TableForeignKey({
-        columnNames: ['templateId'],
-        referencedColumnNames: ['id'],
-        referencedTableName: 'templates',
-        onDelete: 'CASCADE',
-      }),
     );
   }
 

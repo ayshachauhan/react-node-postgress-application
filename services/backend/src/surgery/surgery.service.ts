@@ -237,8 +237,7 @@ export class SurgeryService {
 
     await this.emailHandlerService.checkAndMakeEmailContent(
       createSurgeryDto.surgeryConfigurationId,
-      resultSurgery.id,
-      resultSurgery.date,
+      resultSurgery,
       mailVariables,
       systemGeneratedMailData,
       false,

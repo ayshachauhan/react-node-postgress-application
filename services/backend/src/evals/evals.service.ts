@@ -182,8 +182,7 @@ export class EvalsService {
 
     await this.emailHandlerService.checkAndMakeEmailContent(
       createEvalDto.surgeryConfigurationId,
-      resultEval.id,
-      resultEval.date,
+      resultEval,
       mailVariables,
       systemGeneratedMailData,
       true,

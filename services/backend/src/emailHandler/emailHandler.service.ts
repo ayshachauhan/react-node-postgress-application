@@ -1,7 +1,15 @@
 import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
-import { EmailLogEntity, EmailVariables, IEmailLog } from '@packages/entities';
+import {
+  EmailLogEntity,
+  EmailVariables,
+  EvalEmailEntity,
+  IEmailLog,
+  IEval,
+  ISurgery,
+  SurgeryEmailEntity,
+} from '@packages/entities';
 import { ENVIRONMENT_VARIABLES } from 'src/enums/environment.enums';
 import { TemplatesService } from 'src/templates/templates.service';
 import { TransporterService } from 'src/transporter';
@@ -19,6 +27,10 @@ export class EmailHandlerService {
   constructor(
     @InjectRepository(EmailLogEntity)
     private emailLogRepository: Repository<EmailLogEntity>,
+    @InjectRepository(EvalEmailEntity)
+    private evalEmailRepository: Repository<EvalEmailEntity>,
+    @InjectRepository(SurgeryEmailEntity)
+    private surgeryEmailRepository: Repository<SurgeryEmailEntity>,
     @Inject(forwardRef(() => TemplatesService))
     private templateService: TemplatesService,
     @Inject(forwardRef(() => TransporterService))
@@ -32,27 +44,24 @@ export class EmailHandlerService {
 
   async checkAndMakeEmailContent(
     surgeryConfigurationId: string,
-    surgeryId: string,
-    date: Date,
+    entity: IEval | ISurgery,
     mailVariable: EmailVariables,
     systemGeneratedMailData?: SystemGeneratedMailData,
     fromEval?: boolean,
   ): Promise<void> {
     let bookingTemplateFound: boolean = false;
-    const surgeryTemplates = await this.templateService.getFilteredTemplates({
+    const templates = await this.templateService.getFilteredTemplates({
       surgeryConfigurationId,
     });
 
     const emailLogsEntries: Partial<IEmailLog>[] = [];
 
-    if (surgeryTemplates.length) {
-      surgeryTemplates.forEach((template) => {
+    if (templates.length) {
+      templates.forEach((template) => {
         const today = new Date();
         const entry = {
-          surgeryId,
-          expectedDate: date,
+          expectedDate: entity.date,
           status: 'pending',
-          template,
           isEval: fromEval,
           data: {
             subject: template.emailSubject
@@ -77,7 +86,7 @@ export class EmailHandlerService {
           },
         };
 
-        const surgeryDate = new Date(date);
+        const surgeryDate = new Date(entity.date);
         if (template.messageType === 'preop') {
           surgeryDate.setDate(surgeryDate.getDate() - template.dateOffset);
           entry.expectedDate = surgeryDate;
@@ -104,8 +113,7 @@ export class EmailHandlerService {
     if (!bookingTemplateFound && systemGeneratedMailData) {
       const systemTemplateName = systemGeneratedMailData.systemTemplate;
       const entry = {
-        surgeryId,
-        expectedDate: date,
+        expectedDate: entity.date,
         status: 'pending',
         isEval: fromEval,
         data: {
@@ -117,8 +125,28 @@ export class EmailHandlerService {
       };
       emailLogsEntries.push(entry);
     }
-    await this.emailLogRepository.save(emailLogsEntries);
+
+    console.log(emailLogsEntries, 123);
+
+    const dbEmailLogEntries =
+      await this.emailLogRepository.save(emailLogsEntries);
+    console.log(213);
+
+    if (fromEval) {
+      const evalEmailEntries = dbEmailLogEntries.map((ele) => ({
+        eval: entity,
+        emailLog: ele,
+      }));
+      await this.evalEmailRepository.save(evalEmailEntries);
+    } else {
+      const surgeryEmailEntries = dbEmailLogEntries.map((ele) => ({
+        surgery: entity,
+        emailLog: ele,
+      }));
+      await this.surgeryEmailRepository.save(surgeryEmailEntries);
+    }
   }
+
   mailVariableManipulator(str: string): string {
     return str.replaceAll('[', '{{').replaceAll(']', '}}');
   }
