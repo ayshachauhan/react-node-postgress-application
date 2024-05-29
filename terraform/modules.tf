@@ -4,7 +4,7 @@ module "shared" {
   environment           = var.environment
   environment_variables = var.environment_variables
   availability_zones    = [var.availability_zones[0], var.availability_zones[1]]
-  subnet_ids            = [var.subnet_ids[0], var.subnet_ids[1]]
+  subnet_ids            = [module.shared.private_subnet_ids[0], module.shared.private_subnet_ids[1]]
 }
 
 
