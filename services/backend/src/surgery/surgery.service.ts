@@ -2,6 +2,7 @@ import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
+  EmailVariables,
   HistoryAction,
   HistoryType,
   ICalendar,
@@ -10,8 +11,8 @@ import {
 } from '@packages/entities';
 import { PatientEntity } from '@packages/entities/patient';
 import moment from 'moment';
-import Mail from 'nodemailer/lib/mailer';
 import { SanitizedUser } from 'src/auth/types';
+import { EmailHandlerService } from 'src/emailHandler/emailHandler.service';
 import { ENVIRONMENT_VARIABLES } from 'src/enums/environment.enums';
 import {
   SurgeryChangesKeyValues,
@@ -25,13 +26,11 @@ import { PracticeHomesService } from 'src/practiceHomes/practiceHomes.service';
 import { PracticesService } from 'src/practices/practices.service';
 import { SurgeryConfigurationsService } from 'src/surgeryConfiguration/surgeryConfiguration.service';
 import { SurgeryTypesService } from 'src/surgeryTypes/surgeryTypes.service';
-import { TransporterService } from 'src/transporter';
 import { SystemTemplates } from 'src/transporter/transporter.types';
 import { UsersService } from 'src/users/users.service';
 import { In, Repository } from 'typeorm';
 import { CalendarService } from '../calendar/calendar.service';
 import { HistoryService } from '../history/history.service';
-import { PatientMailData } from './types';
 
 @Injectable()
 export class SurgeryService {
@@ -55,9 +54,10 @@ export class SurgeryService {
     @Inject(forwardRef(() => CalendarService))
     private calendarService: CalendarService,
     private readonly configService: ConfigService,
-    private readonly transporterService: TransporterService,
     @Inject(forwardRef(() => HistoryService))
     private historyService: HistoryService,
+    @Inject(forwardRef(() => EmailHandlerService))
+    private emailHandlerService: EmailHandlerService,
   ) {}
 
   getFrontEndBaseUrl() {
@@ -208,30 +208,40 @@ export class SurgeryService {
       ipAddress: createSurgeryDto.ipAddress,
     });
 
-    const mailOptions: Mail.Options = {
-      to: createSurgeryDto.email,
-      subject: 'Eval/surgery registered',
+    const mailVariables: EmailVariables = {
+      surgery_type: surgeryConfigurationEntity
+        ? surgeryConfigurationEntity.name
+        : '',
+      fname: newPatient.firstName,
+      lname: newPatient.lastName,
+      mrn: String(newPatient.mrn),
+      pt_email_address: newPatient.email,
+      surgery_date: String(resultSurgery.date),
+      pt_email_notify: '',
+      laterality: createSurgeryDto.bodyPart,
+      Laterality: createSurgeryDto.bodyPart,
+      pod1_location: '',
+      cataract_variable: '',
+      all_cases: surgeryConfigurationEntity?.name + ' ' + createSurgeryDto.date,
+      all_cataract_dates:
+        surgeryConfigurationEntity?.name + ' ' + createSurgeryDto.date,
+      all_case_type:
+        surgeryConfigurationEntity?.name + ' ' + createSurgeryDto.date,
+    };
+
+    const systemGeneratedMailData = {
+      subject: 'Eval/ Surgery registered',
       text: 'text message',
+      systemTemplate: SystemTemplates.NOTIFY_PATIENT,
     };
 
-    const mailData: PatientMailData = {
-      practiceName: practiceEntity?.name,
-      firstName: createSurgeryDto.firstName,
-      lastName: createSurgeryDto.lastName,
-      mrn: createSurgeryDto.mrn,
-      email: createSurgeryDto.email,
-      phoneNumber: createSurgeryDto.phoneNumber,
-      date: createSurgeryDto.date,
-      surgeryType: surgeryTypeEntity?.name,
-      practiceHome: practiceHomeEntity?.name,
-      insuranceType: insuranceTypeEntity?.name,
-      insuranceDetails: createSurgeryDto.insuranceDetails,
-    };
-
-    await this.transporterService.sendSystemEmails(
-      mailOptions,
-      mailData,
-      SystemTemplates.NOTIFY_PATIENT,
+    await this.emailHandlerService.checkAndMakeEmailContent(
+      createSurgeryDto.surgeryConfigurationId,
+      resultSurgery.id,
+      resultSurgery.date,
+      mailVariables,
+      systemGeneratedMailData,
+      false,
     );
 
     return resultSurgery;

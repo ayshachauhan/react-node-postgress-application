@@ -34,8 +34,6 @@ export const getCalendars = async (
 
     const data: ICalendar[] = await response.json();
 
-    console.log(data, 'datacalendar');
-
     return data;
   } catch (error) {
     if (error instanceof Error) {
@@ -56,14 +54,10 @@ export const createCalendar = async (
   { rejectWithValue },
 ): Promise<ICalendar> => {
   try {
-    console.log(payload, 'payloadcreate');
-
     const response: Response = await apiClient.post(
       getUrlPath(payload),
       payload,
     );
-
-    console.log(response, 'respcre');
 
     if (!response.ok) {
       throw new Error('Failed to add calendar entry');

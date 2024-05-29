@@ -132,7 +132,7 @@ export class TemplatesService {
   async getFilteredTemplates(query: {
     [key: string]: string;
   }): Promise<TemplateEntity[]> {
-    const where = {};
+    const where = { active: true };
 
     if (query.surgeryConfigurationId) {
       where['surgeryConfiguration'] = { id: query.surgeryConfigurationId };
