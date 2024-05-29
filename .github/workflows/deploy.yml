@@ -56,7 +56,7 @@ jobs:
       - name: Terraform Workspace 
         id: workspace
         run: |
-          terraform workspace select ${{ github.event.inputs.environment }}   
+          terraform workspace new ${{ github.event.inputs.environment }}   
 
       # - name: Setup Terraform
       #   uses: hashicorp/setup-terraform@v1
