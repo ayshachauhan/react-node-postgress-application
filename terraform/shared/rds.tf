@@ -4,11 +4,27 @@ resource "aws_security_group" "postgres" {
   vpc_id      = aws_vpc.azentia-aws-vpc.id
 
   ingress {
-    description = "Allow all incoming traffic."
-    protocol    = "-1"
-    from_port   = 0
-    to_port     = 0
-    cidr_blocks = ["0.0.0.0/0"]
+    description = "Allow incoming traffic from thinksys"
+    protocol    = "tcp"  # TCP protocol for PostgreSQL
+    from_port   = 5432   # PostgreSQL default port
+    to_port     = 5432   # PostgreSQL default port
+    cidr_blocks = ["115.112.99.50/32"]
+  }
+
+  ingress {
+    description = "Allow incoming traffic from thinksys"
+    protocol    = "tcp"  # TCP protocol for PostgreSQL
+    from_port   = 5432   # PostgreSQL default port
+    to_port     = 5432   # PostgreSQL default port
+    cidr_blocks = ["182.74.161.50/32"]
+  }
+
+  ingress {
+    description = "Allow incoming traffic ECS"
+    protocol    = "tcp"  # TCP protocol for PostgreSQL
+    from_port   = 5432   # PostgreSQL default port
+    to_port     = 5432   # PostgreSQL default port
+    security_groups = [aws_security_group.service_security_group.id]
   }
 
   egress {

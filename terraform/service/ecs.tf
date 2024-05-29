@@ -70,29 +70,12 @@ resource "aws_ecs_service" "azentia_service" {
   network_configuration {
     subnets          = [data.aws_subnets.public-subnet-1.id, data.aws_subnets.public-subnet-2.id]
     assign_public_ip = true # Providing our containers with public IPs
-    security_groups  = ["${aws_security_group.service_security_group.id}"]
+    security_groups  = ["${var.service_security_group_id}"]
   }
   tags = {
     Name        = "azentia-${var.service}-server"
     Environment = var.environment
     Creator     = "Terraform"
-  }
-}
-
-resource "aws_security_group" "service_security_group" {
-  ingress {
-    from_port = 0
-    to_port   = 0
-    protocol  = "-1"
-    # Only allowing traffic in from the load balancer security group
-    security_groups = ["${var.load_balancer_security_group_id}"]
-  }
-
-  egress {
-    from_port   = 0             # Allowing any incoming port
-    to_port     = 0             # Allowing any outgoing port
-    protocol    = "-1"          # Allowing any outgoing protocol 
-    cidr_blocks = ["0.0.0.0/0"] # Allowing traffic out to all IP addresses
   }
 }
 

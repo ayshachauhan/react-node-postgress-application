@@ -19,14 +19,17 @@ module "azentia-backend" {
   aws_region                      = var.aws_region
   alb_listeners                   = module.shared.alb_listeners
   load_balancer_security_group_id = module.shared.load_balancer_security_group_id
+  service_security_group_id       = module.shared.service_security_group_id
+
 
   environment_variables_override = {
     DB_HOST = module.shared.rds_endpoint
   }
 
   host_names = ["api-qa.pod111.com"]
-}
 
+  depends_on = [ module.shared ]
+}
 
 module "azentia-web" {
   source = "./service"
@@ -40,8 +43,12 @@ module "azentia-web" {
   aws_region                      = var.aws_region
   alb_listeners                   = module.shared.alb_listeners
   load_balancer_security_group_id = module.shared.load_balancer_security_group_id
+  service_security_group_id       = module.shared.service_security_group_id
 
   environment_variables_override = {}
 
   host_names = ["app-qa.pod111.com"]
+
+  depends_on = [ module.shared ]
+
 }

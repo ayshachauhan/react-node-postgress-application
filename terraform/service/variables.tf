@@ -47,6 +47,10 @@ variable "load_balancer_security_group_id" {
   description = "service you want to deploy"
 }
 
+variable "service_security_group_id" {
+  description = "service you want to deploy"
+}
+
 
 
 
