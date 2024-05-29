@@ -10,10 +10,9 @@ terraform {
     region         = "us-east-1"                      # Replace with your desired AWS region
     encrypt        = true
     dynamodb_table = "azentia_terraformstate_lockid"            # Replace with the name of your DynamoDB table for state locking
-
-    workspaces {
-      name = "__WORKSPACE__"
-    }
+  }
+  workspaces {
+    name = "__WORKSPACE__"
   }
 }
 
