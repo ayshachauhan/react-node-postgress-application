@@ -1,11 +1,8 @@
 resource "aws_alb" "application_load_balancer" {
   name               = "azentia-${var.environment}-alb" # Naming our load balancer
   load_balancer_type = "application"
-  subnets = [ # Referencing the default subnets
-    "${aws_default_subnet.default_subnet_a.id}",
-    "${aws_default_subnet.default_subnet_b.id}",
-    "${aws_default_subnet.default_subnet_c.id}"
-  ]
+  subnets = [aws_subnet.public-subnet-1.id, aws_subnet.public-subnet-2.id]
+  
   # Referencing the security group
   security_groups = ["${aws_security_group.load_balancer_security_group.id}"]
 }

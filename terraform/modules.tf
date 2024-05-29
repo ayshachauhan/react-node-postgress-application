@@ -3,6 +3,7 @@ module "shared" {
 
   environment           = var.environment
   environment_variables = var.environment_variables
+  availability_zones    = [var.availability_zones[0], var.availability_zones[1]]
 }
 
 

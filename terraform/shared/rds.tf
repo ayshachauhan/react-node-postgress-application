@@ -1,10 +1,10 @@
 resource "aws_security_group" "postgres" {
   name_prefix = "azentia-infra-${var.environment}-db-sg"
   description = "Security access rules for Postgres."
-  vpc_id      = aws_default_vpc.default_vpc.id
+  vpc_id      = aws_vpc.azentia-aws-vpc.id
 
   ingress {
-    description = "AAllow all incoming traffic."
+    description = "Allow all incoming traffic."
     protocol    = "-1"
     from_port   = 0
     to_port     = 0
