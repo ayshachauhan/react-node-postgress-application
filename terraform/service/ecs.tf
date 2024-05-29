@@ -68,7 +68,7 @@ resource "aws_ecs_service" "azentia_service" {
   }
 
   network_configuration {
-    subnets          = [data.aws_subnets.public-subnet-1.id, data.aws_subnets.public-subnet-2.id]
+    subnets          = var.subnet_ids
     assign_public_ip = true # Providing our containers with public IPs
     security_groups  = ["${var.service_security_group_id}"]
   }

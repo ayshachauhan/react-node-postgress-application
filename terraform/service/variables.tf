@@ -51,6 +51,11 @@ variable "service_security_group_id" {
   description = "service you want to deploy"
 }
 
+variable "subnet_ids" {
+  description = "List of subnet IDs where ECS tasks will be deployed"
+  type        = list(string)
+}
+
 
 
 

@@ -21,6 +21,10 @@ module "azentia-backend" {
   alb_listeners                   = module.shared.alb_listeners
   load_balancer_security_group_id = module.shared.load_balancer_security_group_id
   service_security_group_id       = module.shared.service_security_group_id
+  subnet_ids              = [
+    module.shared.public_subnet_ids[0],  # Assuming you want to use public subnets
+    module.shared.public_subnet_ids[1]
+  ]  
 
 
   environment_variables_override = {
@@ -45,6 +49,10 @@ module "azentia-web" {
   alb_listeners                   = module.shared.alb_listeners
   load_balancer_security_group_id = module.shared.load_balancer_security_group_id
   service_security_group_id       = module.shared.service_security_group_id
+  subnet_ids              = [
+    module.shared.public_subnet_ids[0],  # Assuming you want to use public subnets
+    module.shared.public_subnet_ids[1]
+  ]  
 
   environment_variables_override = {}
 
