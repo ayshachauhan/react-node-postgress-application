@@ -148,7 +148,7 @@ jobs:
           echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$VERSION_TAG"
 
 
-      - name: Terraform generate workspace
+      - name: Generate provider 
         run: |
           node ./scripts/start.js
 
@@ -156,6 +156,11 @@ jobs:
         uses: hashicorp/setup-terraform@v1
         with:
           terraform_version: '=1.6.6'
+
+      - name: Terraform Workspace 
+        id: workspace
+        run: |
+          terraform workspace new ${{ github.event.inputs.environment }}  
 
       # - name: Terraform Format
       #   id: fmt
