@@ -58,6 +58,7 @@ export type EvalState = EntitiesState<IEval> & {
 export type SurgeryState = EntitiesState<ISurgery> & {
   surgeryInfo: ISurgery | null;
   surgeryFilters: SurgeryFilters;
+  restricted: boolean;
 };
 
 export type SurgeryConfigurationState = EntitiesState<ISurgeryConfiguration> & {

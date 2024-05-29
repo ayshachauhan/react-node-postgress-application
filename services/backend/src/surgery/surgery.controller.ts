@@ -24,6 +24,11 @@ import { UpdateSurgeryDto } from '../surgery/dto/updateSurgery.dto';
 import { SurgeryService } from '../surgery/surgery.service';
 import { QueryDto } from './dto/getSurgery.dto';
 
+interface SurgerySearchResult {
+  surgeries: SurgeryEntity[];
+  restricted: boolean;
+}
+
 @ApiTags('Surgery')
 @ApiBearerAuth('normal')
 @Controller('practices/:practiceId/surgery')
@@ -49,7 +54,7 @@ export class SurgeryController {
     @Query('searchMRNName') searchMRNName?: string,
     @Query('option') option?: string,
     @Query('loggedInUserId') loggedInUserId?: string,
-  ): Promise<SurgeryEntity[]> {
+  ): Promise<SurgerySearchResult> {
     const months = monthQueryParam?.trim() ? monthQueryParam.split(',') : [];
 
     const surgeries = await this.surgeryService.findSelected(

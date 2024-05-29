@@ -8,9 +8,9 @@ import {
   PermissionEntity,
   SelectedSurgeryOption,
   SurgeryEntity,
-  UserEntity,
 } from '@packages/entities';
 import { PatientEntity } from '@packages/entities/patient';
+import { USER_PERMISSIONS } from '@packages/entities/permission';
 import moment from 'moment';
 import Mail from 'nodemailer/lib/mailer';
 import { SanitizedUser } from 'src/auth/types';
@@ -44,6 +44,15 @@ import {
 import { CalendarService } from '../calendar/calendar.service';
 import { HistoryService } from '../history/history.service';
 import { PatientMailData } from './types';
+
+type DateCondition = {
+  date: FindOperator<Date>;
+};
+
+interface SurgerySearchResult {
+  surgeries: SurgeryEntity[];
+  restricted: boolean;
+}
 
 type WhereClause = {
   practiceHome: {
@@ -120,17 +129,15 @@ export class SurgeryService {
     searchMRNName?: string,
     option?: string,
     loggedInUserId?: string,
-  ): Promise<SurgeryEntity[]> {
-    let userPermissions: PermissionEntity[] = [];
+  ): Promise<SurgerySearchResult> {
+    const [userInfo, dbPracticeHomesByPractice] = await Promise.all([
+      loggedInUserId ? this.userService.getUserById(loggedInUserId) : null,
+      this.practiceHomesService.getPracticeHomesByPractice(practiceId),
+    ]);
 
-    if (loggedInUserId) {
-      const userInfo: UserEntity | null =
-        await this.userService.getUserById(loggedInUserId);
-      userPermissions = userInfo ? userInfo.permissions || [] : [];
-    }
-
-    const dbPracticeHomesByPractice =
-      await this.practiceHomesService.getPracticeHomesByPractice(practiceId);
+    const userPermissions: PermissionEntity[] = userInfo
+      ? userInfo.permissions || []
+      : [];
 
     const whereClause: WhereClause = {
       practiceHome: {
@@ -151,41 +158,65 @@ export class SurgeryService {
       ],
     };
 
+    const searchConditionsWithoutPermissions = { ...searchConditions };
+
     if (option?.toLowerCase() === 'past') {
       const today = new Date();
       whereClause.date = LessThanOrEqual(today);
     }
 
-    const dateConditions =
-      months.length > 0
-        ? getStartEndDate(months, userPermissions)
-        : getFullYearDateConditions(userPermissions);
+    const dateConditionsWithPermissions = getConditions(
+      months,
+      userPermissions,
+    );
+    const dateConditionsWithoutPermissions = getConditions(months, []);
 
-    if (months.length > 0) {
+    if (months.length > 0 || searchMRNName) {
       if (searchMRNName) {
         updateWhereClauseWithSearchName(whereClause, searchMRNName);
       }
 
-      searchConditions.where = dateConditions.map((condition) => ({
-        ...whereClause,
-        ...condition,
-      }));
-    } else if (searchMRNName) {
-      updateWhereClauseWithSearchName(whereClause, searchMRNName);
-    } else if (months.length === 0 && option?.toLowerCase() !== 'past') {
-      searchConditions.where = dateConditions.map((condition) => ({
-        ...whereClause,
-        ...condition,
-      }));
+      searchConditions.where = mapDateConditions(
+        dateConditionsWithPermissions,
+        whereClause,
+      );
+      searchConditionsWithoutPermissions.where = mapDateConditions(
+        dateConditionsWithoutPermissions,
+        whereClause,
+      );
     }
 
-    const dbSurgeryByPractice =
-      await this.surgeryRepository.find(searchConditions);
-    dbSurgeryByPractice.forEach((ele) => {
-      ele.doctor.password = '';
-    });
+    const [dbSurgeryByPractice, dbSurgeryByPracticeWithoutPermission] =
+      await Promise.all([
+        this.surgeryRepository.find(searchConditions),
+        this.surgeryRepository.find(searchConditionsWithoutPermissions),
+      ]);
 
-    return dbSurgeryByPractice;
+    const sanitizeDoctorPasswords = (surgeries: SurgeryEntity[]) => {
+      surgeries.forEach((ele) => {
+        ele.doctor.password = '';
+      });
+    };
+
+    sanitizeDoctorPasswords(dbSurgeryByPractice);
+    sanitizeDoctorPasswords(dbSurgeryByPracticeWithoutPermission);
+
+    const restricted =
+      dbSurgeryByPracticeWithoutPermission.length > 0 &&
+      ((!userPermissions.some(
+        (p) => p.name === USER_PERMISSIONS.VIEW_PAST_CASES,
+      ) &&
+        dbSurgeryByPracticeWithoutPermission.some(
+          (s) => s.date < new Date(),
+        )) ||
+        (!userPermissions.some(
+          (p) => p.name === USER_PERMISSIONS.VIEW_FUTURE_CASES,
+        ) &&
+          dbSurgeryByPracticeWithoutPermission.some(
+            (s) => s.date > new Date(),
+          )));
+
+    return { surgeries: dbSurgeryByPractice, restricted };
   }
 
   async getSurgeryById(id: string): Promise<SurgeryEntity | null> {
@@ -430,4 +461,23 @@ function updateWhereClauseWithSearchName(
       { lastName: ILike(`%${searchMRNName}%`) },
     ];
   }
+}
+
+function getConditions(
+  months: string[],
+  permissions: PermissionEntity[],
+): DateCondition[] {
+  return months.length > 0
+    ? getStartEndDate(months, permissions)
+    : getFullYearDateConditions(permissions);
+}
+
+function mapDateConditions(
+  dateConditions: DateCondition[],
+  whereClause: WhereClause,
+): WhereClause[] {
+  return dateConditions.map((condition) => ({
+    ...whereClause,
+    ...condition,
+  }));
 }

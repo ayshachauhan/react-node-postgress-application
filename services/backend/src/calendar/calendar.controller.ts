@@ -28,6 +28,11 @@ import type {
   UpdateCalendarParams,
 } from './types';
 
+interface CalendarSearchResult {
+  calendars: CalendarEntity[];
+  restricted: boolean;
+}
+
 @UseInterceptors(practiceNotFoundInterceptor)
 @ApiTags('Calendar')
 @ApiBearerAuth('normal')
@@ -50,7 +55,7 @@ export class CalendarController {
     @Query('month') monthQueryParam: string,
     @Query('option') option?: string,
     @Query('loggedInUserId') loggedInUserId?: string,
-  ): Promise<CalendarEntity[]> {
+  ): Promise<CalendarSearchResult> {
     let months: string[] = [];
     if (monthQueryParam && monthQueryParam.trim() !== '') {
       months = monthQueryParam.split(',');

@@ -50,7 +50,7 @@ export function getStartEndDate(
     const monthIndex = monthMap[month];
     let startDate = new Date(currentYear, monthIndex, 1);
     let endDate = new Date(currentYear, monthIndex + 1, 0, 23, 59, 59, 999);
-    if (monthIndex === currentDate.getMonth()) {
+    if (monthIndex === currentDate.getMonth() && userPermissions.length) {
       if (!hasViewPastCasesPermission) {
         startDate = currentDate;
       }
@@ -75,13 +75,14 @@ export function getFullYearDateConditions(userPermissions: PermissionEntity[]) {
   let startDate = new Date(currentYear, 0, 1);
 
   let endDate = new Date(currentYear, 11, 31, 23, 59, 59, 999);
+  if (userPermissions.length) {
+    if (!hasViewPastCasesPermission) {
+      startDate = currentDate;
+    }
 
-  if (!hasViewPastCasesPermission) {
-    startDate = currentDate;
-  }
-
-  if (!hasViewFutureCasesPermission) {
-    endDate = currentDate;
+    if (!hasViewFutureCasesPermission) {
+      endDate = currentDate;
+    }
   }
 
   return [{ date: Between(startDate, endDate) }];

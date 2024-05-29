@@ -9,6 +9,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { PermissionEntity, UserEntity } from '@packages/entities/*';
 import { CalendarEntity } from '@packages/entities/calendar';
+import { USER_PERMISSIONS } from '@packages/entities/permission';
 import { UsersService } from 'src/users/users.service';
 import { getFullYearDateConditions, getStartEndDate } from 'src/utils';
 import {
@@ -39,6 +40,15 @@ type WhereClause = {
   user: {
     id: string;
   };
+};
+
+interface CalendarSearchResult {
+  calendars: CalendarEntity[];
+  restricted: boolean;
+}
+
+type DateCondition = {
+  date: FindOperator<Date>;
 };
 
 @Injectable()
@@ -220,7 +230,7 @@ export class CalendarService {
   /**
    * Get filered calendars based on search on dashboard for a specific practice > user > surgerytype
    * @param params
-   * @returns CalendarEntity[]
+   * @returns CalendarSearchResult
    */
   async getFilteredCalendars({
     practiceId,
@@ -234,13 +244,12 @@ export class CalendarService {
     months: string[];
     option?: string;
     loggedInUserId?: string;
-  }): Promise<CalendarEntity[]> {
+  }): Promise<CalendarSearchResult> {
     let userPermissions: PermissionEntity[] = [];
 
     if (loggedInUserId) {
-      const userInfo: UserEntity | null =
-        await this.userService.getUserById(loggedInUserId);
-      userPermissions = userInfo ? userInfo.permissions || [] : [];
+      const userInfo = await this.userService.getUserById(loggedInUserId);
+      userPermissions = userInfo?.permissions || [];
     }
 
     const whereClause: WhereClause = {
@@ -248,8 +257,7 @@ export class CalendarService {
       user: { id: userId },
     };
     if (option?.toLowerCase() === 'past') {
-      const today = new Date();
-      whereClause.date = LessThanOrEqual(today);
+      whereClause.date = LessThanOrEqual(new Date());
     }
 
     const searchConditions: FindManyOptions<CalendarEntity> = {
@@ -257,23 +265,66 @@ export class CalendarService {
       relations: ['practice', 'surgeryConfiguration', 'user'],
     };
 
-    const dateConditions =
-      months.length > 0
-        ? getStartEndDate(months, userPermissions)
-        : getFullYearDateConditions(userPermissions);
+    const searchConditionsWithoutPermissions = { ...searchConditions };
 
-    if (months.length > 0) {
-      searchConditions.where = dateConditions.map((condition) => ({
-        ...whereClause,
-        ...condition,
-      }));
-    } else if (months.length === 0 && option?.toLowerCase() !== 'past') {
-      searchConditions.where = dateConditions.map((condition) => ({
-        ...whereClause,
-        ...condition,
-      }));
+    const dateConditionsWithPermissions = getConditions(
+      months,
+      userPermissions,
+    );
+    const dateConditionsWithoutPermissions = getConditions(months, []);
+
+    if (
+      months.length > 0 ||
+      (months.length === 0 && option?.toLowerCase() !== 'past')
+    ) {
+      const conditionsWithPermissions = mapDateConditions(
+        dateConditionsWithPermissions,
+        whereClause,
+      );
+      const conditionsWithoutPermissions = mapDateConditions(
+        dateConditionsWithoutPermissions,
+        whereClause,
+      );
+
+      searchConditions.where = conditionsWithPermissions;
+      searchConditionsWithoutPermissions.where = conditionsWithoutPermissions;
     }
 
-    return await this.calendarRepo.find(searchConditions);
+    const [dbCalendars, dbCalendarsWithout] = await Promise.all([
+      this.calendarRepo.find(searchConditions),
+      this.calendarRepo.find(searchConditionsWithoutPermissions),
+    ]);
+
+    const restricted =
+      dbCalendarsWithout.length > 0 &&
+      ((!userPermissions.some(
+        (p) => p.name === USER_PERMISSIONS.VIEW_PAST_CASES,
+      ) &&
+        dbCalendarsWithout.some((s) => s.date < new Date())) ||
+        (!userPermissions.some(
+          (p) => p.name === USER_PERMISSIONS.VIEW_FUTURE_CASES,
+        ) &&
+          dbCalendarsWithout.some((s) => s.date > new Date())));
+
+    return { calendars: dbCalendars, restricted };
   }
+}
+
+function mapDateConditions(
+  dateConditions: DateCondition[],
+  whereClause: WhereClause,
+): WhereClause[] {
+  return dateConditions.map((condition) => ({
+    ...whereClause,
+    ...condition,
+  }));
+}
+
+function getConditions(
+  months: string[],
+  permissions: PermissionEntity[],
+): DateCondition[] {
+  return months.length > 0
+    ? getStartEndDate(months, permissions)
+    : getFullYearDateConditions(permissions);
 }

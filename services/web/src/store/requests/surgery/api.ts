@@ -1,10 +1,19 @@
-import { CreateSurgeryPayload, UpdateSurgeryPayload } from '@packages/entities';
+import {
+  CreateSurgeryPayload,
+  SurgeryEntity,
+  UpdateSurgeryPayload,
+} from '@packages/entities';
 import { getIpAddress } from '@root/utils';
 import { constructQueryParams } from '@utils/index';
 import Cookies from 'js-cookie';
 import { publicRuntimeConfig } from 'next.config';
 
 const { API_BASE_URL } = publicRuntimeConfig;
+
+interface SurgerySearchResult {
+  surgeries: SurgeryEntity[];
+  restricted: boolean;
+}
 
 export const getSurgeries = async (
   payloadData: {
@@ -47,7 +56,7 @@ export const getFilteredSurgeries = async (
     option?: string;
   },
   { rejectWithValue },
-) => {
+): Promise<SurgerySearchResult> => {
   const {
     loggedInUserId,
     practiceId,
@@ -86,7 +95,7 @@ export const getFilteredSurgeries = async (
       throw new Error('Failed to get surgery');
     }
 
-    const data = await response.json();
+    const data: SurgerySearchResult = await response.json();
     return data;
   } catch (error) {
     return rejectWithValue(error);

@@ -9,11 +9,16 @@ import {
 } from '../requests/calendar/api';
 import { EntitiesState, EntityLoadingState } from '../types';
 
-const initialState: EntitiesState<ICalendar> = {
+interface EntitiesStateWithRestricted<T> extends EntitiesState<T> {
+  restricted: boolean;
+}
+
+const initialState: EntitiesStateWithRestricted<ICalendar> = {
   processing: false,
   entities: {},
   status: EntityLoadingState.IDLE,
   successMessage: undefined,
+  restricted: false,
   errorMessage: undefined,
 };
 
@@ -68,10 +73,16 @@ const calendarSlice = createSlice({
 
     builder.addCase(fetchFilteredCalendars.fulfilled, (state, action) => {
       state.status = EntityLoadingState.SUCCEEDED;
-      if (action.payload.length === 0) {
-        state.errorMessage = 'No records found';
+      state.entities = indexBy('id', action.payload.calendars);
+      state.restricted = action.payload.restricted;
+      if (state.restricted) {
+        state.errorMessage =
+          "You don't have required permissions to see some records.";
+      } else if (action.payload.calendars.length === 0) {
+        state.errorMessage = 'No records found.';
+      } else {
+        state.errorMessage = '';
       }
-      state.entities = indexBy('id', action.payload);
     });
 
     builder.addCase(fetchFilteredCalendars.rejected, (state, action) => {

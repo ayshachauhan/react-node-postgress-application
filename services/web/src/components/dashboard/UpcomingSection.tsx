@@ -411,7 +411,7 @@ const UpcomingSection: React.FC = () => {
             </div>
           ))
         ) : (
-          <div>No records found.</div>
+          <div>No records found</div>
         )}
       </div>
       <UpsertCalendarModal isUpdating={isUpdating} />

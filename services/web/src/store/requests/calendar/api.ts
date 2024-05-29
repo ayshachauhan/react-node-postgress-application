@@ -1,3 +1,4 @@
+import { CalendarEntity } from '@packages/entities';
 import { ICalendar } from '@packages/entities/index.browser';
 import { ApiService } from '@root/services/apiclient';
 import { constructQueryParams } from '@root/utils';
@@ -9,6 +10,11 @@ import {
   UpdateCalendarPayload,
   UpdateCalendarsPayload,
 } from './types';
+
+interface CalendarSearchResult {
+  calendars: CalendarEntity[];
+  restricted: boolean;
+}
 
 const apiClient = new ApiService();
 
@@ -183,7 +189,7 @@ export const updateCalendars = async (
 export const getFilteredCalendars = async (
   payload: GetCalendarsPayload,
   { rejectWithValue },
-): Promise<ICalendar[]> => {
+): Promise<CalendarSearchResult> => {
   try {
     const queryParams = constructQueryParams({
       month: payload.month,
@@ -201,7 +207,7 @@ export const getFilteredCalendars = async (
         throw new Error('Failed to fetch calendars');
       }
 
-      const data: ICalendar[] = await response.json();
+      const data: CalendarSearchResult = await response.json();
 
       return data;
     } else {

@@ -39,6 +39,7 @@ const initialState: SurgeryState = {
     searchMRNName: null,
     selectedValue: null,
   },
+  restricted: false,
 };
 
 const surgeriesSlicer = createSlice({
@@ -94,7 +95,16 @@ const surgeriesSlicer = createSlice({
 
     builder.addCase(fetchFilteredSurgeries.fulfilled, (state, action) => {
       state.status = EntityLoadingState.SUCCEEDED;
-      state.entities = indexBy('id', action.payload);
+      state.entities = indexBy('id', action.payload.surgeries);
+      state.restricted = action.payload.restricted;
+      if (state.restricted) {
+        state.errorMessage =
+          "You don't have required permissions to see some records.";
+      } else if (action.payload.surgeries.length === 0) {
+        state.errorMessage = 'No records found.';
+      } else {
+        state.errorMessage = '';
+      }
     });
 
     builder.addCase(fetchFilteredSurgeries.rejected, (state, action) => {

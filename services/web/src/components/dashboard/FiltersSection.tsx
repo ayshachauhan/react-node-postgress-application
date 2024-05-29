@@ -95,7 +95,9 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
       checkListHeaders: string[];
     };
   } = {};
-  const surgeryInfo = useAppSelector((state) => state.surgeries.surgeryInfo);
+  const { surgeryInfo, errorMessage } = useAppSelector(
+    (state) => state.surgeries,
+  );
   const surgeryList: ISurgery[] = useAppSelector((state) =>
     Object.values(state.surgeries.entities),
   );
@@ -802,7 +804,7 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
           />
         </div>
       ) : (
-        <div className="text-center py-3 px-2.5">No records found.</div>
+        <div className="text-center py-3 px-2.5">{errorMessage}</div>
       )}
     </div>
   );
