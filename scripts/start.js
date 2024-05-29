@@ -60,7 +60,7 @@ const start = async () => {
 
   fs.writeFileSync(`./terraform/terraform.auto.tfvars`, data);
 
-  provider = provider.replace('__WORKSPACE__', `azentia-${environment}`);
+  // provider = provider.replace('__WORKSPACE__', `azentia-${environment}`);
 
   fs.writeFileSync(`./terraform/provider.tf`, provider);
 

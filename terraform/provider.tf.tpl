@@ -11,10 +11,6 @@ terraform {
     encrypt        = true
     dynamodb_table = "azentia_terraformstate_lockid"            # Replace with the name of your DynamoDB table for state locking
   }
-  
-  workspaces {
-    name = "__WORKSPACE__"
-  }
 }
 
 provider "aws" {
