@@ -126,19 +126,19 @@ export class EmailHandlerService {
       emailLogsEntries.push(entry);
     }
 
-    console.log(emailLogsEntries, 123);
-
+    // creating entries for cron job
     const dbEmailLogEntries =
       await this.emailLogRepository.save(emailLogsEntries);
-    console.log(213);
 
     if (fromEval) {
+      // creating entries in eval email log table
       const evalEmailEntries = dbEmailLogEntries.map((ele) => ({
         eval: entity,
         emailLog: ele,
       }));
       await this.evalEmailRepository.save(evalEmailEntries);
     } else {
+      // creating entries in surgery email log table
       const surgeryEmailEntries = dbEmailLogEntries.map((ele) => ({
         surgery: entity,
         emailLog: ele,

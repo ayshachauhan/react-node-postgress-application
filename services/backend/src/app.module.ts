@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { SchedulerModule } from 'src/scheduler/scheduler.module';
 import { AuthModule } from './auth/auth.module';
 import { CalendarModule } from './calendar/calendar.module';
 import { EmailHandlerModule } from './emailHandler/emailHandler.module';
@@ -43,6 +44,7 @@ import { UsersModule } from './users/users.module';
     SurgeryConfigurationsModule,
     HistoryModule,
     EmailHandlerModule,
+    SchedulerModule,
   ],
 })
 export class AppModule {}

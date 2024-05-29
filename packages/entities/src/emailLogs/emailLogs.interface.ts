@@ -12,7 +12,7 @@ export interface EmailData {
 }
 
 export interface EmailResponse {
-  statusCode: number;
+  statusCode?: number;
   message: string;
 }
 
