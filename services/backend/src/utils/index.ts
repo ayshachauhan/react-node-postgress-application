@@ -2,12 +2,13 @@ import { PermissionEntity } from '@packages/entities/*';
 import { USER_PERMISSIONS } from '@packages/entities/permission';
 import { Between } from 'typeorm';
 
+const currentYear = new Date().getFullYear();
+const currentDate = new Date();
+
 export function getStartEndDate(
   months: string[] = [],
   userPermissions: PermissionEntity[],
 ) {
-  const currentYear = new Date().getFullYear();
-  const currentDate = new Date();
   const monthNames = [
     'January',
     'February',
@@ -64,9 +65,6 @@ export function getStartEndDate(
 }
 
 export function getFullYearDateConditions(userPermissions: PermissionEntity[]) {
-  const currentYear = new Date().getFullYear();
-  const currentDate = new Date();
-
   const hasViewPastCasesPermission = userPermissions.some(
     (permission) => permission.name === USER_PERMISSIONS.VIEW_PAST_CASES,
   );

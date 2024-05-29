@@ -74,7 +74,10 @@ const UpsertCalendar: React.FC<{
           }
         }
       } else {
-        const payload: Omit<CreateCalendarPayload, 'month' | 'option'> = {
+        const payload: Omit<
+          CreateCalendarPayload,
+          'month' | 'option' | 'loggedInUserId'
+        > = {
           practiceId,
           userId,
           surgeryConfigurationId: selectedSurgery.id,
