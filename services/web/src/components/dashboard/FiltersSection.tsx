@@ -802,7 +802,7 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
           />
         </div>
       ) : (
-        <div>No records found.</div>
+        <div className="text-center py-3 px-2.5">No records found.</div>
       )}
     </div>
   );
