@@ -364,7 +364,8 @@ export class SurgeryService {
       selectedSurgeryOptions: createSurgeryDto.selectedSurgeryOptions,
       totalHospitalPricing: createSurgeryDto.totalHospitalPricing,
       totalProfessionalPricing: createSurgeryDto.totalProfessionalPricing,
-      selectedCheckListOptions: createSurgeryDto.selectedCheckListOption,
+      selectedCheckListOptions: createSurgeryDto.selectedCheckListOptions,
+      bodyPart: createSurgeryDto.bodyPart,
     };
 
     await this.surgeryRepository.update(id, {

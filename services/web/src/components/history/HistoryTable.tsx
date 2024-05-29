@@ -1,9 +1,11 @@
 'use client';
+import { ISurgery } from '@packages/entities';
 import {
   ChangedValue,
   EntityChanges,
   HistoryAction,
   HistoryType,
+  IEval,
   IHistory,
 } from '@packages/entities/index.browser';
 import { useAppDispatch, useAppSelector } from '@root/store';
@@ -38,14 +40,13 @@ export default function HistoryTable() {
 
   const practiceId = getPracticeId();
 
-  const { historyLogs, surgeries, surgerySuccessMessage } = useAppSelector(
-    (state) => ({
+  const { historyLogs, surgeries, surgerySuccessMessage, evals } =
+    useAppSelector((state) => ({
       historyLogs: Object.values(state.history.entities),
       evals: Object.values(state.evals.entities),
       surgeries: Object.values(state.surgeries.entities),
       surgerySuccessMessage: state.surgeries.successMessage,
-    }),
-  );
+    }));
 
   useEffect(() => {
     if (practiceId) {
@@ -81,6 +82,44 @@ export default function HistoryTable() {
     );
   };
 
+  const getTransformedHistoryData = (
+    entityData: ISurgery | IEval | undefined,
+    history: IHistory,
+  ): HistoryData[] => {
+    let resolvedData: HistoryData[];
+
+    if (entityData) {
+      const historyData = {
+        id: entityData.id,
+        date:
+          history.action === HistoryAction.CREATE
+            ? entityData.dateCreated
+            : history.action === HistoryAction.DELETE
+              ? (entityData.dateDeleted as Date)
+              : entityData.dateUpdated,
+        surgery: entityData.surgeryConfiguration.name,
+        firstName: entityData.patient.firstName,
+        lastName: entityData.patient.lastName,
+        mrn: entityData.patient.mrn,
+        user: history.user.fullName,
+        ip: history.ipAddress ?? '',
+        field: history.action === HistoryAction.CREATE ? 'Initial' : 'Delete',
+        action: history.action,
+      };
+
+      resolvedData = history.changes
+        ? resolvedHistoryChanges(historyData, history.changes)
+        : [historyData];
+
+      return resolvedData;
+    }
+    return [];
+  };
+
+  /**
+   *
+   * @returns resolved history data for surgery and eval
+   */
   const getResolvedHistoryData = (): HistoryData[] => {
     return historyLogs
       .sort(
@@ -94,66 +133,16 @@ export default function HistoryTable() {
               (surgery) => surgery.id === history.entityId,
             );
 
-            let resolvedData: HistoryData[];
-
-            if (surgeryData) {
-              const historyData = {
-                id: surgeryData.id,
-                date:
-                  history.action === HistoryAction.CREATE
-                    ? surgeryData.dateCreated
-                    : history.action === HistoryAction.DELETE
-                      ? (surgeryData.dateDeleted as Date)
-                      : surgeryData.dateUpdated,
-                surgery: surgeryData.surgeryConfiguration.name,
-                firstName: surgeryData.patient.firstName,
-                lastName: surgeryData.patient.lastName,
-                mrn: surgeryData.patient.mrn,
-                user: history.user.fullName,
-                ip: history.ipAddress ?? '',
-                field:
-                  history.action === HistoryAction.CREATE
-                    ? 'Initial'
-                    : 'Delete',
-                action: history.action,
-              };
-
-              resolvedData = history.changes
-                ? resolvedHistoryChanges(historyData, history.changes)
-                : [historyData];
-
-              return resolvedData;
-            }
-            return [];
+            return getTransformedHistoryData(surgeryData, history);
           }
 
-          // case HistoryType.EVAL: {
-          //   const evalData = evals.find((data) => data.id === history.entityId);
+          case HistoryType.EVAL: {
+            const evalData = evals.find(
+              (data: IEval) => data.id === history.entityId,
+            );
 
-          //   let resolvedData: HistoryData[];
-
-          //   if (evalData) {
-          //     const historyData = {
-          //       id: evalData.id,
-          //       date: evalData.dateCreated,
-          //       surgery: evalData.surgeryType?.name,
-          //       firstName: evalData.patient.firstName,
-          //       lastName: evalData.patient.lastName,
-          //       mrn: evalData.patient.mrn,
-          //       field: evalData.eye,
-          //       user: history.user.fullName,
-          //       ip: history.ipAddress ?? '',
-          //       action: history.action,
-          //     };
-
-          //     resolvedData = history.changes
-          //       ? resolvedHistoryChanges(historyData, history.changes)
-          //       : [historyData];
-
-          //     return resolvedData;
-          //   }
-          //   return [];
-          // }
+            return getTransformedHistoryData(evalData, history);
+          }
 
           default:
             return [];

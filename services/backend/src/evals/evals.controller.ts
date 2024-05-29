@@ -6,6 +6,8 @@ import {
   Param,
   Patch,
   Post,
+  Query,
+  Req,
   UseGuards,
   UseInterceptors,
   ValidationPipe,
@@ -18,7 +20,9 @@ import { PermissionGuard } from 'src/auth/userPermissions.guard';
 import { CreateEvalDto } from 'src/evals/dto/createEval.dto';
 import { EvalsService } from 'src/evals/evals.service';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
+import { ParseStringToBooleanPipe } from 'src/utils/pipes/stringToBoolean.pipes';
 import { UpdateEvalDto } from './dto/updateEval.dto';
+import { AuthenticatedRequest } from './types';
 
 @ApiTags('Evals')
 @ApiBearerAuth('normal')
@@ -32,8 +36,10 @@ export class EvalsController {
   @UseInterceptors(practiceNotFoundInterceptor)
   async findAll(
     @Param() { practiceId }: { practiceId: string },
+    @Query('includeDeleted', ParseStringToBooleanPipe)
+    includeDeleted: boolean = false,
   ): Promise<EvalEntity[]> {
-    return this.evalService.findAll(practiceId);
+    return this.evalService.findAll(practiceId, includeDeleted);
   }
 
   @Get(':id')
@@ -49,10 +55,12 @@ export class EvalsController {
   async create(
     @Body(new ValidationPipe()) createEvalDto: CreateEvalDto,
     @Param() { practiceId }: { practiceId: string },
+    @Req() request: AuthenticatedRequest,
   ): Promise<EvalEntity> {
     return this.evalService.create({
       createEvalDto,
       practiceId,
+      user: request.user,
     });
   }
 
@@ -61,17 +69,30 @@ export class EvalsController {
   async update(
     @Body(new ValidationPipe()) createEvalDto: UpdateEvalDto,
     @Param()
-    { id }: { id: string },
+    { id, practiceId }: { id: string; practiceId: string },
+    @Req() request: AuthenticatedRequest,
   ): Promise<EvalEntity | null> {
     return this.evalService.update({
       createEvalDto,
       id,
+      user: request.user,
+      practiceId,
     });
   }
 
   @Delete(':id')
   @UseGuards(PermissionGuard(USER_PERMISSIONS.DELETE_CASE))
-  async remove(@Param('id') id: string): Promise<void> {
-    return await this.evalService.remove(id);
+  async remove(
+    @Param()
+    { id, practiceId }: { id: string; practiceId: string },
+    @Req() request: AuthenticatedRequest,
+    @Body(new ValidationPipe()) deleteEvalDto: { ipAddress: string },
+  ): Promise<void> {
+    return await this.evalService.remove({
+      id,
+      practiceId,
+      ipAddress: deleteEvalDto.ipAddress,
+      user: request.user,
+    });
   }
 }
