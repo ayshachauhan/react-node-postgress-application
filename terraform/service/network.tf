@@ -25,14 +25,14 @@ data "aws_vpc" "azentia_aws_vpc" {
 data "aws_subnets" "public-subnet-1" {
   filter {
     name   = "azentia-public-subnet-1"
-    values = [data.aws_vpc.azentia_aws_vpc]
+    values = [data.aws_vpc.azentia_aws_vpc.id]
   }
 }
 
 data "aws_subnets" "public-subnet-2" {
   filter {
     name   = "azentia-public-subnet-2"
-    values = [data.aws_vpc.azentia_aws_vpc]
+    values = [data.aws_vpc.azentia_aws_vpc.id]
   }
 }
 
