@@ -43,25 +43,24 @@ export class SurgeryController {
   @Get('search')
   @UseInterceptors(practiceNotFoundInterceptor)
   async searchSurgeries(
-    @Param() { practiceId }: { practiceId: string },
-    @Query(new ValidationPipe()) { includeDeleted }: QueryDto,
+    @Param('practiceId') practiceId: string,
+    @Query(new ValidationPipe()) query: QueryDto,
     @Query('month') monthQueryParam: string,
     @Query('searchMRNName') searchMRNName?: string,
     @Query('option') option?: string,
     @Query('loggedInUserId') loggedInUserId?: string,
   ): Promise<SurgeryEntity[]> {
-    let month: string[] = [];
-    if (monthQueryParam && monthQueryParam.trim() !== '') {
-      month = monthQueryParam.split(',');
-    }
+    const months = monthQueryParam?.trim() ? monthQueryParam.split(',') : [];
+
     const surgeries = await this.surgeryService.findSelected(
       practiceId,
-      includeDeleted,
-      month,
+      query.includeDeleted,
+      months,
       searchMRNName,
       option,
       loggedInUserId,
     );
+
     return surgeries;
   }
 
