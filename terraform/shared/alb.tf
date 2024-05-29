@@ -9,6 +9,7 @@ resource "aws_alb" "application_load_balancer" {
 
 # Creating a security group for the load balancer:
 resource "aws_security_group" "load_balancer_security_group" {
+  vpc_id = aws_vpc.azentia-aws-vpc.id
   ingress {
     from_port   = 80 # Allowing traffic in from port 80
     to_port     = 80
