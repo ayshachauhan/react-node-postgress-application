@@ -32,8 +32,6 @@ const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const [userImg, setUserImg] = useState<File | null>(null);
   const practiceId = getPracticeId();
 
-  console.log(userImg, 'userimg');
-
   const handleTypeChange = ({ value }) => {
     setType(value[0] ? value[0].label : null);
   };
@@ -227,7 +225,7 @@ const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                       <div>
                         {userImg ? (
                           <div>
-                            <p>{userImg.name}</p>
+                            <p>{userImg?.name}</p>
                           </div>
                         ) : (
                           <span>Drag and drop or click to upload</span>

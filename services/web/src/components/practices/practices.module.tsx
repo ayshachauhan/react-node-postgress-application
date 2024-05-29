@@ -136,7 +136,21 @@ const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 onDrop={(acceptedFiles: File[]) => {
                   setPracticeImg(acceptedFiles[0]);
                 }}
+                accept="image/*"
                 overrides={{
+                  ContentMessage: {
+                    component: () => (
+                      <div>
+                        {practiceImg ? (
+                          <div>
+                            <p>{practiceImg?.name}</p>
+                          </div>
+                        ) : (
+                          <span>Drag and drop or click to upload</span>
+                        )}
+                      </div>
+                    ),
+                  },
                   FileDragAndDrop: {
                     style: {
                       marginBottom: '16px',

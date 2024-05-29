@@ -118,11 +118,11 @@ export const updateUser = async (
     | 'dateUpdated'
     | 'permissions'
     | 'surgeries'
-  >,
+  > & { file: File | null },
   { rejectWithValue },
 ): Promise<SanitizedUser> => {
   try {
-    const { practiceId, id, ...restPayload } = payloadData;
+    const { practiceId, id, file, ...restPayload } = payloadData;
     const sanitizedPayload = { ...restPayload };
     const response = await apiClient.patch(
       `/practices/${practiceId}/users/${id}`,
@@ -132,6 +132,15 @@ export const updateUser = async (
       throw new Error('Failed to update user');
     }
     const data: SanitizedUser = await response.json();
+
+    if (file && practiceId && data.id) {
+      return await uploadImg({
+        practiceId,
+        id: data.id,
+        file,
+      });
+    }
+
     return data;
   } catch (error) {
     if (error instanceof Error) {
