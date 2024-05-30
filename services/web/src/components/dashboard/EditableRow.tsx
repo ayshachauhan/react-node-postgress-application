@@ -11,10 +11,11 @@ import { SIZE, Select } from 'baseui/select';
 import React, { useEffect, useMemo, useState } from 'react';
 
 function EditableRow({
+  rowId,
   handleCancelClick,
   customHeaders,
   surgeryInfo,
-  setSelectedAction,
+  handleUpdateClick,
 }) {
   const practiceId = getPracticeId();
   const dispatch = useAppDispatch();
@@ -89,7 +90,6 @@ function EditableRow({
 
       await dispatch(updateRecordAsync({ payload, id: surgeryInfo.id }));
 
-      setSelectedAction(null);
       setInsuranceTypeId('');
       setObj({
         insuranceTypeId: '',
@@ -105,6 +105,7 @@ function EditableRow({
         totalProfessionalPricing: 0,
       });
     }
+    handleUpdateClick(rowId); // Close the specific row after updating
   };
 
   if (surgeryInfo) {
@@ -412,7 +413,13 @@ function EditableRow({
             />
           </div>
           <div className="flex items-center gap-2 py-2 w-40">
-            <Button kind="primary" title="Update" width={60} height={10} />
+            <Button
+              kind="primary"
+              title="Update"
+              width={60}
+              height={10}
+              type="submit"
+            />
             <Button
               onClick={handleCancelClick}
               type="button"

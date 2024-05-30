@@ -54,7 +54,7 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
       checkListHeaders: string[];
     };
   } = {};
-  const surgeryInfo = useAppSelector((state) => state.surgeries.surgeryInfo);
+
   const surgeryList: ISurgery[] = useAppSelector((state) =>
     Object.values(state.surgeries.entities),
   );
@@ -287,6 +287,12 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
     );
   };
 
+  const handleUpdateClick = (rowId: string) => {
+    setEditableRows((prevEditableRows) =>
+      prevEditableRows.filter((id) => id !== rowId),
+    );
+  };
+
   return (
     <div className="overflow-x-auto">
       <div className="flex w-full bg-purple-50 px-2 border-t border-b border-gray-200 items-center">
@@ -457,18 +463,21 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
                           Action
                         </div>
                       </div>
-                      {ele[date].map((row, index) =>
-                        editableRows.includes(row.id) &&
-                        selectedAction === 'edit' &&
-                        surgeryInfo ? (
+                      {ele[date].map((row, index) => {
+                        const isEditable =
+                          editableRows.includes(row.id) &&
+                          selectedAction === 'edit';
+                        const surgeryInfo = surgeryList.find(
+                          (ele) => ele.id === row.id,
+                        );
+                        return isEditable && surgeryInfo ? (
                           <EditableRow
                             key={row.id}
+                            rowId={row.id} // Pass the rowId
                             handleCancelClick={() => handleCancelClick(row.id)}
                             customHeaders={surgeryOptionsHeadersObj}
-                            surgeryInfo={surgeryList.find(
-                              (ele) => ele.id === row.id,
-                            )}
-                            setSelectedAction={setSelectedAction}
+                            surgeryInfo={surgeryInfo}
+                            handleUpdateClick={handleUpdateClick}
                           />
                         ) : (
                           <>
@@ -711,8 +720,8 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
                                 </div>
                               )}
                           </>
-                        ),
-                      )}
+                        );
+                      })}
                     </div>
                   );
                 })}
