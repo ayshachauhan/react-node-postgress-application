@@ -17,6 +17,7 @@ import {
 
 import { USER_PERMISSIONS } from '@packages/entities/permission';
 import { useUserPermission } from '@root/hooks/userHasPermission';
+import { fetchLoggedInUser } from '@root/store/reducers/auth';
 import { fetchListings as fetchInsuranceTypesList } from '@root/store/reducers/insuranceTypes';
 import { fetchListings as fetchPatients } from '@root/store/reducers/patient';
 import { fetchListings as fetchPracticeHomesListing } from '@root/store/reducers/practiceHomes';
@@ -58,6 +59,11 @@ const DashboardPage: React.FC = () => {
     errorMessage: state.evals.errorMessage,
   }));
   const [showModal, setShowModal] = useState(false);
+
+  useEffect(() => {
+    dispatch(fetchLoggedInUser());
+  }, [dispatch]);
+
   useEffect(() => {
     if (practiceId) {
       dispatch(fetchEvalsList({ practiceId }));

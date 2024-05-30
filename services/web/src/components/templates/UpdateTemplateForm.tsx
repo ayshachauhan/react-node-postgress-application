@@ -38,7 +38,7 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
   const userId = userInfo?.id;
   const userPermissions = userInfo?.permissions;
   const editCaseAllowed = useUserPermission(userPermissions, [
-    USER_PERMISSIONS.EDIT_CASE,
+    USER_PERMISSIONS.EDIT_TEMPLATES,
   ]);
   const dispatch = useAppDispatch();
   const practiceId = getPracticeId();
