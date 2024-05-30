@@ -21,7 +21,7 @@ export class SchedulerService {
     return this.configService.get(ENVIRONMENT_VARIABLES.CRON_EMAIL_SENT_LIMIT);
   }
 
-  @Cron('*/10 * * * *') // This runs the task every 10 minutes
+  @Cron('*/2 * * * *') // This runs the task every 10 minutes
   async handleCron() {
     const today = this.getFormattedDate();
 
