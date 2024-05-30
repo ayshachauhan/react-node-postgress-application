@@ -448,7 +448,7 @@ const AddModularField: React.FC<{ onClose: () => void; items }> = ({
                         )}
                       </div>
                     </div>
-                    <div className="flex w-1/4 gap-2">
+                    <div className="flex w-2/4 gap-3">
                       <TextInput
                         size={SIZE.mini}
                         name="category"
@@ -461,31 +461,34 @@ const AddModularField: React.FC<{ onClose: () => void; items }> = ({
                           )
                         }
                       />
-                      <Checkbox
-                        name="edit_admin_option"
-                        key={index}
-                        overrides={{
-                          Checkmark: {
-                            style: ({ $checked }) => ({
-                              backgroundColor: $checked
-                                ? 'rgba(59, 130, 246, 1)'
-                                : 'white',
-                              borderColor: $checked
-                                ? 'rgba(59, 130, 246, 1)'
-                                : 'rgba(161, 161, 170, 1)',
-                              borderRadius: '4px',
-                            }),
-                          },
-                        }}
-                        checked={optionField.edit_admin_option}
-                        onChange={() =>
-                          handleOptionsFieldChangeInput(
-                            index,
-                            !optionField.edit_admin_option,
-                            'edit_admin_option',
-                          )
-                        }
-                      ></Checkbox>
+                      <div className="flex gap-1.5">
+                        <label>Edit permission</label>
+                        <Checkbox
+                          name="edit_admin_option"
+                          key={index}
+                          overrides={{
+                            Checkmark: {
+                              style: ({ $checked }) => ({
+                                backgroundColor: $checked
+                                  ? 'rgba(59, 130, 246, 1)'
+                                  : 'white',
+                                borderColor: $checked
+                                  ? 'rgba(59, 130, 246, 1)'
+                                  : 'rgba(161, 161, 170, 1)',
+                                borderRadius: '4px',
+                              }),
+                            },
+                          }}
+                          checked={optionField.edit_admin_option}
+                          onChange={() =>
+                            handleOptionsFieldChangeInput(
+                              index,
+                              !optionField.edit_admin_option,
+                              'edit_admin_option',
+                            )
+                          }
+                        ></Checkbox>
+                      </div>
                     </div>
                   </div>
                   {optionField.options.length
