@@ -31,7 +31,7 @@ module "azentia-backend" {
     DB_HOST = module.shared.rds_endpoint
   }
 
-  host_names = ["api-qa.pod111.com"]
+  host_names = ["api-${var.environment}.pod111.com"]
 
   depends_on = [ module.shared ]
 }
@@ -56,7 +56,7 @@ module "azentia-web" {
 
   environment_variables_override = {}
 
-  host_names = ["app-qa.pod111.com"]
+  host_names = ["app-${var.environment}.pod111.com"]
 
   depends_on = [ module.shared ]
 

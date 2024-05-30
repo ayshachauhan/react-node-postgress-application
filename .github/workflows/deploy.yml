@@ -127,7 +127,7 @@ jobs:
         id: push_backend_image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: azentia-backend-image-repository
+          ECR_REPOSITORY: azentia-${{ github.event.inputs.environment }}-backend-image-repository
         run: |
           echo $VERSION_TAG
           echo $ECR_REGISTRY/$ECR_REPOSITORY:$VERSION_TAG
@@ -139,7 +139,7 @@ jobs:
         id: push_web_image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: azentia-web-image-repository
+          ECR_REPOSITORY: azentia-${{ github.event.inputs.environment }}-web-image-repository
         run: |
           echo $VERSION_TAG
           echo $ECR_REGISTRY/$ECR_REPOSITORY:$VERSION_TAG
