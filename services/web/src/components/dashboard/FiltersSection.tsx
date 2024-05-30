@@ -333,6 +333,16 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
     selectedValueStr,
   ]);
 
+  useEffect(() => {
+    if (practiceId && loggedInUserId !== null) {
+      dispatchFetchFilteredSurgeryList(
+        selectedMonth,
+        searchMRNNameStr,
+        selectedValueStr,
+      );
+    }
+  }, [dispatch, practiceId, loggedInUserId]);
+
   return (
     <div className="overflow-x-auto">
       <div className="flex w-full bg-purple-50 px-2 border-t border-b border-gray-200 items-center">
