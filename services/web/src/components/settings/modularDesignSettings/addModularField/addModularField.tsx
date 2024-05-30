@@ -8,7 +8,6 @@ import { DEFAULT_SURGERYNAME_COLOR } from '@root/utils/constants';
 import { getPracticeId } from '@utils/index';
 import { SHAPE } from 'baseui/button';
 import { SIZE, Select } from 'baseui/select';
-// import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 
 const AddModularField: React.FC<{ onClose: () => void; items }> = ({
@@ -17,7 +16,6 @@ const AddModularField: React.FC<{ onClose: () => void; items }> = ({
 }) => {
   const dispatch = useAppDispatch();
   const practiceId = getPracticeId();
-  // const router = useRouter();
 
   const { surgeryTypesList } = items;
 
@@ -65,7 +63,7 @@ const AddModularField: React.FC<{ onClose: () => void; items }> = ({
   const [optionsFields, setOptionsFields] = useState([
     {
       category: '',
-      count: 0,
+      count: 1,
       options: [
         {
           billingType: '',
@@ -83,11 +81,10 @@ const AddModularField: React.FC<{ onClose: () => void; items }> = ({
     optionIndex?: number,
   ) => {
     const values = [...optionsFields];
-    if (key === 'category') {
-      values[index][key] = event;
+    if (typeof optionIndex === 'number') {
+      values[index].options[optionIndex][key] = event;
     } else {
-      if (typeof optionIndex === 'number')
-        values[index].options[optionIndex][key] = event;
+      values[index][key] = event;
     }
 
     setOptionsFields(values);
@@ -118,7 +115,7 @@ const AddModularField: React.FC<{ onClose: () => void; items }> = ({
 
       {
         category: '',
-        count: 0,
+        count: 1,
 
         options: [
           {
@@ -404,14 +401,51 @@ const AddModularField: React.FC<{ onClose: () => void; items }> = ({
               >
                 <div className="flex flex-col gap-5 m-2">
                   <div className="space-y-2 ">
-                    <div className="flex flex-row justify-between">
-                      <div>
-                        <label
-                          htmlFor="category"
-                          className="text-black text-sm"
-                        >
-                          Category
-                        </label>
+                    <div className="flex justify-between">
+                      <div className="flex gap-5">
+                        <div className="space-y-1">
+                          <label
+                            htmlFor="urlEmbed"
+                            className="text-black text-sm"
+                          >
+                            Category
+                          </label>
+                          <TextInput
+                            size={SIZE.mini}
+                            name="category"
+                            value={optionField.category}
+                            onChange={(event) =>
+                              handleOptionsFieldChangeInput(
+                                index,
+                                event,
+                                'category',
+                              )
+                            }
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <label
+                            htmlFor="urlEmbed"
+                            className="text-black text-sm"
+                          >
+                            Count
+                          </label>
+                          <TextInput
+                            type="number"
+                            min={1}
+                            max={3}
+                            size={SIZE.mini}
+                            name="category"
+                            value={optionField.count}
+                            onChange={(event) =>
+                              handleOptionsFieldChangeInput(
+                                index,
+                                event,
+                                'count',
+                              )
+                            }
+                          />
+                        </div>
                       </div>
                       <div>
                         {arr.length > 1 && (
@@ -441,20 +475,6 @@ const AddModularField: React.FC<{ onClose: () => void; items }> = ({
                           </div>
                         )}
                       </div>
-                    </div>
-                    <div className="flex-1 w-1/4 ">
-                      <TextInput
-                        size={SIZE.mini}
-                        name="category"
-                        value={optionField.category}
-                        onChange={(event) =>
-                          handleOptionsFieldChangeInput(
-                            index,
-                            event,
-                            'category',
-                          )
-                        }
-                      />
                     </div>
                   </div>
                   {optionField.options.length

@@ -40,7 +40,7 @@ const EditModularField: React.FC<{ onClose: () => void; data }> = ({
   const [optionsFields, setOptionsFields] = useState([
     {
       category: '',
-      count: 0,
+      count: 1,
       options: [
         {
           billingType: '',
@@ -134,11 +134,10 @@ const EditModularField: React.FC<{ onClose: () => void; data }> = ({
     optionIndex?: number,
   ) => {
     const values = [...optionsFields];
-    if (key === 'category') {
-      values[index][key] = event;
+    if (typeof optionIndex === 'number') {
+      values[index].options[optionIndex][key] = event;
     } else {
-      if (typeof optionIndex === 'number')
-        values[index].options[optionIndex][key] = event;
+      values[index][key] = event;
     }
 
     setOptionsFields(values);
@@ -149,7 +148,7 @@ const EditModularField: React.FC<{ onClose: () => void; data }> = ({
       ...optionsFields,
       {
         category: '',
-        count: 0,
+        count: 1,
         options: [
           {
             billingType: '',
@@ -447,14 +446,52 @@ const EditModularField: React.FC<{ onClose: () => void; data }> = ({
               >
                 <div className="flex flex-col gap-5 m-2">
                   <div className="space-y-2 flex-1">
-                    <div className="flex flex-row justify-between">
-                      <div>
-                        <label
-                          htmlFor="category"
-                          className="text-black text-sm"
-                        >
-                          Category
-                        </label>
+                    <div className="flex justify-between">
+                      <div className="flex gap-5">
+                        {' '}
+                        <div className="space-y-1">
+                          <label
+                            htmlFor="urlEmbed"
+                            className="text-black text-sm"
+                          >
+                            Category
+                          </label>
+                          <TextInput
+                            size={SIZE.mini}
+                            name="category"
+                            value={optionField.category}
+                            onChange={(event) =>
+                              handleOptionsFieldChangeInput(
+                                index,
+                                event,
+                                'category',
+                              )
+                            }
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <label
+                            htmlFor="urlEmbed"
+                            className="text-black text-sm"
+                          >
+                            Count
+                          </label>
+                          <TextInput
+                            type="number"
+                            min={1}
+                            max={3}
+                            size={SIZE.mini}
+                            name="category"
+                            value={optionField.count}
+                            onChange={(event) =>
+                              handleOptionsFieldChangeInput(
+                                index,
+                                event,
+                                'count',
+                              )
+                            }
+                          />
+                        </div>
                       </div>
                       <div>
                         {optionsArr.length > 1 && (
@@ -485,20 +522,7 @@ const EditModularField: React.FC<{ onClose: () => void; data }> = ({
                         )}
                       </div>
                     </div>
-                    <div className="flex-1 w-1/4 ">
-                      {' '}
-                      <TextInput
-                        name="category"
-                        value={optionField.category}
-                        onChange={(event) =>
-                          handleOptionsFieldChangeInput(
-                            index,
-                            event,
-                            'category',
-                          )
-                        }
-                      />
-                    </div>
+
                     <div className="space-y-4"></div>
                   </div>
                   {optionField.options.length
