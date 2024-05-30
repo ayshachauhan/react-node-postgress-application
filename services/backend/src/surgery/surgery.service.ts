@@ -5,10 +5,12 @@ import {
   HistoryAction,
   HistoryType,
   ICalendar,
+  PermissionEntity,
   SelectedSurgeryOption,
   SurgeryEntity,
 } from '@packages/entities';
 import { PatientEntity } from '@packages/entities/patient';
+import { USER_PERMISSIONS } from '@packages/entities/permission';
 import moment from 'moment';
 import Mail from 'nodemailer/lib/mailer';
 import { SanitizedUser } from 'src/auth/types';
@@ -28,10 +30,37 @@ import { SurgeryTypesService } from 'src/surgeryTypes/surgeryTypes.service';
 import { TransporterService } from 'src/transporter';
 import { SystemTemplates } from 'src/transporter/transporter.types';
 import { UsersService } from 'src/users/users.service';
-import { In, Repository } from 'typeorm';
+import { getFullYearDateConditions, getStartEndDate } from 'src/utils';
+import {
+  Equal,
+  FindManyOptions,
+  FindOperator,
+  FindOptionsWhere,
+  ILike,
+  In,
+  LessThanOrEqual,
+  Repository,
+} from 'typeorm';
 import { CalendarService } from '../calendar/calendar.service';
 import { HistoryService } from '../history/history.service';
 import { PatientMailData } from './types';
+
+type DateCondition = {
+  date: FindOperator<Date>;
+};
+
+interface SurgerySearchResult {
+  surgeries: SurgeryEntity[];
+  restricted: boolean;
+}
+
+type WhereClause = {
+  practiceHome: {
+    id: ReturnType<typeof In>;
+  };
+  date?: Date | FindOperator<Date>;
+  patient?: FindOptionsWhere<PatientEntity> | FindOptionsWhere<PatientEntity>[];
+};
 
 @Injectable()
 export class SurgeryService {
@@ -91,6 +120,117 @@ export class SurgeryService {
     dbSurgeryByPractice.forEach((ele) => (ele.doctor.password = ''));
 
     return dbSurgeryByPractice;
+  }
+
+  async findSelected(
+    practiceId: string,
+    includeDelete: boolean = false,
+    months: string[] = [],
+    searchMRNName?: string,
+    option?: string,
+    loggedInUserId?: string,
+  ): Promise<SurgerySearchResult> {
+    const [userInfo, dbPracticeHomesByPractice] = await Promise.all([
+      loggedInUserId ? this.userService.getUserById(loggedInUserId) : null,
+      this.practiceHomesService.getPracticeHomesByPractice(practiceId),
+    ]);
+
+    const userPermissions: PermissionEntity[] = userInfo
+      ? userInfo.permissions || []
+      : [];
+
+    const whereClause: WhereClause = {
+      practiceHome: {
+        id: In(dbPracticeHomesByPractice.map((ele) => ele.id)),
+      },
+    };
+
+    const searchConditions: FindManyOptions<SurgeryEntity> = {
+      where: whereClause,
+      withDeleted: includeDelete,
+      relations: [
+        'practiceHome',
+        'surgeryConfiguration',
+        'patient',
+        'insuranceType',
+        'patient.referrer',
+        'doctor',
+      ],
+    };
+
+    const searchConditionsWithoutPermissions = { ...searchConditions };
+
+    if (option?.toLowerCase() === 'past') {
+      const today = new Date();
+      whereClause.date = LessThanOrEqual(today);
+    }
+
+    const dateConditionsWithPermissions = getConditions(
+      months,
+      userPermissions,
+    );
+    const dateConditionsWithoutPermissions = getConditions(months, []);
+
+    if (
+      months.length === 0 &&
+      searchMRNName &&
+      option?.toLowerCase() !== 'past'
+    ) {
+      updateWhereClauseWithSearchName(whereClause, searchMRNName);
+      searchConditions.where = mapDateConditions(
+        dateConditionsWithPermissions,
+        whereClause,
+      );
+      searchConditionsWithoutPermissions.where = mapDateConditions(
+        dateConditionsWithoutPermissions,
+        whereClause,
+      );
+    } else {
+      if (searchMRNName) {
+        updateWhereClauseWithSearchName(whereClause, searchMRNName);
+      }
+
+      if (
+        months.length > 0 ||
+        (months.length === 0 && option?.toLowerCase() !== 'past')
+      ) {
+        searchConditions.where = mapDateConditions(
+          dateConditionsWithPermissions,
+          whereClause,
+        );
+        searchConditionsWithoutPermissions.where = mapDateConditions(
+          dateConditionsWithoutPermissions,
+          whereClause,
+        );
+      }
+    }
+
+    const [dbSurgeryByPractice, dbSurgeryByPracticeWithoutPermission] =
+      await Promise.all([
+        this.surgeryRepository.find(searchConditions),
+        this.surgeryRepository.find(searchConditionsWithoutPermissions),
+      ]);
+
+    dbSurgeryByPractice.forEach((ele) => {
+      ele.doctor.password = '';
+    });
+
+    const restricted =
+      dbSurgeryByPracticeWithoutPermission.length > 0 &&
+      ((!userPermissions.some(
+        (p) => p.name === USER_PERMISSIONS.VIEW_PAST_CASES,
+      ) &&
+        dbSurgeryByPracticeWithoutPermission.some(
+          (s) => s.date < new Date(),
+        )) ||
+        (!userPermissions.some(
+          (p) => p.name === USER_PERMISSIONS.VIEW_FUTURE_CASES,
+        ) &&
+          dbSurgeryByPracticeWithoutPermission.some(
+            (s) => s.date > new Date(),
+          )));
+
+    return { surgeries: dbSurgeryByPractice, restricted };
   }
 
   async getSurgeryById(id: string): Promise<SurgeryEntity | null> {
@@ -320,4 +460,38 @@ export class SurgeryService {
       ipAddress,
     });
   }
+}
+
+function updateWhereClauseWithSearchName(
+  whereClause: WhereClause,
+  searchMRNName: string,
+): void {
+  const mrnNumber = parseInt(searchMRNName, 10);
+  if (!isNaN(mrnNumber)) {
+    whereClause.patient = { mrn: Equal(mrnNumber) };
+  } else {
+    whereClause.patient = [
+      { firstName: ILike(`%${searchMRNName}%`) },
+      { lastName: ILike(`%${searchMRNName}%`) },
+    ];
+  }
+}
+
+function getConditions(
+  months: string[],
+  permissions: PermissionEntity[],
+): DateCondition[] {
+  return months.length > 0
+    ? getStartEndDate(months, permissions)
+    : getFullYearDateConditions(permissions);
+}
+
+function mapDateConditions(
+  dateConditions: DateCondition[],
+  whereClause: WhereClause,
+): WhereClause[] {
+  return dateConditions.map((condition) => ({
+    ...whereClause,
+    ...condition,
+  }));
 }
