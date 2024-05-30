@@ -45,6 +45,7 @@ type WhereClause = {
 interface CalendarSearchResult {
   calendars: CalendarEntity[];
   restricted: boolean;
+  calendarsWithoutPermission: CalendarEntity[];
 }
 
 type DateCondition = {
@@ -290,23 +291,27 @@ export class CalendarService {
       searchConditionsWithoutPermissions.where = conditionsWithoutPermissions;
     }
 
-    const [dbCalendars, dbCalendarsWithout] = await Promise.all([
+    const [dbCalendars, dbCalendarsWithoutPermission] = await Promise.all([
       this.calendarRepo.find(searchConditions),
       this.calendarRepo.find(searchConditionsWithoutPermissions),
     ]);
 
     const restricted =
-      dbCalendarsWithout.length > 0 &&
+      dbCalendarsWithoutPermission.length > 0 &&
       ((!userPermissions.some(
         (p) => p.name === USER_PERMISSIONS.VIEW_PAST_CASES,
       ) &&
-        dbCalendarsWithout.some((s) => s.date < new Date())) ||
+        dbCalendarsWithoutPermission.some((s) => s.date < new Date())) ||
         (!userPermissions.some(
           (p) => p.name === USER_PERMISSIONS.VIEW_FUTURE_CASES,
         ) &&
-          dbCalendarsWithout.some((s) => s.date > new Date())));
+          dbCalendarsWithoutPermission.some((s) => s.date > new Date())));
 
-    return { calendars: dbCalendars, restricted };
+    return {
+      calendars: dbCalendars,
+      restricted,
+      calendarsWithoutPermission: dbCalendarsWithoutPermission,
+    };
   }
 }
 

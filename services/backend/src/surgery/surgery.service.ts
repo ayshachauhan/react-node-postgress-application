@@ -171,11 +171,12 @@ export class SurgeryService {
     );
     const dateConditionsWithoutPermissions = getConditions(months, []);
 
-    if (months.length > 0 || searchMRNName) {
-      if (searchMRNName) {
-        updateWhereClauseWithSearchName(whereClause, searchMRNName);
-      }
-
+    if (
+      months.length === 0 &&
+      searchMRNName &&
+      option?.toLowerCase() !== 'past'
+    ) {
+      updateWhereClauseWithSearchName(whereClause, searchMRNName);
       searchConditions.where = mapDateConditions(
         dateConditionsWithPermissions,
         whereClause,
@@ -184,6 +185,24 @@ export class SurgeryService {
         dateConditionsWithoutPermissions,
         whereClause,
       );
+    } else {
+      if (searchMRNName) {
+        updateWhereClauseWithSearchName(whereClause, searchMRNName);
+      }
+
+      if (
+        months.length > 0 ||
+        (months.length === 0 && option?.toLowerCase() !== 'past')
+      ) {
+        searchConditions.where = mapDateConditions(
+          dateConditionsWithPermissions,
+          whereClause,
+        );
+        searchConditionsWithoutPermissions.where = mapDateConditions(
+          dateConditionsWithoutPermissions,
+          whereClause,
+        );
+      }
     }
 
     const [dbSurgeryByPractice, dbSurgeryByPracticeWithoutPermission] =
@@ -192,14 +211,9 @@ export class SurgeryService {
         this.surgeryRepository.find(searchConditionsWithoutPermissions),
       ]);
 
-    const sanitizeDoctorPasswords = (surgeries: SurgeryEntity[]) => {
-      surgeries.forEach((ele) => {
-        ele.doctor.password = '';
-      });
-    };
-
-    sanitizeDoctorPasswords(dbSurgeryByPractice);
-    sanitizeDoctorPasswords(dbSurgeryByPracticeWithoutPermission);
+    dbSurgeryByPractice.forEach((ele) => {
+      ele.doctor.password = '';
+    });
 
     const restricted =
       dbSurgeryByPracticeWithoutPermission.length > 0 &&

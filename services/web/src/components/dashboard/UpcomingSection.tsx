@@ -41,6 +41,9 @@ const UpcomingSection: React.FC = () => {
     surgeryConfigurations: Object.values(state.surgeryConfigurations.entities),
   }));
 
+  const { errorMessage, calendarsWithoutPermission, restricted } =
+    useAppSelector((state) => state.calendars);
+
   const practiceId: string | null = getPracticeId();
 
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -236,6 +239,21 @@ const UpcomingSection: React.FC = () => {
 
   const calendarData = splitCalendarData(filteredCalendars);
 
+  const recordExists = calendarsWithoutPermission.some(
+    (calendar: ICalendar) => {
+      return calendar.surgeryConfiguration.name === selectedSurgery?.name;
+    },
+  );
+
+  let displayErrorMessage: string;
+
+  if (calendarData.length === 0 && recordExists && restricted) {
+    displayErrorMessage =
+      errorMessage || 'You dont have required permissions to see some records.';
+  } else {
+    displayErrorMessage = 'No records found';
+  }
+
   /**
    * @summary Upsert calendar modal to add or update the data
    * @param param0
@@ -411,7 +429,7 @@ const UpcomingSection: React.FC = () => {
             </div>
           ))
         ) : (
-          <div>No records found</div>
+          <div>{displayErrorMessage}</div>
         )}
       </div>
       <UpsertCalendarModal isUpdating={isUpdating} />

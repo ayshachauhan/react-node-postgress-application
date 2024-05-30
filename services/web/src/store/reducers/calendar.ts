@@ -1,3 +1,4 @@
+import { CalendarEntity } from '@packages/entities';
 import { ICalendar } from '@packages/entities/index.browser';
 import { PayloadAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { indexBy } from '@root/utils/index';
@@ -11,6 +12,7 @@ import { EntitiesState, EntityLoadingState } from '../types';
 
 interface EntitiesStateWithRestricted<T> extends EntitiesState<T> {
   restricted: boolean;
+  calendarsWithoutPermission: CalendarEntity[];
 }
 
 const initialState: EntitiesStateWithRestricted<ICalendar> = {
@@ -19,6 +21,7 @@ const initialState: EntitiesStateWithRestricted<ICalendar> = {
   status: EntityLoadingState.IDLE,
   successMessage: undefined,
   restricted: false,
+  calendarsWithoutPermission: [],
   errorMessage: undefined,
 };
 
@@ -74,6 +77,8 @@ const calendarSlice = createSlice({
     builder.addCase(fetchFilteredCalendars.fulfilled, (state, action) => {
       state.status = EntityLoadingState.SUCCEEDED;
       state.entities = indexBy('id', action.payload.calendars);
+      state.calendarsWithoutPermission =
+        action.payload.calendarsWithoutPermission;
       state.restricted = action.payload.restricted;
       if (state.restricted) {
         state.errorMessage =

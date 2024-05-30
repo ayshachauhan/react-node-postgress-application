@@ -31,6 +31,7 @@ import type {
 interface CalendarSearchResult {
   calendars: CalendarEntity[];
   restricted: boolean;
+  calendarsWithoutPermission: CalendarEntity[];
 }
 
 @UseInterceptors(practiceNotFoundInterceptor)

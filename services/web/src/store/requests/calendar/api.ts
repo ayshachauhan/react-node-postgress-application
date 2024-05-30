@@ -14,6 +14,7 @@ import {
 interface CalendarSearchResult {
   calendars: CalendarEntity[];
   restricted: boolean;
+  calendarsWithoutPermission: CalendarEntity[];
 }
 
 const apiClient = new ApiService();
