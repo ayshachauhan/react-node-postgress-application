@@ -1,0 +1,16 @@
+export enum TEMPLATE_VARIABLES {
+  'fname' = 'fname',
+  'lname' = 'lname',
+  'mrn' = 'mrn',
+  'pt_email_address' = 'pt_email_address',
+  'surgery_date' = 'surgery_date',
+  'pt_email_notify' = 'pt_email_notify',
+  'laterality' = 'laterality',
+  'Laterality' = 'Laterality',
+  'surgery_type' = 'surgery_type',
+  'pod1_location' = 'pod1_location',
+  'cataract_variable' = 'cataract_variable',
+  'all_cases' = 'all_cases',
+  'all_cataract_dates' = 'all_cataract_dates',
+  'all_case_type' = 'all_case_type',
+}
