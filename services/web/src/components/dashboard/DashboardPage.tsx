@@ -22,10 +22,7 @@ import { fetchListings as fetchInsuranceTypesList } from '@root/store/reducers/i
 import { fetchListings as fetchPatients } from '@root/store/reducers/patient';
 import { fetchListings as fetchPracticeHomesListing } from '@root/store/reducers/practiceHomes';
 import { fetchListings as fetchReferrerList } from '@root/store/reducers/referrer';
-import {
-  clearSuccessMessage as clearSurgerySuccessMessage,
-  fetchListings as fetchSurgeryList,
-} from '@root/store/reducers/surgery';
+import { clearSuccessMessage as clearSurgerySuccessMessage } from '@root/store/reducers/surgery';
 import { fetchListings as fetchSurgeryConfigurationsListing } from '@root/store/reducers/surgeryConfigurations';
 import { fetchListings as fetchSurgeryTypesListing } from '@root/store/reducers/surgeryTypes';
 import { fetchListings as fetchUsersList } from '@root/store/reducers/users';
@@ -67,7 +64,6 @@ const DashboardPage: React.FC = () => {
   useEffect(() => {
     if (practiceId) {
       dispatch(fetchEvalsList({ practiceId }));
-      dispatch(fetchSurgeryList({ practiceId }));
       dispatch(fetchInsuranceTypesList({ practiceId }));
       dispatch(fetchPracticeHomesListing({ practiceId }));
       dispatch(fetchSurgeryTypesListing({ practiceId }));
@@ -82,7 +78,6 @@ const DashboardPage: React.FC = () => {
     if (addSurgerySuccessMessage || addEvalSuccessMessage) {
       if (practiceId) {
         dispatch(fetchEvalsList({ practiceId }));
-        dispatch(fetchSurgeryList({ practiceId }));
         dispatch(clearSurgerySuccessMessage());
         dispatch(clearEvalSuccessMessage());
         dispatch(fetchSurgeryConfigurationsListing({ practiceId }));

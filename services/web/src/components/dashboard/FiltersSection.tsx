@@ -21,7 +21,6 @@ import { useAppDispatch, useAppSelector } from '@root/store';
 import {
   deleteRecordAsync,
   fetchFilteredSurgeries,
-  fetchSurgeryInfo,
   setSearchMRNName,
   setSelectedMonth,
   setSelectedValue,
@@ -281,7 +280,6 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
 
   const handleEditClick = (rowId: string) => {
     setSelectedAction('edit');
-    dispatch(fetchSurgeryInfo({ practiceId, id: rowId }));
     setEditableRows((prevEditableRows) => [...prevEditableRows, rowId]);
   };
 
