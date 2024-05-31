@@ -34,6 +34,7 @@ export const ENV_VARIABLES_SCHEMA: Record<ENVIRONMENT_VARIABLES, Joi.Schema> = {
     .optional()
     .default('Test@123'),
   [ENVIRONMENT_VARIABLES.FRONT_END_BASE_URL]: Joi.string(),
+  [ENVIRONMENT_VARIABLES.CRON_EMAIL_SENT_LIMIT]: Joi.number().default(10),
 };
 
 export const ENV_VALIDATIONS = Joi.object(ENV_VARIABLES_SCHEMA);

@@ -1,8 +1,19 @@
-import { CreateSurgeryPayload, UpdateSurgeryPayload } from '@packages/entities';
+import {
+  CreateSurgeryPayload,
+  SurgeryEntity,
+  UpdateSurgeryPayload,
+} from '@packages/entities';
 import { getIpAddress } from '@root/utils';
+import { constructQueryParams } from '@utils/index';
 import Cookies from 'js-cookie';
 import { publicRuntimeConfig } from 'next.config';
+
 const { API_BASE_URL } = publicRuntimeConfig;
+
+interface SurgerySearchResult {
+  surgeries: SurgeryEntity[];
+  restricted: boolean;
+}
 
 export const getSurgeries = async (
   payloadData: {
@@ -29,6 +40,62 @@ export const getSurgeries = async (
       throw new Error('Failed to get surgery');
     }
     const data = await response.json();
+    return data;
+  } catch (error) {
+    return rejectWithValue(error);
+  }
+};
+
+export const getFilteredSurgeries = async (
+  payloadData: {
+    loggedInUserId: string;
+    practiceId: string;
+    includeDeleted?: boolean;
+    month?: string;
+    searchMRNName?: string;
+    option?: string;
+  },
+  { rejectWithValue },
+): Promise<SurgerySearchResult> => {
+  const {
+    loggedInUserId,
+    practiceId,
+    includeDeleted,
+    month,
+    searchMRNName,
+    option,
+  } = payloadData;
+
+  try {
+    const accessToken = Cookies.get('access_token');
+    const queryParams = constructQueryParams({
+      includeDeleted: includeDeleted ?? false,
+      month,
+      searchMRNName,
+      option,
+      loggedInUserId,
+    });
+
+    if (!queryParams) {
+      throw new Error('No query parameters provided');
+    }
+
+    const response = await fetch(
+      `${API_BASE_URL}/practices/${practiceId}/surgery/search${queryParams}`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+      },
+    );
+
+    if (!response.ok) {
+      throw new Error('Failed to get surgery');
+    }
+
+    const data: SurgerySearchResult = await response.json();
     return data;
   } catch (error) {
     return rejectWithValue(error);

@@ -10,6 +10,7 @@ import { editRecordAsync } from '@root/store/reducers/surgeryConfigurations';
 import { DEFAULT_SURGERYNAME_COLOR } from '@root/utils/constants';
 import { getPracticeId } from '@utils/index';
 import { SHAPE } from 'baseui/button';
+import { Checkbox } from 'baseui/checkbox';
 import { SIZE, Select } from 'baseui/select';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
@@ -41,6 +42,8 @@ const EditModularField: React.FC<{ onClose: () => void; data }> = ({
     {
       category: '',
       count: 1,
+      edit_admin_option: false,
+
       options: [
         {
           billingType: '',
@@ -78,6 +81,7 @@ const EditModularField: React.FC<{ onClose: () => void; data }> = ({
         defaultOptions.map((ele) => ({
           category: ele.label,
           count: ele.count,
+          edit_admin_option: ele.edit_admin_option,
           options: ele.allowedValues.map((allowedValue) => ({
             billingType: allowedValue.billingType,
             hospitalPricing: allowedValue.hospitalPricing,
@@ -129,11 +133,12 @@ const EditModularField: React.FC<{ onClose: () => void; data }> = ({
 
   const handleOptionsFieldChangeInput = (
     index: number,
-    event: string,
+    event,
     key: string,
     optionIndex?: number,
   ) => {
     const values = [...optionsFields];
+
     if (typeof optionIndex === 'number') {
       values[index].options[optionIndex][key] = event;
     } else {
@@ -149,6 +154,7 @@ const EditModularField: React.FC<{ onClose: () => void; data }> = ({
       {
         category: '',
         count: 1,
+        edit_admin_option: false,
         options: [
           {
             billingType: '',
@@ -217,6 +223,7 @@ const EditModularField: React.FC<{ onClose: () => void; data }> = ({
         required: true,
         allowedValues: optionField.options,
         count: optionField.count,
+        edit_admin_option: optionField.edit_admin_option,
       };
     });
 
@@ -492,6 +499,34 @@ const EditModularField: React.FC<{ onClose: () => void; data }> = ({
                             }
                           />
                         </div>
+                        <div className="flex gap-1.5">
+                          <label>Edit permission</label>
+                          <Checkbox
+                            name="edit_admin_option"
+                            key={index}
+                            overrides={{
+                              Checkmark: {
+                                style: ({ $checked }) => ({
+                                  backgroundColor: $checked
+                                    ? 'rgba(59, 130, 246, 1)'
+                                    : 'white',
+                                  borderColor: $checked
+                                    ? 'rgba(59, 130, 246, 1)'
+                                    : 'rgba(161, 161, 170, 1)',
+                                  borderRadius: '4px',
+                                }),
+                              },
+                            }}
+                            checked={optionField.edit_admin_option}
+                            onChange={() =>
+                              handleOptionsFieldChangeInput(
+                                index,
+                                !optionField.edit_admin_option,
+                                'edit_admin_option',
+                              )
+                            }
+                          ></Checkbox>
+                        </div>
                       </div>
                       <div>
                         {optionsArr.length > 1 && (
@@ -522,7 +557,6 @@ const EditModularField: React.FC<{ onClose: () => void; data }> = ({
                         )}
                       </div>
                     </div>
-
                     <div className="space-y-4"></div>
                   </div>
                   {optionField.options.length
