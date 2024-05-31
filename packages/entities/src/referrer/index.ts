@@ -1,2 +1,2 @@
-export * from './referrrer.entity';
-export * from './referrrer.interface';
+export * from './referrer.entity';
+export * from './referrer.interface';

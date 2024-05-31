@@ -1,18 +1,27 @@
+import { CalendarEntity } from '@packages/entities';
 import { ICalendar } from '@packages/entities/index.browser';
 import { PayloadAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { indexBy } from '@root/utils/index';
 import {
   createCalendar,
   getCalendars,
+  getFilteredCalendars,
   updateCalendars,
 } from '../requests/calendar/api';
 import { EntitiesState, EntityLoadingState } from '../types';
 
-const initialState: EntitiesState<ICalendar> = {
+interface EntitiesStateWithRestricted<T> extends EntitiesState<T> {
+  restricted: boolean;
+  calendarsWithoutPermission: CalendarEntity[];
+}
+
+const initialState: EntitiesStateWithRestricted<ICalendar> = {
   processing: false,
   entities: {},
   status: EntityLoadingState.IDLE,
   successMessage: undefined,
+  restricted: false,
+  calendarsWithoutPermission: [],
   errorMessage: undefined,
 };
 
@@ -51,6 +60,37 @@ const calendarSlice = createSlice({
     });
 
     builder.addCase(fetchCalendars.rejected, (state, action) => {
+      state.status = EntityLoadingState.FAILED;
+      state.processing = false;
+      if (typeof action.payload === 'string') {
+        state.errorMessage = action.payload ?? 'Failed to fetch calendars';
+      } else {
+        state.errorMessage = 'Failed to fetch calndars';
+      }
+    });
+
+    builder.addCase(fetchFilteredCalendars.pending, (state) => {
+      state.processing = true;
+      state.status = EntityLoadingState.PENDING;
+    });
+
+    builder.addCase(fetchFilteredCalendars.fulfilled, (state, action) => {
+      state.status = EntityLoadingState.SUCCEEDED;
+      state.entities = indexBy('id', action.payload.calendars);
+      state.calendarsWithoutPermission =
+        action.payload.calendarsWithoutPermission;
+      state.restricted = action.payload.restricted;
+      if (state.restricted) {
+        state.errorMessage =
+          "You don't have required permissions to see some records.";
+      } else if (action.payload.calendars.length === 0) {
+        state.errorMessage = 'No records found.';
+      } else {
+        state.errorMessage = '';
+      }
+    });
+
+    builder.addCase(fetchFilteredCalendars.rejected, (state, action) => {
       state.status = EntityLoadingState.FAILED;
       state.processing = false;
       if (typeof action.payload === 'string') {
@@ -116,6 +156,11 @@ export const { addCalendarItem, clearSuccessMessage, clearErrorMessage } =
 export const fetchCalendars = createAsyncThunk(
   'calendar/fetchCalendars',
   getCalendars,
+);
+
+export const fetchFilteredCalendars = createAsyncThunk(
+  'calendar/fetchFilteredCalendars',
+  getFilteredCalendars,
 );
 
 export const createCalendarEntry = createAsyncThunk(

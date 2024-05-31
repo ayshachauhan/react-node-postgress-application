@@ -1,27 +1,26 @@
 import { Inject, Injectable, forwardRef } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { EvalEntity } from '@packages/entities/eval';
-import { PatientEntity } from '@packages/entities/patient';
-import Mail from 'nodemailer/lib/mailer';
-import { PatientsService } from 'src/patients/patients.service';
-import { PracticeHomesService } from 'src/practiceHomes/practiceHomes.service';
-import { PracticesService } from 'src/practices/practices.service';
-import { TransporterService } from 'src/transporter';
-import { In, Repository } from 'typeorm';
-
 import { ConfigService } from '@nestjs/config';
+import { InjectRepository } from '@nestjs/typeorm';
 import {
+  EmailVariables,
+  EvalEntity,
   HistoryAction,
   HistoryType,
   InsuranceTypeEntity,
+  PatientEntity,
 } from '@packages/entities';
+import { EmailHandlerService } from 'src/emailHandler/emailHandler.service';
 import { ENVIRONMENT_VARIABLES } from 'src/enums/environment.enums';
-import { DeleteEvalData, PatientMailData } from 'src/evals/types';
+import { DeleteEvalData } from 'src/evals/types';
 import { HistoryService } from 'src/history/history.service';
 import { InsuranceTypesService } from 'src/insuranceTypes/insuranceTypes.service';
+import { PatientsService } from 'src/patients/patients.service';
+import { PracticeHomesService } from 'src/practiceHomes/practiceHomes.service';
+import { PracticesService } from 'src/practices/practices.service';
 import { SurgeryConfigurationsService } from 'src/surgeryConfiguration/surgeryConfiguration.service';
 import { SystemTemplates } from 'src/transporter/transporter.types';
 import { UsersService } from 'src/users/users.service';
+import { In, Repository } from 'typeorm';
 import {
   EvalChangesKeyValues,
   findChangedValues,
@@ -46,8 +45,9 @@ export class EvalsService {
     private userService: UsersService,
     @Inject(forwardRef(() => SurgeryConfigurationsService))
     private surgeryConfigurationService: SurgeryConfigurationsService,
+    @Inject(forwardRef(() => EmailHandlerService))
+    private emailHandlerService: EmailHandlerService,
     private readonly configService: ConfigService,
-    private readonly transporterService: TransporterService,
     @Inject(forwardRef(() => HistoryService))
     private historyService: HistoryService,
   ) {}
@@ -153,30 +153,39 @@ export class EvalsService {
       ipAddress: createEvalDto.ipAddress,
     });
 
-    const mailOptions: Mail.Options = {
-      to: createEvalDto.email,
-      subject: 'Eval/surgery registered',
+    const mailVariables: EmailVariables = {
+      surgery_type: surgeryConfigurationEntity
+        ? surgeryConfigurationEntity.name
+        : '',
+      fname: newPatient.firstName,
+      lname: newPatient.lastName,
+      mrn: String(newPatient.mrn),
+      pt_email_address: newPatient.email,
+      surgery_date: String(resultEval.date),
+      pt_email_notify: '',
+      laterality: createEvalDto.bodyPart,
+      Laterality: createEvalDto.bodyPart,
+      pod1_location: '',
+      cataract_variable: '',
+      all_cases: surgeryConfigurationEntity?.name + ' ' + createEvalDto.date,
+      all_cataract_dates:
+        surgeryConfigurationEntity?.name + ' ' + createEvalDto.date,
+      all_case_type:
+        surgeryConfigurationEntity?.name + ' ' + createEvalDto.date,
+    };
+
+    const systemGeneratedMailData = {
+      subject: 'Eval/ Surgery registered',
       text: 'text message',
+      systemTemplate: SystemTemplates.NOTIFY_PATIENT,
     };
 
-    const mailData: PatientMailData = {
-      practiceName: practiceEntity?.name,
-      firstName: createEvalDto.firstName,
-      lastName: createEvalDto.lastName,
-      mrn: createEvalDto.mrn,
-      email: createEvalDto.email,
-      phoneNumber: createEvalDto.phoneNumber,
-      date: createEvalDto.date,
-      surgeryType: surgeryConfigurationEntity?.name,
-      practiceHome: practiceHomeEntity?.name,
-      insuranceType: insuranceTypeEntity?.name,
-      insuranceDetails: createEvalDto.insuranceDetails,
-    };
-
-    await this.transporterService.sendSystemEmails(
-      mailOptions,
-      mailData,
-      SystemTemplates.NOTIFY_PATIENT,
+    await this.emailHandlerService.checkAndMakeEmailContent(
+      createEvalDto.surgeryConfigurationId,
+      resultEval,
+      mailVariables,
+      systemGeneratedMailData,
+      true,
     );
 
     return resultEval;

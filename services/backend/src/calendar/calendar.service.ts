@@ -7,9 +7,17 @@ import {
   forwardRef,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { UserEntity } from '@packages/entities/*';
+import { PermissionEntity, UserEntity } from '@packages/entities/*';
 import { CalendarEntity } from '@packages/entities/calendar';
-import { Repository } from 'typeorm';
+import { USER_PERMISSIONS } from '@packages/entities/permission';
+import { UsersService } from 'src/users/users.service';
+import { getFullYearDateConditions, getStartEndDate } from 'src/utils';
+import {
+  FindManyOptions,
+  FindOperator,
+  LessThanOrEqual,
+  Repository,
+} from 'typeorm';
 import { PracticesService } from '../practices/practices.service';
 import { SurgeryConfigurationsService } from '../surgeryConfiguration/surgeryConfiguration.service';
 import {
@@ -24,6 +32,26 @@ import {
   GetCalendarsParams,
 } from './types';
 
+type WhereClause = {
+  practice: {
+    id: string;
+  };
+  date?: Date | FindOperator<Date>;
+  user: {
+    id: string;
+  };
+};
+
+interface CalendarSearchResult {
+  calendars: CalendarEntity[];
+  restricted: boolean;
+  calendarsWithoutPermission: CalendarEntity[];
+}
+
+type DateCondition = {
+  date: FindOperator<Date>;
+};
+
 @Injectable()
 export class CalendarService {
   constructor(
@@ -33,6 +61,8 @@ export class CalendarService {
     private practiceService: PracticesService,
     @Inject(forwardRef(() => SurgeryConfigurationsService))
     private surgeryConfifurationService: SurgeryConfigurationsService,
+    @Inject(forwardRef(() => UsersService))
+    private userService: UsersService,
   ) {}
 
   /**
@@ -197,4 +227,109 @@ export class CalendarService {
 
     return updatedCalendars;
   }
+
+  /**
+   * Get filered calendars based on search on dashboard for a specific practice > user > surgerytype
+   * @param params
+   * @returns CalendarSearchResult
+   */
+  async getFilteredCalendars({
+    practiceId,
+    userId,
+    months = [],
+    option,
+    loggedInUserId,
+  }: {
+    practiceId: string;
+    userId: string;
+    months: string[];
+    option?: string;
+    loggedInUserId?: string;
+  }): Promise<CalendarSearchResult> {
+    let userPermissions: PermissionEntity[] = [];
+
+    if (loggedInUserId) {
+      const userInfo = await this.userService.getUserById(loggedInUserId);
+      userPermissions = userInfo?.permissions || [];
+    }
+
+    const whereClause: WhereClause = {
+      practice: { id: practiceId },
+      user: { id: userId },
+    };
+    if (option?.toLowerCase() === 'past') {
+      whereClause.date = LessThanOrEqual(new Date());
+    }
+
+    const searchConditions: FindManyOptions<CalendarEntity> = {
+      where: whereClause,
+      relations: ['practice', 'surgeryConfiguration', 'user'],
+    };
+
+    const searchConditionsWithoutPermissions = { ...searchConditions };
+
+    const dateConditionsWithPermissions = getConditions(
+      months,
+      userPermissions,
+    );
+    const dateConditionsWithoutPermissions = getConditions(months, []);
+
+    if (
+      months.length > 0 ||
+      (months.length === 0 && option?.toLowerCase() !== 'past')
+    ) {
+      const conditionsWithPermissions = mapDateConditions(
+        dateConditionsWithPermissions,
+        whereClause,
+      );
+      const conditionsWithoutPermissions = mapDateConditions(
+        dateConditionsWithoutPermissions,
+        whereClause,
+      );
+
+      searchConditions.where = conditionsWithPermissions;
+      searchConditionsWithoutPermissions.where = conditionsWithoutPermissions;
+    }
+
+    const [dbCalendars, dbCalendarsWithoutPermission] = await Promise.all([
+      this.calendarRepo.find(searchConditions),
+      this.calendarRepo.find(searchConditionsWithoutPermissions),
+    ]);
+
+    const restricted =
+      dbCalendarsWithoutPermission.length > 0 &&
+      ((!userPermissions.some(
+        (p) => p.name === USER_PERMISSIONS.VIEW_PAST_CASES,
+      ) &&
+        dbCalendarsWithoutPermission.some((s) => s.date < new Date())) ||
+        (!userPermissions.some(
+          (p) => p.name === USER_PERMISSIONS.VIEW_FUTURE_CASES,
+        ) &&
+          dbCalendarsWithoutPermission.some((s) => s.date > new Date())));
+
+    return {
+      calendars: dbCalendars,
+      restricted,
+      calendarsWithoutPermission: dbCalendarsWithoutPermission,
+    };
+  }
+}
+
+function mapDateConditions(
+  dateConditions: DateCondition[],
+  whereClause: WhereClause,
+): WhereClause[] {
+  return dateConditions.map((condition) => ({
+    ...whereClause,
+    ...condition,
+  }));
+}
+
+function getConditions(
+  months: string[],
+  permissions: PermissionEntity[],
+): DateCondition[] {
+  return months.length > 0
+    ? getStartEndDate(months, permissions)
+    : getFullYearDateConditions(permissions);
 }

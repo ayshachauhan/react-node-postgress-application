@@ -8,7 +8,7 @@ import { updateRecordAsync } from '@root/store/reducers/surgery';
 import { getPracticeId } from '@root/utils';
 import { DatePicker } from 'baseui/datepicker';
 import { SIZE, Select } from 'baseui/select';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 function EditableRow({
   handleCancelClick,
@@ -23,12 +23,6 @@ function EditableRow({
   const viewBillingColumn = useUserPermission(userPermissions, [
     USER_PERMISSIONS.VIEW_BILLING,
   ]);
-  const editDatesCaseAllowed = useUserPermission(userPermissions, [
-    USER_PERMISSIONS.EDIT_DATES,
-  ]);
-  const isDisabled = useMemo(() => {
-    return !editDatesCaseAllowed;
-  }, [editDatesCaseAllowed]);
   const [obj, setObj] = useState<Partial<UpdateSurgeryPayload>>({});
   const [insuranceTypeId, setInsuranceTypeId] = useState<string>('');
 
@@ -121,7 +115,6 @@ function EditableRow({
           <div className="py-2 w-20">
             <DatePicker
               value={obj.date}
-              disabled={isDisabled}
               onChange={({ date }) => handleObjChange('date', date)}
               size={SIZE.mini}
               overrides={{
@@ -291,6 +284,10 @@ function EditableRow({
                     })
                   }
                   size={SIZE.mini}
+                  disabled={
+                    !surgeryInfo.surgeryConfiguration.options[optionsHeader]
+                      ?.edit_admin_option
+                  }
                   overrides={{
                     ControlContainer: {
                       style: {

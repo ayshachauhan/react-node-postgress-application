@@ -1,9 +1,11 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { EvalEntity } from '@packages/entities/eval';
-import { EmailHandlerModule } from 'src/emailHandler/emailHandler.module';
-import { EvalsController } from 'src/evals/evals.controller';
-import { EvalsService } from 'src/evals/evals.service';
+import {
+  EmailLogEntity,
+  EvalEmailEntity,
+  SurgeryEmailEntity,
+} from '@packages/entities';
+import { EmailHandlerService } from 'src/emailHandler/emailHandler.service';
 import { InsuranceTypesModule } from 'src/insuranceTypes/insuranceTypes.module';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
 import { PatientsModule } from 'src/patients/patients.module';
@@ -11,12 +13,16 @@ import { PracticeHomesModule } from 'src/practiceHomes/practiceHomes.module';
 import { PracticesModule } from 'src/practices/practices.module';
 import { SurgeryConfigurationsModule } from 'src/surgeryConfiguration/surgeryConfiguration.module';
 import { TemplatesModule } from 'src/templates/templates.module';
+import { TransporterModule } from 'src/transporter';
 import { UsersModule } from 'src/users/users.module';
-import { HistoryModule } from '../history/history.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([EvalEntity]),
+    TypeOrmModule.forFeature([
+      EmailLogEntity,
+      EvalEmailEntity,
+      SurgeryEmailEntity,
+    ]),
     forwardRef(() => PracticesModule),
     forwardRef(() => PatientsModule),
     forwardRef(() => SurgeryConfigurationsModule),
@@ -24,8 +30,7 @@ import { HistoryModule } from '../history/history.module';
     forwardRef(() => InsuranceTypesModule),
     forwardRef(() => UsersModule),
     forwardRef(() => TemplatesModule),
-    forwardRef(() => EmailHandlerModule),
-    forwardRef(() => HistoryModule),
+    forwardRef(() => TransporterModule),
   ],
   providers: [
     practiceNotFoundInterceptor,
@@ -33,9 +38,8 @@ import { HistoryModule } from '../history/history.module';
       provide: 'PRACTICE_NOT_FOUND_MESSAGE',
       useValue: 'Practice not found',
     },
-    EvalsService,
+    EmailHandlerService,
   ],
-  controllers: [EvalsController],
-  exports: [EvalsService],
+  exports: [EmailHandlerService],
 })
-export class EvalsModule {}
+export class EmailHandlerModule {}
