@@ -169,7 +169,6 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
       : `${toFullName(referrersList[key])}`,
     id: referrersList[key].id,
   }));
-  console.log(usersList);
 
   const usersOptions = usersList
     .filter((ele) => ele.type === 'doctor')
@@ -214,7 +213,7 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
     surgeryDropdownOptions.forEach((ele) => {
       const allowedValue = ele.allowedValues.find((ele) => ele.selected);
       if (ele.checked && allowedValue) {
-        surgeryOptionObj[ele.label] = {
+        surgeryOptionObj[`${ele.label}-0`] = {
           professionalPricing: allowedValue.professionalPricing,
           hospitalPricing: allowedValue.hospitalPricing,
           value: allowedValue.label,

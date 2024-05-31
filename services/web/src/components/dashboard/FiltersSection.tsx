@@ -158,6 +158,13 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
         consent: '5/6PC',
       };
 
+      const optionArr = Object.keys(ele.surgeryConfiguration.options);
+
+      optionArr.forEach((option) => {
+        viewData[`${option}-count`] =
+          ele.surgeryConfiguration.options[option]?.count;
+      });
+
       Object.keys(ele.selectedSurgeryOptions).forEach((data) => {
         viewData[data] = ele.selectedSurgeryOptions[data].value;
       });
@@ -471,7 +478,7 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
                             <div
                               key={row.id}
                               id={row.id}
-                              className={`div-clone flex gap-2 px-2.5 text-xs items-center ${
+                              className={`div-clone flex gap-2 px-2.5 text-xs items-start ${
                                 index !== ele.length - 1
                                   ? 'border-b border-gray-300'
                                   : ''
@@ -483,7 +490,7 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
                               <div className="text-black py-0.5 px-1 w-10">
                                 {row.home[0]}
                               </div>
-                              <div className="text-gray-900 py-2 px-0.5 flex text-center items-center w-20">
+                              <div className="text-gray-900 py-0.5 px-0.5 flex text-center items-center w-20">
                                 <div className="rounded-md text-white p-1 bg-indigo-500">
                                   {row.status}
                                 </div>
@@ -505,14 +512,33 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
                               </div>
 
                               {customOptionsHeaders.map(
-                                (optionsHeader, optionsHeaderIndex) => (
-                                  <div
-                                    className="text-black py-0.5 px-1 w-20"
-                                    key={optionsHeaderIndex}
-                                  >
-                                    {row[optionsHeader]}
-                                  </div>
-                                ),
+                                (optionsHeader, optionsHeaderIndex) => {
+                                  const elements: JSX.Element[] = [];
+                                  if (row[`${optionsHeader}-count`]) {
+                                    for (
+                                      let index = 0;
+                                      index < row[`${optionsHeader}-count`];
+                                      index++
+                                    ) {
+                                      elements.push(
+                                        <div
+                                          className="text-black py-0.5 px-1 w-20"
+                                          key={index}
+                                        >
+                                          {row[`${optionsHeader}-${index}`]}
+                                        </div>,
+                                      );
+                                    }
+                                  }
+                                  return (
+                                    <div
+                                      className="flex flex-col gap-1 justify-center"
+                                      key={optionsHeaderIndex}
+                                    >
+                                      {elements}
+                                    </div>
+                                  );
+                                },
                               )}
                               <div className="text-black py-0.5 px-1 w-20">
                                 {row.details}
