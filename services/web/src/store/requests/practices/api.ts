@@ -138,10 +138,18 @@ export const editPractice = async (
   { rejectWithValue },
 ) => {
   try {
-    const { id } = payloadData;
+    const { id, practiceImg, ...restPayload } = payloadData;
     delete payloadData.id;
-    const response = await apiClient.patch(`/practices/${id}`, payloadData);
+    const response = await apiClient.patch(`/practices/${id}`, restPayload);
     const data = await response.json();
+
+    if (practiceImg && data.id) {
+      return await uploadImg({
+        practiceId: data.id,
+        file: practiceImg,
+      });
+    }
+
     return data;
   } catch (error) {
     return rejectWithValue(error);

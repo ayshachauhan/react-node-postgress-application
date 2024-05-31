@@ -27,7 +27,8 @@ export interface PracticesEditInterface {
   name: string;
   status: string;
   code: string;
-  photoUrl?: string;
+  imgUrl?: string;
+  practiceImg?: File | null;
 }
 
 export type UploadImgPayload = {

@@ -15,6 +15,7 @@ import { fetchListings } from '@root/store/reducers/users';
 import { SanitizedUser } from '@root/store/types';
 import { SELECTED_DOCTOR_KEY, getPracticeId } from '@utils/index';
 import { ChevronDown } from 'baseui/icon';
+import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 
@@ -173,7 +174,24 @@ const Header: React.FC = () => {
             </div>
             <Dropdown
               position="bottomRight"
-              trigger={<AvatarIcon size={40}></AvatarIcon>}
+              trigger={
+                userInfo?.imgUrl ? (
+                  <Image
+                    src={userInfo.imgUrl}
+                    alt={userInfo.id!}
+                    width={50}
+                    height={50}
+                    className="inline-block rounded-full"
+                    style={{
+                      width: '40px',
+                      height: '40px',
+                      objectFit: 'cover',
+                    }}
+                  />
+                ) : (
+                  <AvatarIcon size={40}></AvatarIcon>
+                )
+              }
             >
               {!is_super_admin && (
                 <Dropdown.Item id="profile" onClick={goToProfile}>
