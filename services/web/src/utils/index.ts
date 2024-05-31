@@ -1,8 +1,3 @@
-import { ISurgery } from '@packages/entities';
-type RecordsByDate = {
-  [key: string]: ISurgery[];
-};
-
 export function indexBy<K extends keyof T, T>(
   key: K,
   array: T[],
@@ -108,22 +103,22 @@ export function formatDate(dateString: Date) {
   return `${month}/${day}/${year}`;
 }
 
-export function removePastSurgeries(surgeries: RecordsByDate) {
-  const currentDate = new Date();
-  const filteredSurgeries = {};
+export function constructQueryParams(params: {
+  includeDeleted?: boolean;
+  month?: string;
+  searchMRNName?: string;
+  option?: string;
+  loggedInUserId?: string;
+}): string {
+  const queryString = Object.entries(params)
+    .filter(([, value]) => value !== undefined && value !== null)
+    .map(
+      ([key, value]) =>
+        `${encodeURIComponent(key)}=${encodeURIComponent(value as string)}`,
+    )
+    .join('&');
 
-  for (const key in surgeries) {
-    if (Object.prototype.hasOwnProperty.call(surgeries, key)) {
-      const [month, day] = key.split('/').map(Number);
-      const recordDate = new Date(currentDate.getFullYear(), month - 1, day);
-
-      if (recordDate >= currentDate) {
-        filteredSurgeries[key] = surgeries[key];
-      }
-    }
-  }
-
-  return filteredSurgeries;
+  return queryString ? `?${queryString}` : '';
 }
 
 export const getIpAddress = async (): Promise<string> => {

@@ -169,7 +169,6 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
       : `${toFullName(referrersList[key])}`,
     id: referrersList[key].id,
   }));
-  console.log(usersList);
 
   const usersOptions = usersList
     .filter((ele) => ele.type === 'doctor')

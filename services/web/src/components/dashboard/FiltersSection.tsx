@@ -1,5 +1,10 @@
-import { ISurgery, ISurgeryConfiguration } from '@packages/entities';
+import {
+  ISurgery,
+  ISurgeryConfiguration,
+  MonthOption,
+} from '@packages/entities';
 import { USER_PERMISSIONS } from '@packages/entities/permission';
+import Button from '@root/components/Button';
 import {
   CopyIcon,
   DeleteIcon,
@@ -15,38 +20,75 @@ import { useUserPermission } from '@root/hooks/userHasPermission';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import {
   deleteRecordAsync,
+  fetchFilteredSurgeries,
   fetchSurgeryInfo,
+  setSearchMRNName,
+  setSelectedMonth,
+  setSelectedValue,
 } from '@root/store/reducers/surgery';
 import { usDateFormatter } from '@root/utils';
 import { monthOptions } from '@root/utils/constants';
 import { Select } from 'baseui/select';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import DeleteFilterModal from './DeleteFilterModal';
 import EditableRow from './EditableRow';
 
-interface MonthOption {
-  label: string;
-  value: string;
-}
-
 const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
   const dispatch = useAppDispatch();
-
-  const currentMonthIndex = new Date().getMonth() + 1;
-  const currentMonthOption = {
-    label: monthOptions[currentMonthIndex - 1].label,
-    value: monthOptions[currentMonthIndex - 1].value,
-  };
-
-  const [searchMRN, setSearchMRN] = useState('');
+  const { selectedMonth, searchMRNName, selectedValue } = useAppSelector(
+    (state) => state.surgeries.surgeryFilters,
+  );
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [clonedDivs, setClonedDivs] = useState<string[]>([]);
   const [selectedAction, setSelectedAction] = useState<string | null>(null);
   const [selectedRow, setSelectedRow] = useState<string | null>(null);
   const [editableRows, setEditableRows] = useState<string[]>([]);
-  const [selectedMonth, setSelectedMonth] = React.useState<MonthOption[]>([
-    currentMonthOption,
+  const userInfo = useAppSelector((state) => state.auth.user);
+  const loggedInUserId = userInfo?.id ?? null;
+  const userPermissions = userInfo?.permissions;
+
+  const viewPastCases = useUserPermission(userPermissions, [
+    USER_PERMISSIONS.VIEW_PAST_CASES,
   ]);
+
+  const viewFutureCases = useUserPermission(userPermissions, [
+    USER_PERMISSIONS.VIEW_FUTURE_CASES,
+  ]);
+
+  const deleteCaseAllowed = useUserPermission(userPermissions, [
+    USER_PERMISSIONS.DELETE_CASE,
+  ]);
+
+  const editCaseAllowed = useUserPermission(userPermissions, [
+    USER_PERMISSIONS.EDIT_CASE,
+  ]);
+
+  const viewBillingColumn = useUserPermission(userPermissions, [
+    USER_PERMISSIONS.VIEW_BILLING,
+  ]);
+
+  const getMonthOptions = (
+    viewPastCases: boolean,
+    viewFutureCases: boolean,
+  ) => {
+    const currentMonth = new Date().getMonth() + 1;
+    return monthOptions.map((option) => {
+      const optionMonth = parseInt(option.value, 10);
+      const isPastMonth = optionMonth < currentMonth;
+      const isFutureMonth = optionMonth > currentMonth;
+      return {
+        ...option,
+        disabled:
+          (!viewPastCases && isPastMonth) ||
+          (!viewFutureCases && isFutureMonth),
+      };
+    });
+  };
+
+  const updatedMonthOptions: MonthOption[] = useMemo(
+    () => getMonthOptions(viewPastCases, viewFutureCases),
+    [viewPastCases, viewFutureCases],
+  );
 
   const surgeryOptionsHeadersObj: {
     [key: string]: {
@@ -54,7 +96,7 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
       checkListHeaders: string[];
     };
   } = {};
-
+  const { errorMessage } = useAppSelector((state) => state.surgeries);
   const surgeryList: ISurgery[] = useAppSelector((state) =>
     Object.values(state.surgeries.entities),
   );
@@ -99,28 +141,16 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
     </div>
   );
 
-  const userInfo = useAppSelector((state) => state.auth.user);
-  const userPermissions = userInfo?.permissions;
+  const getUpdatedOptions = (viewPastCases: boolean) => [
+    { label: 'Waitlist', value: 'waitlist' },
+    { label: 'IOL', value: 'iol' },
+    { label: 'Past', value: 'past', disabled: !viewPastCases },
+  ];
 
-  const viewPastCases = useUserPermission(userPermissions, [
-    USER_PERMISSIONS.VIEW_PAST_CASES,
-  ]);
-
-  const viewFutureCases = useUserPermission(userPermissions, [
-    USER_PERMISSIONS.VIEW_FUTURE_CASES,
-  ]);
-
-  const deleteCaseAllowed = useUserPermission(userPermissions, [
-    USER_PERMISSIONS.DELETE_CASE,
-  ]);
-
-  const editCaseAllowed = useUserPermission(userPermissions, [
-    USER_PERMISSIONS.EDIT_CASE,
-  ]);
-
-  const viewBillingColumn = useUserPermission(userPermissions, [
-    USER_PERMISSIONS.VIEW_BILLING,
-  ]);
+  const updatedOptions = useMemo(
+    () => getUpdatedOptions(viewPastCases),
+    [viewPastCases],
+  );
 
   const modifiedObj = {};
   const modifyEvalList = surgeryList
@@ -202,53 +232,21 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
     }
   };
 
-  const getMonthOptions = (
-    viewPastCases: boolean,
-    viewFutureCases: boolean,
-  ) => {
-    const currentMonth = new Date().getMonth() + 1;
-    return monthOptions.map((option) => {
-      const optionMonth = parseInt(option.value, 10);
-      const isPastMonth = optionMonth < currentMonth;
-      const isFutureMonth = optionMonth > currentMonth;
-      return {
-        ...option,
-        disabled:
-          (!viewPastCases && isPastMonth) ||
-          (!viewFutureCases && isFutureMonth),
-      };
-    });
-  };
-
-  const updatedMonthOptions = useMemo(
-    () => getMonthOptions(viewPastCases, viewFutureCases),
-    [viewPastCases, viewFutureCases],
-  );
-  const [selectedValue, setSelectedValue] = useState([]);
   const handleChangeValue = ({ value }) => {
-    setSelectedValue(value);
+    dispatch(setSelectedValue(value[0] ? value[0].label : null));
+    const selectedLabel = value.length > 0 ? value[0].label.toLowerCase() : '';
+    if (selectedLabel === 'past') {
+      dispatch(setSelectedMonth([]));
+    }
   };
-
-  const getUpdatedOptions = (viewPastCases: boolean) => [
-    { label: 'Waitlist', value: '1' },
-    { label: 'IOL', value: '2' },
-    { label: 'Past', value: '3', disabled: !viewPastCases },
-    { label: 'Reset', value: '4' },
-  ];
-
-  const updatedOptions = useMemo(
-    () => getUpdatedOptions(viewPastCases),
-    [viewPastCases],
-  );
 
   const handleChangeMonth = ({ value }) => {
-    setSelectedMonth(value);
+    dispatch(setSelectedMonth(value));
   };
-  ('');
 
-  const handleSearchMRNChange = (value) => {
+  const handleSearchMRNNameChange = (value: string) => {
     const mrn = value.toLowerCase();
-    setSearchMRN(mrn);
+    dispatch(setSearchMRNName(mrn));
   };
 
   const handleCloneClick = (rowId: string) => {
@@ -275,6 +273,12 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
     setSelectedAction('view');
   };
 
+  const resetFilters = (): void => {
+    dispatch(setSelectedMonth([]));
+    dispatch(setSearchMRNName(null));
+    dispatch(setSelectedValue(null));
+  };
+
   const handleEditClick = (rowId: string) => {
     setSelectedAction('edit');
     dispatch(fetchSurgeryInfo({ practiceId, id: rowId }));
@@ -292,6 +296,59 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
       prevEditableRows.filter((id) => id !== rowId),
     );
   };
+
+  const searchMRNNameStr = searchMRNName || '';
+  const selectedValueStr = selectedValue || '';
+
+  const dispatchFetchFilteredSurgeryList = (
+    selectedMonth: MonthOption[],
+    searchMRNName: string,
+    selectedValue: string,
+  ) => {
+    const monthLabels = selectedMonth.map((month) => month.label);
+    const month = monthLabels.join(',');
+    const selectedOption = selectedValue;
+
+    if (practiceId && loggedInUserId !== null) {
+      dispatch(
+        fetchFilteredSurgeries({
+          loggedInUserId,
+          practiceId,
+          month: month,
+          searchMRNName,
+          option: selectedOption,
+        }),
+      );
+    }
+  };
+  const isDisabled = selectedValue && selectedValue.toLowerCase() === 'past';
+
+  useEffect(() => {
+    if (practiceId && loggedInUserId !== null) {
+      dispatchFetchFilteredSurgeryList(
+        selectedMonth,
+        searchMRNNameStr,
+        selectedValueStr,
+      );
+    }
+  }, [
+    dispatch,
+    practiceId,
+    loggedInUserId,
+    selectedMonth,
+    searchMRNNameStr,
+    selectedValueStr,
+  ]);
+
+  useEffect(() => {
+    if (practiceId && loggedInUserId !== null) {
+      dispatchFetchFilteredSurgeryList(
+        selectedMonth,
+        searchMRNNameStr,
+        selectedValueStr,
+      );
+    }
+  }, [dispatch, practiceId, loggedInUserId]);
 
   return (
     <div className="overflow-x-auto">
@@ -311,8 +368,8 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
             <div className="items-center">
               <TextInput
                 name="search"
-                value={searchMRN}
-                onChange={handleSearchMRNChange}
+                value={searchMRNName || ''}
+                onChange={handleSearchMRNNameChange}
                 placeholder="Search MRN or Name"
               />
             </div>
@@ -323,9 +380,12 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
           <div>
             <Select
               required
+              placeholder="Select Month"
               options={updatedMonthOptions}
               value={selectedMonth}
               onChange={handleChangeMonth}
+              disabled={isDisabled || false}
+              multi
               overrides={{
                 ControlContainer: {
                   style: {
@@ -346,7 +406,16 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
             <Select
               required
               options={updatedOptions}
-              value={selectedValue}
+              value={
+                selectedValue
+                  ? [
+                      {
+                        label: selectedValue,
+                        id: selectedValue,
+                      },
+                    ]
+                  : []
+              }
               onChange={handleChangeValue}
               overrides={{
                 ControlContainer: {
@@ -364,9 +433,21 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
               }}
             />
           </div>
+          <div>
+            <Button
+              type="button"
+              kind="tertiary"
+              title="Reset"
+              onClick={resetFilters}
+              style={{
+                backgroundColor: 'rgba(212, 212, 216, 1)',
+                color: 'black',
+              }}
+            />
+          </div>
         </div>
       </div>
-      {surgeryConfigList.length && Object.keys(modifiedObj).length && (
+      {surgeryConfigList.length > 0 && Object.keys(modifiedObj).length > 0 ? (
         <div className="w-max overflow-x-auto mt-2 border rounded-t-lg rounded-b-lg border-gray-200">
           {Object.keys(modifiedObj).map((key, index) => {
             const ele = modifiedObj[key];
@@ -734,6 +815,8 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
             handleCloseDeleteModal={handleCloseDeleteModal}
           />
         </div>
+      ) : (
+        <div className="text-center py-3 px-2.5">{errorMessage}</div>
       )}
     </div>
   );
