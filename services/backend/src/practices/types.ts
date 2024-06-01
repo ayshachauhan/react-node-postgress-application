@@ -9,6 +9,7 @@ export interface PracticesGetInterface {
   code: string;
   dateCreated?: string;
   dateUpdated?: string;
+  imgUrl?: string;
 }
 
 export type CreatePracticeInviteMailData = {
@@ -18,4 +19,9 @@ export type CreatePracticeInviteMailData = {
   userLastName: string;
   contactEmail: string;
   contactPhone: string;
+};
+
+export type UploadPracticeImgData = {
+  file: Express.Multer.File;
+  practiceId: string;
 };

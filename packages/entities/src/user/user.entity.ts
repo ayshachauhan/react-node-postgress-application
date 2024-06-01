@@ -63,4 +63,7 @@ export class UserEntity extends BaseEntity implements IUser {
 
   @OneToMany(() => SurgeryEntity, (surgery) => surgery.doctor)
   surgeries: SurgeryEntity[];
+
+  @Column({ type: 'varchar', nullable: true })
+  imgUrl?: string;
 }
