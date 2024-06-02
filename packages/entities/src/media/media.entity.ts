@@ -2,7 +2,7 @@ import { Column, Entity } from 'typeorm';
 import { BaseEntity } from '../base.entity';
 import { IMedia, MediaConfig, MediaType } from './media.interface';
 
-@Entity('videos')
+@Entity('media')
 export class VideoEntity extends BaseEntity implements IMedia {
   @Column({ type: 'uuid' })
   practiceId: string;
@@ -10,7 +10,6 @@ export class VideoEntity extends BaseEntity implements IMedia {
   @Column({
     type: 'enum',
     enum: MediaType,
-    nullable: true,
   })
   mediaType: MediaType;
 

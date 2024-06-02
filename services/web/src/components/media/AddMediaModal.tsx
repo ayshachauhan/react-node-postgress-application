@@ -7,7 +7,7 @@ const AddMediaModal = ({ isSecondModalOpen, handleCloseSecondModal }) => {
     <BaseUIModal
       isOpen={isSecondModalOpen}
       onClose={handleCloseSecondModal}
-      title="Add a Video"
+      title="POD Media"
     >
       <AddMediaForm onClose={handleCloseSecondModal} />
     </BaseUIModal>

@@ -6,6 +6,7 @@ import { SurgeryConfigurationEntity } from '@packages/entities/surgeryConfigurat
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
 import { PracticesModule } from 'src/practices/practices.module';
 import { UsersModule } from 'src/users/users.module';
+import { S3Service } from '../users/s3.service';
 import { MediaController } from './media.controller';
 import { MediaService } from './media.service';
 
@@ -20,6 +21,6 @@ import { MediaService } from './media.service';
     UsersModule,
   ],
   controllers: [MediaController],
-  providers: [MediaService, practiceNotFoundInterceptor],
+  providers: [MediaService, practiceNotFoundInterceptor, S3Service],
 })
 export class MediaModule {}

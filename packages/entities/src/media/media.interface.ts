@@ -1,19 +1,10 @@
 import { IBaseEntity } from '../base.interface';
-import { ISurgeryConfiguration } from '../surgeryConfiguration';
 
 export interface IMedia extends IBaseEntity {
   practiceId: string;
   mediaType: MediaType;
   mediaConfig: MediaConfig;
 }
-
-export type IMediaRequest = {
-  name: string;
-  urlEmbed: string;
-  url: string;
-  practiceId: string;
-  surgeryConfigurationId: string;
-};
 
 export enum MediaType {
   PRACTICE = 'practice',
@@ -33,12 +24,12 @@ export type Image = {
 };
 
 export type PracticeMediaConfig = {
-  surgeryConfiguration: ISurgeryConfiguration;
+  surgeryConfigurationId: string;
   video: Video[];
 };
 
 export type PatientMediaConfig = {
-  mrn: number;
+  patientId: string;
   video: Video[];
   image: Image[];
 };

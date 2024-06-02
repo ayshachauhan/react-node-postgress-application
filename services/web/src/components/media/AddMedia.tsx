@@ -1,4 +1,3 @@
-import { IMediaRequest } from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
 import { useAppDispatch, useAppSelector } from '@root/store';
@@ -22,16 +21,14 @@ const MediaPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const dispatch = useAppDispatch();
   const [name, setName] = useState('');
   const [url, setUrl] = useState('');
-  const [urlEmbed, setUrlEmbed] = useState('');
   const [surgeryConfigurationId, setSurgeryConfigurationId] = useState('');
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (practiceId) {
-      const data: IMediaRequest = {
+      const data = {
         name,
         url,
-        urlEmbed,
         practiceId,
         surgeryConfigurationId,
       };
@@ -39,7 +36,6 @@ const MediaPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         dispatch(addRecordAsync(data));
         setName('');
         setUrl('');
-        setUrlEmbed('');
         setSurgeryConfigurationId('');
         onClose();
       } catch (error) {
@@ -89,20 +85,6 @@ const MediaPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           />
           <div className="space-y-2"></div>
         </div>
-        <div className="space-y-2  pt-4">
-          <label htmlFor="urlEmbed" className="text-black text-sm font-normal">
-            URL Embed
-          </label>
-          <TextInput
-            name="urlEmbed"
-            value={urlEmbed}
-            onChange={(value) => {
-              setUrlEmbed(value);
-            }}
-            required
-          />
-          <div className="space-y-2"></div>
-        </div>
         <div className="space-y-2 pt-4">
           <label htmlFor="urlEmbed" className="text-black text-sm font-normal">
             Surgery
@@ -137,6 +119,20 @@ const MediaPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           />
           <div className="space-y-2"></div>
         </div>
+        {/* <div className="space-y-2  pt-4">
+          <label htmlFor="url" className="text-black text-sm font-normal">
+            Practice ID
+          </label>
+          <TextInput
+            name="practiceId"
+            value={url}
+            onChange={(value) => {
+              setUrl(value);
+            }}
+            required
+          />
+          <div className="space-y-2"></div>
+        </div> */}
         <div className="text-right text-base pt-4">
           <Button kind="primary" title="Add new video" width={189} />
         </div>

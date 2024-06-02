@@ -5,7 +5,9 @@ import {
   Get,
   Param,
   Patch,
+  // Patch,
   Post,
+  UploadedFile,
   UseGuards,
   UseInterceptors,
   ValidationPipe,
@@ -15,13 +17,14 @@ import { USER_PERMISSIONS } from '@packages/entities/permission';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { PermissionGuard } from 'src/auth/userPermissions.guard';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
-import { CreateVideoDto } from './dtos/createVideo.dto';
-import { UpdateVideoDto } from './dtos/update.video.dto';
+import { CreateMediaDto } from './dtos/createMedia.dto';
+// import { UpdateVideoDto } from './dtos/update.video.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { MediaService } from './media.service';
 
 @ApiTags('Media')
 @ApiBearerAuth('normal')
-@Controller('/practices/:practiceId/videos')
+@Controller('/practices/:practiceId/media')
 @UseGuards(AuthGuard)
 export class MediaController {
   constructor(private mediaService: MediaService) {}
@@ -43,11 +46,11 @@ export class MediaController {
 
   @Post()
   @UseInterceptors(practiceNotFoundInterceptor)
-  createVideo(
+  createOne(
     @Param('practiceId') practiceId: string,
-    @Body(new ValidationPipe()) videoData: CreateVideoDto,
+    @Body(new ValidationPipe()) data: CreateMediaDto,
   ) {
-    return this.mediaService.createVideo(practiceId, videoData);
+    return this.mediaService.createOne(practiceId, data);
   }
 
   @Delete(':id')
@@ -59,13 +62,26 @@ export class MediaController {
     return this.mediaService.deleteVideo(practiceId, id);
   }
 
-  @Patch(':id')
-  @UseInterceptors(practiceNotFoundInterceptor)
-  updateVideoByPracticeId(
-    @Param('practiceId') practiceId: string,
-    @Param('id') id: string,
-    @Body(new ValidationPipe()) videoData: UpdateVideoDto,
+  // @Patch(':id')
+  // @UseInterceptors(practiceNotFoundInterceptor)
+  // updateVideoByPracticeId(
+  //   @Param('practiceId') practiceId: string,
+  //   @Param('id') id: string,
+  //   @Body(new ValidationPipe()) videoData: UpdateVideoDto,
+  // ) {
+  //   return this.mediaService.updateVideo(practiceId, id, videoData);
+  // }
+
+  @Patch(':id/upload')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadUserImg(
+    @Param() params: { id: string; practiceId: string },
+    @UploadedFile() file: Express.Multer.File,
   ) {
-    return this.mediaService.updateVideo(practiceId, id, videoData);
+    return this.mediaService.uploadUserImg({
+      practiceId: params.practiceId,
+      id: params.id,
+      file,
+    });
   }
 }
