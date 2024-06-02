@@ -1,4 +1,5 @@
 'use client';
+import { MediaType } from '@packages/entities';
 import Button from '@root/components/Button';
 import { AddIcon, PlayIcon } from '@root/components/Icons';
 import AddMediaModal from '@root/components/media/AddMediaModal';
@@ -12,6 +13,11 @@ import {
 import { extractVideoId, getImageUrl, getPracticeId } from '@utils/index';
 import Image from 'next/image';
 import React, { useEffect, useState } from 'react';
+
+export type SelectedMedia = {
+  name: string;
+  type: MediaType;
+};
 
 const Media: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -27,6 +33,20 @@ const Media: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
   const [showErrorMessage, setShowErrorMessage] = useState(false);
   const [videoId, setVideoId] = useState<string | null>(null);
+  const [selectedMediaType, setSelectedMediaType] = useState<MediaType>(
+    MediaType.PRACTICE,
+  );
+
+  const mediaTab: SelectedMedia[] = [
+    {
+      name: 'Practice Media',
+      type: MediaType.PRACTICE,
+    },
+    {
+      name: 'Patient Media',
+      type: MediaType.PATIENT,
+    },
+  ];
 
   const handleOpenFirstModal = (videoId: string): void => {
     setVideoId(videoId);
@@ -79,15 +99,43 @@ const Media: React.FC = () => {
     };
   }, [successMessage, errorMessage, dispatch]);
 
+  const toggleActive = (mediaType: MediaType) => {
+    setSelectedMediaType(mediaType);
+  };
+
   return (
     <div className="mt-4">
+      {showModal && <div className="text-green-700">{successMessage}</div>}
+      {showErrorMessage && <div className="text-red-700">{errorMessage}</div>}
       <div className="flex justify-between border-gray-400 items-center">
-        <span className="text-xl font-bold">Media</span>
-        {showModal && <div className="text-green-700">{successMessage}</div>}
-        {showErrorMessage && <div className="text-red-700">{errorMessage}</div>}
+        <div className="flex bg-green-50 pr-2 border-b border-green-200 items-center">
+          <div className="flex items-center">
+            {mediaTab.map((item, index) => (
+              <div className="mr-1" key={index}>
+                <button
+                  className="py-2 px-4 text-xs text-black text-normal border-b-2 border-transparent hover:text-white hover:bg-gradient-to-r from-primary-light to-primary-dark hover:rounded-t-lg"
+                  style={{
+                    ...(selectedMediaType === item.type && {
+                      backgroundImage:
+                        'linear-gradient(to right, rgba(53, 165, 118, 1), rgba(17, 113, 128, 1))',
+                      color: 'white',
+                      borderTopLeftRadius: '0.5rem',
+                      borderTopRightRadius: '0.5rem',
+                    }),
+                  }}
+                  onClick={() => toggleActive(item.type)}
+                >
+                  {item.name}
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
         <Button
           kind="secondary"
-          title="Add New"
+          title="Add"
+          height={40}
+          width={80}
           onClick={handleOpenSecondModal}
           startEnhancer={() => <AddIcon className="mt-2" size={25}></AddIcon>}
         />{' '}
@@ -136,6 +184,7 @@ const Media: React.FC = () => {
       <AddMediaModal
         isSecondModalOpen={isSecondModalOpen}
         handleCloseSecondModal={handleCloseSecondModal}
+        selectedMediaType={selectedMediaType}
       />
     </div>
   );
