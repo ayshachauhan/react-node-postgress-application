@@ -9,6 +9,7 @@ import {
   EvalEntity,
   HistoryEntity,
   InsuranceTypeEntity,
+  MediaEntity,
   PatientEntity,
   PermissionEntity,
   PracticeEntity,
@@ -20,7 +21,6 @@ import {
   SurgeryTypeEntity,
   TemplateEntity,
   UserEntity,
-  MediaEntity,
 } from '@packages/entities';
 import { LoggerModule } from 'nestjs-pino';
 import { ENV_VALIDATIONS } from './enums/env-validation';
