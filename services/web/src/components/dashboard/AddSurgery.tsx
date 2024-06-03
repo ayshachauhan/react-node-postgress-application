@@ -336,6 +336,7 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
             </div>
             <div>
               <Select
+                backspaceClearsInputValue
                 size={SIZE.mini}
                 required
                 options={usersOptions}
@@ -500,6 +501,7 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
                 Home
               </label>
               <Select
+                backspaceClearsInputValue
                 size={SIZE.mini}
                 options={practiceHomesOptions}
                 onChange={handlePracticeHomeChange}
@@ -609,6 +611,7 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
                 Insurance Type
               </label>
               <Select
+                backspaceClearsInputValue
                 size={SIZE.mini}
                 options={insuranceTypesOptions}
                 onChange={handleInsuranceTypeChange}
@@ -667,6 +670,8 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
               <div className="flex gap-5 mt-2">
                 <div className="space-y-4 flex-1">
                   <Select
+                    backspaceClearsInputValue
+                    required
                     size={SIZE.mini}
                     options={surgeryConfigurationsOptions}
                     onChange={handleSurgeryNameChange}
@@ -692,6 +697,7 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
                 </div>
                 <div className="space-y-4 flex-1 w-1/3">
                   <Select
+                    backspaceClearsInputValue
                     size={SIZE.mini}
                     required
                     options={
