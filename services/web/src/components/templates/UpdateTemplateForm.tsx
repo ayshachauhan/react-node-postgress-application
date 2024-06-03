@@ -434,7 +434,7 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
             }}
           />
           {editCaseAllowed && (
-            <Button kind="primary" title="Update" width={136} />
+            <Button kind="primary" title="Update" width={136} height={40} />
           )}
         </div>
       </form>
