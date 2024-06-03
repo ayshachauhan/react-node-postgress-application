@@ -42,6 +42,7 @@ const MediaPage: React.FC<{
   const [patientForm, setPatientForm] = useState({
     patientId: '',
     video: [{ title: '', url: '' }],
+    image: [{ title: '', file: null }],
   });
   const [selectedMedia, setSelectedMedia] =
     useState<MediaType>(selectedMediaType);
@@ -102,17 +103,46 @@ const MediaPage: React.FC<{
       console.log(data, 'finaldata');
 
       try {
+        //@ts-expect-error add types
         dispatch(addRecordAsync(data));
         setPracticeForm({
           surgeryConfigurationId: '',
           video: [{ title: '', url: '' }],
         });
-        setPatientForm({ patientId: '', video: [{ title: '', url: '' }] });
+        setPatientForm({
+          patientId: '',
+          video: [{ title: '', url: '' }],
+          image: [{ title: '', file: null }],
+        });
         onClose();
       } catch (error) {
         onClose();
       }
     }
+  };
+
+  const handleAddImageField = () => {
+    if (patientForm.image.length < 5) {
+      setPatientForm({
+        ...patientForm,
+        image: [...patientForm.image, { title: '', file: null }],
+      });
+    }
+  };
+
+  const handleRemoveImageField = (index) => {
+    const newImageFields = patientForm.image.filter((_, i) => i !== index);
+    setPatientForm({ ...patientForm, image: newImageFields });
+  };
+
+  const handleImageChangeInput = (index, event, field) => {
+    const newImageFields = [...patientForm.image];
+    if (field === 'file') {
+      newImageFields[index][field] = event.target.files[0];
+    } else {
+      newImageFields[index][field] = event.target.value;
+    }
+    setPatientForm({ ...patientForm, image: newImageFields });
   };
 
   const handleSurgeryConfigurationChange = ({ value }) => {
@@ -377,93 +407,90 @@ const MediaPage: React.FC<{
                 </>
               ))}
             </div>
-            {/* <div className="pt-6">
+            <div className="pt-6">
               <div className="flex">
                 <div>
-                  <label htmlFor="lastName" className="text-black text-lg">
+                  <label htmlFor="imageMedia" className="text-black text-lg">
                     Image Media
                   </label>
                 </div>
                 <div>
                   <div className="pl-3">
                     <Button
+                      title=""
                       type="button"
                       kind="primary"
-                      title=""
                       width={25}
                       height={25}
                       startEnhancer={() => (
                         <AddIcon className="mt-2 ml-2" size={25}></AddIcon>
                       )}
-                      onClick={handleAddVideoField}
+                      onClick={handleAddImageField}
                     />
                   </div>
                 </div>
               </div>
               <hr className="h-px bg-gray-100 border-1 dark:bg-gray-800"></hr>
-              {image.map((inputField, index, arr) => (
-                <>
-                  <div className="flex gap-5">
-                    <div className="space-y-2 flex-1">
-                      <label
-                        htmlFor="email"
-                        className="text-black text-sm mt-2"
-                      >
-                        Image Title
-                      </label>
-                      <div className="flex flex-row gap-3">
-                        <TextInput
-                          size={SIZE.mini}
-                          type="text"
-                          value={inputField.title}
-                          onChange={(event) =>
-                            handleVideoChangeInput(index, event, 'title')
-                          }
-                          endEnhancer={
-                            arr.length > 1 ? (
-                              <div
-                                className="rounded-md cursor-pointer items-center pl-3"
-                                onClick={() => handleRemoveVideoField(index)}
-                              >
-                                <CloseIcon className="" size={10} />
-                              </div>
-                            ) : null
-                          }
-                        />
-                      </div>
-                    </div>
-                    <div className="space-y-2 flex-1">
-                      <label
-                        htmlFor="email"
-                        className="text-black text-sm mt-2"
-                      >
-                        Video Url
-                      </label>
-                      <div className="flex flex-row gap-3">
-                        <TextInput
-                          size={SIZE.mini}
-                          type="text"
-                          value={inputField.title}
-                          onChange={(event) =>
-                            handleVideoChangeInput(index, event, 'url')
-                          }
-                          endEnhancer={
-                            arr.length > 1 ? (
-                              <div
-                                className="rounded-md cursor-pointer items-center pl-3"
-                                onClick={() => handleRemoveVideoField(index)}
-                              >
-                                <CloseIcon className="" size={10} />
-                              </div>
-                            ) : null
-                          }
-                        />
-                      </div>
+              {patientForm.image.map((inputField, index, arr) => (
+                <div key={index} className="flex gap-5 mb-4">
+                  <div className="space-y-2 flex-1">
+                    <label
+                      htmlFor="imageTitle"
+                      className="text-black text-sm mt-2"
+                    >
+                      Image Title
+                    </label>
+                    <div className="flex flex-row gap-3">
+                      <TextInput
+                        size={SIZE.mini}
+                        type="text"
+                        value={inputField.title}
+                        onChange={(__value, event) =>
+                          handleImageChangeInput(index, event, 'title')
+                        }
+                        endEnhancer={
+                          arr.length > 1 ? (
+                            <div
+                              className="rounded-md cursor-pointer items-center pl-3"
+                              onClick={() => handleRemoveImageField(index)}
+                            >
+                              <CloseIcon size={10} />
+                            </div>
+                          ) : null
+                        }
+                      />
                     </div>
                   </div>
-                </>
+                  <div className="space-y-2 flex-1">
+                    <label
+                      htmlFor="imageFile"
+                      className="text-black text-sm mt-2"
+                    >
+                      Image File
+                    </label>
+                    <div className="flex flex-row gap-3">
+                      <TextInput
+                        size={SIZE.mini}
+                        type="file"
+                        onChange={(__value, event) =>
+                          handleImageChangeInput(index, event, 'file')
+                        }
+                        endEnhancer={
+                          arr.length > 1 ? (
+                            <div
+                              className="rounded-md cursor-pointer items-center pl-3"
+                              onClick={() => handleRemoveImageField(index)}
+                            >
+                              <CloseIcon size={10} />
+                            </div>
+                          ) : null
+                        }
+                      />
+                    </div>
+                  </div>
+                </div>
               ))}
-            </div> */}
+            </div>
           </div>
         )}
         <div className="text-right text-base pt-4">

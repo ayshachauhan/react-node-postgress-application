@@ -102,7 +102,7 @@ export const uploadImg = async (
   try {
     const { practiceId, file } = payloadData;
     const formdata = new FormData();
-    formdata.append('file', file, 'user.png');
+    formdata.append('file', file);
 
     const accessToken = Cookies.get('access_token');
 

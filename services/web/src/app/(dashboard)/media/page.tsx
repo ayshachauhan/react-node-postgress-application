@@ -1,5 +1,11 @@
 'use client';
 import { MediaType } from '@packages/entities';
+import {
+  IPatient,
+  ISurgeryConfiguration,
+  PatientMediaConfig,
+  PracticeMediaConfig,
+} from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import { AddIcon, PlayIcon } from '@root/components/Icons';
 import AddMediaModal from '@root/components/media/AddMediaModal';
@@ -10,6 +16,7 @@ import {
   clearSuccessMessage,
   fetchListings,
 } from '@root/store/reducers/media';
+import { fetchListings as fetchPatients } from '@root/store/reducers/patient';
 import { extractVideoId, getImageUrl, getPracticeId } from '@utils/index';
 import Image from 'next/image';
 import React, { useEffect, useState } from 'react';
@@ -21,7 +28,15 @@ export type SelectedMedia = {
 
 const Media: React.FC = () => {
   const dispatch = useAppDispatch();
-  const media = useAppSelector((state) => Object.values(state.media.entities));
+  const { media, surgeryConfigurations, patients } = useAppSelector(
+    (state) => ({
+      media: Object.values(state.media.entities),
+      surgeryConfigurations: Object.values(
+        state.surgeryConfigurations.entities,
+      ),
+      patients: Object.values(state.patients.entities),
+    }),
+  );
   const practiceId = getPracticeId();
   const [isFirstModalOpen, setIsFirstModalOpen] = useState(false);
   const [isSecondModalOpen, setIsSecondModalOpen] = useState(false);
@@ -76,6 +91,7 @@ const Media: React.FC = () => {
   useEffect(() => {
     if (practiceId !== null) {
       dispatch(fetchListings({ practiceId: practiceId }));
+      dispatch(fetchPatients({ practiceId: practiceId }));
     }
   }, [practiceId, dispatch]);
 
@@ -110,97 +126,17 @@ const Media: React.FC = () => {
     setSelectedPatientId(patientId);
   };
 
-  // return (
-  //   <div className="mt-4">
-  //     {showModal && <div className="text-green-700">{successMessage}</div>}
-  //     {showErrorMessage && <div className="text-red-700">{errorMessage}</div>}
-  //     <div className="flex justify-between border-gray-400 items-center">
-  //       <div className="flex bg-green-50 pr-2 border-b border-green-200 items-center">
-  //         <div className="flex items-center">
-  //           {mediaTab.map((item, index) => (
-  //             <div className="mr-1" key={index}>
-  //               <button
-  //                 className="py-2 px-4 text-xs text-black text-normal border-b-2 border-transparent hover:text-white hover:bg-gradient-to-r from-primary-light to-primary-dark hover:rounded-t-lg"
-  //                 style={{
-  //                   ...(selectedMediaType === item.type && {
-  //                     backgroundImage:
-  //                       'linear-gradient(to right, rgba(53, 165, 118, 1), rgba(17, 113, 128, 1))',
-  //                     color: 'white',
-  //                     borderTopLeftRadius: '0.5rem',
-  //                     borderTopRightRadius: '0.5rem',
-  //                   }),
-  //                 }}
-  //                 onClick={() => toggleActive(item.type)}
-  //               >
-  //                 {item.name}
-  //               </button>
-  //             </div>
-  //           ))}
-  //         </div>
-  //       </div>
-  //       <Button
-  //         kind="secondary"
-  //         title="Add"
-  //         height={40}
-  //         width={80}
-  //         onClick={handleOpenSecondModal}
-  //         startEnhancer={() => <AddIcon className="mt-2" size={25}></AddIcon>}
-  //       />{' '}
-  //     </div>
-  //     <hr className="h-px my-2.5 bg-gray-100 border-1 border-gray-100"></hr>
-  //     <div className="flex flex-wrap gap-6">
-  //       {Object.values(media).map((data) => (
-  //         <React.Fragment key={data.id}>
-  //           {/* <GeneralCard
-  //                   id={this.props.id}
-  //                   /> */}
-  //           <div className="rounded-lg shadow-md p-6 w-[298px] h-298 relative">
-  //             <div>
-  //               <Image
-  //                 src={getImageUrl(data.mediaConfig.video[0].url)}
-  //                 className="rounded-lg"
-  //                 alt="External image description"
-  //                 width={265}
-  //                 height={208}
-  //                 style={{ width: '265px', height: '208px' }}
-  //               />
-  //               <div
-  //                 className="bg-black absolute text-center transform -translate-x-1/2 -translate-y-1/2 border top-32 left-1/2 text-white rounded-full flex justify-center items-center p-2 border-black w-14 h-14 pointer"
-  //                 onClick={() =>
-  //                   handleOpenFirstModal(
-  //                     extractVideoId(data.mediaConfig.video[0].url),
-  //                   )
-  //                 }
-  //               >
-  //                 <PlayIcon></PlayIcon>
-  //               </div>
-  //               <div className="bg-black text-white rounded text-xs leading-[18px] absolute text-center border top-14 right-9 border-black py-1 px-1.5">
-  //                 {data.id}
-  //               </div>
-  //               <div className="text-gray-900 pt-2 text-left">
-  //                 {data.mediaConfig.video[0].title}
-  //               </div>
-  //             </div>
-  //           </div>
-  //         </React.Fragment>
-  //       ))}
-  //     </div>
-  //     <div>
-  //       {videoId && isVideoLoaded && (
-  //         <PlayVideoModal
-  //           isFirstModalOpen={isFirstModalOpen}
-  //           handleCloseFirstModal={handleCloseFirstModal}
-  //           videoId={videoId}
-  //         />
-  //       )}
-  //     </div>
-  //     <AddMediaModal
-  //       isSecondModalOpen={isSecondModalOpen}
-  //       handleCloseSecondModal={handleCloseSecondModal}
-  //       selectedMediaType={selectedMediaType}
-  //     />
-  //   </div>
-  // );
+  console.log(media, patients, 'media');
+
+  const getSurgeryConfigById = (
+    id: string,
+  ): ISurgeryConfiguration | undefined =>
+    surgeryConfigurations.find((data) => data.id === id);
+
+  const getPatientById = (id: string): IPatient | undefined =>
+    patients.find((data) => data.id === id);
+
+  console.log(selectedPatientId, getPatientById(selectedPatientId!), 'pat');
 
   return (
     <div className="mt-4">
@@ -267,7 +203,12 @@ const Media: React.FC = () => {
                       <PlayIcon />
                     </div>
                     <div className="bg-black text-white rounded text-xs leading-[18px] absolute text-center border top-14 right-9 border-black py-1 px-1.5">
-                      {data.id}
+                      {
+                        getSurgeryConfigById(
+                          (data.mediaConfig as PracticeMediaConfig)
+                            .surgeryConfigurationId,
+                        )?.name
+                      }
                     </div>
                     <div className="text-gray-900 pt-2 text-left">
                       {data.mediaConfig.video[0].title}
@@ -279,12 +220,16 @@ const Media: React.FC = () => {
         {selectedMediaType === MediaType.PATIENT &&
           !selectedPatientId &&
           media
-            .filter((data) => data.patientId)
+            .filter((data) => data.mediaType === MediaType.PATIENT)
             .map((data) => (
               <React.Fragment key={data.id}>
                 <div
                   className="rounded-lg shadow-md p-6 w-[298px] h-298 relative cursor-pointer"
-                  onClick={() => handlePatientMediaClick(data.patientId)}
+                  onClick={() =>
+                    handlePatientMediaClick(
+                      (data.mediaConfig as PatientMediaConfig).patientId,
+                    )
+                  }
                 >
                   <div>
                     <Image
@@ -296,50 +241,64 @@ const Media: React.FC = () => {
                       style={{ width: '265px', height: '208px' }}
                     />
                     <div className="text-gray-900 pt-2 text-left">
-                      {`Patient ${data.patientId}`}
+                      {`Patient Name: ${getPatientById(
+                        (data.mediaConfig as PatientMediaConfig).patientId,
+                      )?.firstName}`}
                     </div>
                   </div>
                 </div>
               </React.Fragment>
             ))}
         {selectedMediaType === MediaType.PATIENT && selectedPatientId && (
-          <>
-            <Button onClick={() => setSelectedPatientId(null)}>Back</Button>
-            {media
-              .filter((data) => data.patientId === selectedPatientId)
-              .map((data) => (
-                <React.Fragment key={data.id}>
-                  <div className="rounded-lg shadow-md p-6 w-[298px] h-298 relative">
-                    <div>
-                      <Image
-                        src={getImageUrl(data.mediaConfig.video[0].url)}
-                        className="rounded-lg"
-                        alt="External image description"
-                        width={265}
-                        height={208}
-                        style={{ width: '265px', height: '208px' }}
-                      />
-                      <div
-                        className="bg-black absolute text-center transform -translate-x-1/2 -translate-y-1/2 border top-32 left-1/2 text-white rounded-full flex justify-center items-center p-2 border-black w-14 h-14 pointer"
-                        onClick={() =>
-                          handleOpenFirstModal(
-                            extractVideoId(data.mediaConfig.video[0].url),
-                          )
-                        }
-                      >
-                        <PlayIcon />
-                      </div>
-                      <div className="bg-black text-white rounded text-xs leading-[18px] absolute text-center border top-14 right-9 border-black py-1 px-1.5">
-                        {data.id}
-                      </div>
-                      <div className="text-gray-900 pt-2 text-left">
-                        {data.mediaConfig.video[0].title}
+          <div style={{ width: '100vw' }}>
+            <div className="flex justify-between items-center mb-4">
+              <div className="flex">
+                Patient Name: {getPatientById(selectedPatientId!)?.firstName}
+              </div>
+              <Button
+                title="Back"
+                onClick={() => setSelectedPatientId(null)}
+              ></Button>
+            </div>
+            <div className="flex flex-wrap gap-4">
+              {media
+                .filter(
+                  (data) =>
+                    (data.mediaConfig as PatientMediaConfig).patientId ===
+                    selectedPatientId,
+                )
+                .map((data) => data.mediaConfig)
+                .map((data, index) => (
+                  <React.Fragment key={index}>
+                    <div className="rounded-lg shadow-md p-6 w-[298px] h-[298px] relative">
+                      <div>
+                        <Image
+                          src={getImageUrl(data.video[0].url)}
+                          className="rounded-lg"
+                          alt="External image description"
+                          width={265}
+                          height={208}
+                          style={{ width: '265px', height: '208px' }}
+                        />
+                        <div
+                          className="bg-black absolute text-center transform -translate-x-1/2 -translate-y-1/2 border top-32 left-1/2 text-white rounded-full flex justify-center items-center p-2 border-black w-14 h-14 pointer"
+                          onClick={() =>
+                            handleOpenFirstModal(
+                              extractVideoId(data.video[0].url),
+                            )
+                          }
+                        >
+                          <PlayIcon />
+                        </div>
+                        <div className="text-gray-900 pt-2 text-left">
+                          {data.video[0].title}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </React.Fragment>
-              ))}
-          </>
+                  </React.Fragment>
+                ))}
+            </div>
+          </div>
         )}
       </div>
       <div>

@@ -8,11 +8,12 @@ import {
   PracticeMediaConfig,
 } from '@packages/entities/media';
 import { SurgeryConfigurationEntity } from '@packages/entities/surgeryConfiguration';
-import { UploadType, UploadUserImgData } from 'src/users/types';
+import { UploadType } from 'src/users/types';
 import { getUploadFileKey } from 'src/users/utils';
 import { Repository } from 'typeorm';
 import { S3Service } from '../users/s3.service';
 import { CreateMediaDto } from './dtos/createMedia.dto';
+import { UploadPatientImagesData } from './types';
 
 @Injectable()
 export class MediaService {
@@ -113,16 +114,21 @@ export class MediaService {
     await this.media.softDelete({ id: videoId, practiceId });
   }
 
-  async uploadUserImg({ id, practiceId, file }: UploadUserImgData) {
-    const key: string = getUploadFileKey(UploadType.USER, {
-      practiceId,
-      userId: id,
-      file,
-    });
+  async uploadUserImg({ id, practiceId, files }: UploadPatientImagesData) {
+    const uploadResults = await Promise.all(
+      files.map(async (file) => {
+        const key: string = getUploadFileKey(UploadType.PRACTICE, {
+          practiceId,
+          file,
+        });
+        const uploadResult = await this.s3Service.uploadFile(file, key);
+        return uploadResult.Location;
+      }),
+    );
 
-    const uploadImg = await this.s3Service.uploadFile(file, key);
+    //ToDO - get the user and make map here for images and then call update
 
     //@ts-expect-error only need to send url from here
-    return this.updateUser(id, { imgUrl: uploadImg.Location });
+    return this.updateUser(id, { imgUrl: uploadResults });
   }
 }

@@ -7,7 +7,7 @@ import {
   Patch,
   // Patch,
   Post,
-  UploadedFile,
+  UploadedFiles,
   UseGuards,
   UseInterceptors,
   ValidationPipe,
@@ -19,7 +19,7 @@ import { PermissionGuard } from 'src/auth/userPermissions.guard';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
 import { CreateMediaDto } from './dtos/createMedia.dto';
 // import { UpdateVideoDto } from './dtos/update.video.dto';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { MediaService } from './media.service';
 
 @ApiTags('Media')
@@ -74,16 +74,30 @@ export class MediaController {
   //   return this.mediaService.updateVideo(practiceId, id, videoData);
   // }
 
+  //   @Patch(':id/upload')
+  //   @UseInterceptors(FileInterceptor('file'))
+  //   async uploadUserImg(
+  //     @Param() params: { id: string; practiceId: string },
+  //     @UploadedFile() file: Express.Multer.File,
+  //   ) {
+  //     return this.mediaService.uploadUserImg({
+  //       practiceId: params.practiceId,
+  //       id: params.id,
+  //       file,
+  //     });
+  //   }
+  // }
+
   @Patch(':id/upload')
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(FileFieldsInterceptor([{ name: 'files', maxCount: 5 }]))
   async uploadUserImg(
-    @Param() params: { id: string; practiceId: string },
-    @UploadedFile() file: Express.Multer.File,
+    @Param() { id, practiceId }: { id: string; practiceId: string },
+    @UploadedFiles() files: { files?: Express.Multer.File[] },
   ) {
     return this.mediaService.uploadUserImg({
-      practiceId: params.practiceId,
-      id: params.id,
-      file,
+      id,
+      practiceId,
+      files: files?.files || [],
     });
   }
 }
