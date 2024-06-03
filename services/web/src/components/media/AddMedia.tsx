@@ -138,7 +138,7 @@ const MediaPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           <div className="space-y-2"></div>
         </div>
         <div className="text-right text-base pt-4">
-          <Button kind="primary" title="Add new video" width={189} />
+          <Button kind="primary" title="Add New Video" width={189} />
         </div>
       </form>
     </div>
