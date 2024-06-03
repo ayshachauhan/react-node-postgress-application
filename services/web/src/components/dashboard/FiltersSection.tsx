@@ -20,8 +20,7 @@ import { useUserPermission } from '@root/hooks/userHasPermission';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import {
   deleteRecordAsync,
-  fetchFilteredSurgeries,
-  fetchSurgeryInfo,
+  fetchListings,
   setSearchMRNName,
   setSelectedMonth,
   setSelectedValue,
@@ -42,6 +41,7 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
   const [clonedDivs, setClonedDivs] = useState<string[]>([]);
   const [selectedAction, setSelectedAction] = useState<string | null>(null);
   const [selectedRow, setSelectedRow] = useState<string | null>(null);
+  const [editableRows, setEditableRows] = useState<string[]>([]);
   const userInfo = useAppSelector((state) => state.auth.user);
   const loggedInUserId = userInfo?.id ?? null;
   const userPermissions = userInfo?.permissions;
@@ -95,9 +95,7 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
       checkListHeaders: string[];
     };
   } = {};
-  const { surgeryInfo, errorMessage } = useAppSelector(
-    (state) => state.surgeries,
-  );
+  const { errorMessage } = useAppSelector((state) => state.surgeries);
   const surgeryList: ISurgery[] = useAppSelector((state) =>
     Object.values(state.surgeries.entities),
   );
@@ -189,6 +187,13 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
         hp: '5/6PC',
         consent: '5/6PC',
       };
+
+      const optionArr = Object.keys(ele.surgeryConfiguration.options);
+
+      optionArr.forEach((option) => {
+        viewData[`${option}-count`] =
+          ele.surgeryConfiguration.options[option]?.count;
+      });
 
       Object.keys(ele.selectedSurgeryOptions).forEach((data) => {
         viewData[data] = ele.selectedSurgeryOptions[data].value;
@@ -282,14 +287,21 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
 
   const handleEditClick = (rowId: string) => {
     setSelectedAction('edit');
-    dispatch(fetchSurgeryInfo({ practiceId, id: rowId }));
-    setSelectedRow(selectedRow === rowId ? null : rowId);
+    setEditableRows((prevEditableRows) => [...prevEditableRows, rowId]);
   };
 
-  const handleCancelClick = () => {
-    setSelectedAction('cancel');
-    setSelectedRow(null);
+  const handleCancelClick = (rowId: string) => {
+    setEditableRows((prevEditableRows) =>
+      prevEditableRows.filter((id) => id !== rowId),
+    );
   };
+
+  const handleUpdateClick = (rowId: string) => {
+    setEditableRows((prevEditableRows) =>
+      prevEditableRows.filter((id) => id !== rowId),
+    );
+  };
+
   const searchMRNNameStr = searchMRNName || '';
   const selectedValueStr = selectedValue || '';
 
@@ -304,7 +316,7 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
 
     if (practiceId && loggedInUserId !== null) {
       dispatch(
-        fetchFilteredSurgeries({
+        fetchListings({
           loggedInUserId,
           practiceId,
           month: month,
@@ -537,23 +549,28 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
                           Action
                         </div>
                       </div>
-                      {ele[date].map((row, index) =>
-                        selectedRow === row.id &&
-                        selectedAction == 'edit' &&
-                        surgeryInfo ? (
+                      {ele[date].map((row, index) => {
+                        const isEditable =
+                          editableRows.includes(row.id) &&
+                          selectedAction === 'edit';
+                        const surgeryInfo = surgeryList.find(
+                          (ele) => ele.id === row.id,
+                        );
+                        return isEditable && surgeryInfo ? (
                           <EditableRow
                             key={row.id}
-                            handleCancelClick={handleCancelClick}
+                            rowId={row.id} // Pass the rowId
+                            handleCancelClick={() => handleCancelClick(row.id)}
                             customHeaders={surgeryOptionsHeadersObj}
                             surgeryInfo={surgeryInfo}
-                            setSelectedAction={setSelectedAction}
+                            handleUpdateClick={handleUpdateClick}
                           />
                         ) : (
                           <>
                             <div
                               key={row.id}
                               id={row.id}
-                              className={`div-clone flex gap-2 px-2.5 text-xs items-center ${
+                              className={`div-clone flex gap-2 px-2.5 text-xs items-start ${
                                 index !== ele.length - 1
                                   ? 'border-b border-gray-300'
                                   : ''
@@ -565,7 +582,7 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
                               <div className="text-black py-0.5 px-1 w-10">
                                 {row.home[0]}
                               </div>
-                              <div className="text-gray-900 py-2 px-0.5 flex text-center items-center w-20">
+                              <div className="text-gray-900 py-0.5 px-0.5 flex text-center items-center w-20">
                                 <div className="rounded-md text-white p-1 bg-indigo-500">
                                   {row.status}
                                 </div>
@@ -587,14 +604,33 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
                               </div>
 
                               {customOptionsHeaders.map(
-                                (optionsHeader, optionsHeaderIndex) => (
-                                  <div
-                                    className="text-black py-0.5 px-1 w-20"
-                                    key={optionsHeaderIndex}
-                                  >
-                                    {row[optionsHeader]}
-                                  </div>
-                                ),
+                                (optionsHeader, optionsHeaderIndex) => {
+                                  const elements: JSX.Element[] = [];
+                                  if (row[`${optionsHeader}-count`]) {
+                                    for (
+                                      let index = 0;
+                                      index < row[`${optionsHeader}-count`];
+                                      index++
+                                    ) {
+                                      elements.push(
+                                        <div
+                                          className="text-black py-0.5 px-1 w-20"
+                                          key={index}
+                                        >
+                                          {row[`${optionsHeader}-${index}`]}
+                                        </div>,
+                                      );
+                                    }
+                                  }
+                                  return (
+                                    <div
+                                      className="flex flex-col gap-1 justify-center"
+                                      key={optionsHeaderIndex}
+                                    >
+                                      {elements}
+                                    </div>
+                                  );
+                                },
                               )}
                               <div className="text-black py-0.5 px-1 w-20">
                                 {row.details}
@@ -789,8 +825,8 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
                                 </div>
                               )}
                           </>
-                        ),
-                      )}
+                        );
+                      })}
                     </div>
                   );
                 })}

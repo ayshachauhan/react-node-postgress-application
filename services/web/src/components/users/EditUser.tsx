@@ -6,6 +6,7 @@ import { updateRecordAsync } from '@root/store/reducers/users';
 import { SanitizedUser } from '@root/store/types';
 import { generateFullName, getPracticeId } from '@utils/index';
 import { Checkbox } from 'baseui/checkbox';
+import { FileUploader } from 'baseui/file-uploader';
 import { Select } from 'baseui/select';
 import React, { useEffect, useState } from 'react';
 interface Data {
@@ -32,6 +33,8 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
   const [checkboxes, setCheckboxes] = useState(() =>
     Array(permissions.length).fill(false),
   );
+
+  const [userImg, setUserImg] = useState<File | null>(null);
 
   const getSelectedCheckboxIds = (): string[] => {
     const selectedIds = permissions.reduce(
@@ -118,6 +121,7 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
         practiceId: practiceId,
         id: userId,
         permissionIds: selectedUserPermissions,
+        file: userImg,
       };
       if ('password' in userPayloadData) {
         delete userPayloadData.password;
@@ -308,7 +312,41 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
               <div className="w-1/2 space-y-2"></div>
             </div>
           </div>
-          <div className="flex flex-row gap-6 pt-4">
+          <div className="flex flex-row gap-6 pt-4 gap-7">
+            <div className="w-1/2 space-y-2">
+              <label htmlFor="type" className="text-black text-sm font-normal">
+                User Photo
+              </label>
+              <FileUploader
+                errorMessage={''}
+                onDrop={(acceptedFiles: File[]) => {
+                  setUserImg(acceptedFiles[0]);
+                }}
+                accept="image/*"
+                overrides={{
+                  ContentMessage: {
+                    component: () => (
+                      <div>
+                        {userImg ? (
+                          <div>
+                            <p>{userImg.name}</p>
+                          </div>
+                        ) : (
+                          <span>Drag and drop or click to upload</span>
+                        )}
+                      </div>
+                    ),
+                  },
+                  FileDragAndDrop: {
+                    style: {
+                      marginBottom: '16px',
+                      borderColor: '#22C55E',
+                      color: '##F0FDF4',
+                    },
+                  },
+                }}
+              />
+            </div>
             <div className="w-1/2 space-y-2 flex flex-col">
               <label
                 htmlFor="permissions"

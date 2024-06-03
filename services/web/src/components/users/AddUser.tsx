@@ -1,14 +1,15 @@
-import { IUser, UserStatus, UserType } from '@packages/entities/index.browser';
+import { UserStatus, UserType } from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { fetchListings as fetchPermissions } from '@root/store/reducers/userPermissions';
 import { addRecordAsync } from '@root/store/reducers/users';
+import { AddUserDto } from '@root/store/requests/users/types';
 import { generateFullName, getPracticeId } from '@utils/index';
 import { Checkbox } from 'baseui/checkbox';
+import { FileUploader } from 'baseui/file-uploader';
 import { Select } from 'baseui/select';
 import React, { useEffect, useState } from 'react';
-
 const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const userTypeOptions = Object.keys(UserType).map((key) => ({
     label: UserType[key as keyof typeof UserType],
@@ -28,6 +29,7 @@ const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const [lastName, setLastName] = useState('');
   const [url, setUrl] = useState('');
   const [type, setType] = useState<UserType>(UserType.ADMIN);
+  const [userImg, setUserImg] = useState<File | null>(null);
   const practiceId = getPracticeId();
 
   const handleTypeChange = ({ value }) => {
@@ -49,16 +51,6 @@ const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     }, []);
   };
 
-  type AddUserDto = Omit<
-    IUser,
-    | 'password'
-    | 'practices'
-    | 'id'
-    | 'dateCreated'
-    | 'dateUpdated'
-    | 'permissions'
-    | 'surgeries'
-  >;
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const selectedUserPermissions = getSelectedCheckboxIds();
@@ -76,6 +68,7 @@ const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         status: UserStatus.ACTIVE,
         contactNumber,
         permissionIds: selectedUserPermissions,
+        file: userImg,
       };
       try {
         dispatch(addRecordAsync(userPayloadData));
@@ -210,6 +203,42 @@ const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                   },
                   ClearIcon: {
                     component: () => null,
+                  },
+                }}
+              />
+            </div>
+          </div>
+          <div className="flex flex-row justify-between gap-7 pt-4">
+            <div className="w-1/2 space-y-2">
+              <label htmlFor="type" className="text-black text-sm font-normal">
+                User Photo
+              </label>
+              <FileUploader
+                errorMessage={''}
+                onDrop={(acceptedFiles: File[]) => {
+                  setUserImg(acceptedFiles[0]);
+                }}
+                accept="image/*"
+                overrides={{
+                  ContentMessage: {
+                    component: () => (
+                      <div>
+                        {userImg ? (
+                          <div>
+                            <p>{userImg?.name}</p>
+                          </div>
+                        ) : (
+                          <span>Drag and drop or click to upload</span>
+                        )}
+                      </div>
+                    ),
+                  },
+                  FileDragAndDrop: {
+                    style: {
+                      marginBottom: '16px',
+                      borderColor: '#22C55E',
+                      color: '##F0FDF4',
+                    },
                   },
                 }}
               />

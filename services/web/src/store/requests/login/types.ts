@@ -32,6 +32,7 @@ export interface GetUserResponse {
   userPractices: UserPractice[];
   practices?: IPractice[];
   permissions: IPermission[];
+  imgUrl?: string;
 }
 
 export interface UserPractice {

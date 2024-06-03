@@ -4,6 +4,7 @@ import { AddIcon } from '@root/components/Icons';
 import AddTemplateModal from '@root/components/templates/AddTemplateModal';
 import UpdateTemplateModal from '@root/components/templates/UpdateTemplateModal';
 import { useAppDispatch, useAppSelector } from '@root/store';
+import { fetchLoggedInUser } from '@root/store/reducers/auth';
 import {
   clearErrorMessage,
   clearSuccessMessage,
@@ -104,6 +105,10 @@ const Templates: React.FC = () => {
       }
     };
   }, [successMessage, errorMessage, dispatch]);
+
+  useEffect(() => {
+    dispatch(fetchLoggedInUser());
+  }, [dispatch]);
 
   return (
     <div className="mt-4">

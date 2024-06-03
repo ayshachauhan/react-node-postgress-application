@@ -11,10 +11,11 @@ import { SIZE, Select } from 'baseui/select';
 import React, { useEffect, useState } from 'react';
 
 function EditableRow({
+  rowId,
   handleCancelClick,
   customHeaders,
   surgeryInfo,
-  setSelectedAction,
+  handleUpdateClick,
 }) {
   const practiceId = getPracticeId();
   const dispatch = useAppDispatch();
@@ -83,7 +84,6 @@ function EditableRow({
 
       await dispatch(updateRecordAsync({ payload, id: surgeryInfo.id }));
 
-      setSelectedAction(null);
       setInsuranceTypeId('');
       setObj({
         insuranceTypeId: '',
@@ -99,6 +99,7 @@ function EditableRow({
         totalProfessionalPricing: 0,
       });
     }
+    handleUpdateClick(rowId); // Close the specific row after updating
   };
 
   if (surgeryInfo) {
@@ -111,7 +112,7 @@ function EditableRow({
 
     return (
       <form onSubmit={handleSubmit}>
-        <div className="flex gap-2 px-2.5 items-center text-xs">
+        <div className="flex gap-2 px-2.5 items-start text-xs">
           <div className="py-2 w-20">
             <DatePicker
               value={obj.date}
@@ -126,7 +127,7 @@ function EditableRow({
               }}
             />
           </div>
-          <div className="w-10">
+          <div className="w-10 py-2">
             <TextInput
               size={SIZE.mini}
               disabled
@@ -135,7 +136,7 @@ function EditableRow({
               onChange={(value) => handleObjChange('home', value)}
             />
           </div>
-          <div className=" w-20">
+          <div className="py-2 w-20">
             <TextInput
               size={SIZE.mini}
               disabled
@@ -160,7 +161,7 @@ function EditableRow({
               onChange={(value) => handleObjChange('firstName', value)}
             />
           </div>
-          <div className="w-20">
+          <div className="w-20 py-2">
             <TextInput
               name="mrn"
               type="number"
@@ -240,69 +241,82 @@ function EditableRow({
           </div>
 
           {customOptionsHeaders.map((optionsHeader, optionsHeaderIndex) => {
-            const selectOptionObj = obj.selectedSurgeryOptions
-              ? obj.selectedSurgeryOptions[optionsHeader]
-              : {
-                  id: '',
-                  value: '',
-                  hospitalPricing: 0,
-                  professionalPricing: 0,
-                };
-            return (
-              <div className="py-2 w-20" key={optionsHeaderIndex}>
-                <Select
-                  backspaceRemoves={false}
-                  escapeClearsValue={false}
-                  key={optionsHeaderIndex}
-                  options={surgeryInfo.surgeryConfiguration.options[
-                    optionsHeader
-                  ]?.allowedValues?.map((ele) => {
-                    return {
-                      id: ele.name,
-                      label: ele.name,
-                      hospitalPricing: ele.hospitalPricing,
-                      professionalPricing: ele.professionalPricing,
-                    };
-                  })}
-                  value={
-                    selectOptionObj
-                      ? [
-                          {
-                            id: selectOptionObj.value,
-                            value: selectOptionObj.value,
-                            hospitalPricing: selectOptionObj.hospitalPricing,
-                            professionalPricing:
-                              selectOptionObj.professionalPricing,
-                          },
-                        ]
-                      : []
-                  }
-                  onChange={({ value }) =>
-                    handleObjChange('selectedSurgeryOptions', {
-                      ...obj.selectedSurgeryOptions,
-                      [optionsHeader]: { value: value[0].label },
-                    })
-                  }
-                  size={SIZE.mini}
-                  disabled={
-                    !surgeryInfo.surgeryConfiguration.options[optionsHeader]
-                      ?.edit_admin_option
-                  }
-                  overrides={{
-                    ControlContainer: {
-                      style: {
-                        backgroundColor: 'rgba(250, 250, 250, 1)',
-                        border: 'none',
-                        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-                        color: '#52525B',
-                      },
-                    },
+            const count = surgeryConfiguration.options[optionsHeader]?.count;
 
-                    ClearIcon: {
-                      component: () => null,
-                    },
-                  }}
-                />
+            const optionCountSelect: JSX.Element[] = [];
+
+            for (let index = 0; index < count; index++) {
+              const selectOptionObj = obj.selectedSurgeryOptions
+                ? obj.selectedSurgeryOptions[`${optionsHeader}-${index}`]
+                : {
+                    id: '',
+                    value: '',
+                    hospitalPricing: 0,
+                    professionalPricing: 0,
+                  };
+
+              optionCountSelect.push(
+                <div key={index} className="">
+                  <Select
+                    backspaceRemoves={false}
+                    escapeClearsValue={false}
+                    key={optionsHeaderIndex}
+                    options={surgeryInfo.surgeryConfiguration.options[
+                      optionsHeader
+                    ]?.allowedValues?.map((ele) => {
+                      return {
+                        id: ele.name,
+                        label: ele.name,
+                        hospitalPricing: ele.hospitalPricing,
+                        professionalPricing: ele.professionalPricing,
+                      };
+                    })}
+                    value={
+                      selectOptionObj
+                        ? [
+                            {
+                              id: selectOptionObj.value,
+                              value: selectOptionObj.value,
+                              hospitalPricing: selectOptionObj.hospitalPricing,
+                              professionalPricing:
+                                selectOptionObj.professionalPricing,
+                            },
+                          ]
+                        : []
+                    }
+                    onChange={({ value }) =>
+                      handleObjChange('selectedSurgeryOptions', {
+                        ...obj.selectedSurgeryOptions,
+                        [`${optionsHeader}-${index}`]: {
+                          value: value[0].label,
+                        },
+                      })
+                    }
+                    size={SIZE.mini}
+                    overrides={{
+                      ControlContainer: {
+                        style: {
+                          backgroundColor: 'rgba(250, 250, 250, 1)',
+                          border: 'none',
+                          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                          color: '#52525B',
+                        },
+                      },
+
+                      ClearIcon: {
+                        component: () => null,
+                      },
+                    }}
+                  />
+                </div>,
+              );
+            }
+            return (
+              <div
+                className="py-2 w-20 flex flex-col gap-2 justify-center"
+                key={optionsHeaderIndex}
+              >
+                {optionCountSelect}
               </div>
             );
           })}
@@ -409,7 +423,13 @@ function EditableRow({
             />
           </div>
           <div className="flex items-center gap-2 py-2 w-40">
-            <Button kind="primary" title="Update" width={60} height={10} />
+            <Button
+              kind="primary"
+              title="Update"
+              width={60}
+              height={10}
+              type="submit"
+            />
             <Button
               onClick={handleCancelClick}
               type="button"
