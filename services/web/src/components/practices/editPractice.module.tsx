@@ -131,7 +131,7 @@ const PracticeEditModule: React.FC<{
             </div>
           </div>
           <div className="text-right text-base pt-4">
-            <Button kind="primary" title="Update practice" width={189} />
+            <Button kind="primary" title="Update Practice" width={189} />
           </div>
         </div>
       </form>

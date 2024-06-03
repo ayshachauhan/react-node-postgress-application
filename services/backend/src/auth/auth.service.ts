@@ -97,7 +97,7 @@ export class AuthService {
 
     const mailOptions: Mail.Options = {
       to: user.email,
-      subject: 'Subject: Reset Your Password - POD',
+      subject: 'Reset Your Password - POD',
     };
 
     const frontendBaseUrl: string | undefined = this.configService.get(
