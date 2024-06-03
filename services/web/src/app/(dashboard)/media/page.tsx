@@ -12,6 +12,7 @@ import AddMediaModal from '@root/components/media/AddMediaModal';
 import ImageModal from '@root/components/media/ImageModal';
 import PlayVideoModal from '@root/components/media/PlayVideoModal';
 import { useAppDispatch, useAppSelector } from '@root/store';
+import { fetchLoggedInUser } from '@root/store/reducers/auth';
 import {
   clearErrorMessage,
   clearSuccessMessage,
@@ -108,6 +109,10 @@ const Media: React.FC = () => {
       dispatch(fetchPatients({ practiceId: practiceId }));
     }
   }, [practiceId, dispatch]);
+
+  useEffect(() => {
+    dispatch(fetchLoggedInUser());
+  }, [dispatch]);
 
   useEffect(() => {
     let timer;

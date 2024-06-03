@@ -38,15 +38,6 @@ export class SurgeryController {
 
   @Get()
   @UseInterceptors(practiceNotFoundInterceptor)
-  async findAll(
-    @Param() { practiceId }: { practiceId: string },
-    @Query(new ValidationPipe()) { includeDeleted }: QueryDto,
-  ): Promise<SurgeryEntity[]> {
-    return this.surgeryService.findAll(practiceId, includeDeleted);
-  }
-
-  @Get('search')
-  @UseInterceptors(practiceNotFoundInterceptor)
   async searchSurgeries(
     @Param('practiceId') practiceId: string,
     @Query(new ValidationPipe()) query: QueryDto,
@@ -57,7 +48,7 @@ export class SurgeryController {
   ): Promise<SurgerySearchResult> {
     const months = monthQueryParam?.trim() ? monthQueryParam.split(',') : [];
 
-    const surgeries = await this.surgeryService.findSelected(
+    const surgeries = await this.surgeryService.findAll(
       practiceId,
       query.includeDeleted,
       months,

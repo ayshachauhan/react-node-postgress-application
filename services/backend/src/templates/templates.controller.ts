@@ -50,7 +50,7 @@ export class TemplatesController {
   }
 
   @Patch(':id')
-  @UseGuards(PermissionGuard(USER_PERMISSIONS.EDIT_CASE))
+  @UseGuards(PermissionGuard(USER_PERMISSIONS.EDIT_TEMPLATES))
   @UseInterceptors(practiceNotFoundInterceptor)
   async update(
     @Body(new ValidationPipe()) templatePatchDto: TemplatePatchDto,
