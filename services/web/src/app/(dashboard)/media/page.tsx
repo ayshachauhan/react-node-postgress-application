@@ -9,6 +9,7 @@ import {
 import Button from '@root/components/Button';
 import { AddIcon, PlayIcon } from '@root/components/Icons';
 import AddMediaModal from '@root/components/media/AddMediaModal';
+import ImageModal from '@root/components/media/ImageModal';
 import PlayVideoModal from '@root/components/media/PlayVideoModal';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import {
@@ -30,7 +31,7 @@ const Media: React.FC = () => {
   const dispatch = useAppDispatch();
   const { media, surgeryConfigurations, patients } = useAppSelector(
     (state) => ({
-      media: Object.values(state.media.entities),
+      media: Object.values(state.media.entities).reverse(),
       surgeryConfigurations: Object.values(
         state.surgeryConfigurations.entities,
       ),
@@ -39,6 +40,7 @@ const Media: React.FC = () => {
   );
   const practiceId = getPracticeId();
   const [isFirstModalOpen, setIsFirstModalOpen] = useState(false);
+  const [isImgModalOpen, setIsImgModalOpen] = useState(false);
   const [isSecondModalOpen, setIsSecondModalOpen] = useState(false);
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
   const { successMessage, errorMessage } = useAppSelector((state) => ({
@@ -48,6 +50,7 @@ const Media: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
   const [showErrorMessage, setShowErrorMessage] = useState(false);
   const [videoId, setVideoId] = useState<string | null>(null);
+  const [modalImgUrl, setModalImgUrl] = useState<string | null>(null);
   const [selectedMediaType, setSelectedMediaType] = useState<MediaType>(
     MediaType.PRACTICE,
   );
@@ -71,6 +74,17 @@ const Media: React.FC = () => {
     setIsVideoLoaded(true);
     setIsFirstModalOpen(true);
     setIsSecondModalOpen(false);
+  };
+
+  const handleOpenImageModal = (videoId: string): void => {
+    setModalImgUrl(videoId);
+    setIsImgModalOpen(true);
+    setIsSecondModalOpen(false);
+  };
+
+  const handleCloseImgModal = (): void => {
+    setModalImgUrl(null);
+    setIsImgModalOpen(false);
   };
 
   const handleCloseFirstModal = (): void => {
@@ -260,6 +274,8 @@ const Media: React.FC = () => {
               </div>
               <Button
                 title="Back"
+                height={40}
+                width={80}
                 onClick={() => setSelectedPatientId(null)}
               ></Button>
             </div>
@@ -302,7 +318,10 @@ const Media: React.FC = () => {
                   const imageElements = (data as PatientMediaConfig).image.map(
                     (image, imgIndex) => (
                       <React.Fragment key={`image-${index}-${imgIndex}`}>
-                        <div className="rounded-lg shadow-md p-6 w-[298px] h-[298px] relative">
+                        <div
+                          className="rounded-lg shadow-md p-6 w-[298px] h-[298px] relative"
+                          onClick={() => handleOpenImageModal(image.url)}
+                        >
                           <Image
                             src={image.url}
                             className="rounded-lg"
@@ -331,6 +350,15 @@ const Media: React.FC = () => {
             isFirstModalOpen={isFirstModalOpen}
             handleCloseFirstModal={handleCloseFirstModal}
             videoId={videoId}
+          />
+        )}
+      </div>
+      <div>
+        {modalImgUrl && (
+          <ImageModal
+            isModalOpen={isImgModalOpen}
+            handleCloseModal={handleCloseImgModal}
+            imgUrl={modalImgUrl}
           />
         )}
       </div>
