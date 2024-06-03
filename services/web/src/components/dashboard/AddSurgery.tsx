@@ -43,6 +43,9 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
   const practiceId = getPracticeId();
   const router = useRouter();
   const defaultUser = usersList.find((ele) => ele.id === getSelectedUserId);
+  const [selectedUser, setSelectedUser] = useState(
+    defaultUser ? [{ label: toFullName(defaultUser), id: defaultUser.id }] : [],
+  );
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -161,18 +164,18 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
   }));
 
   const referrersOptions = Object.keys(referrersList).map((key) => ({
-    label:
-      referrersList[key].email +
-      (referrersList[key].firstName
-        ? ` (${toFullName(referrersList[key])})`
-        : ''),
+    label: referrersList[key].email
+      ? `${toFullName(referrersList[key])} (${referrersList[key].email})`
+      : `${toFullName(referrersList[key])}`,
     id: referrersList[key].id,
   }));
 
-  const usersOptions = usersList.map((key) => ({
-    label: key ? toFullName(key) : '',
-    id: key.id,
-  }));
+  const usersOptions = usersList
+    .filter((ele) => ele.type === 'doctor')
+    .map((key) => ({
+      label: key ? toFullName(key) : '',
+      id: key.id,
+    }));
 
   const handleSurgeryNameChange = ({ value }) => {
     setSurgeryNameId(value[0] ? value[0].id : null);
@@ -195,7 +198,9 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
   };
 
   const handleDoctorChange = ({ value }) => {
-    setDoctorId(value[0] ? value[0].id : null);
+    const newDoctorId = value[0] ? value[0].id : null;
+    setDoctorId(newDoctorId);
+    setSelectedUser(value);
   };
 
   const handleMrnChange = ({ value }) => {
@@ -208,7 +213,7 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
     surgeryDropdownOptions.forEach((ele) => {
       const allowedValue = ele.allowedValues.find((ele) => ele.selected);
       if (ele.checked && allowedValue) {
-        surgeryOptionObj[ele.label] = {
+        surgeryOptionObj[`${ele.label}-0`] = {
           professionalPricing: allowedValue.professionalPricing,
           hospitalPricing: allowedValue.hospitalPricing,
           value: allowedValue.label,
@@ -331,15 +336,12 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
             </div>
             <div>
               <Select
+                backspaceClearsInputValue
                 size={SIZE.mini}
                 required
                 options={usersOptions}
                 onChange={handleDoctorChange}
-                value={
-                  defaultUser
-                    ? [{ label: toFullName(defaultUser), id: defaultUser.id }]
-                    : []
-                }
+                value={selectedUser}
                 overrides={{
                   ControlContainer: {
                     style: {
@@ -499,6 +501,7 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
                 Home
               </label>
               <Select
+                backspaceClearsInputValue
                 size={SIZE.mini}
                 options={practiceHomesOptions}
                 onChange={handlePracticeHomeChange}
@@ -608,6 +611,7 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
                 Insurance Type
               </label>
               <Select
+                backspaceClearsInputValue
                 size={SIZE.mini}
                 options={insuranceTypesOptions}
                 onChange={handleInsuranceTypeChange}
@@ -666,6 +670,8 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
               <div className="flex gap-5 mt-2">
                 <div className="space-y-4 flex-1">
                   <Select
+                    backspaceClearsInputValue
+                    required
                     size={SIZE.mini}
                     options={surgeryConfigurationsOptions}
                     onChange={handleSurgeryNameChange}
@@ -691,6 +697,7 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
                 </div>
                 <div className="space-y-4 flex-1 w-1/3">
                   <Select
+                    backspaceClearsInputValue
                     size={SIZE.mini}
                     required
                     options={
@@ -830,6 +837,7 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
                   backgroundColor: 'rgba(212, 212, 216, 1)',
                   color: 'black',
                 }}
+                onClick={onClose}
               />
             </div>
           </div>

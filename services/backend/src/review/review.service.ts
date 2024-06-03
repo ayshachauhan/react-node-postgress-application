@@ -151,13 +151,13 @@ export class ReviewService {
   }
 
   async postUserReview(_practice_id: string, payloadData: PostUserReview) {
-    const { rating, review, token } = payloadData;
+    const { rating, reviewComment, token } = payloadData;
     const validRequest = await this.validateReviewRequest(_practice_id, token);
     if (validRequest.status === HttpStatus.OK) {
       return this.updateReview(validRequest.id, {
         reviewStatus: ReviewStatus.RECEIVED,
         reviewPostDate: new Date(),
-        reviewComment: review,
+        reviewComment: reviewComment,
         userRating: rating,
       });
     } else {

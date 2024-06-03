@@ -5,6 +5,7 @@ import { PracticeEntity } from '@packages/entities/practice';
 import { SurgeryConfigurationEntity } from '@packages/entities/surgeryConfiguration';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
 import { PracticesModule } from 'src/practices/practices.module';
+import { UsersModule } from 'src/users/users.module';
 import { MediaController } from './media.controller';
 import { MediaService } from './media.service';
 
@@ -16,6 +17,7 @@ import { MediaService } from './media.service';
       SurgeryConfigurationEntity,
     ]),
     PracticesModule,
+    UsersModule,
   ],
   controllers: [MediaController],
   providers: [MediaService, practiceNotFoundInterceptor],

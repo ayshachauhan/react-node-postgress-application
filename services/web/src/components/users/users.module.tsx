@@ -27,6 +27,7 @@ import {
   ROLE,
   SIZE,
 } from 'baseui/modal';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 
@@ -34,8 +35,6 @@ export default function UserPage() {
   const [showModal, setShowModal] = useState(false);
   const dispatch = useAppDispatch();
   const users = useAppSelector((state) => Object.values(state.users.entities));
-  const userInfo = useAppSelector((state) => state.auth.user);
-  const filteredUsers = users.filter((user) => user.id !== userInfo?.id);
   const [userId, setUserId] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -189,8 +188,9 @@ export default function UserPage() {
         />
       </div>
       <hr className="h-px my-2.5 bg-gray-100 border-1 border-gray-100"></hr>
-      <div className="text-gray-50 w-full items-center bg-gray-50 border-l border rounded-t-lg rounded-b-lg border-gray-200 text-sm overflow-x-auto mt-2">
-        <div className="bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 grid grid-cols-[0.5fr_1fr_1fr_1fr_1fr_0.5fr_2fr_1fr_0.5fr_0.5fr] gap-4 p-4">
+      <div className="text-gray-50 w-full items-center border-l border rounded-t-lg rounded-b-lg border-gray-200 text-sm overflow-x-auto mt-2">
+        <div className="bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 grid grid-cols-[0.5fr_0.5fr_1fr_1fr_1fr_1fr_0.5fr_2fr_1fr_0.5fr_0.5fr] gap-4 p-4">
+          <div className="font-bold text-white">UserPhoto</div>
           <div className="font-bold text-white">Username</div>
           <div className="font-bold text-white">Email</div>
           <div className="font-bold text-white">Practice Name</div>
@@ -202,9 +202,29 @@ export default function UserPage() {
           <div className="font-bold text-white">Status</div>
           <div className="font-bold text-white">Action</div>
         </div>
-        {filteredUsers.map((data) => (
+        {users.map((data) => (
           <React.Fragment key={data.id}>
-            <div className="grid grid-cols-[0.5fr_1fr_1fr_1fr_1fr_0.5fr_2fr_1fr_0.5fr_0.5fr] gap-4 bg-gray-50 px-4 py-2">
+            <div className="grid grid-cols-[0.5fr_0.5fr_1fr_1fr_1fr_1fr_0.5fr_2fr_1fr_0.5fr_0.5fr] gap-4 px-4 py-2 flex items-center">
+              <div className="text-gray-900 overflow-hidden whitespace-nowrap">
+                {data.imgUrl ? (
+                  <Image
+                    src={data.imgUrl}
+                    alt={data.id}
+                    width={50}
+                    height={50}
+                    className="inline-block mr-2 rounded-[10px]"
+                    style={{
+                      width: '50px',
+                      height: '50px',
+                      objectFit: 'cover',
+                    }}
+                  />
+                ) : (
+                  <div className="bg-gray-300 flex justify-center items-center">
+                    <span>No Image</span>
+                  </div>
+                )}
+              </div>
               <div className="text-gray-900 overflow-hidden whitespace-nowrap">
                 {data.userName}
               </div>

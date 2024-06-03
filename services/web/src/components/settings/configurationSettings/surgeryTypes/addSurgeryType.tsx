@@ -48,7 +48,7 @@ const AddSurgeryType: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             <div className="text-right align-bottom pt-4">
               <Button
                 kind="primary"
-                title="Add new Surgery Type"
+                title="Add New Surgery Type"
                 type="submit"
                 width={189}
               />

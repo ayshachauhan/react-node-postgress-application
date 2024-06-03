@@ -13,7 +13,6 @@ function EditableRow({ handleCancelClick, evalInfo, setSelectedAction }) {
   const practiceId = getPracticeId();
   const dispatch = useAppDispatch();
   const [obj, setObj] = useState<Partial<UpdateEValInterface>>({});
-
   const [insuranceTypeId, setInsuranceTypeId] = useState<string>('');
 
   const insuranceTypesList: IInsuranceType[] = useAppSelector((state) =>
@@ -44,7 +43,7 @@ function EditableRow({ handleCancelClick, evalInfo, setSelectedAction }) {
   useEffect(() => {
     if (evalInfo.id && evalInfo) {
       setObj({
-        insuranceTypeId: evalInfo.insuranceType.name,
+        insuranceTypeId: evalInfo.insuranceType?.name,
         insuranceDetails: evalInfo.insuranceDetails,
         date: new Date(evalInfo.date),
         firstName: evalInfo.patient.firstName,
@@ -56,7 +55,7 @@ function EditableRow({ handleCancelClick, evalInfo, setSelectedAction }) {
         mrn: evalInfo.patient.mrn,
         status: evalInfo.status,
       });
-      setInsuranceTypeId(evalInfo?.insuranceType.id);
+      setInsuranceTypeId(evalInfo?.insuranceType?.id);
     }
   }, [evalInfo.id, evalInfo]);
   if (evalInfo) {

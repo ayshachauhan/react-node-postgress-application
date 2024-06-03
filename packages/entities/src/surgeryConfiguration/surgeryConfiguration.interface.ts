@@ -47,6 +47,7 @@ export type SurgeryOptions = {
     required: string;
     allowedValues: SurgeryOptionAllowedList[];
     count: number;
+    edit_admin_option: boolean;
   };
 };
 

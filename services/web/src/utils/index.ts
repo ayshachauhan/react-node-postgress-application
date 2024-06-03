@@ -102,3 +102,28 @@ export function formatDate(dateString: Date) {
 
   return `${month}/${day}/${year}`;
 }
+
+export function constructQueryParams(params: {
+  includeDeleted?: boolean;
+  month?: string;
+  searchMRNName?: string;
+  option?: string;
+  loggedInUserId?: string;
+}): string {
+  const queryString = Object.entries(params)
+    .filter(([, value]) => value !== undefined && value !== null)
+    .map(
+      ([key, value]) =>
+        `${encodeURIComponent(key)}=${encodeURIComponent(value as string)}`,
+    )
+    .join('&');
+
+  return queryString ? `?${queryString}` : '';
+}
+
+export const getIpAddress = async (): Promise<string> => {
+  const response = await fetch('https://api.ipify.org?format=json&ipv=4');
+
+  const data = await response.json();
+  return data.ip;
+};

@@ -1,5 +1,7 @@
 'use client';
 import Button from '@root/components/Button';
+import { useAppDispatch } from '@root/store';
+import { fetchLoggedInUser } from '@root/store/reducers/auth';
 import {
   formatColumnDate,
   formatHeaderDate,
@@ -122,7 +124,7 @@ export default function MessagesTable() {
     text: string;
     deleteAction: JSX.Element;
   }
-
+  const dispatch = useAppDispatch();
   const [filteredData, setFilteredData] = useState<MessageRecord[]>([]);
   const filterData = () => {
     let filtered = [...messagesData];
@@ -143,6 +145,10 @@ export default function MessagesTable() {
   useEffect(() => {
     filterData();
   }, [searchMRN]);
+
+  useEffect(() => {
+    dispatch(fetchLoggedInUser());
+  }, [dispatch]);
 
   const generateGroupedData = (data: MessageRecord[]) => {
     return data.reduce(

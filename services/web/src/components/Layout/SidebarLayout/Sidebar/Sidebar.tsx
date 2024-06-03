@@ -14,8 +14,10 @@ const Sidebar: React.FC = () => {
   const userInfo = useAppSelector((state) => state.auth.user);
   const is_super_admin = userInfo ? userInfo.isSuperAdmin : false;
   const userType = is_super_admin ? 'super_admin' : 'admin';
+  const userPermissions = userInfo?.permissions ?? [];
   const filteredSidebarItems: SideBarItem[] = filterSidebarItems(
     userType,
+    userPermissions,
     sidebarItems,
   );
 

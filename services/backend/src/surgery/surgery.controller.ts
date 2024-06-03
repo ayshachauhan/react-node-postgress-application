@@ -14,13 +14,20 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { SurgeryEntity } from '@packages/entities';
+import { USER_PERMISSIONS } from '@packages/entities/permission';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { PermissionGuard } from 'src/auth/userPermissions.guard';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
 import { SanitizedUser } from '../auth/types';
 import { CreateSurgeryDto } from '../surgery/dto/createSurgery.dto';
 import { UpdateSurgeryDto } from '../surgery/dto/updateSurgery.dto';
 import { SurgeryService } from '../surgery/surgery.service';
 import { QueryDto } from './dto/getSurgery.dto';
+
+interface SurgerySearchResult {
+  surgeries: SurgeryEntity[];
+  restricted: boolean;
+}
 
 @ApiTags('Surgery')
 @ApiBearerAuth('normal')
@@ -31,11 +38,26 @@ export class SurgeryController {
 
   @Get()
   @UseInterceptors(practiceNotFoundInterceptor)
-  async findAll(
-    @Param() { practiceId }: { practiceId: string },
-    @Query(new ValidationPipe()) { includeDeleted }: QueryDto,
-  ): Promise<SurgeryEntity[]> {
-    return this.surgeryService.findAll(practiceId, includeDeleted);
+  async searchSurgeries(
+    @Param('practiceId') practiceId: string,
+    @Query(new ValidationPipe()) query: QueryDto,
+    @Query('month') monthQueryParam: string,
+    @Query('searchMRNName') searchMRNName?: string,
+    @Query('option') option?: string,
+    @Query('loggedInUserId') loggedInUserId?: string,
+  ): Promise<SurgerySearchResult> {
+    const months = monthQueryParam?.trim() ? monthQueryParam.split(',') : [];
+
+    const surgeries = await this.surgeryService.findAll(
+      practiceId,
+      query.includeDeleted,
+      months,
+      searchMRNName,
+      option,
+      loggedInUserId,
+    );
+
+    return surgeries;
   }
 
   @Get(':id')
@@ -45,6 +67,7 @@ export class SurgeryController {
   }
 
   @Post()
+  @UseGuards(PermissionGuard(USER_PERMISSIONS.ADD_CASE))
   @UseInterceptors(practiceNotFoundInterceptor)
   async create(
     @Body(new ValidationPipe()) createSurgeryDto: CreateSurgeryDto,
@@ -61,6 +84,7 @@ export class SurgeryController {
   }
 
   @Patch(':id')
+  @UseGuards(PermissionGuard(USER_PERMISSIONS.EDIT_CASE))
   @UseInterceptors(practiceNotFoundInterceptor)
   async update(
     @Body(new ValidationPipe()) createSurgeryDto: UpdateSurgeryDto,
@@ -79,6 +103,7 @@ export class SurgeryController {
   }
 
   @Delete(':id')
+  @UseGuards(PermissionGuard(USER_PERMISSIONS.DELETE_CASE))
   async remove(
     @Param()
     { id, practiceId }: { id: string; practiceId: string },

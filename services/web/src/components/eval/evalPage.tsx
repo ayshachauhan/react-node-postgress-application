@@ -1,5 +1,6 @@
 'use client';
 
+import { USER_PERMISSIONS } from '@packages/entities/permission';
 import Button from '@root/components/Button';
 import {
   AddIcon,
@@ -8,7 +9,9 @@ import {
   HomeIcon,
 } from '@root/components/Icons';
 import Form from '@root/components/eval/addEval/addEval';
+import { useUserPermission } from '@root/hooks/userHasPermission';
 import { useAppDispatch, useAppSelector } from '@root/store';
+import { fetchLoggedInUser } from '@root/store/reducers/auth';
 import { fetchCalendars } from '@root/store/reducers/calendar';
 import {
   clearSuccessMessage as clearEvalSuccessMessage,
@@ -30,7 +33,6 @@ import {
   usDateFormatter,
 } from '@root/utils';
 import { Modal, ModalBody, ROLE, SIZE } from 'baseui/modal';
-
 import React, { useEffect, useState } from 'react';
 import EditableRow from 'src/components/eval/editEval/editableRow';
 import DeleteEvalModal from './DeleteEvalModal';
@@ -39,6 +41,8 @@ const EvalPage: React.FC = () => {
   const dispatch = useAppDispatch();
   const practiceId = getPracticeId();
   const userId = getUserId();
+  const userInfo = useAppSelector((state) => state.auth.user);
+  const userPermissions = userInfo?.permissions;
   const { calendarSuccessMessage } = useAppSelector((state) => ({
     calendarSuccessMessage: state.calendars.successMessage,
   }));
@@ -55,6 +59,16 @@ const EvalPage: React.FC = () => {
   const [selectedAction, setSelectedAction] = useState<string | null>(null);
   const [selectedRow, setSelectedRow] = useState<string | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const addCaseAllowed = useUserPermission(userPermissions, [
+    USER_PERMISSIONS.ADD_CASE,
+  ]);
+  const deleteCaseAllowed = useUserPermission(userPermissions, [
+    USER_PERMISSIONS.DELETE_CASE,
+  ]);
+
+  useEffect(() => {
+    dispatch(fetchLoggedInUser());
+  }, [dispatch]);
 
   useEffect(() => {
     if (practiceId) {
@@ -218,16 +232,18 @@ const EvalPage: React.FC = () => {
             <div className="text-green-700">{addEvalSuccessMessage}</div>
           )}
           <div className="flex">
-            <Button
-              kind="secondary"
-              title="Add"
-              height={40}
-              width={80}
-              onClick={handleOpenAddModal}
-              startEnhancer={() => (
-                <AddIcon className="mt-2" size={25}></AddIcon>
-              )}
-            />
+            {addCaseAllowed && (
+              <Button
+                kind="secondary"
+                title="Add"
+                height={40}
+                width={80}
+                onClick={handleOpenAddModal}
+                startEnhancer={() => (
+                  <AddIcon className="mt-2" size={25}></AddIcon>
+                )}
+              />
+            )}
           </div>
         </div>
       </div>
@@ -297,12 +313,14 @@ const EvalPage: React.FC = () => {
                     ></EditIcon>
                   </div>
                   <div className="cursor-pointer">
-                    <DeleteIcon
-                      onClick={() => {
-                        setSelectedRow(data.id);
-                        handleOpenDeleteModal(data.id);
-                      }}
-                    ></DeleteIcon>
+                    {deleteCaseAllowed && (
+                      <DeleteIcon
+                        onClick={() => {
+                          setSelectedRow(data.id);
+                          handleOpenDeleteModal(data.id);
+                        }}
+                      ></DeleteIcon>
+                    )}
                   </div>
                 </div>
               </div>

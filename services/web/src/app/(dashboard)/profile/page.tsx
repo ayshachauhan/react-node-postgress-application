@@ -2,11 +2,12 @@
 import Button from '@root/components/Button';
 import { AvatarIcon } from '@root/components/Icons';
 import { useAppDispatch, useAppSelector } from '@root/store';
+import { fetchLoggedInUser } from '@root/store/reducers/auth';
 import { getPracticeInfo } from '@root/store/reducers/practices';
 import { fetchListings as fetchPermissions } from '@root/store/reducers/userPermissions';
-import { SanitizedUser } from '@root/store/types';
 import { getPracticeId } from '@utils/index';
 import { Checkbox } from 'baseui/checkbox';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import React, { useEffect } from 'react';
 
@@ -16,13 +17,6 @@ const Profile: React.FC = () => {
     Object.values(state.permissions.entities),
   );
   const userInfo = useAppSelector((state) => state.auth.user);
-  const profileUserInfo = useAppSelector((state) =>
-    userInfo?.id
-      ? Object.values(state.users.entities).find(
-          ({ id }: SanitizedUser) => id === userInfo?.id,
-        )
-      : undefined,
-  );
   const userPracticeId = getPracticeId();
 
   interface Permission {
@@ -37,6 +31,10 @@ const Profile: React.FC = () => {
       dispatch(getPracticeInfo({ id: userPracticeId }));
     }
   }, [userPracticeId, dispatch]);
+
+  useEffect(() => {
+    dispatch(fetchLoggedInUser());
+  }, [dispatch]);
 
   useEffect(() => {
     dispatch(fetchPermissions(undefined));
@@ -59,7 +57,20 @@ const Profile: React.FC = () => {
       <div className="flex mt-10 items-center">
         <div className="flex items-center justify-center shadow-lg w-44 h-44 bg-black-200 rounded-full  flex-shrink-0">
           {' '}
-          <AvatarIcon size={40}></AvatarIcon>
+          {userInfo?.imgUrl ? (
+            <Image
+              src={userInfo.imgUrl}
+              alt={userInfo.id!}
+              width={50}
+              height={50}
+              className="inline-block rounded-full w-36 h-36"
+              style={{
+                objectFit: 'cover',
+              }}
+            />
+          ) : (
+            <AvatarIcon size={40}></AvatarIcon>
+          )}
         </div>
         <div className="w-full flex-grow">
           <p className="ml-4">
@@ -83,7 +94,7 @@ const Profile: React.FC = () => {
         <div>
           <p>
             <span className="font-bold">Last Name</span>
-            <span> : Kumar</span>
+            <span> :{userInfo?.lastName} </span>
           </p>
           <p className="mt-2">
             <span className="font-bold">Designation</span>
@@ -120,8 +131,8 @@ const Profile: React.FC = () => {
             <Checkbox
               key={index}
               checked={
-                profileUserInfo?.permissions
-                  ? isChecked(profileUserInfo.permissions, label.id)
+                userInfo?.permissions
+                  ? isChecked(userInfo.permissions, label.id)
                   : false
               }
               overrides={{

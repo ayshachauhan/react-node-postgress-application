@@ -1,22 +1,32 @@
 import { Inject, Injectable, forwardRef } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
-import { EvalEntity } from '@packages/entities/eval';
-import { PatientEntity } from '@packages/entities/patient';
-import Mail from 'nodemailer/lib/mailer';
+import {
+  EmailVariables,
+  EvalEntity,
+  HistoryAction,
+  HistoryType,
+  InsuranceTypeEntity,
+  PatientEntity,
+} from '@packages/entities';
+import { EmailHandlerService } from 'src/emailHandler/emailHandler.service';
+import { ENVIRONMENT_VARIABLES } from 'src/enums/environment.enums';
+import { DeleteEvalData } from 'src/evals/types';
+import { HistoryService } from 'src/history/history.service';
+import { InsuranceTypesService } from 'src/insuranceTypes/insuranceTypes.service';
 import { PatientsService } from 'src/patients/patients.service';
 import { PracticeHomesService } from 'src/practiceHomes/practiceHomes.service';
 import { PracticesService } from 'src/practices/practices.service';
-import { TransporterService } from 'src/transporter';
-import { In, Repository } from 'typeorm';
-
-import { ConfigService } from '@nestjs/config';
-import { InsuranceTypeEntity } from '@packages/entities';
-import { ENVIRONMENT_VARIABLES } from 'src/enums/environment.enums';
-import { InsuranceTypesService } from 'src/insuranceTypes/insuranceTypes.service';
 import { SurgeryConfigurationsService } from 'src/surgeryConfiguration/surgeryConfiguration.service';
 import { SystemTemplates } from 'src/transporter/transporter.types';
 import { UsersService } from 'src/users/users.service';
-import { PatientMailData } from './types';
+import { In, Repository } from 'typeorm';
+import {
+  EvalChangesKeyValues,
+  findChangedValues,
+  transformEvalObject,
+  transformUpdateEvalDTO,
+} from '../history/utils';
 
 @Injectable()
 export class EvalsService {
@@ -35,15 +45,21 @@ export class EvalsService {
     private userService: UsersService,
     @Inject(forwardRef(() => SurgeryConfigurationsService))
     private surgeryConfigurationService: SurgeryConfigurationsService,
+    @Inject(forwardRef(() => EmailHandlerService))
+    private emailHandlerService: EmailHandlerService,
     private readonly configService: ConfigService,
-    private readonly transporterService: TransporterService,
+    @Inject(forwardRef(() => HistoryService))
+    private historyService: HistoryService,
   ) {}
 
   getFrontEndBaseUrl() {
     return this.configService.get(ENVIRONMENT_VARIABLES.FRONT_END_BASE_URL);
   }
 
-  async findAll(practiceId: string): Promise<EvalEntity[]> {
+  async findAll(
+    practiceId: string,
+    includeDeleted: boolean = false,
+  ): Promise<EvalEntity[]> {
     const dbPracticeHomesByPractice =
       await this.practiceHomesService.getPracticeHomesByPractice(practiceId);
 
@@ -53,6 +69,7 @@ export class EvalsService {
           id: In(dbPracticeHomesByPractice.map((ele) => ele.id)),
         },
       },
+      withDeleted: includeDeleted,
       relations: [
         'practiceHome',
         'surgeryConfiguration',
@@ -81,7 +98,7 @@ export class EvalsService {
     });
   }
 
-  async create({ practiceId, createEvalDto }): Promise<EvalEntity> {
+  async create({ practiceId, createEvalDto, user }): Promise<EvalEntity> {
     const newEval: EvalEntity = new EvalEntity();
 
     const practiceEntity = await this.practiceService.findOne(practiceId);
@@ -125,36 +142,61 @@ export class EvalsService {
       insuranceType: insuranceTypeEntity,
       doctor: doctorEntity,
     });
-    const mailOptions: Mail.Options = {
-      to: createEvalDto.email,
-      subject: 'Eval/surgery registered',
+
+    // create history entry after creating eval
+    await this.historyService.createHistory({
+      practiceId,
+      userId: user?.id,
+      entityId: resultEval.id,
+      entityType: HistoryType.EVAL,
+      action: HistoryAction.CREATE,
+      ipAddress: createEvalDto.ipAddress,
+    });
+
+    const mailVariables: EmailVariables = {
+      surgery_type: surgeryConfigurationEntity
+        ? surgeryConfigurationEntity.name
+        : '',
+      fname: newPatient.firstName,
+      lname: newPatient.lastName,
+      mrn: String(newPatient.mrn),
+      pt_email_address: newPatient.email,
+      surgery_date: String(resultEval.date),
+      pt_email_notify: '',
+      laterality: createEvalDto.bodyPart,
+      Laterality: createEvalDto.bodyPart,
+      pod1_location: '',
+      cataract_variable: '',
+      all_cases: surgeryConfigurationEntity?.name + ' ' + createEvalDto.date,
+      all_cataract_dates:
+        surgeryConfigurationEntity?.name + ' ' + createEvalDto.date,
+      all_case_type:
+        surgeryConfigurationEntity?.name + ' ' + createEvalDto.date,
+    };
+
+    const systemGeneratedMailData = {
+      subject: 'Eval/ Surgery registered',
       text: 'text message',
+      systemTemplate: SystemTemplates.NOTIFY_PATIENT,
     };
 
-    const mailData: PatientMailData = {
-      practiceName: practiceEntity?.name,
-      firstName: createEvalDto.firstName,
-      lastName: createEvalDto.lastName,
-      mrn: createEvalDto.mrn,
-      email: createEvalDto.email,
-      phoneNumber: createEvalDto.phoneNumber,
-      date: createEvalDto.date,
-      surgeryType: surgeryConfigurationEntity?.name,
-      practiceHome: practiceHomeEntity?.name,
-      insuranceType: insuranceTypeEntity?.name,
-      insuranceDetails: createEvalDto.insuranceDetails,
-    };
-
-    await this.transporterService.sendSystemEmails(
-      mailOptions,
-      mailData,
-      SystemTemplates.NOTIFY_PATIENT,
+    await this.emailHandlerService.checkAndMakeEmailContent(
+      createEvalDto.surgeryConfigurationId,
+      resultEval,
+      mailVariables,
+      systemGeneratedMailData,
+      true,
     );
 
     return resultEval;
   }
 
-  async update({ createEvalDto, id }): Promise<EvalEntity | null> {
+  async update({
+    createEvalDto,
+    id,
+    user,
+    practiceId,
+  }): Promise<EvalEntity | null> {
     const evalToUpdate = await this.getEvalById(id);
 
     let insuranceTypeEntity: InsuranceTypeEntity | null =
@@ -187,12 +229,51 @@ export class EvalsService {
       insuranceDetails: createEvalDto.insuranceDetails,
     });
 
+    if (evalToUpdate) {
+      // depends on dto values, make sure to update the obj values if dto changes
+      const transformedCurrentEvalValues: EvalChangesKeyValues =
+        transformEvalObject(evalToUpdate);
+      const transformedUpdatedDTOValues: EvalChangesKeyValues =
+        transformUpdateEvalDTO({
+          ...createEvalDto,
+          insuranceName: insuranceTypeEntity?.name,
+        });
+
+      // create history logs for updated values in evals
+      await this.historyService.createHistory({
+        practiceId,
+        userId: user?.id,
+        action: HistoryAction.UPDATE,
+        entityId: id,
+        entityType: HistoryType.EVAL,
+        // this depends on dto values, make sure to update this function object if dto updates
+        changes: findChangedValues(
+          transformedCurrentEvalValues,
+          transformedUpdatedDTOValues,
+        ),
+        ipAddress: createEvalDto.ipAddress,
+      });
+    }
     return await this.evalRepository.findOne({
       where: { id },
     });
   }
 
-  async remove(id: string): Promise<void> {
+  async remove({
+    id,
+    practiceId,
+    user,
+    ipAddress,
+  }: DeleteEvalData): Promise<void> {
     await this.evalRepository.softDelete(id);
+
+    await this.historyService.createHistory({
+      practiceId,
+      userId: user?.id,
+      entityId: id,
+      entityType: HistoryType.EVAL,
+      action: HistoryAction.DELETE,
+      ipAddress,
+    });
   }
 }

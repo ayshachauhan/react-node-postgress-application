@@ -1,6 +1,7 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { EvalEntity } from '@packages/entities/eval';
+import { EmailHandlerModule } from 'src/emailHandler/emailHandler.module';
 import { EvalsController } from 'src/evals/evals.controller';
 import { EvalsService } from 'src/evals/evals.service';
 import { InsuranceTypesModule } from 'src/insuranceTypes/insuranceTypes.module';
@@ -9,7 +10,9 @@ import { PatientsModule } from 'src/patients/patients.module';
 import { PracticeHomesModule } from 'src/practiceHomes/practiceHomes.module';
 import { PracticesModule } from 'src/practices/practices.module';
 import { SurgeryConfigurationsModule } from 'src/surgeryConfiguration/surgeryConfiguration.module';
+import { TemplatesModule } from 'src/templates/templates.module';
 import { UsersModule } from 'src/users/users.module';
+import { HistoryModule } from '../history/history.module';
 
 @Module({
   imports: [
@@ -20,6 +23,9 @@ import { UsersModule } from 'src/users/users.module';
     forwardRef(() => PracticeHomesModule),
     forwardRef(() => InsuranceTypesModule),
     forwardRef(() => UsersModule),
+    forwardRef(() => TemplatesModule),
+    forwardRef(() => EmailHandlerModule),
+    forwardRef(() => HistoryModule),
   ],
   providers: [
     practiceNotFoundInterceptor,

@@ -4,6 +4,7 @@ import { AddIcon } from '@root/components/Icons';
 import AddTemplateModal from '@root/components/templates/AddTemplateModal';
 import UpdateTemplateModal from '@root/components/templates/UpdateTemplateModal';
 import { useAppDispatch, useAppSelector } from '@root/store';
+import { fetchLoggedInUser } from '@root/store/reducers/auth';
 import {
   clearErrorMessage,
   clearSuccessMessage,
@@ -11,6 +12,7 @@ import {
 } from '@root/store/reducers/templates';
 import { getPracticeId } from '@utils/index';
 import React, { useEffect, useState } from 'react';
+
 const Templates: React.FC = () => {
   const templates = useAppSelector((state) =>
     Object.values(state.templates.entities),
@@ -103,6 +105,10 @@ const Templates: React.FC = () => {
       }
     };
   }, [successMessage, errorMessage, dispatch]);
+
+  useEffect(() => {
+    dispatch(fetchLoggedInUser());
+  }, [dispatch]);
 
   return (
     <div className="mt-4">

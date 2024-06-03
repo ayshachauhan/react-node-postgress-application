@@ -72,9 +72,13 @@ export class AuthService {
     return null;
   }
 
-  async setUserPractices(payloadUser): Promise<void> {
-    const user = await this.usersService.getUserById(payloadUser.id);
-    payloadUser['practices'] = user?.practices;
+  async setUserDetails(payloadUser: SanitizedUser): Promise<void> {
+    const userData = await this.usersService.getUserById(payloadUser.id);
+
+    if (userData) {
+      payloadUser['practices'] = userData?.practices;
+      payloadUser['permissions'] = userData?.permissions;
+    }
   }
 
   async sendPasswordResetEmail(email: string): Promise<void> {
@@ -93,7 +97,7 @@ export class AuthService {
 
     const mailOptions: Mail.Options = {
       to: user.email,
-      subject: 'Subject: Reset Your Password - POD',
+      subject: 'Reset Your Password - POD',
     };
 
     const frontendBaseUrl: string | undefined = this.configService.get(

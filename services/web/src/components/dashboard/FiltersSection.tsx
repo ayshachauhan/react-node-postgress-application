@@ -1,4 +1,10 @@
-import { ISurgery, ISurgeryConfiguration } from '@packages/entities';
+import {
+  ISurgery,
+  ISurgeryConfiguration,
+  MonthOption,
+} from '@packages/entities';
+import { USER_PERMISSIONS } from '@packages/entities/permission';
+import Button from '@root/components/Button';
 import {
   CopyIcon,
   DeleteIcon,
@@ -9,41 +15,79 @@ import {
   StarIcon,
   ViewIcon,
 } from '@root/components/Icons';
+import TextInput from '@root/components/TextInput';
+import { useUserPermission } from '@root/hooks/userHasPermission';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import {
   deleteRecordAsync,
-  fetchSurgeryInfo,
+  fetchListings,
+  setSearchMRNName,
+  setSelectedMonth,
+  setSelectedValue,
 } from '@root/store/reducers/surgery';
 import { usDateFormatter } from '@root/utils';
 import { monthOptions } from '@root/utils/constants';
-import { Input } from 'baseui/input';
 import { Select } from 'baseui/select';
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import DeleteFilterModal from './DeleteFilterModal';
 import EditableRow from './EditableRow';
 
-interface MonthOption {
-  label: string;
-  value: string;
-}
-
 const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
   const dispatch = useAppDispatch();
-
-  const currentMonthIndex = new Date().getMonth() + 1;
-  const currentMonthOption = {
-    label: monthOptions[currentMonthIndex - 1].label,
-    value: monthOptions[currentMonthIndex - 1].value,
-  };
-
-  const [searchMRN, setSearchMRN] = useState('');
+  const { selectedMonth, searchMRNName, selectedValue } = useAppSelector(
+    (state) => state.surgeries.surgeryFilters,
+  );
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [clonedDivs, setClonedDivs] = useState<string[]>([]);
   const [selectedAction, setSelectedAction] = useState<string | null>(null);
   const [selectedRow, setSelectedRow] = useState<string | null>(null);
-  const [selectedMonth, setSelectedMonth] = React.useState<MonthOption[]>([
-    currentMonthOption,
+  const [editableRows, setEditableRows] = useState<string[]>([]);
+  const userInfo = useAppSelector((state) => state.auth.user);
+  const loggedInUserId = userInfo?.id ?? null;
+  const userPermissions = userInfo?.permissions;
+
+  const viewPastCases = useUserPermission(userPermissions, [
+    USER_PERMISSIONS.VIEW_PAST_CASES,
   ]);
+
+  const viewFutureCases = useUserPermission(userPermissions, [
+    USER_PERMISSIONS.VIEW_FUTURE_CASES,
+  ]);
+
+  const deleteCaseAllowed = useUserPermission(userPermissions, [
+    USER_PERMISSIONS.DELETE_CASE,
+  ]);
+
+  const editCaseAllowed = useUserPermission(userPermissions, [
+    USER_PERMISSIONS.EDIT_CASE,
+  ]);
+
+  const viewBillingColumn = useUserPermission(userPermissions, [
+    USER_PERMISSIONS.VIEW_BILLING,
+  ]);
+
+  const getMonthOptions = (
+    viewPastCases: boolean,
+    viewFutureCases: boolean,
+  ) => {
+    const currentMonth = new Date().getMonth() + 1;
+    return monthOptions.map((option) => {
+      const optionMonth = parseInt(option.value, 10);
+      const isPastMonth = optionMonth < currentMonth;
+      const isFutureMonth = optionMonth > currentMonth;
+      return {
+        ...option,
+        disabled:
+          (!viewPastCases && isPastMonth) ||
+          (!viewFutureCases && isFutureMonth),
+      };
+    });
+  };
+
+  const updatedMonthOptions: MonthOption[] = useMemo(
+    () => getMonthOptions(viewPastCases, viewFutureCases),
+    [viewPastCases, viewFutureCases],
+  );
 
   const surgeryOptionsHeadersObj: {
     [key: string]: {
@@ -51,7 +95,7 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
       checkListHeaders: string[];
     };
   } = {};
-  const surgeryInfo = useAppSelector((state) => state.surgeries.surgeryInfo);
+  const { errorMessage } = useAppSelector((state) => state.surgeries);
   const surgeryList: ISurgery[] = useAppSelector((state) =>
     Object.values(state.surgeries.entities),
   );
@@ -81,15 +125,30 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
         style={{ marginRight: '8px', cursor: 'pointer' }}
         onClick={() => handleViewClick(id)}
       />
-      <EditIcon
-        style={{ marginRight: '8px', cursor: 'pointer' }}
-        onClick={() => handleEditClick(id)}
-      />
-      <DeleteIcon
-        style={{ cursor: 'pointer' }}
-        onClick={() => handleOpenDeleteModal(id)}
-      />
+      {editCaseAllowed && (
+        <EditIcon
+          style={{ marginRight: '8px', cursor: 'pointer' }}
+          onClick={() => handleEditClick(id)}
+        />
+      )}
+      {deleteCaseAllowed && (
+        <DeleteIcon
+          style={{ cursor: 'pointer' }}
+          onClick={() => handleOpenDeleteModal(id)}
+        />
+      )}
     </div>
+  );
+
+  const getUpdatedOptions = (viewPastCases: boolean) => [
+    { label: 'Waitlist', value: 'waitlist' },
+    { label: 'IOL', value: 'iol' },
+    { label: 'Past', value: 'past', disabled: !viewPastCases },
+  ];
+
+  const updatedOptions = useMemo(
+    () => getUpdatedOptions(viewPastCases),
+    [viewPastCases],
   );
 
   const modifiedObj = {};
@@ -128,6 +187,13 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
         hp: '5/6PC',
         consent: '5/6PC',
       };
+
+      const optionArr = Object.keys(ele.surgeryConfiguration.options);
+
+      optionArr.forEach((option) => {
+        viewData[`${option}-count`] =
+          ele.surgeryConfiguration.options[option]?.count;
+      });
 
       Object.keys(ele.selectedSurgeryOptions).forEach((data) => {
         viewData[data] = ele.selectedSurgeryOptions[data].value;
@@ -172,14 +238,21 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
     }
   };
 
-  const handleChangeMonth = ({ value }) => {
-    setSelectedMonth(value);
+  const handleChangeValue = ({ value }) => {
+    dispatch(setSelectedValue(value[0] ? value[0].label : null));
+    const selectedLabel = value.length > 0 ? value[0].label.toLowerCase() : '';
+    if (selectedLabel === 'past') {
+      dispatch(setSelectedMonth([]));
+    }
   };
-  ('');
 
-  const handleSearchMRNChange = (event) => {
-    const mrn = event.target.value.toLowerCase();
-    setSearchMRN(mrn);
+  const handleChangeMonth = ({ value }) => {
+    dispatch(setSelectedMonth(value));
+  };
+
+  const handleSearchMRNNameChange = (value: string) => {
+    const mrn = value.toLowerCase();
+    dispatch(setSearchMRNName(mrn));
   };
 
   const handleCloneClick = (rowId: string) => {
@@ -206,16 +279,81 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
     setSelectedAction('view');
   };
 
-  const handleEditClick = (rowId: string) => {
-    setSelectedAction('edit');
-    dispatch(fetchSurgeryInfo({ practiceId, id: rowId }));
-    setSelectedRow(selectedRow === rowId ? null : rowId);
+  const resetFilters = (): void => {
+    dispatch(setSelectedMonth([]));
+    dispatch(setSearchMRNName(null));
+    dispatch(setSelectedValue(null));
   };
 
-  const handleCancelClick = () => {
-    setSelectedAction('cancel');
-    setSelectedRow(null);
+  const handleEditClick = (rowId: string) => {
+    setSelectedAction('edit');
+    setEditableRows((prevEditableRows) => [...prevEditableRows, rowId]);
   };
+
+  const handleCancelClick = (rowId: string) => {
+    setEditableRows((prevEditableRows) =>
+      prevEditableRows.filter((id) => id !== rowId),
+    );
+  };
+
+  const handleUpdateClick = (rowId: string) => {
+    setEditableRows((prevEditableRows) =>
+      prevEditableRows.filter((id) => id !== rowId),
+    );
+  };
+
+  const searchMRNNameStr = searchMRNName || '';
+  const selectedValueStr = selectedValue || '';
+
+  const dispatchFetchFilteredSurgeryList = (
+    selectedMonth: MonthOption[],
+    searchMRNName: string,
+    selectedValue: string,
+  ) => {
+    const monthLabels = selectedMonth.map((month) => month.label);
+    const month = monthLabels.join(',');
+    const selectedOption = selectedValue;
+
+    if (practiceId && loggedInUserId !== null) {
+      dispatch(
+        fetchListings({
+          loggedInUserId,
+          practiceId,
+          month: month,
+          searchMRNName,
+          option: selectedOption,
+        }),
+      );
+    }
+  };
+  const isDisabled = selectedValue && selectedValue.toLowerCase() === 'past';
+
+  useEffect(() => {
+    if (practiceId && loggedInUserId !== null) {
+      dispatchFetchFilteredSurgeryList(
+        selectedMonth,
+        searchMRNNameStr,
+        selectedValueStr,
+      );
+    }
+  }, [
+    dispatch,
+    practiceId,
+    loggedInUserId,
+    selectedMonth,
+    searchMRNNameStr,
+    selectedValueStr,
+  ]);
+
+  useEffect(() => {
+    if (practiceId && loggedInUserId !== null) {
+      dispatchFetchFilteredSurgeryList(
+        selectedMonth,
+        searchMRNNameStr,
+        selectedValueStr,
+      );
+    }
+  }, [dispatch, practiceId, loggedInUserId]);
 
   return (
     <div className="overflow-x-auto">
@@ -232,38 +370,27 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
         </div>
         <div className="flex w-3/4 justify-end gap-3 items-center text-sm">
           <div className="flex">
-            <Input
-              name="search"
-              value={searchMRN}
-              onChange={handleSearchMRNChange}
-              placeholder="Search MRN or Name"
-              overrides={{
-                Root: {
-                  style: {
-                    borderTopRightRadius: '0',
-                    borderBottomRightRadius: '0',
-                    borderRight: '0',
-                    border: '0',
-                  },
-                },
-                Input: {
-                  style: {
-                    border: 'rgba(212, 212, 216, 1)',
-                    backgroundColor: 'rgba(250, 250, 250, 1)',
-                  },
-                },
-              }}
-            />
-            <div className="bg-gradient-to-br from-teal-600 to-green-500 text-white p-2 items-center rounded-r-lg border-r border-gray-300">
-              <SearchIcon className="mt-2" size={25}></SearchIcon>
+            <div className="items-center">
+              <TextInput
+                name="search"
+                value={searchMRNName || ''}
+                onChange={handleSearchMRNNameChange}
+                placeholder="Search MRN or Name"
+              />
+            </div>
+            <div className="bg-gradient-to-br from-teal-600 to-green-500 px-2 py-2 text-white flex items-center rounded-r-lg border-r border-gray-300">
+              <SearchIcon size={20} />
             </div>
           </div>
           <div>
             <Select
               required
-              options={monthOptions}
+              placeholder="Select Month"
+              options={updatedMonthOptions}
               value={selectedMonth}
               onChange={handleChangeMonth}
+              disabled={isDisabled || false}
+              multi
               overrides={{
                 ControlContainer: {
                   style: {
@@ -283,6 +410,18 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
           <div>
             <Select
               required
+              options={updatedOptions}
+              value={
+                selectedValue
+                  ? [
+                      {
+                        label: selectedValue,
+                        id: selectedValue,
+                      },
+                    ]
+                  : []
+              }
+              onChange={handleChangeValue}
               overrides={{
                 ControlContainer: {
                   style: {
@@ -299,13 +438,24 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
               }}
             />
           </div>
+          <div>
+            <Button
+              type="button"
+              kind="tertiary"
+              title="Reset"
+              onClick={resetFilters}
+              style={{
+                backgroundColor: 'rgba(212, 212, 216, 1)',
+                color: 'black',
+              }}
+            />
+          </div>
         </div>
       </div>
-      {surgeryConfigList.length && Object.keys(modifiedObj).length && (
+      {surgeryConfigList.length > 0 && Object.keys(modifiedObj).length > 0 ? (
         <div className="w-max overflow-x-auto mt-2 border rounded-t-lg rounded-b-lg border-gray-200">
           {Object.keys(modifiedObj).map((key, index) => {
             const ele = modifiedObj[key];
-
             const customOptionsHeaders: string[] =
               surgeryOptionsHeadersObj[key].surgeryOptionsHeaders;
             const customCheckListHeaders: string[] =
@@ -382,12 +532,16 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
                             </div>
                           ),
                         )}
-                        <div className="font-bold text-white py-1 px-1 w-20">
-                          Prof
-                        </div>
-                        <div className="font-bold text-white py-1 px-1 w-20">
-                          Hospital
-                        </div>
+                        {viewBillingColumn && (
+                          <div className="font-bold text-white py-1 px-1 w-20">
+                            Prof
+                          </div>
+                        )}
+                        {viewBillingColumn && (
+                          <div className="font-bold text-white py-1 px-1 w-20">
+                            Hospital
+                          </div>
+                        )}
                         <div className="font-bold text-white py-1 px-1 w-20">
                           Insurance
                         </div>
@@ -395,23 +549,28 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
                           Action
                         </div>
                       </div>
-                      {ele[date].map((row, index) =>
-                        selectedRow === row.id &&
-                        selectedAction == 'edit' &&
-                        surgeryInfo ? (
+                      {ele[date].map((row, index) => {
+                        const isEditable =
+                          editableRows.includes(row.id) &&
+                          selectedAction === 'edit';
+                        const surgeryInfo = surgeryList.find(
+                          (ele) => ele.id === row.id,
+                        );
+                        return isEditable && surgeryInfo ? (
                           <EditableRow
                             key={row.id}
-                            handleCancelClick={handleCancelClick}
+                            rowId={row.id} // Pass the rowId
+                            handleCancelClick={() => handleCancelClick(row.id)}
                             customHeaders={surgeryOptionsHeadersObj}
                             surgeryInfo={surgeryInfo}
-                            setSelectedAction={setSelectedAction}
+                            handleUpdateClick={handleUpdateClick}
                           />
                         ) : (
                           <>
                             <div
                               key={row.id}
                               id={row.id}
-                              className={`div-clone flex gap-2 px-2.5 text-xs items-center ${
+                              className={`div-clone flex gap-2 px-2.5 text-xs items-start ${
                                 index !== ele.length - 1
                                   ? 'border-b border-gray-300'
                                   : ''
@@ -423,7 +582,7 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
                               <div className="text-black py-0.5 px-1 w-10">
                                 {row.home[0]}
                               </div>
-                              <div className="text-gray-900 py-2 px-0.5 flex text-center items-center w-20">
+                              <div className="text-gray-900 py-0.5 px-0.5 flex text-center items-center w-20">
                                 <div className="rounded-md text-white p-1 bg-indigo-500">
                                   {row.status}
                                 </div>
@@ -445,14 +604,33 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
                               </div>
 
                               {customOptionsHeaders.map(
-                                (optionsHeader, optionsHeaderIndex) => (
-                                  <div
-                                    className="text-black py-0.5 px-1 w-20"
-                                    key={optionsHeaderIndex}
-                                  >
-                                    {row[optionsHeader]}
-                                  </div>
-                                ),
+                                (optionsHeader, optionsHeaderIndex) => {
+                                  const elements: JSX.Element[] = [];
+                                  if (row[`${optionsHeader}-count`]) {
+                                    for (
+                                      let index = 0;
+                                      index < row[`${optionsHeader}-count`];
+                                      index++
+                                    ) {
+                                      elements.push(
+                                        <div
+                                          className="text-black py-0.5 px-1 w-20"
+                                          key={index}
+                                        >
+                                          {row[`${optionsHeader}-${index}`]}
+                                        </div>,
+                                      );
+                                    }
+                                  }
+                                  return (
+                                    <div
+                                      className="flex flex-col gap-1 justify-center"
+                                      key={optionsHeaderIndex}
+                                    >
+                                      {elements}
+                                    </div>
+                                  );
+                                },
                               )}
                               <div className="text-black py-0.5 px-1 w-20">
                                 {row.details}
@@ -470,12 +648,16 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
                                   </div>
                                 ),
                               )}
-                              <div className="text-black py-0.5 px-1 w-20">
-                                {row.prof}
-                              </div>
-                              <div className="text-black py-0.5 px-1 w-20">
-                                {row.hospital}
-                              </div>
+                              {viewBillingColumn && (
+                                <div className="text-black py-0.5 px-1 w-20">
+                                  {row.prof}
+                                </div>
+                              )}
+                              {viewBillingColumn && (
+                                <div className="text-black py-0.5 px-1 w-20">
+                                  {row.hospital}
+                                </div>
+                              )}
                               <div className="text-black py-0.5 px-1 w-20">
                                 {row.insurance}
                               </div>
@@ -588,16 +770,22 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
                                     </p>
                                   </div>
                                   <div className="flex-1">
-                                    <p>
-                                      <span className="font-bold">Prof: </span>
-                                      <span>{selectedSurgery.prof}</span>
-                                    </p>
-                                    <p>
-                                      <span className="font-bold">
-                                        Hospital:{' '}
-                                      </span>
-                                      <span>{selectedSurgery.hospital}</span>
-                                    </p>
+                                    {viewBillingColumn && (
+                                      <p>
+                                        <span className="font-bold">
+                                          Prof:{' '}
+                                        </span>
+                                        <span>{selectedSurgery.prof}</span>
+                                      </p>
+                                    )}
+                                    {viewBillingColumn && (
+                                      <p>
+                                        <span className="font-bold">
+                                          Hospital:{' '}
+                                        </span>
+                                        <span>{selectedSurgery.hospital}</span>
+                                      </p>
+                                    )}
                                     <p>
                                       <span className="font-bold">
                                         Insurance:{' '}
@@ -637,8 +825,8 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
                                 </div>
                               )}
                           </>
-                        ),
-                      )}
+                        );
+                      })}
                     </div>
                   );
                 })}
@@ -651,6 +839,8 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
             handleCloseDeleteModal={handleCloseDeleteModal}
           />
         </div>
+      ) : (
+        <div className="text-center py-3 px-2.5">{errorMessage}</div>
       )}
     </div>
   );
