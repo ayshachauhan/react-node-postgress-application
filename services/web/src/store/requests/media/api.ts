@@ -57,7 +57,7 @@ export const addMedia = async (
 
     const mediaConfig = payloadData.mediaConfig as PatientMediaConfig;
 
-    if (payloadData.mediaType === MediaType.PATIENT) {
+    if (payloadData.mediaType === MediaType.PATIENT && mediaConfig?.image) {
       const preImageData = mediaConfig.image.map((data: Image) => ({
         title: data.title,
         url: '',

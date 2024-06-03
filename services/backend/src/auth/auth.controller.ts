@@ -9,6 +9,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { UserEntity } from '@packages/entities/*';
 import { AuthGuard } from './auth.guard';
 import { AuthService } from './auth.service';
 import { LoginUserDto } from './dto/login.dto';
@@ -30,11 +31,13 @@ export class AuthController {
   @Get('me')
   @UseGuards(AuthGuard)
   @ApiBearerAuth('normal')
-  async validateToken(@Req() request): Promise<Record<string, string>> {
+  async validateToken(@Req() request): Promise<UserEntity> {
     if (!request.user.isSuperAdmin) {
       await this.authService.setUserDetails(request.user);
     }
-    return request.user;
+
+    const user = await this.authService.getUserById(request.user.id);
+    return user ?? (request.user as UserEntity);
   }
 
   @Get('/resetLink/:email')

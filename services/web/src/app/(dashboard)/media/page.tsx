@@ -315,28 +315,30 @@ const Media: React.FC = () => {
                     </React.Fragment>
                   ));
 
-                  const imageElements = (data as PatientMediaConfig).image.map(
-                    (image, imgIndex) => (
-                      <React.Fragment key={`image-${index}-${imgIndex}`}>
-                        <div
-                          className="rounded-lg shadow-md p-6 w-[298px] h-[298px] relative"
-                          onClick={() => handleOpenImageModal(image.url)}
-                        >
-                          <Image
-                            src={image.url}
-                            className="rounded-lg"
-                            alt="Image description"
-                            width={265}
-                            height={208}
-                            style={{ width: '265px', height: '208px' }}
-                          />
-                          <div className="text-gray-900 pt-2 text-left">
-                            {image.title}
-                          </div>
-                        </div>
-                      </React.Fragment>
-                    ),
-                  );
+                  const imageElements = (data as PatientMediaConfig)?.image
+                    ? (data as PatientMediaConfig)?.image.map(
+                        (image, imgIndex) => (
+                          <React.Fragment key={`image-${index}-${imgIndex}`}>
+                            <div
+                              className="rounded-lg shadow-md p-6 w-[298px] h-[298px] relative"
+                              onClick={() => handleOpenImageModal(image.url)}
+                            >
+                              <Image
+                                src={image.url}
+                                className="rounded-lg"
+                                alt="Image description"
+                                width={265}
+                                height={208}
+                                style={{ width: '265px', height: '208px' }}
+                              />
+                              <div className="text-gray-900 pt-2 text-left">
+                                {image.title}
+                              </div>
+                            </div>
+                          </React.Fragment>
+                        ),
+                      )
+                    : [];
 
                   return [...videoElements, ...imageElements];
                 })}

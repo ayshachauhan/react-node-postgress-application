@@ -25,8 +25,6 @@ const MediaPage: React.FC<{
     }),
   );
 
-  console.log(patient, 'patients');
-
   const patientOptions = Object.keys(patient).map((key) => ({
     label: patient[key].mrn,
     id: patient[key].id,
@@ -46,9 +44,6 @@ const MediaPage: React.FC<{
   });
   const [selectedMedia, setSelectedMedia] =
     useState<MediaType>(selectedMediaType);
-
-  // const [video, setVideo] = useState<Video[]>([{ title: '', url: '' }]);
-  //const [image, setImage] = useState<Video[]>([{ title: '', url: '' }]);
 
   const handlePracticeFormChange = (field, value) => {
     setPracticeForm({ ...practiceForm, [field]: value });
@@ -97,7 +92,13 @@ const MediaPage: React.FC<{
           : {
               practiceId,
               mediaType: selectedMedia,
-              mediaConfig: patientForm,
+              mediaConfig:
+                patientForm.image?.length && patientForm.image[0].title
+                  ? patientForm
+                  : {
+                      patientId: patientForm.patientId,
+                      video: patientForm.video,
+                    },
             };
 
       console.log(data, 'finaldata');
@@ -357,6 +358,7 @@ const MediaPage: React.FC<{
                       <div className="flex flex-row gap-3">
                         <TextInput
                           size={SIZE.mini}
+                          required={true}
                           type="text"
                           value={inputField.title}
                           onChange={(value) =>
@@ -386,6 +388,7 @@ const MediaPage: React.FC<{
                         <TextInput
                           size={SIZE.mini}
                           type="text"
+                          required={true}
                           value={inputField.url}
                           onChange={(value) =>
                             handleVideoChangeInput(index, value, 'url')
