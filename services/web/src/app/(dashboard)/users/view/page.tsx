@@ -72,7 +72,7 @@ const UserViewPage: React.FC = () => {
               <div>
                 <p>
                   <span className="font-bold">Last Name</span>
-                  <span> : Kumar</span>
+                  <span> : {userInfo?.lastName}</span>
                 </p>
                 <p className="mt-2">
                   <span className="font-bold">Designation</span>
