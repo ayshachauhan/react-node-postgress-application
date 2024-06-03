@@ -1,4 +1,4 @@
-import { MediaType, Video } from '@packages/entities/index.browser';
+import { MediaType } from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
 import { useAppDispatch, useAppSelector } from '@root/store';
@@ -25,6 +25,8 @@ const MediaPage: React.FC<{
     }),
   );
 
+  console.log(patient, 'patients');
+
   const patientOptions = Object.keys(patient).map((key) => ({
     label: patient[key].mrn,
     id: patient[key].id,
@@ -32,31 +34,80 @@ const MediaPage: React.FC<{
 
   const practiceId = getPracticeId();
   const dispatch = useAppDispatch();
-  const [name, setName] = useState('');
-  const [url, setUrl] = useState('');
-  const [surgeryConfigurationId, setSurgeryConfigurationId] = useState('');
-  const [patientId, setPatientId] = useState('');
+  const [practiceForm, setPracticeForm] = useState({
+    surgeryConfigurationId: '',
+    video: [{ title: '', url: '' }],
+  });
+
+  const [patientForm, setPatientForm] = useState({
+    patientId: '',
+    video: [{ title: '', url: '' }],
+  });
   const [selectedMedia, setSelectedMedia] =
     useState<MediaType>(selectedMediaType);
 
-  const [video, setVideo] = useState<Video[]>([{ title: '', url: '' }]);
-  const [image, setImage] = useState<Video[]>([{ title: '', url: '' }]);
+  // const [video, setVideo] = useState<Video[]>([{ title: '', url: '' }]);
+  //const [image, setImage] = useState<Video[]>([{ title: '', url: '' }]);
+
+  const handlePracticeFormChange = (field, value) => {
+    setPracticeForm({ ...practiceForm, [field]: value });
+  };
+
+  const handlePatientFormChange = (field, value) => {
+    setPatientForm({ ...patientForm, [field]: value });
+  };
+
+  const handleAddVideoField = () => {
+    if (patientForm.video.length < 5) {
+      setPatientForm({
+        ...patientForm,
+        video: [...patientForm.video, { title: '', url: '' }],
+      });
+    }
+  };
+
+  const handleRemoveVideoField = (index) => {
+    const newFields = patientForm.video.filter((_, idx) => idx !== index);
+    setPatientForm({ ...patientForm, video: newFields });
+  };
+
+  const handleVideoChangeInput = (index, value, field) => {
+    if (selectedMedia === MediaType.PRACTICE) {
+      const newFields = [...practiceForm.video];
+      newFields[index][field] = value;
+      setPracticeForm({ ...practiceForm, video: newFields });
+    } else {
+      const newFields = [...patientForm.video];
+      newFields[index][field] = value;
+      setPatientForm({ ...patientForm, video: newFields });
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (practiceId) {
-      const data = {
-        name,
-        url,
-        practiceId,
-        surgeryConfigurationId,
-      };
+      const data =
+        selectedMedia === MediaType.PRACTICE
+          ? {
+              practiceId,
+              mediaType: selectedMedia,
+              mediaConfig: practiceForm,
+            }
+          : {
+              practiceId,
+              mediaType: selectedMedia,
+              mediaConfig: patientForm,
+            };
+
+      console.log(data, 'finaldata');
+
       try {
         dispatch(addRecordAsync(data));
-        setName('');
-        setUrl('');
-        setSurgeryConfigurationId('');
-        setPatientId('');
+        setPracticeForm({
+          surgeryConfigurationId: '',
+          video: [{ title: '', url: '' }],
+        });
+        setPatientForm({ patientId: '', video: [{ title: '', url: '' }] });
         onClose();
       } catch (error) {
         onClose();
@@ -65,11 +116,14 @@ const MediaPage: React.FC<{
   };
 
   const handleSurgeryConfigurationChange = ({ value }) => {
-    setSurgeryConfigurationId(value[0] ? value[0].id : null);
+    handlePracticeFormChange(
+      'surgeryConfigurationId',
+      value[0] ? value[0].id : null,
+    );
   };
 
   const handlePatientChange = ({ value }) => {
-    setPatientId(value[0] ? value[0].id : null);
+    handlePatientFormChange('patientId', value[0] ? value[0].id : null);
   };
 
   useEffect(() => {
@@ -79,7 +133,7 @@ const MediaPage: React.FC<{
   }, [practiceId, dispatch]);
 
   const selectedPatient = () =>
-    Object.values(patient).find((data) => data.id === patientId);
+    Object.values(patient).find((data) => data.id === patientForm.patientId);
 
   return (
     <div>
@@ -110,10 +164,8 @@ const MediaPage: React.FC<{
               </label>
               <TextInput
                 name="name"
-                value={name}
-                onChange={(value) => {
-                  setName(value);
-                }}
+                value={practiceForm.video[0].title}
+                onChange={(value) => handleVideoChangeInput(0, value, 'title')}
                 required
               />
               <div className="space-y-2"></div>
@@ -124,10 +176,8 @@ const MediaPage: React.FC<{
               </label>
               <TextInput
                 name="url"
-                value={url}
-                onChange={(value) => {
-                  setUrl(value);
-                }}
+                value={practiceForm.video[0].url}
+                onChange={(value) => handleVideoChangeInput(0, value, 'url')}
                 required
               />
               <div className="space-y-2"></div>
@@ -143,11 +193,11 @@ const MediaPage: React.FC<{
                 options={surgeryConfigurationOptions}
                 onChange={handleSurgeryConfigurationChange}
                 value={
-                  surgeryConfigurationId
+                  practiceForm.surgeryConfigurationId
                     ? [
                         {
-                          label: surgeryConfigurationId,
-                          id: surgeryConfigurationId,
+                          label: practiceForm.surgeryConfigurationId,
+                          id: practiceForm.surgeryConfigurationId,
                         },
                       ]
                     : []
@@ -181,11 +231,11 @@ const MediaPage: React.FC<{
                   options={patientOptions}
                   onChange={handlePatientChange}
                   value={
-                    patientId
+                    patientForm.patientId
                       ? [
                           {
-                            label: patientId,
-                            id: patientId,
+                            label: patientForm.patientId,
+                            id: patientForm.patientId,
                           },
                         ]
                       : []
@@ -221,6 +271,7 @@ const MediaPage: React.FC<{
                   value={selectedPatient()?.firstName}
                   onChange={() => {}}
                   required
+                  disabled={true}
                 />
               </div>
               <div className="w-1/2 space-y-2">
@@ -235,6 +286,7 @@ const MediaPage: React.FC<{
                   value={selectedPatient()?.lastName}
                   onChange={() => {}}
                   required
+                  disabled={true}
                 />
               </div>
             </div>
@@ -256,13 +308,13 @@ const MediaPage: React.FC<{
                       startEnhancer={() => (
                         <AddIcon className="mt-2 ml-2" size={25}></AddIcon>
                       )}
-                      onClick={() => {}}
+                      onClick={handleAddVideoField}
                     />
                   </div>
                 </div>
               </div>
               <hr className="h-px bg-gray-100 border-1 dark:bg-gray-800"></hr>
-              {video.map((inputField, index, arr) => (
+              {patientForm.video.map((inputField, index, arr) => (
                 <>
                   <div className="flex gap-5">
                     <div className="space-y-2 flex-1">
@@ -277,16 +329,101 @@ const MediaPage: React.FC<{
                           size={SIZE.mini}
                           type="text"
                           value={inputField.title}
-                          onChange={(event) =>
-                            handleChecklistChangeInput(index, event)
+                          onChange={(value) =>
+                            handleVideoChangeInput(index, value, 'title')
                           }
                           endEnhancer={
                             arr.length > 1 ? (
                               <div
                                 className="rounded-md cursor-pointer items-center pl-3"
-                                onClick={() =>
-                                  handleChecklistRemoveFields(index)
-                                }
+                                onClick={() => handleRemoveVideoField(index)}
+                              >
+                                <CloseIcon className="" size={10} />
+                              </div>
+                            ) : null
+                          }
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-2 flex-1">
+                      <label
+                        htmlFor="email"
+                        className="text-black text-sm mt-2"
+                      >
+                        Video Url
+                      </label>
+                      <div className="flex flex-row gap-3">
+                        <TextInput
+                          size={SIZE.mini}
+                          type="text"
+                          value={inputField.url}
+                          onChange={(value) =>
+                            handleVideoChangeInput(index, value, 'url')
+                          }
+                          endEnhancer={
+                            arr.length > 1 ? (
+                              <div
+                                className="rounded-md cursor-pointer items-center pl-3"
+                                onClick={() => handleRemoveVideoField(index)}
+                              >
+                                <CloseIcon className="" size={10} />
+                              </div>
+                            ) : null
+                          }
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </>
+              ))}
+            </div>
+            {/* <div className="pt-6">
+              <div className="flex">
+                <div>
+                  <label htmlFor="lastName" className="text-black text-lg">
+                    Image Media
+                  </label>
+                </div>
+                <div>
+                  <div className="pl-3">
+                    <Button
+                      type="button"
+                      kind="primary"
+                      title=""
+                      width={25}
+                      height={25}
+                      startEnhancer={() => (
+                        <AddIcon className="mt-2 ml-2" size={25}></AddIcon>
+                      )}
+                      onClick={handleAddVideoField}
+                    />
+                  </div>
+                </div>
+              </div>
+              <hr className="h-px bg-gray-100 border-1 dark:bg-gray-800"></hr>
+              {image.map((inputField, index, arr) => (
+                <>
+                  <div className="flex gap-5">
+                    <div className="space-y-2 flex-1">
+                      <label
+                        htmlFor="email"
+                        className="text-black text-sm mt-2"
+                      >
+                        Image Title
+                      </label>
+                      <div className="flex flex-row gap-3">
+                        <TextInput
+                          size={SIZE.mini}
+                          type="text"
+                          value={inputField.title}
+                          onChange={(event) =>
+                            handleVideoChangeInput(index, event, 'title')
+                          }
+                          endEnhancer={
+                            arr.length > 1 ? (
+                              <div
+                                className="rounded-md cursor-pointer items-center pl-3"
+                                onClick={() => handleRemoveVideoField(index)}
                               >
                                 <CloseIcon className="" size={10} />
                               </div>
@@ -307,12 +444,14 @@ const MediaPage: React.FC<{
                           size={SIZE.mini}
                           type="text"
                           value={inputField.title}
-                          onChange={() => {}}
+                          onChange={(event) =>
+                            handleVideoChangeInput(index, event, 'url')
+                          }
                           endEnhancer={
                             arr.length > 1 ? (
                               <div
                                 className="rounded-md cursor-pointer items-center pl-3"
-                                onClick={() => {}}
+                                onClick={() => handleRemoveVideoField(index)}
                               >
                                 <CloseIcon className="" size={10} />
                               </div>
@@ -324,7 +463,7 @@ const MediaPage: React.FC<{
                   </div>
                 </>
               ))}
-            </div>
+            </div> */}
           </div>
         )}
         <div className="text-right text-base pt-4">

@@ -36,6 +36,9 @@ const Media: React.FC = () => {
   const [selectedMediaType, setSelectedMediaType] = useState<MediaType>(
     MediaType.PRACTICE,
   );
+  const [selectedPatientId, setSelectedPatientId] = useState<string | null>(
+    null,
+  );
 
   const mediaTab: SelectedMedia[] = [
     {
@@ -103,6 +106,102 @@ const Media: React.FC = () => {
     setSelectedMediaType(mediaType);
   };
 
+  const handlePatientMediaClick = (patientId: string) => {
+    setSelectedPatientId(patientId);
+  };
+
+  // return (
+  //   <div className="mt-4">
+  //     {showModal && <div className="text-green-700">{successMessage}</div>}
+  //     {showErrorMessage && <div className="text-red-700">{errorMessage}</div>}
+  //     <div className="flex justify-between border-gray-400 items-center">
+  //       <div className="flex bg-green-50 pr-2 border-b border-green-200 items-center">
+  //         <div className="flex items-center">
+  //           {mediaTab.map((item, index) => (
+  //             <div className="mr-1" key={index}>
+  //               <button
+  //                 className="py-2 px-4 text-xs text-black text-normal border-b-2 border-transparent hover:text-white hover:bg-gradient-to-r from-primary-light to-primary-dark hover:rounded-t-lg"
+  //                 style={{
+  //                   ...(selectedMediaType === item.type && {
+  //                     backgroundImage:
+  //                       'linear-gradient(to right, rgba(53, 165, 118, 1), rgba(17, 113, 128, 1))',
+  //                     color: 'white',
+  //                     borderTopLeftRadius: '0.5rem',
+  //                     borderTopRightRadius: '0.5rem',
+  //                   }),
+  //                 }}
+  //                 onClick={() => toggleActive(item.type)}
+  //               >
+  //                 {item.name}
+  //               </button>
+  //             </div>
+  //           ))}
+  //         </div>
+  //       </div>
+  //       <Button
+  //         kind="secondary"
+  //         title="Add"
+  //         height={40}
+  //         width={80}
+  //         onClick={handleOpenSecondModal}
+  //         startEnhancer={() => <AddIcon className="mt-2" size={25}></AddIcon>}
+  //       />{' '}
+  //     </div>
+  //     <hr className="h-px my-2.5 bg-gray-100 border-1 border-gray-100"></hr>
+  //     <div className="flex flex-wrap gap-6">
+  //       {Object.values(media).map((data) => (
+  //         <React.Fragment key={data.id}>
+  //           {/* <GeneralCard
+  //                   id={this.props.id}
+  //                   /> */}
+  //           <div className="rounded-lg shadow-md p-6 w-[298px] h-298 relative">
+  //             <div>
+  //               <Image
+  //                 src={getImageUrl(data.mediaConfig.video[0].url)}
+  //                 className="rounded-lg"
+  //                 alt="External image description"
+  //                 width={265}
+  //                 height={208}
+  //                 style={{ width: '265px', height: '208px' }}
+  //               />
+  //               <div
+  //                 className="bg-black absolute text-center transform -translate-x-1/2 -translate-y-1/2 border top-32 left-1/2 text-white rounded-full flex justify-center items-center p-2 border-black w-14 h-14 pointer"
+  //                 onClick={() =>
+  //                   handleOpenFirstModal(
+  //                     extractVideoId(data.mediaConfig.video[0].url),
+  //                   )
+  //                 }
+  //               >
+  //                 <PlayIcon></PlayIcon>
+  //               </div>
+  //               <div className="bg-black text-white rounded text-xs leading-[18px] absolute text-center border top-14 right-9 border-black py-1 px-1.5">
+  //                 {data.id}
+  //               </div>
+  //               <div className="text-gray-900 pt-2 text-left">
+  //                 {data.mediaConfig.video[0].title}
+  //               </div>
+  //             </div>
+  //           </div>
+  //         </React.Fragment>
+  //       ))}
+  //     </div>
+  //     <div>
+  //       {videoId && isVideoLoaded && (
+  //         <PlayVideoModal
+  //           isFirstModalOpen={isFirstModalOpen}
+  //           handleCloseFirstModal={handleCloseFirstModal}
+  //           videoId={videoId}
+  //         />
+  //       )}
+  //     </div>
+  //     <AddMediaModal
+  //       isSecondModalOpen={isSecondModalOpen}
+  //       handleCloseSecondModal={handleCloseSecondModal}
+  //       selectedMediaType={selectedMediaType}
+  //     />
+  //   </div>
+  // );
+
   return (
     <div className="mt-4">
       {showModal && <div className="text-green-700">{successMessage}</div>}
@@ -137,40 +236,111 @@ const Media: React.FC = () => {
           height={40}
           width={80}
           onClick={handleOpenSecondModal}
-          startEnhancer={() => <AddIcon className="mt-2" size={25}></AddIcon>}
-        />{' '}
+          startEnhancer={() => <AddIcon className="mt-2" size={25} />}
+        />
       </div>
-      <hr className="h-px my-2.5 bg-gray-100 border-1 border-gray-100"></hr>
+      <hr className="h-px my-2.5 bg-gray-100 border-1 border-gray-100" />
       <div className="flex flex-wrap gap-6">
-        {Object.values(media).map((data) => (
-          <React.Fragment key={data.id}>
-            {/* <GeneralCard
-                    id={this.props.id}
-                    /> */}
-            <div className="rounded-lg shadow-md p-6 w-[298px] h-298 relative">
-              <div>
-                <Image
-                  src={getImageUrl(data.url)}
-                  className="rounded-lg"
-                  alt="External image description"
-                  width={265}
-                  height={208}
-                  style={{ width: '265px', height: '208px' }}
-                />
+        {selectedMediaType === MediaType.PRACTICE &&
+          media
+            .filter((data) => data.mediaType === MediaType.PRACTICE)
+            .map((data) => (
+              <React.Fragment key={data.id}>
+                <div className="rounded-lg shadow-md p-6 w-[298px] h-298 relative">
+                  <div>
+                    <Image
+                      src={getImageUrl(data.mediaConfig.video[0].url)}
+                      className="rounded-lg"
+                      alt="External image description"
+                      width={265}
+                      height={208}
+                      style={{ width: '265px', height: '208px' }}
+                    />
+                    <div
+                      className="bg-black absolute text-center transform -translate-x-1/2 -translate-y-1/2 border top-32 left-1/2 text-white rounded-full flex justify-center items-center p-2 border-black w-14 h-14 pointer"
+                      onClick={() =>
+                        handleOpenFirstModal(
+                          extractVideoId(data.mediaConfig.video[0].url),
+                        )
+                      }
+                    >
+                      <PlayIcon />
+                    </div>
+                    <div className="bg-black text-white rounded text-xs leading-[18px] absolute text-center border top-14 right-9 border-black py-1 px-1.5">
+                      {data.id}
+                    </div>
+                    <div className="text-gray-900 pt-2 text-left">
+                      {data.mediaConfig.video[0].title}
+                    </div>
+                  </div>
+                </div>
+              </React.Fragment>
+            ))}
+        {selectedMediaType === MediaType.PATIENT &&
+          !selectedPatientId &&
+          media
+            .filter((data) => data.patientId)
+            .map((data) => (
+              <React.Fragment key={data.id}>
                 <div
-                  className="bg-black absolute text-center transform -translate-x-1/2 -translate-y-1/2 border top-32 left-1/2 text-white rounded-full flex justify-center items-center p-2 border-black w-14 h-14 pointer"
-                  onClick={() => handleOpenFirstModal(extractVideoId(data.url))}
+                  className="rounded-lg shadow-md p-6 w-[298px] h-298 relative cursor-pointer"
+                  onClick={() => handlePatientMediaClick(data.patientId)}
                 >
-                  <PlayIcon></PlayIcon>
+                  <div>
+                    <Image
+                      src={getImageUrl(data.mediaConfig.video[0].url)}
+                      className="rounded-lg"
+                      alt="External image description"
+                      width={265}
+                      height={208}
+                      style={{ width: '265px', height: '208px' }}
+                    />
+                    <div className="text-gray-900 pt-2 text-left">
+                      {`Patient ${data.patientId}`}
+                    </div>
+                  </div>
                 </div>
-                <div className="bg-black text-white rounded text-xs leading-[18px] absolute text-center border top-14 right-9 border-black py-1 px-1.5">
-                  {data?.surgeryConfiguration?.name}
-                </div>
-                <div className="text-gray-900 pt-2 text-left">{data.name}</div>
-              </div>
-            </div>
-          </React.Fragment>
-        ))}
+              </React.Fragment>
+            ))}
+        {selectedMediaType === MediaType.PATIENT && selectedPatientId && (
+          <>
+            <Button onClick={() => setSelectedPatientId(null)}>Back</Button>
+            {media
+              .filter((data) => data.patientId === selectedPatientId)
+              .map((data) => (
+                <React.Fragment key={data.id}>
+                  <div className="rounded-lg shadow-md p-6 w-[298px] h-298 relative">
+                    <div>
+                      <Image
+                        src={getImageUrl(data.mediaConfig.video[0].url)}
+                        className="rounded-lg"
+                        alt="External image description"
+                        width={265}
+                        height={208}
+                        style={{ width: '265px', height: '208px' }}
+                      />
+                      <div
+                        className="bg-black absolute text-center transform -translate-x-1/2 -translate-y-1/2 border top-32 left-1/2 text-white rounded-full flex justify-center items-center p-2 border-black w-14 h-14 pointer"
+                        onClick={() =>
+                          handleOpenFirstModal(
+                            extractVideoId(data.mediaConfig.video[0].url),
+                          )
+                        }
+                      >
+                        <PlayIcon />
+                      </div>
+                      <div className="bg-black text-white rounded text-xs leading-[18px] absolute text-center border top-14 right-9 border-black py-1 px-1.5">
+                        {data.id}
+                      </div>
+                      <div className="text-gray-900 pt-2 text-left">
+                        {data.mediaConfig.video[0].title}
+                      </div>
+                    </div>
+                  </div>
+                </React.Fragment>
+              ))}
+          </>
+        )}
       </div>
       <div>
         {videoId && isVideoLoaded && (

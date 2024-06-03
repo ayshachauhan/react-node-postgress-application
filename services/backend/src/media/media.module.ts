@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { VideoEntity } from '@packages/entities/media';
+import { MediaEntity } from '@packages/entities/media';
 import { PracticeEntity } from '@packages/entities/practice';
 import { SurgeryConfigurationEntity } from '@packages/entities/surgeryConfiguration';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
@@ -13,7 +13,7 @@ import { MediaService } from './media.service';
 @Module({
   imports: [
     TypeOrmModule.forFeature([
-      VideoEntity,
+      MediaEntity,
       PracticeEntity,
       SurgeryConfigurationEntity,
     ]),

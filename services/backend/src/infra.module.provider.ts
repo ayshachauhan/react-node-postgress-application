@@ -20,7 +20,7 @@ import {
   SurgeryTypeEntity,
   TemplateEntity,
   UserEntity,
-  VideoEntity,
+  MediaEntity,
 } from '@packages/entities';
 import { LoggerModule } from 'nestjs-pino';
 import { ENV_VALIDATIONS } from './enums/env-validation';
@@ -83,7 +83,7 @@ export const createInfraModuleProviders = (): Array<
         database: configService.get(ENVIRONMENT_VARIABLES.DB_DATABASE),
         entities: [
           InsuranceTypeEntity,
-          VideoEntity,
+          MediaEntity,
           PermissionEntity,
           PracticeEntity,
           PracticeHomesEntity,

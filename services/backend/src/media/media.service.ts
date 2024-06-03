@@ -2,10 +2,10 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
   MediaConfig,
+  MediaEntity,
   MediaType,
   PatientMediaConfig,
   PracticeMediaConfig,
-  VideoEntity,
 } from '@packages/entities/media';
 import { SurgeryConfigurationEntity } from '@packages/entities/surgeryConfiguration';
 import { UploadType, UploadUserImgData } from 'src/users/types';
@@ -17,8 +17,8 @@ import { CreateMediaDto } from './dtos/createMedia.dto';
 @Injectable()
 export class MediaService {
   constructor(
-    @InjectRepository(VideoEntity)
-    private readonly videos: Repository<VideoEntity>,
+    @InjectRepository(MediaEntity)
+    private readonly media: Repository<MediaEntity>,
     @InjectRepository(SurgeryConfigurationEntity)
     private readonly surgeryConfiguration: Repository<SurgeryConfigurationEntity>,
     private readonly s3Service: S3Service,
@@ -57,17 +57,16 @@ export class MediaService {
   }
 
   async getVideosByPracticeId(practiceId: string) {
-    return await this.videos.find({
+    return await this.media.find({
       where: { practiceId },
-      relations: ['surgeryConfiguration'],
     });
   }
 
   async getVideosById(
     practiceId: string,
     videoId: string,
-  ): Promise<VideoEntity> {
-    const video = await this.videos.findOne({
+  ): Promise<MediaEntity> {
+    const video = await this.media.findOne({
       where: { id: videoId, practiceId },
     });
     if (!video) {
@@ -84,30 +83,34 @@ export class MediaService {
   async createOne(
     practiceId: string,
     data: CreateMediaDto,
-  ): Promise<VideoEntity> {
+  ): Promise<MediaEntity> {
     const mediaConfig: MediaConfig = await this.getMediaConfig(data);
 
-    const video = this.videos.create({
+    console.log(mediaConfig, 'mediaconfig');
+
+    const media = this.media.create({
       practiceId,
       mediaType: data.mediaType,
       mediaConfig,
     });
 
-    return await this.videos.save(video);
+    console.log(media, 'mediacreated');
+
+    return await this.media.save(media);
   }
 
   async updateVideo(
     practiceId: string,
     videoId: string,
-    videoData: Partial<VideoEntity>,
-  ): Promise<VideoEntity | undefined> {
+    videoData: Partial<MediaEntity>,
+  ): Promise<MediaEntity | undefined> {
     const video = await this.getVideosById(practiceId, videoId);
-    const updatedVideo = this.videos.merge(video, videoData);
-    return this.videos.save(updatedVideo);
+    const updatedVideo = this.media.merge(video, videoData);
+    return this.media.save(updatedVideo);
   }
 
   async deleteVideo(practiceId: string, videoId: string): Promise<void> {
-    await this.videos.softDelete({ id: videoId, practiceId });
+    await this.media.softDelete({ id: videoId, practiceId });
   }
 
   async uploadUserImg({ id, practiceId, file }: UploadUserImgData) {

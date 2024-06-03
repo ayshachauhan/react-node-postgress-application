@@ -113,8 +113,6 @@ const Header: React.FC = () => {
     }
   }, [users]);
 
-  console.log(userInfo, 'jsdkf');
-
   const handlePracticeChange = (practiceId: string, practiceName: string) => {
     setSelectedPractice(practiceName);
     localStorage.setItem('practiceId', practiceId);

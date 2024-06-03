@@ -3,7 +3,7 @@ import { BaseEntity } from '../base.entity';
 import { IMedia, MediaConfig, MediaType } from './media.interface';
 
 @Entity('media')
-export class VideoEntity extends BaseEntity implements IMedia {
+export class MediaEntity extends BaseEntity implements IMedia {
   @Column({ type: 'uuid' })
   practiceId: string;
 

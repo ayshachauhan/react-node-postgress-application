@@ -50,6 +50,8 @@ export class MediaController {
     @Param('practiceId') practiceId: string,
     @Body(new ValidationPipe()) data: CreateMediaDto,
   ) {
+    console.log('increatemedia', data);
+
     return this.mediaService.createOne(practiceId, data);
   }
 

@@ -1,4 +1,4 @@
-import { IMedia, IMediaRequest } from '@packages/entities/index.browser';
+import { IMedia } from '@packages/entities/index.browser';
 import { ApiService } from '@root/services/apiclient';
 
 const apiClient = new ApiService();
@@ -15,11 +15,11 @@ export const getMedia = async (
 ): Promise<IMedia[]> => {
   try {
     const response: Response = await apiClient.get(
-      `/practices/${payloadData.practiceId}/videos`,
+      `/practices/${payloadData.practiceId}/media`,
     );
 
     if (!response.ok) {
-      throw new Error('Failed to fetch videos');
+      throw new Error('Failed to fetch media');
     }
 
     const data: IMedia[] = await response.json();
@@ -40,18 +40,21 @@ export const getMedia = async (
  * @returns IMedia
  */
 export const addMedia = async (
-  payloadData: IMediaRequest,
+  payloadData,
   { rejectWithValue },
 ): Promise<IMedia> => {
   try {
     const response: Response = await apiClient.post(
-      `/practices/${payloadData.practiceId}/videos`,
+      `/practices/${payloadData.practiceId}/media`,
       payloadData,
     );
     if (!response.ok) {
-      throw new Error('Failed to add video');
+      throw new Error('Failed to add media');
     }
     const data: IMedia = await response.json();
+
+    console.log(data, 'datamedia');
+
     return data;
   } catch (error) {
     if (error instanceof Error) {
