@@ -35,8 +35,6 @@ export class SchedulerService {
         lock: { mode: 'pessimistic_write' }, // Lock the rows for update
       });
 
-      console.log(data);
-
       for (let i = 0; i < data.length; i++) {
         const mailData = data[i];
         const { subject, pt_email_address, text, body } = mailData.data;
