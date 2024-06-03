@@ -24,6 +24,7 @@ export const getPatients = async (
       throw new Error('Failed to get surgery');
     }
     const data = await response.json();
+
     return data;
   } catch (error) {
     return rejectWithValue(error);

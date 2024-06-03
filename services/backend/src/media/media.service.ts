@@ -1,67 +1,146 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { VideoEntity } from '@packages/entities/media';
+import {
+  MediaConfig,
+  MediaEntity,
+  MediaType,
+  PatientMediaConfig,
+  PracticeMediaConfig,
+} from '@packages/entities/media';
 import { SurgeryConfigurationEntity } from '@packages/entities/surgeryConfiguration';
+import { UploadType } from 'src/users/types';
+import { getUploadFileKey } from 'src/users/utils';
 import { Repository } from 'typeorm';
+import { S3Service } from '../users/s3.service';
+import { CreateMediaDto } from './dtos/createMedia.dto';
+import { UploadPatientImagesData } from './types';
 
 @Injectable()
 export class MediaService {
   constructor(
-    @InjectRepository(VideoEntity)
-    private readonly videos: Repository<VideoEntity>,
+    @InjectRepository(MediaEntity)
+    private readonly media: Repository<MediaEntity>,
     @InjectRepository(SurgeryConfigurationEntity)
     private readonly surgeryConfiguration: Repository<SurgeryConfigurationEntity>,
+    private readonly s3Service: S3Service,
   ) {}
 
+  async getMediaConfig(data: CreateMediaDto): Promise<MediaConfig> {
+    switch (data.mediaType) {
+      case MediaType.PRACTICE: {
+        const config = data.mediaConfig as PracticeMediaConfig;
+
+        const surgeryConfiguration = await this.surgeryConfiguration.findOne({
+          where: {
+            id: config.surgeryConfigurationId,
+          },
+        });
+
+        if (!surgeryConfiguration) {
+          throw new NotFoundException('Surgery type not found');
+        }
+
+        return {
+          surgeryConfigurationId: config.surgeryConfigurationId,
+          video: config.video,
+        };
+      }
+      case MediaType.PATIENT: {
+        const config = data.mediaConfig as PatientMediaConfig;
+
+        return {
+          patientId: config.patientId,
+          video: config.video,
+          image: config.image,
+        };
+      }
+    }
+  }
+
   async getVideosByPracticeId(practiceId: string) {
-    return await this.videos.find({
+    return await this.media.find({
       where: { practiceId },
-      relations: ['surgeryConfiguration'],
     });
   }
 
-  async getVideosById(
+  async getMediaById(
     practiceId: string,
-    videoId: string,
-  ): Promise<VideoEntity> {
-    const video = await this.videos.findOne({
-      where: { id: videoId, practiceId },
+    mediaId: string,
+  ): Promise<MediaEntity> {
+    const video = await this.media.findOne({
+      where: { id: mediaId, practiceId },
     });
     if (!video) {
-      throw new NotFoundException('Video not exists');
+      throw new NotFoundException('Media not exists');
     }
     return video;
   }
 
-  async createVideo(
+  /**
+   * @param practiceId
+   * @param data
+   * @returns
+   */
+  async createOne(
     practiceId: string,
-    videoData: { surgeryConfigurationId: string } & Partial<VideoEntity>,
-  ): Promise<VideoEntity> {
-    const surgeryConfiguration = await this.surgeryConfiguration.findOne({
-      where: { id: videoData.surgeryConfigurationId },
-    });
-    if (!surgeryConfiguration) {
-      throw new NotFoundException('Surgery type not found');
-    }
-    const video = this.videos.create({
-      ...videoData,
+    data: CreateMediaDto,
+  ): Promise<MediaEntity> {
+    const mediaConfig: MediaConfig = await this.getMediaConfig(data);
+
+    console.log(mediaConfig, 'mediaconfig');
+
+    const media = this.media.create({
       practiceId,
-      surgeryConfiguration,
+      mediaType: data.mediaType,
+      mediaConfig,
     });
-    return await this.videos.save(video);
+
+    console.log(media, 'mediacreated');
+
+    return await this.media.save(media);
   }
 
-  async updateVideo(
+  async updateMedia(
     practiceId: string,
     videoId: string,
-    videoData: Partial<VideoEntity>,
-  ): Promise<VideoEntity | undefined> {
-    const video = await this.getVideosById(practiceId, videoId);
-    const updatedVideo = this.videos.merge(video, videoData);
-    return this.videos.save(updatedVideo);
+    videoData: Partial<MediaEntity>,
+  ): Promise<MediaEntity | undefined> {
+    const video = await this.getMediaById(practiceId, videoId);
+    const updatedVideo = this.media.merge(video, videoData);
+    return this.media.save(updatedVideo);
   }
 
   async deleteVideo(practiceId: string, videoId: string): Promise<void> {
-    await this.videos.softDelete({ id: videoId, practiceId });
+    await this.media.softDelete({ id: videoId, practiceId });
+  }
+
+  async uploadUserImg({ id, practiceId, files }: UploadPatientImagesData) {
+    const uploadResults = await Promise.all(
+      files.map(async (file) => {
+        const key: string = getUploadFileKey(UploadType.PRACTICE, {
+          practiceId,
+          file,
+        });
+        const uploadResult = await this.s3Service.uploadFile(file, key);
+        return uploadResult.Location;
+      }),
+    );
+
+    const user = await this.getMediaById(practiceId, id);
+    const userMediaConfig = user.mediaConfig as PatientMediaConfig;
+
+    if (userMediaConfig.image.length !== uploadResults.length) {
+      throw new Error('Number of files and images do not match.');
+    }
+
+    // Update the image array with the new URLs
+    const updatedImageData = userMediaConfig.image.map((image, index) => ({
+      ...image,
+      url: uploadResults[index],
+    }));
+
+    return await this.updateMedia(practiceId, id, {
+      mediaConfig: { ...user.mediaConfig, image: updatedImageData },
+    });
   }
 }
