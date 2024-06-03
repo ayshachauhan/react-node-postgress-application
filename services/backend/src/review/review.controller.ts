@@ -8,6 +8,7 @@ import {
   Patch,
   Post,
   Query,
+  Req,
   UseGuards,
   UseInterceptors,
   ValidationPipe,
@@ -16,6 +17,7 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { practiceNotFoundInterceptor } from '../interceptors/practiceNotFoundInterceptor';
 import { CreateReviewDto } from './dtos/review.createDto';
+import { reviewRequestDto } from './dtos/review.sendrequest';
 import { updateReviewDto } from './dtos/review.updateDto';
 import { ReviewService } from './review.service';
 
@@ -29,37 +31,36 @@ export class ReviewController {
   @Post()
   @UseInterceptors(practiceNotFoundInterceptor)
   createReview(
-    @Param('practiceId') practiceId: string,
+    @Req() request: Request,
     @Body(new ValidationPipe()) referrerData: CreateReviewDto,
   ) {
-    return this.reviewService.createReview(practiceId, referrerData);
+    const practiceEntity = request['practiceEntity'];
+    return this.reviewService.createReview(practiceEntity, referrerData);
   }
 
   @Post('send')
   @UseInterceptors(practiceNotFoundInterceptor)
   sendReview(
     @Param('practiceId') practiceId: string,
-    @Body(new ValidationPipe()) reviewId: string,
+    @Body(new ValidationPipe()) reviewBody: reviewRequestDto,
   ) {
-    return this.reviewService.sendReviewRequest(practiceId, reviewId);
+    const { id } = reviewBody;
+    console.log(id);
+    return this.reviewService.sendReviewRequest(practiceId, id ?? '');
   }
 
   @Delete('/:id')
-  deleteReviewById(
-    @Param('practiceId') practiceId: string,
-    @Param('id') id: string,
-  ) {
-    return this.reviewService.deleteReview(practiceId, id);
+  deleteReviewById(@Param('id') id: string) {
+    return this.reviewService.deleteReview(id);
   }
 
   @Patch(':id')
   updateReviewById(
-    @Param('practiceId') practiceId: string,
     @Param('id') id: string,
     @Body(new ValidationPipe()) reviewData: updateReviewDto,
   ) {
-    console.log(practiceId, '', id, '', reviewData);
-    return this.reviewService.updateReview(practiceId, id, reviewData);
+    console.log('', id, '', reviewData);
+    return this.reviewService.updateReview(id, reviewData);
   }
 
   @Get()

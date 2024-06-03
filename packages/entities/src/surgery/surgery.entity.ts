@@ -6,9 +6,9 @@ import { PracticeHomesEntity } from '../practiceHomes';
 import { SurgeryConfigurationEntity } from '../surgeryConfiguration';
 import { UserEntity } from '../user';
 import {
-  ProcedureStatus,
   CheckListOptions,
   ISurgery,
+  ProcedureStatus,
   SelectedSurgeryOption,
 } from './surgery.interface';
 
@@ -49,11 +49,10 @@ export class SurgeryEntity extends BaseEntity implements ISurgery {
   @Column({ type: 'jsonb' })
   selectedSurgeryOptions: SelectedSurgeryOption;
 
-  @Column()
-  lensType: string;
-
   @Column({ type: 'enum', enum: ProcedureStatus })
   surgeryStatus: ProcedureStatus;
+
+  @Column()
   totalHospitalPricing: number;
 
   @Column()

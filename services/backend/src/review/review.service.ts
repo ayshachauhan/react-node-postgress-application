@@ -1,8 +1,18 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
+import {
+  BadRequestException,
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { JwtService, TokenExpiredError } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
-import { PatientEntity } from '@packages/entities/*';
-import { ReviewEntity } from '@packages/entities/review';
+import { IPractice, PatientEntity } from '@packages/entities/*';
+import {
+  PostUserReview,
+  ReviewEntity,
+  ReviewStatus,
+} from '@packages/entities/review';
 import Mail from 'nodemailer/lib/mailer';
 import { PatientsService } from 'src/patients/patients.service';
 import { PracticesService } from 'src/practices/practices.service';
@@ -23,21 +33,24 @@ export class ReviewService {
   ) {}
 
   async createReview(
-    practiceId: string,
+    practiceEntity: IPractice,
     reviewData: Partial<ReviewEntity>,
   ): Promise<ReviewEntity> {
-    const review = this.reviews.create({ ...reviewData, practiceId });
+    const review = this.reviews.create({
+      ...reviewData,
+      practice: practiceEntity,
+    });
     return await this.reviews.save(review);
   }
 
   async sendReviewRequest(practiceId: string, reviewId: string) {
-    const reviewData = await this.getReviewById(practiceId, reviewId);
+    const reviewData = await this.getReviewById(reviewId);
 
     if (practiceId && reviewId) {
       const patientList: PatientEntity[] =
-        await this.patientService.getUsersByPractice(practiceId);
+        await this.patientService.getPatientsByPractice(practiceId);
       const reviewPatient: PatientEntity | undefined = patientList.find(
-        (p) => p.id === reviewData.patientId,
+        (p) => p.id === reviewData.patient.id,
       );
       const token: string = this.jwtService.sign({
         practiceId: practiceId,
@@ -54,7 +67,7 @@ export class ReviewService {
         this.practiceService.getFrontEndBaseUrl();
 
       const mailData: ReviewMailData = {
-        reviewLink: frontendBaseUrl + `/review/post?token=${token}`,
+        reviewLink: frontendBaseUrl + `/post/review/${practiceId}?r=${token}`,
         patientName: reviewPatient?.firstName || '',
         practiceName: '',
       };
@@ -64,25 +77,105 @@ export class ReviewService {
         mailData,
         SystemTemplates.REVIEW_REQUEST,
       );
-      console.log(`Review main sent to the patient`);
+
+      await this.updateReview(reviewId, {
+        reviewStatus: ReviewStatus.SENT,
+        reviewRequestDate: new Date(),
+      });
     } else {
       console.log(`Review data not inserted`);
     }
   }
 
-  async deleteReview(practiceId: string, id: string): Promise<void> {
+  async validateReviewRequest(practice_id: string, _token: string) {
+    try {
+      const jwtResponse = await this.jwtService.verify(_token);
+      console.log('calling validation ', jwtResponse);
+      const { practiceId, reviewId, id: patientId } = jwtResponse;
+
+      if (practiceId && reviewId && patientId) {
+        const patientList: PatientEntity[] =
+          await this.patientService.getPatientsByPractice(practice_id);
+        const reviewPatient: PatientEntity | undefined = patientList.find(
+          (p) => p.id === patientId,
+        );
+
+        const review = await this.getReviewById(reviewId);
+        console.log(review.patient.id, '  ---   ', reviewPatient?.id);
+        if (!review || !reviewPatient) {
+          return {
+            status: HttpStatus.BAD_REQUEST,
+            message: 'Invalid review link',
+          };
+        } else if (review.patient.id != reviewPatient.id) {
+          return {
+            status: HttpStatus.BAD_REQUEST,
+            message: 'Invalid review link',
+          };
+        }
+
+        if (review.reviewStatus === ReviewStatus.RECEIVED) {
+          return { status: HttpStatus.FOUND, message: 'Review already exist' };
+        } else if (review.reviewStatus === ReviewStatus.PENDING) {
+          return {
+            status: HttpStatus.BAD_REQUEST,
+            message: 'Invalid review link',
+          };
+        }
+
+        return {
+          status: HttpStatus.OK,
+          message: 'Valid review request',
+          id: reviewId,
+        };
+      } else {
+        console.log(`Invalid review request`);
+        return {
+          status: HttpStatus.PRECONDITION_FAILED,
+          message: 'Invalid review request',
+        };
+      }
+    } catch (ex) {
+      if (ex instanceof TokenExpiredError) {
+        throw new HttpException(
+          'Review link is expired',
+          HttpStatus.UNAUTHORIZED,
+        );
+      } else {
+        throw new HttpException(
+          'An error occured',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
+  async postUserReview(_practice_id: string, payloadData: PostUserReview) {
+    const { rating, review, token } = payloadData;
+    const validRequest = await this.validateReviewRequest(_practice_id, token);
+    if (validRequest.status === HttpStatus.OK) {
+      return this.updateReview(validRequest.id, {
+        reviewStatus: ReviewStatus.RECEIVED,
+        reviewPostDate: new Date(),
+        reviewComment: review,
+        userRating: rating,
+      });
+    } else {
+      console.log(`Invalid review request`);
+      throw new BadRequestException('User review parameter missing');
+    }
+  }
+
+  async deleteReview(id: string): Promise<void> {
     await this.reviews.softDelete({
       id,
-      practiceId,
     });
   }
 
-  private async getReviewById(
-    practiceId: string,
-    reviewId: string,
-  ): Promise<ReviewEntity> {
+  private async getReviewById(reviewId: string): Promise<ReviewEntity> {
     const review = await this.reviews.findOne({
-      where: { id: reviewId, practiceId },
+      where: { id: reviewId },
+      relations: ['practice', 'patient'],
     });
     if (!review) {
       throw new NotFoundException('Review not exists');
@@ -91,38 +184,26 @@ export class ReviewService {
   }
 
   async updateReview(
-    practiceId: string,
     reviewId: string,
     reviewData: Partial<ReviewEntity>,
   ): Promise<ReviewEntity | undefined> {
-    const review = await this.getReviewById(practiceId, reviewId);
+    const review = await this.getReviewById(reviewId);
     const updatedReview = this.reviews.merge(review, reviewData);
     return this.reviews.save(updatedReview);
   }
 
   async getReviews(practiceId: string) {
     const reviews = await this.reviews.find({
-      where: { practiceId },
+      where: { practice: { id: practiceId } },
       relations: ['practice', 'patient'],
     });
-
-    return reviews.map(review => ({
-      practiceId: review.practiceId,
-      practiceName: review.practice.name,
-      patientId: review.patientId,
-      patientName: `${review.patient.firstName} ${review.patient.lastName}`,
-      MRN: review.patient.mrn,
-      reviewStatus: review.reviewStatus,
-      reviewDate: review.reviewDate,
-      reviewComment: review.reviewComment,
-      source: review.source,
-      emailOpened: review.emailOpened,
-    }));
+    return reviews;
   }
 
   async getReviewByName(practiceId: string): Promise<ReviewEntity[]> {
+    console.log(practiceId);
     const reviews = await this.reviews.find({
-      where: [{ practiceId: practiceId }, { practiceId: practiceId }],
+      // where: [{ practiceId: practiceId }, { practiceId: practiceId }],
     });
 
     if (reviews.length === 0) {

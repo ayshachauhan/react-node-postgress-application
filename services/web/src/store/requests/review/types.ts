@@ -7,7 +7,8 @@ export interface Review {
   patientName: string;
   MRN: string;
   reviewStatus: ReviewStatus;
-  reviewDate: Date;
+  reviewPostDate: Date;
+  reviewRequestDate: Date;
   reviewComment: string;
   source: string;
   emailOpened: boolean;
@@ -17,18 +18,25 @@ export interface AddReview {
   practiceId: string;
   patientId: string;
   reviewStatus: ReviewStatus;
-  reviewDate: Date;
+  reviewRequestDate: Date;
+  reviewPostDate: Date;
   reviewComment: string;
   source: string;
   emailOpened: boolean;
 }
 
 export interface EditReview {
+  id: string;
   practiceId: string;
-  patientId: string;
   reviewStatus: ReviewStatus;
-  reviewDate: Date;
+  reviewRequestDate: Date;
+  reviewPostDate: Date;
   reviewComment: string;
   source: string;
   emailOpened: boolean;
+}
+
+export interface SendReview {
+  id: string;
+  practiceId: string;
 }

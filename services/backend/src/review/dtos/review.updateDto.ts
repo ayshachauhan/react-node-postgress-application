@@ -3,6 +3,10 @@ import { ReviewStatus } from '@packages/entities/review';
 import { IsEnum, IsNotEmpty, IsOptional } from 'class-validator';
 
 export class updateReviewDto {
+  @IsNotEmpty()
+  @ApiProperty()
+  id?: string;
+
   @IsOptional()
   @IsNotEmpty()
   @ApiProperty()
@@ -11,7 +15,12 @@ export class updateReviewDto {
   @IsOptional()
   @IsNotEmpty()
   @ApiProperty()
-  reviewDate?: Date;
+  reviewRequestDate?: Date;
+
+  @IsOptional()
+  @IsNotEmpty()
+  @ApiProperty()
+  reviewPostDate?: Date;
 
   @IsOptional()
   @IsNotEmpty()

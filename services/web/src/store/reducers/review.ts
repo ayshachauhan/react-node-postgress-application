@@ -5,7 +5,10 @@ import {
   deleteReview,
   getReviewInfo,
   getReviews,
+  postUserReview,
+  sendReviewRequest,
   updateReview,
+  validateReviewRequest,
 } from '../requests/review';
 import { EntityLoadingState, ReviewState } from '../types';
 
@@ -59,17 +62,17 @@ const reviewSlice = createSlice({
       state.processing = false;
     });
 
-    builder.addCase(fetchReferrerInfo.pending, (state) => {
+    builder.addCase(fetchReviewInfo.pending, (state) => {
       state.processing = true;
       state.status = EntityLoadingState.PENDING;
     });
 
-    builder.addCase(fetchReferrerInfo.fulfilled, (state, action) => {
+    builder.addCase(fetchReviewInfo.fulfilled, (state, action) => {
       state.status = EntityLoadingState.SUCCEEDED;
       state.reviewInfo = action.payload;
     });
 
-    builder.addCase(fetchReferrerInfo.rejected, (state, action) => {
+    builder.addCase(fetchReviewInfo.rejected, (state, action) => {
       state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
         state.errorMessage = action.payload ?? 'Failed to fetch review info';
@@ -108,10 +111,10 @@ const reviewSlice = createSlice({
 
     builder.addCase(deleteRecordAsync.fulfilled, (state, action) => {
       state.status = EntityLoadingState.SUCCEEDED;
-      const deletetedReferrerId = action?.meta?.arg?.id;
+      const deletetedReviewId = action?.meta?.arg?.id;
       const {
         // eslint-disable-next-line
-        [deletetedReferrerId]: deletedReferrer,
+        [deletetedReviewId]: deletedReview,
         ...remainingReviews
       } = state.entities;
       state.entities = remainingReviews;
@@ -150,6 +153,60 @@ const reviewSlice = createSlice({
         state.errorMessage = 'Failed to update review';
       }
     });
+
+    builder.addCase(sendReviewRequestAsyncThunk.pending, (state) => {
+      state.processing = true;
+      state.status = EntityLoadingState.PENDING;
+    });
+
+    builder.addCase(sendReviewRequestAsyncThunk.fulfilled, (state, action) => {
+      state.status = EntityLoadingState.SUCCEEDED;
+
+      state.entities = {
+        ...state.entities,
+        ...{ [action.payload.id]: action.payload },
+      };
+      state.successMessage = 'Request sent successfully';
+    });
+
+    builder.addCase(sendReviewRequestAsyncThunk.rejected, (state, action) => {
+      state.status = EntityLoadingState.FAILED;
+      if (typeof action.payload === 'string') {
+        state.errorMessage = action.payload ?? 'An error occurred';
+      } else {
+        state.errorMessage = 'An error occurred';
+      }
+    });
+
+    builder.addCase(validateReviewRequestAsyncThunk.pending, (state) => {
+      state.processing = true;
+      state.status = EntityLoadingState.PENDING;
+    });
+
+    builder.addCase(
+      validateReviewRequestAsyncThunk.fulfilled,
+      (state, action) => {
+        state.status = EntityLoadingState.SUCCEEDED;
+
+        state.entities = {
+          ...state.entities,
+          ...{ [action.payload.token]: action.payload },
+        };
+        state.successMessage = '';
+      },
+    );
+
+    builder.addCase(
+      validateReviewRequestAsyncThunk.rejected,
+      (state, action) => {
+        state.status = EntityLoadingState.FAILED;
+        if (typeof action.payload === 'string') {
+          state.errorMessage = action.payload ?? 'An error occurred';
+        } else {
+          state.errorMessage = 'An error occurred';
+        }
+      },
+    );
   },
 });
 export const { clearSuccessMessage, clearErrorMessage } = reviewSlice.actions;
@@ -159,8 +216,8 @@ export const fetchListings = createAsyncThunk(
   getReviews,
 );
 
-export const fetchReferrerInfo = createAsyncThunk(
-  'reviews/fetchReferrerInfo',
+export const fetchReviewInfo = createAsyncThunk(
+  'reviews/fetchReviewInfo',
   getReviewInfo,
 );
 
@@ -177,6 +234,21 @@ export const deleteRecordAsync = createAsyncThunk(
 export const updateRecordAsync = createAsyncThunk(
   'reviews/updateRecordAsync',
   updateReview,
+);
+
+export const sendReviewRequestAsyncThunk = createAsyncThunk(
+  'reviews/sendReviewRequestAsyncThunk',
+  sendReviewRequest,
+);
+
+export const validateReviewRequestAsyncThunk = createAsyncThunk(
+  'reviews/validateReviewRequest',
+  validateReviewRequest,
+);
+
+export const postReviewAsyncThunk = createAsyncThunk(
+  'reviews/postUserReview',
+  postUserReview,
 );
 
 export default reviewSlice.reducer;

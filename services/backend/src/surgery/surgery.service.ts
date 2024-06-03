@@ -5,6 +5,7 @@ import {
   HistoryAction,
   HistoryType,
   ICalendar,
+  ProcedureStatus,
   SelectedSurgeryOption,
   SurgeryEntity,
 } from '@packages/entities';
@@ -162,6 +163,7 @@ export class SurgeryService {
       insuranceType: insuranceTypeEntity,
       doctor: doctorEntity,
       surgeryConfiguration: surgeryConfigurationEntity,
+      surgeryStatus: ProcedureStatus.BOOKED,
     });
 
     // upsert calendar after creating surgery
