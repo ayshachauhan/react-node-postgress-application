@@ -3,6 +3,9 @@ const { execSync } = require('child_process');
 const pack = require('../package.json');
 
 const ENV_KEYS = [
+  'AWS_ACCESS_KEY_ID',
+  'AWS_SECRET_ACCESS_KEY',
+  'AWS_DEFAULT_REGION',
   'NODE_ENV',
   'ENVIRONMENT',
   'BACKEND_PORT',
