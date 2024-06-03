@@ -126,12 +126,8 @@ export class MediaService {
       }),
     );
 
-    console.log(uploadResults, 'updresults');
-
     const user = await this.getMediaById(practiceId, id);
     const userMediaConfig = user.mediaConfig as PatientMediaConfig;
-
-    console.log(userMediaConfig.image.length, 'imagelenfth');
 
     if (userMediaConfig.image.length !== uploadResults.length) {
       throw new Error('Number of files and images do not match.');

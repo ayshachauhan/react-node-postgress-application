@@ -25,8 +25,6 @@ export const getPatients = async (
     }
     const data = await response.json();
 
-    console.log(data, 'datapatient');
-
     return data;
   } catch (error) {
     return rejectWithValue(error);
