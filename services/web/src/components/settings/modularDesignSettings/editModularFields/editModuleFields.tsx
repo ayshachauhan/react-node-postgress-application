@@ -507,8 +507,7 @@ const EditModularField: React.FC<{ onClose: () => void; data }> = ({
                           )
                         }
                       />
-                      <div className="flex gap-1.5">
-                        <label>Edit permission</label>
+                      <div className="flex gap-1.5 items-center">
                         <Checkbox
                           name="edit_admin_option"
                           key={index}
@@ -534,6 +533,7 @@ const EditModularField: React.FC<{ onClose: () => void; data }> = ({
                             )
                           }
                         ></Checkbox>
+                        <label>Edit permission</label>
                       </div>
                     </div>
                     <div className="space-y-4"></div>
