@@ -237,7 +237,7 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
               <div className="w-1/2 space-y-2"></div>
             </div>
           </div>
-          <div className="flex flex-row gap-6 pt-4 gap-7">
+          <div className="flex flex-row gap-6 pt-4">
             <div className="w-1/2 space-y-2">
               <label htmlFor="type" className="text-black text-sm font-normal">
                 Designation
@@ -308,7 +308,7 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
               <div className="w-1/2 space-y-2"></div>
             </div>
           </div>
-          <div className="flex flex-row gap-6 pt-4 gap-7">
+          <div className="flex flex-row gap-6 pt-4">
             <div className="w-1/2 space-y-2 flex flex-col">
               <label
                 htmlFor="permissions"
