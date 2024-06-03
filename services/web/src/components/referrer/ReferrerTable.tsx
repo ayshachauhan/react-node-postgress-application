@@ -5,6 +5,7 @@ import AddReferrerModal from '@root/components/referrer/AddReferrerModal';
 import EditReferrerModal from '@root/components/referrer/EditReferrerModal';
 import ReferredListModal from '@root/components/referrer/ReferredListModal';
 import { useAppDispatch, useAppSelector } from '@root/store';
+import { fetchLoggedInUser } from '@root/store/reducers/auth';
 import {
   clearErrorMessage,
   clearSuccessMessage,
@@ -79,6 +80,10 @@ export default function ReferrerTable() {
     setReferrerId(null);
   };
   const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    dispatch(fetchLoggedInUser());
+  }, [dispatch]);
 
   useEffect(() => {
     if (practiceId !== null) {

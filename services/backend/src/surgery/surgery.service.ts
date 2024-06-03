@@ -96,35 +96,6 @@ export class SurgeryService {
   async findAll(
     practiceId: string,
     includeDelete: boolean = false,
-  ): Promise<SurgeryEntity[]> {
-    const dbPracticeHomesByPractice =
-      await this.practiceHomesService.getPracticeHomesByPractice(practiceId);
-
-    const dbSurgeryByPractice = await this.surgeryRepository.find({
-      where: {
-        practiceHome: {
-          id: In(dbPracticeHomesByPractice.map((ele) => ele.id)),
-        },
-      },
-      withDeleted: includeDelete,
-      relations: [
-        'practiceHome',
-        'surgeryConfiguration',
-        'patient',
-        'insuranceType',
-        'patient.referrer',
-        'doctor',
-      ],
-    });
-
-    dbSurgeryByPractice.forEach((ele) => (ele.doctor.password = ''));
-
-    return dbSurgeryByPractice;
-  }
-
-  async findSelected(
-    practiceId: string,
-    includeDelete: boolean = false,
     months: string[] = [],
     searchMRNName?: string,
     option?: string,

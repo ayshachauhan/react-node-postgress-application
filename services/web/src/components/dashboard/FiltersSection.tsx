@@ -20,8 +20,7 @@ import { useUserPermission } from '@root/hooks/userHasPermission';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import {
   deleteRecordAsync,
-  fetchFilteredSurgeries,
-  fetchSurgeryInfo,
+  fetchListings,
   setSearchMRNName,
   setSelectedMonth,
   setSelectedValue,
@@ -42,6 +41,7 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
   const [clonedDivs, setClonedDivs] = useState<string[]>([]);
   const [selectedAction, setSelectedAction] = useState<string | null>(null);
   const [selectedRow, setSelectedRow] = useState<string | null>(null);
+  const [editableRows, setEditableRows] = useState<string[]>([]);
   const userInfo = useAppSelector((state) => state.auth.user);
   const loggedInUserId = userInfo?.id ?? null;
   const userPermissions = userInfo?.permissions;
@@ -95,9 +95,7 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
       checkListHeaders: string[];
     };
   } = {};
-  const { surgeryInfo, errorMessage } = useAppSelector(
-    (state) => state.surgeries,
-  );
+  const { errorMessage } = useAppSelector((state) => state.surgeries);
   const surgeryList: ISurgery[] = useAppSelector((state) =>
     Object.values(state.surgeries.entities),
   );
@@ -282,14 +280,21 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
 
   const handleEditClick = (rowId: string) => {
     setSelectedAction('edit');
-    dispatch(fetchSurgeryInfo({ practiceId, id: rowId }));
-    setSelectedRow(selectedRow === rowId ? null : rowId);
+    setEditableRows((prevEditableRows) => [...prevEditableRows, rowId]);
   };
 
-  const handleCancelClick = () => {
-    setSelectedAction('cancel');
-    setSelectedRow(null);
+  const handleCancelClick = (rowId: string) => {
+    setEditableRows((prevEditableRows) =>
+      prevEditableRows.filter((id) => id !== rowId),
+    );
   };
+
+  const handleUpdateClick = (rowId: string) => {
+    setEditableRows((prevEditableRows) =>
+      prevEditableRows.filter((id) => id !== rowId),
+    );
+  };
+
   const searchMRNNameStr = searchMRNName || '';
   const selectedValueStr = selectedValue || '';
 
@@ -304,7 +309,7 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
 
     if (practiceId && loggedInUserId !== null) {
       dispatch(
-        fetchFilteredSurgeries({
+        fetchListings({
           loggedInUserId,
           practiceId,
           month: month,
@@ -537,16 +542,21 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
                           Action
                         </div>
                       </div>
-                      {ele[date].map((row, index) =>
-                        selectedRow === row.id &&
-                        selectedAction == 'edit' &&
-                        surgeryInfo ? (
+                      {ele[date].map((row, index) => {
+                        const isEditable =
+                          editableRows.includes(row.id) &&
+                          selectedAction === 'edit';
+                        const surgeryInfo = surgeryList.find(
+                          (ele) => ele.id === row.id,
+                        );
+                        return isEditable && surgeryInfo ? (
                           <EditableRow
                             key={row.id}
-                            handleCancelClick={handleCancelClick}
+                            rowId={row.id} // Pass the rowId
+                            handleCancelClick={() => handleCancelClick(row.id)}
                             customHeaders={surgeryOptionsHeadersObj}
                             surgeryInfo={surgeryInfo}
-                            setSelectedAction={setSelectedAction}
+                            handleUpdateClick={handleUpdateClick}
                           />
                         ) : (
                           <>
@@ -789,8 +799,8 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
                                 </div>
                               )}
                           </>
-                        ),
-                      )}
+                        );
+                      })}
                     </div>
                   );
                 })}

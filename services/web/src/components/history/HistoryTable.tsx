@@ -9,6 +9,7 @@ import {
   IHistory,
 } from '@packages/entities/index.browser';
 import { useAppDispatch, useAppSelector } from '@root/store';
+import { fetchLoggedInUser } from '@root/store/reducers/auth';
 import { fetchListings as fetchEvalsList } from '@root/store/reducers/evals';
 import { fetchHistory } from '@root/store/reducers/history';
 import { fetchListings as fetchSurgeryList } from '@root/store/reducers/surgery';
@@ -47,6 +48,10 @@ export default function HistoryTable() {
       surgeries: Object.values(state.surgeries.entities),
       surgerySuccessMessage: state.surgeries.successMessage,
     }));
+
+  useEffect(() => {
+    dispatch(fetchLoggedInUser());
+  }, [dispatch]);
 
   useEffect(() => {
     if (practiceId) {

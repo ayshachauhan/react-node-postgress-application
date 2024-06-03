@@ -11,6 +11,7 @@ import {
 import Form from '@root/components/eval/addEval/addEval';
 import { useUserPermission } from '@root/hooks/userHasPermission';
 import { useAppDispatch, useAppSelector } from '@root/store';
+import { fetchLoggedInUser } from '@root/store/reducers/auth';
 import { fetchCalendars } from '@root/store/reducers/calendar';
 import {
   clearSuccessMessage as clearEvalSuccessMessage,
@@ -64,6 +65,10 @@ const EvalPage: React.FC = () => {
   const deleteCaseAllowed = useUserPermission(userPermissions, [
     USER_PERMISSIONS.DELETE_CASE,
   ]);
+
+  useEffect(() => {
+    dispatch(fetchLoggedInUser());
+  }, [dispatch]);
 
   useEffect(() => {
     if (practiceId) {
