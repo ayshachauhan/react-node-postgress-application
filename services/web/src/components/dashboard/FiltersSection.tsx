@@ -20,7 +20,7 @@ import { useUserPermission } from '@root/hooks/userHasPermission';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import {
   deleteRecordAsync,
-  fetchFilteredSurgeries,
+  fetchListings,
   setSearchMRNName,
   setSelectedMonth,
   setSelectedValue,
@@ -309,7 +309,7 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
 
     if (practiceId && loggedInUserId !== null) {
       dispatch(
-        fetchFilteredSurgeries({
+        fetchListings({
           loggedInUserId,
           practiceId,
           month: month,
