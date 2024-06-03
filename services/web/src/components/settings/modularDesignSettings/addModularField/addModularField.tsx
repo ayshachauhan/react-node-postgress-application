@@ -461,7 +461,7 @@ const AddModularField: React.FC<{ onClose: () => void; items }> = ({
                           )
                         }
                       />
-                      <div className="flex gap-1.5 items-center">
+                      <div className="flex gap-3.5 items-center">
                         <Checkbox
                           name="edit_admin_option"
                           key={index}
