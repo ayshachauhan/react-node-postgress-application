@@ -19,8 +19,8 @@ export class PracticeEntity extends BaseEntity implements IPractice {
   })
   status: PracticeStatus;
 
-  @Column({ type: 'varchar', nullable: true })
-  photoUrl: string;
+  @Column({ type: 'varchar', nullable: true, name: 'imgUrl' })
+  imgUrl: string;
 
   @ManyToMany(() => UserEntity)
   @JoinTable({
