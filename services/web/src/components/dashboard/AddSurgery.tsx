@@ -837,6 +837,7 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
                   backgroundColor: 'rgba(212, 212, 216, 1)',
                   color: 'black',
                 }}
+                onClick={onClose}
               />
             </div>
           </div>
