@@ -10,7 +10,7 @@ import { addRecordAsync as addSurgeryRecord } from '@root/store/reducers/surgery
 import { getPracticeId, toFullName } from '@utils/index';
 import { Checkbox } from 'baseui/checkbox';
 import { DatePicker } from 'baseui/datepicker';
-import { Select } from 'baseui/select';
+import { SIZE, Select } from 'baseui/select';
 import moment from 'moment';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
@@ -35,10 +35,17 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
   const surgeryConfigurationsList = useAppSelector(
     (state) => state.surgeryConfigurations.entities,
   );
+  const patientsList = Object.values(
+    useAppSelector((state) => state.patients.entities),
+  );
+
   const surgeryConfigurations = Object.values(surgeryConfigurationsList);
   const practiceId = getPracticeId();
   const router = useRouter();
   const defaultUser = usersList.find((ele) => ele.id === getSelectedUserId);
+  const [selectedUser, setSelectedUser] = useState(
+    defaultUser ? [{ label: toFullName(defaultUser), id: defaultUser.id }] : [],
+  );
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -55,6 +62,7 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
   const [notes, setNotes] = useState('');
   const [checkboxes, setCheckboxes] = React.useState([true, false]);
   const [surgeryNameId, setSurgeryNameId] = useState<string>('');
+  const [isMrnExists, setIsMrnExists] = useState<boolean>(false);
   const [surgeryDropdownOptions, setSurgeryDropdownOptions] = useState([
     {
       id: 0,
@@ -90,6 +98,28 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
 
     setSurgeryDropdownOptions([...surgeryDropdownOptions]);
   };
+
+  useEffect(() => {
+    if (mrn) {
+      const patientCheck = patientsList.find((ele) => String(ele.mrn) === mrn);
+
+      if (patientCheck) {
+        setIsMrnExists(true);
+        setFirstName(patientCheck.firstName);
+        setLastName(patientCheck.lastName);
+        setEmail(patientCheck.email);
+        setPhoneNumber(patientCheck.phoneNumber);
+        setReferrerId(patientCheck.referrer ? patientCheck?.referrer.id : '');
+      } else {
+        setIsMrnExists(false);
+        setFirstName('');
+        setLastName('');
+        setEmail('');
+        setPhoneNumber('');
+        setReferrerId('');
+      }
+    }
+  }, [mrn]);
 
   useEffect(() => {
     if (surgeryNameId) {
@@ -134,18 +164,18 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
   }));
 
   const referrersOptions = Object.keys(referrersList).map((key) => ({
-    label:
-      referrersList[key].email +
-      (referrersList[key].firstName
-        ? ` (${toFullName(referrersList[key])})`
-        : ''),
+    label: referrersList[key].email
+      ? `${toFullName(referrersList[key])} (${referrersList[key].email})`
+      : `${toFullName(referrersList[key])}`,
     id: referrersList[key].id,
   }));
 
-  const usersOptions = usersList.map((key) => ({
-    label: key ? toFullName(key) : '',
-    id: key.id,
-  }));
+  const usersOptions = usersList
+    .filter((ele) => ele.type === 'doctor')
+    .map((key) => ({
+      label: key ? toFullName(key) : '',
+      id: key.id,
+    }));
 
   const handleSurgeryNameChange = ({ value }) => {
     setSurgeryNameId(value[0] ? value[0].id : null);
@@ -168,7 +198,13 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
   };
 
   const handleDoctorChange = ({ value }) => {
-    setDoctorId(value[0] ? value[0].id : null);
+    const newDoctorId = value[0] ? value[0].id : null;
+    setDoctorId(newDoctorId);
+    setSelectedUser(value);
+  };
+
+  const handleMrnChange = ({ value }) => {
+    setMrn(value[0] ? value[0].id : null);
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -193,7 +229,7 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
           email,
           date: surgeryDate ?? new Date(),
           phoneNumber,
-          mrn,
+          mrn: mrn ? Number(mrn) : 0,
           practiceHomeId,
           surgeryConfigurationId: surgeryNameId,
           insuranceDetails,
@@ -290,26 +326,21 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
       : {};
   };
 
-  console.log(currentMonth, 'currmonth');
-
   return (
     <div>
-      <div className="px-6 border-border-l border-b border-gray-100 pb-6">
+      <div className="border-border-l border-b border-gray-100">
         <form onSubmit={handleSubmit} className="flex flex-col flex-wrap">
-          <div className="flex mt-8 pb-5 border-b border-gray-100">
+          <div className="flex mt-4 pb-2 border-b border-gray-100 items-center">
             <div className="text-xl font-bold text-black w-full">
               Add Surgery
             </div>
             <div>
               <Select
+                size={SIZE.mini}
                 required
                 options={usersOptions}
                 onChange={handleDoctorChange}
-                value={
-                  doctorId
-                    ? [{ label: doctorId, id: doctorId }]
-                    : [{ label: toFullName(defaultUser), id: defaultUser.id }]
-                }
+                value={selectedUser}
                 overrides={{
                   ControlContainer: {
                     style: {
@@ -328,11 +359,47 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
             </div>
           </div>
           <div className="flex gap-5 mt-4">
-            <div className="space-y-4 flex-1">
-              <label htmlFor="firstName" className="text-black text-sm">
+            <div className="space-y-1 flex-1">
+              <label htmlFor="mrn" className="text-black text-xs">
+                MRN
+              </label>
+              <Select
+                size={SIZE.mini}
+                options={patientsList.map((ele) => ({
+                  id: String(ele.mrn),
+                  label: String(ele.mrn),
+                }))}
+                value={
+                  mrn ? [{ id: String(mrn), label: String(String(mrn)) }] : []
+                }
+                creatable
+                onChange={(value) => {
+                  handleMrnChange(value);
+                }}
+                overrides={{
+                  ControlContainer: {
+                    style: {
+                      backgroundColor: 'rgba(250, 250, 250, 1)',
+                      border: 'none',
+                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                      color: '#52525B',
+                    },
+                  },
+                  ClearIcon: {
+                    component: () => null,
+                  },
+                }}
+                required
+              />
+              <div className="space-y-4"></div>
+            </div>
+            <div className="space-y-1 flex-1">
+              <label htmlFor="firstName" className="text-black text-xs">
                 First Name
               </label>
               <TextInput
+                size={SIZE.mini}
+                disabled={isMrnExists}
                 name="name"
                 value={firstName}
                 onChange={(value) => {
@@ -342,11 +409,13 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
               />
               <div className="space-y-4"></div>
             </div>
-            <div className="space-y-4 flex-1">
-              <label htmlFor="lastName" className="text-black text-sm">
+            <div className="space-y-1 flex-1">
+              <label htmlFor="lastName" className="text-black text-xs">
                 Last Name
               </label>
               <TextInput
+                size={SIZE.mini}
+                disabled={isMrnExists}
                 name="lastName"
                 value={lastName}
                 onChange={(value) => {
@@ -356,27 +425,15 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
               />
               <div className="space-y-4"></div>
             </div>
-            <div className="space-y-4 flex-1">
-              <label htmlFor="mrn" className="text-black text-sm">
-                MRN
-              </label>
-              <TextInput
-                name="mrn"
-                value={mrn}
-                onChange={(value) => {
-                  setMrn(value);
-                }}
-                required
-              />
-              <div className="space-y-4"></div>
-            </div>
           </div>
-          <div className="flex gap-5">
-            <div className="space-y-4 flex-1">
-              <label htmlFor="email" className="text-black text-sm">
+          <div className="flex gap-5 mt-2">
+            <div className="space-y-1 flex-1">
+              <label htmlFor="email" className="text-black text-xs">
                 Email
               </label>
               <TextInput
+                size={SIZE.mini}
+                disabled={isMrnExists}
                 name="email"
                 value={email}
                 onChange={(value) => {
@@ -386,12 +443,14 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
               />
               <div className="space-y-4"></div>
             </div>
-            <div className="space-y-4 flex-1">
-              <label htmlFor="phoneNumber" className="text-black text-sm">
+            <div className="space-y-1 flex-1">
+              <label htmlFor="phoneNumber" className="text-black text-xs">
                 Phone Number
               </label>
               <TextInput
+                size={SIZE.mini}
                 name="phoneNumber"
+                disabled={isMrnExists}
                 value={phoneNumber}
                 onChange={(value) => {
                   setPhoneNumber(value);
@@ -400,20 +459,21 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
               />
               <div className="space-y-4"></div>
             </div>
-            <div className="space-y-4 flex-1">
-              <label htmlFor="urlEmbed" className="text-black text-sm">
+            <div className="space-y-1 flex-1">
+              <label htmlFor="urlEmbed" className="text-black text-xs">
                 No Wait list
               </label>
-              <Select />
+              <Select size={SIZE.mini} />
               <div className="space-y-4"></div>
             </div>
           </div>
-          <div className="flex gap-5">
-            <div className="space-y-4 flex-1">
-              <label htmlFor="referrer" className="text-black text-sm">
+          <div className="flex gap-5 mt-2">
+            <div className="space-y-1 flex-1">
+              <label htmlFor="referrer" className="text-black text-xs">
                 Referrer
               </label>
               <Select
+                size={SIZE.mini}
                 creatable
                 onChange={handleReferrerChange}
                 value={
@@ -434,13 +494,13 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
                   },
                 }}
               />
-              <div className="space-y-4"></div>
             </div>
-            <div className="space-y-4 flex-1">
-              <label htmlFor="practiceHome" className="text-black text-sm">
+            <div className="space-y-1 flex-1">
+              <label htmlFor="practiceHome" className="text-black text-xs">
                 Home
               </label>
               <Select
+                size={SIZE.mini}
                 options={practiceHomesOptions}
                 onChange={handlePracticeHomeChange}
                 value={
@@ -463,10 +523,10 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
                   },
                 }}
               />
-              <div className="space-y-4"></div>
             </div>
-            <div className="space-y-4 flex-1">
+            <div className="space-y-1 flex-1">
               <Checkbox
+                //  size={SIZE.mini}
                 overrides={{
                   Checkmark: {
                     style: ({ $checked }) => ({
@@ -486,23 +546,23 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
                   setCheckboxes([target.checked, checkboxes[1]]);
                 }}
               >
-                <label htmlFor="pcp" className="text-black text-sm">
+                <label htmlFor="pcp" className="text-black text-xs">
                   PCP (Check box if same)
                 </label>
               </Checkbox>
 
               <TextInput
+                size={SIZE.mini}
                 name="pcp"
                 value={pcp}
                 onChange={(value) => {
                   setPcp(value);
                 }}
               />
-              <div className="space-y-4"></div>
             </div>
           </div>
           <div className="flex gap-5">
-            <div className="space-y-4 flex-1">
+            <div className="space-y-1 flex-1 text-xs">
               <Checkbox
                 overrides={{
                   Checkmark: {
@@ -539,21 +599,17 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
                     }),
                   },
                 }}
-                checked={checkboxes[1]}
-                onChange={(e) => {
-                  const target = e.target as HTMLInputElement;
-                  setCheckboxes([checkboxes[0], target.checked]);
-                }}
+                checked={referrerId ? true : false}
               >
                 Notify referrer
               </Checkbox>
-              <div className="space-y-4"></div>
             </div>
-            <div className="space-y-4 flex-1">
-              <label htmlFor="insuranceType" className="text-black text-sm">
+            <div className="space-y-1 flex-1">
+              <label htmlFor="insuranceType" className="text-black text-xs">
                 Insurance Type
               </label>
               <Select
+                size={SIZE.mini}
                 options={insuranceTypesOptions}
                 onChange={handleInsuranceTypeChange}
                 value={
@@ -575,43 +631,43 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
                   },
                 }}
               />
-              <div className="space-y-4"></div>
             </div>
-            <div className="space-y-4 flex-1">
-              <label htmlFor="insuranceDetails" className="text-black text-sm">
+            <div className="space-y-1 flex-1">
+              <label htmlFor="insuranceDetails" className="text-black text-xs">
                 Insurance Details
               </label>
               <TextInput
+                size={SIZE.mini}
                 name="insuranceDetails"
                 value={insuranceDetails}
                 onChange={(value) => {
                   setInsuranceDetails(value);
                 }}
               />
-              <div className="space-y-4"></div>
             </div>
           </div>
-          <div>
+          <div className="space-y-1 mt-1">
             <label htmlFor="notes" className="text-black text-sm">
               Notes
             </label>
             <TextInput
+              size={SIZE.mini}
               name="notes"
               value={notes}
               onChange={(value) => {
                 setNotes(value);
               }}
             />
-            <div className="space-y-4"></div>
           </div>
-          <div className="mt-6 flex gap-5">
+          <div className="mt-2 flex gap-5">
             <div className="px-6 border border-gray-100 pb-6 rounded-xl flex-1 w-4/12">
-              <div className="mt-8 text-xl pb-5 font-bold border-b border-gray-100 text-black w-full">
+              <div className="mt-2 text-lg pb-2 font-bold border-b border-gray-100 text-black w-full">
                 Add Surgery
               </div>
-              <div className="flex gap-5 mt-4">
+              <div className="flex gap-5 mt-2">
                 <div className="space-y-4 flex-1">
                   <Select
+                    size={SIZE.mini}
                     options={surgeryConfigurationsOptions}
                     onChange={handleSurgeryNameChange}
                     value={
@@ -636,6 +692,7 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
                 </div>
                 <div className="space-y-4 flex-1 w-1/3">
                   <Select
+                    size={SIZE.mini}
                     required
                     options={
                       surgeryNameId
@@ -664,6 +721,7 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
                 </div>
                 <div className="space-y-4 flex-1 w-1/3">
                   <DatePicker
+                    size={SIZE.mini}
                     value={surgeryDate}
                     onChange={({ date }) => SetSurgeryDate(date)}
                     placeholder="Surgery Date"
@@ -698,14 +756,14 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
                   />
                 </div>
               </div>
-              <div className="flex flex-col gap-5 mt-4">
+              <div className="flex flex-col gap-5 mt-2">
                 {surgeryNameId &&
                   surgeryDropdownOptions.map((option, index) => (
                     <div
                       className="flex flex-row items-center w-1/3"
                       key={index}
                     >
-                      <div key={index} className="w-1/2">
+                      <div key={index} className="w-1/2 text-xs">
                         <Checkbox
                           overrides={{
                             Checkmark: {
@@ -730,6 +788,7 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
                       </div>
                       <div className="w-1/2">
                         <Select
+                          size={SIZE.mini}
                           options={option.allowedValues}
                           value={option.allowedValues.filter(
                             (ele) => ele.selected === true,
@@ -758,16 +817,16 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
               </div>
             </div>
           </div>
-          <div className="flex items-center gap-4">
-            <div className="text-right text-base mt-4">
-              <Button kind="primary" title="Add Surgery" width={189} />
+          <div className="flex flex-row gap-3 right-1 mt-2">
+            <div className="text-right text-xs">
+              <Button kind="primary" title="Add Surgery" width={100} />
             </div>
-            <div className="text-right text-base mt-4">
+            <div className="text-right text-xs">
               <Button
                 type="button"
                 kind="tertiary"
                 title="Cancel"
-                width={189}
+                width={100}
                 style={{
                   backgroundColor: 'rgba(212, 212, 216, 1)',
                   color: 'black',

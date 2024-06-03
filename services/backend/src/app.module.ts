@@ -1,8 +1,11 @@
 import { Module } from '@nestjs/common';
+import { SchedulerModule } from 'src/scheduler/scheduler.module';
 import { AuthModule } from './auth/auth.module';
 import { CalendarModule } from './calendar/calendar.module';
+import { EmailHandlerModule } from './emailHandler/emailHandler.module';
 import { EvalsModule } from './evals/evals.module';
 import { HealthModule } from './healthz/health.module';
+import { HistoryModule } from './history/history.module';
 import { createInfraModuleProviders } from './infra.module.provider';
 import { InsuranceTypesModule } from './insuranceTypes/insuranceTypes.module';
 import { MediaModule } from './media/media.module';
@@ -41,6 +44,9 @@ import { UsersModule } from './users/users.module';
     CalendarModule,
     SurgeryConfigurationsModule,
     MessagesModule,
+    HistoryModule,
+    EmailHandlerModule,
+    SchedulerModule,
   ],
 })
 export class AppModule {}

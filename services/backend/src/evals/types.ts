@@ -1,8 +1,11 @@
+import { Request } from 'express';
+import { SanitizedUser } from '../auth/types';
+
 export type PatientMailData = {
   practiceName?: string;
   firstName: string;
   email: string;
-  mrn: string;
+  mrn: number;
   phoneNumber: string;
   lastName: string;
   date: string;
@@ -10,4 +13,13 @@ export type PatientMailData = {
   surgeryType?: string;
   insuranceType?: string;
   insuranceDetails?: string;
+};
+
+export type AuthenticatedRequest = Request & { user: SanitizedUser };
+
+export type DeleteEvalData = {
+  ipAddress: string;
+  user: SanitizedUser;
+  practiceId: string;
+  id: string;
 };

@@ -1,11 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { indexBy } from '@root/utils/index';
-import {
-  addMessage,
-  deleteMessage,
-  getMessageInfo,
-  getMessages,
-} from 'src/store/requests/messages';
+import { getMessageInfo, getMessages } from 'src/store/requests/messages';
 import { EntityLoadingState, MessageState } from 'src/store/types';
 
 const initialState: MessageState = {
@@ -15,6 +10,9 @@ const initialState: MessageState = {
   status: EntityLoadingState.IDLE,
   successMessage: undefined,
   errorMessage: undefined,
+  messageFilters: {
+    searchMRNName: null,
+  },
 };
 
 const messageSlice = createSlice({
@@ -26,6 +24,9 @@ const messageSlice = createSlice({
     },
     clearErrorMessage(state) {
       state.errorMessage = undefined;
+    },
+    setSearchMRNName: (state, action) => {
+      state.messageFilters.searchMRNName = action.payload;
     },
   },
   extraReducers(builder) {
@@ -69,55 +70,6 @@ const messageSlice = createSlice({
         state.errorMessage = 'Failed to fetch message info';
       }
     });
-
-    builder.addCase(addRecordAsync.pending, (state) => {
-      state.processing = true;
-      state.status = EntityLoadingState.PENDING;
-    });
-
-    builder.addCase(addRecordAsync.fulfilled, (state, action) => {
-      state.status = EntityLoadingState.SUCCEEDED;
-      state.entities = {
-        ...state.entities,
-        ...{ [action.payload.id]: action.payload },
-      };
-      state.successMessage = 'Record added successfully';
-    });
-
-    builder.addCase(addRecordAsync.rejected, (state, action) => {
-      state.status = EntityLoadingState.FAILED;
-      if (typeof action.payload === 'string') {
-        state.errorMessage = action.payload ?? 'Failed to add message';
-      } else {
-        state.errorMessage = 'Failed to add message';
-      }
-    });
-
-    builder.addCase(deleteRecordAsync.pending, (state) => {
-      state.processing = true;
-      state.status = EntityLoadingState.PENDING;
-    });
-
-    builder.addCase(deleteRecordAsync.fulfilled, (state, action) => {
-      state.status = EntityLoadingState.SUCCEEDED;
-      const deleteMessageId = action?.meta?.arg?.id;
-      const {
-        // eslint-disable-next-line
-        [deleteMessageId]: deletedMessage,
-        ...remainingRecord
-      } = state.entities;
-      state.entities = remainingRecord;
-      state.successMessage = 'Record deleted successfully';
-    });
-
-    builder.addCase(deleteRecordAsync.rejected, (state, action) => {
-      state.status = EntityLoadingState.FAILED;
-      if (typeof action.payload === 'string') {
-        state.errorMessage = action.payload ?? 'Failed to delete message';
-      } else {
-        state.errorMessage = 'Failed to delete message';
-      }
-    });
   },
 });
 export const { clearSuccessMessage, clearErrorMessage } = messageSlice.actions;
@@ -131,15 +83,5 @@ export const fetchMessageInfo = createAsyncThunk(
   'messages/fetchMessageInfo',
   getMessageInfo,
 );
-
-export const addRecordAsync = createAsyncThunk(
-  'messages/addRecordAsync',
-  addMessage,
-);
-
-export const deleteRecordAsync = createAsyncThunk(
-  'messages/deleteRecordAsync',
-  deleteMessage,
-);
-
+export const { setSearchMRNName } = messageSlice.actions;
 export default messageSlice.reducer;

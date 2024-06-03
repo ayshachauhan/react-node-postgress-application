@@ -47,18 +47,45 @@ export class PatientsService {
         referrerEntity = await this.referrerService.createReferrer(
           practiceEntity.id,
           {
-            email: createPatientDto.referrerId,
+            firstName: createPatientDto.referrerId,
             referrerType: ReferrerType.PCP,
+            verified: false,
           },
         );
       }
     }
-    const newPatient = this.patientRepository.create({
-      practice: practiceEntity,
-      referrer: referrerEntity,
-      ...createPatientDto,
-    });
-    return await this.patientRepository.save(newPatient);
+    const mrnCheck = await this.getPatientsByMrn(
+      practiceEntity.id,
+      createPatientDto.mrn,
+    );
+
+    if (mrnCheck) {
+      if (referrerEntity.dateCreated) {
+        await this.patientRepository.update(mrnCheck.id, {
+          referrer: referrerEntity,
+        });
+
+        const updatedPatient = await this.getPatientsByMrn(
+          practiceEntity.id,
+          createPatientDto.mrn,
+        );
+
+        if (updatedPatient) {
+          return updatedPatient;
+        } else {
+          return mrnCheck;
+        }
+      } else {
+        return mrnCheck;
+      }
+    } else {
+      const newPatient = this.patientRepository.create({
+        practice: practiceEntity,
+        referrer: referrerEntity,
+        ...createPatientDto,
+      });
+      return await this.patientRepository.save(newPatient);
+    }
   }
 
   async update({ id, practiceId, data }): Promise<PatientEntity | null> {
@@ -74,9 +101,20 @@ export class PatientsService {
     });
   }
 
-  async getUsersByPractice(practiceId: string): Promise<PatientEntity[]> {
+  async getPatientsByPractice(practiceId: string): Promise<PatientEntity[]> {
     return this.patientRepository.find({
       where: { practice: { id: practiceId } },
+      relations: ['referrer'],
+    });
+  }
+
+  async getPatientsByMrn(
+    practiceId: string,
+    mrn: number,
+  ): Promise<PatientEntity | null> {
+    return this.patientRepository.findOne({
+      where: { practice: { id: practiceId }, mrn },
+      relations: ['referrer'],
     });
   }
 }

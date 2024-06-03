@@ -43,12 +43,12 @@ const templateSlice = createSlice({
       }
       if (action.payload) {
         const indexedEntities = action.payload.reduce((acc, obj) => {
-          const surgeryTypeName = obj.surgeryTypeName;
-          delete obj.surgeryTypeName;
-          if (surgeryTypeName) {
-            acc[surgeryTypeName] = {
+          const surgeryConfigurationName = obj.surgeryConfigurationName;
+          delete obj.surgeryConfigurationName;
+          if (surgeryConfigurationName) {
+            acc[surgeryConfigurationName] = {
               ...obj,
-              surgeryTypeName: surgeryTypeName,
+              surgeryConfigurationName: surgeryConfigurationName,
             };
           }
           return acc;

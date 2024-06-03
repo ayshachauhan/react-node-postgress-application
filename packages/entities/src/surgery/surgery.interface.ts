@@ -11,14 +11,13 @@ export interface ISurgery extends IBaseEntity {
   insuranceType: IInsuranceType;
   insuranceDetails: string;
   date: Date;
-  eye: string;
   doctor: ISanitizedUser;
-  surgeryOption: string[];
   bodyPart: string;
   selectedSurgeryOptions: SelectedSurgeryOption;
   totalHospitalPricing: number;
   totalProfessionalPricing: number;
   selectedCheckListOptions: CheckListOptions;
+  dateDeleted?: Date;
 }
 
 export interface CreateSurgeryPayload {
@@ -28,7 +27,7 @@ export interface CreateSurgeryPayload {
   insuranceTypeId?: string;
   insuranceDetails?: string;
   date: Date;
-  mrn: string;
+  mrn: number;
   firstName: string;
   lastName: string;
   email: string;
@@ -64,11 +63,17 @@ export interface UpdateSurgeryPayload {
   date: Date;
   firstName: string;
   lastName: string;
-  mrn: string;
+  mrn: number;
   bodyPart: string;
   selectedSurgeryOptions: SelectedSurgeryOption;
   selectedCheckListOptions?: CheckListOptions;
   totalHospitalPricing: number;
   totalProfessionalPricing: number;
   details?: string;
+}
+
+export interface MonthOption {
+  label: string;
+  value: string;
+  id: string;
 }

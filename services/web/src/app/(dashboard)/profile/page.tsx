@@ -2,10 +2,8 @@
 import Button from '@root/components/Button';
 import { AvatarIcon } from '@root/components/Icons';
 import { useAppDispatch, useAppSelector } from '@root/store';
-import { selectRecords } from '@root/store/reducers/auth';
 import { getPracticeInfo } from '@root/store/reducers/practices';
 import { fetchListings as fetchPermissions } from '@root/store/reducers/userPermissions';
-import { SanitizedUser } from '@root/store/types';
 import { getPracticeId } from '@utils/index';
 import { Checkbox } from 'baseui/checkbox';
 import { useRouter } from 'next/navigation';
@@ -16,14 +14,7 @@ const Profile: React.FC = () => {
   const permissions = useAppSelector((state) =>
     Object.values(state.permissions.entities),
   );
-  const userInfo = useAppSelector(selectRecords);
-  const profileUserInfo = useAppSelector((state) =>
-    userInfo?.id
-      ? Object.values(state.users.entities).find(
-          ({ id }: SanitizedUser) => id === userInfo?.id,
-        )
-      : undefined,
-  );
+  const userInfo = useAppSelector((state) => state.auth.user);
   const userPracticeId = getPracticeId();
 
   interface Permission {
@@ -121,8 +112,8 @@ const Profile: React.FC = () => {
             <Checkbox
               key={index}
               checked={
-                profileUserInfo?.permissions
-                  ? isChecked(profileUserInfo.permissions, label.id)
+                userInfo?.permissions
+                  ? isChecked(userInfo.permissions, label.id)
                   : false
               }
               overrides={{

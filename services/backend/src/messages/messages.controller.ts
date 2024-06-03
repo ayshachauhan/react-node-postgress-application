@@ -1,19 +1,16 @@
 import {
-  Body,
   Controller,
-  Delete,
   Get,
   Param,
-  Post,
   UseGuards,
   UseInterceptors,
-  ValidationPipe,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { MessageEntity } from '@packages/entities/message';
+import { EmailLogEntity } from '@packages/entities/email_logs';
+import { USER_PERMISSIONS } from '@packages/entities/permission';
+import { PermissionGuard } from 'src/auth/userPermissions.guard';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
 import { AuthGuard } from '../auth/auth.guard';
-import { CreateMessageDto } from './dto/createMessage.dto';
 import { MessagesService } from './messages.service';
 
 @UseInterceptors(practiceNotFoundInterceptor)
@@ -25,31 +22,18 @@ export class MessagesController {
   constructor(private readonly messagesService: MessagesService) {}
 
   @Get()
+  @UseGuards(PermissionGuard(USER_PERMISSIONS.VIEW_MSG))
   async getPracticeHomesByPractice(
     @Param('practiceId') practiceId: string,
-  ): Promise<MessageEntity[]> {
+  ): Promise<EmailLogEntity[]> {
     return this.messagesService.getMessagesByPractice(practiceId);
   }
 
   @Get(':id')
+  @UseGuards(PermissionGuard(USER_PERMISSIONS.VIEW_MSG))
   async getPracticeHomeById(
     @Param() { practiceId, id }: { practiceId: string; id: string },
-  ): Promise<MessageEntity | null> {
+  ): Promise<EmailLogEntity | null> {
     return this.messagesService.getMessageById(id, practiceId);
-  }
-
-  @Delete(':id')
-  async remove(
-    @Param() { practiceId, id }: { practiceId: string; id: string },
-  ): Promise<void> {
-    return this.messagesService.remove(id, practiceId);
-  }
-
-  @Post()
-  async create(
-    @Param('practiceId') practiceId: string,
-    @Body(new ValidationPipe()) createMessageDto: CreateMessageDto,
-  ): Promise<MessageEntity> {
-    return this.messagesService.create(createMessageDto, practiceId);
   }
 }

@@ -11,8 +11,10 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { USER_PERMISSIONS } from '@packages/entities/permission';
 import { TemplateEntity } from '@packages/entities/template';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { PermissionGuard } from 'src/auth/userPermissions.guard';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
 import { TemplateCreateDto } from './dto/template.createDto';
 import { TemplatePatchDto } from './dto/template.patchDto';
@@ -26,6 +28,7 @@ export class TemplatesController {
   constructor(private readonly templateService: TemplatesService) {}
 
   @Get()
+  @UseGuards(PermissionGuard(USER_PERMISSIONS.VIEW_TEMPLATES))
   @UseInterceptors(practiceNotFoundInterceptor)
   async findAll(
     @Param() { practiceId, userId }: { practiceId: string; userId: string },
@@ -47,6 +50,7 @@ export class TemplatesController {
   }
 
   @Patch(':id')
+  @UseGuards(PermissionGuard(USER_PERMISSIONS.EDIT_CASE))
   @UseInterceptors(practiceNotFoundInterceptor)
   async update(
     @Body(new ValidationPipe()) templatePatchDto: TemplatePatchDto,

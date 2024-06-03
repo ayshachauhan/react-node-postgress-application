@@ -14,8 +14,8 @@ export class PatientEntity extends BaseEntity {
   @JoinColumn({ name: 'referrerId' })
   referrer: ReferrersEntity;
 
-  @Column({ type: 'varchar' })
-  mrn: string;
+  @Column({ type: 'integer' })
+  mrn: number;
 
   @Column({ type: 'varchar' })
   firstName: string;

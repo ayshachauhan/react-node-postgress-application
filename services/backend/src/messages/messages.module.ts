@@ -1,14 +1,18 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { MessageEntity } from '@packages/entities/message';
+import { EmailLogEntity } from '@packages/entities';
+import { EmailHandlerModule } from 'src/emailHandler/emailHandler.module';
+import { UsersModule } from 'src/users/users.module';
 import { PracticesModule } from '../practices/practices.module';
 import { MessagesController } from './messages.controller';
 import { MessagesService } from './messages.service';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([MessageEntity]),
+    TypeOrmModule.forFeature([EmailLogEntity]),
     forwardRef(() => PracticesModule),
+    forwardRef(() => UsersModule),
+    forwardRef(() => EmailHandlerModule),
   ],
   providers: [MessagesService],
   controllers: [MessagesController],

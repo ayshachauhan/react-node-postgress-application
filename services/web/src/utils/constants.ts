@@ -1,3 +1,5 @@
+import { MonthOption } from '@packages/entities';
+
 export const AzentiaLogo: string = `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="300px" height="168px" viewBox="0 0 299 168" version="1.1">
 <defs>
@@ -27,7 +29,7 @@ export const AzentiaLogo: string = `<?xml version="1.0" encoding="UTF-8"?>
 </svg>
 `;
 
-export const monthOptions = [
+export const monthOptions: MonthOption[] = [
   { label: 'January', value: '1', id: '1' },
   { label: 'February', value: '2', id: '2' },
   { label: 'March', value: '3', id: '3' },

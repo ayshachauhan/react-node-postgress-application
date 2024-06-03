@@ -9,7 +9,6 @@ import {
 import AddUserModal from '@root/components/users/AddUserModal';
 import EditUserModal from '@root/components/users/EditUserModal';
 import { useAppDispatch, useAppSelector } from '@root/store';
-import { selectRecords } from '@root/store/reducers/auth';
 import { getPracticeInfo } from '@root/store/reducers/practices';
 import { fetchListings as fetchPermissions } from '@root/store/reducers/userPermissions';
 import {
@@ -35,8 +34,6 @@ export default function UserPage() {
   const [showModal, setShowModal] = useState(false);
   const dispatch = useAppDispatch();
   const users = useAppSelector((state) => Object.values(state.users.entities));
-  const userInfo = useAppSelector(selectRecords);
-  const filteredUsers = users.filter((user) => user.id !== userInfo?.id);
   const [userId, setUserId] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -190,7 +187,7 @@ export default function UserPage() {
         />
       </div>
       <hr className="h-px my-2.5 bg-gray-100 border-1 border-gray-100"></hr>
-      <div className="text-gray-50 w-full items-center bg-gray-50 border-l border rounded-t-lg rounded-b-lg border-gray-200 text-sm overflow-x-auto mt-2">
+      <div className="text-gray-50 w-full items-center border-l border rounded-t-lg rounded-b-lg border-gray-200 text-sm overflow-x-auto mt-2">
         <div className="bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 grid grid-cols-[0.5fr_1fr_1fr_1fr_1fr_0.5fr_2fr_1fr_0.5fr_0.5fr] gap-4 p-4">
           <div className="font-bold text-white">Username</div>
           <div className="font-bold text-white">Email</div>
@@ -203,9 +200,9 @@ export default function UserPage() {
           <div className="font-bold text-white">Status</div>
           <div className="font-bold text-white">Action</div>
         </div>
-        {filteredUsers.map((data) => (
+        {users.map((data) => (
           <React.Fragment key={data.id}>
-            <div className="grid grid-cols-[0.5fr_1fr_1fr_1fr_1fr_0.5fr_2fr_1fr_0.5fr_0.5fr] gap-4 bg-gray-50 px-4 py-2">
+            <div className="grid grid-cols-[0.5fr_1fr_1fr_1fr_1fr_0.5fr_2fr_1fr_0.5fr_0.5fr] gap-4 px-4 py-2">
               <div className="text-gray-900 overflow-hidden whitespace-nowrap">
                 {data.userName}
               </div>

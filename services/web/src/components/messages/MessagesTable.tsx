@@ -1,11 +1,15 @@
 'use client';
-import { IMessage } from '@packages/entities';
+import { IEmailLog } from '@packages/entities';
 import Button from '@root/components/Button';
+import { SearchIcon } from '@root/components/Icons';
+import TextInput from '@root/components/TextInput';
+import MessageWithReadMore from '@root/components/messages/MessageWithReadMore';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import {
   clearErrorMessage,
   clearSuccessMessage,
   fetchListings,
+  setSearchMRNName,
 } from '@root/store/reducers/messages';
 import {
   formatColumnDate,
@@ -13,10 +17,7 @@ import {
   generateFullName,
   getPracticeId,
 } from '@utils/index';
-import { Input } from 'baseui/input';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { SearchIcon } from '../Icons';
-import MessageWithReadMore from './MessageWithReadMore';
 
 export default function MessagesTable() {
   const [activeButton, setActiveButton] = useState<string | null>('All');
@@ -28,16 +29,19 @@ export default function MessagesTable() {
     successMessage: state.referrers.successMessage,
     errorMessage: state.referrers.errorMessage,
   }));
-  const [searchMRN, setSearchMRN] = useState('');
   const [groupedData, setGroupedData] = useState<{
-    [date: string]: IMessage[];
+    [date: string]: IEmailLog[];
   }>({});
-  const handleClearClick = () => {};
+  const resetFilters = (): void => {
+    dispatch(setSearchMRNName(null));
+  };
   const practiceId = getPracticeId();
   const [showModal, setShowModal] = useState(false);
   const [showErrorMessage, setShowErrorMessage] = useState(false);
   const dispatch = useAppDispatch();
-
+  const { searchMRNName } = useAppSelector(
+    (state) => state.messages.messageFilters,
+  );
   useEffect(() => {
     if (practiceId !== null) {
       dispatch(fetchListings({ practiceId: practiceId }));
@@ -70,53 +74,44 @@ export default function MessagesTable() {
   const messagesData = useAppSelector((state) =>
     Object.values(state.messages.entities),
   );
+  console.log(messagesData);
 
-  const [filteredData, setFilteredData] = useState<IMessage[]>([]);
+  const [filteredData, setFilteredData] = useState<IEmailLog[]>([]);
   const filterData = useCallback(() => {
     if (!messagesData) return [];
 
     let filtered = [...messagesData];
 
-    if (searchMRN) {
-      const searchValue = searchMRN.toLowerCase();
+    if (activeButton === 'Referrers') {
       filtered = filtered.filter(
         (row) =>
-          row.mrn.toLowerCase().includes(searchValue) ||
-          row.firstName.toLowerCase().includes(searchValue) ||
-          row.lastName.toLowerCase().includes(searchValue),
-      );
-    }
-
-    if (activeButton === 'Referrers') {
-      filtered = filtered.filter((row) =>
-        row.emailType.toLowerCase().includes('referrer'),
+          row.data?.body &&
+          row.data.body.trim() !== '' &&
+          row.data.body.toLowerCase().includes('referrer'),
       );
     }
 
     if (activeButton === 'Emails') {
       filtered = filtered.filter(
-        (row) =>
-          row.emailType.toLowerCase().includes('timed') ||
-          row.emailType.toLowerCase().includes('eval'),
+        (row) => row.data?.body && row.data.body.trim() !== '',
       );
     }
 
     if (activeButton === 'Texts') {
-      filtered = filtered.filter((row) =>
-        row.emailType.toLowerCase().includes('immediate'),
+      filtered = filtered.filter(
+        (row) => row.data?.text && row.data.text.trim() !== '',
       );
     }
 
     return filtered;
-  }, [messagesData, searchMRN, activeButton]);
+  }, [messagesData, searchMRNName, activeButton]);
 
-  const handleSearchMRNChange = (event) => {
-    const mrn = event.target.value.toLowerCase();
-    setSearchMRN(mrn);
-    filterData();
+  const handleSearchMRNNameChange = (value: string) => {
+    const mrn = value.toLowerCase();
+    dispatch(setSearchMRNName(mrn));
   };
 
-  const filteredDataRef = useRef<IMessage[]>([]);
+  const filteredDataRef = useRef<IEmailLog[]>([]);
   useEffect(() => {
     const filteredData = filterData();
     if (
@@ -125,11 +120,11 @@ export default function MessagesTable() {
       setFilteredData(filteredData);
       filteredDataRef.current = filteredData;
     }
-  }, [messagesData, searchMRN, filterData]);
+  }, [messagesData, searchMRNName, filterData]);
 
-  const generateGroupedData = (data: IMessage[]) => {
+  const generateGroupedData = (data: IEmailLog[]) => {
     return data.reduce(
-      (acc: { [date: string]: IMessage[] }, curr: IMessage) => {
+      (acc: { [date: string]: IEmailLog[] }, curr: IEmailLog) => {
         const currentDate = new Date(curr.dateCreated)
           .toISOString()
           .split('T')[0];
@@ -157,34 +152,18 @@ export default function MessagesTable() {
         </span>
         {showModal && <div className="text-green-700">{successMessage}</div>}
         {showErrorMessage && <div className="text-red-700">{errorMessage}</div>}
-        <div className="flex justify-between">
-          <Input
+        <div className="flex items-center">
+          <TextInput
             name="search"
-            value={searchMRN}
-            onChange={handleSearchMRNChange}
+            value={searchMRNName || ''}
+            onChange={handleSearchMRNNameChange}
             placeholder="Search MRN or Name"
-            overrides={{
-              Root: {
-                style: {
-                  width: '300px',
-                  borderTopRightRadius: '0',
-                  borderBottomRightRadius: '0',
-                  borderRight: '0',
-                },
-              },
-              Input: {
-                style: {
-                  border: 'rgba(212, 212, 216, 1)',
-                  backgroundColor: 'rgba(250, 250, 250, 1)',
-                },
-              },
-            }}
           />
-          <div className="bg-gradient-to-br from-teal-600 to-green-500 text-white p-2 items-center rounded-r-lg border-r border-gray-300">
-            <SearchIcon className="mt-2" size={25}></SearchIcon>
+          <div className="bg-gradient-to-br from-teal-600 to-green-500 text-white px-2 py-2.5 items-center rounded-r-lg border-r border-gray-300">
+            <SearchIcon size={20}></SearchIcon>
           </div>
           <Button
-            onClick={handleClearClick}
+            onClick={resetFilters}
             type="button"
             kind="tertiary"
             title="Clear"
@@ -192,6 +171,7 @@ export default function MessagesTable() {
               backgroundColor: 'rgba(212, 212, 216, 1)',
               color: 'black',
               marginLeft: '20px',
+              padding: '10px 15px 10px 15px',
             }}
           />
         </div>
@@ -232,51 +212,62 @@ export default function MessagesTable() {
               >
                 {formatHeaderDate(date)}
               </div>
-              <div className="bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 flex gap-2 py-2 px-2.5 text-sm">
-                <div className="font-bold text-white py-2 px-1 w-20">
+              <div className="bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 flex justify-between py-2 px-2.5 text-sm">
+                <div className="font-bold text-white py-2 px-1 min-w-[10rem]">
                   Date | Time
                 </div>
-                <div className="font-bold text-white py-2 px-1 w-40">
+                <div className="font-bold text-white py-2 px-1 min-w-[10rem]">
                   Surgery
                 </div>
-                <div className="font-bold text-white py-2 px-1 w-40">
+                <div className="font-bold text-white py-2 px-1 min-w-[10rem]">
                   Patient
                 </div>
-                <div className="font-bold text-white py-2 px-1 w-20">MRN</div>
-                <div className="font-bold text-white py-2 px-1 w-40">
+                <div className="font-bold text-white py-2 px-1 min-w-[5rem]">
+                  MRN
+                </div>
+                <div className="font-bold text-white py-2 px-1 min-w-[10rem]">
                   Contact Details
                 </div>
-                <div className="font-bold text-white py-2 px-1 w-80">Email</div>
-                <div className="font-bold text-white py-2 px-1 w-80">Text</div>
+                <div className="font-bold text-white py-2 px-1 min-w-[20rem] max-w-[20rem]">
+                  Email
+                </div>
+                <div className="font-bold text-white py-2 px-1 min-w-[20rem] max-w-[20rem]">
+                  Text
+                </div>
               </div>
               {records.map((row, index) => (
                 <div
                   key={row.id}
                   id={row.id}
-                  className={`div-clone flex gap-2 px-2.5 text-xs ${
+                  className={`div-clone flex justify-between px-2.5 text-xs ${
                     index !== records.length - 1
                       ? 'border-b border-gray-300'
                       : ''
                   }`}
                 >
-                  <div className="text-black  pt-2 pb-2 px-1 w-20">
+                  <div className="text-black  pt-2 pb-2 px-1 min-w-[10rem]">
                     {formatColumnDate(row.dateCreated)}
                   </div>
-                  <div className="text-black  pt-2 pb-2 px-1 w-40">
-                    {row.emailDetail}
+                  <div className="text-black  pt-2 pb-2 px-1 min-w-[10rem]">
+                    {row?.data?.surgery_type}
                   </div>
-                  <div className="text-black  pt-2 pb-2 px-1 w-40">
-                    {row ? generateFullName(row.firstName, row.lastName) : null}
+                  <div className="text-black  pt-2 pb-2 px-1 min-w-[10rem]">
+                    {row
+                      ? generateFullName(
+                          row?.data?.fname ?? '',
+                          row?.data?.lname ?? '',
+                        )
+                      : null}
                   </div>
-                  <div className="text-black  pt-2 pb-2 px-1 w-20">
-                    {row.mrn}
+                  <div className="text-black  pt-2 pb-2 px-1 min-w-[5rem]">
+                    {row?.data?.mrn}
                   </div>
-                  <div className="text-black  pt-2 pb-2 px-1 overflow-hidden w-40">
-                    <p>Cell: {row.phone}</p>
-                    <p>Email: {row.email}</p>
+                  <div className="text-black  pt-2 pb-2 px-1 overflow-hidden min-w-[10rem]">
+                    <p>Cell: {row?.data?.phone}</p>
+                    <p>Email: {row?.data?.pt_email_address}</p>
                   </div>
-                  <MessageWithReadMore key={index} message={row.message} />
-                  <MessageWithReadMore key={index} message={row.textBody} />
+                  <MessageWithReadMore message={row?.data?.body ?? ''} />
+                  <MessageWithReadMore message={row?.data?.text ?? ''} />
                 </div>
               ))}
             </div>

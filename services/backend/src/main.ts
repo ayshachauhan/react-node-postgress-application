@@ -1,6 +1,7 @@
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 
+import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { PinoLogger } from 'nestjs-pino';
 import { AppModule } from './app.module';
@@ -8,6 +9,12 @@ import { ENVIRONMENT_VARIABLES } from './enums/environment.enums';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { cors: true });
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true, // This ensures that transformation takes place
+    }),
+  );
+
   const configService = await app.resolve(ConfigService);
   const logger = await app.resolve(PinoLogger);
 
