@@ -5,12 +5,7 @@ import { SearchIcon } from '@root/components/Icons';
 import TextInput from '@root/components/TextInput';
 import MessageWithReadMore from '@root/components/messages/MessageWithReadMore';
 import { useAppDispatch, useAppSelector } from '@root/store';
-import {
-  clearErrorMessage,
-  clearSuccessMessage,
-  fetchListings,
-  setSearchMRNName,
-} from '@root/store/reducers/messages';
+import { fetchListings, setSearchMRNName } from '@root/store/reducers/messages';
 import {
   formatColumnDate,
   formatHeaderDate,
@@ -23,61 +18,13 @@ export default function MessagesTable() {
   const [activeButton, setActiveButton] = useState<string | null>('All');
   const toggleActive = (id: string) => {
     setActiveButton(id);
-    filterData();
+    filterMessagesByType();
   };
-  const { successMessage, errorMessage } = useAppSelector((state) => ({
-    successMessage: state.referrers.successMessage,
-    errorMessage: state.referrers.errorMessage,
-  }));
-  const [groupedData, setGroupedData] = useState<{
-    [date: string]: IEmailLog[];
-  }>({});
-  const resetFilters = (): void => {
-    dispatch(setSearchMRNName(null));
-  };
-  const practiceId = getPracticeId();
-  const [showModal, setShowModal] = useState(false);
-  const [showErrorMessage, setShowErrorMessage] = useState(false);
-  const dispatch = useAppDispatch();
-  const { searchMRNName } = useAppSelector(
-    (state) => state.messages.messageFilters,
-  );
-  useEffect(() => {
-    if (practiceId !== null) {
-      dispatch(fetchListings({ practiceId: practiceId }));
-    }
-  }, [practiceId, dispatch]);
-
-  useEffect(() => {
-    let timer;
-    if (successMessage) {
-      setShowModal(true);
-      timer = setTimeout(() => {
-        setShowModal(false);
-        dispatch(clearSuccessMessage());
-      }, 2000);
-    }
-    if (errorMessage) {
-      setShowErrorMessage(true);
-      timer = setTimeout(() => {
-        setShowErrorMessage(false);
-        dispatch(clearErrorMessage());
-      }, 2000);
-    }
-    return () => {
-      if (timer) {
-        clearTimeout(timer);
-      }
-    };
-  }, [successMessage, errorMessage, dispatch]);
-
-  const messagesData = useAppSelector((state) =>
+  const messagesData: IEmailLog[] = useAppSelector((state) =>
     Object.values(state.messages.entities),
   );
-  console.log(messagesData);
-
   const [filteredData, setFilteredData] = useState<IEmailLog[]>([]);
-  const filterData = useCallback(() => {
+  const filterMessagesByType = useCallback(() => {
     if (!messagesData) return [];
 
     let filtered = [...messagesData];
@@ -104,25 +51,25 @@ export default function MessagesTable() {
     }
 
     return filtered;
-  }, [messagesData, searchMRNName, activeButton]);
-
-  const handleSearchMRNNameChange = (value: string) => {
-    const mrn = value.toLowerCase();
-    dispatch(setSearchMRNName(mrn));
-  };
+  }, [messagesData, activeButton]);
 
   const filteredDataRef = useRef<IEmailLog[]>([]);
+
   useEffect(() => {
-    const filteredData = filterData();
+    const filteredData = filterMessagesByType();
     if (
       JSON.stringify(filteredData) !== JSON.stringify(filteredDataRef.current)
     ) {
       setFilteredData(filteredData);
       filteredDataRef.current = filteredData;
     }
-  }, [messagesData, searchMRNName, filterData]);
+  }, [messagesData, filterMessagesByType]);
 
-  const generateGroupedData = (data: IEmailLog[]) => {
+  const [groupedMessagesByDate, setGroupedMessagesByDate] = useState<{
+    [date: string]: IEmailLog[];
+  }>({});
+
+  const generateMessageDataByDate = (data: IEmailLog[]) => {
     return data.reduce(
       (acc: { [date: string]: IEmailLog[] }, curr: IEmailLog) => {
         const currentDate = new Date(curr.dateCreated)
@@ -139,10 +86,61 @@ export default function MessagesTable() {
       {},
     );
   };
+
   useEffect(() => {
-    const newGroupedData = generateGroupedData(filteredData);
-    setGroupedData(newGroupedData);
+    const newMessageDataByDate = generateMessageDataByDate(filteredData);
+    setGroupedMessagesByDate(newMessageDataByDate);
   }, [filteredData]);
+
+  const messagesArray = Object.entries(groupedMessagesByDate);
+
+  // Sort the messages array by the date keys
+  messagesArray.sort(([dateA], [dateB]) => {
+    const dateObjA = new Date(dateA);
+    const dateObjB = new Date(dateB);
+
+    return dateObjB.getTime() - dateObjA.getTime();
+  });
+  const sortedMessagesByDate = Object.fromEntries(messagesArray);
+
+  const resetFilters = (): void => {
+    dispatch(setSearchMRNName(null));
+  };
+  const practiceId = getPracticeId();
+  const dispatch = useAppDispatch();
+  const { searchMRNName } = useAppSelector(
+    (state) => state.messages.messageFilters,
+  );
+
+  const handleSearchMRNNameChange = (value: string) => {
+    const mrn = value.toLowerCase();
+    dispatch(setSearchMRNName(mrn));
+  };
+
+  const searchMRNNameStr = searchMRNName || '';
+
+  useEffect(() => {
+    if (practiceId !== null) {
+      dispatchFetchMessages(searchMRNNameStr);
+    }
+  }, [practiceId, dispatch]);
+
+  useEffect(() => {
+    if (practiceId != null) {
+      dispatchFetchMessages(searchMRNNameStr);
+    }
+  }, [dispatch, practiceId, searchMRNNameStr]);
+
+  const dispatchFetchMessages = (searchMRNName: string) => {
+    if (practiceId != null) {
+      dispatch(
+        fetchListings({
+          practiceId,
+          searchMRNName,
+        }),
+      );
+    }
+  };
 
   return (
     <div className="mt-4 mb-8">
@@ -150,8 +148,6 @@ export default function MessagesTable() {
         <span className="text-xl font-bold">
           All Messages({messagesData.length})
         </span>
-        {showModal && <div className="text-green-700">{successMessage}</div>}
-        {showErrorMessage && <div className="text-red-700">{errorMessage}</div>}
         <div className="flex items-center">
           <TextInput
             name="search"
@@ -200,78 +196,80 @@ export default function MessagesTable() {
           ))}
         </div>
       </div>
-      {Object.keys(groupedData).length !== 0 && (
+      {Object.keys(sortedMessagesByDate).length !== 0 && (
         <div className="w-full overflow-x-auto mt-2 border rounded-t-lg rounded-b-lg border-gray-200">
-          {Object.entries(groupedData).map(([date, records], index) => (
-            <div key={date}>
-              <div
-                className={`border-solid px-2.5 py-3 text-white text-base font-normal ${
-                  index == 0 ? 'rounded-t-lg' : ''
-                }`}
-                style={{ backgroundColor: 'rgba(53, 165, 118, 1)' }}
-              >
-                {formatHeaderDate(date)}
-              </div>
-              <div className="bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 flex justify-between py-2 px-2.5 text-sm">
-                <div className="font-bold text-white py-2 px-1 min-w-[10rem]">
-                  Date | Time
-                </div>
-                <div className="font-bold text-white py-2 px-1 min-w-[10rem]">
-                  Surgery
-                </div>
-                <div className="font-bold text-white py-2 px-1 min-w-[10rem]">
-                  Patient
-                </div>
-                <div className="font-bold text-white py-2 px-1 min-w-[5rem]">
-                  MRN
-                </div>
-                <div className="font-bold text-white py-2 px-1 min-w-[10rem]">
-                  Contact Details
-                </div>
-                <div className="font-bold text-white py-2 px-1 min-w-[20rem] max-w-[20rem]">
-                  Email
-                </div>
-                <div className="font-bold text-white py-2 px-1 min-w-[20rem] max-w-[20rem]">
-                  Text
-                </div>
-              </div>
-              {records.map((row, index) => (
+          {Object.entries(sortedMessagesByDate).map(
+            ([date, records], index) => (
+              <div key={date}>
                 <div
-                  key={row.id}
-                  id={row.id}
-                  className={`div-clone flex justify-between px-2.5 text-xs ${
-                    index !== records.length - 1
-                      ? 'border-b border-gray-300'
-                      : ''
+                  className={`border-solid px-2.5 py-3 text-white text-base font-normal ${
+                    index == 0 ? 'rounded-t-lg' : ''
                   }`}
+                  style={{ backgroundColor: 'rgba(53, 165, 118, 1)' }}
                 >
-                  <div className="text-black  pt-2 pb-2 px-1 min-w-[10rem]">
-                    {formatColumnDate(row.dateCreated)}
-                  </div>
-                  <div className="text-black  pt-2 pb-2 px-1 min-w-[10rem]">
-                    {row?.data?.surgery_type}
-                  </div>
-                  <div className="text-black  pt-2 pb-2 px-1 min-w-[10rem]">
-                    {row
-                      ? generateFullName(
-                          row?.data?.fname ?? '',
-                          row?.data?.lname ?? '',
-                        )
-                      : null}
-                  </div>
-                  <div className="text-black  pt-2 pb-2 px-1 min-w-[5rem]">
-                    {row?.data?.mrn}
-                  </div>
-                  <div className="text-black  pt-2 pb-2 px-1 overflow-hidden min-w-[10rem]">
-                    <p>Cell: {row?.data?.phone}</p>
-                    <p>Email: {row?.data?.pt_email_address}</p>
-                  </div>
-                  <MessageWithReadMore message={row?.data?.body ?? ''} />
-                  <MessageWithReadMore message={row?.data?.text ?? ''} />
+                  {formatHeaderDate(date)}
                 </div>
-              ))}
-            </div>
-          ))}
+                <div className="bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 flex justify-between py-2 px-2.5 text-sm">
+                  <div className="font-bold text-white py-2 px-1 min-w-[10rem]">
+                    Date | Time
+                  </div>
+                  <div className="font-bold text-white py-2 px-1 min-w-[10rem]">
+                    Surgery
+                  </div>
+                  <div className="font-bold text-white py-2 px-1 min-w-[10rem]">
+                    Patient
+                  </div>
+                  <div className="font-bold text-white py-2 px-1 min-w-[5rem]">
+                    MRN
+                  </div>
+                  <div className="font-bold text-white py-2 px-1 min-w-[10rem]">
+                    Contact Details
+                  </div>
+                  <div className="font-bold text-white py-2 px-1 min-w-[20rem] max-w-[20rem]">
+                    Email
+                  </div>
+                  <div className="font-bold text-white py-2 px-1 min-w-[20rem] max-w-[20rem]">
+                    Text
+                  </div>
+                </div>
+                {records.map((row, index) => (
+                  <div
+                    key={row.id}
+                    id={row.id}
+                    className={`div-clone flex justify-between px-2.5 text-xs ${
+                      index !== records.length - 1
+                        ? 'border-b border-gray-300'
+                        : ''
+                    }`}
+                  >
+                    <div className="text-black  pt-2 pb-2 px-1 min-w-[10rem]">
+                      {formatColumnDate(row.dateCreated)}
+                    </div>
+                    <div className="text-black  pt-2 pb-2 px-1 min-w-[10rem]">
+                      {row?.data?.Laterality} {row?.data?.surgery_type}
+                    </div>
+                    <div className="text-black  pt-2 pb-2 px-1 min-w-[10rem]">
+                      {row
+                        ? generateFullName(
+                            row?.data?.fname ?? '',
+                            row?.data?.lname ?? '',
+                          )
+                        : null}
+                    </div>
+                    <div className="text-black  pt-2 pb-2 px-1 min-w-[5rem]">
+                      {row?.data?.mrn}
+                    </div>
+                    <div className="text-black  pt-2 pb-2 px-1 overflow-hidden min-w-[10rem]">
+                      <p>Cell: {row?.data?.phoneNumber}</p>
+                      <p>Email: {row?.data?.pt_email_address}</p>
+                    </div>
+                    <MessageWithReadMore message={row?.data?.body ?? ''} />
+                    <MessageWithReadMore message={row?.data?.text ?? ''} />
+                  </div>
+                ))}
+              </div>
+            ),
+          )}
         </div>
       )}
     </div>

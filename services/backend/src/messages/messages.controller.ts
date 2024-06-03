@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Param,
+  Query,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -21,19 +22,15 @@ import { MessagesService } from './messages.service';
 export class MessagesController {
   constructor(private readonly messagesService: MessagesService) {}
 
-  @Get()
+  @Get('search')
   @UseGuards(PermissionGuard(USER_PERMISSIONS.VIEW_MSG))
   async getPracticeHomesByPractice(
     @Param('practiceId') practiceId: string,
+    @Query('searchMRNName') searchMRNName?: string,
   ): Promise<EmailLogEntity[]> {
-    return this.messagesService.getMessagesByPractice(practiceId);
-  }
-
-  @Get(':id')
-  @UseGuards(PermissionGuard(USER_PERMISSIONS.VIEW_MSG))
-  async getPracticeHomeById(
-    @Param() { practiceId, id }: { practiceId: string; id: string },
-  ): Promise<EmailLogEntity | null> {
-    return this.messagesService.getMessageById(id, practiceId);
+    return this.messagesService.getMessagesByPractice(
+      practiceId,
+      searchMRNName,
+    );
   }
 }

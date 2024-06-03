@@ -12,12 +12,13 @@ const apiClient = new ApiService();
 export const getMessages = async (
   payloadData: {
     practiceId: string;
+    searchMRNName?: string;
   },
   { rejectWithValue },
 ): Promise<IEmailLog[]> => {
   try {
     const response: Response = await apiClient.get(
-      `/practices/${payloadData.practiceId}/messages`,
+      `/practices/${payloadData.practiceId}/messages/search?searchMRNName=${payloadData.searchMRNName}`,
     );
     if (!response.ok) {
       throw new Error('Failed to get templates');
