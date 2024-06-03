@@ -41,7 +41,7 @@ export class MediaController {
   @UseInterceptors(practiceNotFoundInterceptor)
   getVideoById(@Param() params: { practiceId: string; id: string }) {
     const { practiceId, id } = params;
-    return this.mediaService.getVideosById(practiceId, id);
+    return this.mediaService.getMediaById(practiceId, id);
   }
 
   @Post()

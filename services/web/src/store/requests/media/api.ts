@@ -85,7 +85,10 @@ export const addMedia = async (
 
     response = await apiClient.post(
       `/practices/${payloadData.practiceId}/media`,
-      {},
+      {
+        mediaType: payloadData.mediaType,
+        mediaConfig: payloadData.mediaConfig,
+      },
     );
     if (!response.ok) {
       throw new Error('Failed to add media');

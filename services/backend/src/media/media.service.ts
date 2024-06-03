@@ -51,7 +51,7 @@ export class MediaService {
         return {
           patientId: config.patientId,
           video: config.video,
-          image: [],
+          image: config.image,
         };
       }
     }
@@ -63,15 +63,15 @@ export class MediaService {
     });
   }
 
-  async getVideosById(
+  async getMediaById(
     practiceId: string,
-    videoId: string,
+    mediaId: string,
   ): Promise<MediaEntity> {
     const video = await this.media.findOne({
-      where: { id: videoId, practiceId },
+      where: { id: mediaId, practiceId },
     });
     if (!video) {
-      throw new NotFoundException('Video not exists');
+      throw new NotFoundException('Media not exists');
     }
     return video;
   }
@@ -100,12 +100,12 @@ export class MediaService {
     return await this.media.save(media);
   }
 
-  async updateVideo(
+  async updateMedia(
     practiceId: string,
     videoId: string,
     videoData: Partial<MediaEntity>,
   ): Promise<MediaEntity | undefined> {
-    const video = await this.getVideosById(practiceId, videoId);
+    const video = await this.getMediaById(practiceId, videoId);
     const updatedVideo = this.media.merge(video, videoData);
     return this.media.save(updatedVideo);
   }
@@ -126,9 +126,25 @@ export class MediaService {
       }),
     );
 
-    //ToDO - get the user and make map here for images and then call update
+    console.log(uploadResults, 'updresults');
 
-    //@ts-expect-error only need to send url from here
-    return this.updateUser(id, { imgUrl: uploadResults });
+    const user = await this.getMediaById(practiceId, id);
+    const userMediaConfig = user.mediaConfig as PatientMediaConfig;
+
+    console.log(userMediaConfig.image.length, 'imagelenfth');
+
+    if (userMediaConfig.image.length !== uploadResults.length) {
+      throw new Error('Number of files and images do not match.');
+    }
+
+    // Update the image array with the new URLs
+    const updatedImageData = userMediaConfig.image.map((image, index) => ({
+      ...image,
+      url: uploadResults[index],
+    }));
+
+    return await this.updateMedia(practiceId, id, {
+      mediaConfig: { ...user.mediaConfig, image: updatedImageData },
+    });
   }
 }
