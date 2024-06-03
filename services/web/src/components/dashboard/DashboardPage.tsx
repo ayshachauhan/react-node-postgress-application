@@ -22,7 +22,10 @@ import { fetchListings as fetchInsuranceTypesList } from '@root/store/reducers/i
 import { fetchListings as fetchPatients } from '@root/store/reducers/patient';
 import { fetchListings as fetchPracticeHomesListing } from '@root/store/reducers/practiceHomes';
 import { fetchListings as fetchReferrerList } from '@root/store/reducers/referrer';
-import { clearSuccessMessage as clearSurgerySuccessMessage } from '@root/store/reducers/surgery';
+import {
+  clearSuccessMessage as clearSurgerySuccessMessage,
+  fetchListings as fetchSurgeryList,
+} from '@root/store/reducers/surgery';
 import { fetchListings as fetchSurgeryConfigurationsListing } from '@root/store/reducers/surgeryConfigurations';
 import { fetchListings as fetchSurgeryTypesListing } from '@root/store/reducers/surgeryTypes';
 import { fetchListings as fetchUsersList } from '@root/store/reducers/users';
@@ -36,6 +39,10 @@ const DashboardPage: React.FC = () => {
   const userId: string | null = getUserId();
   const userInfo = useAppSelector((state) => state.auth.user);
   const userPermissions = userInfo?.permissions;
+  const loggedInUserId = userInfo?.id ?? null;
+  const { selectedMonth, searchMRNName, selectedValue } = useAppSelector(
+    (state) => state.surgeries.surgeryFilters,
+  );
 
   const addCaseAllowed = useUserPermission(userPermissions, [
     USER_PERMISSIONS.ADD_CASE,
@@ -56,6 +63,10 @@ const DashboardPage: React.FC = () => {
     errorMessage: state.evals.errorMessage,
   }));
   const [showModal, setShowModal] = useState(false);
+  const selectedValueStr = selectedValue || '';
+  const monthLabels = selectedMonth.map((month) => month.label);
+  const month = monthLabels.join(',');
+  const searchMRNNameStr = searchMRNName || '';
 
   useEffect(() => {
     dispatch(fetchLoggedInUser());
@@ -64,6 +75,17 @@ const DashboardPage: React.FC = () => {
   useEffect(() => {
     if (practiceId) {
       dispatch(fetchEvalsList({ practiceId }));
+      if (loggedInUserId !== null) {
+        dispatch(
+          fetchSurgeryList({
+            loggedInUserId,
+            practiceId,
+            month: month,
+            searchMRNName: searchMRNNameStr,
+            option: selectedValueStr,
+          }),
+        );
+      }
       dispatch(fetchInsuranceTypesList({ practiceId }));
       dispatch(fetchPracticeHomesListing({ practiceId }));
       dispatch(fetchSurgeryTypesListing({ practiceId }));
@@ -78,6 +100,17 @@ const DashboardPage: React.FC = () => {
     if (addSurgerySuccessMessage || addEvalSuccessMessage) {
       if (practiceId) {
         dispatch(fetchEvalsList({ practiceId }));
+        if (loggedInUserId !== null) {
+          dispatch(
+            fetchSurgeryList({
+              loggedInUserId,
+              practiceId,
+              month: month,
+              searchMRNName: searchMRNNameStr,
+              option: selectedValueStr,
+            }),
+          );
+        }
         dispatch(clearSurgerySuccessMessage());
         dispatch(clearEvalSuccessMessage());
         dispatch(fetchSurgeryConfigurationsListing({ practiceId }));
