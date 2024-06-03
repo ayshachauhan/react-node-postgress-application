@@ -557,6 +557,48 @@ const EditModularField: React.FC<{ onClose: () => void; data }> = ({
                         )}
                       </div>
                     </div>
+                    <div className="flex w-2/4 gap-3">
+                      {' '}
+                      <TextInput
+                        name="category"
+                        value={optionField.category}
+                        onChange={(event) =>
+                          handleOptionsFieldChangeInput(
+                            index,
+                            event,
+                            'category',
+                          )
+                        }
+                      />
+                      <div className="flex gap-3.5 items-center">
+                        <Checkbox
+                          name="edit_admin_option"
+                          key={index}
+                          overrides={{
+                            Checkmark: {
+                              style: ({ $checked }) => ({
+                                backgroundColor: $checked
+                                  ? 'rgba(59, 130, 246, 1)'
+                                  : 'white',
+                                borderColor: $checked
+                                  ? 'rgba(59, 130, 246, 1)'
+                                  : 'rgba(161, 161, 170, 1)',
+                                borderRadius: '4px',
+                              }),
+                            },
+                          }}
+                          checked={optionField.edit_admin_option}
+                          onChange={() =>
+                            handleOptionsFieldChangeInput(
+                              index,
+                              !optionField.edit_admin_option,
+                              'edit_admin_option',
+                            )
+                          }
+                        ></Checkbox>
+                        <label>Edit permission</label>
+                      </div>
+                    </div>
                     <div className="space-y-4"></div>
                   </div>
                   {optionField.options.length

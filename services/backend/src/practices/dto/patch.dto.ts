@@ -14,4 +14,7 @@ export class PracticePatchDto {
   @IsOptional()
   @ApiProperty()
   status: PracticeStatus;
+
+  @IsOptional()
+  imgUrl?: string;
 }

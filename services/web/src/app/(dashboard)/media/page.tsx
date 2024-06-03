@@ -4,6 +4,7 @@ import { AddIcon, PlayIcon } from '@root/components/Icons';
 import AddMediaModal from '@root/components/media/AddMediaModal';
 import PlayVideoModal from '@root/components/media/PlayVideoModal';
 import { useAppDispatch, useAppSelector } from '@root/store';
+import { fetchLoggedInUser } from '@root/store/reducers/auth';
 import {
   clearErrorMessage,
   clearSuccessMessage,
@@ -55,6 +56,10 @@ const Media: React.FC = () => {
       dispatch(fetchListings({ practiceId: practiceId }));
     }
   }, [practiceId, dispatch]);
+
+  useEffect(() => {
+    dispatch(fetchLoggedInUser());
+  }, [dispatch]);
 
   useEffect(() => {
     let timer;
