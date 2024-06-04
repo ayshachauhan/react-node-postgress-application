@@ -14,7 +14,7 @@ const MessageWithReadMore: React.FC<{ message: string }> = ({ message }) => {
   };
 
   return (
-    <div className="text-black pt-2 pb-2 px-1 w-80">
+    <div className="text-black pt-2 pb-2 px-1 min-w-[20rem] max-w-[20rem]">
       <div
         dangerouslySetInnerHTML={{
           __html: showFullMessage ? message : truncatedMessage,
