@@ -42,6 +42,7 @@ const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       setAdminEmail('');
       setAdminContactNumber('');
       setCode('');
+      setPracticeImg(null);
       onClose();
     } catch (error) {
       onClose();

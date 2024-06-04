@@ -41,6 +41,7 @@ const PracticeEditModule: React.FC<{
       dispatch(updateRecordAsync(data));
       setName('');
       setStatus('');
+      setPracticeImg(null);
       onClose();
     } catch (error) {
       onClose();
