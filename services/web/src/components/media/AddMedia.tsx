@@ -3,23 +3,27 @@ import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { addRecordAsync } from '@root/store/reducers/media';
-import { fetchListings as fetchSurgeryTypes } from '@root/store/reducers/surgeryTypes';
+import { fetchListings as fetchsurgeryConfigurations } from '@root/store/reducers/surgeryConfigurations';
 import { getPracticeId } from '@utils/index';
 import { Select } from 'baseui/select';
 import React, { useEffect, useState } from 'react';
 
 const MediaPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
-  const surgeryTypes = useAppSelector((state) => state.surgeryTypes.entities);
-  const surgeryTypeOptions = Object.keys(surgeryTypes).map((key) => ({
-    label: surgeryTypes[key].name,
-    id: surgeryTypes[key].id,
-  }));
+  const surgeryConfigurations = useAppSelector(
+    (state) => state.surgeryConfigurations.entities,
+  );
+  const surgeryConfigurationOptions = Object.keys(surgeryConfigurations).map(
+    (key) => ({
+      label: surgeryConfigurations[key].name,
+      id: surgeryConfigurations[key].id,
+    }),
+  );
   const practiceId = getPracticeId();
   const dispatch = useAppDispatch();
   const [name, setName] = useState('');
   const [url, setUrl] = useState('');
   const [urlEmbed, setUrlEmbed] = useState('');
-  const [surgeryTypeId, setsurgeryTypeId] = useState('');
+  const [surgeryConfigurationId, setSurgeryConfigurationId] = useState('');
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -29,14 +33,14 @@ const MediaPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         url,
         urlEmbed,
         practiceId,
-        surgeryTypeId,
+        surgeryConfigurationId,
       };
       try {
         dispatch(addRecordAsync(data));
         setName('');
         setUrl('');
         setUrlEmbed('');
-        setsurgeryTypeId('');
+        setSurgeryConfigurationId('');
         onClose();
       } catch (error) {
         onClose();
@@ -44,13 +48,13 @@ const MediaPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     }
   };
 
-  const handleSurgeryTypeChange = ({ value }) => {
-    setsurgeryTypeId(value[0] ? value[0].id : null);
+  const handleSurgeryConfigurationChange = ({ value }) => {
+    setSurgeryConfigurationId(value[0] ? value[0].id : null);
   };
 
   useEffect(() => {
     if (practiceId !== null) {
-      dispatch(fetchSurgeryTypes({ practiceId: practiceId }));
+      dispatch(fetchsurgeryConfigurations({ practiceId: practiceId }));
     }
   }, [practiceId, dispatch]);
 
@@ -101,13 +105,20 @@ const MediaPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         </div>
         <div className="space-y-2 pt-4">
           <label htmlFor="urlEmbed" className="text-black text-sm font-normal">
-            Surgery Type
+            Surgery
           </label>
           <Select
-            options={surgeryTypeOptions}
-            onChange={handleSurgeryTypeChange}
+            options={surgeryConfigurationOptions}
+            onChange={handleSurgeryConfigurationChange}
             value={
-              surgeryTypeId ? [{ label: surgeryTypeId, id: surgeryTypeId }] : []
+              surgeryConfigurationId
+                ? [
+                    {
+                      label: surgeryConfigurationId,
+                      id: surgeryConfigurationId,
+                    },
+                  ]
+                : []
             }
             required
             overrides={{
@@ -127,7 +138,7 @@ const MediaPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           <div className="space-y-2"></div>
         </div>
         <div className="text-right text-base pt-4">
-          <Button kind="primary" title="Add new video" width={189} />
+          <Button kind="primary" title="Add New Video" width={189} />
         </div>
       </form>
     </div>

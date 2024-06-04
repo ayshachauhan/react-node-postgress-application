@@ -4,6 +4,7 @@ import { AddIcon, PlayIcon } from '@root/components/Icons';
 import AddMediaModal from '@root/components/media/AddMediaModal';
 import PlayVideoModal from '@root/components/media/PlayVideoModal';
 import { useAppDispatch, useAppSelector } from '@root/store';
+import { fetchLoggedInUser } from '@root/store/reducers/auth';
 import {
   clearErrorMessage,
   clearSuccessMessage,
@@ -55,6 +56,10 @@ const Media: React.FC = () => {
       dispatch(fetchListings({ practiceId: practiceId }));
     }
   }, [practiceId, dispatch]);
+
+  useEffect(() => {
+    dispatch(fetchLoggedInUser());
+  }, [dispatch]);
 
   useEffect(() => {
     let timer;
@@ -116,7 +121,7 @@ const Media: React.FC = () => {
                   <PlayIcon></PlayIcon>
                 </div>
                 <div className="bg-black text-white rounded text-xs leading-[18px] absolute text-center border top-14 right-9 border-black py-1 px-1.5">
-                  {data?.surgeryType?.name}
+                  {data?.surgeryConfiguration?.name}
                 </div>
                 <div className="text-gray-900 pt-2 text-left">{data.name}</div>
               </div>

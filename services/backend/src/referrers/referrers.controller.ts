@@ -14,7 +14,9 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { ReferrersEntity } from '@packages/entities/*';
+import { USER_PERMISSIONS } from '@packages/entities/permission';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { PermissionGuard } from 'src/auth/userPermissions.guard';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
 import { CreateReferrerDto } from './dtos/referrer.createDto';
 import { updateReferrerDto } from './dtos/referrer.updateDto';
@@ -54,11 +56,13 @@ export class ReferrersController {
   }
 
   @Get()
+  @UseGuards(PermissionGuard(USER_PERMISSIONS.VIEW_REFERRERS))
   getReferrer(@Param('practiceId') practiceId: string) {
     return this.referrerService.getReferrer(practiceId);
   }
 
   @Get('search')
+  @UseGuards(PermissionGuard(USER_PERMISSIONS.VIEW_REFERRERS))
   async searchReferrers(
     @Param('practiceId') practiceId: string,
     @Query('keyword') keyword: string,
@@ -78,6 +82,7 @@ export class ReferrersController {
   }
 
   @Get(':id')
+  @UseGuards(PermissionGuard(USER_PERMISSIONS.VIEW_REFERRERS))
   async getReferrerById(
     @Param()
     { practiceId, id }: { practiceId: string; id: string },

@@ -6,7 +6,6 @@ import { AvatarIcon } from '@root/components/Icons';
 import { State, useAppDispatch, useAppSelector } from '@root/store';
 import {
   logoutUser,
-  selectRecords,
   selectedPracticeName,
   userPractices,
 } from '@root/store/reducers/auth';
@@ -16,6 +15,7 @@ import { fetchListings } from '@root/store/reducers/users';
 import { SanitizedUser } from '@root/store/types';
 import { SELECTED_DOCTOR_KEY, getPracticeId } from '@utils/index';
 import { ChevronDown } from 'baseui/icon';
+import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 
@@ -24,7 +24,7 @@ const Header: React.FC = () => {
   const getSelectedUserId: string | null =
     localStorage.getItem(SELECTED_DOCTOR_KEY);
 
-  const userInfo = useAppSelector(selectRecords);
+  const userInfo = useAppSelector((state) => state.auth.user);
   const { entities } = useAppSelector((state: State) => state.users);
   const practiceId = getPracticeId();
 
@@ -120,7 +120,7 @@ const Header: React.FC = () => {
   };
 
   return (
-    <nav className="fixed top-0 right-0 z-9 bg-white shadow-md w-[calc(100%-16rem)] h-[68px]">
+    <nav className="fixed top-0 left-40 z-9 bg-white shadow-md w-[calc(100%-10rem)] h-[60px]">
       <div className="px-5 py-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
@@ -174,7 +174,24 @@ const Header: React.FC = () => {
             </div>
             <Dropdown
               position="bottomRight"
-              trigger={<AvatarIcon size={40}></AvatarIcon>}
+              trigger={
+                userInfo?.imgUrl ? (
+                  <Image
+                    src={userInfo.imgUrl}
+                    alt={userInfo.id!}
+                    width={50}
+                    height={50}
+                    className="inline-block rounded-full"
+                    style={{
+                      width: '40px',
+                      height: '40px',
+                      objectFit: 'cover',
+                    }}
+                  />
+                ) : (
+                  <AvatarIcon size={40}></AvatarIcon>
+                )
+              }
             >
               {!is_super_admin && (
                 <Dropdown.Item id="profile" onClick={goToProfile}>

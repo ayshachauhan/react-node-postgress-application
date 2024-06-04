@@ -206,9 +206,6 @@ const Dashboard: React.FC = () => {
           },
         }}
       >
-        <ModalHeader $style={{ fontSize: '1.25rem', fontWeight: 700 }}>
-          Edit User
-        </ModalHeader>
         <ModalBody>
           {configurationId !== null && surgeryTypeId && (
             <EditForm

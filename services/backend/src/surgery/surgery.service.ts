@@ -2,26 +2,64 @@ import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
+  EmailVariables,
+  HistoryAction,
+  HistoryType,
   ICalendar,
+  PermissionEntity,
   SelectedSurgeryOption,
   SurgeryEntity,
 } from '@packages/entities';
 import { PatientEntity } from '@packages/entities/patient';
+import { USER_PERMISSIONS } from '@packages/entities/permission';
 import moment from 'moment';
-import Mail from 'nodemailer/lib/mailer';
+import { SanitizedUser } from 'src/auth/types';
+import { EmailHandlerService } from 'src/emailHandler/emailHandler.service';
 import { ENVIRONMENT_VARIABLES } from 'src/enums/environment.enums';
+import {
+  SurgeryChangesKeyValues,
+  findChangedValues,
+  transformSurgeryObject,
+  transformUpdateSurgeryDTO,
+} from 'src/history/utils';
 import { InsuranceTypesService } from 'src/insuranceTypes/insuranceTypes.service';
 import { PatientsService } from 'src/patients/patients.service';
 import { PracticeHomesService } from 'src/practiceHomes/practiceHomes.service';
 import { PracticesService } from 'src/practices/practices.service';
 import { SurgeryConfigurationsService } from 'src/surgeryConfiguration/surgeryConfiguration.service';
 import { SurgeryTypesService } from 'src/surgeryTypes/surgeryTypes.service';
-import { TransporterService } from 'src/transporter';
 import { SystemTemplates } from 'src/transporter/transporter.types';
 import { UsersService } from 'src/users/users.service';
-import { In, Repository } from 'typeorm';
+import { getFullYearDateConditions, getStartEndDate } from 'src/utils';
+import {
+  Equal,
+  FindManyOptions,
+  FindOperator,
+  FindOptionsWhere,
+  ILike,
+  In,
+  LessThanOrEqual,
+  Repository,
+} from 'typeorm';
 import { CalendarService } from '../calendar/calendar.service';
-import { PatientMailData } from './types';
+import { HistoryService } from '../history/history.service';
+
+type DateCondition = {
+  date: FindOperator<Date>;
+};
+
+interface SurgerySearchResult {
+  surgeries: SurgeryEntity[];
+  restricted: boolean;
+}
+
+type WhereClause = {
+  practiceHome: {
+    id: ReturnType<typeof In>;
+  };
+  date?: Date | FindOperator<Date>;
+  patient?: FindOptionsWhere<PatientEntity> | FindOptionsWhere<PatientEntity>[];
+};
 
 @Injectable()
 export class SurgeryService {
@@ -45,23 +83,42 @@ export class SurgeryService {
     @Inject(forwardRef(() => CalendarService))
     private calendarService: CalendarService,
     private readonly configService: ConfigService,
-    private readonly transporterService: TransporterService,
+    @Inject(forwardRef(() => HistoryService))
+    private historyService: HistoryService,
+    @Inject(forwardRef(() => EmailHandlerService))
+    private emailHandlerService: EmailHandlerService,
   ) {}
 
   getFrontEndBaseUrl() {
     return this.configService.get(ENVIRONMENT_VARIABLES.FRONT_END_BASE_URL);
   }
 
-  async findAll(practiceId: string): Promise<SurgeryEntity[]> {
-    const dbPracticeHomesByPractice =
-      await this.practiceHomesService.getPracticeHomesByPractice(practiceId);
+  async findAll(
+    practiceId: string,
+    includeDelete: boolean = false,
+    months: string[] = [],
+    searchMRNName?: string,
+    option?: string,
+    loggedInUserId?: string,
+  ): Promise<SurgerySearchResult> {
+    const [userInfo, dbPracticeHomesByPractice] = await Promise.all([
+      loggedInUserId ? this.userService.getUserById(loggedInUserId) : null,
+      this.practiceHomesService.getPracticeHomesByPractice(practiceId),
+    ]);
 
-    const dbSurgeryByPractice = await this.surgeryRepository.find({
-      where: {
-        practiceHome: {
-          id: In(dbPracticeHomesByPractice.map((ele) => ele.id)),
-        },
+    const userPermissions: PermissionEntity[] = userInfo
+      ? userInfo.permissions || []
+      : [];
+
+    const whereClause: WhereClause = {
+      practiceHome: {
+        id: In(dbPracticeHomesByPractice.map((ele) => ele.id)),
       },
+    };
+
+    const searchConditions: FindManyOptions<SurgeryEntity> = {
+      where: whereClause,
+      withDeleted: includeDelete,
       relations: [
         'practiceHome',
         'surgeryConfiguration',
@@ -70,11 +127,81 @@ export class SurgeryService {
         'patient.referrer',
         'doctor',
       ],
+    };
+
+    const searchConditionsWithoutPermissions = { ...searchConditions };
+
+    if (option?.toLowerCase() === 'past') {
+      const today = new Date();
+      whereClause.date = LessThanOrEqual(today);
+    }
+
+    const dateConditionsWithPermissions = getConditions(
+      months,
+      userPermissions,
+    );
+    const dateConditionsWithoutPermissions = getConditions(months, []);
+
+    if (
+      months.length === 0 &&
+      searchMRNName &&
+      option?.toLowerCase() !== 'past'
+    ) {
+      updateWhereClauseWithSearchName(whereClause, searchMRNName);
+      searchConditions.where = mapDateConditions(
+        dateConditionsWithPermissions,
+        whereClause,
+      );
+      searchConditionsWithoutPermissions.where = mapDateConditions(
+        dateConditionsWithoutPermissions,
+        whereClause,
+      );
+    } else {
+      if (searchMRNName) {
+        updateWhereClauseWithSearchName(whereClause, searchMRNName);
+      }
+
+      if (
+        months.length > 0 ||
+        (months.length === 0 && option?.toLowerCase() !== 'past')
+      ) {
+        searchConditions.where = mapDateConditions(
+          dateConditionsWithPermissions,
+          whereClause,
+        );
+        searchConditionsWithoutPermissions.where = mapDateConditions(
+          dateConditionsWithoutPermissions,
+          whereClause,
+        );
+      }
+    }
+
+    const [dbSurgeryByPractice, dbSurgeryByPracticeWithoutPermission] =
+      await Promise.all([
+        this.surgeryRepository.find(searchConditions),
+        this.surgeryRepository.find(searchConditionsWithoutPermissions),
+      ]);
+
+    dbSurgeryByPractice.forEach((ele) => {
+      ele.doctor.password = '';
     });
 
-    dbSurgeryByPractice.forEach((ele) => (ele.doctor.password = ''));
+    const restricted =
+      dbSurgeryByPracticeWithoutPermission.length > 0 &&
+      ((!userPermissions.some(
+        (p) => p.name === USER_PERMISSIONS.VIEW_PAST_CASES,
+      ) &&
+        dbSurgeryByPracticeWithoutPermission.some(
+          (s) => s.date < new Date(),
+        )) ||
+        (!userPermissions.some(
+          (p) => p.name === USER_PERMISSIONS.VIEW_FUTURE_CASES,
+        ) &&
+          dbSurgeryByPracticeWithoutPermission.some(
+            (s) => s.date > new Date(),
+          )));
 
-    return dbSurgeryByPractice;
+    return { surgeries: dbSurgeryByPractice, restricted };
   }
 
   async getSurgeryById(id: string): Promise<SurgeryEntity | null> {
@@ -91,7 +218,10 @@ export class SurgeryService {
     });
   }
 
-  async create({ practiceId, createSurgeryDto }): Promise<SurgeryEntity> {
+  async create(
+    { practiceId, createSurgeryDto },
+    request: Request & { user: SanitizedUser },
+  ): Promise<SurgeryEntity> {
     const newSurgery: SurgeryEntity = new SurgeryEntity();
 
     const practiceEntity = await this.practiceService.findOne(practiceId);
@@ -99,6 +229,7 @@ export class SurgeryService {
       createSurgeryDto,
       practiceEntity,
     );
+
     const surgeryTypeEntity = await this.surgeryTypeService.getSurgeryTypeById(
       createSurgeryDto.surgeryTypeId,
       practiceId,
@@ -177,42 +308,63 @@ export class SurgeryService {
         );
       }
     }
-    const mailOptions: Mail.Options = {
-      to: createSurgeryDto.email,
-      subject: 'Eval/surgery registered',
-      text: 'text message',
-    };
 
-    const mailData: PatientMailData = {
-      practiceName: practiceEntity?.name,
-      firstName: createSurgeryDto.firstName,
-      lastName: createSurgeryDto.lastName,
-      mrn: createSurgeryDto.mrn,
-      email: createSurgeryDto.email,
+    // create history entry after creating surgery
+    await this.historyService.createHistory({
+      practiceId,
+      userId: request?.user.id,
+      entityId: resultSurgery.id,
+      entityType: HistoryType.SURGERY,
+      action: HistoryAction.CREATE,
+      ipAddress: createSurgeryDto.ipAddress,
+    });
+
+    const mailVariables: EmailVariables = {
+      surgery_type: surgeryConfigurationEntity
+        ? surgeryConfigurationEntity.name
+        : '',
+      fname: newPatient.firstName,
+      lname: newPatient.lastName,
+      mrn: String(newPatient.mrn),
+      pt_email_address: newPatient.email,
+      surgery_date: String(resultSurgery.date),
+      pt_email_notify: '',
+      laterality: createSurgeryDto.bodyPart,
+      Laterality: createSurgeryDto.bodyPart,
+      pod1_location: '',
+      cataract_variable: '',
+      all_cases: surgeryConfigurationEntity?.name + ' ' + createSurgeryDto.date,
+      all_cataract_dates:
+        surgeryConfigurationEntity?.name + ' ' + createSurgeryDto.date,
+      all_case_type:
+        surgeryConfigurationEntity?.name + ' ' + createSurgeryDto.date,
       phoneNumber: createSurgeryDto.phoneNumber,
-      date: createSurgeryDto.date,
-      surgeryType: surgeryTypeEntity?.name,
-      practiceHome: practiceHomeEntity?.name,
-      insuranceType: insuranceTypeEntity?.name,
-      insuranceDetails: createSurgeryDto.insuranceDetails,
     };
 
-    await this.transporterService.sendSystemEmails(
-      mailOptions,
-      mailData,
-      SystemTemplates.NOTIFY_PATIENT,
-    );
+    const systemGeneratedMailData = {
+      subject: 'Eval/ Surgery registered',
+      text: 'text message',
+      systemTemplate: SystemTemplates.NOTIFY_PATIENT,
+    };
+
+    if (practiceEntity) {
+      await this.emailHandlerService.checkAndMakeEmailContent(
+        practiceEntity,
+        createSurgeryDto.surgeryConfigurationId,
+        resultSurgery,
+        mailVariables,
+        systemGeneratedMailData,
+        false,
+      );
+    }
 
     return resultSurgery;
   }
 
-  async update({
-    createSurgeryDto,
-    id,
-    practiceId,
-  }): Promise<SurgeryEntity | null> {
-    console.log(createSurgeryDto);
-
+  async update(
+    { createSurgeryDto, id, practiceId },
+    request: Request & { user: SanitizedUser },
+  ): Promise<SurgeryEntity | null> {
     const surgeryToUpdate = await this.getSurgeryById(id);
 
     if (createSurgeryDto.insuranceTypeId) {
@@ -241,7 +393,8 @@ export class SurgeryService {
       selectedSurgeryOptions: createSurgeryDto.selectedSurgeryOptions,
       totalHospitalPricing: createSurgeryDto.totalHospitalPricing,
       totalProfessionalPricing: createSurgeryDto.totalProfessionalPricing,
-      selectedCheckListOptions: createSurgeryDto.selectedCheckListOption,
+      selectedCheckListOptions: createSurgeryDto.selectedCheckListOptions,
+      bodyPart: createSurgeryDto.bodyPart,
     };
 
     await this.surgeryRepository.update(id, {
@@ -249,12 +402,80 @@ export class SurgeryService {
       ...dataToUpdate,
     });
 
+    // depends on dto values, make sure to update the obj values if dot changes
+    const transformedCurrentSurgeryValues: SurgeryChangesKeyValues =
+      transformSurgeryObject(surgeryToUpdate!);
+    const transformedUpdatedDTOValues: SurgeryChangesKeyValues =
+      transformUpdateSurgeryDTO(createSurgeryDto);
+
+    await this.historyService.createHistory({
+      practiceId,
+      userId: request?.user.id,
+      action: HistoryAction.UPDATE,
+      entityId: id,
+      entityType: HistoryType.SURGERY,
+      // this depends on dto values, make sure to update this function object if dto updates
+      changes: findChangedValues(
+        transformedCurrentSurgeryValues,
+        transformedUpdatedDTOValues,
+      ),
+      ipAddress: createSurgeryDto.ipAddress,
+    });
+
     return await this.surgeryRepository.findOne({
       where: { id },
     });
   }
 
-  async remove(id: string): Promise<void> {
+  async remove(
+    id: string,
+    practiceId: string,
+    request: Request & { user: SanitizedUser },
+    ipAddress: string,
+  ): Promise<void> {
     await this.surgeryRepository.softDelete(id);
+
+    await this.historyService.createHistory({
+      practiceId,
+      userId: request?.user?.id,
+      entityId: id,
+      entityType: HistoryType.SURGERY,
+      action: HistoryAction.DELETE,
+      ipAddress,
+    });
   }
+}
+
+function updateWhereClauseWithSearchName(
+  whereClause: WhereClause,
+  searchMRNName: string,
+): void {
+  const mrnNumber = parseInt(searchMRNName, 10);
+  if (!isNaN(mrnNumber)) {
+    whereClause.patient = { mrn: Equal(mrnNumber) };
+  } else {
+    whereClause.patient = [
+      { firstName: ILike(`%${searchMRNName}%`) },
+      { lastName: ILike(`%${searchMRNName}%`) },
+    ];
+  }
+}
+
+function getConditions(
+  months: string[],
+  permissions: PermissionEntity[],
+): DateCondition[] {
+  return months.length > 0
+    ? getStartEndDate(months, permissions)
+    : getFullYearDateConditions(permissions);
+}
+
+function mapDateConditions(
+  dateConditions: DateCondition[],
+  whereClause: WhereClause,
+): WhereClause[] {
+  return dateConditions.map((condition) => ({
+    ...whereClause,
+    ...condition,
+  }));
 }

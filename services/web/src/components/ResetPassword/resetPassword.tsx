@@ -65,7 +65,6 @@ export const ResetPassword: React.FC<Props> = ({
   }, [practiceId]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    console.log('inhandlesubmit', userInfo, userInfo?.practices);
     e.preventDefault();
     if (userInfo && userInfo.practices) {
       const payload: ChangePasswordInterface = {
@@ -114,7 +113,7 @@ export const ResetPassword: React.FC<Props> = ({
 
   return (
     <div>
-      <div className="border border-gray-700 w-7 h-7 rounded-full border items-center text-center cursor-pointer">
+      <div className="border border-gray-700 w-7 h-7 rounded-full items-center text-center cursor-pointer">
         <CloseIcon size={10} onClick={handleGoBack} />
       </div>
       <LogoWrapper>

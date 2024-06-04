@@ -19,6 +19,7 @@
       "cache": false
     },
     "generate-migration": {},
+    "list-migrations": {},
     "run-migrations": {}
   },
   "globalDependencies": [

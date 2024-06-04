@@ -1,19 +1,17 @@
 import {
-  Body,
   Controller,
-  Delete,
   Get,
   Param,
-  Post,
+  Query,
   UseGuards,
   UseInterceptors,
-  ValidationPipe,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { MessageEntity } from '@packages/entities/message';
+import { EmailLogEntity } from '@packages/entities/email_logs';
+import { USER_PERMISSIONS } from '@packages/entities/permission';
+import { PermissionGuard } from 'src/auth/userPermissions.guard';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
 import { AuthGuard } from '../auth/auth.guard';
-import { CreateMessageDto } from './dto/createMessage.dto';
 import { MessagesService } from './messages.service';
 
 @UseInterceptors(practiceNotFoundInterceptor)
@@ -24,32 +22,15 @@ import { MessagesService } from './messages.service';
 export class MessagesController {
   constructor(private readonly messagesService: MessagesService) {}
 
-  @Get()
+  @Get('search')
+  @UseGuards(PermissionGuard(USER_PERMISSIONS.VIEW_MSG))
   async getPracticeHomesByPractice(
     @Param('practiceId') practiceId: string,
-  ): Promise<MessageEntity[]> {
-    return this.messagesService.getMessagesByPractice(practiceId);
-  }
-
-  @Get(':id')
-  async getPracticeHomeById(
-    @Param() { practiceId, id }: { practiceId: string; id: string },
-  ): Promise<MessageEntity | null> {
-    return this.messagesService.getMessageById(id, practiceId);
-  }
-
-  @Delete(':id')
-  async remove(
-    @Param() { practiceId, id }: { practiceId: string; id: string },
-  ): Promise<void> {
-    return this.messagesService.remove(id, practiceId);
-  }
-
-  @Post()
-  async create(
-    @Param('practiceId') practiceId: string,
-    @Body(new ValidationPipe()) createMessageDto: CreateMessageDto,
-  ): Promise<MessageEntity> {
-    return this.messagesService.create(createMessageDto, practiceId);
+    @Query('searchMRNName') searchMRNName?: string,
+  ): Promise<EmailLogEntity[]> {
+    return this.messagesService.getMessagesByPractice(
+      practiceId,
+      searchMRNName,
+    );
   }
 }

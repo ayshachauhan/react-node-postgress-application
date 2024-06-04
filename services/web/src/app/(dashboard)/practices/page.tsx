@@ -19,6 +19,7 @@ import {
   ROLE,
   SIZE,
 } from 'baseui/modal';
+import Image from 'next/image';
 import React, { useEffect, useState } from 'react';
 
 const Practice: React.FC = () => {
@@ -263,7 +264,24 @@ const Practice: React.FC = () => {
           {practices.map((data) => (
             <React.Fragment key={data.id}>
               <div className="text-gray-900 bg-gray-50 pt-2 px-4 text-center">
-                Profile Photo
+                {data.imgUrl ? (
+                  <Image
+                    src={data.imgUrl}
+                    alt={data.id ?? ''}
+                    width={50}
+                    height={50}
+                    className="inline-block mr-2 rounded-[10px]"
+                    style={{
+                      width: '50px',
+                      height: '50px',
+                      objectFit: 'cover',
+                    }}
+                  />
+                ) : (
+                  <div className="bg-gray-300 flex justify-center items-center">
+                    <span>No Image</span>
+                  </div>
+                )}
               </div>
               <div className="text-gray-900 bg-gray-50 pt-2 px-4 text-center">
                 {data.name}

@@ -29,7 +29,7 @@ export class CreateSurgeryDto {
 
   @IsNotEmpty({ message: 'mrn is required' })
   @ApiProperty()
-  mrn: string;
+  mrn: number;
 
   @IsNotEmpty({ message: 'first name is required' })
   @ApiProperty()
@@ -66,4 +66,7 @@ export class CreateSurgeryDto {
   @IsNotEmpty({ message: 'doctorId is required' })
   @ApiProperty()
   doctorId: string;
+
+  @IsNotEmpty()
+  ipAddress: string;
 }

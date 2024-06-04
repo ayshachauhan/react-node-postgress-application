@@ -5,6 +5,7 @@ import TextInput from '@root/components/TextInput';
 import { useAppDispatch } from '@root/store';
 import { updateRecordAsync } from '@root/store/reducers/practices';
 import { PracticesEditInterface } from '@store/requests/practices';
+import { FileUploader } from 'baseui/file-uploader';
 import { Select } from 'baseui/select';
 import React, { useState } from 'react';
 
@@ -15,11 +16,11 @@ const PracticeEditModule: React.FC<{
   const dispatch = useAppDispatch();
   const [name, setName] = useState(initialValues.name);
   const [status, setStatus] = useState(initialValues.status);
-  const [photoUrl, setPhotoUrl] = useState(initialValues.photoUrl);
   const practiceStatusOptions = Object.keys(PracticeStatus).map((key) => ({
     label: PracticeStatus[key as keyof typeof PracticeStatus],
     id: key,
   }));
+  const [practiceImg, setPracticeImg] = useState<File | null>(null);
 
   const handleStatusDropdown = (params) => {
     const { label } = params.option;
@@ -33,14 +34,13 @@ const PracticeEditModule: React.FC<{
       id: initialValues.id,
       name,
       status,
-      photoUrl,
       code: initialValues.code,
+      practiceImg,
     };
     try {
       dispatch(updateRecordAsync(data));
       setName('');
       setStatus('');
-      setPhotoUrl('');
       onClose();
     } catch (error) {
       onClose();
@@ -96,23 +96,42 @@ const PracticeEditModule: React.FC<{
 
           <div className="flex flex-row justify-between pt-4">
             <div className="space-y-2">
-              <label
-                htmlFor="photoUrl"
-                className="text-black text-sm font-normal"
-              >
+              <label htmlFor="imgUrl" className="text-black text-sm">
                 Practice Photo
               </label>
-              <TextInput
-                name="photoUrl"
-                value={photoUrl}
-                onChange={(value) => {
-                  setPhotoUrl(value);
+              <FileUploader
+                errorMessage={''}
+                onDrop={(acceptedFiles: File[]) => {
+                  setPracticeImg(acceptedFiles[0]);
+                }}
+                accept="image/*"
+                overrides={{
+                  ContentMessage: {
+                    component: () => (
+                      <div>
+                        {practiceImg ? (
+                          <div>
+                            <p>{practiceImg?.name}</p>
+                          </div>
+                        ) : (
+                          <span>Drag and drop or click to upload</span>
+                        )}
+                      </div>
+                    ),
+                  },
+                  FileDragAndDrop: {
+                    style: {
+                      marginBottom: '16px',
+                      borderColor: '#22C55E',
+                      color: '##F0FDF4',
+                    },
+                  },
                 }}
               />
             </div>
           </div>
           <div className="text-right text-base pt-4">
-            <Button kind="primary" title="Update practice" width={189} />
+            <Button kind="primary" title="Update Practice" width={189} />
           </div>
         </div>
       </form>

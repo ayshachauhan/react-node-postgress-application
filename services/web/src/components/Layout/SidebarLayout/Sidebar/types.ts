@@ -9,12 +9,16 @@ import {
   TemplateIcon,
   UsersIcon,
 } from '@components/Icons';
+import { IPermission } from '@packages/entities/index.browser';
+import { USER_PERMISSIONS } from '@packages/entities/permission';
+import { useUserPermission } from '@root/hooks/userHasPermission';
 
 export type SideBarItem = {
   id: string;
   title: string;
   path: string;
-  permissions: string[]; // Array of user types that have access to this item
+  permissions: string[];
+  userPermissions?: string[];
   Icon: React.ElementType;
   child?: Omit<SideBarItem, 'child' | 'Icon'>[];
 };
@@ -25,6 +29,14 @@ export const sidebarItems: SideBarItem[] = [
     title: 'Dashboard',
     path: '/dashboard',
     permissions: ['admin'],
+    Icon: DashboardIcon,
+  },
+  {
+    id: 'evals',
+    title: 'Evals',
+    path: '/eval',
+    permissions: ['admin'],
+    userPermissions: [USER_PERMISSIONS.VIEW_NURTURE],
     Icon: DashboardIcon,
   },
   {
@@ -40,15 +52,13 @@ export const sidebarItems: SideBarItem[] = [
     path: '/users',
     permissions: ['admin'],
     Icon: UsersIcon,
-    // child: [
-    //   { id: 'test', title: 'Add User', path: 'test', permissions: ['admin'] },
-    // ],
   },
   {
     id: 'templates',
     title: 'Templates',
     path: '/templates',
     permissions: ['admin'],
+    userPermissions: [USER_PERMISSIONS.VIEW_TEMPLATES],
     Icon: TemplateIcon,
   },
   {
@@ -56,6 +66,7 @@ export const sidebarItems: SideBarItem[] = [
     title: 'Messages',
     path: '/messages',
     permissions: ['admin'],
+    userPermissions: [USER_PERMISSIONS.VIEW_MSG],
     Icon: MessageIcon,
   },
   {
@@ -63,6 +74,7 @@ export const sidebarItems: SideBarItem[] = [
     title: 'History',
     path: '/history',
     permissions: ['admin'],
+    userPermissions: [USER_PERMISSIONS.VIEW_HX],
     Icon: HistoryIcon,
   },
   {
@@ -70,6 +82,7 @@ export const sidebarItems: SideBarItem[] = [
     title: 'Media',
     path: '/media',
     permissions: ['admin'],
+    userPermissions: [USER_PERMISSIONS.VIEW_VIDEOS],
     Icon: MediaIcon,
   },
   {
@@ -77,6 +90,7 @@ export const sidebarItems: SideBarItem[] = [
     title: 'Referrer',
     path: '/referrer',
     permissions: ['admin'],
+    userPermissions: [USER_PERMISSIONS.VIEW_REFERRERS],
     Icon: AddReferrerIcon,
   },
   {
@@ -104,7 +118,16 @@ export const sidebarItems: SideBarItem[] = [
 
 export function filterSidebarItems(
   userType: 'super_admin' | 'admin',
+  userPermissions: IPermission[],
   sidebarItems: SideBarItem[],
 ): SideBarItem[] {
-  return sidebarItems.filter((item) => item.permissions.includes(userType));
+  return sidebarItems.filter((item) => {
+    const userTypeAllowed = item.permissions.includes(userType);
+
+    const userPermissionsAllowed = item.userPermissions
+      ? useUserPermission(userPermissions, item.userPermissions)
+      : true;
+
+    return userTypeAllowed && userPermissionsAllowed;
+  });
 }

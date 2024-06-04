@@ -1,19 +1,22 @@
 import { ITemplateUpdate } from '@packages/entities/index.browser';
+import { USER_PERMISSIONS } from '@packages/entities/permission';
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
+import { useUserPermission } from '@root/hooks/userHasPermission';
 import { useAppDispatch, useAppSelector } from '@root/store';
-import { selectRecords } from '@root/store/reducers/auth';
-import { fetchListings as fetchSurgeryTypes } from '@root/store/reducers/surgeryTypes';
+import { fetchListings as fetchSurgeryConfigurations } from '@root/store/reducers/surgeryConfigurations';
 import {
   deleteRecordAsync,
   fetchListings,
   updateRecordAsync,
 } from '@root/store/reducers/templates';
+import { TEMPLATE_VARIABLES } from '@root/utils/enums';
 import { getPracticeId } from '@utils/index';
 import { Checkbox, STYLE_TYPE } from 'baseui/checkbox';
-import { Select } from 'baseui/select';
+import { SIZE, Select } from 'baseui/select';
 import { Textarea } from 'baseui/textarea';
 import React, { useEffect, useState } from 'react';
+
 interface Data {
   id: string;
   messageType: string;
@@ -25,19 +28,18 @@ interface ChildProps {
 }
 
 const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
-  const handleSurgeryTypeChange = ({ value }) => {
-    const selectedSurgeryType = value[0];
-    setTemplateInfo({
-      ...updatedTemplateInfo,
-      surgeryType: selectedSurgeryType,
-    });
-  };
-  const userInfo = useAppSelector(selectRecords);
+  const userInfo = useAppSelector((state) => state.auth.user);
   const userId = userInfo?.id;
+  const userPermissions = userInfo?.permissions;
+  const editCaseAllowed = useUserPermission(userPermissions, [
+    USER_PERMISSIONS.EDIT_TEMPLATES,
+  ]);
   const dispatch = useAppDispatch();
   const practiceId = getPracticeId();
   const templateId = data.id;
   const messageType = data.messageType;
+  const versionOffset = data.versionOffset;
+
   const templateInfo = useAppSelector((state) => {
     const templates = Object.values(state.templates.entities);
     if (templateId && templates) {
@@ -57,45 +59,20 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
     return undefined;
   });
 
-  const versionOffset = data.versionOffset;
+  const surgeryConfigurations = useAppSelector(
+    (state) => state.surgeryConfigurations.entities,
+  );
+  const surgeryConfigurationOptions = Object.values(surgeryConfigurations).map(
+    (surgeryConfiguration) => ({
+      label: surgeryConfiguration.name,
+      id: surgeryConfiguration.id,
+    }),
+  );
 
+  const [showTooltip, setShowTooltip] = useState(false);
   const [updatedTemplateInfo, setTemplateInfo] = useState<
     Partial<ITemplateUpdate>
   >({});
-  const [showTooltip, setShowTooltip] = useState(false);
-
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-
-    if (file) {
-      setTemplateInfo((prevTemplateInfo) => ({
-        ...prevTemplateInfo,
-        emailAttachment: file.name,
-      }));
-    }
-  };
-  const handleHtmlChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setTemplateInfo({ ...updatedTemplateInfo, emailBody: event.target.value });
-  };
-  const handleMessageTextChange = (
-    event: React.ChangeEvent<HTMLTextAreaElement>,
-  ) => {
-    setTemplateInfo({
-      ...updatedTemplateInfo,
-      messageText: event.target.value,
-    });
-  };
-  const onConfirmDelete = (): void => {
-    if (practiceId && templateId && userId) {
-      try {
-        const id = templateId;
-        dispatch(deleteRecordAsync({ practiceId, id, userId }));
-        onClose();
-      } catch (error) {
-        console.log(error);
-      }
-    }
-  };
 
   useEffect(() => {
     if (practiceId && userId) {
@@ -112,15 +89,59 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
 
   useEffect(() => {
     if (practiceId !== null) {
-      dispatch(fetchSurgeryTypes({ practiceId: practiceId }));
+      dispatch(fetchSurgeryConfigurations({ practiceId: practiceId }));
     }
   }, [practiceId, dispatch]);
 
-  const surgeryTypes = useAppSelector((state) => state.surgeryTypes.entities);
-  const surgeryTypeOptions = Object.keys(surgeryTypes).map((key) => ({
-    label: surgeryTypes[key].name,
-    id: surgeryTypes[key].id,
-  }));
+  useEffect(() => {
+    if (templateId && templateInfo) {
+      setTemplateInfo(templateInfo);
+    }
+  }, [templateId, templateInfo]);
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+
+    if (file) {
+      setTemplateInfo((prevTemplateInfo) => ({
+        ...prevTemplateInfo,
+        emailAttachment: file.name,
+      }));
+    }
+  };
+
+  const handleHtmlChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setTemplateInfo({ ...updatedTemplateInfo, emailBody: event.target.value });
+  };
+
+  const handleMessageTextChange = (
+    event: React.ChangeEvent<HTMLTextAreaElement>,
+  ) => {
+    setTemplateInfo({
+      ...updatedTemplateInfo,
+      messageText: event.target.value,
+    });
+  };
+
+  const onConfirmDelete = (): void => {
+    if (practiceId && templateId && userId) {
+      try {
+        const id = templateId;
+        dispatch(deleteRecordAsync({ practiceId, id, userId }));
+        onClose();
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  };
+
+  const handleSurgeryConfiguration = ({ value }) => {
+    const selectedSurgeryConfiguration = value[0];
+    setTemplateInfo({
+      ...updatedTemplateInfo,
+      surgeryConfiguration: selectedSurgeryConfiguration,
+    });
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -132,9 +153,9 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
         emailAttachment: updatedTemplateInfo.emailAttachment ?? '',
         emailBody: updatedTemplateInfo.emailBody ?? '',
         messageText: updatedTemplateInfo.messageText ?? '',
-        surgeryTypeId: updatedTemplateInfo.surgeryType
-          ? updatedTemplateInfo.surgeryType.id
-          : surgeryTypeOptions[0].id,
+        surgeryConfigurationId: updatedTemplateInfo.surgeryConfiguration
+          ? updatedTemplateInfo.surgeryConfiguration.id
+          : surgeryConfigurationOptions[0].id,
         practiceId: practiceId,
         userId: userId,
         id: templateId,
@@ -148,18 +169,12 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
     }
   };
 
-  useEffect(() => {
-    if (templateId && templateInfo) {
-      setTemplateInfo(templateInfo);
-    }
-  }, [templateId, templateInfo]);
-
   return (
     <div>
       <form onSubmit={handleSubmit}>
-        <div className="flex justify-between mt-10 items-center text-xl font-bold border-b border-gray-100 pb-2 text-black">
+        <div className="flex justify-between mt-1 items-center text-xl font-bold border-b border-gray-100 pb-2 text-black">
           <p>Write New Template</p>
-          <div className="flex items-center gap-7">
+          <div className="flex items-center gap-7 mr-5">
             <div className="flex flex-row items-center gap-1">
               <label className="text-black text-sm font-normal">
                 Message Type:
@@ -170,21 +185,23 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
             </div>
             <div className="flex flex-row items-center gap-2">
               <label
-                htmlFor="surgeryType"
+                htmlFor="surgeryConfiguration"
                 className="text-black text-sm font-normal"
               >
                 Surgery:
               </label>
               <div className="w-56 text-sm text-gray-600">
                 <Select
-                  options={surgeryTypeOptions}
-                  onChange={handleSurgeryTypeChange}
+                  size={SIZE.mini}
+                  options={surgeryConfigurationOptions}
+                  onChange={handleSurgeryConfiguration}
                   value={
-                    updatedTemplateInfo?.surgeryType
+                    updatedTemplateInfo?.surgeryConfiguration
                       ? [
                           {
-                            label: updatedTemplateInfo.surgeryType?.name,
-                            id: updatedTemplateInfo.surgeryType?.id,
+                            label:
+                              updatedTemplateInfo.surgeryConfiguration?.name,
+                            id: updatedTemplateInfo.surgeryConfiguration?.id,
                           },
                         ]
                       : []
@@ -208,11 +225,11 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
             </div>
           </div>
         </div>
-        <div className="flex gap-5 mt-6">
-          <div className="w-1/2 pr-8 border-r border-dotted border-gray-300">
+        <div className="flex gap-5 mt-2">
+          <div className="w-1/2 pr-3 border-r border-dotted border-gray-300 text-xs">
             <div className="h-4/6 overflow-auto">
               <div className="flex justify-between">
-                <div className="border-b border-gray-100 text-xl font-bold pb-2 text-black">
+                <div className="border-b border-gray-100 text-base font-bold pb-2 text-black">
                   Email Message
                 </div>
                 <div>
@@ -254,16 +271,17 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
                   </div>
                 </div>
               </div>
-              <div className="flex mt-5 justify-between gap-5">
+              <div className="flex items-center mt-2 justify-between gap-5">
                 <div className="w-1/2">
-                  <div className="space-y-2">
+                  <div className="space-y-1">
                     <label
                       htmlFor="title"
                       className="text-black text-sm font-normal"
                     >
-                      Email Subject
+                      Subject
                     </label>
                     <TextInput
+                      size={SIZE.mini}
                       name="emailSubject"
                       value={updatedTemplateInfo?.emailSubject || ''}
                       onChange={(value) => {
@@ -275,7 +293,6 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
                       required
                     />
                   </div>
-                  <div className="space-y-4"></div>
                 </div>
                 <div className="w-1/2">
                   <div className="space-y-2">
@@ -283,13 +300,13 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
                       htmlFor="attachment"
                       className="text-black text-sm font-normal"
                     >
-                      Email Attachment
+                      Attachment
                     </label>
                     <input type="file" onChange={handleFileChange} />
                   </div>
                 </div>
               </div>
-              <div className="mt-5">
+              <div className="mt-3">
                 <div className="space-y-2">
                   <label
                     htmlFor="emailBody"
@@ -300,7 +317,7 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
 
                   <Textarea
                     rows={8}
-                    value={updatedTemplateInfo?.emailBody}
+                    value={updatedTemplateInfo?.emailBody || ''}
                     onChange={handleHtmlChange}
                     clearOnEscape
                     overrides={{
@@ -323,14 +340,20 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
                 </div>
               </div>
             </div>
+            <div className="mt-3 flex flex-row">
+              <label className="space-y-2 font-bold w-36"> Email Body:</label>
+              <div>
+                {Object.keys(TEMPLATE_VARIABLES).map((ele) => `[${ele}], `)}
+              </div>
+            </div>
             <div>
-              <div className="space-y-4 border-b border-gray-100 mt-5 text-black font-bold text-xl pb-2">
+              <div className=" border-b border-gray-100 mt-3 text-black font-bold text-base pb-1">
                 Text Message
               </div>
-              <div className="mt-3">
+              <div className="mt-1">
                 <Textarea
                   rows={4}
-                  value={updatedTemplateInfo?.messageText}
+                  value={updatedTemplateInfo?.messageText || ''}
                   onChange={handleMessageTextChange}
                   clearOnEscape
                   overrides={{
@@ -353,7 +376,7 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
               </div>
             </div>
           </div>
-          <div className="w-1/2 pl-8">
+          <div className="w-1/2">
             <div className="h-4/6 overflow-auto">
               <div className="border-b border-gray-100 text-xl font-bold pb-2 text-black">
                 Email Message Preview
@@ -365,7 +388,7 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
                 {updatedTemplateInfo?.emailAttachment && (
                   <div>
                     <p className="my-1">
-                      Attachment Found |{' '}
+                      Attachment Found |
                       <a
                         target="_blank"
                         // href={URL.createObjectURL(updatedTemplateInfo?.emailAttachment)}
@@ -398,18 +421,21 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
             </div>
           </div>
         </div>
-        <div className="flex justify-end gap-5 mt-4">
+        <div className="flex justify-end gap-3 mt-1">
           <Button
             type="button"
             kind="tertiary"
             title="Delete"
-            width={136}
+            width={80}
+            height={40}
             onClick={onConfirmDelete}
             style={{
               backgroundColor: '#DC2626',
             }}
           />
-          <Button kind="primary" title="Update" width={136} />
+          {editCaseAllowed && (
+            <Button kind="primary" title="Update" width={136} height={40} />
+          )}
         </div>
       </form>
     </div>

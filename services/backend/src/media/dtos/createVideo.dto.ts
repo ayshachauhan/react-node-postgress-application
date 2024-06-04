@@ -10,9 +10,9 @@ export class CreateVideoDto {
   @ApiProperty()
   urlEmbed: string;
 
-  @IsNotEmpty({ message: 'surgeryType is required' })
+  @IsNotEmpty({ message: 'surgeryConfiguration is required' })
   @ApiProperty()
-  surgeryTypeId: string;
+  surgeryConfigurationId: string;
 
   @IsNotEmpty({ message: 'url is required' })
   @ApiProperty()

@@ -6,6 +6,9 @@ module.exports = {
     API_BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL,
   },
   images: {
-    domains: ['img.youtube.com'],
+    domains: [
+      'img.youtube.com',
+      `azentia-${process.env.ENVIRONMENT}.s3.amazonaws.com`,
+    ],
   },
 };
