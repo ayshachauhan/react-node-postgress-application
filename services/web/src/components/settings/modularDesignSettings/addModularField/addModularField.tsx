@@ -436,7 +436,7 @@ const AddModularField: React.FC<{ onClose: () => void; items }> = ({
                               min={1}
                               max={3}
                               size={SIZE.mini}
-                              name="category"
+                              name="count"
                               value={optionField.count}
                               onChange={(event) =>
                                 handleOptionsFieldChangeInput(
