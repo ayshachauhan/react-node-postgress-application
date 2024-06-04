@@ -172,6 +172,7 @@ export class EvalsService {
         surgeryConfigurationEntity?.name + ' ' + createEvalDto.date,
       all_case_type:
         surgeryConfigurationEntity?.name + ' ' + createEvalDto.date,
+      phoneNumber: createEvalDto.phoneNumber,
     };
 
     const systemGeneratedMailData = {
@@ -180,14 +181,16 @@ export class EvalsService {
       systemTemplate: SystemTemplates.NOTIFY_PATIENT,
     };
 
-    await this.emailHandlerService.checkAndMakeEmailContent(
-      createEvalDto.surgeryConfigurationId,
-      resultEval,
-      mailVariables,
-      systemGeneratedMailData,
-      true,
-    );
-
+    if (practiceEntity) {
+      await this.emailHandlerService.checkAndMakeEmailContent(
+        practiceEntity,
+        createEvalDto.surgeryConfigurationId,
+        resultEval,
+        mailVariables,
+        systemGeneratedMailData,
+        true,
+      );
+    }
     return resultEval;
   }
 

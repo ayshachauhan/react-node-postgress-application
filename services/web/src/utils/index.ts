@@ -66,11 +66,12 @@ export function usDateFormatter(date: Date): string {
   return formattedDateSplit.join('/');
 }
 
-export function formatColumnDate(dateString: string) {
+export function formatColumnDate(dateString: Date) {
   const date = new Date(dateString);
   const formattedDate = new Intl.DateTimeFormat('en-US', {
     month: 'numeric',
     day: 'numeric',
+    year: 'numeric',
   }).format(date);
   const hours = date.getHours();
   const minutes = date.getMinutes();

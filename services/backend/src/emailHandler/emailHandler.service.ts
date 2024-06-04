@@ -7,6 +7,7 @@ import {
   EvalEmailEntity,
   IEmailLog,
   IEval,
+  IPractice,
   ISurgery,
   SurgeryEmailEntity,
 } from '@packages/entities';
@@ -43,6 +44,7 @@ export class EmailHandlerService {
   }
 
   async checkAndMakeEmailContent(
+    practiceEntity: IPractice,
     surgeryConfigurationId: string,
     entity: IEval | ISurgery,
     mailVariable: EmailVariables,
@@ -60,6 +62,7 @@ export class EmailHandlerService {
       templates.forEach((template) => {
         const today = new Date();
         const entry = {
+          practice: practiceEntity,
           expectedDate: entity.date,
           status: 'pending',
           isEval: fromEval,
@@ -113,6 +116,7 @@ export class EmailHandlerService {
     if (!bookingTemplateFound && systemGeneratedMailData) {
       const systemTemplateName = systemGeneratedMailData.systemTemplate;
       const entry = {
+        practice: practiceEntity,
         expectedDate: entity.date,
         status: 'pending',
         isEval: fromEval,

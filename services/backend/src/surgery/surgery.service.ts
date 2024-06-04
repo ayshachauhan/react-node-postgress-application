@@ -338,6 +338,7 @@ export class SurgeryService {
         surgeryConfigurationEntity?.name + ' ' + createSurgeryDto.date,
       all_case_type:
         surgeryConfigurationEntity?.name + ' ' + createSurgeryDto.date,
+      phoneNumber: createSurgeryDto.phoneNumber,
     };
 
     const systemGeneratedMailData = {
@@ -346,13 +347,16 @@ export class SurgeryService {
       systemTemplate: SystemTemplates.NOTIFY_PATIENT,
     };
 
-    await this.emailHandlerService.checkAndMakeEmailContent(
-      createSurgeryDto.surgeryConfigurationId,
-      resultSurgery,
-      mailVariables,
-      systemGeneratedMailData,
-      false,
-    );
+    if (practiceEntity) {
+      await this.emailHandlerService.checkAndMakeEmailContent(
+        practiceEntity,
+        createSurgeryDto.surgeryConfigurationId,
+        resultSurgery,
+        mailVariables,
+        systemGeneratedMailData,
+        false,
+      );
+    }
 
     return resultSurgery;
   }
