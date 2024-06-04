@@ -38,4 +38,8 @@ export class UpdateUserDto {
   @IsOptional()
   @ApiProperty()
   permissionIds: string[];
+
+  @IsOptional()
+  @ApiProperty()
+  imgUrl: string;
 }

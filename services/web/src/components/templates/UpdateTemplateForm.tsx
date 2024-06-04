@@ -32,7 +32,7 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
   const userId = userInfo?.id;
   const userPermissions = userInfo?.permissions;
   const editCaseAllowed = useUserPermission(userPermissions, [
-    USER_PERMISSIONS.EDIT_CASE,
+    USER_PERMISSIONS.EDIT_TEMPLATES,
   ]);
   const dispatch = useAppDispatch();
   const practiceId = getPracticeId();
@@ -434,7 +434,7 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
             }}
           />
           {editCaseAllowed && (
-            <Button kind="primary" title="Update" width={136} />
+            <Button kind="primary" title="Update" width={136} height={40} />
           )}
         </div>
       </form>
