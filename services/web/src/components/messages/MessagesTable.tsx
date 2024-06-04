@@ -1,5 +1,5 @@
 'use client';
-import { IEmailLog } from '@packages/entities';
+import { EmailData, IEmailLog } from '@packages/entities';
 import Button from '@root/components/Button';
 import { SearchIcon } from '@root/components/Icons';
 import TextInput from '@root/components/TextInput';
@@ -122,6 +122,22 @@ export default function MessagesTable() {
     dispatch(setSearchMRNName(mrn));
   };
 
+  const convertVariables = (
+    emailBody: string,
+    emailInfo: EmailData | undefined,
+  ): string => {
+    let convertedBody = emailBody;
+    if (emailInfo) {
+      // Replace each placeholder with the corresponding value from emailInfo
+      Object.keys(emailInfo).forEach((key) => {
+        const value = emailInfo[key as keyof EmailData] ?? '';
+        const regex = new RegExp(`{{${key}}}`, 'g');
+        convertedBody = convertedBody.replace(regex, value);
+      });
+    }
+    return convertedBody;
+  };
+
   const searchMRNNameStr = searchMRNName || '';
 
   useEffect(() => {
@@ -201,80 +217,105 @@ export default function MessagesTable() {
           ))}
         </div>
       </div>
-      {Object.keys(sortedMessagesByDate).length !== 0 && (
+      {Object.keys(sortedMessagesByDate).length !== 0 ? (
         <div className="w-full overflow-x-auto mt-2 border rounded-t-lg rounded-b-lg border-gray-200">
-          {Object.entries(sortedMessagesByDate).map(
-            ([date, records], index) => (
-              <div key={date}>
-                <div
-                  className={`border-solid px-2.5 py-3 text-white text-base font-normal ${
-                    index == 0 ? 'rounded-t-lg' : ''
-                  }`}
-                  style={{ backgroundColor: 'rgba(53, 165, 118, 1)' }}
-                >
-                  {formatHeaderDate(date)}
-                </div>
-                <div className="bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 flex justify-between py-2 px-2.5 text-sm">
-                  <div className="font-bold text-white py-2 px-1 min-w-[10rem]">
-                    Date | Time
-                  </div>
-                  <div className="font-bold text-white py-2 px-1 min-w-[10rem]">
-                    Surgery
-                  </div>
-                  <div className="font-bold text-white py-2 px-1 min-w-[10rem]">
-                    Patient
-                  </div>
-                  <div className="font-bold text-white py-2 px-1 min-w-[5rem]">
-                    MRN
-                  </div>
-                  <div className="font-bold text-white py-2 px-1 min-w-[10rem]">
-                    Contact Details
-                  </div>
-                  <div className="font-bold text-white py-2 px-1 min-w-[20rem] max-w-[20rem]">
-                    Email
-                  </div>
-                  <div className="font-bold text-white py-2 px-1 min-w-[20rem] max-w-[20rem]">
-                    Text
-                  </div>
-                </div>
-                {records.map((row, index) => (
+          {Object.entries(sortedMessagesByDate).length > 0 ? (
+            Object.entries(sortedMessagesByDate).map(
+              ([date, records], index) => (
+                <div key={date}>
                   <div
-                    key={row.id}
-                    id={row.id}
-                    className={`div-clone flex justify-between px-2.5 text-xs ${
-                      index !== records.length - 1
-                        ? 'border-b border-gray-300'
-                        : ''
+                    className={`border-solid px-2.5 py-3 text-white text-base font-normal ${
+                      index == 0 ? 'rounded-t-lg' : ''
                     }`}
+                    style={{ backgroundColor: 'rgba(53, 165, 118, 1)' }}
                   >
-                    <div className="text-black  pt-2 pb-2 px-1 min-w-[10rem]">
-                      {formatColumnDate(row.dateCreated)}
-                    </div>
-                    <div className="text-black  pt-2 pb-2 px-1 min-w-[10rem]">
-                      {row?.data?.Laterality} {row?.data?.surgery_type}
-                    </div>
-                    <div className="text-black  pt-2 pb-2 px-1 min-w-[10rem]">
-                      {row
-                        ? generateFullName(
-                            row?.data?.fname ?? '',
-                            row?.data?.lname ?? '',
-                          )
-                        : null}
-                    </div>
-                    <div className="text-black  pt-2 pb-2 px-1 min-w-[5rem]">
-                      {row?.data?.mrn}
-                    </div>
-                    <div className="text-black  pt-2 pb-2 px-1 overflow-hidden min-w-[10rem]">
-                      <p>Cell: {row?.data?.phoneNumber}</p>
-                      <p>Email: {row?.data?.pt_email_address}</p>
-                    </div>
-                    <MessageWithReadMore message={row?.data?.body ?? ''} />
-                    <MessageWithReadMore message={row?.data?.text ?? ''} />
+                    {formatHeaderDate(date)}
                   </div>
-                ))}
-              </div>
-            ),
+                  <div className="bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 flex justify-between py-2 px-2.5 text-sm">
+                    <div className="font-bold text-white py-2 px-1 min-w-[10rem]">
+                      Date | Time
+                    </div>
+                    <div className="font-bold text-white py-2 px-1 min-w-[10rem]">
+                      Surgery
+                    </div>
+                    <div className="font-bold text-white py-2 px-1 min-w-[10rem]">
+                      Patient
+                    </div>
+                    <div className="font-bold text-white py-2 px-1 min-w-[5rem]">
+                      MRN
+                    </div>
+                    <div className="font-bold text-white py-2 px-1 min-w-[10rem]">
+                      Contact Details
+                    </div>
+                    {activeButton !== 'Texts' && (
+                      <div className="font-bold text-white py-2 px-1 min-w-[20rem] max-w-[20rem]">
+                        Email
+                      </div>
+                    )}
+                    {activeButton !== 'Emails' && (
+                      <div className="font-bold text-white py-2 px-1 min-w-[20rem] max-w-[20rem]">
+                        Text
+                      </div>
+                    )}
+                  </div>
+                  {records.map((row, index) => (
+                    <div
+                      key={row.id}
+                      id={row.id}
+                      className={`div-clone flex justify-between px-2.5 text-xs ${
+                        index !== records.length - 1
+                          ? 'border-b border-gray-300'
+                          : ''
+                      }`}
+                    >
+                      <div className="text-black  pt-2 pb-2 px-1 min-w-[10rem]">
+                        {formatColumnDate(row.dateCreated)}
+                      </div>
+                      <div className="text-black  pt-2 pb-2 px-1 min-w-[10rem]">
+                        {row?.data?.Laterality} {row?.data?.surgery_type}
+                      </div>
+                      <div className="text-black  pt-2 pb-2 px-1 min-w-[10rem]">
+                        {row
+                          ? generateFullName(
+                              row?.data?.fname ?? '',
+                              row?.data?.lname ?? '',
+                            )
+                          : null}
+                      </div>
+                      <div className="text-black  pt-2 pb-2 px-1 min-w-[5rem]">
+                        {row?.data?.mrn}
+                      </div>
+                      <div className="text-black  pt-2 pb-2 px-1 overflow-hidden min-w-[10rem]">
+                        <p>Cell: {row?.data?.phoneNumber}</p>
+                        <p>Email: {row?.data?.pt_email_address}</p>
+                      </div>
+                      {activeButton !== 'Texts' && (
+                        <MessageWithReadMore
+                          message={convertVariables(
+                            row?.data?.body ?? '',
+                            row?.data,
+                          )}
+                        />
+                      )}
+                      {activeButton !== 'Emails' && (
+                        <MessageWithReadMore message={row?.data?.text ?? ''} />
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ),
+            )
+          ) : (
+            <div className="p-2 text-center text-sm text-black">
+              {' '}
+              No records found.
+            </div>
           )}
+        </div>
+      ) : (
+        <div className="p-2 text-center text-sm text-black">
+          {' '}
+          No records found.
         </div>
       )}
     </div>
