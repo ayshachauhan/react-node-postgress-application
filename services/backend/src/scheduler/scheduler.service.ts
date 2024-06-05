@@ -1,18 +1,20 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Cron } from '@nestjs/schedule';
+import { InjectRepository } from '@nestjs/typeorm';
 import { EmailLogEntity } from '@packages/entities';
 import Mail from 'nodemailer/lib/mailer';
 import { ENVIRONMENT_VARIABLES } from 'src/enums/environment.enums';
 import { TransporterService } from 'src/transporter';
-import { DataSource, LessThanOrEqual } from 'typeorm';
+import { EntityManager, Repository } from 'typeorm';
 
 @Injectable()
 export class SchedulerService {
   constructor(
+    @InjectRepository(EmailLogEntity)
+    private emailLogRepository: Repository<EmailLogEntity>,
     private configService: ConfigService,
     private transporterService: TransporterService,
-    private readonly dataSource: DataSource,
   ) {}
 
   getMailLimit() {
@@ -21,62 +23,39 @@ export class SchedulerService {
 
   @Cron('*/2 * * * *') // This runs the task every 10 minutes
   async handleCron() {
-    const queryRunner = this.dataSource.createQueryRunner();
+    await this.emailLogRepository.manager.transaction(
+      async (transactionalEntityManager: EntityManager) => {
+        const emailLimit = this.getMailLimit();
+        const query: string = `SELECT * FROM email_logs WHERE status = 'pending' and "expectedDate" <= CURRENT_DATE LIMIT $1 FOR UPDATE`;
 
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
+        const data = await transactionalEntityManager.query(query, [
+          emailLimit,
+        ]);
 
-    try {
-      const today = this.getFormattedDate();
+        for (let mailData of data) {
+          const { subject, pt_email_address, text, body } = mailData.data;
+          const mailOptions: Mail.Options = {
+            subject,
+            to: pt_email_address,
+            text,
+            html: body,
+          };
 
-      const data = await queryRunner.manager.find(EmailLogEntity, {
-        where: { expectedDate: LessThanOrEqual(today), status: 'pending' },
-        take: this.getMailLimit(),
-        lock: { mode: 'pessimistic_write' }, // Lock the rows for update
-      });
+          // sending mail here
+          const response = await this.transporterService.sendEmail(
+            mailOptions,
+            mailData.data,
+          );
 
-      for (let i = 0; i < data.length; i++) {
-        const mailData = data[i];
-        const { subject, pt_email_address, text, body } = mailData.data;
-        const mailOptions: Mail.Options = {
-          subject,
-          to: pt_email_address,
-          text,
-          html: body,
-        };
-
-        // sending mail here
-        const response = await this.transporterService.sendEmail(
-          mailOptions,
-          mailData.data,
-        );
-
-        //updating status in the parent table
-        await queryRunner.manager.update(EmailLogEntity, mailData.id, {
-          response,
-          status: response.message.includes('250 2.0.0 OK')
-            ? 'completed'
-            : 'rejected',
-        });
-      }
-
-      await queryRunner.commitTransaction();
-    } catch (err) {
-      await queryRunner.rollbackTransaction();
-      throw err;
-    } finally {
-      await queryRunner.release();
-    }
-  }
-
-  private getFormattedDate() {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, '0'); // Months are zero-based
-    const day = String(today.getDate()).padStart(2, '0');
-
-    const formattedDateString = `${year}-${month}-${day}`;
-
-    return new Date(formattedDateString);
+          // updating status in the parent table
+          await transactionalEntityManager.update(EmailLogEntity, mailData.id, {
+            response,
+            status: response.message.includes('250 2.0.0 OK')
+              ? 'completed'
+              : 'rejected',
+          });
+        }
+      },
+    );
   }
 }
