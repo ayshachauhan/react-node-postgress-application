@@ -43,7 +43,7 @@ const authSlice = createSlice({
     builder.addCase(loginUser.fulfilled, (state, action) => {
       state.status = EntityLoadingState.IDLE;
       state.isAuthenticated = true;
-      state.successMessage = 'User logged in successfully';
+      state.successMessage = 'User logged in successfully.';
       if (action.payload) {
         Cookies.set('access_token', action.payload.access_token, {
           expires: 1,

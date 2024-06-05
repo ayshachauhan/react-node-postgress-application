@@ -40,7 +40,7 @@ const userSlice = createSlice({
       state.status = EntityLoadingState.SUCCEEDED;
       state.entities = {};
       if (action.payload.length === 0) {
-        state.errorMessage = 'No records found';
+        state.errorMessage = 'Users not found';
       } else {
         state.errorMessage = undefined;
       }
@@ -53,9 +53,9 @@ const userSlice = createSlice({
     builder.addCase(fetchListings.rejected, (state, action) => {
       state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
-        state.errorMessage = action.payload ?? 'Failed to fetch users';
+        state.errorMessage = action.payload ?? 'Failed to fetch users.';
       } else {
-        state.errorMessage = 'Failed to fetch users';
+        state.errorMessage = 'Failed to fetch users.';
       }
       state.processing = false;
     });
@@ -72,9 +72,9 @@ const userSlice = createSlice({
     builder.addCase(fetchUserInfo.rejected, (state, action) => {
       state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
-        state.errorMessage = action.payload ?? 'Failed to fetch user info';
+        state.errorMessage = action.payload ?? 'Failed to fetch user info.';
       } else {
-        state.errorMessage = 'Failed to fetch user info';
+        state.errorMessage = 'Failed to fetch user info.';
       }
     });
 
@@ -89,15 +89,15 @@ const userSlice = createSlice({
         ...state.entities,
         ...{ [action.payload.id]: action.payload },
       };
-      state.successMessage = 'Record added successfully';
+      state.successMessage = 'user added successfully.';
     });
 
     builder.addCase(addRecordAsync.rejected, (state, action) => {
       state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
-        state.errorMessage = action.payload ?? 'Failed to add user';
+        state.errorMessage = action.payload ?? 'Failed to add user.';
       } else {
-        state.errorMessage = 'Failed to add user';
+        state.errorMessage = 'Failed to add user.';
       }
     });
 
@@ -113,15 +113,15 @@ const userSlice = createSlice({
         ...state.entities,
         ...{ [action.payload.id]: action.payload },
       };
-      state.successMessage = 'Record updated successfully';
+      state.successMessage = 'User updated successfully.';
     });
 
     builder.addCase(updateRecordAsync.rejected, (state, action) => {
       state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
-        state.errorMessage = action.payload ?? 'Failed to update user';
+        state.errorMessage = action.payload ?? 'Failed to update user.';
       } else {
-        state.errorMessage = 'Failed to update user';
+        state.errorMessage = 'Failed to update user.';
       }
     });
 
@@ -139,15 +139,15 @@ const userSlice = createSlice({
         ...remainingUsers
       } = state.entities;
       state.entities = remainingUsers;
-      state.successMessage = 'Record deleted successfully';
+      state.successMessage = 'User deleted successfully.';
     });
 
     builder.addCase(deleteRecordAsync.rejected, (state, action) => {
       state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
-        state.errorMessage = action.payload ?? 'Failed to delete user';
+        state.errorMessage = action.payload ?? 'Failed to delete user.';
       } else {
-        state.errorMessage = 'Failed to delete user';
+        state.errorMessage = 'Failed to delete user.';
       }
     });
 
@@ -158,15 +158,15 @@ const userSlice = createSlice({
 
     builder.addCase(changePasswordAsync.fulfilled, (state) => {
       state.status = EntityLoadingState.SUCCEEDED;
-      state.successMessage = 'Password changed successfully';
+      state.successMessage = 'Password changed successfully.';
     });
 
     builder.addCase(changePasswordAsync.rejected, (state, action) => {
       state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
-        state.errorMessage = action.payload ?? 'Failed to change password';
+        state.errorMessage = action.payload ?? 'Failed to change password.';
       } else {
-        state.errorMessage = 'Failed to change password';
+        state.errorMessage = 'Failed to change password.';
       }
     });
   },
