@@ -9,6 +9,7 @@ import { HistoryModule } from './history/history.module';
 import { createInfraModuleProviders } from './infra.module.provider';
 import { InsuranceTypesModule } from './insuranceTypes/insuranceTypes.module';
 import { MediaModule } from './media/media.module';
+import { MessagesModule } from './messages/messages.module';
 import { PatientsModule } from './patients/patients.module';
 import { PermissionsModule } from './permissions/permissions.module';
 import { PracticeHomesModule } from './practiceHomes/practiceHomes.module';
@@ -47,6 +48,7 @@ import { UsersModule } from './users/users.module';
     HistoryModule,
     EmailHandlerModule,
     SchedulerModule,
+    MessagesModule,
   ],
 })
 export class AppModule {}
