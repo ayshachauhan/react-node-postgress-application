@@ -108,6 +108,7 @@ const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                   setAdminEmail(value);
                 }}
                 required
+                type="email"
               />
             </div>
             <div className="space-y-2">
