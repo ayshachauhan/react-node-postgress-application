@@ -1,10 +1,12 @@
 import { IBaseEntity } from '../base.interface';
+import { IPractice } from '../practice';
 
 export interface IEmailLog extends IBaseEntity {
   status: string;
   data?: EmailData;
   response?: EmailResponse;
   expectedDate: Date;
+  practice: IPractice;
 }
 
 export interface EmailData {
@@ -31,4 +33,5 @@ export interface EmailVariables {
   all_cases: string;
   all_cataract_dates: string;
   all_case_type: string;
+  phoneNumber: string;
 }

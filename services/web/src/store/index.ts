@@ -7,6 +7,7 @@ import evalsReducer from './reducers/evals';
 import historyReducer from './reducers/history';
 import insuranceTypesReducer from './reducers/insuranceTypes';
 import mediaReducer from './reducers/media';
+import messagesReducer from './reducers/messages';
 import patientReducer from './reducers/patient';
 import practiceHomesReducer from './reducers/practiceHomes';
 import practicesReducer from './reducers/practices';
@@ -36,6 +37,7 @@ export const store = configureStore({
     permissions: permissionsReducer,
     history: historyReducer,
     patients: patientReducer,
+    messages: messagesReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(apiMiddleware),

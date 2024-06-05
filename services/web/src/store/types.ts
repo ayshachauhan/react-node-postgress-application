@@ -1,5 +1,6 @@
 import {
   GetTemplatesResponse,
+  IEmailLog,
   IEval,
   IInsuranceType,
   IPatient,
@@ -19,6 +20,10 @@ interface SurgeryFilters {
   selectedMonth: MonthOption[];
   searchMRNName: string | null;
   selectedValue: string | null;
+}
+
+interface MessageFilters {
+  searchMRNName: string | null;
 }
 
 export enum EntityLoadingState {
@@ -91,4 +96,9 @@ export type PermissionState = EntitiesState<IPermission> & {
 
 export type PatientState = EntitiesState<IPatient> & {
   patientInfo: IPatient | null;
+};
+
+export type MessageState = EntitiesState<IEmailLog> & {
+  messageInfo: IEmailLog | null;
+  messageFilters: MessageFilters;
 };

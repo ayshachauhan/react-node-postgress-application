@@ -219,6 +219,7 @@ const SurgeryPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             <div className="text-xl font-bold text-black w-full">Add Eval</div>
             <div>
               <Select
+                backspaceClearsInputValue
                 required
                 size={SIZE.mini}
                 options={usersOptions}
@@ -386,6 +387,7 @@ const SurgeryPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 Home
               </label>
               <Select
+                backspaceClearsInputValue
                 size={SIZE.mini}
                 options={practiceHomesOptions}
                 onChange={handlePracticeHomeChange}
@@ -496,6 +498,7 @@ const SurgeryPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 Insurance Type
               </label>
               <Select
+                backspaceClearsInputValue
                 size={SIZE.mini}
                 options={insuranceTypesOptions}
                 onChange={handleInsuranceTypeChange}
@@ -559,6 +562,8 @@ const SurgeryPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               <div className="flex gap-5 mt-2">
                 <div className="space-y-1 flex-1">
                   <Select
+                    required
+                    backspaceClearsInputValue
                     size={SIZE.mini}
                     options={surgeryConfigurationsOptions}
                     onChange={handleSurgeryNameChange}
@@ -585,6 +590,8 @@ const SurgeryPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 </div>
                 <div className="space-y-1 flex-1">
                   <Select
+                    required
+                    backspaceClearsInputValue
                     disabled={surgeryNameId ? false : true}
                     size={SIZE.mini}
                     options={bodyPartOptions}
@@ -625,6 +632,7 @@ const SurgeryPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                   </label>
                   <div className="space-y-1 flex-1">
                     <Select
+                      backspaceClearsInputValue
                       required
                       size={SIZE.mini}
                       options={evalStatusOption}

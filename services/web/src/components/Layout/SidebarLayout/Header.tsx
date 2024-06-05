@@ -5,6 +5,7 @@ import Dropdown from '@root/components/Dropdown';
 import { AvatarIcon } from '@root/components/Icons';
 import { State, useAppDispatch, useAppSelector } from '@root/store';
 import {
+  fetchLoggedInUser,
   logoutUser,
   selectedPracticeName,
   userPractices,
@@ -59,6 +60,7 @@ const Header: React.FC = () => {
 
   useEffect(() => {
     if (practiceId) {
+      dispatch(fetchLoggedInUser());
       dispatch(getPracticeInfo({ id: practiceId })).then((action) => {
         if (action.payload && action.payload.name) {
           setSelectedPractice(action.payload.name);

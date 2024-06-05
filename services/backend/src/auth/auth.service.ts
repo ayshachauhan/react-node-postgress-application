@@ -1,6 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import { UserEntity } from '@packages/entities/*';
 import * as bcrypt from 'bcrypt';
 import Mail from 'nodemailer/lib/mailer';
 import { ENVIRONMENT_VARIABLES } from '../enums/environment.enums';
@@ -40,6 +41,10 @@ export class AuthService {
         } else return null;
       } else return null;
     }
+  }
+
+  async getUserById(id: string): Promise<UserEntity | null> {
+    return await this.usersService.getUserById(id);
   }
 
   async login(user: SanitizedUser | SuperAdminUser) {
@@ -97,7 +102,7 @@ export class AuthService {
 
     const mailOptions: Mail.Options = {
       to: user.email,
-      subject: 'Subject: Reset Your Password - POD',
+      subject: 'Reset Your Password - POD',
     };
 
     const frontendBaseUrl: string | undefined = this.configService.get(
