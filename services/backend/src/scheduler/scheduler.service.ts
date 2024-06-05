@@ -23,6 +23,8 @@ export class SchedulerService {
 
   @Cron('*/2 * * * *') // This runs the task every 10 minutes
   async handleCron() {
+    console.log('templates cron started');
+
     await this.emailLogRepository.manager.transaction(
       async (transactionalEntityManager: EntityManager) => {
         const emailLimit = this.getMailLimit();
@@ -32,7 +34,7 @@ export class SchedulerService {
           emailLimit,
         ]);
 
-        for (let mailData of data) {
+        for (const mailData of data) {
           const { subject, pt_email_address, text, body } = mailData.data;
           const mailOptions: Mail.Options = {
             subject,
@@ -57,5 +59,7 @@ export class SchedulerService {
         }
       },
     );
+
+    console.log('cron completed');
   }
 }

@@ -8,33 +8,54 @@ import { compile } from 'handlebars';
 import type { Transporter } from 'nodemailer';
 import Mail from 'nodemailer/lib/mailer';
 import SMTPTransport from 'nodemailer/lib/smtp-transport';
+import { Twilio } from 'twilio';
 import { ENVIRONMENT_VARIABLES } from '../enums/environment.enums';
 import { EMAIL_CONNECTION_TOKEN, SystemTemplates } from './transporter.types';
 
 @Injectable()
 export class TransporterService {
+  private twilioClient: Twilio;
   constructor(
     @Inject(EMAIL_CONNECTION_TOKEN)
     private readonly emailTransporter: Transporter<SMTPTransport.SentMessageInfo>,
     private readonly configService: ConfigService,
-  ) {}
+  ) {
+    const { twilioSID, twilioToken } = this.getEnvVariables();
+    if (typeof twilioSID == 'string' && typeof twilioToken == 'string') {
+      this.twilioClient = new Twilio(twilioSID, twilioToken);
+    }
+  }
 
-  getSmtpEmail(): string | undefined {
-    return this.configService.get(ENVIRONMENT_VARIABLES.SMTP_EMAIL);
+  getEnvVariables(): Record<string, string | boolean> {
+    return {
+      sendTextMessages:
+        this.configService.get(ENVIRONMENT_VARIABLES.ENABLE_TWILIO_MSGS) ??
+        false,
+      smtpEmail: this.configService.get(ENVIRONMENT_VARIABLES.SMTP_EMAIL) ?? '',
+      twilioSID:
+        this.configService.get(ENVIRONMENT_VARIABLES.TWILIO_ACCOUNT_SID) ?? '',
+      twilioToken:
+        this.configService.get(ENVIRONMENT_VARIABLES.TWILIO_AUTH_TOKEN) ?? '',
+      twilioPhoneNumber:
+        this.configService.get(ENVIRONMENT_VARIABLES.TWILIO_PHONE_NUMBER) ?? '',
+    };
   }
 
   async sendEmail(
     options: Mail.Options,
     data: Record<string, unknown>,
   ): Promise<EmailResponse> {
-    const smtpEmail: string | undefined = this.getSmtpEmail();
+    const { smtpEmail } = this.getEnvVariables();
+
+    const text: string = options.text
+      ? this.compileTemplate(options.text.toString(), data)
+      : '';
+
+    await this.sendText(data.phoneNumber, text);
 
     const result = await this.emailTransporter.sendMail({
       ...options,
-      from: smtpEmail,
-      text: options.text
-        ? this.compileTemplate(options.text.toString(), data)
-        : undefined,
+      from: typeof smtpEmail == 'string' ? smtpEmail : '',
       html: options.html
         ? this.compileTemplate(options.html.toString(), data)
         : undefined,
@@ -74,7 +95,23 @@ export class TransporterService {
   }
 
   // TODO implement twillio to send sms
-  sendText() {}
+  async sendText(to, message: string) {
+    const { twilioPhoneNumber, sendTextMessages } = this.getEnvVariables();
+
+    if (sendTextMessages && message) {
+      try {
+        await this.twilioClient.messages.create({
+          body: message,
+          to,
+          from: typeof twilioPhoneNumber == 'string' ? twilioPhoneNumber : '',
+        });
+        console.log('SMS sent successfully!');
+      } catch (error) {
+        console.error('Error sending SMS:', error);
+        throw error;
+      }
+    }
+  }
 
   compileTemplate(text: string, data: Record<string, unknown>): string {
     const template = compile(text);
