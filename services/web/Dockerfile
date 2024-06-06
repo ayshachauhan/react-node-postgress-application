@@ -8,6 +8,7 @@ ARG NEXT_PUBLIC_API_BASE_URL
 ENV NEXT_PUBLIC_API_BASE_URL=${NEXT_PUBLIC_API_BASE_URL}
 RUN npm install -g pnpm && \
     pnpm install --frozen-lockfile && \
+    pnpm install sharp && \
     pnpm turbo build --filter=web
 
 FROM node:20-alpine AS final
