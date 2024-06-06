@@ -12,6 +12,7 @@ import { PracticesModule } from 'src/practices/practices.module';
 import { SurgeryConfigurationsModule } from 'src/surgeryConfiguration/surgeryConfiguration.module';
 import { TemplatesModule } from 'src/templates/templates.module';
 import { UsersModule } from 'src/users/users.module';
+import { WaitlistModule } from 'src/waitlist/waitlist.module';
 import { HistoryModule } from '../history/history.module';
 
 @Module({
@@ -26,6 +27,7 @@ import { HistoryModule } from '../history/history.module';
     forwardRef(() => TemplatesModule),
     forwardRef(() => EmailHandlerModule),
     forwardRef(() => HistoryModule),
+    forwardRef(() => WaitlistModule),
   ],
   providers: [
     practiceNotFoundInterceptor,

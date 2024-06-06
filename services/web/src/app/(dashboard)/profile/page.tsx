@@ -9,7 +9,8 @@ import { getPracticeId } from '@utils/index';
 import { Checkbox } from 'baseui/checkbox';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import UploadImageModal from './UploadImageModal';
 
 const Profile: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -18,6 +19,7 @@ const Profile: React.FC = () => {
   );
   const userInfo = useAppSelector((state) => state.auth.user);
   const userPracticeId = getPracticeId();
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   interface Permission {
     id: string;
@@ -55,7 +57,10 @@ const Profile: React.FC = () => {
       </div>
       <hr className="h-px my-2.5 bg-gray-100 border-1 border-gray-100"></hr>
       <div className="flex mt-10 items-center">
-        <div className="flex items-center justify-center shadow-lg w-44 h-44 bg-black-200 rounded-full  flex-shrink-0">
+        <div
+          className="flex items-center justify-center shadow-lg w-44 h-44 bg-black-200 rounded-full flex-shrink-0"
+          onClick={() => setIsModalOpen(true)}
+        >
           {' '}
           {userInfo?.imgUrl ? (
             <Image
@@ -164,6 +169,10 @@ const Profile: React.FC = () => {
           ))}
         </div>
       </div>
+      <UploadImageModal
+        isModalOpen={isModalOpen}
+        handleCloseModal={() => setIsModalOpen(false)}
+      />
     </div>
   );
 };

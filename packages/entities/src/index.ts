@@ -17,3 +17,4 @@ export * from './surgeryEmail';
 export * from './surgeryType';
 export * from './template';
 export * from './user';
+export * from './waitlist';

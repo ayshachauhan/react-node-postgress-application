@@ -1,8 +1,8 @@
+import { CreateInsuranceTypeInterface } from '@packages/entities';
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
 import { useAppDispatch } from '@root/store';
 import { addRecordAsync } from '@root/store/reducers/insuranceTypes';
-import { CreateInsuranceTypeInterface } from '@root/store/requests/insuranceTypes';
 import { getPracticeId } from '@utils/index';
 import React, { useState } from 'react';
 

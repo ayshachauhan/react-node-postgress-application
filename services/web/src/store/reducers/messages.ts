@@ -43,9 +43,9 @@ const messageSlice = createSlice({
     builder.addCase(fetchListings.rejected, (state, action) => {
       state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
-        state.errorMessage = action.payload ?? 'Failed to fetch messages';
+        state.errorMessage = action.payload ?? 'Failed to fetch messages.';
       } else {
-        state.errorMessage = 'Failed to fetch messages';
+        state.errorMessage = 'Failed to fetch messages.';
       }
       state.processing = false;
     });

@@ -5,6 +5,7 @@ import { PatientEntity } from '../patient';
 import { PracticeHomesEntity } from '../practiceHomes';
 import { SurgeryConfigurationEntity } from '../surgeryConfiguration';
 import { UserEntity } from '../user';
+import { WaitlistEntity } from '../waitlist';
 
 @Entity('evals')
 export class EvalEntity extends BaseEntity {
@@ -27,6 +28,10 @@ export class EvalEntity extends BaseEntity {
   @ManyToOne(() => UserEntity)
   @JoinColumn({ name: 'doctorId' })
   doctor: UserEntity;
+
+  @ManyToOne(() => WaitlistEntity)
+  @JoinColumn({ name: 'waitlistId' })
+  waitlist: WaitlistEntity;
 
   @Column({ type: 'varchar' })
   insuranceDetails: string;

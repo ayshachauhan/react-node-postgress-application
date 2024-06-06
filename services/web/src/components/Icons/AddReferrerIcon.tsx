@@ -1,7 +1,7 @@
 export default function AddReferrerIcon() {
   return (
     <svg
-      width="22"
+      width="16"
       height="16"
       viewBox="0 0 22 16"
       fill="none"

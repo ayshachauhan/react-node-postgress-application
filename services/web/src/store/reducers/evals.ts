@@ -47,9 +47,9 @@ const evalsSlice = createSlice({
     builder.addCase(fetchListings.rejected, (state, action) => {
       state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
-        state.errorMessage = action.payload ?? 'Failed to fetch evals';
+        state.errorMessage = action.payload ?? 'Failed to fetch evals.';
       } else {
-        state.errorMessage = 'Failed to fetch evals';
+        state.errorMessage = 'Failed to fetch evals.';
       }
     });
     builder.addCase(fetchEvalInfo.pending, (state) => {
@@ -65,9 +65,9 @@ const evalsSlice = createSlice({
     builder.addCase(fetchEvalInfo.rejected, (state, action) => {
       state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
-        state.errorMessage = action.payload ?? 'Failed to fetch eval info';
+        state.errorMessage = action.payload ?? 'Failed to fetch eval info.';
       } else {
-        state.errorMessage = 'Failed to fetch eval info';
+        state.errorMessage = 'Failed to fetch eval info.';
       }
     });
 
@@ -81,15 +81,15 @@ const evalsSlice = createSlice({
       state.entities = {
         ...state.entities,
       };
-      state.successMessage = 'Record added successfully';
+      state.successMessage = 'Eval added successfully.';
     });
 
     builder.addCase(addRecordAsync.rejected, (state, action) => {
       state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
-        state.errorMessage = action.payload ?? 'Failed to add surgery type';
+        state.errorMessage = action.payload ?? 'Failed to add eval.';
       } else {
-        state.errorMessage = 'Failed to add surgery type';
+        state.errorMessage = 'Failed to add eval.';
       }
     });
 
@@ -107,15 +107,15 @@ const evalsSlice = createSlice({
         ...remainingRecord
       } = state.entities;
       state.entities = remainingRecord;
-      state.successMessage = 'Record deleted successfully';
+      state.successMessage = 'Eval deleted successfully.';
     });
 
     builder.addCase(deleteRecordAsync.rejected, (state, action) => {
       state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
-        state.errorMessage = action.payload ?? 'Failed to delete surgery type';
+        state.errorMessage = action.payload ?? 'Failed to delete eval.';
       } else {
-        state.errorMessage = 'Failed to delete surgery type';
+        state.errorMessage = 'Failed to delete eval.';
       }
     });
 
@@ -128,15 +128,15 @@ const evalsSlice = createSlice({
     builder.addCase(updateRecordAsync.fulfilled, (state) => {
       state.status = EntityLoadingState.SUCCEEDED;
 
-      state.successMessage = 'Record updated successfully';
+      state.successMessage = 'Eval updated successfully.';
     });
 
     builder.addCase(updateRecordAsync.rejected, (state, action) => {
       state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
-        state.errorMessage = action.payload ?? 'Failed to update surgery.';
+        state.errorMessage = action.payload ?? 'Failed to update eval.';
       } else {
-        state.errorMessage = 'Failed to update surgery.';
+        state.errorMessage = 'Failed to update eval.';
       }
     });
   },
