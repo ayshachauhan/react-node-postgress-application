@@ -1,5 +1,6 @@
 'use client';
 
+import { useUserPermissions } from '@root/context/UserPermissionsContext';
 import { useAppSelector } from '@root/store';
 import { ChevronDown, ChevronRightSmall } from 'baseui/icon';
 import clsx from 'clsx';
@@ -14,7 +15,7 @@ const Sidebar: React.FC = () => {
   const userInfo = useAppSelector((state) => state.auth.user);
   const is_super_admin = userInfo ? userInfo.isSuperAdmin : false;
   const userType = is_super_admin ? 'super_admin' : 'admin';
-  const userPermissions = userInfo?.permissions ?? [];
+  const { userPermissions, updateUserPermissions } = useUserPermissions();
   const filteredSidebarItems: SideBarItem[] = filterSidebarItems(
     userType,
     userPermissions,
@@ -29,6 +30,11 @@ const Sidebar: React.FC = () => {
     setActiveChildMenuItemId(item.id);
   }
 
+  useEffect(() => {
+    if (!userPermissions.length && userInfo && userInfo.permissions) {
+      updateUserPermissions(userInfo.permissions);
+    }
+  }, [userPermissions, userInfo, updateUserPermissions]);
   useEffect(() => {
     const currentPath = window.location.pathname;
     const activeItem = sidebarItems.find((item) => currentPath === item.path);

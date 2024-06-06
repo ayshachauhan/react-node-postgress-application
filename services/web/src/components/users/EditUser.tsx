@@ -1,6 +1,12 @@
-import { IUser, UserStatus, UserType } from '@packages/entities/index.browser';
+import {
+  IPermission,
+  IUser,
+  UserStatus,
+  UserType,
+} from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
+import { useUserPermissions } from '@root/context/UserPermissionsContext';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { updateRecordAsync } from '@root/store/reducers/users';
 import { SanitizedUser } from '@root/store/types';
@@ -16,6 +22,11 @@ interface ChildProps {
   data: Data;
   onClose: () => void;
 }
+interface SelectedItems {
+  permissions: IPermission[];
+  checkboxIds: string[];
+}
+
 const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
   const userTypeOptions = Object.keys(UserType).map((key) => ({
     label: UserType[key as keyof typeof UserType],
@@ -35,20 +46,19 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
   );
 
   const [userImg, setUserImg] = useState<File | null>(null);
-
-  const getSelectedCheckboxIds = (): string[] => {
-    const selectedIds = permissions.reduce(
-      (selectedIds: string[], _, index) => {
+  const getSelectedItems = (): SelectedItems => {
+    const selectedItems = permissions.reduce(
+      (acc: SelectedItems, permission, index) => {
         if (checkboxes[index]) {
-          selectedIds.push(permissions[index].id);
+          acc.permissions.push(permission);
+          acc.checkboxIds.push(permission.id);
         }
-        return selectedIds;
+        return acc;
       },
-      [],
+      { permissions: [], checkboxIds: [] },
     );
-    return selectedIds;
+    return selectedItems;
   };
-
   const practiceId = getPracticeId(); // Select user practice id
   const userInfo = useAppSelector((state) =>
     data.id
@@ -73,6 +83,8 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
     }
   }, [updatedUserInfo?.permissions]);
 
+  const { updateUserPermissions } = useUserPermissions();
+
   const handleStatusChange = (params) => {
     const { label } = params.option;
     setUserInfo({ ...updatedUserInfo, status: label });
@@ -94,10 +106,12 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
       setUserInfo(userInfo);
     }
   }, [data.id, userInfo]);
+  const selectedItems = getSelectedItems();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const selectedUserPermissions = getSelectedCheckboxIds();
+    const selectedUserPermissions = selectedItems.checkboxIds;
+    const newPermissions = selectedItems.permissions;
     let updatedPayloadData = { ...updatedUserInfo };
     if (updatedPayloadData.firstName && updatedPayloadData.lastName) {
       const fullName = generateFullName(
@@ -129,6 +143,7 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
       }
       try {
         dispatch(updateRecordAsync(userPayloadData));
+        updateUserPermissions(newPermissions);
         onClose();
       } catch (error) {
         onClose();
