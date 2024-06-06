@@ -146,7 +146,9 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
       }
       try {
         dispatch(updateRecordAsync(userPayloadData));
-        updateUserPermissions(newPermissions);
+        if (loggedInUserId === userId) {
+          updateUserPermissions(newPermissions);
+        }
         onClose();
       } catch (error) {
         onClose();
