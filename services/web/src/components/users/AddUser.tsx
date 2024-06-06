@@ -23,6 +23,7 @@ const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     Array(permissions.length).fill(false),
   );
   const [userName, setUserName] = useState('');
+  const [designation, setDesignation] = useState('');
   const [email, setEmail] = useState('');
   const [firstName, setFirstName] = useState('');
   const [contactNumber, setcontactNumber] = useState('');
@@ -60,6 +61,7 @@ const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         practiceId,
         email,
         userName,
+        designation,
         firstName,
         lastName,
         fullName,
@@ -185,7 +187,7 @@ const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           <div className="flex flex-row justify-between gap-7 pt-4">
             <div className="w-1/2 space-y-2">
               <label htmlFor="type" className="text-black text-sm font-normal">
-                Designation
+                User Type
               </label>
               <Select
                 options={userTypeOptions}
@@ -205,6 +207,19 @@ const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                     component: () => null,
                   },
                 }}
+              />
+            </div>
+            <div className="w-1/2 space-y-2">
+              <label htmlFor="type" className="text-black text-sm font-normal">
+                Designation
+              </label>
+              <TextInput
+                name="designation"
+                value={designation}
+                onChange={(value) => {
+                  setDesignation(value);
+                }}
+                required
               />
             </div>
           </div>

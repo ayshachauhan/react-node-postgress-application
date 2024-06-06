@@ -11,6 +11,7 @@ export interface IUser extends IBaseEntity {
   lastName: string;
   fullName: string;
   url: string;
+  designation: string;
   status: UserStatus;
   type: UserType;
   contactNumber: string;

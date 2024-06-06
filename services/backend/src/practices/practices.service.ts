@@ -133,6 +133,7 @@ export class PracticesService {
           userName: `${adminEmail}`,
           type: UserType.ADMIN,
           url: '',
+          designation: '',
           contactNumber: adminContactNumber,
           permissionIds: [],
         },

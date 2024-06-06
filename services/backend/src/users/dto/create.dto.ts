@@ -19,6 +19,10 @@ export class CreateUserDto {
   @ApiProperty()
   userName: string;
 
+  @IsOptional()
+  @ApiProperty()
+  designation: string;
+
   @IsNotEmpty({ message: 'userType is required.' })
   @ApiProperty()
   type: UserType;
