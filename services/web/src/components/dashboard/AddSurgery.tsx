@@ -25,6 +25,7 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
     referrersList,
     usersList,
     calendars,
+    waitlist,
   } = items;
 
   const SELECTED_DOCTOR_KEY: string = 'SELECTED_DOCTOR';
@@ -53,6 +54,7 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
   const [mrn, setMrn] = useState('');
   const [insuranceDetails, setInsuranceDetails] = useState('');
   const [insuranceTypeId, setInsuranceTypeId] = useState<string>('');
+  const [waitlistId, setWaitlistId] = useState<string>('');
   const [practiceHomeId, setPracticeHomeId] = useState<string>('');
   const [bodyPart, setBodyPart] = useState<string>('');
   const [referrerId, setReferrerId] = useState<string>('');
@@ -170,6 +172,11 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
     id: referrersList[key].id,
   }));
 
+  const waitlistOptions = Object.keys(waitlist).map((key) => ({
+    label: waitlist[key].name,
+    id: waitlist[key].id,
+  }));
+
   const usersOptions = usersList
     .filter((ele) => ele.type === 'doctor')
     .map((key) => ({
@@ -191,6 +198,10 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
 
   const handleReferrerChange = ({ value }) => {
     setReferrerId(value[0] ? value[0].id : null);
+  };
+
+  const handleWaitlistChange = ({ value }) => {
+    setWaitlistId(value[0] ? value[0].id : null);
   };
 
   const handleBodyPartTypeChange = ({ value }) => {
@@ -243,6 +254,7 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
           bodyPart,
           totalHospitalPricing: 0,
           totalProfessionalPricing: 0,
+          waitlistId,
         }),
       );
 
@@ -261,6 +273,7 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
         setReferrerId('');
         setNotes('');
         setBodyPart('');
+        setWaitlistId('');
         onClose();
       } catch (error) {
         onClose();
@@ -464,7 +477,28 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
               <label htmlFor="urlEmbed" className="text-black text-xs">
                 No Wait list
               </label>
-              <Select size={SIZE.mini} />
+              <Select
+                backspaceClearsInputValue
+                size={SIZE.mini}
+                options={waitlistOptions}
+                overrides={{
+                  ControlContainer: {
+                    style: {
+                      backgroundColor: 'rgba(250, 250, 250, 1)',
+                      border: 'none',
+                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                      color: '#52525B',
+                    },
+                  },
+                  ClearIcon: {
+                    component: () => null,
+                  },
+                }}
+                onChange={handleWaitlistChange}
+                value={
+                  waitlistId ? [{ label: waitlistId, id: waitlistId }] : []
+                }
+              />
               <div className="space-y-4"></div>
             </div>
           </div>

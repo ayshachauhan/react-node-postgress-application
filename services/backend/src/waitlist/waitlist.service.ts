@@ -22,9 +22,11 @@ export class WaitlistService {
     id: string,
     practiceId: string,
   ): Promise<WaitlistEntity | null> {
-    return this.waitlistRepository.findOne({
-      where: { id, practice: { id: practiceId } },
-    });
+    if (id) {
+      return this.waitlistRepository.findOne({
+        where: { id, practice: { id: practiceId } },
+      });
+    } else return null;
   }
 
   async removeWaitlist(id: string, practiceId: string): Promise<void> {
