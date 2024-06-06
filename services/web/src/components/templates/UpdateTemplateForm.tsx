@@ -426,7 +426,7 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
             type="button"
             kind="tertiary"
             title="Delete"
-            width={80}
+            width={136}
             height={40}
             onClick={onConfirmDelete}
             style={{
