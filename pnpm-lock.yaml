@@ -154,6 +154,9 @@ importers:
       rxjs:
         specifier: ^7.8.1
         version: 7.8.1
+      tslib:
+        specifier: 2.3.1
+        version: 2.3.1
       typeorm:
         specifier: ^0.3.20
         version: 0.3.20(pg@8.11.3)(ts-node@10.9.1)
