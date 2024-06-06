@@ -22,27 +22,50 @@ const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const [code, setCode] = useState(generateRandomCode().toString());
   const [practiceImg, setPracticeImg] = useState<File | null>(null);
 
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const validateForm = (): boolean => {
+    if (!name.trim()) {
+      setErrorMessage('Practice Name cannot be empty.');
+      return false;
+    }
+    if (!adminFirstName.trim()) {
+      setErrorMessage('First Name cannot be empty.');
+      return false;
+    }
+    if (!adminLastName.trim()) {
+      setErrorMessage('Last Name cannot be empty.');
+      return false;
+    }
+
+    setErrorMessage('');
+    return true;
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const data: PracticeCreateInterface = {
-      name,
-      adminFirstName,
-      adminLastName,
+      name: name.trim(),
+      adminFirstName: adminFirstName.trim(),
+      adminLastName: adminLastName.trim(),
       adminEmail,
       adminContactNumber,
       code,
       practiceImg,
     };
+
     try {
-      dispatch(addRecordAsync(data));
-      setName('');
-      setAdminFirstName('');
-      setAdminLastName('');
-      setAdminEmail('');
-      setAdminContactNumber('');
-      setCode('');
-      onClose();
+      if (validateForm()) {
+        dispatch(addRecordAsync(data));
+        setName('');
+        setAdminFirstName('');
+        setAdminLastName('');
+        setAdminEmail('');
+        setAdminContactNumber('');
+        setCode('');
+        onClose();
+      }
     } catch (error) {
       onClose();
     }
@@ -50,6 +73,12 @@ const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
 
   return (
     <div>
+      {errorMessage && (
+        <div className="flex justify-center text-red-500 mt-2">
+          {errorMessage}
+        </div>
+      )}
+
       <form onSubmit={handleSubmit}>
         <div className="flex flex-col">
           <div className="justify-between pt-4">
@@ -127,6 +156,7 @@ const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 type="tel"
                 maxLength={14}
                 pattern="[0-9]{10}"
+                placeholder="9876543210"
               />
             </div>
           </div>
