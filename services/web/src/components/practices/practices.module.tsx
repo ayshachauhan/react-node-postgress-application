@@ -107,6 +107,7 @@ const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                   setAdminEmail(value);
                 }}
                 required
+                type="email"
               />
             </div>
             <div className="space-y-2">
@@ -123,6 +124,9 @@ const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                   setAdminContactNumber(value);
                 }}
                 required
+                type="tel"
+                maxLength={14}
+                pattern="[0-9]{10}"
               />
             </div>
           </div>
