@@ -215,6 +215,8 @@ const EvalPage: React.FC = () => {
   };
 
   const handleOpenAddModal = (): void => {
+    setSelectedAction('cancel');
+    setSelectedRow(null);
     setIsAddModalOpen(true);
   };
 

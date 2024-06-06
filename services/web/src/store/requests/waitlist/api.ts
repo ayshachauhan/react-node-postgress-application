@@ -1,31 +1,28 @@
-import {
-  CreateInsuranceTypeInterface,
-  IInsuranceType,
-} from '@packages/entities';
+import { CreateWaitlist, IWaitlist } from '@packages/entities';
 import { ApiService } from '@root/services/apiclient';
 
 const apiClient = new ApiService();
 
 /**
- * @summary Get Insurance type
+ * @summary Get waitlist
  * @param payloadData
  * @param param1
- * @returns IInsuranceType
+ * @returns IWaitlist[]
  */
-export const getInsuranceTypes = async (
+export const getWaitlist = async (
   payloadData: {
     practiceId: string;
   },
   { rejectWithValue },
-): Promise<IInsuranceType[]> => {
+): Promise<IWaitlist[]> => {
   try {
     const response: Response = await apiClient.get(
-      `/practices/${payloadData.practiceId}/insurance-types`,
+      `/practices/${payloadData.practiceId}/waitlist`,
     );
     if (!response.ok) {
-      throw new Error('Failed to get templates');
+      throw new Error('Failed to get waitlist.');
     }
-    const data: IInsuranceType[] = await response.json();
+    const data: IWaitlist[] = await response.json();
     return data;
   } catch (error) {
     return rejectWithValue(error);
@@ -37,16 +34,16 @@ export const getInsuranceTypes = async (
  * @param payloadData
  * @returns IInsuranceType
  */
-export const addInsuranceType = async (
-  payloadData: CreateInsuranceTypeInterface,
+export const addWaitlist = async (
+  payloadData: CreateWaitlist,
   { rejectWithValue },
-): Promise<IInsuranceType> => {
+): Promise<IWaitlist> => {
   try {
     const response = await apiClient.post(
-      `/practices/${payloadData.practiceId}/insurance-types`,
+      `/practices/${payloadData.practiceId}/waitlist`,
       payloadData,
     );
-    const data: IInsuranceType = await response.json();
+    const data: IWaitlist = await response.json();
     return data;
   } catch (error) {
     return rejectWithValue(error);
@@ -59,7 +56,7 @@ export const addInsuranceType = async (
  * @param param1
  * @returns
  */
-export const deleteInsuranceType = async (
+export const deleteWaitlist = async (
   payloadData: {
     practiceId: string;
     id: string;
@@ -68,10 +65,10 @@ export const deleteInsuranceType = async (
 ) => {
   try {
     const response = await apiClient.delete(
-      `/practices/${payloadData.practiceId}/insurance-types/${payloadData.id}`,
+      `/practices/${payloadData.practiceId}/waitlist/${payloadData.id}`,
     );
     if (!response.ok) {
-      throw new Error('Failed to delete template');
+      throw new Error('Failed to delete waitlist');
     }
     const responseData = await response.text();
 
@@ -90,18 +87,18 @@ export const deleteInsuranceType = async (
   }
 };
 
-export const getInsuranceTypeInfo = async (
+export const getWaitlistInfo = async (
   payloadData: {
     practiceId: string;
     id: string;
   },
   { rejectWithValue },
-): Promise<IInsuranceType> => {
+): Promise<IWaitlist> => {
   try {
     const response: Response = await apiClient.get(
-      `/practices/${payloadData.practiceId}/insurance-types/${payloadData.id}`,
+      `/practices/${payloadData.practiceId}/waitlist/${payloadData.id}`,
     );
-    const data: IInsuranceType = await response.json();
+    const data: IWaitlist = await response.json();
     return data;
   } catch (error) {
     return rejectWithValue(error);
