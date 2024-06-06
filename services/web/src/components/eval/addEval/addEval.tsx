@@ -17,6 +17,7 @@ const SurgeryPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     referrersList,
     usersList,
     patientsList,
+    waitlist,
   } = useAppSelector((state) => ({
     practiceHomesList: Object.values(state.practiceHomes.entities),
     surgeryTypesList: Object.values(state.surgeryTypes.entities),
@@ -28,6 +29,7 @@ const SurgeryPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     surgeryConfigurationsList: Object.values(
       state.surgeryConfigurations.entities,
     ),
+    waitlist: Object.values(state.waitlist.entities),
   }));
 
   const SELECTED_DOCTOR_KEY: string = 'SELECTED_DOCTOR';
@@ -59,6 +61,7 @@ const SurgeryPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const [checkboxes, setCheckboxes] = React.useState([true, false]);
   const [surgeryNameId, setSurgeryNameId] = useState<string>('');
   const [bodyPart, setBodyPart] = useState<string>('');
+  const [waitlistId, setWaitlistId] = useState<string>('');
   const [bodyPartOptions, setBodyPartOptions] = useState([
     { id: '', label: '' },
   ]);
@@ -112,6 +115,11 @@ const SurgeryPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     id: insuranceTypesList[key].id,
   }));
 
+  const waitlistOptions = Object.keys(waitlist).map((key) => ({
+    label: waitlist[key].name,
+    id: waitlist[key].id,
+  }));
+
   const evalStatusOption = Object.keys(EVAL_STATUS).map((key) => ({
     label: key,
     id: key,
@@ -159,6 +167,10 @@ const SurgeryPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     setMrn(value[0] ? value[0].id : null);
   };
 
+  const handleWaitlistChange = ({ value }) => {
+    setWaitlistId(value[0] ? value[0].id : null);
+  };
+
   const handleQuickDateChange = (offset: number) => {
     setDate(new Date(Date.now() + (1 + offset * (24 * 60 * 60 * 1000))));
   };
@@ -185,6 +197,7 @@ const SurgeryPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           details: notes,
           status: evalStatus,
           bodyPart,
+          waitlistId,
         }),
       );
 
@@ -201,6 +214,7 @@ const SurgeryPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         setReferrerId('');
         setNotes('');
         setEvalStatus('');
+        setWaitlistId('');
         onClose();
       } catch (error) {
         onClose();
@@ -349,7 +363,28 @@ const SurgeryPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               <label htmlFor="urlEmbed" className="text-black text-xs">
                 No Wait list
               </label>
-              <Select size={SIZE.mini} />
+              <Select
+                backspaceClearsInputValue
+                size={SIZE.mini}
+                options={waitlistOptions}
+                overrides={{
+                  ControlContainer: {
+                    style: {
+                      backgroundColor: 'rgba(250, 250, 250, 1)',
+                      border: 'none',
+                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                      color: '#52525B',
+                    },
+                  },
+                  ClearIcon: {
+                    component: () => null,
+                  },
+                }}
+                onChange={handleWaitlistChange}
+                value={
+                  waitlistId ? [{ label: waitlistId, id: waitlistId }] : []
+                }
+              />
               <div className="space-y-1"></div>
             </div>
           </div>
@@ -414,7 +449,6 @@ const SurgeryPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             </div>
             <div className="space-y-1 flex-1">
               <Checkbox
-                // size={SIZE.mini}
                 overrides={{
                   Checkmark: {
                     style: ({ $checked }) => ({
