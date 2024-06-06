@@ -70,6 +70,9 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
   const userId = data.id;
 
   const [updatedUserInfo, setUserInfo] = useState<Partial<IUser>>({});
+  const loggedInUserInfo = useAppSelector((state) => state.auth.user);
+  const loggedInUserId = loggedInUserInfo?.id;
+  const isDisabled = loggedInUserId === userId;
 
   useEffect(() => {
     if (updatedUserInfo?.permissions) {
@@ -300,6 +303,7 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
               <Select
                 options={userStatusOptions}
                 onChange={handleStatusChange}
+                disabled={isDisabled || false}
                 overrides={{
                   ControlContainer: {
                     style: {
