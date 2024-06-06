@@ -4,6 +4,8 @@ COPY . .
 
 # Create build image for building the web
 FROM base AS build
+ARG NEXT_PUBLIC_API_BASE_URL
+ENV NEXT_PUBLIC_API_BASE_URL=${NEXT_PUBLIC_API_BASE_URL}
 RUN npm install -g pnpm && \
     pnpm install --frozen-lockfile && \
     pnpm turbo build --filter=web
@@ -23,9 +25,6 @@ WORKDIR /app
 COPY --from=final /app .
 
 ENV NODE_ENV=production
-
-ARG NEXT_PUBLIC_API_BASE_URL
-ENV NEXT_PUBLIC_API_BASE_URL=${NEXT_PUBLIC_API_BASE_URL}
 
 ARG WEB_PORT
 ENV WEB_PORT=$WEB_PORT
