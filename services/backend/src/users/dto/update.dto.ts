@@ -19,6 +19,10 @@ export class UpdateUserDto {
   @ApiProperty()
   userName: string;
 
+  @IsOptional()
+  @ApiProperty()
+  designation: string;
+
   @IsEmpty()
   @ApiProperty()
   password: string;

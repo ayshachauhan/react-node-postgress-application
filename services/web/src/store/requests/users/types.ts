@@ -9,6 +9,7 @@ export interface User {
   fullName: string;
   email: string;
   url: string;
+  designation: string;
   status: UserStatus;
   type: UserType;
   userPractices: UserPractice[];
@@ -35,6 +36,7 @@ export interface AddUser {
   contactNumber: string;
   fullName: string;
   email: string;
+  designation: string;
   url: string;
   type: UserType;
   practiceId: string;
@@ -46,6 +48,7 @@ export interface EditUser {
   firstName: string;
   lastName: string;
   contactNumber: string;
+  designation: string;
   fullName: string;
   email: string;
   url: string;

@@ -116,6 +116,7 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
         fullName: updatedPayloadData.fullName ?? '',
         email: updatedUserInfo.email ?? '',
         url: updatedUserInfo.url ?? '',
+        designation: updatedUserInfo.designation ?? '',
         status: updatedUserInfo.status ?? UserStatus.INACTIVE,
         type: updatedUserInfo.type ?? UserType.EMPLOYEE,
         practiceId: practiceId,
@@ -236,7 +237,6 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
                 onChange={(value) => {
                   setUserInfo({ ...updatedUserInfo, url: value });
                 }}
-                required
               />
               <div className="w-1/2 space-y-2"></div>
             </div>
@@ -244,7 +244,7 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
           <div className="flex flex-row gap-6 pt-4">
             <div className="w-1/2 space-y-2">
               <label htmlFor="type" className="text-black text-sm font-normal">
-                Designation
+                User Type
               </label>
               <Select
                 options={userTypeOptions}
@@ -310,6 +310,23 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
                 }
               />
               <div className="w-1/2 space-y-2"></div>
+            </div>
+          </div>
+          <div className="flex flex-row gap-6 pt-4">
+            <div className="w-1/2 space-y-2">
+              <label
+                htmlFor="designation"
+                className="text-black text-sm font-normal"
+              >
+                Designation
+              </label>
+              <TextInput
+                name="designation"
+                value={updatedUserInfo?.designation || ''}
+                onChange={(value) => {
+                  setUserInfo({ ...updatedUserInfo, designation: value });
+                }}
+              />
             </div>
           </div>
           <div className="flex flex-row gap-6 pt-4 gap-7">
