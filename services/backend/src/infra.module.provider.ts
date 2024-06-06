@@ -21,6 +21,7 @@ import {
   SurgeryTypeEntity,
   TemplateEntity,
   UserEntity,
+  WaitlistEntity,
 } from '@packages/entities';
 import { LoggerModule } from 'nestjs-pino';
 import { ENV_VALIDATIONS } from './enums/env-validation';
@@ -100,6 +101,7 @@ export const createInfraModuleProviders = (): Array<
           EmailLogEntity,
           EvalEmailEntity,
           SurgeryEmailEntity,
+          WaitlistEntity,
         ],
         synchronize: false,
       }),

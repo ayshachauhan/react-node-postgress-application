@@ -1,5 +1,5 @@
 import { IBaseEntity } from '../base.interface';
-import { ISurgeryConfiguration } from '../index.browser';
+import { ISurgeryConfiguration, IWaitlist } from '../index.browser';
 import { IInsuranceType } from '../insuranceType';
 import { IPatient } from '../patient';
 import { IPracticeHomes } from '../practiceHomes';
@@ -17,6 +17,7 @@ export interface ISurgery extends IBaseEntity {
   totalHospitalPricing: number;
   totalProfessionalPricing: number;
   selectedCheckListOptions: CheckListOptions;
+  waitlist: IWaitlist;
   dateDeleted?: Date;
 }
 
@@ -41,6 +42,7 @@ export interface CreateSurgeryPayload {
   totalHospitalPricing: number;
   totalProfessionalPricing: number;
   selectedCheckListOptions?: CheckListOptions;
+  waitlistId?: string;
 }
 
 export interface SelectedSurgeryOption {
@@ -70,6 +72,7 @@ export interface UpdateSurgeryPayload {
   totalHospitalPricing: number;
   totalProfessionalPricing: number;
   details?: string;
+  waitlistId?: string;
 }
 
 export interface MonthOption {

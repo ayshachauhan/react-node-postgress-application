@@ -1,3 +1,4 @@
+import { IWaitlist } from '@packages/entities';
 import {
   GetTemplatesResponse,
   IEmailLog,
@@ -101,4 +102,8 @@ export type PatientState = EntitiesState<IPatient> & {
 export type MessageState = EntitiesState<IEmailLog> & {
   messageInfo: IEmailLog | null;
   messageFilters: MessageFilters;
+};
+
+export type WaitlistState = EntitiesState<IWaitlist> & {
+  waitlistInfo: IWaitlist | null;
 };

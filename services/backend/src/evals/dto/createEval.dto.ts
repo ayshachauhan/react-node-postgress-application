@@ -54,6 +54,10 @@ export class CreateEvalDto {
   @ApiProperty()
   referrer: string;
 
+  @IsOptional()
+  @ApiProperty()
+  waitlistId: string;
+
   @IsNotEmpty()
   @ApiProperty()
   bodyPart: string;

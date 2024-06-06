@@ -18,6 +18,7 @@ import surgeryTypeReducer from './reducers/surgeryTypes';
 import templatesReducer from './reducers/templates';
 import permissionsReducer from './reducers/userPermissions';
 import usersReducer from './reducers/users';
+import waitlistReducer from './reducers/waitlist';
 
 export const store = configureStore({
   reducer: {
@@ -38,6 +39,7 @@ export const store = configureStore({
     history: historyReducer,
     patients: patientReducer,
     messages: messagesReducer,
+    waitlist: waitlistReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(apiMiddleware),

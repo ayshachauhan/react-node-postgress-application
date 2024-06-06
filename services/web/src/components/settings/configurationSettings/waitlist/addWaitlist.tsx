@@ -1,25 +1,25 @@
-import { CreateInsuranceTypeInterface } from '@packages/entities';
+import { CreateWaitlist } from '@packages/entities';
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
 import { useAppDispatch } from '@root/store';
-import { addRecordAsync } from '@root/store/reducers/insuranceTypes';
+import { addRecordAsync } from '@root/store/reducers/waitlist';
 import { getPracticeId } from '@utils/index';
 import React, { useState } from 'react';
 
-const AddInsuranceType: React.FC<{ onClose: () => void }> = ({ onClose }) => {
+const AddWaitlist: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const dispatch = useAppDispatch();
-  const [insuranceType, setInsuranceType] = useState('');
+  const [waitlist, setWaitlist] = useState('');
   const practiceId = getPracticeId();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (practiceId) {
-      const insuranceTypePayload: CreateInsuranceTypeInterface = {
+      const waitlistPayload: CreateWaitlist = {
         practiceId,
-        name: insuranceType,
+        name: waitlist,
       };
       try {
-        dispatch(addRecordAsync(insuranceTypePayload));
+        dispatch(addRecordAsync(waitlistPayload));
         onClose();
       } catch (error) {
         onClose();
@@ -32,15 +32,15 @@ const AddInsuranceType: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       <form onSubmit={handleSubmit}>
         <div className="space-y-2 pt-4">
           <label htmlFor="firstName" className="text-black text-sm">
-            Insurance Type
+            Waitlist
           </label>
           <div>
             <div>
               <TextInput
-                name="insuranceType"
-                value={insuranceType}
+                name="waitlist"
+                value={waitlist}
                 onChange={(value) => {
-                  setInsuranceType(value);
+                  setWaitlist(value);
                 }}
                 required
               />
@@ -48,7 +48,7 @@ const AddInsuranceType: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             <div className="text-right align-bottom pt-4">
               <Button
                 kind="primary"
-                title="Add New Insurance Type"
+                title="Add New Waitlist"
                 type="submit"
                 width={189}
               />
@@ -60,4 +60,4 @@ const AddInsuranceType: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   );
 };
 
-export default AddInsuranceType;
+export default AddWaitlist;

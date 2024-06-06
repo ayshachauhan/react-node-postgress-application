@@ -5,6 +5,7 @@ import { PatientEntity } from '../patient';
 import { PracticeHomesEntity } from '../practiceHomes';
 import { SurgeryConfigurationEntity } from '../surgeryConfiguration';
 import { UserEntity } from '../user';
+import { WaitlistEntity } from '../waitlist';
 import {
   CheckListOptions,
   ISurgery,
@@ -32,6 +33,10 @@ export class SurgeryEntity extends BaseEntity implements ISurgery {
   @ManyToOne(() => UserEntity)
   @JoinColumn({ name: 'doctorId' })
   doctor: UserEntity;
+
+  @ManyToOne(() => WaitlistEntity)
+  @JoinColumn({ name: 'waitlistId' })
+  waitlist: WaitlistEntity;
 
   @Column({ type: 'varchar' })
   insuranceDetails: string;

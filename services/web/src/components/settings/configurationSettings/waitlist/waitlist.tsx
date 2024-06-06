@@ -1,16 +1,16 @@
 'use client';
-import { IInsuranceType } from '@packages/entities/index.browser';
+import { IWaitlist } from '@packages/entities';
 import Button from '@root/components/Button';
 import { AddIcon, DeleteIcon } from '@root/components/Icons';
-import AddInsuranceType from '@root/components/settings/configurationSettings/insuranceTypes/addInsuranceType';
+import AddWaitlist from '@root/components/settings/configurationSettings/waitlist/addWaitlist';
 import { useAppDispatch, useAppSelector } from '@root/store';
+import { getPracticeInfo } from '@root/store/reducers/practices';
 import {
   clearErrorMessage,
   clearSuccessMessage,
   deleteRecordAsync,
   fetchListings,
-} from '@root/store/reducers/insuranceTypes';
-import { getPracticeInfo } from '@root/store/reducers/practices';
+} from '@root/store/reducers/waitlist';
 import { getPracticeId } from '@utils/index';
 import {
   Modal,
@@ -22,10 +22,10 @@ import {
 } from 'baseui/modal';
 import React, { useEffect, useState } from 'react';
 
-export default function InsuranceTypePage() {
+export default function WaitlistPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [insuranceTypeId, setInsuranceTypeId] = useState('');
+  const [waitlistId, setWaitlistId] = useState('');
   const [showErrorMessage, setShowErrorMessage] = useState(false);
   const [showSuccessMessage, setShowSuccessMessage] = useState<boolean>(false);
 
@@ -34,13 +34,13 @@ export default function InsuranceTypePage() {
   const practiceName = useAppSelector(
     (state) => state.practices.practiceInfo?.name,
   );
-  const insuranceTypes: IInsuranceType[] = useAppSelector((state) =>
-    Object.values(state.insuranceTypes.entities),
+  const waitlist: IWaitlist[] = useAppSelector((state) =>
+    Object.values(state.waitlist.entities),
   );
 
   const { successMessage, errorMessage } = useAppSelector((state) => ({
-    successMessage: state.insuranceTypes.successMessage,
-    errorMessage: state.insuranceTypes.errorMessage,
+    successMessage: state.waitlist.successMessage,
+    errorMessage: state.waitlist.errorMessage,
   }));
 
   useEffect(() => {
@@ -82,7 +82,7 @@ export default function InsuranceTypePage() {
   };
 
   const handleOpenDeleteModal = (id: string) => {
-    setInsuranceTypeId(id);
+    setWaitlistId(id);
     setIsDeleteModalOpen(true);
   };
 
@@ -92,12 +92,12 @@ export default function InsuranceTypePage() {
 
   const handleConfirmDelete = () => {
     if (practiceId) {
-      dispatch(deleteRecordAsync({ practiceId, id: insuranceTypeId }));
+      dispatch(deleteRecordAsync({ practiceId, id: waitlistId }));
       setIsDeleteModalOpen(false);
     }
   };
 
-  const AddInsuranceTypeModal = () => {
+  const AddWaitlistModal = () => {
     return (
       <Modal
         isOpen={isModalOpen}
@@ -124,16 +124,16 @@ export default function InsuranceTypePage() {
             paddingBottom: '8px',
           }}
         >
-          Add New Insurance Type
+          Add New Waitlist
         </ModalHeader>
         <ModalBody>
-          <AddInsuranceType onClose={handleCloseModal} />
+          <AddWaitlist onClose={handleCloseModal} />
         </ModalBody>
       </Modal>
     );
   };
 
-  const DeleteInsuranceTypeModal = () => {
+  const DeleteWaitlistModal = () => {
     return (
       <Modal
         isOpen={isDeleteModalOpen}
@@ -155,9 +155,7 @@ export default function InsuranceTypePage() {
         <ModalHeader $style={{ fontSize: '1.25rem', fontWeight: 700 }}>
           Confirm Deletion
         </ModalHeader>
-        <ModalBody>
-          Are you sure you want to delete this Insurance Type?
-        </ModalBody>
+        <ModalBody>Are you sure you want to delete this waitlist?</ModalBody>
         <ModalFooter>
           <Button kind="primary" title="Delete" onClick={handleConfirmDelete}>
             Delete
@@ -170,7 +168,7 @@ export default function InsuranceTypePage() {
   return (
     <div className="mt-4">
       <div className="flex justify-between border-gray-400">
-        <span className="text-xl font-bold align-middle">Insurance Type</span>
+        <span className="text-xl font-bold align-middle">Waitlist</span>
         {showSuccessMessage && (
           <div className="text-green-700">{successMessage}</div>
         )}
@@ -187,9 +185,9 @@ export default function InsuranceTypePage() {
         <div className="bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 grid grid-cols-4 rounded-lg">
           <div className="font-bold text-white p-4">S. No.</div>
           <div className="font-bold text-white p-4">Practice Name</div>
-          <div className="font-bold text-white p-4">Insurance Type</div>
+          <div className="font-bold text-white p-4">Waitlist</div>
           <div className="font-bold text-white p-4">Action</div>
-          {insuranceTypes.map((data, index) => (
+          {waitlist.map((data, index) => (
             <React.Fragment key={data.id}>
               <div className="text-gray-900 bg-gray-50 pt-2 px-4">
                 {index + 1}
@@ -213,8 +211,8 @@ export default function InsuranceTypePage() {
         </div>
       </div>
 
-      <AddInsuranceTypeModal />
-      <DeleteInsuranceTypeModal />
+      <AddWaitlistModal />
+      <DeleteWaitlistModal />
     </div>
   );
 }

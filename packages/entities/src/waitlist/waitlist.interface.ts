@@ -1,12 +1,12 @@
 import { IBaseEntity } from '../base.interface';
 import { IPractice } from '../practice';
 
-export interface IInsuranceType extends IBaseEntity {
+export interface IWaitlist extends IBaseEntity {
   name: string;
   practice: IPractice;
 }
 
-export interface CreateInsuranceTypeInterface {
-  practiceId: string;
+export interface CreateWaitlist {
   name: string;
+  practiceId: string;
 }
