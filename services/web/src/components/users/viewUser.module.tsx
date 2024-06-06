@@ -52,6 +52,12 @@ const UserInfoPage: React.FC<ChildProps> = ({ data }) => {
       <div className="space-y-4">
         <p className="mt-2">
           <span className="font-bold"> Designation</span>
+          <span> : {userInfo?.designation} </span>
+        </p>
+      </div>
+      <div className="space-y-4">
+        <p className="mt-2">
+          <span className="font-bold"> User Type</span>
           <span> : {userInfo?.type} </span>
         </p>
       </div>

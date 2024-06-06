@@ -5,6 +5,7 @@ import AddReferrerModal from '@root/components/referrer/AddReferrerModal';
 import EditReferrerModal from '@root/components/referrer/EditReferrerModal';
 import ReferredListModal from '@root/components/referrer/ReferredListModal';
 import { useAppDispatch, useAppSelector } from '@root/store';
+import { fetchLoggedInUser } from '@root/store/reducers/auth';
 import {
   clearErrorMessage,
   clearSuccessMessage,
@@ -12,6 +13,7 @@ import {
   fetchListings,
 } from '@root/store/reducers/referrer';
 import { generateFullName, getPracticeId } from '@utils/index';
+import { Checkbox } from 'baseui/checkbox';
 import React, { useEffect, useState } from 'react';
 import DeleteReferrerModal from './DeleteReferrerModal';
 
@@ -80,6 +82,10 @@ export default function ReferrerTable() {
   const dispatch = useAppDispatch();
 
   useEffect(() => {
+    dispatch(fetchLoggedInUser());
+  }, [dispatch]);
+
+  useEffect(() => {
     if (practiceId !== null) {
       dispatch(fetchListings({ practiceId: practiceId }));
     }
@@ -139,7 +145,35 @@ export default function ReferrerTable() {
                 className="text-blue-600 hover:text-blue-800 visited:text-purple-600 decoration-solid cursor-pointer bg-gray-50 pt-2 px-4 flex-1"
                 onClick={() => data.id && handleOpenListModal(data.id)}
               >
-                {data ? generateFullName(data.firstName, data.lastName) : null}
+                <div className="flex">
+                  {data
+                    ? generateFullName(data.firstName, data.lastName)
+                    : null}
+                  {data && data.verified && (
+                    <Checkbox
+                      key={index}
+                      checked={true}
+                      overrides={{
+                        Checkmark: {
+                          style: ({ $checked }) => ({
+                            backgroundColor: $checked
+                              ? 'rgba(34, 197, 94, 1)'
+                              : 'white',
+                            borderColor: $checked
+                              ? 'rgba(34, 197, 94, 1)'
+                              : 'rgba(113, 113, 122, 1)',
+                            width: '15px',
+                            height: '15px',
+                            marginTop: '7px',
+                            marginRight: '0px',
+                            borderRadius: '2px',
+                            borderWidth: '2px',
+                          }),
+                        },
+                      }}
+                    ></Checkbox>
+                  )}
+                </div>
               </div>
               <div className="text-gray-900 bg-gray-50 pt-2 px-4 flex-1">
                 {data?.referrerType}

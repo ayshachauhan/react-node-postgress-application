@@ -1,6 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import { UserEntity } from '@packages/entities/*';
 import * as bcrypt from 'bcrypt';
 import Mail from 'nodemailer/lib/mailer';
 import { ENVIRONMENT_VARIABLES } from '../enums/environment.enums';
@@ -42,6 +43,10 @@ export class AuthService {
     }
   }
 
+  async getUserById(id: string): Promise<UserEntity | null> {
+    return await this.usersService.getUserById(id);
+  }
+
   async login(user: SanitizedUser | SuperAdminUser) {
     return {
       access_token: this.jwtService.sign(user),
@@ -72,9 +77,13 @@ export class AuthService {
     return null;
   }
 
-  async setUserPractices(payloadUser): Promise<void> {
-    const user = await this.usersService.getUserById(payloadUser.id);
-    payloadUser['practices'] = user?.practices;
+  async setUserDetails(payloadUser: SanitizedUser): Promise<void> {
+    const userData = await this.usersService.getUserById(payloadUser.id);
+
+    if (userData) {
+      payloadUser['practices'] = userData?.practices;
+      payloadUser['permissions'] = userData?.permissions;
+    }
   }
 
   async sendPasswordResetEmail(email: string): Promise<void> {
@@ -93,7 +102,7 @@ export class AuthService {
 
     const mailOptions: Mail.Options = {
       to: user.email,
-      subject: 'Subject: Reset Your Password - POD',
+      subject: 'Reset Your Password - POD',
     };
 
     const frontendBaseUrl: string | undefined = this.configService.get(

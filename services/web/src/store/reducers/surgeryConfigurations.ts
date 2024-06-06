@@ -48,9 +48,9 @@ const surgeryConfigurationsSlice = createSlice({
       state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
         state.errorMessage =
-          action.payload ?? 'Failed to fetch surgery configurations';
+          action.payload ?? 'Failed to fetch surgery configurations.';
       } else {
-        state.errorMessage = 'Failed to fetch surgery configurations';
+        state.errorMessage = 'Failed to fetch surgery configurations.';
       }
     });
     builder.addCase(fetchSurgeryConfigurationInfo.pending, (state) => {
@@ -70,9 +70,9 @@ const surgeryConfigurationsSlice = createSlice({
       state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
         state.errorMessage =
-          action.payload ?? 'Failed to fetch surgery configuration info';
+          action.payload ?? 'Failed to fetch surgery configuration info.';
       } else {
-        state.errorMessage = 'Failed to fetch surgery configuration info';
+        state.errorMessage = 'Failed to fetch surgery configuration info.';
       }
     });
 
@@ -87,15 +87,16 @@ const surgeryConfigurationsSlice = createSlice({
         ...state.entities,
         ...{ [action.payload.id]: action.payload },
       };
-      state.successMessage = 'Record added successfully';
+      state.successMessage = 'Surgery configuration added successfully.';
     });
 
     builder.addCase(addRecordAsync.rejected, (state, action) => {
       state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
-        state.errorMessage = action.payload ?? 'Failed to add surgery type';
+        state.errorMessage =
+          action.payload ?? 'Failed to add surgery configuration.';
       } else {
-        state.errorMessage = 'Failed to add surgery type';
+        state.errorMessage = 'Failed to add surgery configuration.';
       }
     });
 
@@ -113,15 +114,16 @@ const surgeryConfigurationsSlice = createSlice({
         ...remainingRecord
       } = state.entities;
       state.entities = remainingRecord;
-      state.successMessage = 'Record deleted successfully';
+      state.successMessage = 'Surgery configuration deleted successfully.';
     });
 
     builder.addCase(deleteRecordAsync.rejected, (state, action) => {
       state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
-        state.errorMessage = action.payload ?? 'Failed to delete surgery type';
+        state.errorMessage =
+          action.payload ?? 'Failed to delete surgery configuration.';
       } else {
-        state.errorMessage = 'Failed to update surgery type';
+        state.errorMessage = 'Failed to update surgery configuration.';
       }
     });
 
@@ -138,15 +140,16 @@ const surgeryConfigurationsSlice = createSlice({
         ...state.entities,
         ...{ [action.payload.id]: action.payload },
       };
-      state.successMessage = 'Record updated successfully';
+      state.successMessage = 'Surgery configuration updated successfully.';
     });
 
     builder.addCase(editRecordAsync.rejected, (state, action) => {
       state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
-        state.errorMessage = action.payload ?? 'Failed to delete surgery type';
+        state.errorMessage =
+          action.payload ?? 'Failed to update surgery configuration.';
       } else {
-        state.errorMessage = 'Failed to delete surgery config';
+        state.errorMessage = 'Failed to update surgery configuration.';
       }
     });
   },

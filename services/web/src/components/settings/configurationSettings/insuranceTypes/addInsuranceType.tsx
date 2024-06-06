@@ -1,8 +1,8 @@
+import { CreateInsuranceTypeInterface } from '@packages/entities';
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
 import { useAppDispatch } from '@root/store';
 import { addRecordAsync } from '@root/store/reducers/insuranceTypes';
-import { CreateInsuranceTypeInterface } from '@root/store/requests/insuranceTypes';
 import { getPracticeId } from '@utils/index';
 import React, { useState } from 'react';
 
@@ -48,7 +48,7 @@ const AddInsuranceType: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             <div className="text-right align-bottom pt-4">
               <Button
                 kind="primary"
-                title="Add new insurance type"
+                title="Add New Insurance Type"
                 type="submit"
                 width={189}
               />

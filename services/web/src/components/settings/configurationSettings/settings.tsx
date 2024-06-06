@@ -3,6 +3,7 @@ import React from 'react';
 import PracticeHomesPage from './PracticeHomes/practiceHome';
 import InsuranceTypePage from './insuranceTypes/insuranceType';
 import SurgeryTypePage from './surgeryTypes/surgeryType';
+import WaitlistPage from './waitlist/waitlist';
 
 export default function SettingsPage() {
   return (
@@ -17,8 +18,11 @@ export default function SettingsPage() {
       </div>
       <hr className="h-px my-2.5 bg-gray-100 border-1 dark:bg-gray-800"></hr>
       <div className="flex  flex-row justify-stretch pt-4">
-        <div className="w-1/2">
+        <div className="flex-1">
           <InsuranceTypePage />
+        </div>
+        <div className="px-4 flex-1">
+          <WaitlistPage />
         </div>
       </div>
     </div>

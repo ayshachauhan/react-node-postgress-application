@@ -3,6 +3,7 @@ import { State } from '@root/store';
 import Cookies from 'js-cookie';
 import { getPracticeId } from '../../utils/index';
 import { getMe, login, sendResetMail } from '../requests/login';
+import { uploadImg } from '../requests/users';
 import { AuthState, EntityLoadingState } from '../types';
 
 const initialState: AuthState = {
@@ -43,7 +44,7 @@ const authSlice = createSlice({
     builder.addCase(loginUser.fulfilled, (state, action) => {
       state.status = EntityLoadingState.IDLE;
       state.isAuthenticated = true;
-      state.successMessage = 'User logged in successfully';
+      state.successMessage = 'User logged in successfully.';
       if (action.payload) {
         Cookies.set('access_token', action.payload.access_token, {
           expires: 1,
@@ -89,6 +90,23 @@ const authSlice = createSlice({
       state.isSuperAdmin = false;
     });
 
+    builder.addCase(uploadImage.pending, (state) => {
+      state.processing = true;
+      state.status = EntityLoadingState.PENDING;
+      state.errorMessage = undefined;
+    });
+    builder.addCase(uploadImage.fulfilled, (state, action) => {
+      state.status = EntityLoadingState.IDLE;
+      //@ts-expect-error type error due to sanitizeuser
+      state.user = action.payload;
+      state.errorMessage = undefined;
+    });
+
+    builder.addCase(uploadImage.rejected, (state, action) => {
+      state.status = EntityLoadingState.FAILED;
+      state.errorMessage = action.payload as string;
+    });
+
     builder.addCase(forgotPassword.pending, (state) => {
       state.processing = true;
       state.status = EntityLoadingState.PENDING;
@@ -125,6 +143,8 @@ export const forgotPassword = createAsyncThunk(
   'users/forgotPassword',
   sendResetMail,
 );
+
+export const uploadImage = createAsyncThunk('users/uploadImage', uploadImg);
 
 export const { logoutUser } = authSlice.actions;
 

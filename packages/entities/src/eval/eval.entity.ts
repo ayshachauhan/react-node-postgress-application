@@ -3,14 +3,15 @@ import { BaseEntity } from '../base.entity';
 import { InsuranceTypeEntity } from '../insuranceType';
 import { PatientEntity } from '../patient';
 import { PracticeHomesEntity } from '../practiceHomes';
-import { SurgeryTypeEntity } from '../surgeryType';
+import { SurgeryConfigurationEntity } from '../surgeryConfiguration';
 import { UserEntity } from '../user';
+import { WaitlistEntity } from '../waitlist';
 
 @Entity('evals')
 export class EvalEntity extends BaseEntity {
-  @ManyToOne(() => SurgeryTypeEntity)
-  @JoinColumn({ name: 'surgeryTypeId' })
-  surgeryType: SurgeryTypeEntity;
+  @ManyToOne(() => SurgeryConfigurationEntity)
+  @JoinColumn({ name: 'surgeryConfigurationId' })
+  surgeryConfiguration: SurgeryConfigurationEntity;
 
   @ManyToOne(() => PatientEntity)
   @JoinColumn({ name: 'patientId' })
@@ -28,6 +29,10 @@ export class EvalEntity extends BaseEntity {
   @JoinColumn({ name: 'doctorId' })
   doctor: UserEntity;
 
+  @ManyToOne(() => WaitlistEntity)
+  @JoinColumn({ name: 'waitlistId' })
+  waitlist: WaitlistEntity;
+
   @Column({ type: 'varchar' })
   insuranceDetails: string;
 
@@ -38,5 +43,5 @@ export class EvalEntity extends BaseEntity {
   status: string;
 
   @Column()
-  eye: string;
+  bodyPart: string;
 }

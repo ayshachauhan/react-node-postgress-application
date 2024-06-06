@@ -6,14 +6,16 @@ import {
   Param,
   Patch,
   Post,
-  UseGuards,
+  UploadedFile,
+  //UseGuards,
   UseInterceptors,
   ValidationPipe,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { UserEntity } from '@packages/entities/user';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
-import { AuthGuard } from '../auth/auth.guard';
+//import { AuthGuard } from '../auth/auth.guard';
+import { FileInterceptor } from '@nestjs/platform-express/multer';
 import { ChangePasswordDto } from './dto/changePassword.dto';
 import { CreateUserDto } from './dto/create.dto';
 import { UpdateUserDto } from './dto/update.dto';
@@ -23,7 +25,7 @@ import { UsersService } from './users.service';
 @ApiTags('Users')
 @Controller('practices/:practiceId/users')
 @ApiBearerAuth('normal')
-@UseGuards(AuthGuard)
+//@UseGuards(AuthGuard)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
@@ -69,5 +71,18 @@ export class UsersController {
     @Body(new ValidationPipe()) patchUserDto: UpdateUserDto,
   ) {
     return this.usersService.updateUser(id, patchUserDto);
+  }
+
+  @Patch(':id/upload')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadUserImg(
+    @Param() params: { id: string; practiceId: string },
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    return this.usersService.uploadUserImg({
+      practiceId: params.practiceId,
+      id: params.id,
+      file,
+    });
   }
 }

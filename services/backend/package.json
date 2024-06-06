@@ -20,8 +20,9 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "generate-migration": "typeorm migration:create -d ./migrations",
-    "run-migrations": "typeorm-ts-node-commonjs migration:run -d ./migration-runner/datasource.js"
+    "generate-migration": "typeorm-ts-node-commonjs migration:create",
+    "run-migrations": "typeorm-ts-node-commonjs migration:run -d ./migration-runner/datasource.js --transaction each",
+    "list-migrations": "typeorm-ts-node-commonjs migration:show -d ./migration-runner/datasource.js"
   },
   "dependencies": {
     "@nestjs/axios": "^3.0.2",
@@ -30,10 +31,12 @@
     "@nestjs/core": "^10.0.0",
     "@nestjs/jwt": "^10.2.0",
     "@nestjs/platform-express": "^10.3.3",
+    "@nestjs/schedule": "^4.0.2",
     "@nestjs/swagger": "^7.3.0",
     "@nestjs/terminus": "^10.2.3",
     "@nestjs/typeorm": "^10.0.2",
     "@packages/entities": "workspace:entities",
+    "aws-sdk": "^2.1623.0",
     "bcrypt": "^5.1.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
@@ -41,6 +44,8 @@
     "handlebars": "^4.7.8",
     "joi": "^17.12.2",
     "jsonwebtoken": "^9.0.2",
+    "moment": "2.30.1",
+    "multer": "1.4.5-lts.1",
     "nestjs-pino": "^4.0.0",
     "nodemailer": "^6.9.11",
     "pg": "^8.11.3",
@@ -50,7 +55,6 @@
     "rxjs": "^7.8.1",
     "typeorm": "^0.3.20",
     "uuid": "^9.0.1",
-    "moment": "2.30.1",
     "tslib": "2.3.1"
   },
   "devDependencies": {
@@ -60,6 +64,7 @@
     "@types/express": "^4.17.17",
     "@types/jest": "^29.5.2",
     "@types/jsonwebtoken": "^9.0.6",
+    "@types/multer": "^1.4.11",
     "@types/node": "^20.3.1",
     "@types/nodemailer": "^6.4.14",
     "@types/supertest": "^6.0.0",

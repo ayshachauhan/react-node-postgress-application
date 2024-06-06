@@ -1,7 +1,8 @@
-import { Column, Entity, JoinTable, ManyToMany } from 'typeorm';
+import { Column, Entity, JoinTable, ManyToMany, OneToMany } from 'typeorm';
 import { BaseEntity } from '../base.entity';
 import { PermissionEntity } from '../permission/permission.entity';
 import { PracticeEntity } from '../practice/practice.entity';
+import { SurgeryEntity } from '../surgery';
 import { IUser, UserStatus, UserType } from './user.interface';
 
 @Entity('users')
@@ -42,6 +43,9 @@ export class UserEntity extends BaseEntity implements IUser {
   type: UserType;
 
   @Column({ type: 'varchar' })
+  designation: string;
+
+  @Column({ type: 'varchar' })
   contactNumber: string;
 
   @ManyToMany(() => PracticeEntity)
@@ -59,4 +63,10 @@ export class UserEntity extends BaseEntity implements IUser {
     inverseJoinColumn: { name: 'permissionId', referencedColumnName: 'id' },
   })
   permissions: PermissionEntity[];
+
+  @OneToMany(() => SurgeryEntity, (surgery) => surgery.doctor)
+  surgeries: SurgeryEntity[];
+
+  @Column({ type: 'varchar', nullable: true })
+  imgUrl?: string;
 }

@@ -4,8 +4,11 @@ import apiMiddleware from './apiMiddleware'; // Import the API middleware
 import authReducer from './reducers/auth';
 import calendarReducer from './reducers/calendar';
 import evalsReducer from './reducers/evals';
+import historyReducer from './reducers/history';
 import insuranceTypesReducer from './reducers/insuranceTypes';
 import mediaReducer from './reducers/media';
+import messagesReducer from './reducers/messages';
+import patientReducer from './reducers/patient';
 import practiceHomesReducer from './reducers/practiceHomes';
 import practicesReducer from './reducers/practices';
 import referrersReducer from './reducers/referrer';
@@ -15,6 +18,7 @@ import surgeryTypeReducer from './reducers/surgeryTypes';
 import templatesReducer from './reducers/templates';
 import permissionsReducer from './reducers/userPermissions';
 import usersReducer from './reducers/users';
+import waitlistReducer from './reducers/waitlist';
 
 export const store = configureStore({
   reducer: {
@@ -32,6 +36,10 @@ export const store = configureStore({
     calendars: calendarReducer,
     surgeryConfigurations: surgeryConfigurationReducer,
     permissions: permissionsReducer,
+    history: historyReducer,
+    patients: patientReducer,
+    messages: messagesReducer,
+    waitlist: waitlistReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(apiMiddleware),

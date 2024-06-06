@@ -4,19 +4,24 @@ import { JwtModule, JwtService } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import {
   CalendarEntity,
+  EmailLogEntity,
+  EvalEmailEntity,
   EvalEntity,
+  HistoryEntity,
   InsuranceTypeEntity,
+  MediaEntity,
   PatientEntity,
   PermissionEntity,
   PracticeEntity,
   PracticeHomesEntity,
   ReferrersEntity,
   SurgeryConfigurationEntity,
+  SurgeryEmailEntity,
   SurgeryEntity,
   SurgeryTypeEntity,
   TemplateEntity,
   UserEntity,
-  VideoEntity,
+  WaitlistEntity,
 } from '@packages/entities';
 import { LoggerModule } from 'nestjs-pino';
 import { ENV_VALIDATIONS } from './enums/env-validation';
@@ -79,7 +84,7 @@ export const createInfraModuleProviders = (): Array<
         database: configService.get(ENVIRONMENT_VARIABLES.DB_DATABASE),
         entities: [
           InsuranceTypeEntity,
-          VideoEntity,
+          MediaEntity,
           PermissionEntity,
           PracticeEntity,
           PracticeHomesEntity,
@@ -92,8 +97,13 @@ export const createInfraModuleProviders = (): Array<
           PatientEntity,
           EvalEntity,
           SurgeryConfigurationEntity,
+          HistoryEntity,
+          EmailLogEntity,
+          EvalEmailEntity,
+          SurgeryEmailEntity,
+          WaitlistEntity,
         ],
-        synchronize: true,
+        synchronize: false,
       }),
     }),
     TransporterModule.forRootAsync({

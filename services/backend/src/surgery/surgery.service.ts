@@ -1,23 +1,70 @@
 import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ICalendar, SurgeryEntity } from '@packages/entities';
+import {
+  EmailVariables,
+  HistoryAction,
+  HistoryType,
+  ICalendar,
+  ISurgery,
+  ISurgeryConfiguration,
+  PermissionEntity,
+  PracticeEntity,
+  SelectedSurgeryOption,
+  SurgeryEntity,
+} from '@packages/entities';
 import { PatientEntity } from '@packages/entities/patient';
+import { USER_PERMISSIONS } from '@packages/entities/permission';
 import moment from 'moment';
-import Mail from 'nodemailer/lib/mailer';
+import { SanitizedUser } from 'src/auth/types';
+import { EmailHandlerService } from 'src/emailHandler/emailHandler.service';
 import { ENVIRONMENT_VARIABLES } from 'src/enums/environment.enums';
+import {
+  SurgeryChangesKeyValues,
+  findChangedValues,
+  transformSurgeryObject,
+  transformUpdateSurgeryDTO,
+} from 'src/history/utils';
 import { InsuranceTypesService } from 'src/insuranceTypes/insuranceTypes.service';
 import { PatientsService } from 'src/patients/patients.service';
 import { PracticeHomesService } from 'src/practiceHomes/practiceHomes.service';
 import { PracticesService } from 'src/practices/practices.service';
 import { SurgeryConfigurationsService } from 'src/surgeryConfiguration/surgeryConfiguration.service';
 import { SurgeryTypesService } from 'src/surgeryTypes/surgeryTypes.service';
-import { TransporterService } from 'src/transporter';
 import { SystemTemplates } from 'src/transporter/transporter.types';
 import { UsersService } from 'src/users/users.service';
-import { In, Repository } from 'typeorm';
+import { getFullYearDateConditions, getStartEndDate } from 'src/utils';
+import { WaitlistService } from 'src/waitlist/waitlist.service';
+import {
+  Equal,
+  FindManyOptions,
+  FindOperator,
+  FindOptionsWhere,
+  ILike,
+  In,
+  LessThanOrEqual,
+  Repository,
+} from 'typeorm';
 import { CalendarService } from '../calendar/calendar.service';
-import { PatientMailData } from './types';
+import { HistoryService } from '../history/history.service';
+import { CreateSurgeryDto } from './dto/createSurgery.dto';
+
+type DateCondition = {
+  date: FindOperator<Date>;
+};
+
+interface SurgerySearchResult {
+  surgeries: SurgeryEntity[];
+  restricted: boolean;
+}
+
+type WhereClause = {
+  practiceHome: {
+    id: ReturnType<typeof In>;
+  };
+  date?: Date | FindOperator<Date>;
+  patient?: FindOptionsWhere<PatientEntity> | FindOptionsWhere<PatientEntity>[];
+};
 
 @Injectable()
 export class SurgeryService {
@@ -34,6 +81,8 @@ export class SurgeryService {
     private practiceHomesService: PracticeHomesService,
     @Inject(forwardRef(() => InsuranceTypesService))
     private insuranceTypesService: InsuranceTypesService,
+    @Inject(forwardRef(() => WaitlistService))
+    private waitlistService: WaitlistService,
     @Inject(forwardRef(() => SurgeryConfigurationsService))
     private surgeryConfigurationService: SurgeryConfigurationsService,
     @Inject(forwardRef(() => UsersService))
@@ -41,23 +90,42 @@ export class SurgeryService {
     @Inject(forwardRef(() => CalendarService))
     private calendarService: CalendarService,
     private readonly configService: ConfigService,
-    private readonly transporterService: TransporterService,
+    @Inject(forwardRef(() => HistoryService))
+    private historyService: HistoryService,
+    @Inject(forwardRef(() => EmailHandlerService))
+    private emailHandlerService: EmailHandlerService,
   ) {}
 
   getFrontEndBaseUrl() {
     return this.configService.get(ENVIRONMENT_VARIABLES.FRONT_END_BASE_URL);
   }
 
-  async findAll(practiceId: string): Promise<SurgeryEntity[]> {
-    const dbPracticeHomesByPractice =
-      await this.practiceHomesService.getPracticeHomesByPractice(practiceId);
+  async findAll(
+    practiceId: string,
+    includeDelete: boolean = false,
+    months: string[] = [],
+    searchMRNName?: string,
+    option?: string,
+    loggedInUserId?: string,
+  ): Promise<SurgerySearchResult> {
+    const [userInfo, dbPracticeHomesByPractice] = await Promise.all([
+      loggedInUserId ? this.userService.getUserById(loggedInUserId) : null,
+      this.practiceHomesService.getPracticeHomesByPractice(practiceId),
+    ]);
 
-    const dbSurgeryByPractice = await this.surgeryRepository.find({
-      where: {
-        practiceHome: {
-          id: In(dbPracticeHomesByPractice.map((ele) => ele.id)),
-        },
+    const userPermissions: PermissionEntity[] = userInfo
+      ? userInfo.permissions || []
+      : [];
+
+    const whereClause: WhereClause = {
+      practiceHome: {
+        id: In(dbPracticeHomesByPractice.map((ele) => ele.id)),
       },
+    };
+
+    const searchConditions: FindManyOptions<SurgeryEntity> = {
+      where: whereClause,
+      withDeleted: includeDelete,
       relations: [
         'practiceHome',
         'surgeryConfiguration',
@@ -65,19 +133,104 @@ export class SurgeryService {
         'insuranceType',
         'patient.referrer',
         'doctor',
+        'waitlist',
       ],
+    };
+
+    const searchConditionsWithoutPermissions = { ...searchConditions };
+
+    if (option?.toLowerCase() === 'past') {
+      const today = new Date();
+      whereClause.date = LessThanOrEqual(today);
+    }
+
+    const dateConditionsWithPermissions = getConditions(
+      months,
+      userPermissions,
+    );
+    const dateConditionsWithoutPermissions = getConditions(months, []);
+
+    if (
+      months.length === 0 &&
+      searchMRNName &&
+      option?.toLowerCase() !== 'past'
+    ) {
+      updateWhereClauseWithSearchName(whereClause, searchMRNName);
+      searchConditions.where = mapDateConditions(
+        dateConditionsWithPermissions,
+        whereClause,
+      );
+      searchConditionsWithoutPermissions.where = mapDateConditions(
+        dateConditionsWithoutPermissions,
+        whereClause,
+      );
+    } else {
+      if (searchMRNName) {
+        updateWhereClauseWithSearchName(whereClause, searchMRNName);
+      }
+
+      if (
+        months.length > 0 ||
+        (months.length === 0 && option?.toLowerCase() !== 'past')
+      ) {
+        searchConditions.where = mapDateConditions(
+          dateConditionsWithPermissions,
+          whereClause,
+        );
+        searchConditionsWithoutPermissions.where = mapDateConditions(
+          dateConditionsWithoutPermissions,
+          whereClause,
+        );
+      }
+    }
+
+    const [dbSurgeryByPractice, dbSurgeryByPracticeWithoutPermission] =
+      await Promise.all([
+        this.surgeryRepository.find(searchConditions),
+        this.surgeryRepository.find(searchConditionsWithoutPermissions),
+      ]);
+
+    dbSurgeryByPractice.forEach((ele) => {
+      ele.doctor.password = '';
     });
 
-    dbSurgeryByPractice.forEach((ele) => (ele.doctor.password = ''));
+    const restricted =
+      dbSurgeryByPracticeWithoutPermission.length > 0 &&
+      ((!userPermissions.some(
+        (p) => p.name === USER_PERMISSIONS.VIEW_PAST_CASES,
+      ) &&
+        dbSurgeryByPracticeWithoutPermission.some(
+          (s) => s.date < new Date(),
+        )) ||
+        (!userPermissions.some(
+          (p) => p.name === USER_PERMISSIONS.VIEW_FUTURE_CASES,
+        ) &&
+          dbSurgeryByPracticeWithoutPermission.some(
+            (s) => s.date > new Date(),
+          )));
 
-    return dbSurgeryByPractice;
+    return { surgeries: dbSurgeryByPractice, restricted };
   }
 
   async getSurgeryById(id: string): Promise<SurgeryEntity | null> {
-    return await this.surgeryRepository.findOneBy({ id });
+    return await this.surgeryRepository.findOne({
+      where: { id },
+      relations: [
+        'practiceHome',
+        'surgeryConfiguration',
+        'patient',
+        'insuranceType',
+        'patient.referrer',
+        'doctor',
+        'waitlist',
+      ],
+    });
   }
 
-  async create({ practiceId, createSurgeryDto }): Promise<SurgeryEntity> {
+  async create(
+    { practiceId, createSurgeryDto },
+    request: Request & { user: SanitizedUser },
+  ): Promise<SurgeryEntity> {
     const newSurgery: SurgeryEntity = new SurgeryEntity();
 
     const practiceEntity = await this.practiceService.findOne(practiceId);
@@ -85,6 +238,7 @@ export class SurgeryService {
       createSurgeryDto,
       practiceEntity,
     );
+
     const surgeryTypeEntity = await this.surgeryTypeService.getSurgeryTypeById(
       createSurgeryDto.surgeryTypeId,
       practiceId,
@@ -95,6 +249,11 @@ export class SurgeryService {
         createSurgeryDto.insuranceTypeId,
         practiceId,
       );
+
+    const waitlistEntity = await this.waitlistService.getWaitlistById(
+      createSurgeryDto.waitlistId,
+      practiceId,
+    );
 
     const practiceHomeEntity =
       await this.practiceHomesService.getPracticeHomeById(
@@ -110,6 +269,13 @@ export class SurgeryService {
       await this.surgeryConfigurationService.getSurgeryConfigurationById(
         createSurgeryDto.surgeryConfigurationId,
       );
+    const optionsArr: SelectedSurgeryOption[] = Object.values(
+      createSurgeryDto.selectedSurgeryOptions,
+    );
+    optionsArr.forEach((option) => {
+      createSurgeryDto.totalHospitalPricing += +option.hospitalPricing;
+      createSurgeryDto.totalProfessionalPricing += +option.professionalPricing;
+    });
 
     const resultSurgery = await this.surgeryRepository.save({
       ...newSurgery,
@@ -121,6 +287,7 @@ export class SurgeryService {
       insuranceType: insuranceTypeEntity,
       doctor: doctorEntity,
       surgeryConfiguration: surgeryConfigurationEntity,
+      waitlist: waitlistEntity,
     });
 
     // upsert calendar after creating surgery
@@ -156,41 +323,88 @@ export class SurgeryService {
         );
       }
     }
-    const mailOptions: Mail.Options = {
-      to: createSurgeryDto.email,
-      subject: 'Eval/surgery registered',
-      text: 'text message',
-    };
 
-    const mailData: PatientMailData = {
-      practiceName: practiceEntity?.name,
-      firstName: createSurgeryDto.firstName,
-      lastName: createSurgeryDto.lastName,
-      mrn: createSurgeryDto.mrn,
-      email: createSurgeryDto.email,
-      phoneNumber: createSurgeryDto.phoneNumber,
-      date: createSurgeryDto.date,
-      surgeryType: surgeryTypeEntity?.name,
-      practiceHome: practiceHomeEntity?.name,
-      insuranceType: insuranceTypeEntity?.name,
-      insuranceDetails: createSurgeryDto.insuranceDetails,
-    };
+    // create history entry after creating surgery
+    await this.historyService.createHistory({
+      practiceId,
+      userId: request?.user.id,
+      entityId: resultSurgery.id,
+      entityType: HistoryType.SURGERY,
+      action: HistoryAction.CREATE,
+      ipAddress: createSurgeryDto.ipAddress,
+    });
 
-    await this.transporterService.sendSystemEmails(
-      mailOptions,
-      mailData,
-      SystemTemplates.NOTIFY_PATIENT,
-    );
+    if (practiceEntity && surgeryConfigurationEntity) {
+      await this.initiateSendEmail(
+        practiceEntity,
+        createSurgeryDto,
+        resultSurgery,
+        surgeryConfigurationEntity,
+      );
+    }
 
     return resultSurgery;
   }
 
-  async update({ createSurgeryDto, id }): Promise<SurgeryEntity | null> {
+  async update(
+    { createSurgeryDto, id, practiceId },
+    request: Request & { user: SanitizedUser },
+  ): Promise<SurgeryEntity | null> {
     const surgeryToUpdate = await this.getSurgeryById(id);
+
+    if (createSurgeryDto.insuranceTypeId) {
+      const insuranceTypeEntity =
+        await this.insuranceTypesService.getInsuranceTypeById(
+          createSurgeryDto.insuranceTypeId,
+          practiceId,
+        );
+
+      delete createSurgeryDto.insuranceTypeId;
+      createSurgeryDto.insuranceType = insuranceTypeEntity;
+    }
+
+    if (surgeryToUpdate) {
+      await this.patientService.update({
+        id: surgeryToUpdate.patient.id,
+        practiceId,
+        data: createSurgeryDto,
+      });
+    }
+    const dataToUpdate = {
+      insuranceType: createSurgeryDto.insuranceType
+        ? createSurgeryDto.insuranceType
+        : null,
+      date: createSurgeryDto.date,
+      selectedSurgeryOptions: createSurgeryDto.selectedSurgeryOptions,
+      totalHospitalPricing: createSurgeryDto.totalHospitalPricing,
+      totalProfessionalPricing: createSurgeryDto.totalProfessionalPricing,
+      selectedCheckListOptions: createSurgeryDto.selectedCheckListOptions,
+      bodyPart: createSurgeryDto.bodyPart,
+    };
 
     await this.surgeryRepository.update(id, {
       ...surgeryToUpdate,
-      ...createSurgeryDto,
+      ...dataToUpdate,
+    });
+
+    // depends on dto values, make sure to update the obj values if dot changes
+    const transformedCurrentSurgeryValues: SurgeryChangesKeyValues =
+      transformSurgeryObject(surgeryToUpdate!);
+    const transformedUpdatedDTOValues: SurgeryChangesKeyValues =
+      transformUpdateSurgeryDTO(createSurgeryDto);
+
+    await this.historyService.createHistory({
+      practiceId,
+      userId: request?.user.id,
+      action: HistoryAction.UPDATE,
+      entityId: id,
+      entityType: HistoryType.SURGERY,
+      // this depends on dto values, make sure to update this function object if dto updates
+      changes: findChangedValues(
+        transformedCurrentSurgeryValues,
+        transformedUpdatedDTOValues,
+      ),
+      ipAddress: createSurgeryDto.ipAddress,
     });
 
     return await this.surgeryRepository.findOne({
@@ -198,7 +412,96 @@ export class SurgeryService {
     });
   }
 
-  async remove(id: string): Promise<void> {
+  async remove(
+    id: string,
+    practiceId: string,
+    request: Request & { user: SanitizedUser },
+    ipAddress: string,
+  ): Promise<void> {
     await this.surgeryRepository.softDelete(id);
+
+    await this.historyService.createHistory({
+      practiceId,
+      userId: request?.user?.id,
+      entityId: id,
+      entityType: HistoryType.SURGERY,
+      action: HistoryAction.DELETE,
+      ipAddress,
+    });
   }
+
+  async initiateSendEmail(
+    practice: PracticeEntity,
+    dto: CreateSurgeryDto,
+    surgery: ISurgery,
+    surgeryConfig: ISurgeryConfiguration,
+  ): Promise<void> {
+    const { id: surgeryConfigId, name } = surgeryConfig;
+    const mailVariables: EmailVariables = {
+      surgery_type: name,
+      fname: dto.firstName,
+      lname: dto.lastName,
+      mrn: String(dto.mrn),
+      pt_email_address: dto.email,
+      surgery_date: String(dto.date),
+      pt_email_notify: '',
+      laterality: dto.bodyPart,
+      Laterality: dto.bodyPart,
+      pod1_location: '',
+      cataract_variable: '',
+      all_cases: name + ' ' + dto.date,
+      all_cataract_dates: name + ' ' + dto.date,
+      all_case_type: name + ' ' + dto.date,
+      phoneNumber: dto.phoneNumber,
+    };
+
+    const systemGeneratedMailData = {
+      subject: 'Eval/ Surgery registered',
+      text: 'text message',
+      systemTemplate: SystemTemplates.NOTIFY_PATIENT,
+    };
+
+    await this.emailHandlerService.checkAndMakeEmailContent(
+      practice,
+      surgeryConfigId,
+      surgery,
+      mailVariables,
+      systemGeneratedMailData,
+      false,
+    );
+  }
+}
+
+function updateWhereClauseWithSearchName(
+  whereClause: WhereClause,
+  searchMRNName: string,
+): void {
+  const mrnNumber = parseInt(searchMRNName, 10);
+  if (!isNaN(mrnNumber)) {
+    whereClause.patient = { mrn: Equal(mrnNumber) };
+  } else {
+    whereClause.patient = [
+      { firstName: ILike(`%${searchMRNName}%`) },
+      { lastName: ILike(`%${searchMRNName}%`) },
+    ];
+  }
+}
+
+function getConditions(
+  months: string[],
+  permissions: PermissionEntity[],
+): DateCondition[] {
+  return months.length > 0
+    ? getStartEndDate(months, permissions)
+    : getFullYearDateConditions(permissions);
+}
+
+function mapDateConditions(
+  dateConditions: DateCondition[],
+  whereClause: WhereClause,
+): WhereClause[] {
+  return dateConditions.map((condition) => ({
+    ...whereClause,
+    ...condition,
+  }));
 }

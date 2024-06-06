@@ -4,6 +4,7 @@ import TextInput from '@root/components/TextInput';
 import { useAppDispatch } from '@root/store';
 import { addRecordAsync } from '@root/store/reducers/practices';
 import { PracticeCreateInterface } from '@store/requests/practices';
+import { FileUploader } from 'baseui/file-uploader';
 import React, { useState } from 'react';
 
 const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
@@ -19,6 +20,7 @@ const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     return Math.floor(Math.random() * (max - min + 1)) + min;
   };
   const [code, setCode] = useState(generateRandomCode().toString());
+  const [practiceImg, setPracticeImg] = useState<File | null>(null);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -30,6 +32,7 @@ const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       adminEmail,
       adminContactNumber,
       code,
+      practiceImg,
     };
     try {
       dispatch(addRecordAsync(data));
@@ -39,6 +42,7 @@ const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       setAdminEmail('');
       setAdminContactNumber('');
       setCode('');
+      setPracticeImg(null);
       onClose();
     } catch (error) {
       onClose();
@@ -49,7 +53,7 @@ const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     <div>
       <form onSubmit={handleSubmit}>
         <div className="flex flex-col">
-          <div className="flex flex-row justify-between pt-4">
+          <div className="justify-between pt-4">
             <div className="space-y-2">
               <label htmlFor="name" className="text-black text-sm font-normal">
                 Practice Name
@@ -61,18 +65,6 @@ const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                   setName(value);
                 }}
                 required
-              />
-            </div>
-            <div className="">
-              <label htmlFor="status" className="text-black text-sm">
-                Practice Photo
-              </label>
-              <TextInput
-                name="practicePhoto"
-                value=""
-                onChange={(value) => {
-                  setCode(value);
-                }}
               />
             </div>
           </div>
@@ -116,6 +108,7 @@ const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                   setAdminEmail(value);
                 }}
                 required
+                type="email"
               />
             </div>
             <div className="space-y-2">
@@ -135,8 +128,44 @@ const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               />
             </div>
           </div>
+          <div className="justify-between pt-4">
+            <div className="">
+              <label htmlFor="adminEmail" className="text-black text-sm">
+                Practice Photo
+              </label>
+              <FileUploader
+                errorMessage={''}
+                onDrop={(acceptedFiles: File[]) => {
+                  setPracticeImg(acceptedFiles[0]);
+                }}
+                accept="image/*"
+                overrides={{
+                  ContentMessage: {
+                    component: () => (
+                      <div>
+                        {practiceImg ? (
+                          <div>
+                            <p>{practiceImg?.name}</p>
+                          </div>
+                        ) : (
+                          <span>Drag and drop or click to upload</span>
+                        )}
+                      </div>
+                    ),
+                  },
+                  FileDragAndDrop: {
+                    style: {
+                      marginBottom: '16px',
+                      borderColor: '#22C55E',
+                      color: '##F0FDF4',
+                    },
+                  },
+                }}
+              />
+            </div>
+          </div>
           <div className="text-right text-base pt-4">
-            <Button kind="primary" title="Add new practice" width={189} />
+            <Button kind="primary" title="Add New Practice" width={189} />
           </div>
         </div>
       </form>

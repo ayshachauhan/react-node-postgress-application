@@ -2,9 +2,9 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsOptional } from 'class-validator';
 
 export class CreateEvalDto {
-  @IsNotEmpty({ message: 'surgeryType is required' })
+  @IsNotEmpty({ message: 'surgeryConfig is required' })
   @ApiProperty()
-  surgeryTypeId: string;
+  surgeryConfigurationId: string;
 
   @IsNotEmpty({ message: 'practice home id is required' })
   @ApiProperty()
@@ -28,7 +28,7 @@ export class CreateEvalDto {
 
   @IsNotEmpty({ message: 'mrn is required' })
   @ApiProperty()
-  mrn: string;
+  mrn: number;
 
   @IsNotEmpty({ message: 'first name is required' })
   @ApiProperty()
@@ -54,9 +54,13 @@ export class CreateEvalDto {
   @ApiProperty()
   referrer: string;
 
+  @IsOptional()
+  @ApiProperty()
+  waitlistId: string;
+
   @IsNotEmpty()
   @ApiProperty()
-  eye: string;
+  bodyPart: string;
 
   @IsNotEmpty()
   @ApiProperty()
@@ -65,4 +69,7 @@ export class CreateEvalDto {
   @IsNotEmpty({ message: 'doctorId is required' })
   @ApiProperty()
   doctorId: string;
+
+  @IsNotEmpty()
+  ipAddress: string;
 }

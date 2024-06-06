@@ -3,7 +3,7 @@ output "cluster_id" {
 }
 
 output "rds_endpoint" {
-  value = aws_db_instance.main.endpoint
+  value = aws_db_instance.main.address
 }
 
 output "alb_listeners" {

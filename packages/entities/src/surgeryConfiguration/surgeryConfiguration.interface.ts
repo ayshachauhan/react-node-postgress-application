@@ -33,6 +33,7 @@ export type SurgeryOptionAllowedList = {
   professionalPricing: number;
   // hospital pricing for the option
   hospitalPricing: number;
+  billingType: string;
 };
 
 /**
@@ -46,7 +47,7 @@ export type SurgeryOptions = {
     required: string;
     allowedValues: SurgeryOptionAllowedList[];
     count: number;
-    billingType: string;
+    edit_admin_option: boolean;
   };
 };
 

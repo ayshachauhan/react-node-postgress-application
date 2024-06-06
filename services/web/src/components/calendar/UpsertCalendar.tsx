@@ -48,7 +48,7 @@ const UpsertCalendar: React.FC<{
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const practiceId = getPracticeId();
-    const userId = getUserId();
+    const userId: string | null = getUserId();
 
     if (practiceId && userId)
       if (isUpdating) {
@@ -74,7 +74,10 @@ const UpsertCalendar: React.FC<{
           }
         }
       } else {
-        const payload: CreateCalendarPayload = {
+        const payload: Omit<
+          CreateCalendarPayload,
+          'month' | 'option' | 'loggedInUserId'
+        > = {
           practiceId,
           userId,
           surgeryConfigurationId: selectedSurgery.id,

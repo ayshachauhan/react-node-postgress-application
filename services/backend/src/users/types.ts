@@ -1,4 +1,5 @@
 import { UserStatus, UserType } from '@packages/entities/user';
+import 'multer';
 
 export type SanitizedUser = {
   fullName: string;
@@ -6,6 +7,7 @@ export type SanitizedUser = {
   lastName: string;
   email: string;
   userName: string;
+  designation: string;
   status: UserStatus;
   type: UserType;
   url: string;
@@ -20,4 +22,21 @@ export type NewUserMailData = {
   practiceName: string;
   fullName: string;
   defaultUserPassword: string;
+};
+
+export enum UploadType {
+  USER = 'user',
+  PRACTICE = 'practice',
+}
+
+export type GetUploadFileKey = {
+  practiceId: string;
+  file: Express.Multer.File;
+  userId?: string;
+};
+
+export type UploadUserImgData = {
+  practiceId: string;
+  file: Express.Multer.File;
+  id: string;
 };

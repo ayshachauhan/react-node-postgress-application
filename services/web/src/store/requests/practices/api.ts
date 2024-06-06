@@ -4,8 +4,11 @@ import {
   PracticeCreateInterface,
   PracticesEditInterface,
   PracticesGetInterface,
+  UploadImgPayload,
 } from '@store/requests/practices';
-
+import Cookies from 'js-cookie';
+import { publicRuntimeConfig } from 'next.config';
+const { API_BASE_URL } = publicRuntimeConfig;
 const apiClient = new ApiService();
 
 /**
@@ -71,11 +74,56 @@ export const addPractice = async (
   { rejectWithValue },
 ): Promise<IPractice> => {
   try {
-    const response = await apiClient.post(`/practices`, payloadData);
+    const { practiceImg, ...restPayload } = payloadData;
+
+    const response = await apiClient.post(`/practices`, restPayload);
     const data: IPractice = await response.json();
+
+    if (practiceImg && data.id) {
+      return await uploadImg({
+        practiceId: data.id,
+        file: practiceImg,
+      });
+    }
     return data;
   } catch (error) {
     return rejectWithValue(error);
+  }
+};
+
+/**
+ *
+ * @param payloadData
+ * @returns Updated user with Imgurl
+ */
+export const uploadImg = async (
+  payloadData: UploadImgPayload,
+): Promise<IPractice> => {
+  try {
+    const { practiceId, file } = payloadData;
+    const formdata = new FormData();
+    formdata.append('file', file);
+
+    const accessToken = Cookies.get('access_token');
+
+    const response = await fetch(
+      `${API_BASE_URL}/practices/${practiceId}/upload`,
+      {
+        method: 'PATCH',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: formdata,
+      },
+    );
+
+    if (!response.ok) {
+      throw new Error('Failed to upload img.');
+    }
+    const data: IPractice = await response.json();
+    return data;
+  } catch (error) {
+    throw new Error();
   }
 };
 
@@ -90,10 +138,18 @@ export const editPractice = async (
   { rejectWithValue },
 ) => {
   try {
-    const { id } = payloadData;
+    const { id, practiceImg, ...restPayload } = payloadData;
     delete payloadData.id;
-    const response = await apiClient.patch(`/practices/${id}`, payloadData);
+    const response = await apiClient.patch(`/practices/${id}`, restPayload);
     const data = await response.json();
+
+    if (practiceImg && data.id) {
+      return await uploadImg({
+        practiceId: data.id,
+        file: practiceImg,
+      });
+    }
+
     return data;
   } catch (error) {
     return rejectWithValue(error);

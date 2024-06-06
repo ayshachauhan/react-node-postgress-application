@@ -5,10 +5,15 @@ import { PatientEntity } from '../patient';
 import { PracticeHomesEntity } from '../practiceHomes';
 import { SurgeryConfigurationEntity } from '../surgeryConfiguration';
 import { UserEntity } from '../user';
-import { SelectedSurgeryOption } from './surgery.interface';
+import { WaitlistEntity } from '../waitlist';
+import {
+  CheckListOptions,
+  ISurgery,
+  SelectedSurgeryOption,
+} from './surgery.interface';
 
 @Entity('surgeries')
-export class SurgeryEntity extends BaseEntity {
+export class SurgeryEntity extends BaseEntity implements ISurgery {
   @ManyToOne(() => SurgeryConfigurationEntity)
   @JoinColumn({ name: 'surgeryConfigurationId' })
   surgeryConfiguration: SurgeryConfigurationEntity;
@@ -28,6 +33,10 @@ export class SurgeryEntity extends BaseEntity {
   @ManyToOne(() => UserEntity)
   @JoinColumn({ name: 'doctorId' })
   doctor: UserEntity;
+
+  @ManyToOne(() => WaitlistEntity)
+  @JoinColumn({ name: 'waitlistId' })
+  waitlist: WaitlistEntity;
 
   @Column({ type: 'varchar' })
   insuranceDetails: string;
@@ -49,4 +58,7 @@ export class SurgeryEntity extends BaseEntity {
 
   @Column()
   totalProfessionalPricing: number;
+
+  @Column({ type: 'jsonb', nullable: true })
+  selectedCheckListOptions: CheckListOptions;
 }

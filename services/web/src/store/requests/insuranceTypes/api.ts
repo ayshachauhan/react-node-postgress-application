@@ -1,6 +1,8 @@
-import { IInsuranceType } from '@packages/entities/index.browser';
+import {
+  CreateInsuranceTypeInterface,
+  IInsuranceType,
+} from '@packages/entities';
 import { ApiService } from '@root/services/apiclient';
-import { CreateInsuranceTypeInterface } from '.';
 
 const apiClient = new ApiService();
 

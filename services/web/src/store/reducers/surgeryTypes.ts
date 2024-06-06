@@ -46,9 +46,9 @@ const surgeryTypeSlice = createSlice({
     builder.addCase(fetchListings.rejected, (state, action) => {
       state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
-        state.errorMessage = action.payload ?? 'Failed to fetch surgery types';
+        state.errorMessage = action.payload ?? 'Failed to fetch surgery types.';
       } else {
-        state.errorMessage = 'Failed to fetch surgery types';
+        state.errorMessage = 'Failed to fetch surgery types.';
       }
     });
     builder.addCase(fetchSurgeryTypeInfo.pending, (state) => {
@@ -65,9 +65,9 @@ const surgeryTypeSlice = createSlice({
       state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
         state.errorMessage =
-          action.payload ?? 'Failed to fetch surgery type info';
+          action.payload ?? 'Failed to fetch surgery type info.';
       } else {
-        state.errorMessage = 'Failed to fetch surgery type info';
+        state.errorMessage = 'Failed to fetch surgery type info.';
       }
     });
 
@@ -82,15 +82,15 @@ const surgeryTypeSlice = createSlice({
         ...state.entities,
         ...{ [action.payload.id]: action.payload },
       };
-      state.successMessage = 'Record added successfully';
+      state.successMessage = 'Surgery type added successfully.';
     });
 
     builder.addCase(addRecordAsync.rejected, (state, action) => {
       state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
-        state.errorMessage = action.payload ?? 'Failed to add surgery type';
+        state.errorMessage = action.payload ?? 'Failed to add surgery type.';
       } else {
-        state.errorMessage = 'Failed to add surgery type';
+        state.errorMessage = 'Failed to add surgery type.';
       }
     });
 
@@ -108,15 +108,15 @@ const surgeryTypeSlice = createSlice({
         ...remainingRecord
       } = state.entities;
       state.entities = remainingRecord;
-      state.successMessage = 'Record deleted successfully';
+      state.successMessage = 'Surgery type deleted successfully.';
     });
 
     builder.addCase(deleteRecordAsync.rejected, (state, action) => {
       state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
-        state.errorMessage = action.payload ?? 'Failed to delete surgery type';
+        state.errorMessage = action.payload ?? 'Failed to delete surgery type.';
       } else {
-        state.errorMessage = 'Failed to delete surgery type';
+        state.errorMessage = 'Failed to delete surgery type.';
       }
     });
   },

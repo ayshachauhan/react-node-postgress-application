@@ -46,14 +46,13 @@ export function generateFullName(firstName: string, lastName: string): string {
   }
 }
 
-export function toFullName({
-  firstName,
-  lastName,
-}: {
-  firstName: string;
-  lastName: string;
-}) {
-  return generateFullName(firstName, lastName);
+export function toFullName(
+  input: { firstName?: string; lastName?: string } | undefined,
+) {
+  if (!input) {
+    return '';
+  }
+  return generateFullName(input.firstName ?? '', input.lastName ?? '');
 }
 
 export function usDateFormatter(date: Date): string {
@@ -67,11 +66,12 @@ export function usDateFormatter(date: Date): string {
   return formattedDateSplit.join('/');
 }
 
-export function formatColumnDate(dateString: string) {
+export function formatColumnDate(dateString: Date) {
   const date = new Date(dateString);
   const formattedDate = new Intl.DateTimeFormat('en-US', {
     month: 'numeric',
     day: 'numeric',
+    year: 'numeric',
   }).format(date);
   const hours = date.getHours();
   const minutes = date.getMinutes();
@@ -94,3 +94,37 @@ export function formatHeaderDate(dateString: string) {
   const finalDate = formattedDate.replace(/(?<=^\w+),/, '');
   return finalDate;
 }
+
+export function formatDate(dateString: Date) {
+  const date = new Date(dateString);
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const day = date.getDate().toString().padStart(2, '0');
+  const year = date.getFullYear().toString();
+
+  return `${month}/${day}/${year}`;
+}
+
+export function constructQueryParams(params: {
+  includeDeleted?: boolean;
+  month?: string;
+  searchMRNName?: string;
+  option?: string;
+  loggedInUserId?: string;
+}): string {
+  const queryString = Object.entries(params)
+    .filter(([, value]) => value !== undefined && value !== null)
+    .map(
+      ([key, value]) =>
+        `${encodeURIComponent(key)}=${encodeURIComponent(value as string)}`,
+    )
+    .join('&');
+
+  return queryString ? `?${queryString}` : '';
+}
+
+export const getIpAddress = async (): Promise<string> => {
+  const response = await fetch('https://api.ipify.org?format=json&ipv=4');
+
+  const data = await response.json();
+  return data.ip;
+};

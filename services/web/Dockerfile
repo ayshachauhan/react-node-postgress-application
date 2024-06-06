@@ -1,32 +1,35 @@
-# FROM node:20-alpine AS base
-
-FROM node:20-slim AS base
-RUN corepack enable
-COPY . /app
+FROM node:20-alpine AS base
 WORKDIR /app
-
-# Create a new image for production dependencies
-FROM base as prod-deps
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --prod --frozen-lockfile
+COPY . .
 
 # Create build image for building the web
 FROM base AS build
-ARG NEXT_PUBLIC_API_BASE_URL
-ENV NEXT_PUBLIC_API_BASE_URL=${NEXT_PUBLIC_API_BASE_URL}
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
-RUN pnpm turbo build --filter=web
+RUN npm install -g pnpm && \
+    pnpm install --frozen-lockfile && \
+    pnpm turbo build --filter=web
 
-# Create an image base
-FROM base
+FROM node:20-alpine AS final
+WORKDIR /app
+RUN npm install express@4.18.3 body-parser@1.20.2 next@14.1.0
+COPY --from=build /app/services/web/.next /app/.next
+COPY --from=build /app/services/web/server.js /app/server.js
+COPY --from=build /app/services/web/next.config.js /app/next.config.js
+COPY --from=build /app/services/web/public /app/public
 
-COPY --from=prod-deps /app/node_modules /app/node_modules
-COPY --from=build /app/services/web/.next /app/services/web/.next 
+
+# Create a final image
+FROM node:20-alpine AS runner
+WORKDIR /app
+COPY --from=final /app .
 
 ENV NODE_ENV=production
+
+ARG NEXT_PUBLIC_API_BASE_URL
+ENV NEXT_PUBLIC_API_BASE_URL=${NEXT_PUBLIC_API_BASE_URL}
 
 ARG WEB_PORT
 ENV WEB_PORT=$WEB_PORT
 
 EXPOSE $WEB_PORT
 
-CMD pnpm --filter "{services/web}" run start:prod
+CMD ["node", "server.js"]

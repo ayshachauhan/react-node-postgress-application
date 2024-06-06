@@ -1,5 +1,5 @@
 'use client';
-import { AddIcon, DeleteIcon, EditIcon } from '@components/Icons';
+import { AddIcon, AvatarIcon, DeleteIcon, EditIcon } from '@components/Icons';
 import AddPracticeForm from '@components/practices/practices.module';
 import Button from '@root/components/Button';
 import PracticeEditModule from '@root/components/practices/editPractice.module';
@@ -19,6 +19,7 @@ import {
   ROLE,
   SIZE,
 } from 'baseui/modal';
+import Image from 'next/image';
 import React, { useEffect, useState } from 'react';
 
 const Practice: React.FC = () => {
@@ -262,25 +263,41 @@ const Practice: React.FC = () => {
 
           {practices.map((data) => (
             <React.Fragment key={data.id}>
-              <div className="text-gray-900 bg-gray-50 pt-2 px-4 text-center">
-                Profile Photo
+              <div className="text-gray-900 bg-gray-50 pt-2 px-4 flex text-center items-center justify-center">
+                {data.imgUrl ? (
+                  <Image
+                    src={data.imgUrl}
+                    alt={data.id ?? ''}
+                    width={50}
+                    height={50}
+                    className="inline-block mr-2 rounded-[10px]"
+                    style={{
+                      width: '50px',
+                      height: '50px',
+                      objectFit: 'cover',
+                      borderRadius: '100px',
+                    }}
+                  />
+                ) : (
+                  <AvatarIcon size={50}></AvatarIcon>
+                )}
               </div>
-              <div className="text-gray-900 bg-gray-50 pt-2 px-4 text-center">
+              <div className="text-gray-900 bg-gray-50 pt-2 px-4 flex text-center items-center justify-center">
                 {data.name}
               </div>
-              <div className="text-gray-900 bg-gray-50 pt-2 px-4 text-center">
+              <div className="text-gray-900 bg-gray-50 pt-2 px-4 flex text-center items-center justify-center">
                 {data.adminFirstName}
               </div>
-              <div className="text-gray-900 bg-gray-50 pt-2 px-4 text-center">
+              <div className="text-gray-900 bg-gray-50 pt-2 px-4 flex text-center items-center justify-center">
                 {data.adminLastName}
               </div>
-              <div className="text-gray-900 bg-gray-50 pt-2 px-4 text-center">
+              <div className="text-gray-900 bg-gray-50 pt-2 px-4 flex text-center items-center justify-center">
                 {data.adminEmail}
               </div>
-              <div className="text-gray-900 bg-gray-50 pt-2 px-4 text-center">
+              <div className="text-gray-900 bg-gray-50 pt-2 px-4 flex text-center items-center justify-center">
                 {data.adminContactNumber}
               </div>
-              <div className="text-gray-900 bg-gray-50  pt-2 px-4 flex text-center items-center justify-center ">
+              <div className="text-gray-900 bg-gray-50  pt-2 px-4 flex text-center items-center justify-center">
                 <div
                   className={`flex justify-center items-center rounded-lg px-4 text-white w-20 ${
                     data.status?.toString() === 'pending'
