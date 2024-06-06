@@ -39,7 +39,7 @@ const mediaSlice = createSlice({
       state.status = EntityLoadingState.SUCCEEDED;
       state.entities = {};
       if (action.payload.length === 0) {
-        state.errorMessage = 'No records found';
+        state.errorMessage = 'No videos found.';
       } else {
         state.errorMessage = undefined;
       }
@@ -53,9 +53,9 @@ const mediaSlice = createSlice({
       state.status = EntityLoadingState.FAILED;
       state.processing = false;
       if (typeof action.payload === 'string') {
-        state.errorMessage = action.payload ?? 'Failed to fetch videos';
+        state.errorMessage = action.payload ?? 'Failed to fetch videos.';
       } else {
-        state.errorMessage = 'Failed to fetch videos';
+        state.errorMessage = 'Failed to fetch videos.';
       }
     });
 
@@ -70,15 +70,15 @@ const mediaSlice = createSlice({
         ...state.entities,
         ...{ [action.payload.id]: action.payload },
       };
-      state.successMessage = 'Record added successfully';
+      state.successMessage = 'Record added successfully.';
     });
 
     builder.addCase(addRecordAsync.rejected, (state, action) => {
       state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
-        state.errorMessage = action.payload ?? 'Failed to add video';
+        state.errorMessage = action.payload ?? 'Failed to add video.';
       } else {
-        state.errorMessage = 'Failed to add video';
+        state.errorMessage = 'Failed to add video.';
       }
       state.processing = false;
     });

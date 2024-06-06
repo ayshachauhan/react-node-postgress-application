@@ -2,6 +2,7 @@
 import Button from '@root/components/Button';
 import {
   AddIcon,
+  AvatarIcon,
   DeleteIcon,
   EditIcon,
   ViewIcon,
@@ -217,12 +218,11 @@ export default function UserPage() {
                       width: '50px',
                       height: '50px',
                       objectFit: 'cover',
+                      borderRadius: '100px',
                     }}
                   />
                 ) : (
-                  <div className="bg-gray-300 flex justify-center items-center">
-                    <span>No Image</span>
-                  </div>
+                  <AvatarIcon size={50}></AvatarIcon>
                 )}
               </div>
               <div className="text-gray-900 overflow-hidden whitespace-nowrap">

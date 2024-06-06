@@ -40,7 +40,7 @@ const permissionSlice = createSlice({
       state.status = EntityLoadingState.SUCCEEDED;
       state.entities = {};
       if (action.payload.length === 0) {
-        state.errorMessage = 'No records found';
+        state.errorMessage = 'user permissions found.';
       } else {
         state.errorMessage = undefined;
       }
@@ -54,9 +54,10 @@ const permissionSlice = createSlice({
       state.status = EntityLoadingState.FAILED;
       state.processing = false;
       if (typeof action.payload === 'string') {
-        state.errorMessage = action.payload ?? 'Failed to fetch videos';
+        state.errorMessage =
+          action.payload ?? 'Failed to fetch user permissions.';
       } else {
-        state.errorMessage = 'Failed to fetch videos';
+        state.errorMessage = 'Failed to fetch user permissions.';
       }
     });
 
@@ -71,15 +72,15 @@ const permissionSlice = createSlice({
         ...state.entities,
         ...{ [action.payload.id]: action.payload },
       };
-      state.successMessage = 'Record added successfully';
+      state.successMessage = 'User permission added successfully.';
     });
 
     builder.addCase(addRecordAsync.rejected, (state, action) => {
       state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
-        state.errorMessage = action.payload ?? 'Failed to add video';
+        state.errorMessage = action.payload ?? 'Failed to add user permission.';
       } else {
-        state.errorMessage = 'Failed to add video';
+        state.errorMessage = 'Failed to add user permission.';
       }
       state.processing = false;
     });
