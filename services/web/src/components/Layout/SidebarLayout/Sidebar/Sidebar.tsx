@@ -2,7 +2,7 @@
 
 import { useUserPermissions } from '@root/context/UserPermissionsContext';
 import { useAppSelector } from '@root/store';
-import { ChevronDown, ChevronRightSmall } from 'baseui/icon';
+import { ChevronDown, ChevronRight, ChevronRightSmall } from 'baseui/icon';
 import clsx from 'clsx';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
@@ -21,6 +21,12 @@ const Sidebar: React.FC = () => {
     userPermissions,
     sidebarItems,
   );
+  const [collapsed, setCollapsed] = useState(false);
+  console.log(collapsed, 2);
+
+  const toggleCollapse = () => {
+    setCollapsed(!collapsed);
+  };
 
   function handleSidebarItemClick(item: SideBarItem) {
     setActiveMenuItemId(item.id);
@@ -57,10 +63,7 @@ const Sidebar: React.FC = () => {
       <div className="h-full px-3 py-4 overflow-y-auto">
         <ul className="space-y-2 font-medium">
           {filteredSidebarItems.map(({ Icon, ...item }) => (
-            <li
-              key={item.id}
-              className={item.id == 'setting' ? 'absolute bottom-5' : ''}
-            >
+            <li key={item.id}>
               <Link
                 href={item.path}
                 onClick={() => handleSidebarItemClick({ ...item, Icon })}
@@ -113,6 +116,14 @@ const Sidebar: React.FC = () => {
             </li>
           ))}
         </ul>
+        <div className="text-right">
+          <button
+            className="text-white flex items-center"
+            onClick={toggleCollapse}
+          >
+            {collapsed ? <ChevronRight size={24} /> : <ChevronDown size={24} />}
+          </button>
+        </div>
       </div>
     </aside>
   );
