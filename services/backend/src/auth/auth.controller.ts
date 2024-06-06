@@ -32,12 +32,13 @@ export class AuthController {
   @UseGuards(AuthGuard)
   @ApiBearerAuth('normal')
   async validateToken(@Req() request): Promise<UserEntity> {
+    let user;
     if (!request.user.isSuperAdmin) {
-      await this.authService.setUserDetails(request.user);
+      user = await this.authService.setUserDetails(request.user);
     }
 
-    const user = await this.authService.getUserById(request.user.id);
-    return user ?? (request.user as UserEntity);
+    user = request.user;
+    return user;
   }
 
   @Get('/resetLink/:email')
