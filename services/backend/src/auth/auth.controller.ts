@@ -35,9 +35,10 @@ export class AuthController {
     let user;
     if (!request.user.isSuperAdmin) {
       user = await this.authService.setUserDetails(request.user);
+    } else {
+      user = request.user;
     }
 
-    user = request.user;
     return user;
   }
 

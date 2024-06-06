@@ -36,7 +36,7 @@ const UploadImageForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         <div className="justify-between pt-4">
           <div className="">
             <label htmlFor="adminEmail" className="text-black text-sm">
-              Practice Photo
+              User Photo
             </label>
             <FileUploader
               errorMessage={''}
