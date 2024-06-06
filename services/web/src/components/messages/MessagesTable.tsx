@@ -130,7 +130,10 @@ export default function MessagesTable() {
     if (emailInfo) {
       // Replace each placeholder with the corresponding value from emailInfo
       Object.keys(emailInfo).forEach((key) => {
-        const value = emailInfo[key as keyof EmailData] ?? '';
+        let value = emailInfo[key as keyof EmailData] ?? '';
+        if (key === 'surgery_date') {
+          value = formatHeaderDate(value);
+        }
         const regex = new RegExp(`{{${key}}}`, 'g');
         convertedBody = convertedBody.replace(regex, value);
       });
