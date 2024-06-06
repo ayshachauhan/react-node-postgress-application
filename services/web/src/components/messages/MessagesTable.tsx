@@ -298,7 +298,12 @@ export default function MessagesTable() {
                         />
                       )}
                       {activeButton !== 'Emails' && (
-                        <MessageWithReadMore message={row?.data?.text ?? ''} />
+                        <MessageWithReadMore
+                          message={convertVariables(
+                            row?.data?.text ?? '',
+                            row?.data,
+                          )}
+                        />
                       )}
                     </div>
                   ))}
