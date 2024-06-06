@@ -99,9 +99,6 @@ const Header: React.FC = () => {
   const goToProfile = () => {
     router.push('/profile');
   };
-  const goToSettings = () => {
-    router.push('/settings');
-  };
 
   useEffect(() => {
     if (practiceId !== null) {
@@ -198,11 +195,6 @@ const Header: React.FC = () => {
               {!is_super_admin && (
                 <Dropdown.Item id="profile" onClick={goToProfile}>
                   Profile
-                </Dropdown.Item>
-              )}
-              {!is_super_admin && (
-                <Dropdown.Item id="setting" onClick={goToSettings}>
-                  Settings
                 </Dropdown.Item>
               )}
               {!is_super_admin && (

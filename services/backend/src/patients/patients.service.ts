@@ -81,8 +81,8 @@ export class PatientsService {
     } else {
       const newPatient = this.patientRepository.create({
         practice: practiceEntity,
-        referrer: referrerEntity,
         ...createPatientDto,
+        referrer: referrerEntity,
       });
       return await this.patientRepository.save(newPatient);
     }
