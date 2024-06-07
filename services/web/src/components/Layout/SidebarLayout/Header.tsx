@@ -20,7 +20,16 @@ import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 
-const Header: React.FC = () => {
+interface Data {
+  collapsed: boolean;
+}
+
+interface ChildProps {
+  data: Data;
+}
+
+const Header: React.FC<ChildProps> = ({ data }) => {
+  console.log(data.collapsed, 2);
   const dispatch = useAppDispatch();
   const getSelectedUserId: string | null =
     localStorage.getItem(SELECTED_DOCTOR_KEY);
@@ -119,7 +128,11 @@ const Header: React.FC = () => {
   };
 
   return (
-    <nav className="fixed top-0 left-40 z-9 bg-white shadow-md w-[calc(100%-10rem)] h-[60px]">
+    <nav
+      className={`fixed top-0 z-9 bg-white shadow-md h-[60px] ${
+        data.collapsed ? 'w-[calc(100%-4rem)] ' : 'left-40 w-[calc(100%-10rem)]'
+      }`}
+    >
       <div className="px-5 py-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center">

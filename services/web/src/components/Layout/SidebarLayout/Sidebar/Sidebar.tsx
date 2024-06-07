@@ -9,7 +9,11 @@ import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 import { SideBarItem, filterSidebarItems, sidebarItems } from './types';
 
-const Sidebar: React.FC = () => {
+interface SidebarProps {
+  onCollapseChange?: (collapsed: boolean) => void;
+}
+
+const Sidebar: React.FC<SidebarProps> = ({ onCollapseChange }) => {
   const [activeMenuItemId, setActiveMenuItemId] = useState<string>('');
   const [activeChildMenuItemId, setActiveChildMenuItemId] =
     useState<string>('');
@@ -25,7 +29,11 @@ const Sidebar: React.FC = () => {
   const [collapsed, setCollapsed] = useState(false);
 
   const toggleCollapse = () => {
-    setCollapsed(!collapsed);
+    const newCollapsed = !collapsed;
+    setCollapsed(newCollapsed);
+    if (onCollapseChange) {
+      onCollapseChange(newCollapsed);
+    }
   };
 
   function handleSidebarItemClick(item: SideBarItem) {
@@ -53,7 +61,7 @@ const Sidebar: React.FC = () => {
   return (
     <aside
       aria-label="Sidebar"
-      className={`${customWidth} fixed top-0 left-0 h-screen translate-x-0 bg-gradient-to-b from-primary-dark to-primary-light ease-in-out duration-300`}
+      className={`${customWidth} fixed top-0 left-0 h-screen translate-x-0 bg-gradient-to-b from-primary-dark to-primary-light ease-in-out duration-400`}
     >
       <div className="h-[168px] flex px-4 items-center justify-start">
         <Link href="/dashboard">
