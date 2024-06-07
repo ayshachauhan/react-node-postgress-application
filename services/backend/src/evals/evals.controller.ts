@@ -65,6 +65,7 @@ export class EvalsController {
   }
 
   @Patch(':id')
+  @UseGuards(PermissionGuard(USER_PERMISSIONS.EDIT_CASE))
   @UseInterceptors(practiceNotFoundInterceptor)
   async update(
     @Body(new ValidationPipe()) createEvalDto: UpdateEvalDto,

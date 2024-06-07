@@ -7,7 +7,7 @@ import { updateRecordAsync } from '@root/store/reducers/practices';
 import { PracticesEditInterface } from '@store/requests/practices';
 import { FileUploader } from 'baseui/file-uploader';
 import { Select } from 'baseui/select';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 const PracticeEditModule: React.FC<{
   onClose: () => void;
@@ -21,6 +21,16 @@ const PracticeEditModule: React.FC<{
     id: key,
   }));
   const [practiceImg, setPracticeImg] = useState<File | null>(null);
+
+  const [formChanged, setFormChanged] = useState(false);
+
+  useEffect(() => {
+    setFormChanged(
+      name !== initialValues.name ||
+        status !== initialValues.status ||
+        practiceImg !== null,
+    );
+  }, [name, status, practiceImg, initialValues]);
 
   const handleStatusDropdown = (params) => {
     const { label } = params.option;
@@ -132,7 +142,12 @@ const PracticeEditModule: React.FC<{
             </div>
           </div>
           <div className="text-right text-base pt-4">
-            <Button kind="primary" title="Update Practice" width={189} />
+            <Button
+              kind="primary"
+              title="Update Practice"
+              width={189}
+              disabled={!formChanged}
+            />
           </div>
         </div>
       </form>

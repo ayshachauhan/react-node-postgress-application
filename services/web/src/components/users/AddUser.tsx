@@ -219,7 +219,6 @@ const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 onChange={(value) => {
                   setDesignation(value);
                 }}
-                required
               />
             </div>
           </div>

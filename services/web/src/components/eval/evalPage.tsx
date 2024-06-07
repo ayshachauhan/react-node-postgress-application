@@ -56,6 +56,9 @@ const EvalPage: React.FC = () => {
   );
 
   const [showModal, setShowModal] = useState(false);
+  const editCaseAllowed = useUserPermission(userPermissions, [
+    USER_PERMISSIONS.EDIT_CASE,
+  ]);
   const [selectedAction, setSelectedAction] = useState<string | null>(null);
   const [selectedRow, setSelectedRow] = useState<string | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -308,12 +311,14 @@ const EvalPage: React.FC = () => {
                   {data.insuranceTypeName}
                 </div>
                 <div className="text-gray-900 flex gap-4">
-                  <div className="cursor-pointer">
-                    <EditIcon
-                      style={{ marginRight: '8px', cursor: 'pointer' }}
-                      onClick={() => handleEditClick(data.id)}
-                    ></EditIcon>
-                  </div>
+                  {editCaseAllowed && (
+                    <div className="cursor-pointer">
+                      <EditIcon
+                        style={{ marginRight: '8px', cursor: 'pointer' }}
+                        onClick={() => handleEditClick(data.id)}
+                      ></EditIcon>
+                    </div>
+                  )}
                   <div className="cursor-pointer">
                     {deleteCaseAllowed && (
                       <DeleteIcon

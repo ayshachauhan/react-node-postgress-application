@@ -101,7 +101,7 @@ const Header: React.FC = () => {
   };
 
   useEffect(() => {
-    if (practiceId !== null) {
+    if (practiceId !== null && practiceId) {
       dispatch(fetchListings({ practiceId: practiceId }));
     }
   }, [dispatch, practiceId]);
