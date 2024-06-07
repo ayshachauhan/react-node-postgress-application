@@ -11,14 +11,6 @@ jobs:
         name : lint and build app
         runs-on: ubuntu-latest
         steps:
-          - name: Notify Google Chat
-            id: 'notify_google_chat'
-            uses: SimonScholz/google-chat-action@main
-            with:
-              webhookUrl: '${{ secrets.WEBHOOK_URL }}'
-              jobStatus: ${{ job.status }}
-              title: Meaning ful
-              subtitle: Brought to you by Simon ;-)
           - name: checkout
             uses: actions/checkout@v4
 
