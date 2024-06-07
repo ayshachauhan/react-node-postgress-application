@@ -163,7 +163,6 @@ const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 }}
                 required
                 maxLength={14}
-                placeholder="9876543210"
               />
             </div>
           </div>
