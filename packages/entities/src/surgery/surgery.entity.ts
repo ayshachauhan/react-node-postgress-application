@@ -54,11 +54,14 @@ export class SurgeryEntity extends BaseEntity implements ISurgery {
   selectedSurgeryOptions: SelectedSurgeryOption;
 
   @Column()
-  totalHospitalPricing: number;
+  totalHospitalPricing: string;
 
   @Column()
-  totalProfessionalPricing: number;
+  totalProfessionalPricing: string;
 
   @Column({ type: 'jsonb', nullable: true })
   selectedCheckListOptions: CheckListOptions;
+
+  @Column()
+  surgeryOrder: number;
 }

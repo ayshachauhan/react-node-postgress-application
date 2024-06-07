@@ -89,11 +89,22 @@ export class PatientsService {
   }
 
   async update({ id, practiceId, data }): Promise<PatientEntity | null> {
+    if (data.referrerId) {
+      const refererEntity = await this.referrerService.getReferrerById(
+        practiceId,
+        data.referrerId,
+      );
+
+      delete data.referrerId;
+      data.referrer = refererEntity;
+    }
+
     await this.patientRepository.update(id, {
       firstName: data.firstName,
       lastName: data.lastName,
       mrn: data.mrn,
       details: data.details,
+      referrer: data.referrer ? data.referrer : null,
     });
 
     return await this.patientRepository.findOne({
