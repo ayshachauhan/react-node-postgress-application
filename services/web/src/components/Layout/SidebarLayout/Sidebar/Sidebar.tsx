@@ -36,8 +36,11 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapseChange }) => {
     }
   };
 
+  const [expandedMenuItemId, setExpandedMenuItemId] = useState<string>('');
+
   function handleSidebarItemClick(item: SideBarItem) {
     setActiveMenuItemId(item.id);
+    setExpandedMenuItemId(item.id === expandedMenuItemId ? '' : item.id);
   }
 
   function handleSidebarChildItemClick(item) {
@@ -71,7 +74,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapseChange }) => {
 
       <div
         className={`h-full px-3 py-4 overflow-y-auto ${
-          collapsed ? 'flex flex-col items-center' : ''
+          collapsed && !expandedMenuItemId ? 'flex flex-col items-center' : ''
         }`}
       >
         <ul className="space-y-2 font-medium">

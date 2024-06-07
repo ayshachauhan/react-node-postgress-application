@@ -29,7 +29,6 @@ interface ChildProps {
 }
 
 const Header: React.FC<ChildProps> = ({ data }) => {
-  console.log(data.collapsed, 2);
   const dispatch = useAppDispatch();
   const getSelectedUserId: string | null =
     localStorage.getItem(SELECTED_DOCTOR_KEY);
