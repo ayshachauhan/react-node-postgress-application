@@ -53,7 +53,7 @@ const Sidebar: React.FC = () => {
   return (
     <aside
       aria-label="Sidebar"
-      className={`${customWidth} fixed top-0 left-0 h-screen translate-x-0 bg-gradient-to-b from-primary-dark to-primary-light`}
+      className={`${customWidth} fixed top-0 left-0 h-screen translate-x-0 bg-gradient-to-b from-primary-dark to-primary-light ease-in-out duration-300`}
     >
       <div className="h-[168px] flex px-4 items-center justify-start">
         <Link href="/dashboard">
