@@ -6,9 +6,18 @@ module.exports = {
     API_BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL,
   },
   images: {
-    domains: [
-      'img.youtube.com',
-      `azentia-${process.env.ENVIRONMENT}.s3.amazonaws.com`,
+    unoptimized: true,
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'img.youtube.com',
+        pathname: '**',
+      },
+      {
+        protocol: 'https',
+        hostname: `azentia-${process.env.ENVIRONMENT}.s3.amazonaws.com`,
+        pathname: '**',
+      },
     ],
   },
 };

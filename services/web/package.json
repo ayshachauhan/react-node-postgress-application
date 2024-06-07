@@ -9,7 +9,7 @@
     "lint:fix": "next lint --fix",
     "start:dev": "node server.js",
     "build": "NODE_ENV=production next build",
-    "start:prod": "NODE_OPTIONS=--max_old_space_size=4096 NODE_ENV=production node server.js"
+    "start:prod": "NODE_ENV=production node server.js"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.2.1",
