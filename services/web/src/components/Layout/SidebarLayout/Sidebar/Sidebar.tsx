@@ -49,7 +49,7 @@ const Sidebar: React.FC = () => {
       setActiveMenuItemId(activeItem.id);
     }
   }, []);
-  const customWidth = collapsed ? 'w-20' : 'w-40';
+  const customWidth = collapsed ? 'w-16' : 'w-40';
 
   return (
     <aside
@@ -62,7 +62,11 @@ const Sidebar: React.FC = () => {
         </Link>
       </div>
 
-      <div className="h-full px-3 py-4 overflow-y-auto items-center">
+      <div
+        className={`h-full px-3 py-4 overflow-y-auto ${
+          collapsed ? 'flex flex-col items-center' : ''
+        }`}
+      >
         <ul className="space-y-2 font-medium">
           {filteredSidebarItems.map(({ Icon, ...item }) => (
             <li key={item.id}>
@@ -74,7 +78,7 @@ const Sidebar: React.FC = () => {
                   { 'bg-secondary': item.id === activeMenuItemId },
                 )}
               >
-                <Icon />
+                <Icon size={18} />
                 {!collapsed && <span className="ms-3">{item.title}</span>}
                 {!collapsed && item.child && (
                   <span className="ml-auto">
@@ -117,7 +121,9 @@ const Sidebar: React.FC = () => {
             </li>
           ))}
         </ul>
-        <div className="text-right">
+        <div
+          className={`bottom-5 space-y-2 fixed ${!collapsed ? 'right-3' : ''}`}
+        >
           <button
             className="text-white flex items-center"
             onClick={toggleCollapse}

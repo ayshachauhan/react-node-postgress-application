@@ -40,7 +40,7 @@ const Profile: React.FC = () => {
 
   useEffect(() => {
     dispatch(fetchPermissions(undefined));
-  }, []);
+  }, [dispatch]);
 
   const practiceName = useAppSelector(
     (state) => state.practices.practiceInfo?.name,
