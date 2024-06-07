@@ -273,8 +273,11 @@ export class SurgeryService {
       createSurgeryDto.selectedSurgeryOptions,
     );
     optionsArr.forEach((option) => {
-      createSurgeryDto.totalHospitalPricing += +option.hospitalPricing;
-      createSurgeryDto.totalProfessionalPricing += +option.professionalPricing;
+      createSurgeryDto.totalHospitalPricing =
+        +option.hospitalPricing + +createSurgeryDto.totalHospitalPricing;
+      createSurgeryDto.totalProfessionalPricing =
+        +option.professionalPricing +
+        +createSurgeryDto.totalProfessionalPricing;
     });
 
     const resultSurgery = await this.surgeryRepository.save({
@@ -370,6 +373,7 @@ export class SurgeryService {
         data: createSurgeryDto,
       });
     }
+
     const dataToUpdate = {
       insuranceType: createSurgeryDto.insuranceType
         ? createSurgeryDto.insuranceType
@@ -380,6 +384,9 @@ export class SurgeryService {
       totalProfessionalPricing: createSurgeryDto.totalProfessionalPricing,
       selectedCheckListOptions: createSurgeryDto.selectedCheckListOptions,
       bodyPart: createSurgeryDto.bodyPart,
+      surgeryOrder: createSurgeryDto.surgeryOrder
+        ? createSurgeryDto.surgeryOrder
+        : surgeryToUpdate?.surgeryOrder,
     };
 
     await this.surgeryRepository.update(id, {

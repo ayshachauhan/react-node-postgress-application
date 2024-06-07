@@ -5,6 +5,8 @@ COPY . .
 # Create build image for building the web
 FROM base AS build
 ARG NEXT_PUBLIC_API_BASE_URL
+ARG ENVIRONMENT
+ENV ENVIRONMENT=${ENVIRONMENT}
 ENV NEXT_PUBLIC_API_BASE_URL=${NEXT_PUBLIC_API_BASE_URL}
 RUN npm install -g pnpm && \
     pnpm install --frozen-lockfile && \

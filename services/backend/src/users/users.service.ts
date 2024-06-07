@@ -61,6 +61,7 @@ export class UsersService {
   async create(
     createUserDto: CreateUserDto,
     practiceId: string,
+    sendUserCreationEmail: boolean,
   ): Promise<SanitizedUser> {
     const { firstName, lastName } = createUserDto;
     const { permissionIds } = createUserDto;
@@ -99,7 +100,9 @@ export class UsersService {
           permissions: permissionEntities || [],
         });
 
-        await this.sendNewUserMail({ newUser, fullName, practiceEntity });
+        if (sendUserCreationEmail) {
+          await this.sendNewUserMail({ newUser, fullName, practiceEntity });
+        }
       } else {
         const emailExists = existingUser.practices.find(
           (ele) => ele.id == practiceId,
@@ -117,11 +120,13 @@ export class UsersService {
         });
 
         newUser = existingUser;
-        await this.sendNewPracticeMailToExistingUser({
-          newUser,
-          fullName,
-          practiceEntity,
-        });
+        if (sendUserCreationEmail) {
+          await this.sendNewPracticeMailToExistingUser({
+            newUser,
+            fullName,
+            practiceEntity,
+          });
+        }
       }
 
       await queryRunner.commitTransaction();

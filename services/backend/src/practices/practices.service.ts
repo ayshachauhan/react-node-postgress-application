@@ -125,6 +125,7 @@ export class PracticesService {
         await this.practicesRepository.save(newPractice);
 
       // creating admin user
+      const sendUserCreationEmail: boolean = false;
       const newAdmin = await this.userService.create(
         {
           firstName: adminFirstName,
@@ -138,6 +139,7 @@ export class PracticesService {
           permissionIds: [],
         },
         practice.id,
+        sendUserCreationEmail,
       );
 
       const token: string = this.jwtService.sign({
@@ -148,7 +150,7 @@ export class PracticesService {
       const mailOptions: Mail.Options = {
         to: newAdmin.email,
         subject:
-          'Subject: Welcome to Practice Optimizer Dashboard - Complete Your Sign-up Process',
+          'Welcome to Practice Optimizer Dashboard - Complete Your Sign-up Process',
       };
 
       const frontendBaseUrl: string | undefined = this.getFrontEndBaseUrl();
