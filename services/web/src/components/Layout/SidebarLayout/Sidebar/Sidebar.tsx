@@ -1,8 +1,9 @@
 'use client';
 
+import { CollapseLeftIcon, CollapseRightIcon } from '@root/components/Icons';
 import { useUserPermissions } from '@root/context/UserPermissionsContext';
 import { useAppSelector } from '@root/store';
-import { ChevronDown, ChevronRight, ChevronRightSmall } from 'baseui/icon';
+import { ChevronDown, ChevronRightSmall } from 'baseui/icon';
 import clsx from 'clsx';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
@@ -48,11 +49,12 @@ const Sidebar: React.FC = () => {
       setActiveMenuItemId(activeItem.id);
     }
   }, []);
+  const customWidth = collapsed ? 'w-20' : 'w-40';
 
   return (
     <aside
       aria-label="Sidebar"
-      className="fixed top-0 left-0 w-40 h-screen translate-x-0 bg-gradient-to-b from-primary-dark to-primary-light"
+      className={`${customWidth} fixed top-0 left-0 h-screen translate-x-0 bg-gradient-to-b from-primary-dark to-primary-light`}
     >
       <div className="h-[168px] flex px-4 items-center justify-start">
         <Link href="/dashboard">
@@ -60,7 +62,7 @@ const Sidebar: React.FC = () => {
         </Link>
       </div>
 
-      <div className="h-full px-3 py-4 overflow-y-auto">
+      <div className="h-full px-3 py-4 overflow-y-auto items-center">
         <ul className="space-y-2 font-medium">
           {filteredSidebarItems.map(({ Icon, ...item }) => (
             <li key={item.id}>
@@ -73,9 +75,8 @@ const Sidebar: React.FC = () => {
                 )}
               >
                 <Icon />
-                <span className="ms-3">{item.title}</span>
-
-                {item.child && (
+                {!collapsed && <span className="ms-3">{item.title}</span>}
+                {!collapsed && item.child && (
                   <span className="ml-auto">
                     <ChevronDown size={20} />
                   </span>
@@ -121,7 +122,11 @@ const Sidebar: React.FC = () => {
             className="text-white flex items-center"
             onClick={toggleCollapse}
           >
-            {collapsed ? <ChevronRight size={24} /> : <ChevronDown size={24} />}
+            {collapsed ? (
+              <CollapseRightIcon size={20} />
+            ) : (
+              <CollapseLeftIcon size={20} />
+            )}
           </button>
         </div>
       </div>
