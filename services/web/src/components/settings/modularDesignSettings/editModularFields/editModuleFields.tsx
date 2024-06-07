@@ -216,24 +216,28 @@ const EditModularField: React.FC<{ onClose: () => void; data }> = ({
     const checkListObj = {};
 
     optionsFields.forEach((optionField) => {
-      surgeryOptionObj[optionField.category] = {
-        type: 'string',
-        label: optionField.category,
-        default: '',
-        required: true,
-        allowedValues: optionField.options,
-        count: optionField.count,
-        edit_admin_option: optionField.edit_admin_option,
-      };
+      if (optionField.category) {
+        surgeryOptionObj[optionField.category] = {
+          type: 'string',
+          label: optionField.category,
+          default: '',
+          required: true,
+          allowedValues: optionField.options,
+          count: optionField.count,
+          edit_admin_option: optionField.edit_admin_option,
+        };
+      }
     });
 
     checkListInputFields.forEach((ele) => {
-      checkListObj[ele.value] = {
-        type: 'string',
-        label: ele.value,
-        default: '',
-        required: true,
-      };
+      if (ele.value) {
+        checkListObj[ele.value] = {
+          type: 'string',
+          label: ele.value,
+          default: '',
+          required: true,
+        };
+      }
     });
     if (practiceId) {
       const payloadData: CreateSurgeryConfigurationPayload = {
@@ -572,7 +576,12 @@ const EditModularField: React.FC<{ onClose: () => void; data }> = ({
                               </label>
                               <TextInput
                                 size={SIZE.mini}
-                                required
+                                disabled={
+                                  optionsFields[index].category ? false : true
+                                }
+                                required={
+                                  optionsFields[index].category ? true : false
+                                }
                                 value={inputField.name}
                                 onChange={(event) =>
                                   handleOptionsFieldChangeInput(
@@ -593,9 +602,14 @@ const EditModularField: React.FC<{ onClose: () => void; data }> = ({
                                 Billing Type
                               </label>
                               <TextInput
+                                disabled={
+                                  optionsFields[index].category ? false : true
+                                }
+                                required={
+                                  optionsFields[index].category ? true : false
+                                }
                                 size={SIZE.mini}
                                 name="billingType"
-                                required
                                 value={inputField.billingType}
                                 onChange={(event) =>
                                   handleOptionsFieldChangeInput(
@@ -616,6 +630,12 @@ const EditModularField: React.FC<{ onClose: () => void; data }> = ({
                                 Hospital Pricing
                               </label>
                               <TextInput
+                                disabled={
+                                  optionsFields[index].category ? false : true
+                                }
+                                required={
+                                  optionsFields[index].category ? true : false
+                                }
                                 size={SIZE.mini}
                                 name="hospitalPricing"
                                 type="number"
@@ -628,7 +648,6 @@ const EditModularField: React.FC<{ onClose: () => void; data }> = ({
                                     inputIndex,
                                   )
                                 }
-                                required
                               />
                               <div className="space-y-2"></div>
                             </div>
@@ -652,7 +671,12 @@ const EditModularField: React.FC<{ onClose: () => void; data }> = ({
                                     inputIndex,
                                   )
                                 }
-                                required
+                                disabled={
+                                  optionsFields[index].category ? false : true
+                                }
+                                required={
+                                  optionsFields[index].category ? true : false
+                                }
                               />
                               <div className="space-y-2"></div>
                             </div>

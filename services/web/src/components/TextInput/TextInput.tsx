@@ -61,6 +61,8 @@ const TextInput: React.FC<Props> = ({
               style: {
                 color: 'rgba(82, 82, 91, 1)',
                 backgroundColor: 'rgba(250, 250, 250, 1)',
+                paddingLeft: '8px',
+                paddingRight: '4px',
               },
             },
           },
