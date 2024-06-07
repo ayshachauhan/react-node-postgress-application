@@ -99,6 +99,13 @@ jobs:
         run: |
           docker-compose build
 
+      - name: build docker images
+        uses: 'google-github-actions/send-google-chat-webhook@v0.0.2'
+        with:
+          webhook_url: '${{ secrets.WEBHOOK_URL }}'
+          mention: "<users/all>"
+          title: Deploying
+
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
@@ -163,6 +170,13 @@ jobs:
 
       - name: push tag
         run: git push origin $VERSION_TAG
+
+      - name: build docker images
+        uses: 'google-github-actions/send-google-chat-webhook@v0.0.2'
+        with:
+          webhook_url: '${{ secrets.WEBHOOK_URL }}'
+          mention: "<users/all>"
+          title: Deployed
 
   run-migrations:
     name: run db migrations
