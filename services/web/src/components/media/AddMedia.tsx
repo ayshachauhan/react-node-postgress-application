@@ -251,7 +251,6 @@ const MediaPage: React.FC<{
                       ]
                     : []
                 }
-                required
                 overrides={{
                   ControlContainer: {
                     style: {

@@ -24,7 +24,7 @@ export type Image = {
 };
 
 export type PracticeMediaConfig = {
-  surgeryConfigurationId: string;
+  surgeryConfigurationId: string | null;
   video: Video[];
 };
 
