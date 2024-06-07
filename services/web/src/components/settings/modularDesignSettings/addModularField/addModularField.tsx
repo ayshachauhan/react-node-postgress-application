@@ -170,24 +170,28 @@ const AddModularField: React.FC<{ onClose: () => void; items }> = ({
     const checkListObj = {};
 
     optionsFields.forEach((optionField) => {
-      surgeryOptionObj[optionField.category] = {
-        type: 'string',
-        label: optionField.category,
-        default: '',
-        required: true,
-        allowedValues: optionField.options,
-        count: optionField.count,
-        edit_admin_option: optionField.edit_admin_option,
-      };
+      if (optionField.category) {
+        surgeryOptionObj[optionField.category] = {
+          type: 'string',
+          label: optionField.category,
+          default: '',
+          required: true,
+          allowedValues: optionField.options,
+          count: optionField.count,
+          edit_admin_option: optionField.edit_admin_option,
+        };
+      }
     });
 
     checkListInputFields.forEach((ele) => {
-      checkListObj[ele.value] = {
-        type: 'string',
-        label: ele.value,
-        default: '',
-        required: true,
-      };
+      if (ele.value) {
+        checkListObj[ele.value] = {
+          type: 'string',
+          label: ele.value,
+          default: '',
+          required: true,
+        };
+      }
     });
     if (practiceId) {
       const payloadData: CreateSurgeryConfigurationPayload = {
@@ -521,7 +525,12 @@ const AddModularField: React.FC<{ onClose: () => void; items }> = ({
                               </label>
                               <TextInput
                                 size={SIZE.mini}
-                                required
+                                disabled={
+                                  optionsFields[index].category ? false : true
+                                }
+                                required={
+                                  optionsFields[index].category ? true : false
+                                }
                                 value={inputField.name}
                                 onChange={(event) =>
                                   handleOptionsFieldChangeInput(
@@ -542,6 +551,12 @@ const AddModularField: React.FC<{ onClose: () => void; items }> = ({
                                 Billing Type
                               </label>
                               <TextInput
+                                disabled={
+                                  optionsFields[index].category ? false : true
+                                }
+                                required={
+                                  optionsFields[index].category ? true : false
+                                }
                                 size={SIZE.mini}
                                 name="billingType"
                                 value={inputField.billingType}
@@ -564,6 +579,12 @@ const AddModularField: React.FC<{ onClose: () => void; items }> = ({
                                 Hospital Pricing
                               </label>
                               <TextInput
+                                disabled={
+                                  optionsFields[index].category ? false : true
+                                }
+                                required={
+                                  optionsFields[index].category ? true : false
+                                }
                                 type="number"
                                 size={SIZE.mini}
                                 name="hospitalPricing"
@@ -576,7 +597,6 @@ const AddModularField: React.FC<{ onClose: () => void; items }> = ({
                                     inputIndex,
                                   )
                                 }
-                                required
                               />
                               <div className="space-y-2"></div>
                             </div>
@@ -588,6 +608,12 @@ const AddModularField: React.FC<{ onClose: () => void; items }> = ({
                                 Professional Pricing
                               </label>
                               <TextInput
+                                disabled={
+                                  optionsFields[index].category ? false : true
+                                }
+                                required={
+                                  optionsFields[index].category ? true : false
+                                }
                                 size={SIZE.mini}
                                 type="number"
                                 name="professionalPricing"
@@ -600,7 +626,6 @@ const AddModularField: React.FC<{ onClose: () => void; items }> = ({
                                     inputIndex,
                                   )
                                 }
-                                required
                               />
                               <div className="space-y-2"></div>
                             </div>
