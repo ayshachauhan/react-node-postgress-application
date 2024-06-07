@@ -11,13 +11,14 @@ jobs:
         name : lint and build app
         runs-on: ubuntu-latest
         steps:
-          - name: build docker images
+          - name: Notify Google Chat
             id: 'notify_google_chat'
-            uses: 'google-github-actions/send-google-chat-webhook@v0.0.2'
+            uses: SimonScholz/google-chat-action@main
             with:
-              webhook_url: '${{ secrets.WEBHOOK_URL }}'
-              mention: "<users/all>"
-              title: Testing
+              webhookUrl: '${{ secrets.WEBHOOK_URL }}'
+              jobStatus: ${{ job.status }}
+              title: Meaning ful
+              subtitle: Brought to you by Simon ;-)
           - name: checkout
             uses: actions/checkout@v4
 
