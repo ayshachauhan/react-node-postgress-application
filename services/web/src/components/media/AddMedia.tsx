@@ -42,6 +42,24 @@ const MediaPage: React.FC<{
     video: [{ title: '', url: '' }],
     image: [{ title: '', file: null }],
   });
+
+  const isFormFilled = (): boolean => {
+    if (selectedMedia === MediaType.PATIENT) {
+      const { video, image } = patientForm;
+
+      const areVideosFilled = video.every(
+        (item) => item.title.trim() !== '' && item.url.trim() !== '',
+      );
+      const areImagesFilled = image.every(
+        (item) => item.title.trim() !== '' && item.file !== null,
+      );
+
+      return areVideosFilled || areImagesFilled;
+    } else {
+      return true;
+    }
+  };
+
   const [selectedMedia, setSelectedMedia] =
     useState<MediaType>(selectedMediaType);
 
@@ -358,7 +376,6 @@ const MediaPage: React.FC<{
                       <div className="flex flex-row gap-3">
                         <TextInput
                           size={SIZE.mini}
-                          required={true}
                           type="text"
                           value={inputField.title}
                           onChange={(value) =>
@@ -388,7 +405,6 @@ const MediaPage: React.FC<{
                         <TextInput
                           size={SIZE.mini}
                           type="text"
-                          required={true}
                           value={inputField.url}
                           onChange={(value) =>
                             handleVideoChangeInput(index, value, 'url')
@@ -497,7 +513,12 @@ const MediaPage: React.FC<{
           </div>
         )}
         <div className="text-right text-base pt-4">
-          <Button kind="primary" title="Add New Video" width={189} />
+          <Button
+            kind="primary"
+            title="Add New Video"
+            width={189}
+            disabled={!isFormFilled()}
+          />
         </div>
       </form>
     </div>
