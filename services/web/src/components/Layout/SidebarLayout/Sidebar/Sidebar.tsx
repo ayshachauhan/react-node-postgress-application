@@ -23,7 +23,6 @@ const Sidebar: React.FC = () => {
     sidebarItems,
   );
   const [collapsed, setCollapsed] = useState(false);
-  console.log(collapsed, 2);
 
   const toggleCollapse = () => {
     setCollapsed(!collapsed);
