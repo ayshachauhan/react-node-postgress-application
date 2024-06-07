@@ -102,7 +102,7 @@ const Profile: React.FC = () => {
             <span> :{userInfo?.lastName} </span>
           </p>
           <p className="mt-2">
-            <span className="font-bold">Designation</span>
+            <span className="font-bold">Type</span>
             <span> : {userInfo?.type}</span>
           </p>
         </div>
@@ -120,6 +120,10 @@ const Profile: React.FC = () => {
           <p>
             <span className="font-bold">Email</span>{' '}
             <span>: {userInfo?.email}</span>
+          </p>
+          <p className="mt-2">
+            <span className="font-bold">Designation</span>{' '}
+            <span>: {userInfo?.designation}</span>
           </p>
         </div>
         <div>

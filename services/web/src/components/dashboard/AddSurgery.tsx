@@ -65,6 +65,7 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
   const [checkboxes, setCheckboxes] = React.useState([true, false]);
   const [surgeryNameId, setSurgeryNameId] = useState<string>('');
   const [isMrnExists, setIsMrnExists] = useState<boolean>(false);
+  const [isNewReferrer, setIsNewReferrer] = useState<boolean>(false);
   const [surgeryDropdownOptions, setSurgeryDropdownOptions] = useState([
     {
       id: 0,
@@ -218,6 +219,21 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
     setMrn(value[0] ? value[0].id : null);
   };
 
+  const handleMrnBlur = ({ target }) => {
+    if (target.value) {
+      const newValue: string = target.value;
+      setMrn(newValue);
+    }
+  };
+
+  const handleReferrerBlur = ({ target }) => {
+    if (target.value) {
+      const newValue: string = target.value;
+      setReferrerId(newValue);
+      setIsNewReferrer(true);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const surgeryOptionObj: SelectedSurgeryOption = {};
@@ -331,7 +347,7 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
   };
 
   const getBackGroundColorCss = (date: Date): Record<string, unknown> => {
-    // checking selected month here because sometimes bgcolors are refelcring in next month
+    // checking selected month here because sometimes bg colors are reflecting in next month
     return date.getMonth() + 1 == currentMonth
       ? isCalendarDates(date)
         ? isSlotsAvailable(date)
@@ -386,7 +402,9 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
                 value={
                   mrn ? [{ id: String(mrn), label: String(String(mrn)) }] : []
                 }
-                creatable
+                placeholder="Enter MRN"
+                onBlurResetsInput={false}
+                onBlur={handleMrnBlur}
                 onChange={(value) => {
                   handleMrnChange(value);
                 }}
@@ -474,67 +492,11 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
               <div className="space-y-4"></div>
             </div>
             <div className="space-y-1 flex-1">
-              <label htmlFor="urlEmbed" className="text-black text-xs">
-                No Wait list
-              </label>
-              <Select
-                backspaceClearsInputValue
-                size={SIZE.mini}
-                options={waitlistOptions}
-                overrides={{
-                  ControlContainer: {
-                    style: {
-                      backgroundColor: 'rgba(250, 250, 250, 1)',
-                      border: 'none',
-                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-                      color: '#52525B',
-                    },
-                  },
-                  ClearIcon: {
-                    component: () => null,
-                  },
-                }}
-                onChange={handleWaitlistChange}
-                value={
-                  waitlistId ? [{ label: waitlistId, id: waitlistId }] : []
-                }
-              />
-              <div className="space-y-4"></div>
-            </div>
-          </div>
-          <div className="flex gap-5 mt-2">
-            <div className="space-y-1 flex-1">
-              <label htmlFor="referrer" className="text-black text-xs">
-                Referrer
-              </label>
-              <Select
-                size={SIZE.mini}
-                creatable
-                onChange={handleReferrerChange}
-                value={
-                  referrerId ? [{ label: referrerId, id: referrerId }] : []
-                }
-                options={referrersOptions}
-                overrides={{
-                  ControlContainer: {
-                    style: {
-                      backgroundColor: 'rgba(250, 250, 250, 1)',
-                      border: 'none',
-                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-                      color: '#52525B',
-                    },
-                  },
-                  ClearIcon: {
-                    component: () => null,
-                  },
-                }}
-              />
-            </div>
-            <div className="space-y-1 flex-1">
               <label htmlFor="practiceHome" className="text-black text-xs">
                 Home
               </label>
               <Select
+                placeholder="Select Practice Home"
                 backspaceClearsInputValue
                 size={SIZE.mini}
                 options={practiceHomesOptions}
@@ -560,9 +522,69 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
                 }}
               />
             </div>
+          </div>
+          <div className="flex gap-5 mt-2">
+            <div className="space-y-1 flex-1">
+              <label htmlFor="referrer" className="text-black text-xs">
+                Referrer
+              </label>
+              <Select
+                placeholder="Select Referrer"
+                backspaceClearsInputValue={true}
+                size={SIZE.mini}
+                onBlurResetsInput={false}
+                onBlur={handleReferrerBlur}
+                onChange={handleReferrerChange}
+                value={
+                  referrerId ? [{ label: referrerId, id: referrerId }] : []
+                }
+                options={referrersOptions}
+                overrides={{
+                  ControlContainer: {
+                    style: {
+                      backgroundColor: 'rgba(250, 250, 250, 1)',
+                      border: 'none',
+                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                      color: '#52525B',
+                    },
+                  },
+                  ClearIcon: {
+                    component: () => null,
+                  },
+                }}
+              />
+            </div>
+            <div className="space-y-1 flex-1">
+              <label htmlFor="urlEmbed" className="text-black text-xs">
+                No Wait list
+              </label>
+              <Select
+                placeholder="Select Waitlist"
+                backspaceClearsInputValue
+                size={SIZE.mini}
+                options={waitlistOptions}
+                overrides={{
+                  ControlContainer: {
+                    style: {
+                      backgroundColor: 'rgba(250, 250, 250, 1)',
+                      border: 'none',
+                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                      color: '#52525B',
+                    },
+                  },
+                  ClearIcon: {
+                    component: () => null,
+                  },
+                }}
+                onChange={handleWaitlistChange}
+                value={
+                  waitlistId ? [{ label: waitlistId, id: waitlistId }] : []
+                }
+              />
+              <div className="space-y-4"></div>
+            </div>
             <div className="space-y-1 flex-1">
               <Checkbox
-                //  size={SIZE.mini}
                 overrides={{
                   Checkmark: {
                     style: ({ $checked }) => ({
@@ -576,7 +598,7 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
                     }),
                   },
                 }}
-                checked={checkboxes[0]}
+                checked={false}
                 onChange={(e) => {
                   const target = e.target as HTMLInputElement;
                   setCheckboxes([target.checked, checkboxes[1]]);
@@ -588,6 +610,7 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
               </Checkbox>
 
               <TextInput
+                disabled
                 size={SIZE.mini}
                 name="pcp"
                 value={pcp}
@@ -597,7 +620,7 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
               />
             </div>
           </div>
-          <div className="flex gap-5">
+          <div className="flex gap-5 pt-2">
             <div className="space-y-1 flex-1 text-xs">
               <Checkbox
                 overrides={{
@@ -613,7 +636,7 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
                     }),
                   },
                 }}
-                checked={checkboxes[0]}
+                checked={email ? true : false}
                 onChange={(e) => {
                   const target = e.target as HTMLInputElement;
                   setCheckboxes([target.checked, checkboxes[1]]);
@@ -635,7 +658,7 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
                     }),
                   },
                 }}
-                checked={referrerId ? true : false}
+                checked={referrerId && !isNewReferrer ? true : false}
               >
                 Notify referrer
               </Checkbox>
@@ -645,6 +668,7 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
                 Insurance Type
               </label>
               <Select
+                placeholder="Select Insurance Type"
                 backspaceClearsInputValue
                 size={SIZE.mini}
                 options={insuranceTypesOptions}
@@ -704,6 +728,7 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
               <div className="flex gap-5 mt-2">
                 <div className="space-y-4 flex-1">
                   <Select
+                    placeholder="Select Surgery"
                     backspaceClearsInputValue
                     required
                     size={SIZE.mini}
@@ -731,6 +756,7 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
                 </div>
                 <div className="space-y-4 flex-1 w-1/3">
                   <Select
+                    placeholder="Select Body Part"
                     backspaceClearsInputValue
                     size={SIZE.mini}
                     required

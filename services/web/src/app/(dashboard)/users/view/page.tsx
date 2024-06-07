@@ -75,7 +75,7 @@ const UserViewPage: React.FC = () => {
                   <span> : {userInfo?.lastName}</span>
                 </p>
                 <p className="mt-2">
-                  <span className="font-bold">Designation</span>
+                  <span className="font-bold">User Type</span>
                   <span> : {userInfo?.type}</span>
                 </p>
               </div>
@@ -94,7 +94,7 @@ const UserViewPage: React.FC = () => {
                   <span className="font-bold">Email</span>{' '}
                   <span>: {userInfo?.email}</span>
                 </p>
-                <p>
+                <p className="mt-2">
                   <span className="font-bold">Status</span>{' '}
                   <span>: {userInfo?.status}</span>
                 </p>
@@ -103,6 +103,10 @@ const UserViewPage: React.FC = () => {
                 <p>
                   <span className="font-bold">Practice Name</span>{' '}
                   <span>: {practiceName}</span>
+                </p>
+                <p className="mt-2">
+                  <span className="font-bold">Designation</span>
+                  <span> : {userInfo?.designation}</span>
                 </p>
               </div>
             </div>

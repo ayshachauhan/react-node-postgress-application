@@ -43,10 +43,6 @@ export class AuthService {
     }
   }
 
-  async getUserById(id: string): Promise<UserEntity | null> {
-    return await this.usersService.getUserById(id);
-  }
-
   async login(user: SanitizedUser | SuperAdminUser) {
     return {
       access_token: this.jwtService.sign(user),
@@ -77,13 +73,14 @@ export class AuthService {
     return null;
   }
 
-  async setUserDetails(payloadUser: SanitizedUser): Promise<void> {
+  async setUserDetails(payloadUser: SanitizedUser): Promise<UserEntity | null> {
     const userData = await this.usersService.getUserById(payloadUser.id);
 
     if (userData) {
       payloadUser['practices'] = userData?.practices;
       payloadUser['permissions'] = userData?.permissions;
     }
+    return userData;
   }
 
   async sendPasswordResetEmail(email: string): Promise<void> {
