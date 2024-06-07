@@ -35,11 +35,11 @@ export class UsersController {
     @Body(new ValidationPipe()) createUserDto: CreateUserDto,
     @Param() { practiceId }: { practiceId: string },
   ): Promise<SanitizedUser> {
-    const createFromUserController: boolean = true;
+    const sendUserCreationEmail: boolean = true;
     return this.usersService.create(
       createUserDto,
       practiceId,
-      createFromUserController,
+      sendUserCreationEmail,
     );
   }
 

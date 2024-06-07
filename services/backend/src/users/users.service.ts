@@ -61,7 +61,7 @@ export class UsersService {
   async create(
     createUserDto: CreateUserDto,
     practiceId: string,
-    createFromUserController: boolean,
+    sendUserCreationEmail: boolean,
   ): Promise<SanitizedUser> {
     const { firstName, lastName } = createUserDto;
     const { permissionIds } = createUserDto;
@@ -100,7 +100,7 @@ export class UsersService {
           permissions: permissionEntities || [],
         });
 
-        if (createFromUserController) {
+        if (sendUserCreationEmail) {
           await this.sendNewUserMail({ newUser, fullName, practiceEntity });
         }
       } else {
@@ -120,7 +120,7 @@ export class UsersService {
         });
 
         newUser = existingUser;
-        if (createFromUserController) {
+        if (sendUserCreationEmail) {
           await this.sendNewPracticeMailToExistingUser({
             newUser,
             fullName,

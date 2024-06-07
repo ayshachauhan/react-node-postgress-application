@@ -125,7 +125,7 @@ export class PracticesService {
         await this.practicesRepository.save(newPractice);
 
       // creating admin user
-      const createFromUserController: boolean = false;
+      const sendUserCreationEmail: boolean = false;
       const newAdmin = await this.userService.create(
         {
           firstName: adminFirstName,
@@ -139,7 +139,7 @@ export class PracticesService {
           permissionIds: [],
         },
         practice.id,
-        createFromUserController,
+        sendUserCreationEmail,
       );
 
       const token: string = this.jwtService.sign({
