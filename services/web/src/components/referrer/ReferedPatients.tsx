@@ -140,7 +140,7 @@ const ReferedPatients = ({ referrerId }) => {
                         : 'NA'}
                     </div>
                     <div className="text-gray-900 w-40">
-                      {evalEntity?.surgeryConfiguration?.surgeryType?.name}
+                      {evalEntity?.surgeryConfiguration?.name}
                     </div>
                     <div className="text-gray-900 px-2 flex-1">NA</div>
                   </div>

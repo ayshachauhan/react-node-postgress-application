@@ -31,7 +31,12 @@ export class ReferrersService {
   ): Promise<ReferrersEntity> {
     const referrer = await this.referrers.findOne({
       where: { id: referrerId, practiceId },
-      relations: ['patients', 'patients.surgeries', 'patients.evals'],
+      relations: [
+        'patients',
+        'patients.surgeries',
+        'patients.evals',
+        'patients.evals.surgeryConfiguration',
+      ],
     });
 
     if (!referrer) {
