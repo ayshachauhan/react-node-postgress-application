@@ -22,7 +22,13 @@ const ReferedPatients = ({ referrerId }) => {
       referrerInfo: state.referrers.referrerInfo,
     }),
   );
-  const referredPatients = referrerInfo?.patients;
+  const referredPatients = referrerInfo?.patients ?? [];
+  const filteredReferredPatients = referredPatients.filter(
+    (patient: IPatient) =>
+      (patient.surgeries && patient.surgeries.length > 0) ||
+      (patient.evals && patient.evals.length > 0),
+  );
+  console.log(filteredReferredPatients);
   const dispatch = useAppDispatch();
   const userInfo = useAppSelector((state) => state.auth.user);
   const userPermissions = userInfo?.permissions;
@@ -71,7 +77,7 @@ const ReferedPatients = ({ referrerId }) => {
             Refer Date
           </div>
           <div className="font-bold text-white px-2 py-4 flex-1">
-            Surgery Date
+            Surgery/Eval Date
           </div>
           <div className="font-bold text-white py-4 w-40">Options</div>
           {viewBillingColumn && (
@@ -79,49 +85,66 @@ const ReferedPatients = ({ referrerId }) => {
           )}
         </div>
         <div className="border border-gray-300 rounded-b-md">
-          {referredPatients && referredPatients.length > 0 ? (
-            referredPatients.map((data: IPatient, index: number) => (
+          {filteredReferredPatients && filteredReferredPatients.length > 0 ? (
+            filteredReferredPatients.map((data: IPatient) => (
               <React.Fragment key={data.id}>
-                <div
-                  className={`flex pt-1 pb-2 ${
-                    index !== referredPatients.length - 1
-                      ? 'border-b border-gray-300'
-                      : ''
-                  }`}
-                >
-                  <div className="text-gray-900 px-2 flex-1">
-                    {data
-                      ? generateFullName(data.firstName, data.lastName)
-                      : null}
-                  </div>
-                  <div className="text-gray-900 px-2 flex-1">
-                    {data.dateCreated ? formatDate(data.dateCreated) : 'NA'}
-                  </div>
-                  <div className="text-gray-900 px-2 flex-1">
-                    {data?.surgeries &&
-                    data.surgeries.length > 0 &&
-                    data.surgeries[0].dateCreated
-                      ? formatDate(data.surgeries[0].date)
-                      : 'NA'}
-                  </div>
-                  <div className="text-gray-900 w-40">
-                    {data?.surgeries &&
-                    data.surgeries.length > 0 &&
-                    data.surgeries[0].selectedSurgeryOptions
-                      ? Object.values(data.surgeries[0].selectedSurgeryOptions)
-                          .map((option) => option.value)
-                          .join(', ')
-                      : 'NA'}
-                  </div>
-                  {viewBillingColumn && (
+                {data.surgeries?.map((surgery, surgIndex) => (
+                  <div
+                    key={`${data.id}-surgery-${surgIndex}`}
+                    className="flex pt-1 pb-2 border-b border-gray-300"
+                  >
                     <div className="text-gray-900 px-2 flex-1">
-                      {data?.surgeries && data?.surgeries[0]
-                        ? +data.surgeries[0].totalProfessionalPricing +
-                          +data.surgeries[0].totalHospitalPricing
-                        : 0}
+                      {data
+                        ? generateFullName(data.firstName, data.lastName)
+                        : null}
                     </div>
-                  )}
-                </div>
+                    <div className="text-gray-900 px-2 flex-1">
+                      {data.dateCreated ? formatDate(data.dateCreated) : 'NA'}
+                    </div>
+                    <div className="text-gray-900 px-2 flex-1">
+                      {surgery.dateCreated ? formatDate(surgery.date) : 'NA'}
+                    </div>
+                    <div className="text-gray-900 w-40">
+                      {surgery.selectedSurgeryOptions
+                        ? Object.values(surgery.selectedSurgeryOptions)
+                            .map((option) => option.value)
+                            .join(', ')
+                        : 'NA'}
+                    </div>
+                    {viewBillingColumn && (
+                      <div className="text-gray-900 px-2 flex-1">
+                        {surgery
+                          ? +surgery.totalProfessionalPricing +
+                            +surgery.totalHospitalPricing
+                          : 0}
+                      </div>
+                    )}
+                  </div>
+                ))}
+                {data.evals?.map((evalEntity, evalIndex) => (
+                  <div
+                    key={`${data.id}-eval-${evalIndex}`}
+                    className="flex pt-1 pb-2 border-b border-gray-300"
+                  >
+                    <div className="text-gray-900 px-2 flex-1">
+                      {data
+                        ? generateFullName(data.firstName, data.lastName)
+                        : null}
+                    </div>
+                    <div className="text-gray-900 px-2 flex-1">
+                      {data.dateCreated ? formatDate(data.dateCreated) : 'NA'}
+                    </div>
+                    <div className="text-gray-900 px-2 flex-1">
+                      {evalEntity.dateCreated
+                        ? formatDate(evalEntity.date)
+                        : 'NA'}
+                    </div>
+                    <div className="text-gray-900 w-40">
+                      {evalEntity?.surgeryConfiguration?.surgeryType?.name}
+                    </div>
+                    <div className="text-gray-900 px-2 flex-1">NA</div>
+                  </div>
+                ))}
               </React.Fragment>
             ))
           ) : (

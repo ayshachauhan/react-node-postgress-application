@@ -31,7 +31,7 @@ export class ReferrersService {
   ): Promise<ReferrersEntity> {
     const referrer = await this.referrers.findOne({
       where: { id: referrerId, practiceId },
-      relations: ['patients', 'patients.surgeries'],
+      relations: ['patients', 'patients.surgeries', 'patients.evals'],
     });
 
     if (!referrer) {
@@ -42,6 +42,14 @@ export class ReferrersService {
       referrer.patients.forEach((patient) => {
         if (patient.surgeries && patient.surgeries.length > 0) {
           patient.surgeries.sort((a, b) => {
+            return (
+              new Date(b.dateCreated).getTime() -
+              new Date(a.dateCreated).getTime()
+            );
+          });
+        }
+        if (patient.evals && patient.evals.length > 0) {
+          patient.evals.sort((a, b) => {
             return (
               new Date(b.dateCreated).getTime() -
               new Date(a.dateCreated).getTime()
@@ -67,7 +75,7 @@ export class ReferrersService {
   async getReferrer(practiceId: string) {
     const referrers = await this.referrers.find({
       where: { practiceId },
-      relations: ['patients'],
+      relations: ['patients', 'patients.surgeries', 'patients.evals'],
     });
     return referrers;
   }
