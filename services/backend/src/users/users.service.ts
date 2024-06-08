@@ -65,7 +65,7 @@ export class UsersService {
   ): Promise<SanitizedUser> {
     const { firstName, lastName } = createUserDto;
     const { permissionIds } = createUserDto;
-    const fullName = `${firstName}_${lastName}`;
+    const fullName = `${firstName} ${lastName}`;
     const hashedDefaultPassword = await bcrypt.hash(
       this.defaultUserPassword(),
       10,

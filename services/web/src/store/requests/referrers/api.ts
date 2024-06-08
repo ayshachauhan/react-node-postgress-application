@@ -99,6 +99,7 @@ export const deleteReferrer = async (
   try {
     const response = await apiClient.delete(
       `/practices/${payloadData.practiceId}/referrer/${payloadData.id}`,
+      null,
     );
     if (!response.ok) {
       throw new Error('Failed to delete referrer');

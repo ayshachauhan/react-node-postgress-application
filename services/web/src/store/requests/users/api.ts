@@ -1,10 +1,7 @@
 import { IUser } from '@packages/entities/index.browser';
 import { ApiService } from '@root/services/apiclient';
 import { SanitizedUser } from '@root/store/types';
-import Cookies from 'js-cookie';
-import { publicRuntimeConfig } from 'next.config';
 import { AddUserDto, ChangePasswordInterface, UploadImgPayload } from '.';
-const { API_BASE_URL } = publicRuntimeConfig;
 
 const apiClient = new ApiService();
 
@@ -160,6 +157,7 @@ export const deleteUser = async (
   try {
     const response = await apiClient.delete(
       `/practices/${payloadData.practiceId}/users/${payloadData.id}`,
+      null,
     );
     if (!response.ok) {
       throw new Error('Failed to delete user');
@@ -224,16 +222,11 @@ export const uploadImg = async (
     const formdata = new FormData();
     formdata.append('file', file);
 
-    const accessToken = Cookies.get('access_token');
-
-    const response = await fetch(
-      `${API_BASE_URL}/practices/${practiceId}/users/${id}/upload`,
+    const response = await apiClient.patch(
+      `/practices/${practiceId}/users/${id}/upload`,
+      formdata,
       {
-        method: 'PATCH',
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: formdata,
+        'Content-Type': 'multipart/form-data;',
       },
     );
 

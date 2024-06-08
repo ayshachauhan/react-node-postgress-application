@@ -37,13 +37,10 @@ export class ApiService {
     return requestConfig;
   }
 
-  async get(
-    path: string,
-    headers: Record<string, unknown> = {},
-  ): Promise<Response> {
+  async get<T>(path: string, data?: T): Promise<Response> {
     return await fetch(
       this.getUrl(path),
-      this.getRequestConfig({ method: 'GET', headers }),
+      this.getRequestConfig({ method: 'GET', body: data }),
     );
   }
 
@@ -61,17 +58,25 @@ export class ApiService {
     );
   }
 
-  async delete(path: string): Promise<Response> {
+  async delete<T>(path: string, data: T | null): Promise<Response> {
     return await fetch(
       this.getUrl(path),
-      this.getRequestConfig({ method: 'DELETE' }),
+      this.getRequestConfig({ method: 'DELETE', body: data }),
     );
   }
 
-  async patch<T>(path: string, data: T): Promise<Response> {
+  async patch<T>(
+    path: string,
+    data: T,
+    headers?: Record<string, string>,
+  ): Promise<Response> {
     return await fetch(
       this.getUrl(path),
-      this.getRequestConfig<T>({ method: 'PATCH', body: data }),
+      this.getRequestConfig<T>({
+        method: 'PATCH',
+        body: data,
+        headers: headers ?? {},
+      }),
     );
   }
 }

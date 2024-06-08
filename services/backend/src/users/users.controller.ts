@@ -35,12 +35,7 @@ export class UsersController {
     @Body(new ValidationPipe()) createUserDto: CreateUserDto,
     @Param() { practiceId }: { practiceId: string },
   ): Promise<SanitizedUser> {
-    const sendUserCreationEmail: boolean = true;
-    return this.usersService.create(
-      createUserDto,
-      practiceId,
-      sendUserCreationEmail,
-    );
+    return this.usersService.create(createUserDto, practiceId, true);
   }
 
   @Get()

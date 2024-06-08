@@ -2,9 +2,9 @@ import {
   CreateSurgeryConfigurationPayload,
   UpdateSurgeryConfigPayload,
 } from '@packages/entities/index.browser';
-import Cookies from 'js-cookie';
-import { publicRuntimeConfig } from 'next.config';
-const { API_BASE_URL } = publicRuntimeConfig;
+import { ApiService } from '@root/services/apiclient';
+
+const apiClient = new ApiService();
 
 export const getSurgeryConfigurations = async (
   payloadData: {
@@ -13,17 +13,10 @@ export const getSurgeryConfigurations = async (
   { rejectWithValue },
 ) => {
   try {
-    const accessToken = Cookies.get('access_token');
-    const response = await fetch(
-      `${API_BASE_URL}/practices/${payloadData.practiceId}/surgeryTypes/configurations`,
-      {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        },
-      },
+    const response = await apiClient.get(
+      `/practices/${payloadData.practiceId}/surgeryTypes/configurations`,
     );
+
     if (!response.ok) {
       throw new Error('Failed to get surgery configurations');
     }
@@ -43,16 +36,9 @@ export const deleteSurgeryConfiguration = async (
   { rejectWithValue },
 ) => {
   try {
-    const accessToken = Cookies.get('access_token');
-    const response = await fetch(
-      `${API_BASE_URL}/practices/${payloadData.practiceId}/surgeryTypes/configurations/${payloadData.surgeryTypeId}/${payloadData.id}`,
-      {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        },
-      },
+    const response = await apiClient.delete(
+      `/practices/${payloadData.practiceId}/surgeryTypes/configurations/${payloadData.surgeryTypeId}/${payloadData.id}`,
+      null,
     );
     if (!response.ok) {
       throw new Error('Failed to delete surgery configuration.');
@@ -83,18 +69,11 @@ export const getSurgeryConfigurationInfo = async (
   { rejectWithValue },
 ) => {
   try {
-    const accessToken = Cookies.get('access_token');
-    const response = await fetch(
-      `${API_BASE_URL}/practices/${payloadData.practiceId}/surgeryTypes/configurations/${payloadData.surgeryTypeId}/${payloadData.id}`,
-      {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify(payloadData),
-      },
+    const response = await apiClient.get(
+      `/practices/${payloadData.practiceId}/surgeryTypes/configurations/${payloadData.surgeryTypeId}/${payloadData.id}`,
+      payloadData,
     );
+
     const data = await response.json();
     return data;
   } catch (error) {
@@ -110,18 +89,11 @@ export const addSurgeryConfiguration = async ({
   practiceId: string;
 }) => {
   try {
-    const accessToken = Cookies.get('access_token');
-    const response = await fetch(
-      `${API_BASE_URL}/practices/${practiceId}/surgeryTypes/configurations/${payloadData.surgeryTypeId}`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify(payloadData),
-      },
+    const response = await apiClient.post(
+      `/practices/${practiceId}/surgeryTypes/configurations/${payloadData.surgeryTypeId}`,
+      payloadData,
     );
+
     const data = await response.json();
     return data;
   } catch (error) {
@@ -139,20 +111,13 @@ export const editSurgeryConfiguration = async ({
   id: string;
 }) => {
   try {
-    const accessToken = Cookies.get('access_token');
     const surgeryTypeId = payloadData.surgeryTypeId;
     delete payloadData.surgeryTypeId;
-    const response = await fetch(
-      `${API_BASE_URL}/practices/${practiceId}/surgeryTypes/configurations/${surgeryTypeId}/${id}`,
-      {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify(payloadData),
-      },
+    const response = await apiClient.patch(
+      `/practices/${practiceId}/surgeryTypes/configurations/${surgeryTypeId}/${id}`,
+      payloadData,
     );
+
     const data = await response.json();
     return data;
   } catch (error) {
