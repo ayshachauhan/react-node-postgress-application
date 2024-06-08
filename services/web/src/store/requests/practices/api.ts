@@ -77,6 +77,12 @@ export const addPractice = async (
     const { practiceImg, ...restPayload } = payloadData;
 
     const response = await apiClient.post(`/practices`, restPayload);
+
+    if (!response.ok) {
+      const body = await response.json();
+      throw new Error(body.message ?? 'Failed to upload img.');
+    }
+
     const data: IPractice = await response.json();
 
     if (practiceImg && data.id) {
@@ -87,7 +93,9 @@ export const addPractice = async (
     }
     return data;
   } catch (error) {
-    return rejectWithValue(error);
+    const msg = (error as Record<string, unknown>).message;
+
+    return rejectWithValue(msg ?? 'An unexpected error occurred.');
   }
 };
 

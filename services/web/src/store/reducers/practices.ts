@@ -96,6 +96,7 @@ const practiceSlice = createSlice({
         ...{ [action.payload.id]: action.payload },
       };
       state.successMessage = 'Practice added successfully.';
+      state.processing = false;
     });
 
     builder.addCase(addRecordAsync.rejected, (state, action) => {

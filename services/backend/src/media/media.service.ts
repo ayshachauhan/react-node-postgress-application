@@ -30,18 +30,18 @@ export class MediaService {
       case MediaType.PRACTICE: {
         const config = data.mediaConfig as PracticeMediaConfig;
 
-        const surgeryConfiguration = await this.surgeryConfiguration.findOne({
-          where: {
-            id: config.surgeryConfigurationId,
-          },
-        });
-
-        if (!surgeryConfiguration) {
-          throw new NotFoundException('Surgery type not found');
-        }
+        const surgeryConfiguration = config.surgeryConfigurationId
+          ? await this.surgeryConfiguration.findOne({
+              where: {
+                id: config.surgeryConfigurationId,
+              },
+            })
+          : null;
 
         return {
-          surgeryConfigurationId: config.surgeryConfigurationId,
+          surgeryConfigurationId: surgeryConfiguration
+            ? surgeryConfiguration.id
+            : null,
           video: config.video,
         };
       }

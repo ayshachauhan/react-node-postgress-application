@@ -38,6 +38,15 @@ const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       return false;
     }
 
+    if (!adminEmail.trim() || !/\S+@\S+\.\S+/.test(adminEmail)) {
+      setErrorMessage('Invalid email address.');
+      return false;
+    }
+    if (!adminContactNumber.trim() || !/^\d{10}$/.test(adminContactNumber)) {
+      setErrorMessage('Invalid contact number. Must be 10 digits.');
+      return false;
+    }
+
     setErrorMessage('');
     return true;
   };
@@ -49,8 +58,8 @@ const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       name: name.trim(),
       adminFirstName: adminFirstName.trim(),
       adminLastName: adminLastName.trim(),
-      adminEmail,
-      adminContactNumber,
+      adminEmail: adminEmail.trim(),
+      adminContactNumber: adminContactNumber.trim(),
       code,
       practiceImg,
     };
@@ -137,7 +146,6 @@ const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                   setAdminEmail(value);
                 }}
                 required
-                type="email"
               />
             </div>
             <div className="space-y-2">
@@ -154,10 +162,7 @@ const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                   setAdminContactNumber(value);
                 }}
                 required
-                type="tel"
                 maxLength={14}
-                pattern="[0-9]{10}"
-                placeholder="9876543210"
               />
             </div>
           </div>

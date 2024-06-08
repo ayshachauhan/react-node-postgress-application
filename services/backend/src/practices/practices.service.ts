@@ -116,6 +116,20 @@ export class PracticesService {
     await queryRunner.startTransaction();
 
     try {
+      const existingUser = await this.userService.getUserByEmail(adminEmail);
+
+      const existingPractice: PracticeEntity | undefined =
+        existingUser?.practices.find(
+          (practice: PracticeEntity) => practice.name === name,
+        );
+
+      if (existingPractice) {
+        throw new HttpException(
+          `Practice with name ${name} already exists.`,
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
       const newPractice: PracticeEntity = this.practicesRepository.create({
         name,
         code,
