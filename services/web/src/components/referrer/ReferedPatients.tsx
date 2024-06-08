@@ -28,7 +28,7 @@ const ReferedPatients = ({ referrerId }) => {
       (patient.surgeries && patient.surgeries.length > 0) ||
       (patient.evals && patient.evals.length > 0),
   );
-  console.log(filteredReferredPatients);
+
   const dispatch = useAppDispatch();
   const userInfo = useAppSelector((state) => state.auth.user);
   const userPermissions = userInfo?.permissions;
