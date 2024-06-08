@@ -110,12 +110,9 @@ export const uploadImg = async (
     const formdata = new FormData();
     formdata.append('file', file);
 
-    const response = await apiClient.patch(
+    const response = await apiClient.upload(
       `/practices/${practiceId}/upload`,
       formdata,
-      {
-        'Content-Type': 'multipart/form-data;',
-      },
     );
 
     if (!response.ok) {

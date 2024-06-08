@@ -61,7 +61,7 @@ export class ApiService {
   async delete<T>(path: string, data: T | null): Promise<Response> {
     return await fetch(
       this.getUrl(path),
-      this.getRequestConfig({ method: 'DELETE', body: data }),
+      this.getRequestConfig({ method: 'DELETE', body: data ?? undefined }),
     );
   }
 
@@ -78,5 +78,18 @@ export class ApiService {
         headers: headers ?? {},
       }),
     );
+  }
+
+  async upload(path: string, data: FormData): Promise<Response> {
+    const requestConfig: RequestInit = {
+      method: 'PATCH',
+      body: data,
+      headers: {},
+    };
+    const token = this.getToken();
+    if (token) {
+      requestConfig.headers!['Authorization'] = `Bearer ${token}`;
+    }
+    return await fetch(this.getUrl(path), requestConfig);
   }
 }

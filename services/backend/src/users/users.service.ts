@@ -94,6 +94,7 @@ export class UsersService {
         newUser = await this.usersRepository.save({
           ...newUser,
           ...createUserDto,
+          status: UserStatus.PENDING,
           fullName,
           password: hashedDefaultPassword,
           practices: [practiceEntity],
@@ -273,7 +274,14 @@ export class UsersService {
     practiceEntity: IPractice;
   }): Promise<void> {
     const frontendBaseUrl: string = this.getFrontEndBaseUrl();
-    const newSanitizedUser = this.sanitizeUser(newUser);
+    const { password, practices, permissions, surgeries, ...newSanitizedUser } =
+      newUser;
+
+    password && password;
+    practices && practices;
+    permissions && permissions;
+    surgeries && surgeries;
+
     const token = this.jwtService.sign({
       ...newSanitizedUser,
     });

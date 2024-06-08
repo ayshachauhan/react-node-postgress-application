@@ -30,7 +30,8 @@ export const login = async (
     const response = await apiClient.post('/auth/login', payloadData);
 
     if (!response.ok) {
-      throw new Error('Invalid username or password');
+      const data = await response.json();
+      throw new Error(data.message);
     }
     const result = await response.json();
     return result;

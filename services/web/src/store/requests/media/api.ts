@@ -113,12 +113,9 @@ export const uploadImg = async (
       if (file.file) formData.append('files', file.file);
     });
 
-    const response = await apiClient.patch(
+    const response = await apiClient.upload(
       `/practices/${practiceId}/media/${mediaId}/upload`,
       formData,
-      {
-        'Content-Type': 'multipart/form-data;',
-      },
     );
 
     if (!response.ok) {

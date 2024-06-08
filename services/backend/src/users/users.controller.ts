@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -6,7 +7,9 @@ import {
   Param,
   Patch,
   Post,
+  Req,
   UploadedFile,
+  UseGuards,
   //UseGuards,
   UseInterceptors,
   ValidationPipe,
@@ -16,6 +19,7 @@ import { UserEntity } from '@packages/entities/user';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
 //import { AuthGuard } from '../auth/auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express/multer';
+import { AuthGuard, RequestWithUser } from 'src/auth/auth.guard';
 import { ChangePasswordDto } from './dto/changePassword.dto';
 import { CreateUserDto } from './dto/create.dto';
 import { UpdateUserDto } from './dto/update.dto';
@@ -25,7 +29,7 @@ import { UsersService } from './users.service';
 @ApiTags('Users')
 @Controller('practices/:practiceId/users')
 @ApiBearerAuth('normal')
-//@UseGuards(AuthGuard)
+@UseGuards(AuthGuard)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
@@ -53,7 +57,13 @@ export class UsersController {
 
   @Delete(':id')
   @UseInterceptors(practiceNotFoundInterceptor)
-  async deleteUser(@Param() { id }: { id: string }): Promise<void> {
+  async deleteUser(
+    @Param() { id }: { id: string },
+    @Req() request: RequestWithUser,
+  ): Promise<void> {
+    if (request.user.id === id) {
+      throw new BadRequestException('Current loggedin user can not be deleted');
+    }
     await this.usersService.deleteUser(id);
   }
 
