@@ -44,6 +44,7 @@ export class SchedulerService {
         to: pt_email_address,
         text,
         html: body,
+        attachments: mailData.attachment ? [{ path: mailData.attachment }] : [],
       };
 
       // sending mail here
