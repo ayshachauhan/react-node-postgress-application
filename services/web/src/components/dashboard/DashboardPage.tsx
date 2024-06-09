@@ -17,7 +17,6 @@ import {
 
 import { USER_PERMISSIONS } from '@packages/entities/permission';
 import { useUserPermission } from '@root/hooks/userHasPermission';
-import { fetchLoggedInUser } from '@root/store/reducers/auth';
 import { fetchListings as fetchInsuranceTypesList } from '@root/store/reducers/insuranceTypes';
 import { fetchListings as fetchPatients } from '@root/store/reducers/patient';
 import { fetchListings as fetchPracticeHomesListing } from '@root/store/reducers/practiceHomes';
@@ -68,10 +67,6 @@ const DashboardPage: React.FC = () => {
   const monthLabels = selectedMonth.map((month) => month.label);
   const month = monthLabels.join(',');
   const searchMRNNameStr = searchMRNName || '';
-
-  useEffect(() => {
-    dispatch(fetchLoggedInUser());
-  }, [dispatch]);
 
   useEffect(() => {
     if (practiceId) {

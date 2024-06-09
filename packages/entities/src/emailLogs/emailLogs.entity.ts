@@ -20,4 +20,7 @@ export class EmailLogEntity extends BaseEntity implements IEmailLog {
   @ManyToOne(() => PracticeEntity)
   @JoinColumn({ name: 'practiceId' })
   practice: PracticeEntity;
+
+  @Column({ type: 'varchar', nullable: true })
+  attachment?: string;
 }

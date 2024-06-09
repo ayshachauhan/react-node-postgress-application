@@ -128,13 +128,13 @@ const UpsertCalendar: React.FC<{
               ) : (
                 <DatePicker
                   value={calendar.date}
-                  onChange={({ date }) =>
+                  onChange={({ date }) => {
                     handleInputChange(date, {
                       target: { name: 'date' },
                     } as React.ChangeEvent<
                       HTMLInputElement | HTMLTextAreaElement
-                    >)
-                  }
+                    >);
+                  }}
                   placeholder="Surgery Date"
                   required
                   minDate={new Date()}
@@ -176,6 +176,9 @@ const UpsertCalendar: React.FC<{
                   disabled: isUpdating ? key < calendar.bookedSlots : false,
                 }))}
                 onChange={({ value }) => {
+                  if (!value.length) {
+                    return;
+                  }
                   setUpsertCalendarData((prevData) =>
                     prevData.map((cal: CalendarData) =>
                       cal.id === value[0].calendarId

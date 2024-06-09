@@ -5,10 +5,7 @@ import {
   PatientMediaConfig,
 } from '@packages/entities/index.browser';
 import { ApiService } from '@root/services/apiclient';
-import Cookies from 'js-cookie';
-import { publicRuntimeConfig } from 'next.config';
 import { AddMediaDTO, UploadImgPayload } from './types';
-const { API_BASE_URL } = publicRuntimeConfig;
 
 const apiClient = new ApiService();
 
@@ -116,17 +113,9 @@ export const uploadImg = async (
       if (file.file) formData.append('files', file.file);
     });
 
-    const accessToken = Cookies.get('access_token');
-
-    const response = await fetch(
-      `${API_BASE_URL}/practices/${practiceId}/media/${mediaId}/upload`,
-      {
-        method: 'PATCH',
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: formData,
-      },
+    const response = await apiClient.upload(
+      `/practices/${practiceId}/media/${mediaId}/upload`,
+      formData,
     );
 
     if (!response.ok) {

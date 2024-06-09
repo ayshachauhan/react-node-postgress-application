@@ -3,8 +3,8 @@ import { useAppDispatch, useAppSelector } from '@root/store';
 import { fetchLoggedInUser } from '@root/store/reducers/auth';
 import { getPracticeInfo } from '@root/store/reducers/practices';
 
+import { setLoginCookie } from '@root/store/requests/login';
 import { getPracticeId } from '@utils/index';
-import Cookies from 'js-cookie';
 import { useSearchParams } from 'next/navigation';
 import React, { useEffect } from 'react';
 import ResetPassword from '../ResetPassword/resetPassword';
@@ -21,9 +21,7 @@ export default function PracticeOnboardPage() {
 
   useEffect(() => {
     if (token) {
-      Cookies.set('access_token', token, {
-        expires: 1,
-      });
+      setLoginCookie(token);
 
       if (!userInfo) {
         dispatch(fetchLoggedInUser());

@@ -1,6 +1,6 @@
-import Cookies from 'js-cookie';
-import { publicRuntimeConfig } from 'next.config';
-const { API_BASE_URL } = publicRuntimeConfig;
+import { ApiService } from '@root/services/apiclient';
+
+const apiClient = new ApiService();
 
 export const getPatients = async (
   payloadData: {
@@ -9,17 +9,10 @@ export const getPatients = async (
   { rejectWithValue },
 ) => {
   try {
-    const accessToken = Cookies.get('access_token');
-    const response = await fetch(
-      `${API_BASE_URL}/practices/${payloadData.practiceId}/patients`,
-      {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        },
-      },
+    const response = await apiClient.get(
+      `/practices/${payloadData.practiceId}/patients`,
     );
+
     if (!response.ok) {
       throw new Error('Failed to get surgery');
     }

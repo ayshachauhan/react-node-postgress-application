@@ -56,13 +56,16 @@ export const createInfraModuleProviders = (): Array<
         const nodeEnv: string =
           configService.get(ENVIRONMENT_VARIABLES.NODE_ENV) ?? 'production';
         return {
-          pinoHttp: {
-            level: 'debug',
-            transport:
-              nodeEnv !== 'production'
-                ? { target: 'pino-pretty', options: { colorize: true } }
-                : undefined,
-          },
+          pinoHttp:
+            nodeEnv === 'production'
+              ? {
+                  level: 'debug',
+                  transport:
+                    nodeEnv !== 'production'
+                      ? { target: 'pino-pretty', options: { colorize: true } }
+                      : undefined,
+                }
+              : {},
         };
       },
       imports: [ConfigModule],
