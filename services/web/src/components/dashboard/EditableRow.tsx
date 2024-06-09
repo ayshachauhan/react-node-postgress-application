@@ -46,15 +46,23 @@ function EditableRow({
         referrerId: surgeryInfo.patient.referrer
           ? toFullName(surgeryInfo.patient.referrer)
           : '',
+        practiceHomeId: surgeryInfo.practiceHome.id,
       });
       setInsuranceTypeId(surgeryInfo?.insuranceType?.id);
       setReferrerId(surgeryInfo.patient?.referrer?.id);
     }
   }, [surgeryInfo.id, surgeryInfo]);
 
-  const { insuranceTypesList, referrersList } = useAppSelector((state) => ({
-    insuranceTypesList: Object.values(state.insuranceTypes.entities),
-    referrersList: Object.values(state.referrers.entities),
+  const { insuranceTypesList, referrersList, practiceHomesList } =
+    useAppSelector((state) => ({
+      insuranceTypesList: Object.values(state.insuranceTypes.entities),
+      referrersList: Object.values(state.referrers.entities),
+      practiceHomesList: Object.values(state.practiceHomes.entities),
+    }));
+
+  const practiceHomesOptions = Object.keys(practiceHomesList).map((key) => ({
+    label: practiceHomesList[key].name[0],
+    id: practiceHomesList[key].id,
   }));
 
   const surgeryConfigurationsList = useAppSelector(
@@ -141,13 +149,34 @@ function EditableRow({
               }}
             />
           </div>
-          <div className="w-10 py-2">
-            <TextInput
+          <div className="w-14 py-1">
+            <Select
               size={SIZE.mini}
-              disabled
-              name="home"
-              value={surgeryInfo.practiceHome.name}
-              onChange={(value) => handleObjChange('home', value)}
+              required
+              backspaceRemoves={false}
+              options={practiceHomesOptions}
+              value={
+                obj.practiceHomeId
+                  ? [{ id: obj.practiceHomeId, label: obj.practiceHomeId }]
+                  : []
+              }
+              onChange={({ value }) =>
+                handleObjChange('practiceHomeId', value[0].id)
+              }
+              overrides={{
+                ControlContainer: {
+                  style: {
+                    backgroundColor: 'rgba(250, 250, 250, 1)',
+                    border: 'none',
+                    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                    color: '#52525B',
+                    paddingRight: '0',
+                  },
+                },
+                ClearIcon: {
+                  component: () => null,
+                },
+              }}
             />
           </div>
           <div className="py-2 w-20">

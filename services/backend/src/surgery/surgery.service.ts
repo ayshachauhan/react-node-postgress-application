@@ -368,6 +368,12 @@ export class SurgeryService {
       createSurgeryDto.insuranceType = insuranceTypeEntity;
     }
 
+    const practiceHomeEntity =
+      await this.practiceHomesService.getPracticeHomeById(
+        createSurgeryDto.practiceHomeId,
+        practiceId,
+      );
+
     if (surgeryToUpdate) {
       await this.patientService.update({
         id: surgeryToUpdate.patient.id,
@@ -389,6 +395,9 @@ export class SurgeryService {
       surgeryOrder: createSurgeryDto.surgeryOrder
         ? createSurgeryDto.surgeryOrder
         : surgeryToUpdate?.surgeryOrder,
+      practiceHome: practiceHomeEntity
+        ? practiceHomeEntity
+        : surgeryToUpdate?.practiceHome,
     };
 
     await this.surgeryRepository.update(id, {
