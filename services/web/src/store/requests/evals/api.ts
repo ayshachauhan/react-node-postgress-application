@@ -71,7 +71,7 @@ export const updateEval = async ({
   id: string;
 }) => {
   try {
-    const response: Response = await apiClient.post(
+    const response: Response = await apiClient.patch(
       `/practices/${payloadData.practiceId}/evals/${id}`,
       {
         ...payloadData,

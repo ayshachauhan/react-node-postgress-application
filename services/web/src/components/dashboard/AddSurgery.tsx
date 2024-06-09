@@ -608,7 +608,6 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
                   PCP (Check box if same)
                 </label>
               </Checkbox>
-
               <TextInput
                 disabled
                 size={SIZE.mini}
