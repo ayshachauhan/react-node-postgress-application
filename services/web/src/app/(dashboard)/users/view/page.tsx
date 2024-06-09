@@ -5,6 +5,7 @@ import { getPracticeInfo } from '@root/store/reducers/practices';
 import { fetchListings } from '@root/store/reducers/users';
 import { SanitizedUser } from '@root/store/types';
 import { getPracticeId } from '@utils/index';
+import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
 import React, { useEffect } from 'react';
 
@@ -48,7 +49,20 @@ const UserViewPage: React.FC = () => {
             <div className="flex mt-10 items-center">
               <div className="flex items-center justify-center shadow-lg w-44 h-44 bg-black-200 rounded-full  flex-shrink-0">
                 {' '}
-                <AvatarIcon size={40}></AvatarIcon>
+                {userInfo.imgUrl ? (
+                  <Image
+                    src={userInfo.imgUrl}
+                    alt={userInfo.id}
+                    width={50}
+                    height={50}
+                    className="inline-block rounded-full w-36 h-36"
+                    style={{
+                      objectFit: 'cover',
+                    }}
+                  />
+                ) : (
+                  <AvatarIcon size={50}></AvatarIcon>
+                )}
               </div>
               <div className="w-full flex-grow">
                 <p className="ml-4">
