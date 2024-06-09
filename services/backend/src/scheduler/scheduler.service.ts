@@ -1,12 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Interval } from '@nestjs/schedule';
+import { Cron, Interval } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EmailLogEntity } from '@packages/entities';
 import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import Mail from 'nodemailer/lib/mailer';
 import { ENVIRONMENT_VARIABLES } from 'src/enums/environment.enums';
 import { HealthService } from 'src/healthz/health.service';
+import { SurgeryService } from 'src/surgery/surgery.service';
 import { TransporterService } from 'src/transporter';
 import { LessThanOrEqual, Repository } from 'typeorm';
 
@@ -19,6 +20,7 @@ export class SchedulerService {
     private transporterService: TransporterService,
     @InjectPinoLogger(HealthService.name)
     private readonly logger: PinoLogger,
+    private readonly surgeryService: SurgeryService,
   ) {}
 
   getMailLimit() {
@@ -64,6 +66,13 @@ export class SchedulerService {
 
     await Promise.allSettled(promises);
     this.logger.info('Processed emails');
+  }
+
+  @Cron('0 0 * * *') // every 24 hours
+  async autoCompleteSurgeries() {
+    this.logger.info('STARTED AUTO APPROVING SURGERIES');
+    await this.surgeryService.autoCompleteSurgeries();
+    this.logger.info('FINISHED AUTO APPROVING SURGERIES');
   }
 
   private getFormattedDate() {

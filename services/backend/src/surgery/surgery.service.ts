@@ -12,6 +12,7 @@ import {
   PracticeEntity,
   SelectedSurgeryOption,
   SurgeryEntity,
+  SurgeryStatus,
 } from '@packages/entities';
 import { PatientEntity } from '@packages/entities/patient';
 import { USER_PERMISSIONS } from '@packages/entities/permission';
@@ -42,6 +43,7 @@ import {
   FindOptionsWhere,
   ILike,
   In,
+  LessThan,
   LessThanOrEqual,
   Repository,
 } from 'typeorm';
@@ -417,6 +419,18 @@ export class SurgeryService {
     return await this.surgeryRepository.findOne({
       where: { id },
     });
+  }
+
+  async autoCompleteSurgeries() {
+    this.surgeryRepository.update(
+      {
+        date: LessThan(new Date(Date.now())),
+        surgeryStatus: In([SurgeryStatus.PENDING]),
+      },
+      {
+        surgeryStatus: SurgeryStatus.COMPLETED,
+      },
+    );
   }
 
   async remove(

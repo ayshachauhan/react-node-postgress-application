@@ -20,6 +20,7 @@ export interface ISurgery extends IBaseEntity {
   waitlist: IWaitlist;
   dateDeleted?: Date;
   surgeryOrder: number;
+  surgeryStatus: SurgeryStatus;
 }
 
 export interface CreateSurgeryPayload {
@@ -82,4 +83,13 @@ export interface MonthOption {
   label: string;
   value: string;
   id: string;
+}
+
+export enum SurgeryStatus {
+  BOOK = 'BOOK',
+  PENDING = 'PENDING',
+  DATE_CHANGE = 'DATE_CHANGE',
+  POSTPONE = 'POSTPONE',
+  CANCELLED = 'CANCELLED',
+  COMPLETED = 'COMPLETED',
 }
