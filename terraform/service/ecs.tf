@@ -58,7 +58,7 @@ resource "aws_ecs_service" "azentia_service" {
   cluster              = var.cluster_id      # Referencing our created Cluster
   task_definition      = aws_ecs_task_definition.azentia_task.arn # Referencing the task our service will spin up
   launch_type          = "FARGATE"
-  desired_count        = 2 # Setting the number of containers we want deployed to 3
+  desired_count        = 1 # Setting the number of containers we want deployed to 3
   force_new_deployment = true
 
   load_balancer {
