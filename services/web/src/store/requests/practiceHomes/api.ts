@@ -67,6 +67,7 @@ export const deletePracticeHome = async (
   try {
     const response = await apiClient.delete(
       `/practices/${payloadData.practiceId}/homes/${payloadData.id}`,
+      null,
     );
     if (!response.ok) {
       throw new Error('Failed to delete template');

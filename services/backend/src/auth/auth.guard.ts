@@ -1,10 +1,15 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import { UserEntity } from '@packages/entities/*';
 import { Request } from 'express';
 import { Observable } from 'rxjs';
 import { ENVIRONMENT_VARIABLES } from '../enums/environment.enums';
 import { SanitizedUser, SuperAdminUser } from './types';
+
+export type RequestWithUser = Request & {
+  user: UserEntity;
+};
 
 @Injectable()
 export class AuthGuard implements CanActivate {

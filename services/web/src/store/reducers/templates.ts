@@ -37,19 +37,15 @@ const templateSlice = createSlice({
       state.status = EntityLoadingState.SUCCEEDED;
       state.entities = {};
       if (action.payload.length === 0) {
-        state.errorMessage = 'No records found';
+        state.errorMessage = 'No templates found';
       } else {
         state.errorMessage = undefined;
       }
       if (action.payload) {
         const indexedEntities = action.payload.reduce((acc, obj) => {
           const surgeryConfigurationName = obj.surgeryConfigurationName;
-          delete obj.surgeryConfigurationName;
           if (surgeryConfigurationName) {
-            acc[surgeryConfigurationName] = {
-              ...obj,
-              surgeryConfigurationName: surgeryConfigurationName,
-            };
+            acc[surgeryConfigurationName] = obj;
           }
           return acc;
         }, {});
@@ -78,9 +74,22 @@ const templateSlice = createSlice({
 
     builder.addCase(addRecordAsync.fulfilled, (state, action) => {
       state.status = EntityLoadingState.SUCCEEDED;
+      if (
+        !action.payload.surgeryConfigurationName ||
+        !action.payload.messageType
+      ) {
+        return;
+      }
+      const messageTypeData =
+        state.entities[action.payload.surgeryConfigurationName][
+          action.payload.messageType
+        ] ?? [];
       state.entities = {
         ...state.entities,
-        ...{ [action.payload.id]: action.payload },
+        [action.payload.surgeryConfigurationName]: {
+          ...state.entities[action.payload.surgeryConfigurationName],
+          [action.payload.messageType]: [...messageTypeData, action.payload],
+        },
       };
       state.successMessage = 'Template added successfully.';
     });
@@ -102,9 +111,22 @@ const templateSlice = createSlice({
 
     builder.addCase(updateRecordAsync.fulfilled, (state, action) => {
       state.status = EntityLoadingState.SUCCEEDED;
+      if (
+        !action.payload.surgeryConfigurationName ||
+        !action.payload.messageType
+      ) {
+        return;
+      }
+      const messageTypeData =
+        state.entities[action.payload.surgeryConfigurationName][
+          action.payload.messageType
+        ] ?? [];
       state.entities = {
         ...state.entities,
-        ...{ [action.payload.id]: action.payload },
+        [action.payload.surgeryConfigurationName]: {
+          ...state.entities[action.payload.surgeryConfigurationName],
+          [action.payload.messageType]: [...messageTypeData, action.payload],
+        },
       };
       state.successMessage = 'Template updated successfully.';
     });

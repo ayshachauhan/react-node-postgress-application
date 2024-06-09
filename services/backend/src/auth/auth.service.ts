@@ -1,4 +1,9 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { UserEntity } from '@packages/entities/*';
@@ -28,6 +33,11 @@ export class AuthService {
     if (superAdmin) return superAdmin;
     else {
       const user = await this.usersService.findUserByEmail(email);
+      if (user && user.status !== 'active') {
+        throw new UnauthorizedException(
+          'Please accept the invitation and reset your password using the link in email.',
+        );
+      }
 
       if (user) {
         const isPasswordMatched = await bcrypt.compare(password, user.password);

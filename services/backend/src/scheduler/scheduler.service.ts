@@ -1,10 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Cron } from '@nestjs/schedule';
+import { Cron, Interval } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EmailLogEntity } from '@packages/entities';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import Mail from 'nodemailer/lib/mailer';
 import { ENVIRONMENT_VARIABLES } from 'src/enums/environment.enums';
+import { HealthService } from 'src/healthz/health.service';
+import { SurgeryService } from 'src/surgery/surgery.service';
 import { TransporterService } from 'src/transporter';
 import { LessThanOrEqual, Repository } from 'typeorm';
 
@@ -15,14 +18,18 @@ export class SchedulerService {
     private readonly emailLogRepository: Repository<EmailLogEntity>,
     private configService: ConfigService,
     private transporterService: TransporterService,
+    @InjectPinoLogger(HealthService.name)
+    private readonly logger: PinoLogger,
+    private readonly surgeryService: SurgeryService,
   ) {}
 
   getMailLimit() {
     return this.configService.get(ENVIRONMENT_VARIABLES.CRON_EMAIL_SENT_LIMIT);
   }
 
-  @Cron('*/2 * * * *') // This runs the task every 10 minutes
+  @Interval(5000) // This runs the task every 10 minutes
   async handleCron() {
+    this.logger.info('starting to send emails');
     const today = this.getFormattedDate();
 
     const data = await this.emailLogRepository.find({
@@ -30,14 +37,16 @@ export class SchedulerService {
       take: this.getMailLimit(),
     });
 
-    for (let i = 0; i < data.length; i++) {
-      const mailData = data[i];
+    this.logger.info(`Found ${data.length} emails to send`);
+
+    const promises = data.map(async (mailData: EmailLogEntity) => {
       const { subject, pt_email_address, text, body } = mailData.data;
       const mailOptions: Mail.Options = {
         subject,
         to: pt_email_address,
         text,
         html: body,
+        attachments: mailData.attachment ? [{ path: mailData.attachment }] : [],
       };
 
       // sending mail here
@@ -53,7 +62,17 @@ export class SchedulerService {
           ? 'completed'
           : 'rejected',
       });
-    }
+    });
+
+    await Promise.allSettled(promises);
+    this.logger.info('Processed emails');
+  }
+
+  @Cron('0 0 * * *') // every 24 hours
+  async autoCompleteSurgeries() {
+    this.logger.info('STARTED AUTO APPROVING SURGERIES');
+    await this.surgeryService.autoCompleteSurgeries();
+    this.logger.info('FINISHED AUTO APPROVING SURGERIES');
   }
 
   private getFormattedDate() {

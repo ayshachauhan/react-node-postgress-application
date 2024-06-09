@@ -10,6 +10,7 @@ import {
   CheckListOptions,
   ISurgery,
   SelectedSurgeryOption,
+  SurgeryStatus,
 } from './surgery.interface';
 
 @Entity('surgeries')
@@ -40,6 +41,9 @@ export class SurgeryEntity extends BaseEntity implements ISurgery {
 
   @Column({ type: 'varchar' })
   insuranceDetails: string;
+
+  @Column({ type: 'varchar' })
+  surgeryStatus: SurgeryStatus;
 
   @Column({
     default: null,
