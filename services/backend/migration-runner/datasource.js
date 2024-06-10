@@ -3,11 +3,11 @@ const { DataSource } = require('typeorm');
 
 const dbdatasource = {
   type: 'postgres',
-  host: 'localhost',
-  port: Number(5432),
-  username: 'postgres',
-  password: 'postgres',
-  database: 'pod',
+  host: process.env.DB_HOST,
+  port: Number(process.env.DB_PORT),
+  username: process.env.DB_USERNAME,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_DATABASE,
   migrations: [path.join('migrations', '*.{ts,js}')],
   synchronize: false,
 };
