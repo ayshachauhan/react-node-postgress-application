@@ -77,6 +77,7 @@ export interface UpdateSurgeryPayload {
   waitlistId?: string;
   surgeryOrder?: number;
   referrerId?: string;
+  practiceHomeId: string;
 }
 
 export interface MonthOption {

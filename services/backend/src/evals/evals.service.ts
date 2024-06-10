@@ -84,6 +84,7 @@ export class EvalsService {
         'insuranceType',
         'patient.referrer',
         'doctor',
+        'waitlist',
       ],
     });
     dbEvalsByPractice.forEach((ele) => (ele.doctor.password = ''));
@@ -101,6 +102,7 @@ export class EvalsService {
         'insuranceType',
         'patient.referrer',
         'doctor',
+        'waitlist',
       ],
     });
   }
@@ -185,11 +187,8 @@ export class EvalsService {
   }): Promise<EvalEntity | null> {
     const evalToUpdate = await this.getEvalById(id);
 
-    let insuranceTypeEntity: InsuranceTypeEntity | null =
-      new InsuranceTypeEntity();
-
     if (createEvalDto.insuranceTypeId) {
-      insuranceTypeEntity =
+      createEvalDto.insuranceType =
         await this.insuranceTypesService.getInsuranceTypeById(
           createEvalDto.insuranceTypeId,
           createEvalDto.practiceId,
@@ -202,17 +201,34 @@ export class EvalsService {
       data: createEvalDto,
     });
 
+    const practiceHomeEntity =
+      await this.practiceHomesService.getPracticeHomeById(
+        createEvalDto.practiceHomeId,
+        practiceId,
+      );
+
+    const waitlistEntity = await this.waitlistService.getWaitlistById(
+      createEvalDto.waitlistId,
+      practiceId,
+    );
+
     delete createEvalDto.practiceId;
     delete createEvalDto.insuranceTypeId;
 
     await this.evalRepository.update(id, {
       ...evalToUpdate,
-      insuranceType: insuranceTypeEntity ? insuranceTypeEntity : undefined,
+      insuranceType: createEvalDto.insuranceType
+        ? createEvalDto.insuranceType
+        : evalToUpdate?.insuranceType,
       patient: newPatient ? newPatient : evalToUpdate?.patient,
       status: createEvalDto.status,
       bodyPart: createEvalDto.bodyPart,
       date: createEvalDto.date,
       insuranceDetails: createEvalDto.insuranceDetails,
+      waitlist: waitlistEntity ? waitlistEntity : evalToUpdate?.waitlist,
+      practiceHome: practiceHomeEntity
+        ? practiceHomeEntity
+        : evalToUpdate?.practiceHome,
     });
 
     if (evalToUpdate) {
@@ -222,7 +238,7 @@ export class EvalsService {
       const transformedUpdatedDTOValues: EvalChangesKeyValues =
         transformUpdateEvalDTO({
           ...createEvalDto,
-          insuranceName: insuranceTypeEntity?.name,
+          insuranceName: createEvalDto?.insuranceType?.name,
         });
 
       // create history logs for updated values in evals
