@@ -80,3 +80,11 @@ export interface MonthOption {
   value: string;
   id: string;
 }
+
+export enum SurgeryStatus {
+  CONFIRMED = 'Confirmed',
+  PENDING = 'Pending',
+  DATECHANGE = 'Date Change',
+  POSTPONED = 'Postponed',
+  Cancelled = 'Cancelled',
+}
