@@ -3,11 +3,12 @@
 import { UserType } from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import { AddIcon } from '@root/components/Icons';
-import Form from '@root/components/dashboard/AddSurgery';
 import FiltersSection from '@root/components/dashboard/FiltersSection';
 import SurgeryPercentage from '@root/components/dashboard/SurgeryPercentage';
 import UpcomingSection from '@root/components/dashboard/UpcomingSection';
 import UsersListing from '@root/components/dashboard/UsersListing';
+import AddEvalModal from '@root/components/dashboard/addEvalModal';
+import AddSurgeryModal from '@root/components/dashboard/addSurgeryModal';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { fetchCalendars } from '@root/store/reducers/calendar';
 import {
@@ -30,7 +31,6 @@ import { fetchListings as fetchSurgeryTypesListing } from '@root/store/reducers/
 import { fetchListings as fetchUsersList } from '@root/store/reducers/users';
 import { fetchListings as fetchWaitlist } from '@root/store/reducers/waitlist';
 import { getPracticeId, getUserId } from '@root/utils';
-import { Modal, ModalBody, ROLE, SIZE } from 'baseui/modal';
 import React, { useEffect, useState } from 'react';
 
 const DashboardPage: React.FC = () => {
@@ -43,6 +43,8 @@ const DashboardPage: React.FC = () => {
   const { selectedMonth, searchMRNName, selectedValue } = useAppSelector(
     (state) => state.surgeries.surgeryFilters,
   );
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isAddEvalModalOpen, setIsAddEvalModalOpen] = useState(false);
 
   const addCaseAllowed = useUserPermission(userPermissions, [
     USER_PERMISSIONS.ADD_CASE,
@@ -164,57 +166,20 @@ const DashboardPage: React.FC = () => {
     waitlist: Object.values(state.waitlist.entities),
   }));
 
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const FormModal = () => {
-    return (
-      <Modal
-        isOpen={isAddModalOpen}
-        onClose={handleCloseAddModal}
-        closeable
-        animate
-        autoFocus
-        size={SIZE.default}
-        role={ROLE.dialog}
-        overrides={{
-          Dialog: {
-            style: () => ({
-              width: '900px',
-              maxWidth: '90%',
-              maxHeight: '90vh',
-              overflowY: 'auto',
-            }),
-          },
-          Root: {
-            style: ({ $theme }) => ({
-              outline: `${$theme.colors.warning200} solid`,
-              backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            }),
-          },
-        }}
-      >
-        <ModalBody>
-          <Form
-            onClose={handleCloseAddModal}
-            items={{
-              practiceHomesList,
-              surgeryTypesList,
-              insuranceTypesList,
-              referrersList,
-              usersList,
-              calendars,
-              waitlist,
-            }}
-          />
-        </ModalBody>
-      </Modal>
-    );
-  };
   const handleCloseAddModal = (): void => {
     setIsAddModalOpen(false);
   };
 
   const handleOpenAddModal = (): void => {
     setIsAddModalOpen(true);
+  };
+
+  const handleCloseAddEvalModal = (): void => {
+    setIsAddEvalModalOpen(false);
+  };
+
+  const handleOpenAddEvalModal = (): void => {
+    setIsAddEvalModalOpen(true);
   };
 
   return (
@@ -231,16 +196,31 @@ const DashboardPage: React.FC = () => {
           )}
           <div className="flex">
             {addCaseAllowed && (
-              <Button
-                kind="secondary"
-                title="Add"
-                height={40}
-                width={80}
-                onClick={handleOpenAddModal}
-                startEnhancer={() => (
-                  <AddIcon className="mt-2" size={25}></AddIcon>
-                )}
-              />
+              <div className="flex gap-2">
+                <Button
+                  kind="secondary"
+                  title="Eval"
+                  height={32}
+                  width={75}
+                  fontSize="12px"
+                  onClick={handleOpenAddEvalModal}
+                  startEnhancer={() => (
+                    <AddIcon className="mt-2 " size={25}></AddIcon>
+                  )}
+                />
+                <Button
+                  kind="secondary"
+                  title="Surgery"
+                  height={32}
+                  width={85}
+                  fontSize="12px"
+                  padding="2px"
+                  onClick={handleOpenAddModal}
+                  startEnhancer={() => (
+                    <AddIcon className="mt-2" size={25}></AddIcon>
+                  )}
+                />
+              </div>
             )}
           </div>
         </div>
@@ -264,7 +244,25 @@ const DashboardPage: React.FC = () => {
       <div className="mt-2 mb-12">
         {practiceId && <FiltersSection practiceId={practiceId} />}
       </div>
-      <FormModal />
+      <AddSurgeryModal
+        isModalOpen={isAddModalOpen}
+        handleCloseModal={handleCloseAddModal}
+        items={{
+          practiceHomesList,
+          surgeryTypesList,
+          insuranceTypesList,
+          referrersList,
+          usersList,
+          calendars,
+          waitlist,
+        }}
+      />
+      <div className="w-400">
+        <AddEvalModal
+          isSecondModalOpen={isAddEvalModalOpen}
+          handleCloseSecondModal={handleCloseAddEvalModal}
+        />
+      </div>
     </div>
   );
 };
