@@ -8,7 +8,6 @@ import {
   Patch,
   Post,
   Query,
-  Req,
   UseGuards,
   UseInterceptors,
   ValidationPipe,
@@ -16,7 +15,6 @@ import {
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { practiceNotFoundInterceptor } from '../interceptors/practiceNotFoundInterceptor';
-import { CreateReviewDto } from './dtos/review.createDto';
 import { reviewRequestDto } from './dtos/review.sendrequest';
 import { updateReviewDto } from './dtos/review.updateDto';
 import { ReviewService } from './review.service';
@@ -27,16 +25,6 @@ import { ReviewService } from './review.service';
 @UseGuards(AuthGuard)
 export class ReviewController {
   constructor(private reviewService: ReviewService) {}
-
-  @Post()
-  @UseInterceptors(practiceNotFoundInterceptor)
-  createReview(
-    @Req() request: Request,
-    @Body(new ValidationPipe()) referrerData: CreateReviewDto,
-  ) {
-    const practiceEntity = request['practiceEntity'];
-    return this.reviewService.createReview(practiceEntity, referrerData);
-  }
 
   @Post('send')
   @UseInterceptors(practiceNotFoundInterceptor)

@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { JwtService, TokenExpiredError } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
-import { IPractice, PatientEntity } from '@packages/entities/*';
+import { PatientEntity } from '@packages/entities';
 import {
   PostUserReview,
   ReviewEntity,
@@ -33,14 +33,9 @@ export class ReviewService {
   ) {}
 
   async createReview(
-    practiceEntity: IPractice,
-    reviewData: Partial<ReviewEntity>,
-  ): Promise<ReviewEntity> {
-    const review = this.reviews.create({
-      ...reviewData,
-      practice: practiceEntity,
-    });
-    return await this.reviews.save(review);
+    reviewData: Partial<ReviewEntity>[],
+  ): Promise<ReviewEntity[]> {
+    return await this.reviews.save(reviewData);
   }
 
   async sendReviewRequest(practiceId: string, reviewId: string) {

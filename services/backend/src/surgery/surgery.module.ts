@@ -16,6 +16,7 @@ import { CalendarModule } from '../calendar/calendar.module';
 import { HistoryModule } from '../history/history.module';
 import { SurgeryController } from './surgery.controller';
 import { SurgeryService } from './surgery.service';
+import { ReviewsModule } from 'src/review/review.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { SurgeryService } from './surgery.service';
     forwardRef(() => EmailHandlerModule),
     forwardRef(() => TemplatesModule),
     forwardRef(() => WaitlistModule),
+    forwardRef(() => ReviewsModule),
   ],
   providers: [
     practiceNotFoundInterceptor,
