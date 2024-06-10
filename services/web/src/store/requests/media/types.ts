@@ -1,10 +1,29 @@
-import { MediaConfig, MediaType } from '@packages/entities/index.browser';
+import { MediaConfigType, MediaType } from '@packages/entities/index.browser';
 
 export type AddMediaDTO = {
   practiceId: string;
   mediaType: MediaType;
-  mediaConfig: MediaConfig;
+  entityId: string | null;
+  mediaConfig: MediaConfig | PatientMediaConfig;
 };
+
+export type PatientMediaConfig = {
+  image?: BaseMediaConfig[];
+  video?: BaseMediaConfig[];
+};
+
+export type BaseMediaConfig = {
+  title: string;
+  url?: string;
+  file?: File | null;
+};
+
+export type MediaConfig = {
+  title: string;
+  url: string;
+  file?: File;
+  configType: MediaConfigType;
+}[];
 
 export type UploadImgPayload = {
   practiceId: string;

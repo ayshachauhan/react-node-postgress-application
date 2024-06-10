@@ -1,65 +1,33 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
 import {
-  MediaConfig,
-  MediaEntity,
-  MediaType,
-  PatientMediaConfig,
-  PracticeMediaConfig,
-} from '@packages/entities/media';
-import { SurgeryConfigurationEntity } from '@packages/entities/surgeryConfiguration';
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { MediaConfigEntity, MediaConfigType } from '@packages/entities';
+import { MediaEntity, MediaType } from '@packages/entities/media';
 import { UploadType } from 'src/users/types';
 import { getUploadFileKey } from 'src/users/utils';
 import { Repository } from 'typeorm';
 import { S3Service } from '../users/s3.service';
 import { CreateMediaDto } from './dtos/createMedia.dto';
-import { UploadPatientImagesData } from './types';
+import { MediaConfigDTO, UploadPatientImagesData } from './types';
 
 @Injectable()
 export class MediaService {
   constructor(
     @InjectRepository(MediaEntity)
     private readonly media: Repository<MediaEntity>,
-    @InjectRepository(SurgeryConfigurationEntity)
-    private readonly surgeryConfiguration: Repository<SurgeryConfigurationEntity>,
+    @InjectRepository(MediaConfigEntity)
+    private readonly mediaConfigRepo: Repository<MediaConfigEntity>,
     private readonly s3Service: S3Service,
   ) {}
-
-  async getMediaConfig(data: CreateMediaDto): Promise<MediaConfig> {
-    switch (data.mediaType) {
-      case MediaType.PRACTICE: {
-        const config = data.mediaConfig as PracticeMediaConfig;
-
-        const surgeryConfiguration = config.surgeryConfigurationId
-          ? await this.surgeryConfiguration.findOne({
-              where: {
-                id: config.surgeryConfigurationId,
-              },
-            })
-          : null;
-
-        return {
-          surgeryConfigurationId: surgeryConfiguration
-            ? surgeryConfiguration.id
-            : null,
-          video: config.video,
-        };
-      }
-      case MediaType.PATIENT: {
-        const config = data.mediaConfig as PatientMediaConfig;
-
-        return {
-          patientId: config.patientId,
-          video: config.video,
-          image: config.image,
-        };
-      }
-    }
-  }
 
   async getVideosByPracticeId(practiceId: string) {
     return await this.media.find({
       where: { practiceId },
+      relations: ['mediaConfigs'],
     });
   }
 
@@ -67,13 +35,34 @@ export class MediaService {
     practiceId: string,
     mediaId: string,
   ): Promise<MediaEntity> {
-    const video = await this.media.findOne({
+    const media = await this.media.findOne({
       where: { id: mediaId, practiceId },
+      relations: ['mediaConfigs'],
     });
-    if (!video) {
-      throw new NotFoundException('Media not exists');
+
+    if (!media) {
+      throw new NotFoundException(
+        'Media not exists for the provided patient Id.',
+      );
     }
-    return video;
+
+    return media;
+  }
+
+  /**
+   * @param patientId
+   * @returns media for specific patient id
+   */
+  async getMediaByPatientId(patientId: string): Promise<MediaEntity | null> {
+    console.log(patientId, 'patid');
+
+    const media = await this.media.findOne({
+      where: { entityId: patientId },
+    });
+
+    console.log(media, 'mediabypat');
+
+    return media;
   }
 
   /**
@@ -84,29 +73,72 @@ export class MediaService {
   async createOne(
     practiceId: string,
     data: CreateMediaDto,
-  ): Promise<MediaEntity> {
-    const mediaConfig: MediaConfig = await this.getMediaConfig(data);
+  ): Promise<MediaEntity | null> {
+    console.log(data, 'createdtom');
 
-    console.log(mediaConfig, 'mediaconfig');
+    // const mediaConfig: MediaConfig = await this.getMediaConfig(data);
 
-    const media = this.media.create({
-      practiceId,
-      mediaType: data.mediaType,
-      mediaConfig,
+    const existingMedia =
+      data.mediaType === MediaType.PATIENT
+        ? await this.getMediaByPatientId(data.entityId!)
+        : null;
+
+    console.log('mediaconfig', existingMedia);
+
+    if (existingMedia) {
+      return await this.createMediaConfig(existingMedia.id, data.mediaConfig);
+    } else {
+      const media = this.media.create({
+        practiceId,
+        mediaType: data.mediaType,
+        ...(data.entityId ? { entityId: data.entityId } : {}),
+      });
+      const newMedia = await this.media.save(media);
+
+      console.log(newMedia, 'newmedia');
+
+      return await this.createMediaConfig(newMedia.id, data.mediaConfig);
+    }
+  }
+
+  async createMediaConfig(
+    mediaId: string,
+    mediaConfig: MediaConfigDTO[],
+  ): Promise<MediaEntity | null> {
+    const mediaConfigEntities: MediaConfigEntity[] = mediaConfig.map(
+      (config: MediaConfigDTO) =>
+        this.mediaConfigRepo.create({
+          mediaId,
+          configType: config.configType,
+          title: config.title,
+          url: config.url,
+        }),
+    );
+    await this.mediaConfigRepo.save(mediaConfigEntities);
+
+    return await this.media.findOne({
+      where: {
+        id: mediaId,
+      },
+      relations: ['mediaConfigs'],
     });
-
-    console.log(media, 'mediacreated');
-
-    return await this.media.save(media);
   }
 
   async updateMedia(
     practiceId: string,
-    videoId: string,
+    mediaId: string,
     videoData: Partial<MediaEntity>,
   ): Promise<MediaEntity | undefined> {
-    const video = await this.getMediaById(practiceId, videoId);
-    const updatedVideo = this.media.merge(video, videoData);
+    const media = await this.getMediaById(practiceId, mediaId);
+
+    if (!media) {
+      throw new HttpException(
+        `Media with id ${mediaId} not found`,
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    const updatedVideo = this.media.merge(media, videoData);
     return this.media.save(updatedVideo);
   }
 
@@ -121,26 +153,26 @@ export class MediaService {
           practiceId,
           file,
         });
+
+        console.log(file, key, 'keyfile');
+
         const uploadResult = await this.s3Service.uploadFile(file, key);
-        return uploadResult.Location;
+
+        console.log(uploadResult, 'uploadresult');
+
+        return {
+          title: file.originalname.replace(/_/g, ' '),
+          url: uploadResult.Location,
+          configType: MediaConfigType.IMAGE,
+        };
       }),
     );
 
-    const user = await this.getMediaById(practiceId, id);
-    const userMediaConfig = user.mediaConfig as PatientMediaConfig;
+    console.log(uploadResults, 'uploadresults');
 
-    if (userMediaConfig.image.length !== uploadResults.length) {
-      throw new Error('Number of files and images do not match.');
-    }
+    const user = await this.createMediaConfig(id, uploadResults);
 
-    // Update the image array with the new URLs
-    const updatedImageData = userMediaConfig.image.map((image, index) => ({
-      ...image,
-      url: uploadResults[index],
-    }));
-
-    return await this.updateMedia(practiceId, id, {
-      mediaConfig: { ...user.mediaConfig, image: updatedImageData },
-    });
+    console.log(user, 'userentity');
+    return user;
   }
 }

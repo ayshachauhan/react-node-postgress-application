@@ -3,8 +3,7 @@ import { MediaType } from '@packages/entities';
 import {
   IPatient,
   ISurgeryConfiguration,
-  PatientMediaConfig,
-  PracticeMediaConfig,
+  MediaConfigType,
 } from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import { AddIcon, PlayIcon } from '@root/components/Icons';
@@ -199,18 +198,22 @@ const Media: React.FC = () => {
       <div className="flex flex-wrap gap-6">
         {selectedMediaType === MediaType.PRACTICE &&
           media
-            .filter((data) => data.mediaType === MediaType.PRACTICE)
+            .filter(
+              (data) =>
+                data.mediaType === MediaType.PRACTICE &&
+                data.mediaConfigs.length,
+            )
             .map((data) => {
-              const mediaConfig = data.mediaConfig as PracticeMediaConfig;
-              const surgeryName = mediaConfig.surgeryConfigurationId
-                ? getSurgeryConfigById(mediaConfig.surgeryConfigurationId)?.name
+              const mediaConfigs = data.mediaConfigs;
+              const surgeryName = data.entityId
+                ? getSurgeryConfigById(data.entityId)?.name
                 : '';
               return (
                 <React.Fragment key={data.id}>
                   <div className="rounded-lg shadow-md p-6 w-[298px] h-298 relative">
                     <div>
                       <Image
-                        src={getImageUrl(data.mediaConfig.video[0].url)}
+                        src={getImageUrl(mediaConfigs[0]?.url)}
                         className="rounded-lg"
                         alt="External image description"
                         width={265}
@@ -221,7 +224,7 @@ const Media: React.FC = () => {
                         className="bg-black absolute text-center transform -translate-x-1/2 -translate-y-1/2 border top-32 left-1/2 text-white rounded-full flex justify-center items-center p-2 border-black w-14 h-14 pointer"
                         onClick={() =>
                           handleOpenFirstModal(
-                            extractVideoId(data.mediaConfig.video[0].url),
+                            extractVideoId(mediaConfigs[0]?.url),
                           )
                         }
                       >
@@ -235,7 +238,7 @@ const Media: React.FC = () => {
                         ''
                       )}
                       <div className="text-gray-900 pt-2 text-left">
-                        {data.mediaConfig.video[0].title}
+                        {mediaConfigs[0].title}
                       </div>
                     </div>
                   </div>
@@ -245,20 +248,20 @@ const Media: React.FC = () => {
         {selectedMediaType === MediaType.PATIENT &&
           !selectedPatientId &&
           media
-            .filter((data) => data.mediaType === MediaType.PATIENT)
+            .filter(
+              (data) =>
+                data.mediaType === MediaType.PATIENT &&
+                data.mediaConfigs.length,
+            )
             .map((data) => (
               <React.Fragment key={data.id}>
                 <div
                   className="rounded-lg shadow-md p-6 w-[298px] h-298 relative cursor-pointer"
-                  onClick={() =>
-                    handlePatientMediaClick(
-                      (data.mediaConfig as PatientMediaConfig).patientId,
-                    )
-                  }
+                  onClick={() => handlePatientMediaClick(data.entityId!)}
                 >
                   <div>
                     <Image
-                      src={getImageUrl(data.mediaConfig.video[0].url)}
+                      src={getImageUrl(data.mediaConfigs[0].url)}
                       className="rounded-lg"
                       alt="External image description"
                       width={265}
@@ -266,9 +269,8 @@ const Media: React.FC = () => {
                       style={{ width: '265px', height: '208px' }}
                     />
                     <div className="text-gray-900 pt-2 text-left">
-                      {`Patient Name: ${getPatientById(
-                        (data.mediaConfig as PatientMediaConfig).patientId,
-                      )?.firstName}`}
+                      {`Patient Name: ${getPatientById(data.entityId!)
+                        ?.firstName}`}
                     </div>
                   </div>
                 </div>
@@ -289,64 +291,66 @@ const Media: React.FC = () => {
             </div>
             <div className="flex flex-wrap gap-4">
               {media
-                .filter(
-                  (data) =>
-                    (data.mediaConfig as PatientMediaConfig).patientId ===
-                    selectedPatientId,
-                )
-                .map((data) => data.mediaConfig)
+                .filter((data) => data.entityId === selectedPatientId)
+                .map((data) => data.mediaConfigs)
                 .flatMap((data, index) => {
                   // Combine video and image arrays with appropriate identifiers
-                  const videoElements = data.video.map((video, vidIndex) => (
-                    <React.Fragment key={`video-${index}-${vidIndex}`}>
-                      <div className="rounded-lg shadow-md p-6 w-[298px] h-[298px] relative">
-                        <Image
-                          src={getImageUrl(video.url)}
-                          className="rounded-lg"
-                          alt="Video thumbnail"
-                          width={265}
-                          height={208}
-                          style={{ width: '265px', height: '208px' }}
-                        />
-                        <div
-                          className="bg-black absolute text-center transform -translate-x-1/2 -translate-y-1/2 border top-32 left-1/2 text-white rounded-full flex justify-center items-center p-2 border-black w-14 h-14 pointer"
-                          onClick={() =>
-                            handleOpenFirstModal(extractVideoId(video.url))
-                          }
-                        >
-                          <PlayIcon />
-                        </div>
-                        <div className="text-gray-900 pt-2 text-left">
-                          {video.title}
-                        </div>
-                      </div>
-                    </React.Fragment>
-                  ));
 
-                  const imageElements = (data as PatientMediaConfig)?.image
-                    ? (data as PatientMediaConfig)?.image.map(
-                        (image, imgIndex) => (
-                          <React.Fragment key={`image-${index}-${imgIndex}`}>
-                            <div
-                              className="rounded-lg shadow-md p-6 w-[298px] h-[298px] relative"
-                              onClick={() => handleOpenImageModal(image.url)}
-                            >
-                              <Image
-                                src={image.url}
-                                className="rounded-lg"
-                                alt="Image description"
-                                width={265}
-                                height={208}
-                                style={{ width: '265px', height: '208px' }}
-                              />
-                              <div className="text-gray-900 pt-2 text-left">
-                                {image.title}
-                              </div>
-                            </div>
-                          </React.Fragment>
-                        ),
-                      )
-                    : [];
+                  console.log(data, 'datamedia');
+
+                  const videoElements = data
+                    .filter((data) => data.configType === MediaConfigType.VIDEO)
+                    .map((data, vidIndex) => (
+                      <React.Fragment key={`video-${index}-${vidIndex}`}>
+                        <div className="rounded-lg shadow-md p-6 w-[298px] h-[298px] relative">
+                          <Image
+                            src={getImageUrl(data.url)}
+                            className="rounded-lg"
+                            alt="Video thumbnail"
+                            width={265}
+                            height={208}
+                            style={{ width: '265px', height: '208px' }}
+                          />
+                          <div
+                            className="bg-black absolute text-center transform -translate-x-1/2 -translate-y-1/2 border top-32 left-1/2 text-white rounded-full flex justify-center items-center p-2 border-black w-14 h-14 pointer"
+                            onClick={() =>
+                              handleOpenFirstModal(extractVideoId(data.url))
+                            }
+                          >
+                            <PlayIcon />
+                          </div>
+                          <div className="text-gray-900 pt-2 text-left">
+                            {data.title}
+                          </div>
+                        </div>
+                      </React.Fragment>
+                    ));
+
+                  const imageElements = data
+                    ?.filter(
+                      (data) => data.configType === MediaConfigType.IMAGE,
+                    )
+                    .map((data, imgIndex) => (
+                      <React.Fragment key={`image-${index}-${imgIndex}`}>
+                        <div
+                          className="rounded-lg shadow-md p-6 w-[298px] h-[298px] relative"
+                          onClick={() => handleOpenImageModal(data.url)}
+                        >
+                          <Image
+                            src={data.url}
+                            className="rounded-lg"
+                            alt="Image description"
+                            width={265}
+                            height={208}
+                            style={{ width: '265px', height: '208px' }}
+                          />
+                          <div className="text-gray-900 pt-2 text-left">
+                            {data.title}
+                          </div>
+                        </div>
+                      </React.Fragment>
+                    ));
+                  console.log(videoElements, imageElements, 'elements');
 
                   return [...videoElements, ...imageElements];
                 })}

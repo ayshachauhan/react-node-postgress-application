@@ -1,6 +1,7 @@
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, OneToMany } from 'typeorm';
 import { BaseEntity } from '../base.entity';
-import { IMedia, MediaConfig, MediaType } from './media.interface';
+import { MediaConfigEntity } from '../mediaConfig/mediaConfig.entity';
+import { IMedia, MediaType } from './media.interface';
 
 @Entity('media')
 export class MediaEntity extends BaseEntity implements IMedia {
@@ -13,6 +14,9 @@ export class MediaEntity extends BaseEntity implements IMedia {
   })
   mediaType: MediaType;
 
-  @Column({ type: 'jsonb' })
-  mediaConfig: MediaConfig;
+  @OneToMany(() => MediaConfigEntity, (mediaConfig) => mediaConfig.media)
+  mediaConfigs: MediaConfigEntity[];
+
+  @Column({ type: 'uuid', nullable: true })
+  entityId: string;
 }

@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { MediaEntity } from '@packages/entities/media';
+import { MediaConfigEntity } from '@packages/entities/mediaConfig';
 import { PracticeEntity } from '@packages/entities/practice';
 import { SurgeryConfigurationEntity } from '@packages/entities/surgeryConfiguration';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
@@ -16,6 +17,7 @@ import { MediaService } from './media.service';
       MediaEntity,
       PracticeEntity,
       SurgeryConfigurationEntity,
+      MediaConfigEntity,
     ]),
     PracticesModule,
     UsersModule,

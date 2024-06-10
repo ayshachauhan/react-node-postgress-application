@@ -1,9 +1,11 @@
+import { MediaConfigType } from '@packages/entities';
 import { MediaType } from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { addRecordAsync } from '@root/store/reducers/media';
 import { fetchListings as fetchsurgeryConfigurations } from '@root/store/reducers/surgeryConfigurations';
+import { AddMediaDTO } from '@root/store/requests/media/types';
 import { getPracticeId } from '@utils/index';
 import { Checkbox, LABEL_PLACEMENT } from 'baseui/checkbox';
 import { SIZE, Select } from 'baseui/select';
@@ -100,21 +102,28 @@ const MediaPage: React.FC<{
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (practiceId) {
-      const data =
+      const data: AddMediaDTO =
         selectedMedia === MediaType.PRACTICE
           ? {
               practiceId,
               mediaType: selectedMedia,
-              mediaConfig: practiceForm,
+              mediaConfig: [
+                {
+                  title: practiceForm.video[0].title,
+                  url: practiceForm.video[0].url,
+                  configType: MediaConfigType.VIDEO,
+                },
+              ],
+              entityId: practiceForm.surgeryConfigurationId,
             }
           : {
               practiceId,
               mediaType: selectedMedia,
+              entityId: patientForm.patientId,
               mediaConfig:
                 patientForm.image?.length && patientForm.image[0].title
                   ? patientForm
                   : {
-                      patientId: patientForm.patientId,
                       video: patientForm.video,
                     },
             };
@@ -122,7 +131,6 @@ const MediaPage: React.FC<{
       console.log(data, 'finaldata');
 
       try {
-        //@ts-expect-error add types
         dispatch(addRecordAsync(data));
         setPracticeForm({
           surgeryConfigurationId: '',
