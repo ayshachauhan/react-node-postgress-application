@@ -32,6 +32,14 @@ export const sidebarItems: SideBarItem[] = [
     Icon: DashboardIcon,
   },
   {
+    id: 'evals',
+    title: 'Evals',
+    path: '/eval',
+    permissions: ['admin'],
+    userPermissions: [USER_PERMISSIONS.VIEW_NURTURE],
+    Icon: DashboardIcon,
+  },
+  {
     id: 'practices',
     title: 'Practices',
     path: '/practices',
@@ -84,15 +92,6 @@ export const sidebarItems: SideBarItem[] = [
     permissions: ['admin'],
     userPermissions: [USER_PERMISSIONS.VIEW_REFERRERS],
     Icon: AddReferrerIcon,
-  },
-
-  {
-    id: 'eval',
-    title: 'Eval',
-    path: '/eval',
-    permissions: ['admin'],
-    userPermissions: [USER_PERMISSIONS.VIEW_NURTURE],
-    Icon: DashboardIcon,
   },
   {
     id: 'setting',

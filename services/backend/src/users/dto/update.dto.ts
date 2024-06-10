@@ -19,6 +19,10 @@ export class UpdateUserDto {
   @ApiProperty()
   userName: string;
 
+  @IsOptional()
+  @ApiProperty()
+  designation: string;
+
   @IsEmpty()
   @ApiProperty()
   password: string;
@@ -38,4 +42,8 @@ export class UpdateUserDto {
   @IsOptional()
   @ApiProperty()
   permissionIds: string[];
+
+  @IsOptional()
+  @ApiProperty()
+  imgUrl: string;
 }

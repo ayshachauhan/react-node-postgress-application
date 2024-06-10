@@ -4,6 +4,7 @@ import { UserEntity } from '@packages/entities/user';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
 import { PermissionsModule } from 'src/permissions/permissions.module';
 import { PracticesModule } from 'src/practices/practices.module';
+import { S3Service } from './s3.service';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 
@@ -13,8 +14,8 @@ import { UsersService } from './users.service';
     forwardRef(() => PracticesModule),
     forwardRef(() => PermissionsModule),
   ],
-  providers: [UsersService, practiceNotFoundInterceptor],
+  providers: [UsersService, practiceNotFoundInterceptor, S3Service],
   controllers: [UsersController],
-  exports: [UsersService],
+  exports: [UsersService, S3Service],
 })
 export class UsersModule {}

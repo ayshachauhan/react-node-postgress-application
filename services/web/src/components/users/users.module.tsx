@@ -2,6 +2,7 @@
 import Button from '@root/components/Button';
 import {
   AddIcon,
+  AvatarIcon,
   DeleteIcon,
   EditIcon,
   ViewIcon,
@@ -27,6 +28,7 @@ import {
   ROLE,
   SIZE,
 } from 'baseui/modal';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 
@@ -188,12 +190,14 @@ export default function UserPage() {
       </div>
       <hr className="h-px my-2.5 bg-gray-100 border-1 border-gray-100"></hr>
       <div className="text-gray-50 w-full items-center border-l border rounded-t-lg rounded-b-lg border-gray-200 text-sm overflow-x-auto mt-2">
-        <div className="bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 grid grid-cols-[0.5fr_1fr_1fr_1fr_1fr_0.5fr_2fr_1fr_0.5fr_0.5fr] gap-4 p-4">
+        <div className="bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 grid grid-cols-[0.5fr_1fr_1fr_1fr_1fr_0.5fr_0.5fr_0.5fr_2fr_1fr_0.5fr_0.5fr] gap-4 p-4">
+          <div className="font-bold text-white">UserPhoto</div>
           <div className="font-bold text-white">Username</div>
           <div className="font-bold text-white">Email</div>
           <div className="font-bold text-white">Practice Name</div>
           <div className="font-bold text-white">Display Name</div>
           <div className="font-bold text-white">Contact No.</div>
+          <div className="font-bold text-white">User Type</div>
           <div className="font-bold text-white">Designation</div>
           <div className="font-bold text-white">Permissions</div>
           <div className="font-bold text-white">Social Media URL</div>
@@ -202,7 +206,26 @@ export default function UserPage() {
         </div>
         {users.map((data) => (
           <React.Fragment key={data.id}>
-            <div className="grid grid-cols-[0.5fr_1fr_1fr_1fr_1fr_0.5fr_2fr_1fr_0.5fr_0.5fr] gap-4 px-4 py-2">
+            <div className="grid grid-cols-[0.5fr_1fr_1fr_1fr_1fr_0.5fr_0.5fr_0.5fr_2fr_1fr_0.5fr_0.5fr] gap-4 px-4 py-2 flex ">
+              <div className="text-gray-900 overflow-hidden whitespace-nowrap">
+                {data.imgUrl ? (
+                  <Image
+                    src={data.imgUrl}
+                    alt={data.id}
+                    width={50}
+                    height={50}
+                    className="inline-block mr-2 rounded-[10px]"
+                    style={{
+                      width: '50px',
+                      height: '50px',
+                      objectFit: 'cover',
+                      borderRadius: '100px',
+                    }}
+                  />
+                ) : (
+                  <AvatarIcon size={50}></AvatarIcon>
+                )}
+              </div>
               <div className="text-gray-900 overflow-hidden whitespace-nowrap">
                 {data.userName}
               </div>
@@ -220,6 +243,9 @@ export default function UserPage() {
               </div>
               <div className="text-gray-900 overflow-hidden whitespace-nowrap">
                 {data.type}
+              </div>
+              <div className="text-gray-900 overflow-hidden whitespace-nowrap">
+                {data.designation}
               </div>
               <div className="text-gray-900">
                 <div className="grid grid-cols-2 gap-1">

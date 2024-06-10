@@ -1,5 +1,11 @@
-import { IMedia, IMediaRequest } from '@packages/entities/index.browser';
+import {
+  IMedia,
+  Image,
+  MediaType,
+  PatientMediaConfig,
+} from '@packages/entities/index.browser';
 import { ApiService } from '@root/services/apiclient';
+import { AddMediaDTO, UploadImgPayload } from './types';
 
 const apiClient = new ApiService();
 
@@ -15,11 +21,11 @@ export const getMedia = async (
 ): Promise<IMedia[]> => {
   try {
     const response: Response = await apiClient.get(
-      `/practices/${payloadData.practiceId}/videos`,
+      `/practices/${payloadData.practiceId}/media`,
     );
 
     if (!response.ok) {
-      throw new Error('Failed to fetch videos');
+      throw new Error('Failed to fetch media');
     }
 
     const data: IMedia[] = await response.json();
@@ -40,23 +46,84 @@ export const getMedia = async (
  * @returns IMedia
  */
 export const addMedia = async (
-  payloadData: IMediaRequest,
+  payloadData: AddMediaDTO,
   { rejectWithValue },
 ): Promise<IMedia> => {
   try {
-    const response: Response = await apiClient.post(
-      `/practices/${payloadData.practiceId}/videos`,
-      payloadData,
+    let response: Response;
+
+    const mediaConfig = payloadData.mediaConfig as PatientMediaConfig;
+
+    if (payloadData.mediaType === MediaType.PATIENT && mediaConfig?.image) {
+      const preImageData = mediaConfig.image.map((data: Image) => ({
+        title: data.title,
+        url: '',
+      }));
+
+      response = await apiClient.post(
+        `/practices/${payloadData.practiceId}/media`,
+        {
+          mediaType: payloadData.mediaType,
+          mediaConfig: { ...payloadData.mediaConfig, image: preImageData },
+        },
+      );
+      const data: IMedia = await response.json();
+
+      if (mediaConfig.image && data.id) {
+        return await uploadImg({
+          practiceId: payloadData.practiceId,
+          mediaId: data.id,
+          //@ts-expect-error add types
+          files: mediaConfig.image,
+        });
+      }
+      return data;
+    }
+
+    response = await apiClient.post(
+      `/practices/${payloadData.practiceId}/media`,
+      {
+        mediaType: payloadData.mediaType,
+        mediaConfig: payloadData.mediaConfig,
+      },
     );
     if (!response.ok) {
-      throw new Error('Failed to add video');
+      throw new Error('Failed to add media');
     }
     const data: IMedia = await response.json();
+
+    console.log(data, 'datamedia');
+
     return data;
   } catch (error) {
     if (error instanceof Error) {
       return rejectWithValue(error.message);
     }
     return rejectWithValue('An unknown error occurred');
+  }
+};
+
+export const uploadImg = async (
+  payloadData: UploadImgPayload,
+): Promise<IMedia> => {
+  try {
+    const { practiceId, mediaId, files } = payloadData;
+    const formData = new FormData();
+    files.forEach((file) => {
+      if (file.file) formData.append('files', file.file);
+    });
+
+    const response = await apiClient.upload(
+      `/practices/${practiceId}/media/${mediaId}/upload`,
+      formData,
+    );
+
+    if (!response.ok) {
+      throw new Error('Failed to upload images.');
+    }
+    const data: IMedia = await response.json();
+    return data;
+  } catch (error) {
+    throw new Error();
   }
 };

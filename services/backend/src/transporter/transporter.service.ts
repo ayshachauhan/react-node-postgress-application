@@ -3,10 +3,12 @@ import { ConfigService } from '@nestjs/config';
 import * as fs from 'fs';
 import * as path from 'path';
 
+import { EmailResponse } from '@packages/entities';
 import { compile } from 'handlebars';
 import type { Transporter } from 'nodemailer';
 import Mail from 'nodemailer/lib/mailer';
 import SMTPTransport from 'nodemailer/lib/smtp-transport';
+import { formatHeaderDate } from 'src/utils';
 import { ENVIRONMENT_VARIABLES } from '../enums/environment.enums';
 import { EMAIL_CONNECTION_TOKEN, SystemTemplates } from './transporter.types';
 
@@ -25,10 +27,10 @@ export class TransporterService {
   async sendEmail(
     options: Mail.Options,
     data: Record<string, unknown>,
-  ): Promise<void> {
+  ): Promise<EmailResponse> {
     const smtpEmail: string | undefined = this.getSmtpEmail();
 
-    await this.emailTransporter.sendMail({
+    const result = await this.emailTransporter.sendMail({
       ...options,
       from: smtpEmail,
       text: options.text
@@ -41,6 +43,10 @@ export class TransporterService {
         ? this.compileTemplate(options.subject, data)
         : undefined,
     });
+
+    return {
+      message: result.response,
+    };
   }
 
   async sendSystemEmails(
@@ -73,7 +79,9 @@ export class TransporterService {
 
   compileTemplate(text: string, data: Record<string, unknown>): string {
     const template = compile(text);
-
+    if (data.surgery_date) {
+      data.surgery_date = formatHeaderDate(String(data.surgery_date));
+    }
     return template(data);
   }
 }

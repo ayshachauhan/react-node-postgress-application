@@ -46,7 +46,7 @@ const practiceSlice = createSlice({
     builder.addCase(fetchListings.fulfilled, (state, action) => {
       state.status = EntityLoadingState.SUCCEEDED;
       if (action.payload.length === 0) {
-        state.errorMessage = 'No records found';
+        state.errorMessage = 'No practices found.';
       }
       state.entities = {
         ...state.entities,
@@ -58,9 +58,9 @@ const practiceSlice = createSlice({
     builder.addCase(fetchListings.rejected, (state, action) => {
       state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
-        state.errorMessage = action.payload ?? 'Failed to fetch practices';
+        state.errorMessage = action.payload ?? 'Failed to fetch practices.';
       } else {
-        state.errorMessage = 'Failed to fetch practices';
+        state.errorMessage = 'Failed to fetch practices.';
       }
       state.processing = false;
     });
@@ -77,9 +77,9 @@ const practiceSlice = createSlice({
     builder.addCase(getPracticeInfo.rejected, (state, action) => {
       state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
-        state.errorMessage = action.payload ?? 'Failed to fetch practice';
+        state.errorMessage = action.payload ?? 'Failed to fetch practice.';
       } else {
-        state.errorMessage = 'Failed to fetch practice';
+        state.errorMessage = 'Failed to fetch practice.';
       }
     });
 
@@ -95,15 +95,16 @@ const practiceSlice = createSlice({
         ...state.entities,
         ...{ [action.payload.id]: action.payload },
       };
-      state.successMessage = 'Record added successfully';
+      state.successMessage = 'Practice added successfully.';
+      state.processing = false;
     });
 
     builder.addCase(addRecordAsync.rejected, (state, action) => {
       state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
-        state.errorMessage = action.payload ?? 'Failed to add practice';
+        state.errorMessage = action.payload ?? 'Failed to add practice.';
       } else {
-        state.errorMessage = 'Failed to add practice';
+        state.errorMessage = 'Failed to add practice.';
       }
     });
     builder.addCase(deleteRecordAsync.pending, (state) => {
@@ -120,16 +121,16 @@ const practiceSlice = createSlice({
         ...remainingPractices
       } = state.entities;
       state.entities = remainingPractices;
-      state.successMessage = 'Record deleted successfully';
+      state.successMessage = 'Practice deleted successfully.';
       state.processing = false;
     });
 
     builder.addCase(deleteRecordAsync.rejected, (state, action) => {
       state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
-        state.errorMessage = action.payload ?? 'Failed to delete practice';
+        state.errorMessage = action.payload ?? 'Failed to delete practice.';
       } else {
-        state.errorMessage = 'Failed to delete practice';
+        state.errorMessage = 'Failed to delete practice.';
       }
     });
 
@@ -144,16 +145,16 @@ const practiceSlice = createSlice({
         ...state.entities,
         ...{ [action.payload.id]: action.payload },
       };
-      state.successMessage = 'Record updated successfully';
+      state.successMessage = 'Practice updated successfully.';
       state.processing = false;
     });
 
     builder.addCase(updateRecordAsync.rejected, (state, action) => {
       state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
-        state.errorMessage = action.payload ?? 'Failed to update practice';
+        state.errorMessage = action.payload ?? 'Failed to update practice.';
       } else {
-        state.errorMessage = 'Failed to update practice';
+        state.errorMessage = 'Failed to update practice.';
       }
       state.processing = false;
     });

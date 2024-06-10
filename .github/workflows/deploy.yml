@@ -109,6 +109,14 @@ jobs:
         run: |
           docker-compose build
 
+      - name: Notify Google Chat
+        id: 'notify_google_chat'
+        uses: SimonScholz/google-chat-action@main
+        with:
+          webhookUrl: '${{ secrets.WEBHOOK_URL }}'
+          title: Deploying
+          subtitle: App might behave wierd
+
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
@@ -178,6 +186,13 @@ jobs:
 
       - name: push tag
         run: git push origin $VERSION_TAG
+
+      - name: Notify Google Chat
+        uses: SimonScholz/google-chat-action@main
+        with:
+          webhookUrl: '${{ secrets.WEBHOOK_URL }}'
+          title: Deployment Finished
+          subtitle: Use the app
 
   run-migrations:
     name: run db migrations

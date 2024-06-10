@@ -1,8 +1,3 @@
-import { ISurgery } from '@packages/entities';
-type RecordsByDate = {
-  [key: string]: ISurgery[];
-};
-
 export function indexBy<K extends keyof T, T>(
   key: K,
   array: T[],
@@ -71,11 +66,12 @@ export function usDateFormatter(date: Date): string {
   return formattedDateSplit.join('/');
 }
 
-export function formatColumnDate(dateString: string) {
+export function formatColumnDate(dateString: Date) {
   const date = new Date(dateString);
   const formattedDate = new Intl.DateTimeFormat('en-US', {
     month: 'numeric',
     day: 'numeric',
+    year: 'numeric',
   }).format(date);
   const hours = date.getHours();
   const minutes = date.getMinutes();
@@ -108,22 +104,22 @@ export function formatDate(dateString: Date) {
   return `${month}/${day}/${year}`;
 }
 
-export function removePastSurgeries(surgeries: RecordsByDate) {
-  const currentDate = new Date();
-  const filteredSurgeries = {};
+export function constructQueryParams(params: {
+  includeDeleted?: boolean;
+  month?: string;
+  searchMRNName?: string;
+  option?: string;
+  loggedInUserId?: string;
+}): string {
+  const queryString = Object.entries(params)
+    .filter(([, value]) => value !== undefined && value !== null)
+    .map(
+      ([key, value]) =>
+        `${encodeURIComponent(key)}=${encodeURIComponent(value as string)}`,
+    )
+    .join('&');
 
-  for (const key in surgeries) {
-    if (Object.prototype.hasOwnProperty.call(surgeries, key)) {
-      const [month, day] = key.split('/').map(Number);
-      const recordDate = new Date(currentDate.getFullYear(), month - 1, day);
-
-      if (recordDate >= currentDate) {
-        filteredSurgeries[key] = surgeries[key];
-      }
-    }
-  }
-
-  return filteredSurgeries;
+  return queryString ? `?${queryString}` : '';
 }
 
 export const getIpAddress = async (): Promise<string> => {
@@ -131,4 +127,21 @@ export const getIpAddress = async (): Promise<string> => {
 
   const data = await response.json();
   return data.ip;
+};
+
+export const getDifferenceInDays = (date1: Date, date2: Date): number => {
+  // Convert both dates to UTC to avoid timezone issues
+  console.log(date1, date2);
+
+  const utc1 = Date.UTC(date1.getFullYear(), date1.getMonth(), date1.getDate());
+  const utc2 = Date.UTC(date2.getFullYear(), date2.getMonth(), date2.getDate());
+
+  // Calculate the difference in milliseconds
+  const diffInMilliseconds = utc1 - utc2;
+
+  // Convert milliseconds to days
+  const millisecondsPerDay = 24 * 60 * 60 * 1000;
+  const diffInDays = diffInMilliseconds / millisecondsPerDay;
+
+  return diffInDays;
 };

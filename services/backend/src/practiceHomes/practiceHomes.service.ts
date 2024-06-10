@@ -24,9 +24,12 @@ export class PracticeHomesService {
     id: string,
     practiceId: string,
   ): Promise<PracticeHomesEntity | null> {
-    return this.practiceHomesRepository.findOne({
-      where: { id, practice: { id: practiceId } },
-    });
+    if (id) {
+      return this.practiceHomesRepository.findOne({
+        where: { id, practice: { id: practiceId } },
+      });
+    }
+    return null;
   }
 
   async remove(id: string, practiceId: string): Promise<void> {

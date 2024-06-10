@@ -24,6 +24,11 @@ import { UpdateSurgeryDto } from '../surgery/dto/updateSurgery.dto';
 import { SurgeryService } from '../surgery/surgery.service';
 import { QueryDto } from './dto/getSurgery.dto';
 
+interface SurgerySearchResult {
+  surgeries: SurgeryEntity[];
+  restricted: boolean;
+}
+
 @ApiTags('Surgery')
 @ApiBearerAuth('normal')
 @Controller('practices/:practiceId/surgery')
@@ -33,11 +38,26 @@ export class SurgeryController {
 
   @Get()
   @UseInterceptors(practiceNotFoundInterceptor)
-  async findAll(
-    @Param() { practiceId }: { practiceId: string },
-    @Query(new ValidationPipe()) { includeDeleted }: QueryDto,
-  ): Promise<SurgeryEntity[]> {
-    return this.surgeryService.findAll(practiceId, includeDeleted);
+  async searchSurgeries(
+    @Param('practiceId') practiceId: string,
+    @Query(new ValidationPipe()) query: QueryDto,
+    @Query('month') monthQueryParam: string,
+    @Query('searchMRNName') searchMRNName?: string,
+    @Query('option') option?: string,
+    @Query('loggedInUserId') loggedInUserId?: string,
+  ): Promise<SurgerySearchResult> {
+    const months = monthQueryParam?.trim() ? monthQueryParam.split(',') : [];
+
+    const surgeries = await this.surgeryService.findAll(
+      practiceId,
+      query.includeDeleted,
+      months,
+      searchMRNName,
+      option,
+      loggedInUserId,
+    );
+
+    return surgeries;
   }
 
   @Get(':id')

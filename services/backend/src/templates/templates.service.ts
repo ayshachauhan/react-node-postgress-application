@@ -4,6 +4,9 @@ import {
   TemplateEntity,
   TemplateMessageType,
 } from '@packages/entities/template';
+import { S3Service } from 'src/users/s3.service';
+import { UploadType, UploadUserImgData } from 'src/users/types';
+import { getUploadFileKey } from 'src/users/utils';
 import { Repository } from 'typeorm';
 import { PracticesService } from '../practices/practices.service';
 import { SurgeryConfigurationsService } from '../surgeryConfiguration/surgeryConfiguration.service';
@@ -17,6 +20,7 @@ export class TemplatesService {
     private practiceService: PracticesService,
     private userService: UsersService,
     private surgeryConfigurationsService: SurgeryConfigurationsService,
+    private readonly s3Service: S3Service,
   ) {}
 
   async findAll(practiceId: string, userId: string): Promise<TemplateEntity[]> {
@@ -90,6 +94,7 @@ export class TemplatesService {
         TemplateMessageType[templatePatchDto.messageType];
     }
 
+    delete templatePatchDto.surgeryConfigurationId;
     await this.templateRepository.update(id, {
       ...templateToUpdate,
       ...templatePatchDto,
@@ -126,5 +131,37 @@ export class TemplatesService {
     } else {
       return 'V1';
     }
+  }
+
+  async getFilteredTemplates(query: {
+    [key: string]: string;
+  }): Promise<TemplateEntity[]> {
+    const where = { active: true };
+
+    if (query.surgeryConfigurationId) {
+      where['surgeryConfiguration'] = { id: query.surgeryConfigurationId };
+    }
+
+    if (query.messageType) {
+      where['messageType'] = query.messageType;
+    }
+    return this.templateRepository.find({ where });
+  }
+
+  async uploadTemplateAttachment({ id, practiceId, file }: UploadUserImgData) {
+    const key: string = getUploadFileKey(UploadType.TEMPLATES, {
+      practiceId,
+      templateId: id,
+      file,
+    });
+
+    const uploadImg = await this.s3Service.uploadFile(file, key);
+
+    await this.templateRepository.update(
+      { id: id },
+      {
+        emailAttachment: uploadImg.Location,
+      },
+    );
   }
 }

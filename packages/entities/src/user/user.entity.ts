@@ -43,6 +43,9 @@ export class UserEntity extends BaseEntity implements IUser {
   type: UserType;
 
   @Column({ type: 'varchar' })
+  designation: string;
+
+  @Column({ type: 'varchar' })
   contactNumber: string;
 
   @ManyToMany(() => PracticeEntity)
@@ -63,4 +66,7 @@ export class UserEntity extends BaseEntity implements IUser {
 
   @OneToMany(() => SurgeryEntity, (surgery) => surgery.doctor)
   surgeries: SurgeryEntity[];
+
+  @Column({ type: 'varchar', nullable: true })
+  imgUrl?: string;
 }

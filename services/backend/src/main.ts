@@ -3,9 +3,9 @@ import { NestFactory } from '@nestjs/core';
 
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { PinoLogger } from 'nestjs-pino';
 import { AppModule } from './app.module';
 import { ENVIRONMENT_VARIABLES } from './enums/environment.enums';
+import logger from './logger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { cors: true });
@@ -16,7 +16,6 @@ async function bootstrap() {
   );
 
   const configService = await app.resolve(ConfigService);
-  const logger = await app.resolve(PinoLogger);
 
   const port: number = configService.get(ENVIRONMENT_VARIABLES.BACKEND_PORT)!;
 

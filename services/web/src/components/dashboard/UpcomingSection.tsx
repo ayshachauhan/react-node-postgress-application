@@ -3,9 +3,12 @@ import { AddIcon, EditIcon } from '@components/Icons';
 import {
   ICalendar,
   ISurgeryConfiguration,
+  MonthOption,
+  USER_PERMISSIONS,
 } from '@packages/entities/index.browser';
+import { useUserPermission } from '@root/hooks/userHasPermission';
 import { useAppDispatch, useAppSelector } from '@root/store';
-import { fetchCalendars } from '@root/store/reducers/calendar';
+import { fetchFilteredCalendars } from '@root/store/reducers/calendar';
 import { fetchListings } from '@root/store/reducers/surgeryConfigurations';
 import { DEFAULT_SURGERYNAME_COLOR } from '@root/utils/constants';
 import { getPracticeId, getUserId } from '@root/utils/index';
@@ -28,13 +31,18 @@ export const DEFAULT_MAX_SLOTS: number = 14;
 const UpcomingSection: React.FC = () => {
   const dispatch = useAppDispatch();
   const userId: string | null = getUserId();
-
+  const userInfo = useAppSelector((state) => state.auth.user);
+  const userPermissions = userInfo?.permissions;
+  const loggedInUserId = userInfo?.id;
   const { calendars, surgeryConfigurations } = useAppSelector((state) => ({
     calendars: Object.values(state.calendars.entities).filter(
       (calendar) => calendar.user.id === userId,
     ),
     surgeryConfigurations: Object.values(state.surgeryConfigurations.entities),
   }));
+
+  const { errorMessage, calendarsWithoutPermission, restricted } =
+    useAppSelector((state) => state.calendars);
 
   const practiceId: string | null = getPracticeId();
 
@@ -90,16 +98,67 @@ const UpcomingSection: React.FC = () => {
   };
 
   const currentDate = new Date();
+  const { selectedMonth, selectedValue } = useAppSelector(
+    (state) => state.surgeries.surgeryFilters,
+  );
+  const selectedValueStr = selectedValue || '';
+  const getSelectedMonths = (selectedMonth: MonthOption[]) => {
+    const monthLabels = selectedMonth.map((month) => month.label);
+    const month = monthLabels.join(',');
+    return month;
+  };
+
+  const dispatchFetchFilteredCalendars = (
+    practiceId: string,
+    userId: string,
+    selectedMonth: MonthOption[],
+    option: string,
+    loggedInUserId: string,
+  ) => {
+    const month = getSelectedMonths(selectedMonth);
+    dispatch(
+      fetchFilteredCalendars({
+        practiceId,
+        userId,
+        month,
+        option,
+        loggedInUserId,
+      }),
+    );
+  };
 
   useEffect(() => {
     if (practiceId !== null) {
       dispatch(fetchListings({ practiceId }));
     }
 
-    if (practiceId !== null && userId !== null) {
-      dispatch(fetchCalendars({ practiceId, userId }));
+    if (practiceId !== null && userId !== null && loggedInUserId) {
+      dispatchFetchFilteredCalendars(
+        practiceId,
+        userId,
+        selectedMonth,
+        selectedValueStr,
+        loggedInUserId,
+      );
     }
-  }, [practiceId, userId, dispatch]);
+  }, [practiceId, userId, loggedInUserId, dispatch]);
+
+  useEffect(() => {
+    if (
+      practiceId !== null &&
+      userId !== null &&
+      selectedMonth &&
+      loggedInUserId
+    ) {
+      dispatchFetchFilteredCalendars(
+        practiceId,
+        userId,
+        selectedMonth,
+        selectedValueStr,
+        loggedInUserId,
+      );
+    }
+  }, [practiceId, userId, selectedMonth, selectedValue, loggedInUserId]);
 
   useEffect(() => {
     if (surgeryConfigurations.length > 0 && selectedSurgery === null) {
@@ -174,6 +233,27 @@ const UpcomingSection: React.FC = () => {
     setIsModalOpen(false);
   };
 
+  const editCalendar = useUserPermission(userPermissions, [
+    USER_PERMISSIONS.EDIT_CALENDAR,
+  ]);
+
+  const calendarData = splitCalendarData(filteredCalendars);
+
+  const recordExists = calendarsWithoutPermission.some(
+    (calendar: ICalendar) => {
+      return calendar.surgeryConfiguration.name === selectedSurgery?.name;
+    },
+  );
+
+  let displayErrorMessage: string;
+
+  if (calendarData.length === 0 && recordExists && restricted) {
+    displayErrorMessage =
+      errorMessage || 'You dont have required permissions to see some records.';
+  } else {
+    displayErrorMessage = 'No records found';
+  }
+
   /**
    * @summary Upsert calendar modal to add or update the data
    * @param param0
@@ -217,7 +297,6 @@ const UpcomingSection: React.FC = () => {
         <ModalBody>
           <UpsertCalendar
             onClose={handleCloseModal}
-            //@ts-expect-error sending date as null
             calendarData={
               isUpdating
                 ? filteredCalendars
@@ -226,7 +305,7 @@ const UpcomingSection: React.FC = () => {
                       id: '',
                       maxSlots: DEFAULT_MAX_SLOTS,
                       bookedSlots: 0,
-                      date: null,
+                      date: new Date(),
                       surgeryName: selectedSurgery?.name
                         .charAt(0)
                         .toUpperCase() as string,
@@ -257,12 +336,14 @@ const UpcomingSection: React.FC = () => {
               <AddIcon className="mt-2" size={25}></AddIcon>
               {''}
             </div>
-            <div
-              className="cursor-pointer px-2"
-              onClick={() => handleOpenModal(true)}
-            >
-              <EditIcon className="mt-2"></EditIcon>
-            </div>
+            {editCalendar && (
+              <div
+                className="cursor-pointer px-2"
+                onClick={() => handleOpenModal(true)}
+              >
+                <EditIcon className="mt-2"></EditIcon>
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -291,8 +372,8 @@ const UpcomingSection: React.FC = () => {
         </div>
       </div>
       <div className="mt-2 flex gap-5 overflow-x-auto text-xs">
-        {splitCalendarData(filteredCalendars).map(
-          (calendar: CalendarData[], index: number) => (
+        {calendarData.length > 0 ? (
+          calendarData.map((calendar: CalendarData[], index: number) => (
             <div className="border-r-4 border-gray-200 pr-4 flex" key={index}>
               <div className="mt-2 text-xs">
                 <div className="text-gray-50 w-full items-center bg-gray-50 rounded-lg">
@@ -345,7 +426,9 @@ const UpcomingSection: React.FC = () => {
                 </div>
               </div>
             </div>
-          ),
+          ))
+        ) : (
+          <div>{displayErrorMessage}</div>
         )}
       </div>
       <UpsertCalendarModal isUpdating={isUpdating} />

@@ -4,6 +4,7 @@ import {
   PracticeCreateInterface,
   PracticesEditInterface,
   PracticesGetInterface,
+  UploadImgPayload,
 } from '@store/requests/practices';
 
 const apiClient = new ApiService();
@@ -71,11 +72,56 @@ export const addPractice = async (
   { rejectWithValue },
 ): Promise<IPractice> => {
   try {
-    const response = await apiClient.post(`/practices`, payloadData);
+    const { practiceImg, ...restPayload } = payloadData;
+
+    const response = await apiClient.post(`/practices`, restPayload);
+
+    if (!response.ok) {
+      const body = await response.json();
+      throw new Error(body.message ?? 'Failed to upload img.');
+    }
+
+    const data: IPractice = await response.json();
+
+    if (practiceImg && data.id) {
+      return await uploadImg({
+        practiceId: data.id,
+        file: practiceImg,
+      });
+    }
+    return data;
+  } catch (error) {
+    const msg = (error as Record<string, unknown>).message;
+
+    return rejectWithValue(msg ?? 'An unexpected error occurred.');
+  }
+};
+
+/**
+ *
+ * @param payloadData
+ * @returns Updated user with Imgurl
+ */
+export const uploadImg = async (
+  payloadData: UploadImgPayload,
+): Promise<IPractice> => {
+  try {
+    const { practiceId, file } = payloadData;
+    const formdata = new FormData();
+    formdata.append('file', file);
+
+    const response = await apiClient.upload(
+      `/practices/${practiceId}/upload`,
+      formdata,
+    );
+
+    if (!response.ok) {
+      throw new Error('Failed to upload img.');
+    }
     const data: IPractice = await response.json();
     return data;
   } catch (error) {
-    return rejectWithValue(error);
+    throw new Error();
   }
 };
 
@@ -90,10 +136,18 @@ export const editPractice = async (
   { rejectWithValue },
 ) => {
   try {
-    const { id } = payloadData;
+    const { id, practiceImg, ...restPayload } = payloadData;
     delete payloadData.id;
-    const response = await apiClient.patch(`/practices/${id}`, payloadData);
+    const response = await apiClient.patch(`/practices/${id}`, restPayload);
     const data = await response.json();
+
+    if (practiceImg && data.id) {
+      return await uploadImg({
+        practiceId: data.id,
+        file: practiceImg,
+      });
+    }
+
     return data;
   } catch (error) {
     return rejectWithValue(error);
@@ -113,7 +167,10 @@ export const deletePractice = async (
   { rejectWithValue },
 ) => {
   try {
-    const response = await apiClient.delete(`/practices/${payloadData.id}`);
+    const response = await apiClient.delete(
+      `/practices/${payloadData.id}`,
+      null,
+    );
     if (!response.ok) {
       throw new Error('Failed to delete practice');
     }

@@ -1,6 +1,12 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import { UserEntity } from '@packages/entities/*';
 import * as bcrypt from 'bcrypt';
 import Mail from 'nodemailer/lib/mailer';
 import { ENVIRONMENT_VARIABLES } from '../enums/environment.enums';
@@ -27,6 +33,11 @@ export class AuthService {
     if (superAdmin) return superAdmin;
     else {
       const user = await this.usersService.findUserByEmail(email);
+      if (user && user.status !== 'active') {
+        throw new UnauthorizedException(
+          'Please accept the invitation and reset your password using the link in email.',
+        );
+      }
 
       if (user) {
         const isPasswordMatched = await bcrypt.compare(password, user.password);
@@ -72,13 +83,14 @@ export class AuthService {
     return null;
   }
 
-  async setUserDetails(payloadUser: SanitizedUser): Promise<void> {
+  async setUserDetails(payloadUser: SanitizedUser): Promise<UserEntity | null> {
     const userData = await this.usersService.getUserById(payloadUser.id);
 
     if (userData) {
       payloadUser['practices'] = userData?.practices;
       payloadUser['permissions'] = userData?.permissions;
     }
+    return userData;
   }
 
   async sendPasswordResetEmail(email: string): Promise<void> {
@@ -97,7 +109,7 @@ export class AuthService {
 
     const mailOptions: Mail.Options = {
       to: user.email,
-      subject: 'Subject: Reset Your Password - POD',
+      subject: 'Reset Your Password - POD',
     };
 
     const frontendBaseUrl: string | undefined = this.configService.get(

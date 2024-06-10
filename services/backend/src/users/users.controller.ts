@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -6,14 +7,19 @@ import {
   Param,
   Patch,
   Post,
+  Req,
+  UploadedFile,
   UseGuards,
+  //UseGuards,
   UseInterceptors,
   ValidationPipe,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { UserEntity } from '@packages/entities/user';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
-import { AuthGuard } from '../auth/auth.guard';
+//import { AuthGuard } from '../auth/auth.guard';
+import { FileInterceptor } from '@nestjs/platform-express/multer';
+import { AuthGuard, RequestWithUser } from 'src/auth/auth.guard';
 import { ChangePasswordDto } from './dto/changePassword.dto';
 import { CreateUserDto } from './dto/create.dto';
 import { UpdateUserDto } from './dto/update.dto';
@@ -33,7 +39,7 @@ export class UsersController {
     @Body(new ValidationPipe()) createUserDto: CreateUserDto,
     @Param() { practiceId }: { practiceId: string },
   ): Promise<SanitizedUser> {
-    return this.usersService.create(createUserDto, practiceId);
+    return this.usersService.create(createUserDto, practiceId, true);
   }
 
   @Get()
@@ -51,7 +57,13 @@ export class UsersController {
 
   @Delete(':id')
   @UseInterceptors(practiceNotFoundInterceptor)
-  async deleteUser(@Param() { id }: { id: string }): Promise<void> {
+  async deleteUser(
+    @Param() { id }: { id: string },
+    @Req() request: RequestWithUser,
+  ): Promise<void> {
+    if (request.user.id === id) {
+      throw new BadRequestException('Current loggedin user can not be deleted');
+    }
     await this.usersService.deleteUser(id);
   }
 
@@ -69,5 +81,18 @@ export class UsersController {
     @Body(new ValidationPipe()) patchUserDto: UpdateUserDto,
   ) {
     return this.usersService.updateUser(id, patchUserDto);
+  }
+
+  @Patch(':id/upload')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadUserImg(
+    @Param() params: { id: string; practiceId: string },
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    return this.usersService.uploadUserImg({
+      practiceId: params.practiceId,
+      id: params.id,
+      file,
+    });
   }
 }

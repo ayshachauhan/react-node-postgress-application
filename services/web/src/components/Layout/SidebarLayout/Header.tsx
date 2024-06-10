@@ -5,6 +5,7 @@ import Dropdown from '@root/components/Dropdown';
 import { AvatarIcon } from '@root/components/Icons';
 import { State, useAppDispatch, useAppSelector } from '@root/store';
 import {
+  fetchLoggedInUser,
   logoutUser,
   selectedPracticeName,
   userPractices,
@@ -15,10 +16,19 @@ import { fetchListings } from '@root/store/reducers/users';
 import { SanitizedUser } from '@root/store/types';
 import { SELECTED_DOCTOR_KEY, getPracticeId } from '@utils/index';
 import { ChevronDown } from 'baseui/icon';
+import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 
-const Header: React.FC = () => {
+interface Data {
+  collapsed: boolean;
+}
+
+interface ChildProps {
+  data: Data;
+}
+
+const Header: React.FC<ChildProps> = ({ data }) => {
   const dispatch = useAppDispatch();
   const getSelectedUserId: string | null =
     localStorage.getItem(SELECTED_DOCTOR_KEY);
@@ -58,6 +68,7 @@ const Header: React.FC = () => {
 
   useEffect(() => {
     if (practiceId) {
+      dispatch(fetchLoggedInUser());
       dispatch(getPracticeInfo({ id: practiceId })).then((action) => {
         if (action.payload && action.payload.name) {
           setSelectedPractice(action.payload.name);
@@ -96,12 +107,9 @@ const Header: React.FC = () => {
   const goToProfile = () => {
     router.push('/profile');
   };
-  const goToSettings = () => {
-    router.push('/settings');
-  };
 
   useEffect(() => {
-    if (practiceId !== null) {
+    if (practiceId !== null && practiceId) {
       dispatch(fetchListings({ practiceId: practiceId }));
     }
   }, [dispatch, practiceId]);
@@ -119,7 +127,11 @@ const Header: React.FC = () => {
   };
 
   return (
-    <nav className="fixed top-0 left-40 z-9 bg-white shadow-md w-[calc(110%-20rem)] h-[60px]">
+    <nav
+      className={`fixed top-0 z-9 bg-white shadow-md h-[60px] ${
+        data.collapsed ? 'w-[calc(100%-4rem)] ' : 'left-40 w-[calc(100%-10rem)]'
+      }`}
+    >
       <div className="px-5 py-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
@@ -173,16 +185,28 @@ const Header: React.FC = () => {
             </div>
             <Dropdown
               position="bottomRight"
-              trigger={<AvatarIcon size={40}></AvatarIcon>}
+              trigger={
+                userInfo?.imgUrl ? (
+                  <Image
+                    src={userInfo.imgUrl}
+                    alt={userInfo.id!}
+                    width={50}
+                    height={50}
+                    className="inline-block rounded-full"
+                    style={{
+                      width: '40px',
+                      height: '40px',
+                      objectFit: 'cover',
+                    }}
+                  />
+                ) : (
+                  <AvatarIcon size={40}></AvatarIcon>
+                )
+              }
             >
               {!is_super_admin && (
                 <Dropdown.Item id="profile" onClick={goToProfile}>
                   Profile
-                </Dropdown.Item>
-              )}
-              {!is_super_admin && (
-                <Dropdown.Item id="setting" onClick={goToSettings}>
-                  Settings
                 </Dropdown.Item>
               )}
               {!is_super_admin && (

@@ -11,6 +11,7 @@ export interface IUser extends IBaseEntity {
   lastName: string;
   fullName: string;
   url: string;
+  designation: string;
   status: UserStatus;
   type: UserType;
   contactNumber: string;
@@ -19,6 +20,7 @@ export interface IUser extends IBaseEntity {
   permissions: IPermission[];
   permissionIds?: string[];
   surgeries: ISurgery[];
+  imgUrl?: string;
 }
 
 export enum UserType {

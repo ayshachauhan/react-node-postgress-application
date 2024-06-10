@@ -11,6 +11,7 @@ export interface User {
   url: string;
   status: string;
   type: string;
+  designation: string;
   email: string;
   isSuperAdmin: string;
   userPractices: UserPractice[];
@@ -20,6 +21,7 @@ export interface User {
 export interface GetUserResponse {
   id?: string;
   userName: string;
+  designation: string;
   firstName: string;
   lastName: string;
   contactNumber: string;
@@ -32,6 +34,7 @@ export interface GetUserResponse {
   userPractices: UserPractice[];
   practices?: IPractice[];
   permissions: IPermission[];
+  imgUrl?: string;
 }
 
 export interface UserPractice {

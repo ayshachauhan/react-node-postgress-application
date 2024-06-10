@@ -59,8 +59,8 @@ export type SurgeryChangesKeyValues = {
   mrn: number;
   selectedCheckListOptions: CheckListOptions;
   selectedSurgeryOptions: SelectedSurgeryOption;
-  totalHospitalPricing: number;
-  totalProfessionalPricing: number;
+  totalHospitalPricing: string;
+  totalProfessionalPricing: string;
   insuranceName: string;
 };
 

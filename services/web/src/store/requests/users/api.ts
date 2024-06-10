@@ -1,7 +1,7 @@
 import { IUser } from '@packages/entities/index.browser';
 import { ApiService } from '@root/services/apiclient';
 import { SanitizedUser } from '@root/store/types';
-import { ChangePasswordInterface } from '.';
+import { AddUserDto, ChangePasswordInterface, UploadImgPayload } from '.';
 
 const apiClient = new ApiService();
 
@@ -67,21 +67,13 @@ export const getUserInfo = async (
  * @returns
  */
 export const addUser = async (
-  payloadData: Omit<
-    IUser,
-    | 'password'
-    | 'practices'
-    | 'id'
-    | 'dateCreated'
-    | 'dateUpdated'
-    | 'permissions'
-    | 'surgeries'
-  >,
+  payloadData: AddUserDto,
   { rejectWithValue },
 ): Promise<SanitizedUser> => {
   try {
-    const { practiceId, ...restPayload } = payloadData;
+    const { practiceId, file, ...restPayload } = payloadData;
     const sanitizedPayload = { ...restPayload };
+
     const response = await apiClient.post(
       `/practices/${practiceId}/users`,
       sanitizedPayload,
@@ -90,6 +82,14 @@ export const addUser = async (
       throw new Error('Failed to add user');
     }
     const data: SanitizedUser = await response.json();
+
+    if (file && practiceId && data.id) {
+      return await uploadImg({
+        practiceId,
+        id: data.id,
+        file,
+      });
+    }
     return data;
   } catch (error) {
     if (error instanceof Error) {
@@ -115,11 +115,11 @@ export const updateUser = async (
     | 'dateUpdated'
     | 'permissions'
     | 'surgeries'
-  >,
+  > & { file: File | null },
   { rejectWithValue },
 ): Promise<SanitizedUser> => {
   try {
-    const { practiceId, id, ...restPayload } = payloadData;
+    const { practiceId, id, file, ...restPayload } = payloadData;
     const sanitizedPayload = { ...restPayload };
     const response = await apiClient.patch(
       `/practices/${practiceId}/users/${id}`,
@@ -129,6 +129,15 @@ export const updateUser = async (
       throw new Error('Failed to update user');
     }
     const data: SanitizedUser = await response.json();
+
+    if (file && practiceId && data.id) {
+      return await uploadImg({
+        practiceId,
+        id: data.id,
+        file,
+      });
+    }
+
     return data;
   } catch (error) {
     if (error instanceof Error) {
@@ -148,6 +157,7 @@ export const deleteUser = async (
   try {
     const response = await apiClient.delete(
       `/practices/${payloadData.practiceId}/users/${payloadData.id}`,
+      null,
     );
     if (!response.ok) {
       throw new Error('Failed to delete user');
@@ -196,5 +206,33 @@ export const changePassword = async (
       return rejectWithValue(error.message);
     }
     return rejectWithValue('An unknown error occurred');
+  }
+};
+
+/**
+ *
+ * @param payloadData
+ * @returns Updated user with Imgurl
+ */
+export const uploadImg = async (
+  payloadData: UploadImgPayload,
+): Promise<SanitizedUser> => {
+  try {
+    const { practiceId, id, file } = payloadData;
+    const formdata = new FormData();
+    formdata.append('file', file);
+
+    const response = await apiClient.upload(
+      `/practices/${practiceId}/users/${id}/upload`,
+      formdata,
+    );
+
+    if (!response.ok) {
+      throw new Error('Failed to upload img.');
+    }
+    const data: SanitizedUser = await response.json();
+    return data;
+  } catch (error) {
+    throw new Error();
   }
 };

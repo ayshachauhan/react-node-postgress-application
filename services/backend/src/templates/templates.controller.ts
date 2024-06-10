@@ -6,10 +6,12 @@ import {
   Param,
   Patch,
   Post,
+  UploadedFile,
   UseGuards,
   UseInterceptors,
   ValidationPipe,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { USER_PERMISSIONS } from '@packages/entities/permission';
 import { TemplateEntity } from '@packages/entities/template';
@@ -50,7 +52,7 @@ export class TemplatesController {
   }
 
   @Patch(':id')
-  @UseGuards(PermissionGuard(USER_PERMISSIONS.EDIT_CASE))
+  @UseGuards(PermissionGuard(USER_PERMISSIONS.EDIT_TEMPLATES))
   @UseInterceptors(practiceNotFoundInterceptor)
   async update(
     @Body(new ValidationPipe()) templatePatchDto: TemplatePatchDto,
@@ -72,5 +74,18 @@ export class TemplatesController {
   @Delete(':id')
   async remove(@Param('id') id: string): Promise<void> {
     return await this.templateService.remove(id);
+  }
+
+  @Patch(':id/upload')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadUserImg(
+    @Param() params: { id: string; practiceId: string },
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    return this.templateService.uploadTemplateAttachment({
+      practiceId: params.practiceId,
+      id: params.id,
+      file,
+    });
   }
 }

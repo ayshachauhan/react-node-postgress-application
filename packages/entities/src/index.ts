@@ -1,6 +1,8 @@
 export * from './base.entity';
 export * from './calendar';
+export * from './emailLogs';
 export * from './eval';
+export * from './evalEmail';
 export * from './history';
 export * from './insuranceType';
 export * from './media';
@@ -11,6 +13,8 @@ export * from './practiceHomes';
 export * from './referrer';
 export * from './surgery';
 export * from './surgeryConfiguration';
+export * from './surgeryEmail';
 export * from './surgeryType';
 export * from './template';
 export * from './user';
+export * from './waitlist';

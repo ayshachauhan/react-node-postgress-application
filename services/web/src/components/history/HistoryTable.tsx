@@ -9,6 +9,7 @@ import {
   IHistory,
 } from '@packages/entities/index.browser';
 import { useAppDispatch, useAppSelector } from '@root/store';
+import { fetchLoggedInUser } from '@root/store/reducers/auth';
 import { fetchListings as fetchEvalsList } from '@root/store/reducers/evals';
 import { fetchHistory } from '@root/store/reducers/history';
 import { fetchListings as fetchSurgeryList } from '@root/store/reducers/surgery';
@@ -47,6 +48,10 @@ export default function HistoryTable() {
       surgeries: Object.values(state.surgeries.entities),
       surgerySuccessMessage: state.surgeries.successMessage,
     }));
+
+  useEffect(() => {
+    dispatch(fetchLoggedInUser());
+  }, [dispatch]);
 
   useEffect(() => {
     if (practiceId) {
@@ -181,7 +186,7 @@ export default function HistoryTable() {
               }`}
             >
               <div className="text-black pt-2 pb-2 px-1 w-40">
-                {formatColumnDate(new Date(row.date).toISOString())}
+                {formatColumnDate(new Date(row.date))}
               </div>
               <div className="text-black pt-2 pb-2 px-1 w-40">
                 {row ? generateFullName(row.firstName, row.lastName) : null}

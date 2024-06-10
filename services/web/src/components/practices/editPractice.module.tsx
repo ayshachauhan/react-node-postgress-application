@@ -5,8 +5,9 @@ import TextInput from '@root/components/TextInput';
 import { useAppDispatch } from '@root/store';
 import { updateRecordAsync } from '@root/store/reducers/practices';
 import { PracticesEditInterface } from '@store/requests/practices';
+import { FileUploader } from 'baseui/file-uploader';
 import { Select } from 'baseui/select';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 const PracticeEditModule: React.FC<{
   onClose: () => void;
@@ -15,11 +16,42 @@ const PracticeEditModule: React.FC<{
   const dispatch = useAppDispatch();
   const [name, setName] = useState(initialValues.name);
   const [status, setStatus] = useState(initialValues.status);
-  const [photoUrl, setPhotoUrl] = useState(initialValues.photoUrl);
   const practiceStatusOptions = Object.keys(PracticeStatus).map((key) => ({
     label: PracticeStatus[key as keyof typeof PracticeStatus],
     id: key,
   }));
+  const [practiceImg, setPracticeImg] = useState<File | null>(null);
+
+  const [formChanged, setFormChanged] = useState(false);
+
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const validateForm = (): boolean => {
+    if (!name.trim()) {
+      setErrorMessage('Practice Name cannot be empty.');
+      return false;
+    }
+    if (!status.trim()) {
+      setErrorMessage('Status cannot be empty.');
+      return false;
+    }
+
+    if (practiceImg && !practiceImg.type.startsWith('image/')) {
+      setErrorMessage('Only Image type Files are allowed.');
+      return false;
+    }
+
+    setErrorMessage('');
+    return true;
+  };
+
+  useEffect(() => {
+    setFormChanged(
+      name !== initialValues.name ||
+        status !== initialValues.status ||
+        practiceImg !== null,
+    );
+  }, [name, status, practiceImg, initialValues]);
 
   const handleStatusDropdown = (params) => {
     const { label } = params.option;
@@ -33,15 +65,17 @@ const PracticeEditModule: React.FC<{
       id: initialValues.id,
       name,
       status,
-      photoUrl,
       code: initialValues.code,
+      practiceImg,
     };
     try {
-      dispatch(updateRecordAsync(data));
-      setName('');
-      setStatus('');
-      setPhotoUrl('');
-      onClose();
+      if (validateForm()) {
+        dispatch(updateRecordAsync(data));
+        setName('');
+        setStatus('');
+        setPracticeImg(null);
+        onClose();
+      }
     } catch (error) {
       onClose();
     }
@@ -49,6 +83,11 @@ const PracticeEditModule: React.FC<{
 
   return (
     <div>
+      {errorMessage && (
+        <div className="flex justify-center text-red-500 mt-2">
+          {errorMessage}
+        </div>
+      )}
       <form onSubmit={handleSubmit}>
         <div className="flex flex-col">
           <div className="flex flex-row gap-7 pt-4">
@@ -96,23 +135,50 @@ const PracticeEditModule: React.FC<{
 
           <div className="flex flex-row justify-between pt-4">
             <div className="space-y-2">
-              <label
-                htmlFor="photoUrl"
-                className="text-black text-sm font-normal"
-              >
+              <label htmlFor="imgUrl" className="text-black text-sm">
                 Practice Photo
               </label>
-              <TextInput
-                name="photoUrl"
-                value={photoUrl}
-                onChange={(value) => {
-                  setPhotoUrl(value);
+              <FileUploader
+                onDrop={(acceptedFiles: File[]) => {
+                  setPracticeImg(acceptedFiles[0]);
+                }}
+                onDropRejected={(file: File[]) => {
+                  if (!file[0].type.startsWith('image'))
+                    setErrorMessage('Only Image type Files are allowed.');
+                }}
+                accept="image/*"
+                overrides={{
+                  ContentMessage: {
+                    component: () => (
+                      <div>
+                        {practiceImg ? (
+                          <div>
+                            <p>{practiceImg?.name}</p>
+                          </div>
+                        ) : (
+                          <span>Drag and drop or click to upload</span>
+                        )}
+                      </div>
+                    ),
+                  },
+                  FileDragAndDrop: {
+                    style: {
+                      marginBottom: '16px',
+                      borderColor: '#22C55E',
+                      color: '##F0FDF4',
+                    },
+                  },
                 }}
               />
             </div>
           </div>
           <div className="text-right text-base pt-4">
-            <Button kind="primary" title="Update practice" width={189} />
+            <Button
+              kind="primary"
+              title="Update Practice"
+              width={189}
+              disabled={!formChanged}
+            />
           </div>
         </div>
       </form>
