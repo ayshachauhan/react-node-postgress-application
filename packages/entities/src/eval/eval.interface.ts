@@ -52,4 +52,7 @@ export interface UpdateEValInterface {
   email: string;
   phoneNumber: string;
   status: string;
+  referrerId?: string;
+  waitlistId?: string;
+  practiceHomeId: string;
 }

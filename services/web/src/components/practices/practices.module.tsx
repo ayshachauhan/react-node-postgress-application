@@ -176,6 +176,10 @@ const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 onDrop={(acceptedFiles: File[]) => {
                   setPracticeImg(acceptedFiles[0]);
                 }}
+                onDropRejected={(file: File[]) => {
+                  if (!file[0].type.startsWith('image'))
+                    setErrorMessage('Only Image type Files are allowed.');
+                }}
                 accept="image/*"
                 overrides={{
                   ContentMessage: {
