@@ -183,6 +183,7 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
       status: 'booked',
       selectedSurgeryOptions: ele.selectedSurgeryOptions,
       selectedChecklistOptions: ele.selectedCheckListOptions,
+      waitlist: ele?.waitlist?.name,
     };
 
     const optionArr = Object.keys(ele.surgeryConfiguration.options);
@@ -571,8 +572,8 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
                                   : ''
                               }`}
                             >
-                              <div className="text-black  py-0.5 px-1 w-20">
-                                {row.date}
+                              <div className="text-black  py-0.5 px-1 w-20 flex">
+                                <div>{row.date}</div>
                               </div>
                               <div className="text-black py-0.5 px-1 w-10">
                                 {row.home[0]}
@@ -582,11 +583,19 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
                                   {row.status}
                                 </div>
                               </div>
-                              <div className="text-black py-0.5 px-1 overflow-hidden whitespace-nowrap w-20">
-                                {row.lastName}
+                              <div>
+                                <div className="text-black py-0.5 px-1 overflow-hidden whitespace-nowrap w-20">
+                                  {row.lastName}
+                                </div>
+                                <div className="font-semibold pt-4">
+                                  Waitlist:{' '}
+                                </div>
                               </div>
-                              <div className="text-black py-0.5 px-1 overflow-hidden whitespace-nowrap w-20">
-                                {row.firstName}
+                              <div>
+                                <div className="text-black py-0.5 px-1 overflow-hidden whitespace-nowrap w-20">
+                                  {row.firstName}
+                                </div>
+                                <div className="pt-4">{row.waitlist}</div>
                               </div>
                               <div className="text-black py-0.5 px-1 overflow-hidden whitespace-nowrap w-20">
                                 {row.mrn}

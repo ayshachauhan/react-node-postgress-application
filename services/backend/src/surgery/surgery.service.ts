@@ -382,6 +382,11 @@ export class SurgeryService {
       });
     }
 
+    const waitlistEntity = await this.waitlistService.getWaitlistById(
+      createSurgeryDto.waitlistId,
+      practiceId,
+    );
+
     const dataToUpdate = {
       insuranceType: createSurgeryDto.insuranceType
         ? createSurgeryDto.insuranceType
@@ -398,6 +403,7 @@ export class SurgeryService {
       practiceHome: practiceHomeEntity
         ? practiceHomeEntity
         : surgeryToUpdate?.practiceHome,
+      waitlist: waitlistEntity ? waitlistEntity : surgeryToUpdate?.waitlist,
     };
 
     await this.surgeryRepository.update(id, {

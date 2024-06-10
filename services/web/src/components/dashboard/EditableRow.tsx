@@ -27,6 +27,7 @@ function EditableRow({
   const [obj, setObj] = useState<Partial<UpdateSurgeryPayload>>({});
   const [insuranceTypeId, setInsuranceTypeId] = useState<string>('');
   const [referrerId, setReferrerId] = useState<string>('');
+  const [waitlistId, setWaitlistId] = useState<string>('');
 
   useEffect(() => {
     if (surgeryInfo.id && surgeryInfo) {
@@ -50,15 +51,22 @@ function EditableRow({
       });
       setInsuranceTypeId(surgeryInfo?.insuranceType?.id);
       setReferrerId(surgeryInfo.patient?.referrer?.id);
+      setWaitlistId(surgeryInfo?.waitlist?.id);
     }
   }, [surgeryInfo.id, surgeryInfo]);
 
-  const { insuranceTypesList, referrersList, practiceHomesList } =
+  const { insuranceTypesList, referrersList, practiceHomesList, waitlist } =
     useAppSelector((state) => ({
       insuranceTypesList: Object.values(state.insuranceTypes.entities),
       referrersList: Object.values(state.referrers.entities),
       practiceHomesList: Object.values(state.practiceHomes.entities),
+      waitlist: Object.values(state.waitlist.entities),
     }));
+
+  const waitlistOptions = Object.keys(waitlist).map((key) => ({
+    label: waitlist[key].name,
+    id: waitlist[key].id,
+  }));
 
   const practiceHomesOptions = Object.keys(practiceHomesList).map((key) => ({
     label: practiceHomesList[key].name[0],
@@ -91,6 +99,10 @@ function EditableRow({
     setReferrerId(value[0] ? value[0].id : null);
   };
 
+  const handleWaitlistChange = ({ value }) => {
+    setWaitlistId(value[0] ? value[0].id : null);
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -100,12 +112,14 @@ function EditableRow({
         ...obj,
         insuranceTypeId,
         referrerId,
+        waitlistId,
       };
 
       await dispatch(updateRecordAsync({ payload, id: surgeryInfo.id }));
 
       setInsuranceTypeId('');
       setReferrerId('');
+      setWaitlistId('');
       setObj({
         insuranceTypeId: '',
         date: new Date(),
@@ -188,21 +202,55 @@ function EditableRow({
               onChange={() => handleObjChange('status', 'booked')}
             />
           </div>
-          <div className="py-2 w-20">
-            <TextInput
-              size={SIZE.mini}
-              name="lastName"
-              value={obj.lastName}
-              onChange={(value) => handleObjChange('lastName', value)}
-            />
+          <div>
+            <div className="py-2 w-20">
+              <TextInput
+                size={SIZE.mini}
+                name="lastName"
+                value={obj.lastName}
+                onChange={(value) => handleObjChange('lastName', value)}
+              />
+            </div>
+            <div>
+              <div className="flex flex-center gap-4 items-center">
+                <div className="text-black text-center font-semibold w-20 pt-2">
+                  Waitlist:{' '}
+                </div>
+              </div>
+            </div>
           </div>
-          <div className="py-2 w-20">
-            <TextInput
-              size={SIZE.mini}
-              name="firstName"
-              value={obj.firstName}
-              onChange={(value) => handleObjChange('firstName', value)}
-            />
+          <div>
+            <div className="py-2 w-20">
+              <TextInput
+                size={SIZE.mini}
+                name="firstName"
+                value={obj.firstName}
+                onChange={(value) => handleObjChange('firstName', value)}
+              />
+            </div>
+            <div className=" w-20 pt-2">
+              <Select
+                options={waitlistOptions}
+                size={SIZE.mini}
+                onChange={handleWaitlistChange}
+                value={
+                  waitlistId ? [{ label: waitlistId, id: waitlistId }] : []
+                }
+                overrides={{
+                  ControlContainer: {
+                    style: {
+                      backgroundColor: 'rgba(250, 250, 250, 1)',
+                      border: 'none',
+                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                      color: '#52525B',
+                    },
+                  },
+                  ClearIcon: {
+                    component: () => null,
+                  },
+                }}
+              />
+            </div>
           </div>
           <div className="w-20 py-2">
             <TextInput
