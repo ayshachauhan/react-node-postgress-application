@@ -7,6 +7,7 @@ import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundIn
 import { PatientsModule } from 'src/patients/patients.module';
 import { PracticeHomesModule } from 'src/practiceHomes/practiceHomes.module';
 import { PracticesModule } from 'src/practices/practices.module';
+import { ReviewsModule } from 'src/review/review.module';
 import { SurgeryConfigurationsModule } from 'src/surgeryConfiguration/surgeryConfiguration.module';
 import { SurgeryTypesModule } from 'src/surgeryTypes/surgeryTypes.module';
 import { TemplatesModule } from 'src/templates/templates.module';
@@ -16,7 +17,6 @@ import { CalendarModule } from '../calendar/calendar.module';
 import { HistoryModule } from '../history/history.module';
 import { SurgeryController } from './surgery.controller';
 import { SurgeryService } from './surgery.service';
-import { ReviewsModule } from 'src/review/review.module';
 
 @Module({
   imports: [

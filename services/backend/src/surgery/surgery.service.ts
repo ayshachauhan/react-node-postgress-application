@@ -32,6 +32,7 @@ import { InsuranceTypesService } from 'src/insuranceTypes/insuranceTypes.service
 import { PatientsService } from 'src/patients/patients.service';
 import { PracticeHomesService } from 'src/practiceHomes/practiceHomes.service';
 import { PracticesService } from 'src/practices/practices.service';
+import { ReviewService } from 'src/review/review.service';
 import { SurgeryConfigurationsService } from 'src/surgeryConfiguration/surgeryConfiguration.service';
 import { SurgeryTypesService } from 'src/surgeryTypes/surgeryTypes.service';
 import { SystemTemplates } from 'src/transporter/transporter.types';
@@ -52,7 +53,6 @@ import {
 import { CalendarService } from '../calendar/calendar.service';
 import { HistoryService } from '../history/history.service';
 import { CreateSurgeryDto } from './dto/createSurgery.dto';
-import { ReviewService } from 'src/review/review.service';
 
 type DateCondition = {
   date: FindOperator<Date>;
@@ -447,7 +447,7 @@ export class SurgeryService {
     if (surgeryId) {
       const surgeryResponse = await this.surgeryRepository.update(
         {
-          id : surgeryId,
+          id: surgeryId,
         },
         {
           surgeryStatus: SurgeryStatus.COMPLETED,
@@ -455,23 +455,24 @@ export class SurgeryService {
       );
       if (surgeryResponse.affected) {
         const surgeryData = await this.getSurgeryById(surgeryId);
-        if (surgeryData && surgeryData.practiceHome.practice) {          
-          await this.createReviewEntity([{
-            reviewStatus: ReviewStatus.PENDING,
-            practice: surgeryData.practiceHome.practice,
-            patient: surgeryData.patient,
-          }]);
+        if (surgeryData && surgeryData.practiceHome.practice) {
+          await this.createReviewEntity([
+            {
+              reviewStatus: ReviewStatus.PENDING,
+              practice: surgeryData.practiceHome.practice,
+              patient: surgeryData.patient,
+            },
+          ]);
         }
       }
     } else {
-      const surgeryCompletedEntries = await this.surgeryRepository.find({ where: {
-        date: LessThan(new Date(Date.now())),
-        surgeryStatus: In([SurgeryStatus.PENDING]),
-      }, relations: [
-        'practiceHome',
-        'practiceHome.practice',
-        'patient',
-      ],});
+      const surgeryCompletedEntries = await this.surgeryRepository.find({
+        where: {
+          date: LessThan(new Date(Date.now())),
+          surgeryStatus: In([SurgeryStatus.PENDING]),
+        },
+        relations: ['practiceHome', 'practiceHome.practice', 'patient'],
+      });
 
       const surgeryData = await this.surgeryRepository.update(
         {
@@ -496,7 +497,7 @@ export class SurgeryService {
   }
 
   async createReviewEntity(reviewEntries: Partial<ReviewEntity>[]) {
-      await this.reviewService.createReview(reviewEntries);
+    await this.reviewService.createReview(reviewEntries);
   }
 
   async remove(
