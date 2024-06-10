@@ -12,6 +12,7 @@ const UploadImageForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const practiceId = getPracticeId();
   const userId = getUserId();
   const userInfo = useAppSelector((state) => state.auth.user);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -32,6 +33,11 @@ const UploadImageForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
 
   return (
     <div>
+      {errorMessage && (
+        <div className="flex justify-center text-red-500 mt-2">
+          {errorMessage}
+        </div>
+      )}
       <form onSubmit={handleSubmit}>
         <div className="justify-between pt-4">
           <div className="">
@@ -42,6 +48,10 @@ const UploadImageForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               errorMessage={''}
               onDrop={(acceptedFiles: File[]) => {
                 setUserImg(acceptedFiles[0]);
+              }}
+              onDropRejected={(file: File[]) => {
+                if (!file[0].type.startsWith('image'))
+                  setErrorMessage('Only Image type Files are allowed.');
               }}
               accept="image/*"
               overrides={{
