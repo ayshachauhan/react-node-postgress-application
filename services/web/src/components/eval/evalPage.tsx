@@ -125,7 +125,6 @@ const EvalPage: React.FC = () => {
 
   const modifyEvalList = evalsList
     .map((ele, index) => {
-      // console.log(ele.);
 
       const viewData = {
         firstName: ele.patient.firstName,
@@ -157,7 +156,6 @@ const EvalPage: React.FC = () => {
       return viewData;
     })
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-  console.log(modifyEvalList);
 
   const handleEditClick = (rowId: string) => {
     if (practiceId) {
@@ -242,7 +240,7 @@ const EvalPage: React.FC = () => {
   };
 
   return (
-    <div id="__next" className="w-max text-center">
+    <div id="__next" className="mt-4 mb-8 text-center">
       <div className="flex justify-between border-gray-400 items-center ">
         <span className="text-xl font-bold">Evals </span>
         <div className="flex  justify-between">
@@ -266,7 +264,7 @@ const EvalPage: React.FC = () => {
         </div>
       </div>
       <hr className="h-px my-1 px-0 mx-0 bg-gray-100 border-1 border-gray-100"></hr>
-      <div className="text-gray-50  items-center bg-gray-50 border-l border rounded-t-lg rounded-b-lg border-gray-200 text-sm overflow-x-auto mt-2">
+      <div className="text-gray-50 w-full items-center border-l border rounded-t-lg rounded-b-lg border-gray-200 text-sm overflow-x-auto mt-2">
         <div className="bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 flex flex-row gap-4 p-2">
           <div className="font-bold text-white py-1 px-1 w-28">Date</div>
           <div className="font-bold text-white py-1 px-1 w-28">Action Date</div>
@@ -279,11 +277,10 @@ const EvalPage: React.FC = () => {
           <div className="font-bold text-white py-1 px-1 w-20">Last Name</div>
           <div className="font-bold text-white py-1 px-1 w-20">First Name</div>
           <div className="font-bold text-white py-1 px-1 w-20">MRN</div>
-          <div className="font-bold text-white py-1 px-1 w-40">Email</div>
           <div className="font-bold text-white py-1 px-1 w-20">Surgery</div>
           <div className="font-bold text-white py-1 px-1 w-20">Body Part</div>
           <div className="font-bold text-white py-1 px-1 w-40">Insurance</div>
-          <div className="font-bold text-white py-1 px-1 w-40">
+          <div className="font-bold text-white py-1 px-1 w-60">
             Contact Info.
           </div>
           <div className="font-bold text-white">Action</div>
@@ -326,9 +323,6 @@ const EvalPage: React.FC = () => {
                     <div className="text-black py-0.5 px-1 overflow-hidden whitespace-nowrap w-20 pl-5">
                       {data.mrn}
                     </div>
-                    <div className="text-black py-0.5 px-1 w-40">
-                      {data.email}
-                    </div>
                     <div className="text-black py-0.5 px-1 overflow-hidden whitespace-nowrap w-20">
                       {data.surgeryConfigName}
                     </div>
@@ -350,8 +344,8 @@ const EvalPage: React.FC = () => {
                     <div className="text-black">{data.notes}</div>
                   </div>
                 </div>
-                <div className="flex flex-col text-black py-0.5 px-1 w-40 items-center">
-                  <div className="text-black py-0.5 px-1 w-40 text-center">
+                <div className="flex flex-col text-black py-0.5 px-1 w-60 items-center">
+                  <div className="text-black py-0.5 px-1 w-60 text-center">
                     {data.email}
                   </div>
                   <div className="text-black py-0.5 px-1 w-20 text-center">
