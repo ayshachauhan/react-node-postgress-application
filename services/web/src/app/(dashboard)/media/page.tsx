@@ -6,7 +6,7 @@ import {
   MediaConfigType,
 } from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
-import { AddIcon, PlayIcon } from '@root/components/Icons';
+import { AddIcon, DeleteIcon, PlayIcon } from '@root/components/Icons';
 import AddMediaModal from '@root/components/media/AddMediaModal';
 import ImageModal from '@root/components/media/ImageModal';
 import PlayVideoModal from '@root/components/media/PlayVideoModal';
@@ -19,6 +19,8 @@ import {
 import { fetchListings as fetchPatients } from '@root/store/reducers/patient';
 import { fetchListings as fetchSurggeryConfigs } from '@root/store/reducers/surgeryConfigurations';
 import { extractVideoId, getImageUrl, getPracticeId } from '@utils/index';
+import { SIZE } from 'baseui/input';
+import { Modal, ModalBody, ModalFooter, ModalHeader, ROLE } from 'baseui/modal';
 import Image from 'next/image';
 import React, { useEffect, useState } from 'react';
 
@@ -156,6 +158,62 @@ const Media: React.FC = () => {
     'pat',
     surgeryConfigurations,
   );
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
+  const handleOpenDeleteModal = (Id: string): void => {
+    setIsDeleteModalOpen(true);
+    setPracticeId(Id);
+  };
+
+  const handleCloseDeleteModal = (): void => {
+    setIsDeleteModalOpen(false);
+    setPracticeId(null);
+  };
+
+  const onConfirmDelete = (): void => {
+    if (practiceId) {
+      try {
+        dispatch(deleteRecordAsync({ id: practiceId }));
+        setIsDeleteModalOpen(false);
+        setPracticeId(null);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+    setPracticeId(null);
+  };
+
+  const DeleteModal = () => {
+    return (
+      <Modal
+        isOpen={isDeleteModalOpen}
+        onClose={handleCloseDeleteModal}
+        closeable
+        animate
+        autoFocus
+        size={SIZE.default}
+        role={ROLE.dialog}
+        overrides={{
+          Root: {
+            style: ({ $theme }) => ({
+              outline: `${$theme.colors.warning200} solid`,
+              backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            }),
+          },
+        }}
+      >
+        <ModalHeader $style={{ fontSize: '1.25rem', fontWeight: 700 }}>
+          Confirm Deletion
+        </ModalHeader>
+        <ModalBody>Are you sure you want to delete this Media?</ModalBody>
+        <ModalFooter>
+          <Button kind="primary" title="Delete" onClick={onConfirmDelete}>
+            Delete
+          </Button>
+        </ModalFooter>
+      </Modal>
+    );
+  };
 
   return (
     <div className="mt-4">
@@ -237,8 +295,14 @@ const Media: React.FC = () => {
                       ) : (
                         ''
                       )}
-                      <div className="text-gray-900 pt-2 text-left">
-                        {mediaConfigs[0].title}
+                      <div className="text-gray-900 pt-2 flex justify-between">
+                        <div>{mediaConfigs[0].title}</div>
+                        <div className="">
+                          <DeleteIcon
+                            style={{ cursor: 'pointer' }}
+                            onClick={() => handleOpenDeleteModal(data.id)}
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -295,8 +359,6 @@ const Media: React.FC = () => {
                 .map((data) => data.mediaConfigs)
                 .flatMap((data, index) => {
                   // Combine video and image arrays with appropriate identifiers
-
-                  console.log(data, 'datamedia');
 
                   const videoElements = data
                     .filter((data) => data.configType === MediaConfigType.VIDEO)

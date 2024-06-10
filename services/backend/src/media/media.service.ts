@@ -54,13 +54,9 @@ export class MediaService {
    * @returns media for specific patient id
    */
   async getMediaByPatientId(patientId: string): Promise<MediaEntity | null> {
-    console.log(patientId, 'patid');
-
     const media = await this.media.findOne({
       where: { entityId: patientId },
     });
-
-    console.log(media, 'mediabypat');
 
     return media;
   }
@@ -74,16 +70,12 @@ export class MediaService {
     practiceId: string,
     data: CreateMediaDto,
   ): Promise<MediaEntity | null> {
-    console.log(data, 'createdtom');
-
     // const mediaConfig: MediaConfig = await this.getMediaConfig(data);
 
     const existingMedia =
       data.mediaType === MediaType.PATIENT
         ? await this.getMediaByPatientId(data.entityId!)
         : null;
-
-    console.log('mediaconfig', existingMedia);
 
     if (existingMedia) {
       return await this.createMediaConfig(existingMedia.id, data.mediaConfig);
@@ -95,8 +87,6 @@ export class MediaService {
       });
       const newMedia = await this.media.save(media);
 
-      console.log(newMedia, 'newmedia');
-
       return await this.createMediaConfig(newMedia.id, data.mediaConfig);
     }
   }
@@ -105,17 +95,18 @@ export class MediaService {
     mediaId: string,
     mediaConfig: MediaConfigDTO[],
   ): Promise<MediaEntity | null> {
-    const mediaConfigEntities: MediaConfigEntity[] = mediaConfig.map(
-      (config: MediaConfigDTO) =>
-        this.mediaConfigRepo.create({
-          mediaId,
-          configType: config.configType,
-          title: config.title,
-          url: config.url,
-        }),
-    );
-    await this.mediaConfigRepo.save(mediaConfigEntities);
-
+    if (mediaConfig.length) {
+      const mediaConfigEntities: MediaConfigEntity[] = mediaConfig.map(
+        (config: MediaConfigDTO) =>
+          this.mediaConfigRepo.create({
+            mediaId,
+            configType: config.configType,
+            title: config.title,
+            url: config.url,
+          }),
+      );
+      await this.mediaConfigRepo.save(mediaConfigEntities);
+    }
     return await this.media.findOne({
       where: {
         id: mediaId,
@@ -154,11 +145,7 @@ export class MediaService {
           file,
         });
 
-        console.log(file, key, 'keyfile');
-
         const uploadResult = await this.s3Service.uploadFile(file, key);
-
-        console.log(uploadResult, 'uploadresult');
 
         return {
           title: file.originalname.replace(/_/g, ' '),
@@ -168,11 +155,8 @@ export class MediaService {
       }),
     );
 
-    console.log(uploadResults, 'uploadresults');
-
     const user = await this.createMediaConfig(id, uploadResults);
 
-    console.log(user, 'userentity');
     return user;
   }
 }
