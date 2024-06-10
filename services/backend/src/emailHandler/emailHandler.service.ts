@@ -61,11 +61,10 @@ export class EmailHandlerService {
     if (templates.length) {
       templates.forEach((template) => {
         const today = new Date();
-        const entry = {
+        const entry: Partial<IEmailLog> = {
           practice: practiceEntity,
           expectedDate: entity.date,
           status: 'pending',
-          isEval: fromEval,
           data: {
             subject: template.emailSubject
               ? this.mailVariableManipulator(template.emailSubject)
@@ -87,6 +86,7 @@ export class EmailHandlerService {
               ? this.mailVariableManipulator(template.email2ndCataract)
               : '',
           },
+          attachment: template.emailAttachment,
         };
 
         const surgeryDate = new Date(entity.date);
@@ -115,11 +115,10 @@ export class EmailHandlerService {
 
     if (!bookingTemplateFound && systemGeneratedMailData) {
       const systemTemplateName = systemGeneratedMailData.systemTemplate;
-      const entry = {
+      const entry: Partial<IEmailLog> = {
         practice: practiceEntity,
         expectedDate: entity.date,
         status: 'pending',
-        isEval: fromEval,
         data: {
           body: this.transporterService.readTemplates(systemTemplateName),
           ...mailVariable,

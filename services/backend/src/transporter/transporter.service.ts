@@ -8,6 +8,7 @@ import { compile } from 'handlebars';
 import type { Transporter } from 'nodemailer';
 import Mail from 'nodemailer/lib/mailer';
 import SMTPTransport from 'nodemailer/lib/smtp-transport';
+import { formatHeaderDate } from 'src/utils';
 import { ENVIRONMENT_VARIABLES } from '../enums/environment.enums';
 import { EMAIL_CONNECTION_TOKEN, SystemTemplates } from './transporter.types';
 
@@ -78,7 +79,9 @@ export class TransporterService {
 
   compileTemplate(text: string, data: Record<string, unknown>): string {
     const template = compile(text);
-
+    if (data.surgery_date) {
+      data.surgery_date = formatHeaderDate(String(data.surgery_date));
+    }
     return template(data);
   }
 }

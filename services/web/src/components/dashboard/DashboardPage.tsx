@@ -17,7 +17,6 @@ import {
 
 import { USER_PERMISSIONS } from '@packages/entities/permission';
 import { useUserPermission } from '@root/hooks/userHasPermission';
-import { fetchLoggedInUser } from '@root/store/reducers/auth';
 import { fetchListings as fetchInsuranceTypesList } from '@root/store/reducers/insuranceTypes';
 import { fetchListings as fetchPatients } from '@root/store/reducers/patient';
 import { fetchListings as fetchPracticeHomesListing } from '@root/store/reducers/practiceHomes';
@@ -29,6 +28,7 @@ import {
 import { fetchListings as fetchSurgeryConfigurationsListing } from '@root/store/reducers/surgeryConfigurations';
 import { fetchListings as fetchSurgeryTypesListing } from '@root/store/reducers/surgeryTypes';
 import { fetchListings as fetchUsersList } from '@root/store/reducers/users';
+import { fetchListings as fetchWaitlist } from '@root/store/reducers/waitlist';
 import { getPracticeId, getUserId } from '@root/utils';
 import { Modal, ModalBody, ROLE, SIZE } from 'baseui/modal';
 import React, { useEffect, useState } from 'react';
@@ -69,10 +69,6 @@ const DashboardPage: React.FC = () => {
   const searchMRNNameStr = searchMRNName || '';
 
   useEffect(() => {
-    dispatch(fetchLoggedInUser());
-  }, [dispatch]);
-
-  useEffect(() => {
     if (practiceId) {
       dispatch(fetchEvalsList({ practiceId }));
       if (loggedInUserId !== null) {
@@ -93,6 +89,7 @@ const DashboardPage: React.FC = () => {
       dispatch(fetchUsersList({ practiceId }));
       dispatch(fetchSurgeryConfigurationsListing({ practiceId }));
       dispatch(fetchPatients({ practiceId }));
+      dispatch(fetchWaitlist({ practiceId }));
     }
   }, [practiceId, dispatch]);
 
@@ -114,6 +111,7 @@ const DashboardPage: React.FC = () => {
         dispatch(clearSurgerySuccessMessage());
         dispatch(clearEvalSuccessMessage());
         dispatch(fetchSurgeryConfigurationsListing({ practiceId }));
+        dispatch(fetchWaitlist({ practiceId }));
         dispatch(fetchPatients({ practiceId }));
         if (userId) {
           dispatch(fetchCalendars({ practiceId, userId }));
@@ -153,6 +151,7 @@ const DashboardPage: React.FC = () => {
     referrersList,
     usersList,
     calendars,
+    waitlist,
   } = useAppSelector((state) => ({
     practiceHomesList: Object.values(state.practiceHomes.entities),
     surgeryTypesList: Object.values(state.surgeryTypes.entities),
@@ -162,6 +161,7 @@ const DashboardPage: React.FC = () => {
       (user) => user.type == UserType.DOCTOR,
     ),
     calendars: Object.values(state.calendars.entities),
+    waitlist: Object.values(state.waitlist.entities),
   }));
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -202,6 +202,7 @@ const DashboardPage: React.FC = () => {
               referrersList,
               usersList,
               calendars,
+              waitlist,
             }}
           />
         </ModalBody>

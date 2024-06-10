@@ -9,10 +9,10 @@ import {
   clearErrorMessage,
   clearSuccessMessage,
 } from '@root/store/reducers/users';
+import { setLoginCookie } from '@root/store/requests/login';
 import { ChangePasswordInterface } from '@root/store/requests/users';
 import { AzentiaLogo } from '@utils/constants';
 import { getPracticeId } from '@utils/index';
-import Cookies from 'js-cookie';
 import { useRouter, useSearchParams } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import { AlreadyOnboarded } from './completedOnboarding';
@@ -36,9 +36,7 @@ export default function PracticeOnboardPage() {
 
   useEffect(() => {
     if (token) {
-      Cookies.set('access_token', token, {
-        expires: 1,
-      });
+      setLoginCookie(token);
 
       if (!userInfo) {
         dispatch(fetchLoggedInUser());

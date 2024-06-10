@@ -28,6 +28,7 @@
     "styletron-engine-monolithic": "^1.0.0",
     "styletron-react": "^6.1.1",
     "@packages/entities": "workspace:entities",
+    "sharp": "^0.33.4",
     "typeorm": "^0.3.20"
   },
   "devDependencies": {

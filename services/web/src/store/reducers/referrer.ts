@@ -39,7 +39,7 @@ const referrerSlice = createSlice({
       state.status = EntityLoadingState.SUCCEEDED;
       state.entities = {};
       if (action.payload.length === 0) {
-        state.errorMessage = 'No records found';
+        state.errorMessage = 'Referrers not found.';
       } else {
         state.errorMessage = undefined;
       }
@@ -52,9 +52,9 @@ const referrerSlice = createSlice({
     builder.addCase(fetchListings.rejected, (state, action) => {
       state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
-        state.errorMessage = action.payload ?? 'Failed to fetch referrers';
+        state.errorMessage = action.payload ?? 'Failed to fetch referrers.';
       } else {
-        state.errorMessage = 'Failed to fetch referrers';
+        state.errorMessage = 'Failed to fetch referrers.';
       }
       state.processing = false;
     });
@@ -72,9 +72,9 @@ const referrerSlice = createSlice({
     builder.addCase(fetchReferrerInfo.rejected, (state, action) => {
       state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
-        state.errorMessage = action.payload ?? 'Failed to fetch referrer info';
+        state.errorMessage = action.payload ?? 'Failed to fetch referrer info.';
       } else {
-        state.errorMessage = 'Failed to fetch referrer info';
+        state.errorMessage = 'Failed to fetch referrer info.';
       }
     });
 
@@ -89,15 +89,15 @@ const referrerSlice = createSlice({
         ...state.entities,
         ...{ [action.payload.id]: action.payload },
       };
-      state.successMessage = 'Record added successfully';
+      state.successMessage = 'Referrer added successfully.';
     });
 
     builder.addCase(addRecordAsync.rejected, (state, action) => {
       state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
-        state.errorMessage = action.payload ?? 'Failed to add referrer';
+        state.errorMessage = action.payload ?? 'Failed to add referrer.';
       } else {
-        state.errorMessage = 'Failed to add referrer';
+        state.errorMessage = 'Failed to add referrer.';
       }
     });
 
@@ -115,15 +115,15 @@ const referrerSlice = createSlice({
         ...remainingReferrers
       } = state.entities;
       state.entities = remainingReferrers;
-      state.successMessage = 'Record deleted successfully';
+      state.successMessage = 'Referrer deleted successfully.';
     });
 
     builder.addCase(deleteRecordAsync.rejected, (state, action) => {
       state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
-        state.errorMessage = action.payload ?? 'Failed to delete referrer';
+        state.errorMessage = action.payload ?? 'Failed to delete referrer.';
       } else {
-        state.errorMessage = 'Failed to delete referrer';
+        state.errorMessage = 'Failed to delete referrer.';
       }
     });
 
@@ -139,15 +139,15 @@ const referrerSlice = createSlice({
         ...state.entities,
         ...{ [action.payload.id]: action.payload },
       };
-      state.successMessage = 'Record updated successfully';
+      state.successMessage = 'Referrer updated successfully.';
     });
 
     builder.addCase(updateRecordAsync.rejected, (state, action) => {
       state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
-        state.errorMessage = action.payload ?? 'Failed to update referrer';
+        state.errorMessage = action.payload ?? 'Failed to update referrer.';
       } else {
-        state.errorMessage = 'Failed to update referrer';
+        state.errorMessage = 'Failed to update referrer.';
       }
     });
   },

@@ -23,6 +23,7 @@ const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     Array(permissions.length).fill(false),
   );
   const [userName, setUserName] = useState('');
+  const [designation, setDesignation] = useState('');
   const [email, setEmail] = useState('');
   const [firstName, setFirstName] = useState('');
   const [contactNumber, setcontactNumber] = useState('');
@@ -30,6 +31,8 @@ const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const [url, setUrl] = useState('');
   const [type, setType] = useState<UserType>(UserType.ADMIN);
   const [userImg, setUserImg] = useState<File | null>(null);
+  const [errorMessage, setErrorMessage] = useState('');
+
   const practiceId = getPracticeId();
 
   const handleTypeChange = ({ value }) => {
@@ -60,6 +63,7 @@ const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         practiceId,
         email,
         userName,
+        designation,
         firstName,
         lastName,
         fullName,
@@ -85,6 +89,11 @@ const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
 
   return (
     <div>
+      {errorMessage && (
+        <div className="flex justify-center text-red-500 mt-2">
+          {errorMessage}
+        </div>
+      )}
       <form onSubmit={handleSubmit}>
         <div className="flex flex-col">
           <div className="flex flex-row justify-between gap-7 pt-4">
@@ -185,7 +194,7 @@ const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           <div className="flex flex-row justify-between gap-7 pt-4">
             <div className="w-1/2 space-y-2">
               <label htmlFor="type" className="text-black text-sm font-normal">
-                Designation
+                User Type
               </label>
               <Select
                 options={userTypeOptions}
@@ -207,6 +216,18 @@ const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 }}
               />
             </div>
+            <div className="w-1/2 space-y-2">
+              <label htmlFor="type" className="text-black text-sm font-normal">
+                Designation
+              </label>
+              <TextInput
+                name="designation"
+                value={designation}
+                onChange={(value) => {
+                  setDesignation(value);
+                }}
+              />
+            </div>
           </div>
           <div className="flex flex-row justify-between gap-7 pt-4">
             <div className="w-1/2 space-y-2">
@@ -217,6 +238,10 @@ const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 errorMessage={''}
                 onDrop={(acceptedFiles: File[]) => {
                   setUserImg(acceptedFiles[0]);
+                }}
+                onDropRejected={(file: File[]) => {
+                  if (!file[0].type.startsWith('image'))
+                    setErrorMessage('Only Image type Files are allowed.');
                 }}
                 accept="image/*"
                 overrides={{

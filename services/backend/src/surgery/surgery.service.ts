@@ -6,10 +6,13 @@ import {
   HistoryAction,
   HistoryType,
   ICalendar,
+  ISurgery,
+  ISurgeryConfiguration,
   PermissionEntity,
-  ProcedureStatus,
+  PracticeEntity,
   SelectedSurgeryOption,
   SurgeryEntity,
+  SurgeryStatus,
 } from '@packages/entities';
 import { PatientEntity } from '@packages/entities/patient';
 import { USER_PERMISSIONS } from '@packages/entities/permission';
@@ -32,6 +35,7 @@ import { SurgeryTypesService } from 'src/surgeryTypes/surgeryTypes.service';
 import { SystemTemplates } from 'src/transporter/transporter.types';
 import { UsersService } from 'src/users/users.service';
 import { getFullYearDateConditions, getStartEndDate } from 'src/utils';
+import { WaitlistService } from 'src/waitlist/waitlist.service';
 import {
   Equal,
   FindManyOptions,
@@ -39,11 +43,13 @@ import {
   FindOptionsWhere,
   ILike,
   In,
+  LessThan,
   LessThanOrEqual,
   Repository,
 } from 'typeorm';
 import { CalendarService } from '../calendar/calendar.service';
 import { HistoryService } from '../history/history.service';
+import { CreateSurgeryDto } from './dto/createSurgery.dto';
 
 type DateCondition = {
   date: FindOperator<Date>;
@@ -77,6 +83,8 @@ export class SurgeryService {
     private practiceHomesService: PracticeHomesService,
     @Inject(forwardRef(() => InsuranceTypesService))
     private insuranceTypesService: InsuranceTypesService,
+    @Inject(forwardRef(() => WaitlistService))
+    private waitlistService: WaitlistService,
     @Inject(forwardRef(() => SurgeryConfigurationsService))
     private surgeryConfigurationService: SurgeryConfigurationsService,
     @Inject(forwardRef(() => UsersService))
@@ -127,6 +135,7 @@ export class SurgeryService {
         'insuranceType',
         'patient.referrer',
         'doctor',
+        'waitlist',
       ],
     };
 
@@ -215,6 +224,7 @@ export class SurgeryService {
         'insuranceType',
         'patient.referrer',
         'doctor',
+        'waitlist',
       ],
     });
   }
@@ -242,6 +252,11 @@ export class SurgeryService {
         practiceId,
       );
 
+    const waitlistEntity = await this.waitlistService.getWaitlistById(
+      createSurgeryDto.waitlistId,
+      practiceId,
+    );
+
     const practiceHomeEntity =
       await this.practiceHomesService.getPracticeHomeById(
         createSurgeryDto.practiceHomeId,
@@ -260,8 +275,11 @@ export class SurgeryService {
       createSurgeryDto.selectedSurgeryOptions,
     );
     optionsArr.forEach((option) => {
-      createSurgeryDto.totalHospitalPricing += +option.hospitalPricing;
-      createSurgeryDto.totalProfessionalPricing += +option.professionalPricing;
+      createSurgeryDto.totalHospitalPricing =
+        +option.hospitalPricing + +createSurgeryDto.totalHospitalPricing;
+      createSurgeryDto.totalProfessionalPricing =
+        +option.professionalPricing +
+        +createSurgeryDto.totalProfessionalPricing;
     });
 
     const resultSurgery = await this.surgeryRepository.save({
@@ -274,7 +292,8 @@ export class SurgeryService {
       insuranceType: insuranceTypeEntity,
       doctor: doctorEntity,
       surgeryConfiguration: surgeryConfigurationEntity,
-      surgeryStatus: ProcedureStatus.BOOKED,
+      surgeryStatus: SurgeryStatus.BOOKED,
+      waitlist: waitlistEntity,
     });
 
     // upsert calendar after creating surgery
@@ -321,42 +340,12 @@ export class SurgeryService {
       ipAddress: createSurgeryDto.ipAddress,
     });
 
-    const mailVariables: EmailVariables = {
-      surgery_type: surgeryConfigurationEntity
-        ? surgeryConfigurationEntity.name
-        : '',
-      fname: newPatient.firstName,
-      lname: newPatient.lastName,
-      mrn: String(newPatient.mrn),
-      pt_email_address: newPatient.email,
-      surgery_date: String(resultSurgery.date),
-      pt_email_notify: '',
-      laterality: createSurgeryDto.bodyPart,
-      Laterality: createSurgeryDto.bodyPart,
-      pod1_location: '',
-      cataract_variable: '',
-      all_cases: surgeryConfigurationEntity?.name + ' ' + createSurgeryDto.date,
-      all_cataract_dates:
-        surgeryConfigurationEntity?.name + ' ' + createSurgeryDto.date,
-      all_case_type:
-        surgeryConfigurationEntity?.name + ' ' + createSurgeryDto.date,
-      phoneNumber: createSurgeryDto.phoneNumber,
-    };
-
-    const systemGeneratedMailData = {
-      subject: 'Eval/ Surgery registered',
-      text: 'text message',
-      systemTemplate: SystemTemplates.NOTIFY_PATIENT,
-    };
-
-    if (practiceEntity) {
-      await this.emailHandlerService.checkAndMakeEmailContent(
+    if (practiceEntity && surgeryConfigurationEntity) {
+      await this.initiateSendEmail(
         practiceEntity,
-        createSurgeryDto.surgeryConfigurationId,
+        createSurgeryDto,
         resultSurgery,
-        mailVariables,
-        systemGeneratedMailData,
-        false,
+        surgeryConfigurationEntity,
       );
     }
 
@@ -380,6 +369,12 @@ export class SurgeryService {
       createSurgeryDto.insuranceType = insuranceTypeEntity;
     }
 
+    const practiceHomeEntity =
+      await this.practiceHomesService.getPracticeHomeById(
+        createSurgeryDto.practiceHomeId,
+        practiceId,
+      );
+
     if (surgeryToUpdate) {
       await this.patientService.update({
         id: surgeryToUpdate.patient.id,
@@ -387,6 +382,12 @@ export class SurgeryService {
         data: createSurgeryDto,
       });
     }
+
+    const waitlistEntity = await this.waitlistService.getWaitlistById(
+      createSurgeryDto.waitlistId,
+      practiceId,
+    );
+
     const dataToUpdate = {
       insuranceType: createSurgeryDto.insuranceType
         ? createSurgeryDto.insuranceType
@@ -397,6 +398,13 @@ export class SurgeryService {
       totalProfessionalPricing: createSurgeryDto.totalProfessionalPricing,
       selectedCheckListOptions: createSurgeryDto.selectedCheckListOptions,
       bodyPart: createSurgeryDto.bodyPart,
+      surgeryOrder: createSurgeryDto.surgeryOrder
+        ? createSurgeryDto.surgeryOrder
+        : surgeryToUpdate?.surgeryOrder,
+      practiceHome: practiceHomeEntity
+        ? practiceHomeEntity
+        : surgeryToUpdate?.practiceHome,
+      waitlist: waitlistEntity ? waitlistEntity : surgeryToUpdate?.waitlist,
     };
 
     await this.surgeryRepository.update(id, {
@@ -429,6 +437,18 @@ export class SurgeryService {
     });
   }
 
+  async autoCompleteSurgeries() {
+    this.surgeryRepository.update(
+      {
+        date: LessThan(new Date(Date.now())),
+        surgeryStatus: In([SurgeryStatus.PENDING]),
+      },
+      {
+        surgeryStatus: SurgeryStatus.COMPLETED,
+      },
+    );
+  }
+
   async remove(
     id: string,
     practiceId: string,
@@ -445,6 +465,47 @@ export class SurgeryService {
       action: HistoryAction.DELETE,
       ipAddress,
     });
+  }
+
+  async initiateSendEmail(
+    practice: PracticeEntity,
+    dto: CreateSurgeryDto,
+    surgery: ISurgery,
+    surgeryConfig: ISurgeryConfiguration,
+  ): Promise<void> {
+    const { id: surgeryConfigId, name } = surgeryConfig;
+    const mailVariables: EmailVariables = {
+      surgery_type: name,
+      fname: dto.firstName,
+      lname: dto.lastName,
+      mrn: String(dto.mrn),
+      pt_email_address: dto.email,
+      surgery_date: String(dto.date),
+      pt_email_notify: '',
+      laterality: dto.bodyPart,
+      Laterality: dto.bodyPart,
+      pod1_location: '',
+      cataract_variable: '',
+      all_cases: name + ' ' + dto.date,
+      all_cataract_dates: name + ' ' + dto.date,
+      all_case_type: name + ' ' + dto.date,
+      phoneNumber: dto.phoneNumber,
+    };
+
+    const systemGeneratedMailData = {
+      subject: 'Eval/ Surgery registered',
+      text: 'text message',
+      systemTemplate: SystemTemplates.NOTIFY_PATIENT,
+    };
+
+    await this.emailHandlerService.checkAndMakeEmailContent(
+      practice,
+      surgeryConfigId,
+      surgery,
+      mailVariables,
+      systemGeneratedMailData,
+      false,
+    );
   }
 }
 

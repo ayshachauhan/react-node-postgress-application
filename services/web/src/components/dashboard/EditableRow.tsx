@@ -1,11 +1,11 @@
-import { IInsuranceType, UpdateSurgeryPayload } from '@packages/entities';
+import { UpdateSurgeryPayload } from '@packages/entities';
 import { USER_PERMISSIONS } from '@packages/entities/permission';
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
 import { useUserPermission } from '@root/hooks/userHasPermission';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { updateRecordAsync } from '@root/store/reducers/surgery';
-import { getPracticeId } from '@root/utils';
+import { getPracticeId, toFullName } from '@root/utils';
 import { DatePicker } from 'baseui/datepicker';
 import { SIZE, Select } from 'baseui/select';
 import React, { useEffect, useState } from 'react';
@@ -26,6 +26,8 @@ function EditableRow({
   ]);
   const [obj, setObj] = useState<Partial<UpdateSurgeryPayload>>({});
   const [insuranceTypeId, setInsuranceTypeId] = useState<string>('');
+  const [referrerId, setReferrerId] = useState<string>('');
+  const [waitlistId, setWaitlistId] = useState<string>('');
 
   useEffect(() => {
     if (surgeryInfo.id && surgeryInfo) {
@@ -41,14 +43,35 @@ function EditableRow({
         selectedCheckListOptions: surgeryInfo.selectedCheckListOptions,
         totalHospitalPricing: surgeryInfo.totalHospitalPricing,
         totalProfessionalPricing: surgeryInfo.totalProfessionalPricing,
+        surgeryOrder: surgeryInfo.surgeryOrder,
+        referrerId: surgeryInfo.patient.referrer
+          ? toFullName(surgeryInfo.patient.referrer)
+          : '',
+        practiceHomeId: surgeryInfo.practiceHome.id,
       });
       setInsuranceTypeId(surgeryInfo?.insuranceType?.id);
+      setReferrerId(surgeryInfo.patient?.referrer?.id);
+      setWaitlistId(surgeryInfo?.waitlist?.id);
     }
   }, [surgeryInfo.id, surgeryInfo]);
 
-  const insuranceTypesList: IInsuranceType[] = useAppSelector((state) =>
-    Object.values(state.insuranceTypes.entities),
-  );
+  const { insuranceTypesList, referrersList, practiceHomesList, waitlist } =
+    useAppSelector((state) => ({
+      insuranceTypesList: Object.values(state.insuranceTypes.entities),
+      referrersList: Object.values(state.referrers.entities),
+      practiceHomesList: Object.values(state.practiceHomes.entities),
+      waitlist: Object.values(state.waitlist.entities),
+    }));
+
+  const waitlistOptions = Object.keys(waitlist).map((key) => ({
+    label: waitlist[key].name,
+    id: waitlist[key].id,
+  }));
+
+  const practiceHomesOptions = Object.keys(practiceHomesList).map((key) => ({
+    label: practiceHomesList[key].name[0],
+    id: practiceHomesList[key].id,
+  }));
 
   const surgeryConfigurationsList = useAppSelector(
     (state) => state.surgeryConfigurations.entities,
@@ -72,6 +95,14 @@ function EditableRow({
     setInsuranceTypeId(value[0] ? value[0].id : null);
   };
 
+  const handleReferrerChange = ({ value }) => {
+    setReferrerId(value[0] ? value[0].id : null);
+  };
+
+  const handleWaitlistChange = ({ value }) => {
+    setWaitlistId(value[0] ? value[0].id : null);
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -80,11 +111,15 @@ function EditableRow({
         practiceId,
         ...obj,
         insuranceTypeId,
+        referrerId,
+        waitlistId,
       };
 
       await dispatch(updateRecordAsync({ payload, id: surgeryInfo.id }));
 
       setInsuranceTypeId('');
+      setReferrerId('');
+      setWaitlistId('');
       setObj({
         insuranceTypeId: '',
         date: new Date(),
@@ -95,8 +130,9 @@ function EditableRow({
         mrn: 0,
         selectedSurgeryOptions: {},
         selectedCheckListOptions: {},
-        totalHospitalPricing: 0,
-        totalProfessionalPricing: 0,
+        totalHospitalPricing: '0',
+        totalProfessionalPricing: '0',
+        referrerId: '',
       });
     }
     handleUpdateClick(rowId); // Close the specific row after updating
@@ -127,13 +163,34 @@ function EditableRow({
               }}
             />
           </div>
-          <div className="w-10 py-2">
-            <TextInput
+          <div className="w-14 py-1">
+            <Select
               size={SIZE.mini}
-              disabled
-              name="home"
-              value={surgeryInfo.practiceHome.name}
-              onChange={(value) => handleObjChange('home', value)}
+              required
+              backspaceRemoves={false}
+              options={practiceHomesOptions}
+              value={
+                obj.practiceHomeId
+                  ? [{ id: obj.practiceHomeId, label: obj.practiceHomeId }]
+                  : []
+              }
+              onChange={({ value }) =>
+                handleObjChange('practiceHomeId', value[0].id)
+              }
+              overrides={{
+                ControlContainer: {
+                  style: {
+                    backgroundColor: 'rgba(250, 250, 250, 1)',
+                    border: 'none',
+                    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                    color: '#52525B',
+                    paddingRight: '0',
+                  },
+                },
+                ClearIcon: {
+                  component: () => null,
+                },
+              }}
             />
           </div>
           <div className="py-2 w-20">
@@ -145,21 +202,55 @@ function EditableRow({
               onChange={() => handleObjChange('status', 'booked')}
             />
           </div>
-          <div className="py-2 w-20">
-            <TextInput
-              size={SIZE.mini}
-              name="lastName"
-              value={obj.lastName}
-              onChange={(value) => handleObjChange('lastName', value)}
-            />
+          <div>
+            <div className="py-2 w-20">
+              <TextInput
+                size={SIZE.mini}
+                name="lastName"
+                value={obj.lastName}
+                onChange={(value) => handleObjChange('lastName', value)}
+              />
+            </div>
+            <div>
+              <div className="flex flex-center gap-4 items-center">
+                <div className="text-black text-center font-semibold w-20 pt-2">
+                  Waitlist:{' '}
+                </div>
+              </div>
+            </div>
           </div>
-          <div className="py-2 w-20">
-            <TextInput
-              size={SIZE.mini}
-              name="firstName"
-              value={obj.firstName}
-              onChange={(value) => handleObjChange('firstName', value)}
-            />
+          <div>
+            <div className="py-2 w-20">
+              <TextInput
+                size={SIZE.mini}
+                name="firstName"
+                value={obj.firstName}
+                onChange={(value) => handleObjChange('firstName', value)}
+              />
+            </div>
+            <div className=" w-20 pt-2">
+              <Select
+                options={waitlistOptions}
+                size={SIZE.mini}
+                onChange={handleWaitlistChange}
+                value={
+                  waitlistId ? [{ label: waitlistId, id: waitlistId }] : []
+                }
+                overrides={{
+                  ControlContainer: {
+                    style: {
+                      backgroundColor: 'rgba(250, 250, 250, 1)',
+                      border: 'none',
+                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                      color: '#52525B',
+                    },
+                  },
+                  ClearIcon: {
+                    component: () => null,
+                  },
+                }}
+              />
+            </div>
           </div>
           <div className="w-20 py-2">
             <TextInput
@@ -334,10 +425,10 @@ function EditableRow({
           </div>
           <div className="py-2 w-20">
             <TextInput
+              type="number"
               name="hash"
-              value="10"
-              disabled
-              onChange={() => ''}
+              value={obj.surgeryOrder}
+              onChange={(value) => handleObjChange('surgeryOrder', value)}
               size={SIZE.mini}
             />
           </div>
@@ -376,8 +467,6 @@ function EditableRow({
                 onChange={(value) =>
                   handleObjChange('totalProfessionalPricing', value)
                 }
-                type="number"
-                min={0}
               />
             </div>
           )}
@@ -390,8 +479,6 @@ function EditableRow({
                 onChange={(value) =>
                   handleObjChange('totalHospitalPricing', value)
                 }
-                type="number"
-                min={0}
               />
             </div>
           )}
@@ -425,6 +512,55 @@ function EditableRow({
                 },
               }}
             />
+          </div>
+          <div className="flex flex-col text-black py-0.5 px-1 w-40 items-center">
+            <div className="text-black py-0.5 px-1 w-40 text-center">
+              <TextInput
+                name="hash"
+                value={surgeryInfo.patient.email}
+                disabled
+                onChange={() => ''}
+                size={SIZE.mini}
+              />
+            </div>
+            <div className="text-black py-0.5 px-1 w-40 text-center">
+              <TextInput
+                name="hash"
+                value={surgeryInfo.patient.phoneNumber}
+                disabled
+                onChange={() => ''}
+                size={SIZE.mini}
+              />
+            </div>
+            <div className="text-black py-0.5 px-1 w-40 text-center">
+              <Select
+                backspaceClearsInputValue={true}
+                escapeClearsValue={false}
+                options={referrersList.map((ele) => ({
+                  id: ele.id,
+                  label: toFullName(ele),
+                }))}
+                value={
+                  referrerId ? [{ label: referrerId, id: referrerId }] : []
+                }
+                onChange={handleReferrerChange}
+                size={SIZE.mini}
+                overrides={{
+                  ControlContainer: {
+                    style: {
+                      backgroundColor: 'rgba(250, 250, 250, 1)',
+                      border: 'none',
+                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                      color: '#52525B',
+                    },
+                  },
+
+                  ClearIcon: {
+                    component: () => null,
+                  },
+                }}
+              />
+            </div>
           </div>
           <div className="flex items-center gap-2 py-2 w-40">
             <Button

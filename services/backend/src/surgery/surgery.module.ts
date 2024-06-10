@@ -11,6 +11,7 @@ import { SurgeryConfigurationsModule } from 'src/surgeryConfiguration/surgeryCon
 import { SurgeryTypesModule } from 'src/surgeryTypes/surgeryTypes.module';
 import { TemplatesModule } from 'src/templates/templates.module';
 import { UsersModule } from 'src/users/users.module';
+import { WaitlistModule } from 'src/waitlist/waitlist.module';
 import { CalendarModule } from '../calendar/calendar.module';
 import { HistoryModule } from '../history/history.module';
 import { SurgeryController } from './surgery.controller';
@@ -30,6 +31,7 @@ import { SurgeryService } from './surgery.service';
     forwardRef(() => HistoryModule),
     forwardRef(() => EmailHandlerModule),
     forwardRef(() => TemplatesModule),
+    forwardRef(() => WaitlistModule),
   ],
   providers: [
     practiceNotFoundInterceptor,

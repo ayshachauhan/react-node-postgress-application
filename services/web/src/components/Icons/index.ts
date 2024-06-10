@@ -3,6 +3,8 @@ export { default as AddReferrerIcon } from './AddReferrerIcon';
 export { default as AddReviewIcon } from './AddReview';
 export { default as AvatarIcon } from './Avatar';
 export { default as CloseIcon } from './Close';
+export { default as CollapseLeftIcon } from './CollapseLeftIcon';
+export { default as CollapseRightIcon } from './CollapseRightIcon';
 export { default as CopyIcon } from './Copy';
 export { default as DashboardIcon } from './Dashboard';
 export { default as DeleteIcon } from './Delete';

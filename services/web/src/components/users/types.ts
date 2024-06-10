@@ -3,6 +3,7 @@ export interface User {
   practiceId?: string;
   email: string;
   userName: string;
+  designation: string;
   firstName: string;
   contactNumber: string;
   lastName: string;

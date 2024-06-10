@@ -1,8 +1,8 @@
 import { CreateEvalInterface, UpdateEValInterface } from '@packages/entities';
+import { ApiService } from '@root/services/apiclient';
 import { getIpAddress } from '@root/utils';
-import Cookies from 'js-cookie';
-import { publicRuntimeConfig } from 'next.config';
-const { API_BASE_URL } = publicRuntimeConfig;
+
+const apiClient = new ApiService();
 
 export const getEvals = async (
   payloadData: {
@@ -12,19 +12,12 @@ export const getEvals = async (
   { rejectWithValue },
 ) => {
   try {
-    const accessToken = Cookies.get('access_token');
-    const response = await fetch(
-      `${API_BASE_URL}/practices/${
-        payloadData.practiceId
-      }/evals?includeDeleted=${payloadData.includeDeleted ?? false}`,
-      {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        },
-      },
+    const response: Response = await apiClient.get(
+      `/practices/${payloadData.practiceId}/evals?includeDeleted=${
+        payloadData.includeDeleted ?? false
+      }`,
     );
+
     if (!response.ok) {
       throw new Error('Failed to get evals');
     }
@@ -35,21 +28,32 @@ export const getEvals = async (
   }
 };
 
+export const getEvalInfo = async (
+  payloadData: {
+    practiceId: string;
+    id: string;
+  },
+  { rejectWithValue },
+) => {
+  try {
+    const response: Response = await apiClient.get(
+      `/practices/${payloadData.practiceId}/evals/${payloadData.id}`,
+    );
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    return rejectWithValue(error);
+  }
+};
+
 export const addEval = async (payloadData: CreateEvalInterface) => {
   try {
-    const accessToken = Cookies.get('access_token');
-    const response = await fetch(
-      `${API_BASE_URL}/practices/${payloadData.practiceId}/evals`,
+    const response: Response = await apiClient.post(
+      `/practices/${payloadData.practiceId}/evals`,
       {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify({
-          ...payloadData,
-          ipAddress: await getIpAddress(),
-        }),
+        ...payloadData,
+        ipAddress: await getIpAddress(),
       },
     );
     const data = await response.json();
@@ -67,19 +71,11 @@ export const updateEval = async ({
   id: string;
 }) => {
   try {
-    const accessToken = Cookies.get('access_token');
-    const response = await fetch(
-      `${API_BASE_URL}/practices/${payloadData.practiceId}/evals/${id}`,
+    const response: Response = await apiClient.patch(
+      `/practices/${payloadData.practiceId}/evals/${id}`,
       {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify({
-          ...payloadData,
-          ipAddress: await getIpAddress(),
-        }),
+        ...payloadData,
+        ipAddress: await getIpAddress(),
       },
     );
     const data = await response.json();
@@ -97,18 +93,10 @@ export const deleteEval = async (
   { rejectWithValue },
 ) => {
   try {
-    const accessToken = Cookies.get('access_token');
-    const response = await fetch(
-      `${API_BASE_URL}/practices/${payloadData.practiceId}/evals/${payloadData.id}`,
+    const response: Response = await apiClient.delete(
+      `/practices/${payloadData.practiceId}/evals/${payloadData.id}`,
       {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify({
-          ipAddress: await getIpAddress(),
-        }),
+        ipAddress: await getIpAddress(),
       },
     );
     if (!response.ok) {
@@ -128,31 +116,5 @@ export const deleteEval = async (
       return rejectWithValue(error.message);
     }
     return rejectWithValue('An unknown error occurred');
-  }
-};
-
-export const getEvalInfo = async (
-  payloadData: {
-    practiceId: string;
-    id: string;
-  },
-  { rejectWithValue },
-) => {
-  try {
-    const accessToken = Cookies.get('access_token');
-    const response = await fetch(
-      `${API_BASE_URL}/practices/${payloadData.practiceId}/evals/${payloadData.id}`,
-      {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        },
-      },
-    );
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    return rejectWithValue(error);
   }
 };

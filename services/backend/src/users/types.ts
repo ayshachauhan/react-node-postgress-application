@@ -7,6 +7,7 @@ export type SanitizedUser = {
   lastName: string;
   email: string;
   userName: string;
+  designation: string;
   status: UserStatus;
   type: UserType;
   url: string;
@@ -26,12 +27,14 @@ export type NewUserMailData = {
 export enum UploadType {
   USER = 'user',
   PRACTICE = 'practice',
+  TEMPLATES = 'templates',
 }
 
 export type GetUploadFileKey = {
   practiceId: string;
   file: Express.Multer.File;
   userId?: string;
+  templateId?: string;
 };
 
 export type UploadUserImgData = {

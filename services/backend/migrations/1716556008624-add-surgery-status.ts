@@ -1,4 +1,4 @@
-import { ProcedureStatus } from '@packages/entities/surgery';
+import { SurgeryStatus } from '@packages/entities/surgery';
 import { MigrationInterface, QueryRunner, TableColumn } from 'typeorm';
 
 export class AddSurgeryStatus1716556008624 implements MigrationInterface {
@@ -9,7 +9,7 @@ export class AddSurgeryStatus1716556008624 implements MigrationInterface {
       new TableColumn({
         name: 'surgeryStatus',
         type: 'enum',
-        enum: Object.values(ProcedureStatus),
+        enum: Object.values(SurgeryStatus),
       }),
     );
   }
