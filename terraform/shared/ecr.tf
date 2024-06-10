@@ -1,5 +1,5 @@
 resource "aws_ecr_repository" "azentia_image_repository_backend" {
-  name = "azentia-backend-image-repository"
+  name = "azentia-${var.environment}-backend-image-repository"
   image_tag_mutability = "MUTABLE"
 
   image_scanning_configuration {
@@ -8,7 +8,7 @@ resource "aws_ecr_repository" "azentia_image_repository_backend" {
 }
 
 resource "aws_ecr_repository" "azentia_image_repository_web" {
-  name = "azentia-web-image-repository"
+  name = "azentia-${var.environment}-web-image-repository"
   image_tag_mutability = "MUTABLE"
 
   image_scanning_configuration {

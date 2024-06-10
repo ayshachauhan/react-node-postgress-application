@@ -73,6 +73,7 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
   const loggedInUserInfo = useAppSelector((state) => state.auth.user);
   const loggedInUserId = loggedInUserInfo?.id;
   const isDisabled = loggedInUserId === userId;
+  const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
     if (updatedUserInfo?.permissions) {
@@ -158,6 +159,11 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
 
   return (
     <div>
+      {errorMessage && (
+        <div className="flex justify-center text-red-500 mt-2">
+          {errorMessage}
+        </div>
+      )}
       <form onSubmit={handleSubmit}>
         <div className="flex flex-col">
           <div className="flex flex-row justify-between pt-4 gap-7">
@@ -359,6 +365,10 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
                 errorMessage={''}
                 onDrop={(acceptedFiles: File[]) => {
                   setUserImg(acceptedFiles[0]);
+                }}
+                onDropRejected={(file: File[]) => {
+                  if (!file[0].type.startsWith('image'))
+                    setErrorMessage('Only Image type Files are allowed.');
                 }}
                 accept="image/*"
                 overrides={{

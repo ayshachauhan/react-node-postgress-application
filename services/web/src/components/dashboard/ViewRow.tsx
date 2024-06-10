@@ -19,6 +19,14 @@ function ViewRow({ selectedSurgery, viewBillingColumn }) {
           <span className="font-bold">Appointment Status: </span>
           <span>{selectedSurgery.status}</span>
         </p>
+        <p>
+          <span className="font-bold">Waitlist: </span>
+          <span>{selectedSurgery.waitlist}</span>
+        </p>
+        <p>
+          <span className="font-bold">#: </span>
+          <span>{selectedSurgery.surgeryOrder}</span>
+        </p>
       </div>
       <div className="flex-1">
         <p>
@@ -34,8 +42,8 @@ function ViewRow({ selectedSurgery, viewBillingColumn }) {
           <span>{selectedSurgery.mrn}</span>
         </p>
         <p>
-          <span className="font-bold">Eye: </span>
-          <span>{selectedSurgery.bodyPart}</span>
+          <span className="font-bold">Phone number: </span>
+          <span>{selectedSurgery.phoneNumber}</span>
         </p>
       </div>
       <div className="flex-1">
@@ -57,10 +65,6 @@ function ViewRow({ selectedSurgery, viewBillingColumn }) {
         <p>
           <span className="font-bold">Details: </span>
           <span>{selectedSurgery.details}</span>
-        </p>
-        <p>
-          <span className="font-bold">#: </span>
-          <span>{selectedSurgery.surgeryOrder}</span>
         </p>
         {selectedSurgery.selectedChecklistOptions
           ? Object.keys(selectedSurgery.selectedChecklistOptions).map(
@@ -96,10 +100,6 @@ function ViewRow({ selectedSurgery, viewBillingColumn }) {
         <p>
           <span className="font-bold">Contact Info: </span>
           <span>{selectedSurgery.email}</span>
-        </p>
-        <p>
-          <span className="font-bold">Phone number: </span>
-          <span>{selectedSurgery.phoneNumber}</span>
         </p>
       </div>
     </div>

@@ -368,6 +368,12 @@ export class SurgeryService {
       createSurgeryDto.insuranceType = insuranceTypeEntity;
     }
 
+    const practiceHomeEntity =
+      await this.practiceHomesService.getPracticeHomeById(
+        createSurgeryDto.practiceHomeId,
+        practiceId,
+      );
+
     if (surgeryToUpdate) {
       await this.patientService.update({
         id: surgeryToUpdate.patient.id,
@@ -375,6 +381,11 @@ export class SurgeryService {
         data: createSurgeryDto,
       });
     }
+
+    const waitlistEntity = await this.waitlistService.getWaitlistById(
+      createSurgeryDto.waitlistId,
+      practiceId,
+    );
 
     const dataToUpdate = {
       insuranceType: createSurgeryDto.insuranceType
@@ -389,6 +400,10 @@ export class SurgeryService {
       surgeryOrder: createSurgeryDto.surgeryOrder
         ? createSurgeryDto.surgeryOrder
         : surgeryToUpdate?.surgeryOrder,
+      practiceHome: practiceHomeEntity
+        ? practiceHomeEntity
+        : surgeryToUpdate?.practiceHome,
+      waitlist: waitlistEntity ? waitlistEntity : surgeryToUpdate?.waitlist,
     };
 
     await this.surgeryRepository.update(id, {

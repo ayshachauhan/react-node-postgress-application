@@ -24,6 +24,27 @@ const PracticeEditModule: React.FC<{
 
   const [formChanged, setFormChanged] = useState(false);
 
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const validateForm = (): boolean => {
+    if (!name.trim()) {
+      setErrorMessage('Practice Name cannot be empty.');
+      return false;
+    }
+    if (!status.trim()) {
+      setErrorMessage('Status cannot be empty.');
+      return false;
+    }
+
+    if (practiceImg && !practiceImg.type.startsWith('image/')) {
+      setErrorMessage('Only Image type Files are allowed.');
+      return false;
+    }
+
+    setErrorMessage('');
+    return true;
+  };
+
   useEffect(() => {
     setFormChanged(
       name !== initialValues.name ||
@@ -48,11 +69,13 @@ const PracticeEditModule: React.FC<{
       practiceImg,
     };
     try {
-      dispatch(updateRecordAsync(data));
-      setName('');
-      setStatus('');
-      setPracticeImg(null);
-      onClose();
+      if (validateForm()) {
+        dispatch(updateRecordAsync(data));
+        setName('');
+        setStatus('');
+        setPracticeImg(null);
+        onClose();
+      }
     } catch (error) {
       onClose();
     }
@@ -60,6 +83,11 @@ const PracticeEditModule: React.FC<{
 
   return (
     <div>
+      {errorMessage && (
+        <div className="flex justify-center text-red-500 mt-2">
+          {errorMessage}
+        </div>
+      )}
       <form onSubmit={handleSubmit}>
         <div className="flex flex-col">
           <div className="flex flex-row gap-7 pt-4">
@@ -111,9 +139,12 @@ const PracticeEditModule: React.FC<{
                 Practice Photo
               </label>
               <FileUploader
-                errorMessage={''}
                 onDrop={(acceptedFiles: File[]) => {
                   setPracticeImg(acceptedFiles[0]);
+                }}
+                onDropRejected={(file: File[]) => {
+                  if (!file[0].type.startsWith('image'))
+                    setErrorMessage('Only Image type Files are allowed.');
                 }}
                 accept="image/*"
                 overrides={{
