@@ -522,7 +522,7 @@ const MediaPage: React.FC<{
         <div className="text-right text-base pt-4">
           <Button
             kind="primary"
-            title="Add New Video"
+            title="Add New Media"
             width={189}
             disabled={!isFormFilled()}
           />

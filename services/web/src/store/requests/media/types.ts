@@ -33,3 +33,18 @@ export type UploadImgPayload = {
     file: File | null;
   }[];
 };
+
+export type DeleteMediaPayload = {
+  practiceId: string;
+} & DeleteMedia;
+
+export enum DeleteMediaType {
+  Media = 'media',
+  MediaConfig = 'mediaconfig',
+}
+
+export type DeleteMedia = {
+  mediaId?: string;
+  type: DeleteMediaType;
+  mediaConfigId?: string;
+};

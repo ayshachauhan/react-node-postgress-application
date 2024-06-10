@@ -58,7 +58,7 @@ export class ApiService {
     );
   }
 
-  async delete<T>(path: string, data: T | null): Promise<Response> {
+  async delete<T>(path: string, data?: T | null): Promise<Response> {
     return await fetch(
       this.getUrl(path),
       this.getRequestConfig({ method: 'DELETE', body: data ?? undefined }),

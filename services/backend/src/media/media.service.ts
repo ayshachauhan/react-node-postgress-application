@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MediaConfigEntity, MediaConfigType } from '@packages/entities';
-import { MediaEntity, MediaType } from '@packages/entities/media';
+import { IMedia, MediaEntity, MediaType } from '@packages/entities/media';
 import { UploadType } from 'src/users/types';
 import { getUploadFileKey } from 'src/users/utils';
 import { Repository } from 'typeorm';
@@ -24,7 +24,7 @@ export class MediaService {
     private readonly s3Service: S3Service,
   ) {}
 
-  async getVideosByPracticeId(practiceId: string) {
+  async getMediaByPracticeId(practiceId: string) {
     return await this.media.find({
       where: { practiceId },
       relations: ['mediaConfigs'],
@@ -133,8 +133,30 @@ export class MediaService {
     return this.media.save(updatedVideo);
   }
 
-  async deleteVideo(practiceId: string, videoId: string): Promise<void> {
-    await this.media.softDelete({ id: videoId, practiceId });
+  /**
+   *
+   * @param practiceId
+   * @param mediaId
+   */
+  async deleteMedia(practiceId: string, mediaId: string): Promise<IMedia[]> {
+    await this.media.softDelete({ id: mediaId, practiceId });
+    return await this.media.find({
+      where: { practiceId },
+      relations: ['mediaConfigs'],
+    });
+  }
+
+  /**
+   *
+   * @param mediaId
+   * @param id
+   */
+  async deleteMediaConfigById(
+    practiceId: string,
+    id: string,
+  ): Promise<IMedia[]> {
+    await this.mediaConfigRepo.softDelete({ id });
+    return await this.getMediaByPracticeId(practiceId);
   }
 
   async uploadUserImg({ id, practiceId, files }: UploadPatientImagesData) {

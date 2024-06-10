@@ -1,7 +1,13 @@
 import { MediaConfigType } from '@packages/entities';
 import { IMedia, MediaType } from '@packages/entities/index.browser';
 import { ApiService } from '@root/services/apiclient';
-import { AddMediaDTO, PatientMediaConfig, UploadImgPayload } from './types';
+import {
+  AddMediaDTO,
+  DeleteMediaPayload,
+  DeleteMediaType,
+  PatientMediaConfig,
+  UploadImgPayload,
+} from './types';
 
 const apiClient = new ApiService();
 
@@ -134,5 +140,31 @@ export const uploadImg = async (
     return data;
   } catch (error) {
     throw new Error();
+  }
+};
+
+export const deleteMedia = async (
+  payloadData: DeleteMediaPayload,
+  { rejectWithValue },
+): Promise<IMedia[]> => {
+  try {
+    const response: Response = await apiClient.delete(
+      payloadData.type === DeleteMediaType.Media
+        ? `/practices/${payloadData.practiceId}/media/${payloadData.mediaId}`
+        : `/practices/${payloadData.practiceId}/media/mediaconfig/${payloadData.mediaConfigId}`,
+    );
+
+    if (!response.ok) {
+      throw new Error('Failed to delete media');
+    }
+
+    const data: IMedia[] = await response.json();
+
+    return data;
+  } catch (error) {
+    if (error instanceof Error) {
+      return rejectWithValue(error.message);
+    }
+    return rejectWithValue('An unknown error occurred');
   }
 };

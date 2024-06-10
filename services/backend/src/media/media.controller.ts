@@ -13,65 +13,58 @@ import {
 } from '@nestjs/common';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { IMedia } from '@packages/entities';
 import { USER_PERMISSIONS } from '@packages/entities/permission';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { PermissionGuard } from 'src/auth/userPermissions.guard';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
 import { CreateMediaDto } from './dtos/createMedia.dto';
-// import { UpdateVideoDto } from './dtos/update.video.dto';
 import { MediaService } from './media.service';
 
 @ApiTags('Media')
 @ApiBearerAuth('normal')
 @Controller('/practices/:practiceId/media')
+@UseInterceptors(practiceNotFoundInterceptor)
 @UseGuards(AuthGuard)
 export class MediaController {
   constructor(private mediaService: MediaService) {}
 
   @Get()
   @UseGuards(PermissionGuard(USER_PERMISSIONS.VIEW_VIDEOS))
-  @UseInterceptors(practiceNotFoundInterceptor)
   getVideosByPractice(@Param('practiceId') practiceId: string) {
-    return this.mediaService.getVideosByPracticeId(practiceId);
+    return this.mediaService.getMediaByPracticeId(practiceId);
   }
 
   @Get(':id')
   @UseGuards(PermissionGuard(USER_PERMISSIONS.VIEW_VIDEOS))
-  @UseInterceptors(practiceNotFoundInterceptor)
   getVideoById(@Param() params: { practiceId: string; id: string }) {
     const { practiceId, id } = params;
     return this.mediaService.getMediaById(practiceId, id);
   }
 
   @Post()
-  @UseInterceptors(practiceNotFoundInterceptor)
   createOne(
     @Param('practiceId') practiceId: string,
     @Body(new ValidationPipe()) data: CreateMediaDto,
   ) {
-    console.log('increatemedia', data);
-
     return this.mediaService.createOne(practiceId, data);
   }
 
   @Delete(':id')
-  @UseInterceptors(practiceNotFoundInterceptor)
-  deleteVideoById(
+  deleteMediaById(
     @Param('practiceId') practiceId: string,
     @Param('id') id: string,
   ) {
-    return this.mediaService.deleteVideo(practiceId, id);
+    return this.mediaService.deleteMedia(practiceId, id);
   }
 
-  // @Patch(':id')
-  // @UseInterceptors(practiceNotFoundInterceptor)
-  // updateVideoByPracticeId(
-  //   @Param('practiceId') practiceId: string,
-  //   @Param('id') id: string,
-  //   @Body(new ValidationPipe()) videoData: UpdateVideoDto,
-  // ) {
-  //   return this.mediaService.updateMedia(practiceId, id, videoData);
-  // }
+  @Delete('mediaconfig/:id')
+  deleteMediaConfigById(
+    @Param('practiceId') practiceId: string,
+    @Param('id') id: string,
+  ): Promise<IMedia[]> {
+    return this.mediaService.deleteMediaConfigById(practiceId, id);
+  }
 
   @Patch(':id/upload')
   @UseInterceptors(FileFieldsInterceptor([{ name: 'files', maxCount: 5 }]))
