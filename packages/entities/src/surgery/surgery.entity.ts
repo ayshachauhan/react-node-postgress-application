@@ -10,6 +10,7 @@ import {
   CheckListOptions,
   ISurgery,
   SelectedSurgeryOption,
+  SurgeryStatus,
 } from './surgery.interface';
 
 @Entity('surgeries')
@@ -41,6 +42,9 @@ export class SurgeryEntity extends BaseEntity implements ISurgery {
   @Column({ type: 'varchar' })
   insuranceDetails: string;
 
+  @Column({ type: 'varchar' })
+  surgeryStatus: SurgeryStatus;
+
   @Column({
     default: null,
     nullable: true,
@@ -54,11 +58,14 @@ export class SurgeryEntity extends BaseEntity implements ISurgery {
   selectedSurgeryOptions: SelectedSurgeryOption;
 
   @Column()
-  totalHospitalPricing: number;
+  totalHospitalPricing: string;
 
   @Column()
-  totalProfessionalPricing: number;
+  totalProfessionalPricing: string;
 
   @Column({ type: 'jsonb', nullable: true })
   selectedCheckListOptions: CheckListOptions;
+
+  @Column()
+  surgeryOrder: number;
 }

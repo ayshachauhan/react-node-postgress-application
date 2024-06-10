@@ -14,11 +14,13 @@ export interface ISurgery extends IBaseEntity {
   doctor: ISanitizedUser;
   bodyPart: string;
   selectedSurgeryOptions: SelectedSurgeryOption;
-  totalHospitalPricing: number;
-  totalProfessionalPricing: number;
+  totalHospitalPricing: string;
+  totalProfessionalPricing: string;
   selectedCheckListOptions: CheckListOptions;
   waitlist: IWaitlist;
   dateDeleted?: Date;
+  surgeryOrder: number;
+  surgeryStatus: SurgeryStatus;
 }
 
 export interface CreateSurgeryPayload {
@@ -39,8 +41,8 @@ export interface CreateSurgeryPayload {
   bodyPart: string;
   doctorId: string;
   selectedSurgeryOptions: SelectedSurgeryOption;
-  totalHospitalPricing: number;
-  totalProfessionalPricing: number;
+  totalHospitalPricing: string;
+  totalProfessionalPricing: string;
   selectedCheckListOptions?: CheckListOptions;
   waitlistId?: string;
 }
@@ -69,14 +71,26 @@ export interface UpdateSurgeryPayload {
   bodyPart: string;
   selectedSurgeryOptions: SelectedSurgeryOption;
   selectedCheckListOptions?: CheckListOptions;
-  totalHospitalPricing: number;
-  totalProfessionalPricing: number;
+  totalHospitalPricing: string;
+  totalProfessionalPricing: string;
   details?: string;
   waitlistId?: string;
+  surgeryOrder?: number;
+  referrerId?: string;
+  practiceHomeId: string;
 }
 
 export interface MonthOption {
   label: string;
   value: string;
   id: string;
+}
+
+export enum SurgeryStatus {
+  BOOK = 'BOOK',
+  PENDING = 'PENDING',
+  DATE_CHANGE = 'DATE_CHANGE',
+  POSTPONE = 'POSTPONE',
+  CANCELLED = 'CANCELLED',
+  COMPLETED = 'COMPLETED',
 }

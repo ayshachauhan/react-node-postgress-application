@@ -1,7 +1,7 @@
 import { SurgeryType } from '@packages/entities/index.browser';
-import Cookies from 'js-cookie';
-import { publicRuntimeConfig } from 'next.config';
-const { API_BASE_URL } = publicRuntimeConfig;
+import { ApiService } from '@root/services/apiclient';
+
+const apiClient = new ApiService();
 
 export const getSurgeryTypes = async (
   payloadData: {
@@ -10,17 +10,10 @@ export const getSurgeryTypes = async (
   { rejectWithValue },
 ) => {
   try {
-    const accessToken = Cookies.get('access_token');
-    const response = await fetch(
-      `${API_BASE_URL}/practices/${payloadData.practiceId}/surgery-types`,
-      {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        },
-      },
+    const response = await apiClient.get(
+      `/practices/${payloadData.practiceId}/surgery-types`,
     );
+
     if (!response.ok) {
       throw new Error('Failed to get surgery types');
     }
@@ -33,17 +26,9 @@ export const getSurgeryTypes = async (
 
 export const addSurgeryType = async (payloadData: SurgeryType) => {
   try {
-    const accessToken = Cookies.get('access_token');
-    const response = await fetch(
-      `${API_BASE_URL}/practices/${payloadData.practiceId}/surgery-types`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify(payloadData),
-      },
+    const response = await apiClient.post(
+      `/practices/${payloadData.practiceId}/surgery-types`,
+      payloadData,
     );
     const data = await response.json();
     return data;
@@ -60,16 +45,9 @@ export const deleteSurgeryType = async (
   { rejectWithValue },
 ) => {
   try {
-    const accessToken = Cookies.get('access_token');
-    const response = await fetch(
-      `${API_BASE_URL}/practices/${payloadData.practiceId}/surgery-types/${payloadData.id}`,
-      {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        },
-      },
+    const response = await apiClient.delete(
+      `/practices/${payloadData.practiceId}/surgery-types/${payloadData.id}`,
+      null,
     );
     if (!response.ok) {
       throw new Error('Failed to delete surgery type');
@@ -99,18 +77,11 @@ export const getSurgeryTypeInfo = async (
   { rejectWithValue },
 ) => {
   try {
-    const accessToken = Cookies.get('access_token');
-    const response = await fetch(
-      `${API_BASE_URL}/practices/${payloadData.practiceId}/surgery-types/${payloadData.id}`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify(payloadData),
-      },
+    const response = await apiClient.post(
+      `/practices/${payloadData.practiceId}/surgery-types/${payloadData.id}`,
+      payloadData,
     );
+
     const data = await response.json();
     return data;
   } catch (error) {

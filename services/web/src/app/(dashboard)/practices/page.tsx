@@ -270,7 +270,7 @@ const Practice: React.FC = () => {
                     alt={data.id ?? ''}
                     width={50}
                     height={50}
-                    className="inline-block mr-2 rounded-[10px]"
+                    className="inline-block rounded-[10px]"
                     style={{
                       width: '50px',
                       height: '50px',

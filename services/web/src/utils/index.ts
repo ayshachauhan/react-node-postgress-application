@@ -128,3 +128,20 @@ export const getIpAddress = async (): Promise<string> => {
   const data = await response.json();
   return data.ip;
 };
+
+export const getDifferenceInDays = (date1: Date, date2: Date): number => {
+  // Convert both dates to UTC to avoid timezone issues
+  console.log(date1, date2);
+
+  const utc1 = Date.UTC(date1.getFullYear(), date1.getMonth(), date1.getDate());
+  const utc2 = Date.UTC(date2.getFullYear(), date2.getMonth(), date2.getDate());
+
+  // Calculate the difference in milliseconds
+  const diffInMilliseconds = utc1 - utc2;
+
+  // Convert milliseconds to days
+  const millisecondsPerDay = 24 * 60 * 60 * 1000;
+  const diffInDays = diffInMilliseconds / millisecondsPerDay;
+
+  return diffInDays;
+};

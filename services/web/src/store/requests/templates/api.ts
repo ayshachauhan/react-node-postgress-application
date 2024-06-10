@@ -4,6 +4,7 @@ import {
   ITemplateUpdate,
 } from '@packages/entities/index.browser';
 import { ApiService } from '@root/services/apiclient';
+import { UploadImgPayload } from '../users';
 
 const apiClient = new ApiService();
 
@@ -89,11 +90,11 @@ export const addTemplate = async (
  * @returns  template object as a response
  */
 export const updateTemplate = async (
-  payloadData: ITemplateUpdate,
+  payloadData: ITemplateUpdate & { file: File | null },
   { rejectWithValue },
 ) => {
   try {
-    const { practiceId, userId, id, ...restPayload } = payloadData;
+    const { practiceId, userId, id, file, ...restPayload } = payloadData;
     const sanitizedPayload = { ...restPayload };
     const response = await apiClient.patch(
       `/practices/${practiceId}/users/${userId}/templates/${id}`,
@@ -103,6 +104,18 @@ export const updateTemplate = async (
       throw new Error('Failed to update template');
     }
     const data = await response.json();
+
+    if (file && practiceId && payloadData.id) {
+      await uploadImg(
+        {
+          practiceId,
+          id: payloadData.id,
+          file,
+        },
+        userId,
+      );
+    }
+
     return data;
   } catch (error) {
     if (error instanceof Error) {
@@ -123,6 +136,7 @@ export const deleteTemplate = async (
   try {
     const response = await apiClient.delete(
       `/practices/${payloadData.practiceId}/users/${payloadData.userId}/templates/${payloadData.id}`,
+      null,
     );
     if (!response.ok) {
       throw new Error('Failed to delete template');
@@ -140,5 +154,27 @@ export const deleteTemplate = async (
       return rejectWithValue(error.message);
     }
     return rejectWithValue('An unknown error occurred');
+  }
+};
+
+export const uploadImg = async (
+  payloadData: UploadImgPayload,
+  userId: string,
+): Promise<void> => {
+  try {
+    const { practiceId, id, file } = payloadData;
+    const formdata = new FormData();
+    formdata.append('file', file);
+
+    const response = await apiClient.upload(
+      `/practices/${practiceId}/users/${userId}/templates/${id}/upload`,
+      formdata,
+    );
+
+    if (!response.ok) {
+      throw new Error('Failed to upload img.');
+    }
+  } catch (error) {
+    throw new Error();
   }
 };

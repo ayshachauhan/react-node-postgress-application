@@ -268,8 +268,8 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
           details: notes,
           selectedSurgeryOptions: surgeryOptionObj,
           bodyPart,
-          totalHospitalPricing: 0,
-          totalProfessionalPricing: 0,
+          totalHospitalPricing: '0',
+          totalProfessionalPricing: '0',
           waitlistId,
         }),
       );
@@ -608,7 +608,6 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
                   PCP (Check box if same)
                 </label>
               </Checkbox>
-
               <TextInput
                 disabled
                 size={SIZE.mini}

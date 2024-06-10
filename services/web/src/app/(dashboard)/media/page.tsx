@@ -12,13 +12,13 @@ import AddMediaModal from '@root/components/media/AddMediaModal';
 import ImageModal from '@root/components/media/ImageModal';
 import PlayVideoModal from '@root/components/media/PlayVideoModal';
 import { useAppDispatch, useAppSelector } from '@root/store';
-import { fetchLoggedInUser } from '@root/store/reducers/auth';
 import {
   clearErrorMessage,
   clearSuccessMessage,
   fetchListings,
 } from '@root/store/reducers/media';
 import { fetchListings as fetchPatients } from '@root/store/reducers/patient';
+import { fetchListings as fetchSurggeryConfigs } from '@root/store/reducers/surgeryConfigurations';
 import { extractVideoId, getImageUrl, getPracticeId } from '@utils/index';
 import Image from 'next/image';
 import React, { useEffect, useState } from 'react';
@@ -107,12 +107,9 @@ const Media: React.FC = () => {
     if (practiceId !== null) {
       dispatch(fetchListings({ practiceId: practiceId }));
       dispatch(fetchPatients({ practiceId: practiceId }));
+      dispatch(fetchSurggeryConfigs({ practiceId: practiceId }));
     }
   }, [practiceId, dispatch]);
-
-  useEffect(() => {
-    dispatch(fetchLoggedInUser());
-  }, [dispatch]);
 
   useEffect(() => {
     let timer;
@@ -158,6 +155,7 @@ const Media: React.FC = () => {
     media,
     getPatientById(selectedPatientId!),
     'pat',
+    surgeryConfigurations,
   );
 
   return (
@@ -202,43 +200,48 @@ const Media: React.FC = () => {
         {selectedMediaType === MediaType.PRACTICE &&
           media
             .filter((data) => data.mediaType === MediaType.PRACTICE)
-            .map((data) => (
-              <React.Fragment key={data.id}>
-                <div className="rounded-lg shadow-md p-6 w-[298px] h-298 relative">
-                  <div>
-                    <Image
-                      src={getImageUrl(data.mediaConfig.video[0].url)}
-                      className="rounded-lg"
-                      alt="External image description"
-                      width={265}
-                      height={208}
-                      style={{ width: '265px', height: '208px' }}
-                    />
-                    <div
-                      className="bg-black absolute text-center transform -translate-x-1/2 -translate-y-1/2 border top-32 left-1/2 text-white rounded-full flex justify-center items-center p-2 border-black w-14 h-14 pointer"
-                      onClick={() =>
-                        handleOpenFirstModal(
-                          extractVideoId(data.mediaConfig.video[0].url),
-                        )
-                      }
-                    >
-                      <PlayIcon />
-                    </div>
-                    <div className="bg-black text-white rounded text-xs leading-[18px] absolute text-center border top-14 right-9 border-black py-1 px-1.5">
-                      {
-                        getSurgeryConfigById(
-                          (data.mediaConfig as PracticeMediaConfig)
-                            .surgeryConfigurationId,
-                        )?.name
-                      }
-                    </div>
-                    <div className="text-gray-900 pt-2 text-left">
-                      {data.mediaConfig.video[0].title}
+            .map((data) => {
+              const mediaConfig = data.mediaConfig as PracticeMediaConfig;
+              const surgeryName = mediaConfig.surgeryConfigurationId
+                ? getSurgeryConfigById(mediaConfig.surgeryConfigurationId)?.name
+                : '';
+              return (
+                <React.Fragment key={data.id}>
+                  <div className="rounded-lg shadow-md p-6 w-[298px] h-298 relative">
+                    <div>
+                      <Image
+                        src={getImageUrl(data.mediaConfig.video[0].url)}
+                        className="rounded-lg"
+                        alt="External image description"
+                        width={265}
+                        height={208}
+                        style={{ width: '265px', height: '208px' }}
+                      />
+                      <div
+                        className="bg-black absolute text-center transform -translate-x-1/2 -translate-y-1/2 border top-32 left-1/2 text-white rounded-full flex justify-center items-center p-2 border-black w-14 h-14 pointer"
+                        onClick={() =>
+                          handleOpenFirstModal(
+                            extractVideoId(data.mediaConfig.video[0].url),
+                          )
+                        }
+                      >
+                        <PlayIcon />
+                      </div>
+                      {surgeryName ? (
+                        <div className="bg-black text-white rounded text-xs leading-[18px] absolute text-center border top-14 right-9 border-black py-1 px-1.5">
+                          {surgeryName}
+                        </div>
+                      ) : (
+                        ''
+                      )}
+                      <div className="text-gray-900 pt-2 text-left">
+                        {data.mediaConfig.video[0].title}
+                      </div>
                     </div>
                   </div>
-                </div>
-              </React.Fragment>
-            ))}
+                </React.Fragment>
+              );
+            })}
         {selectedMediaType === MediaType.PATIENT &&
           !selectedPatientId &&
           media

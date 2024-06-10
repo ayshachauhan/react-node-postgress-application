@@ -1,5 +1,6 @@
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 import { BaseEntity } from '../base.entity';
+import { EvalEntity } from '../eval';
 import { PracticeEntity } from '../practice';
 import { ReferrersEntity } from '../referrer';
 import { SurgeryEntity } from '../surgery';
@@ -40,4 +41,7 @@ export class PatientEntity extends BaseEntity {
 
   @OneToMany(() => SurgeryEntity, (surgery) => surgery.patient)
   surgeries: SurgeryEntity[];
+
+  @OneToMany(() => EvalEntity, (evalModule) => evalModule.patient)
+  evals: EvalEntity[];
 }

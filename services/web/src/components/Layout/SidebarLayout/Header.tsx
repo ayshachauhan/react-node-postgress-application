@@ -109,7 +109,7 @@ const Header: React.FC<ChildProps> = ({ data }) => {
   };
 
   useEffect(() => {
-    if (practiceId !== null) {
+    if (practiceId !== null && practiceId) {
       dispatch(fetchListings({ practiceId: practiceId }));
     }
   }, [dispatch, practiceId]);

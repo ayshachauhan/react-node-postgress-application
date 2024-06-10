@@ -47,9 +47,17 @@ export class UpdateSurgeryDto {
 
   @IsOptional()
   @ApiProperty()
-  totalHospitalPricing: number;
+  totalHospitalPricing: string;
 
   @IsOptional()
   @ApiProperty()
-  totalProfessionalPricing: number;
+  totalProfessionalPricing: string;
+
+  @IsOptional()
+  @ApiProperty()
+  surgeryOrder: number;
+
+  @IsOptional()
+  @ApiProperty()
+  referrerId: string;
 }

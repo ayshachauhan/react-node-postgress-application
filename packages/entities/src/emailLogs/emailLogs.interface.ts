@@ -7,6 +7,7 @@ export interface IEmailLog extends IBaseEntity {
   response?: EmailResponse;
   expectedDate: Date;
   practice: IPractice;
+  attachment?: string;
 }
 
 export interface EmailData {

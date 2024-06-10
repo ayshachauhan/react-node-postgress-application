@@ -12,6 +12,7 @@ import {
   PracticeEntity,
   SelectedSurgeryOption,
   SurgeryEntity,
+  SurgeryStatus,
 } from '@packages/entities';
 import { PatientEntity } from '@packages/entities/patient';
 import { USER_PERMISSIONS } from '@packages/entities/permission';
@@ -42,6 +43,7 @@ import {
   FindOptionsWhere,
   ILike,
   In,
+  LessThan,
   LessThanOrEqual,
   Repository,
 } from 'typeorm';
@@ -273,8 +275,11 @@ export class SurgeryService {
       createSurgeryDto.selectedSurgeryOptions,
     );
     optionsArr.forEach((option) => {
-      createSurgeryDto.totalHospitalPricing += +option.hospitalPricing;
-      createSurgeryDto.totalProfessionalPricing += +option.professionalPricing;
+      createSurgeryDto.totalHospitalPricing =
+        +option.hospitalPricing + +createSurgeryDto.totalHospitalPricing;
+      createSurgeryDto.totalProfessionalPricing =
+        +option.professionalPricing +
+        +createSurgeryDto.totalProfessionalPricing;
     });
 
     const resultSurgery = await this.surgeryRepository.save({
@@ -363,6 +368,12 @@ export class SurgeryService {
       createSurgeryDto.insuranceType = insuranceTypeEntity;
     }
 
+    const practiceHomeEntity =
+      await this.practiceHomesService.getPracticeHomeById(
+        createSurgeryDto.practiceHomeId,
+        practiceId,
+      );
+
     if (surgeryToUpdate) {
       await this.patientService.update({
         id: surgeryToUpdate.patient.id,
@@ -370,6 +381,12 @@ export class SurgeryService {
         data: createSurgeryDto,
       });
     }
+
+    const waitlistEntity = await this.waitlistService.getWaitlistById(
+      createSurgeryDto.waitlistId,
+      practiceId,
+    );
+
     const dataToUpdate = {
       insuranceType: createSurgeryDto.insuranceType
         ? createSurgeryDto.insuranceType
@@ -380,6 +397,13 @@ export class SurgeryService {
       totalProfessionalPricing: createSurgeryDto.totalProfessionalPricing,
       selectedCheckListOptions: createSurgeryDto.selectedCheckListOptions,
       bodyPart: createSurgeryDto.bodyPart,
+      surgeryOrder: createSurgeryDto.surgeryOrder
+        ? createSurgeryDto.surgeryOrder
+        : surgeryToUpdate?.surgeryOrder,
+      practiceHome: practiceHomeEntity
+        ? practiceHomeEntity
+        : surgeryToUpdate?.practiceHome,
+      waitlist: waitlistEntity ? waitlistEntity : surgeryToUpdate?.waitlist,
     };
 
     await this.surgeryRepository.update(id, {
@@ -410,6 +434,18 @@ export class SurgeryService {
     return await this.surgeryRepository.findOne({
       where: { id },
     });
+  }
+
+  async autoCompleteSurgeries() {
+    this.surgeryRepository.update(
+      {
+        date: LessThan(new Date(Date.now())),
+        surgeryStatus: In([SurgeryStatus.PENDING]),
+      },
+      {
+        surgeryStatus: SurgeryStatus.COMPLETED,
+      },
+    );
   }
 
   async remove(
