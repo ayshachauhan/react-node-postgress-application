@@ -6,7 +6,7 @@ import { useAppSelector } from '@root/store';
 import { ChevronDown, ChevronRightSmall } from 'baseui/icon';
 import clsx from 'clsx';
 import Link from 'next/link';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { SideBarItem, filterSidebarItems, sidebarItems } from './types';
 
 interface SidebarProps {
@@ -59,12 +59,29 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapseChange }) => {
       setActiveMenuItemId(activeItem.id);
     }
   }, []);
+  useEffect(() => {
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
   const customWidth = collapsed ? 'w-16' : 'w-40';
+  const sidebarRef = useRef<HTMLDivElement>(null);
+  const handleClickOutside = (event: MouseEvent) => {
+    if (
+      sidebarRef.current &&
+      !sidebarRef.current.contains(event.target as Node)
+    ) {
+      setActiveMenuItemId('');
+      setActiveChildMenuItemId(''); // Hide child menu
+    }
+  };
 
   return (
     <aside
       aria-label="Sidebar"
-      className={`${customWidth} fixed top-0 left-0 h-screen translate-x-0 bg-gradient-to-b from-primary-dark to-primary-light ease-in-out duration-400`}
+      ref={sidebarRef}
+      className={`${customWidth} fixed z-10 top-0 left-0 h-screen translate-x-0 bg-gradient-to-b from-primary-dark to-primary-light ease-in-out duration-400`}
     >
       <div className="h-[168px] flex px-4 items-center justify-start">
         <Link href="/dashboard">
@@ -74,12 +91,15 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapseChange }) => {
 
       <div
         className={`h-full px-3 py-4 overflow-y-auto ${
-          collapsed && !expandedMenuItemId ? 'flex flex-col items-center' : ''
+          collapsed ? 'flex flex-col items-center' : ''
         }`}
       >
         <ul className="space-y-2 font-medium">
           {filteredSidebarItems.map(({ Icon, ...item }) => (
-            <li key={item.id}>
+            <li
+              key={item.id}
+              className={`${collapsed && item.child ? 'flex flex-row' : ''}`}
+            >
               <Link
                 href={item.path}
                 onClick={() => handleSidebarItemClick({ ...item, Icon })}
@@ -103,6 +123,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapseChange }) => {
                     'ease-in-out duration-300 my-1 ml-5 py-2 space-y-2 rounded-lg',
                     {
                       hidden: item.id !== activeMenuItemId,
+                      'bg-green-500 fixed ml-14 mt-0': collapsed,
                     },
                   )}
                 >
