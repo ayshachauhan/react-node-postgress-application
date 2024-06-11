@@ -7,8 +7,8 @@ import FiltersSection from '@root/components/dashboard/FiltersSection';
 import SurgeryPercentage from '@root/components/dashboard/SurgeryPercentage';
 import UpcomingSection from '@root/components/dashboard/UpcomingSection';
 import UsersListing from '@root/components/dashboard/UsersListing';
-import AddEvalModal from '@root/components/dashboard/addEvalModal';
 import AddSurgeryModal from '@root/components/dashboard/addSurgeryModal';
+import AddEvalModal from '@root/components/eval/addEval/addEvalModal';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { fetchCalendars } from '@root/store/reducers/calendar';
 import {

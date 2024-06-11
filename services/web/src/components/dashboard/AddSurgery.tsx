@@ -15,9 +15,16 @@ import moment from 'moment';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 
-const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
+const SurgeryPage: React.FC<{
+  onClose: () => void;
+  items;
+  autoFillFromEval?: boolean;
+  autoFillFromSurgery?: boolean;
+}> = ({
   onClose,
   items,
+  autoFillFromEval = false,
+  autoFillFromSurgery = false,
 }) => {
   const {
     practiceHomesList,
@@ -36,9 +43,12 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
   const surgeryConfigurationsList = useAppSelector(
     (state) => state.surgeryConfigurations.entities,
   );
-  const patientsList = Object.values(
-    useAppSelector((state) => state.patients.entities),
-  );
+  const { patientsList, evalAutoFillInfo, surgeryAutoFillInfo } =
+    useAppSelector((state) => ({
+      patientsList: Object.values(state.patients.entities),
+      surgeryAutoFillInfo: state.surgeries.surgeryInfo,
+      evalAutoFillInfo: state.evals.evalInfo,
+    }));
 
   const surgeryConfigurations = Object.values(surgeryConfigurationsList);
   const practiceId = getPracticeId();
@@ -62,7 +72,6 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
   const [surgeryDate, SetSurgeryDate] = useState<Date | null>(new Date());
   const [pcp, setPcp] = useState('');
   const [notes, setNotes] = useState('');
-  const [checkboxes, setCheckboxes] = React.useState([true, false]);
   const [surgeryNameId, setSurgeryNameId] = useState<string>('');
   const [isMrnExists, setIsMrnExists] = useState<boolean>(false);
   const [isNewReferrer, setIsNewReferrer] = useState<boolean>(false);
@@ -101,6 +110,32 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
 
     setSurgeryDropdownOptions([...surgeryDropdownOptions]);
   };
+
+  useEffect(() => {
+    if (autoFillFromEval || autoFillFromSurgery) {
+      const row = autoFillFromEval ? evalAutoFillInfo : surgeryAutoFillInfo;
+
+      if (row) {
+        setFirstName(row.patient.firstName);
+        setLastName(row.patient.lastName);
+        setEmail(row.patient.email);
+        setPhoneNumber(row.patient.phoneNumber);
+        setMrn(String(row.patient.mrn));
+        setPracticeHomeId(row.practiceHome.id);
+        setBodyPart(row.bodyPart);
+        setSurgeryNameId(row.surgeryConfiguration.id);
+        if (row.waitlist) setWaitlistId(row.waitlist.id);
+        if (row.patient.referrer) setReferrerId(row.patient.referrer.id);
+        if (row.insuranceType) setInsuranceTypeId(row.insuranceType.id);
+        if (row.insuranceDetails) setInsuranceDetails(row.insuranceDetails);
+      }
+    }
+  }, [
+    autoFillFromEval,
+    autoFillFromSurgery,
+    evalAutoFillInfo,
+    surgeryAutoFillInfo,
+  ]);
 
   useEffect(() => {
     if (mrn) {
@@ -599,10 +634,6 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
                   },
                 }}
                 checked={false}
-                onChange={(e) => {
-                  const target = e.target as HTMLInputElement;
-                  setCheckboxes([target.checked, checkboxes[1]]);
-                }}
               >
                 <label htmlFor="pcp" className="text-black text-xs">
                   PCP (Check box if same)
@@ -636,10 +667,6 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
                   },
                 }}
                 checked={email ? true : false}
-                onChange={(e) => {
-                  const target = e.target as HTMLInputElement;
-                  setCheckboxes([target.checked, checkboxes[1]]);
-                }}
               >
                 Notify patient
               </Checkbox>
