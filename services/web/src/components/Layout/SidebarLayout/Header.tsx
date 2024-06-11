@@ -52,7 +52,6 @@ const Header: React.FC<ChildProps> = ({ data }) => {
   const is_super_admin = userInfo ? userInfo.isSuperAdmin : false;
   const selectedUserBox = (
     <span className="inline-flex items-center gap-2">
-      <AvatarIcon size={40}></AvatarIcon>
       {selectedUser?.fullName}
       <ChevronDown />
     </span>
@@ -136,17 +135,20 @@ const Header: React.FC<ChildProps> = ({ data }) => {
         <div className="flex items-center justify-between">
           <div className="flex items-center">
             {!is_super_admin && isDashboardPage && (
-              <Dropdown
-                position="bottomLeft"
-                trigger={selectedUserBox}
-                onSelect={handleUserSelect}
-              >
-                {users.map((user: SanitizedUser, index: number) => (
-                  <Dropdown.Item id={user.id} key={index}>
-                    {user.fullName}
-                  </Dropdown.Item>
-                ))}
-              </Dropdown>
+              <>
+                <div>Doctor:</div>
+                <Dropdown
+                  position="bottomLeft"
+                  trigger={selectedUserBox}
+                  onSelect={handleUserSelect}
+                >
+                  {users.map((user: SanitizedUser, index: number) => (
+                    <Dropdown.Item id={user.id} key={index}>
+                      {user.fullName}
+                    </Dropdown.Item>
+                  ))}
+                </Dropdown>
+              </>
             )}
           </div>
 
@@ -154,7 +156,7 @@ const Header: React.FC<ChildProps> = ({ data }) => {
             <div className="flex items-center">
               {!is_super_admin && (
                 <>
-                  <div>Practice Name:</div>
+                  <div>Practice:</div>
                   <Dropdown
                     position="bottomLeft"
                     trigger={
@@ -169,12 +171,7 @@ const Header: React.FC<ChildProps> = ({ data }) => {
                       <Dropdown.Item
                         key={item.id}
                         id={item.id}
-                        onClick={() =>
-                          handlePracticeChange(
-                            item.id,
-                            item.name,
-                          )
-                        }
+                        onClick={() => handlePracticeChange(item.id, item.name)}
                       >
                         {item.name}
                       </Dropdown.Item>
