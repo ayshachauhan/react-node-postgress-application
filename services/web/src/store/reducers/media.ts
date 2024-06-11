@@ -1,7 +1,7 @@
 import { IMedia } from '@packages/entities/index.browser';
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { indexBy } from '@root/utils/index';
-import { addMedia, getMedia } from '../requests/media';
+import { addMedia, deleteMedia, getMedia } from '../requests/media';
 import { EntitiesState, EntityLoadingState } from '../types';
 
 const initialState: EntitiesState<IMedia> = {
@@ -82,6 +82,26 @@ const mediaSlice = createSlice({
       }
       state.processing = false;
     });
+
+    builder.addCase(deleteRecordAsync.pending, (state) => {
+      state.processing = true;
+      state.status = EntityLoadingState.PENDING;
+    });
+
+    builder.addCase(deleteRecordAsync.fulfilled, (state, action) => {
+      state.status = EntityLoadingState.SUCCEEDED;
+      (state.entities = indexBy('id', action.payload)),
+        (state.successMessage = 'Media deleted successfully.');
+    });
+
+    builder.addCase(deleteRecordAsync.rejected, (state, action) => {
+      state.status = EntityLoadingState.FAILED;
+      if (typeof action.payload === 'string') {
+        state.errorMessage = action.payload ?? 'Failed to delete media.';
+      } else {
+        state.errorMessage = 'Failed to delete media.';
+      }
+    });
   },
 });
 
@@ -93,6 +113,11 @@ export const fetchListings = createAsyncThunk('media/fetchListings', getMedia);
 export const addRecordAsync = createAsyncThunk(
   'media/addRecordAsync',
   addMedia,
+);
+
+export const deleteRecordAsync = createAsyncThunk(
+  'media/deleteRecordAsync',
+  deleteMedia,
 );
 
 export default mediaSlice.reducer;
