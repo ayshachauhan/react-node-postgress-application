@@ -21,6 +21,7 @@ import { useAppDispatch, useAppSelector } from '@root/store';
 import {
   deleteRecordAsync,
   fetchListings,
+  fetchSurgeryInfo,
   setSearchMRNName,
   setSelectedMonth,
   setSelectedValue,
@@ -32,6 +33,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import DeleteFilterModal from './DeleteFilterModal';
 import EditableRow from './EditableRow';
 import ViewRow from './ViewRow';
+import AddSurgeryModal from './addSurgeryModal';
 
 const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
   const dispatch = useAppDispatch();
@@ -39,7 +41,7 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
     (state) => state.surgeries.surgeryFilters,
   );
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [clonedDivs, setClonedDivs] = useState<string[]>([]);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [selectedAction, setSelectedAction] = useState<string | null>(null);
   const [selectedSurgery, setSelectedSurgery] = useState({});
   const [selectedRow, setSelectedRow] = useState<string | null>(null);
@@ -249,13 +251,9 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
   };
 
   const handleCloneClick = (rowId: string) => {
-    setSelectedAction('clone');
+    if (practiceId) dispatch(fetchSurgeryInfo({ practiceId, id: rowId }));
+    handleOpenAddModal();
     setSelectedRow(selectedRow === rowId ? null : rowId);
-    const clonedDiv = document.getElementById(rowId);
-    if (clonedDiv) {
-      const clonedDivHTML = clonedDiv.outerHTML;
-      setClonedDivs([clonedDivHTML]);
-    }
   };
 
   const handleOpenDeleteModal = (rowId: string): void => {
@@ -293,6 +291,14 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
     setEditableRows((prevEditableRows) =>
       prevEditableRows.filter((id) => id !== rowId),
     );
+  };
+
+  const handleCloseAddModal = (): void => {
+    setIsAddModalOpen(false);
+  };
+
+  const handleOpenAddModal = (): void => {
+    setIsAddModalOpen(true);
   };
 
   const searchMRNNameStr = searchMRNName || '';
@@ -688,20 +694,6 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
                                   viewBillingColumn={viewBillingColumn}
                                 />
                               )}
-                            {selectedRow === row.id &&
-                              clonedDivs.length > 0 &&
-                              selectedAction == 'clone' && (
-                                <div className="border border-red-400 w-max text-xs">
-                                  {clonedDivs.map((clonedDivHTML, index) => (
-                                    <div
-                                      key={index}
-                                      dangerouslySetInnerHTML={{
-                                        __html: clonedDivHTML,
-                                      }}
-                                    />
-                                  ))}
-                                </div>
-                              )}
                           </>
                         );
                       })}
@@ -715,6 +707,11 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
             onConfirmDelete={onConfirmDelete}
             isDeleteModalOpen={isDeleteModalOpen}
             handleCloseDeleteModal={handleCloseDeleteModal}
+          />
+          <AddSurgeryModal
+            isModalOpen={isAddModalOpen}
+            handleCloseModal={handleCloseAddModal}
+            autoFillFromSurgery={true}
           />
         </div>
       ) : (
