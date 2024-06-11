@@ -52,6 +52,7 @@ const Header: React.FC<ChildProps> = ({ data }) => {
   const is_super_admin = userInfo ? userInfo.isSuperAdmin : false;
   const selectedUserBox = (
     <span className="inline-flex items-center gap-2">
+      &nbsp;&nbsp;&nbsp;
       {selectedUser?.fullName}
       <ChevronDown />
     </span>
@@ -137,17 +138,21 @@ const Header: React.FC<ChildProps> = ({ data }) => {
             {!is_super_admin && isDashboardPage && (
               <>
                 <div>Doctor:</div>
-                <Dropdown
-                  position="bottomLeft"
-                  trigger={selectedUserBox}
-                  onSelect={handleUserSelect}
-                >
-                  {users.map((user: SanitizedUser, index: number) => (
-                    <Dropdown.Item id={user.id} key={index}>
-                      {user.fullName}
-                    </Dropdown.Item>
-                  ))}
-                </Dropdown>
+                {users && users.length > 1 ? (
+                  <Dropdown
+                    position="bottomLeft"
+                    trigger={selectedUserBox}
+                    onSelect={handleUserSelect}
+                  >
+                    {users.map((user: SanitizedUser, index: number) => (
+                      <Dropdown.Item id={user.id} key={index}>
+                        {user.fullName}
+                      </Dropdown.Item>
+                    ))}
+                  </Dropdown>
+                ) : (
+                  <div>&nbsp;&nbsp;&nbsp;{users && users[0]?.fullName}</div>
+                )}
               </>
             )}
           </div>
