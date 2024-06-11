@@ -298,7 +298,10 @@ const EvalPage: React.FC = () => {
                     <div className="text-black py-0.5 px-1 overflow-hidden whitespace-nowrap w-20 pl-5">
                       {data.mrn}
                     </div>
-                    <div className="text-black py-0.5 px-1 w-40 overflow-hidden whitespace-nowrap" style={{ textOverflow: 'ellipsis' }}>
+                    <div
+                      className="text-black py-0.5 px-1 w-40 overflow-hidden whitespace-nowrap"
+                      style={{ textOverflow: 'ellipsis' }}
+                    >
                       {data.email}
                     </div>
                     <div className="text-black py-0.5 px-1 overflow-hidden whitespace-nowrap w-20">
@@ -323,7 +326,10 @@ const EvalPage: React.FC = () => {
                   </div>
                 </div>
                 <div className="flex flex-col text-black py-0.5 px-1 w-40 items-center">
-                  <div className="text-black py-0.5 px-1 w-40 text-center overflow-hidden whitespace-nowrap" style={{ textOverflow: 'ellipsis' }}>
+                  <div
+                    className="text-black py-0.5 px-1 w-40 text-center overflow-hidden whitespace-nowrap"
+                    style={{ textOverflow: 'ellipsis' }}
+                  >
                     {data.email}
                   </div>
                   <div className="text-black py-0.5 px-1 w-20 text-center">
