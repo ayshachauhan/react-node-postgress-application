@@ -1,6 +1,4 @@
 'use client';
-
-import { UserType } from '@packages/entities';
 import { USER_PERMISSIONS } from '@packages/entities/permission';
 import Button from '@root/components/Button';
 import {
@@ -44,28 +42,12 @@ const EvalPage: React.FC = () => {
   const dispatch = useAppDispatch();
 
   const {
-    practiceHomesList,
-    surgeryTypesList,
-    insuranceTypesList,
-    referrersList,
-    usersList,
-    calendars,
-    waitlist,
     evalsList,
     calendarSuccessMessage,
     addEvalSuccessMessage,
     evalInfo,
     userInfo,
   } = useAppSelector((state) => ({
-    practiceHomesList: Object.values(state.practiceHomes.entities),
-    surgeryTypesList: Object.values(state.surgeryTypes.entities),
-    insuranceTypesList: Object.values(state.insuranceTypes.entities),
-    referrersList: Object.values(state.referrers.entities),
-    usersList: Object.values(state.users.entities).filter(
-      (user) => user.type == UserType.DOCTOR,
-    ),
-    calendars: Object.values(state.calendars.entities),
-    waitlist: Object.values(state.waitlist.entities),
     evalsList: Object.values(state.evals.entities),
     calendarSuccessMessage: state.calendars.successMessage,
     addEvalSuccessMessage: state.evals.successMessage,
@@ -401,15 +383,6 @@ const EvalPage: React.FC = () => {
       <AddSurgeryModal
         isModalOpen={isBookSurgeryOpenModal}
         handleCloseModal={handleCloseBookSurgeryModal}
-        items={{
-          practiceHomesList,
-          surgeryTypesList,
-          insuranceTypesList,
-          referrersList,
-          usersList,
-          calendars,
-          waitlist,
-        }}
         autoFillFromEval={true}
       />
     </div>

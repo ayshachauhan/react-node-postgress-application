@@ -1,6 +1,7 @@
 import {
   ICalendar,
   SelectedSurgeryOption,
+  UserType,
 } from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
@@ -17,15 +18,10 @@ import React, { useEffect, useState } from 'react';
 
 const SurgeryPage: React.FC<{
   onClose: () => void;
-  items;
   autoFillFromEval?: boolean;
   autoFillFromSurgery?: boolean;
-}> = ({
-  onClose,
-  items,
-  autoFillFromEval = false,
-  autoFillFromSurgery = false,
-}) => {
+}> = ({ onClose, autoFillFromEval = false, autoFillFromSurgery = false }) => {
+  const dispatch = useAppDispatch();
   const {
     practiceHomesList,
     insuranceTypesList,
@@ -33,22 +29,29 @@ const SurgeryPage: React.FC<{
     usersList,
     calendars,
     waitlist,
-  } = items;
+    surgeryConfigurationsList,
+    patientsList,
+    evalAutoFillInfo,
+    surgeryAutoFillInfo,
+  } = useAppSelector((state) => ({
+    practiceHomesList: Object.values(state.practiceHomes.entities),
+    surgeryTypesList: Object.values(state.surgeryTypes.entities),
+    insuranceTypesList: Object.values(state.insuranceTypes.entities),
+    referrersList: Object.values(state.referrers.entities),
+    usersList: Object.values(state.users.entities).filter(
+      (user) => user.type == UserType.DOCTOR,
+    ),
+    calendars: Object.values(state.calendars.entities),
+    waitlist: Object.values(state.waitlist.entities),
+    surgeryConfigurationsList: state.surgeryConfigurations.entities,
+    patientsList: Object.values(state.patients.entities),
+    surgeryAutoFillInfo: state.surgeries.surgeryInfo,
+    evalAutoFillInfo: state.evals.evalInfo,
+  }));
 
   const SELECTED_DOCTOR_KEY: string = 'SELECTED_DOCTOR';
   const getSelectedUserId: string | null =
     localStorage.getItem(SELECTED_DOCTOR_KEY);
-
-  const dispatch = useAppDispatch();
-  const surgeryConfigurationsList = useAppSelector(
-    (state) => state.surgeryConfigurations.entities,
-  );
-  const { patientsList, evalAutoFillInfo, surgeryAutoFillInfo } =
-    useAppSelector((state) => ({
-      patientsList: Object.values(state.patients.entities),
-      surgeryAutoFillInfo: state.surgeries.surgeryInfo,
-      evalAutoFillInfo: state.evals.evalInfo,
-    }));
 
   const surgeryConfigurations = Object.values(surgeryConfigurationsList);
   const practiceId = getPracticeId();

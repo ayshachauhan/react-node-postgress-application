@@ -5,7 +5,6 @@ import AddSurgeryForm from '@root/components/dashboard/AddSurgery';
 const AddSurgeryModal = ({
   isModalOpen,
   handleCloseModal,
-  items,
   autoFillFromEval = false,
   autoFillFromSurgery = false,
 }) => {
@@ -33,7 +32,6 @@ const AddSurgeryModal = ({
     >
       <AddSurgeryForm
         onClose={handleCloseModal}
-        items={items}
         autoFillFromEval={autoFillFromEval}
         autoFillFromSurgery={autoFillFromSurgery}
       />
