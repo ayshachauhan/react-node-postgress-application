@@ -355,7 +355,7 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
   }, [dispatch, practiceId, loggedInUserId]);
 
   return (
-    <div className="overflow-x-auto">
+    <div>
       <div className="flex w-full bg-purple-50 px-2 border-t border-b border-gray-200 items-center">
         <div className="flex w-1/4 items-center">
           <div className="text-xl font-bold border-r border-gray-300 py-4 pr-4">
@@ -673,7 +673,7 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
                                 {row.insurance}
                               </div>
                               <div className="flex flex-col text-black py-0.5 px-1 w-40 items-center">
-                                <div className="text-black py-0.5 px-1 w-40 text-center overflow-hidden whitespace-nowrap" style={{ textOverflow: 'ellipsis' }}>
+                                <div className="text-black py-0.5 px-1 w-full text-center overflow-hidden whitespace-nowrap" style={{ textOverflow: 'ellipsis' }}>
                                   {row.email}
                                 </div>
                                 <div className="text-black py-0.5 px-1 w-20 text-center">
