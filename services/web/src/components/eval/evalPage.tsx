@@ -1,5 +1,4 @@
 'use client';
-
 import { USER_PERMISSIONS } from '@packages/entities/permission';
 import Button from '@root/components/Button';
 import {
@@ -8,7 +7,6 @@ import {
   EditIcon,
   HomeIcon,
 } from '@root/components/Icons';
-import Form from '@root/components/eval/addEval/addEval';
 import { useUserPermission } from '@root/hooks/userHasPermission';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { fetchLoggedInUser } from '@root/store/reducers/auth';
@@ -34,37 +32,44 @@ import {
   toFullName,
   usDateFormatter,
 } from '@root/utils';
-import { Modal, ModalBody, ROLE } from 'baseui/modal';
-import { SIZE } from 'baseui/select';
 import React, { useEffect, useState } from 'react';
 import EditableRow from 'src/components/eval/editEval/editableRow';
+import AddSurgeryModal from '../dashboard/addSurgeryModal';
 import DeleteEvalModal from './DeleteEvalModal';
+import AddEvalModal from './addEval/addEvalModal';
 
 const EvalPage: React.FC = () => {
   const dispatch = useAppDispatch();
-  const practiceId = getPracticeId();
-  const userId = getUserId();
-  const userInfo = useAppSelector((state) => state.auth.user);
-  const userPermissions = userInfo?.permissions;
-  const { calendarSuccessMessage } = useAppSelector((state) => ({
+
+  const {
+    evalsList,
+    calendarSuccessMessage,
+    addEvalSuccessMessage,
+    evalInfo,
+    userInfo,
+  } = useAppSelector((state) => ({
+    evalsList: Object.values(state.evals.entities),
     calendarSuccessMessage: state.calendars.successMessage,
+    addEvalSuccessMessage: state.evals.successMessage,
+    errorMessage: state.evals.errorMessage,
+    evalInfo: state.evals.evalInfo,
+    userInfo: state.auth.user,
   }));
 
-  const { successMessage: addEvalSuccessMessage, evalInfo } = useAppSelector(
-    (state) => ({
-      successMessage: state.evals.successMessage,
-      errorMessage: state.evals.errorMessage,
-      evalInfo: state.evals.evalInfo,
-    }),
-  );
-
+  const practiceId = getPracticeId();
+  const userId = getUserId();
+  const userPermissions = userInfo?.permissions;
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isBookSurgeryOpenModal, setIsBookSurgeryOpenModal] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const editCaseAllowed = useUserPermission(userPermissions, [
-    USER_PERMISSIONS.EDIT_CASE,
-  ]);
   const [selectedAction, setSelectedAction] = useState<string | null>(null);
   const [selectedRow, setSelectedRow] = useState<string | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
+  const editCaseAllowed = useUserPermission(userPermissions, [
+    USER_PERMISSIONS.EDIT_CASE,
+  ]);
+
   const addCaseAllowed = useUserPermission(userPermissions, [
     USER_PERMISSIONS.ADD_CASE,
   ]);
@@ -119,14 +124,8 @@ const EvalPage: React.FC = () => {
     };
   }, [addEvalSuccessMessage, dispatch]);
 
-  const { evalsList } = useAppSelector((state) => ({
-    evalsList: Object.values(state.evals.entities),
-  }));
-
   const modifyEvalList = evalsList
     .map((ele, index) => {
-      // console.log(ele.);
-
       const viewData = {
         firstName: ele.patient.firstName,
         lastName: ele.patient.lastName,
@@ -157,7 +156,6 @@ const EvalPage: React.FC = () => {
       return viewData;
     })
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-  console.log(modifyEvalList);
 
   const handleEditClick = (rowId: string) => {
     if (practiceId) {
@@ -194,42 +192,6 @@ const EvalPage: React.FC = () => {
     setSelectedRow(null);
   };
 
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-
-  const AddFormModal = () => {
-    return (
-      <Modal
-        isOpen={isAddModalOpen}
-        onClose={handleCloseAddModal}
-        closeable
-        animate
-        autoFocus
-        size={SIZE.default}
-        role={ROLE.dialog}
-        overrides={{
-          Dialog: {
-            style: () => ({
-              width: '900px',
-              maxWidth: '90%',
-              maxHeight: '90vh',
-              overflowY: 'auto',
-            }),
-          },
-          Root: {
-            style: ({ $theme }) => ({
-              outline: `${$theme.colors.warning200} solid`,
-              backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            }),
-          },
-        }}
-      >
-        <ModalBody>
-          <Form onClose={handleCloseAddModal} />
-        </ModalBody>
-      </Modal>
-    );
-  };
-
   const handleOpenAddModal = (): void => {
     setSelectedAction('cancel');
     setSelectedRow(null);
@@ -241,10 +203,20 @@ const EvalPage: React.FC = () => {
     setSelectedRow(Id);
   };
 
+  const handleCloseBookSurgeryModal = (): void => {
+    setIsBookSurgeryOpenModal(false);
+  };
+
+  const handleOpenBookSurgeryModal = (id: string): void => {
+    if (practiceId) dispatch(fetchEvalInfo({ practiceId, id }));
+
+    setIsBookSurgeryOpenModal(true);
+  };
+
   return (
-    <div id="__next" className="w-max text-center">
+    <div id="__next" className="text-center">
       <div className="flex justify-between border-gray-400 items-center ">
-        <span className="text-xl font-bold">Evals </span>
+        <span className="text-xl font-bold">Evals</span>
         <div className="flex  justify-between">
           {showModal && (
             <div className="text-green-700">{addEvalSuccessMessage}</div>
@@ -266,7 +238,7 @@ const EvalPage: React.FC = () => {
         </div>
       </div>
       <hr className="h-px my-1 px-0 mx-0 bg-gray-100 border-1 border-gray-100"></hr>
-      <div className="text-gray-50  items-center bg-gray-50 border-l border rounded-t-lg rounded-b-lg border-gray-200 text-sm overflow-x-auto mt-2">
+      <div className="text-gray-50  items-center bg-gray-50 border-l border rounded-t-lg rounded-b-lg border-gray-200 text-sm overflow-x-auto w-max mt-2">
         <div className="bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 flex flex-row gap-4 p-2">
           <div className="font-bold text-white py-1 px-1 w-28">Date</div>
           <div className="font-bold text-white py-1 px-1 w-28">Action Date</div>
@@ -298,7 +270,7 @@ const EvalPage: React.FC = () => {
             />
           ) : (
             <React.Fragment key={data.id}>
-              <div className="flex flex-row gap-4 bg-gray-50 px-2 py-0.5 text-center">
+              <div className="flex flex-row gap-4 bg-gray-50 px-2 py-0.5 text-center border-b-2">
                 <div
                   className={`text-black  py-0.5 px-1 w-28  flex justify-around items-center`}
                 >
@@ -361,36 +333,57 @@ const EvalPage: React.FC = () => {
                     referrer: {data.referrer}
                   </div>
                 </div>
-                <div className="text-gray-900 flex gap-4">
-                  {editCaseAllowed && (
-                    <div className="cursor-pointer">
-                      <EditIcon
-                        style={{ marginRight: '8px', cursor: 'pointer' }}
-                        onClick={() => handleEditClick(data.id)}
-                      ></EditIcon>
-                    </div>
-                  )}
-                  <div className="cursor-pointer">
-                    {deleteCaseAllowed && (
-                      <DeleteIcon
-                        onClick={() => {
-                          setSelectedRow(data.id);
-                          handleOpenDeleteModal(data.id);
-                        }}
-                      ></DeleteIcon>
+                <div className="text-gray-900 flex flex-col gap-2">
+                  <div className="flex flex-row justify-around">
+                    {editCaseAllowed && (
+                      <div className="cursor-pointer ">
+                        <EditIcon
+                          style={{ marginRight: '8px', cursor: 'pointer' }}
+                          onClick={() => handleEditClick(data.id)}
+                        ></EditIcon>
+                      </div>
                     )}
+                    <div className="cursor-pointer">
+                      {deleteCaseAllowed && (
+                        <DeleteIcon
+                          onClick={() => {
+                            setSelectedRow(data.id);
+                            handleOpenDeleteModal(data.id);
+                          }}
+                        />
+                      )}
+                    </div>
                   </div>
+                  {addCaseAllowed && (
+                    <Button
+                      kind="secondary"
+                      title="Nurture"
+                      fontSize="10px"
+                      height={24}
+                      width={50}
+                      onClick={() => handleOpenBookSurgeryModal(data.id)}
+                    />
+                  )}
                 </div>
               </div>
             </React.Fragment>
           ),
         )}
       </div>
-      <AddFormModal />
+      <AddEvalModal
+        isSecondModalOpen={isAddModalOpen}
+        handleCloseSecondModal={handleCloseAddModal}
+      />
       <DeleteEvalModal
         onConfirmDelete={onConfirmDelete}
         isDeleteModalOpen={isDeleteModalOpen}
         handleCloseDeleteModal={handleCloseDeleteModal}
+      />
+
+      <AddSurgeryModal
+        isModalOpen={isBookSurgeryOpenModal}
+        handleCloseModal={handleCloseBookSurgeryModal}
+        autoFillFromEval={true}
       />
     </div>
   );

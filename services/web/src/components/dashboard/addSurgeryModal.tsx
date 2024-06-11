@@ -2,7 +2,12 @@
 import BaseUIModal from '@root/components/BaseUiModal/BaseUiModal';
 import AddSurgeryForm from '@root/components/dashboard/AddSurgery';
 
-const AddSurgeryModal = ({ isModalOpen, handleCloseModal, items }) => {
+const AddSurgeryModal = ({
+  isModalOpen,
+  handleCloseModal,
+  autoFillFromEval = false,
+  autoFillFromSurgery = false,
+}) => {
   return (
     <BaseUIModal
       isOpen={isModalOpen}
@@ -25,7 +30,11 @@ const AddSurgeryModal = ({ isModalOpen, handleCloseModal, items }) => {
         },
       }}
     >
-      <AddSurgeryForm onClose={handleCloseModal} items={items} />
+      <AddSurgeryForm
+        onClose={handleCloseModal}
+        autoFillFromEval={autoFillFromEval}
+        autoFillFromSurgery={autoFillFromSurgery}
+      />
     </BaseUIModal>
   );
 };

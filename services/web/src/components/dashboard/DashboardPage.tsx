@@ -1,14 +1,12 @@
 'use client';
-
-import { UserType } from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import { AddIcon } from '@root/components/Icons';
 import FiltersSection from '@root/components/dashboard/FiltersSection';
 import SurgeryPercentage from '@root/components/dashboard/SurgeryPercentage';
 import UpcomingSection from '@root/components/dashboard/UpcomingSection';
 import UsersListing from '@root/components/dashboard/UsersListing';
-import AddEvalModal from '@root/components/dashboard/addEvalModal';
 import AddSurgeryModal from '@root/components/dashboard/addSurgeryModal';
+import AddEvalModal from '@root/components/eval/addEval/addEvalModal';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { fetchCalendars } from '@root/store/reducers/calendar';
 import {
@@ -146,26 +144,6 @@ const DashboardPage: React.FC = () => {
     };
   }, [addSurgerySuccessMessage, addEvalSuccessMessage, dispatch]);
 
-  const {
-    practiceHomesList,
-    surgeryTypesList,
-    insuranceTypesList,
-    referrersList,
-    usersList,
-    calendars,
-    waitlist,
-  } = useAppSelector((state) => ({
-    practiceHomesList: Object.values(state.practiceHomes.entities),
-    surgeryTypesList: Object.values(state.surgeryTypes.entities),
-    insuranceTypesList: Object.values(state.insuranceTypes.entities),
-    referrersList: Object.values(state.referrers.entities),
-    usersList: Object.values(state.users.entities).filter(
-      (user) => user.type == UserType.DOCTOR,
-    ),
-    calendars: Object.values(state.calendars.entities),
-    waitlist: Object.values(state.waitlist.entities),
-  }));
-
   const handleCloseAddModal = (): void => {
     setIsAddModalOpen(false);
   };
@@ -247,15 +225,6 @@ const DashboardPage: React.FC = () => {
       <AddSurgeryModal
         isModalOpen={isAddModalOpen}
         handleCloseModal={handleCloseAddModal}
-        items={{
-          practiceHomesList,
-          surgeryTypesList,
-          insuranceTypesList,
-          referrersList,
-          usersList,
-          calendars,
-          waitlist,
-        }}
       />
       <div className="w-400">
         <AddEvalModal
