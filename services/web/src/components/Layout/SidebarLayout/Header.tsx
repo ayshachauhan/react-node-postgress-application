@@ -167,16 +167,16 @@ const Header: React.FC<ChildProps> = ({ data }) => {
                   >
                     {userPracticesList.map((item) => (
                       <Dropdown.Item
-                        key={item.practice.id}
-                        id={item.practice.id}
+                        key={item.id}
+                        id={item.id}
                         onClick={() =>
                           handlePracticeChange(
-                            item.practice.id,
-                            item.practice.name,
+                            item.id,
+                            item.name,
                           )
                         }
                       >
-                        {item.practice.name}
+                        {item.name}
                       </Dropdown.Item>
                     ))}
                   </Dropdown>
