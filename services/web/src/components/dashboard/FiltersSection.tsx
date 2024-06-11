@@ -673,7 +673,7 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
                                 {row.insurance}
                               </div>
                               <div className="flex flex-col text-black py-0.5 px-1 w-40 items-center">
-                                <div className="text-black py-0.5 px-1 w-40 text-center">
+                                <div className="text-black py-0.5 px-1 w-40 text-center overflow-hidden whitespace-nowrap" style={{ textOverflow: 'ellipsis' }}>
                                   {row.email}
                                 </div>
                                 <div className="text-black py-0.5 px-1 w-20 text-center">
