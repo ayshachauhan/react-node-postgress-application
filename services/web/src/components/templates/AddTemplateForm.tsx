@@ -10,6 +10,7 @@ import { addRecordAsync } from '@root/store/reducers/templates';
 import { getPracticeId } from '@utils/index';
 import { Select } from 'baseui/select';
 import React, { useEffect, useState } from 'react';
+import RequiredIndicator from '../RequiredIndicator';
 
 const AddTemplateForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const templateMessageTypeOptions = Object.keys(TemplateMessageType).map(
@@ -81,7 +82,8 @@ const AddTemplateForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       <form onSubmit={handleSubmit}>
         <div className="space-y-4">
           <label htmlFor="title" className="text-black text-sm font-normal">
-            Surgery
+            <RequiredIndicator />
+            &nbsp;Surgery
           </label>
           <Select
             options={surgeryConfigurationOptions}
@@ -118,7 +120,8 @@ const AddTemplateForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             htmlFor="messageType"
             className="text-black text-sm font-normal"
           >
-            Message Type
+            <RequiredIndicator />
+            &nbsp;Message Type
           </label>
           <Select
             options={templateMessageTypeOptions}
