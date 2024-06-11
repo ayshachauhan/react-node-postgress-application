@@ -81,7 +81,7 @@ function EditableRow({ handleCancelClick, evalInfo, setSelectedAction }) {
 
       setInsuranceTypeId(evalInfo?.insuranceType?.id);
       setReferrerId(evalInfo.patient?.referrer?.id);
-      setWaitlistId(evalInfo?.waitlist.id);
+      setWaitlistId(evalInfo?.waitlist?.id);
     }
   }, [evalInfo.id, evalInfo]);
   if (evalInfo) {
@@ -148,7 +148,7 @@ function EditableRow({ handleCancelClick, evalInfo, setSelectedAction }) {
 
     return (
       <form onSubmit={handleSubmit}>
-        <div className="flex flex-row gap-4 px-2 items-start text-xs">
+        <div className="flex flex-row gap-4 px-2 items-start text-xs overflow-auto">
           <div className="py-1 px-1 w-32">
             <div>
               <DatePicker

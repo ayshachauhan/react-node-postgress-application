@@ -1,6 +1,7 @@
 import {
   ICalendar,
   SelectedSurgeryOption,
+  UserType,
 } from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
@@ -15,10 +16,12 @@ import moment from 'moment';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 
-const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
-  onClose,
-  items,
-}) => {
+const SurgeryPage: React.FC<{
+  onClose: () => void;
+  autoFillFromEval?: boolean;
+  autoFillFromSurgery?: boolean;
+}> = ({ onClose, autoFillFromEval = false, autoFillFromSurgery = false }) => {
+  const dispatch = useAppDispatch();
   const {
     practiceHomesList,
     insuranceTypesList,
@@ -26,19 +29,29 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
     usersList,
     calendars,
     waitlist,
-  } = items;
+    surgeryConfigurationsList,
+    patientsList,
+    evalAutoFillInfo,
+    surgeryAutoFillInfo,
+  } = useAppSelector((state) => ({
+    practiceHomesList: Object.values(state.practiceHomes.entities),
+    surgeryTypesList: Object.values(state.surgeryTypes.entities),
+    insuranceTypesList: Object.values(state.insuranceTypes.entities),
+    referrersList: Object.values(state.referrers.entities),
+    usersList: Object.values(state.users.entities).filter(
+      (user) => user.type == UserType.DOCTOR,
+    ),
+    calendars: Object.values(state.calendars.entities),
+    waitlist: Object.values(state.waitlist.entities),
+    surgeryConfigurationsList: state.surgeryConfigurations.entities,
+    patientsList: Object.values(state.patients.entities),
+    surgeryAutoFillInfo: state.surgeries.surgeryInfo,
+    evalAutoFillInfo: state.evals.evalInfo,
+  }));
 
   const SELECTED_DOCTOR_KEY: string = 'SELECTED_DOCTOR';
   const getSelectedUserId: string | null =
     localStorage.getItem(SELECTED_DOCTOR_KEY);
-
-  const dispatch = useAppDispatch();
-  const surgeryConfigurationsList = useAppSelector(
-    (state) => state.surgeryConfigurations.entities,
-  );
-  const patientsList = Object.values(
-    useAppSelector((state) => state.patients.entities),
-  );
 
   const surgeryConfigurations = Object.values(surgeryConfigurationsList);
   const practiceId = getPracticeId();
@@ -62,7 +75,6 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
   const [surgeryDate, SetSurgeryDate] = useState<Date | null>(new Date());
   const [pcp, setPcp] = useState('');
   const [notes, setNotes] = useState('');
-  const [checkboxes, setCheckboxes] = React.useState([true, false]);
   const [surgeryNameId, setSurgeryNameId] = useState<string>('');
   const [isMrnExists, setIsMrnExists] = useState<boolean>(false);
   const [isNewReferrer, setIsNewReferrer] = useState<boolean>(false);
@@ -101,6 +113,32 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
 
     setSurgeryDropdownOptions([...surgeryDropdownOptions]);
   };
+
+  useEffect(() => {
+    if (autoFillFromEval || autoFillFromSurgery) {
+      const row = autoFillFromEval ? evalAutoFillInfo : surgeryAutoFillInfo;
+
+      if (row) {
+        setFirstName(row.patient.firstName);
+        setLastName(row.patient.lastName);
+        setEmail(row.patient.email);
+        setPhoneNumber(row.patient.phoneNumber);
+        setMrn(String(row.patient.mrn));
+        setPracticeHomeId(row.practiceHome.id);
+        setBodyPart(row.bodyPart);
+        setSurgeryNameId(row.surgeryConfiguration.id);
+        if (row.waitlist) setWaitlistId(row.waitlist.id);
+        if (row.patient.referrer) setReferrerId(row.patient.referrer.id);
+        if (row.insuranceType) setInsuranceTypeId(row.insuranceType.id);
+        if (row.insuranceDetails) setInsuranceDetails(row.insuranceDetails);
+      }
+    }
+  }, [
+    autoFillFromEval,
+    autoFillFromSurgery,
+    evalAutoFillInfo,
+    surgeryAutoFillInfo,
+  ]);
 
   useEffect(() => {
     if (mrn) {
@@ -599,10 +637,6 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
                   },
                 }}
                 checked={false}
-                onChange={(e) => {
-                  const target = e.target as HTMLInputElement;
-                  setCheckboxes([target.checked, checkboxes[1]]);
-                }}
               >
                 <label htmlFor="pcp" className="text-black text-xs">
                   PCP (Check box if same)
@@ -636,10 +670,6 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
                   },
                 }}
                 checked={email ? true : false}
-                onChange={(e) => {
-                  const target = e.target as HTMLInputElement;
-                  setCheckboxes([target.checked, checkboxes[1]]);
-                }}
               >
                 Notify patient
               </Checkbox>

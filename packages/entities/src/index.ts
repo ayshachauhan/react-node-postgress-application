@@ -6,6 +6,7 @@ export * from './evalEmail';
 export * from './history';
 export * from './insuranceType';
 export * from './media';
+export * from './mediaConfig';
 export * from './patient';
 export * from './permission';
 export * from './practice';
