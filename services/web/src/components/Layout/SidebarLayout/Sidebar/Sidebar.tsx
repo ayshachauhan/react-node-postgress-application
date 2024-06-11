@@ -1,14 +1,19 @@
 'use client';
 
+import { CollapseLeftIcon, CollapseRightIcon } from '@root/components/Icons';
 import { useUserPermissions } from '@root/context/UserPermissionsContext';
 import { useAppSelector } from '@root/store';
 import { ChevronDown, ChevronRightSmall } from 'baseui/icon';
 import clsx from 'clsx';
 import Link from 'next/link';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { SideBarItem, filterSidebarItems, sidebarItems } from './types';
 
-const Sidebar: React.FC = () => {
+interface SidebarProps {
+  onCollapseChange?: (collapsed: boolean) => void;
+}
+
+const Sidebar: React.FC<SidebarProps> = ({ onCollapseChange }) => {
   const [activeMenuItemId, setActiveMenuItemId] = useState<string>('');
   const [activeChildMenuItemId, setActiveChildMenuItemId] =
     useState<string>('');
@@ -21,9 +26,21 @@ const Sidebar: React.FC = () => {
     userPermissions,
     sidebarItems,
   );
+  const [collapsed, setCollapsed] = useState(false);
+
+  const toggleCollapse = () => {
+    const newCollapsed = !collapsed;
+    setCollapsed(newCollapsed);
+    if (onCollapseChange) {
+      onCollapseChange(newCollapsed);
+    }
+  };
+
+  const [expandedMenuItemId, setExpandedMenuItemId] = useState<string>('');
 
   function handleSidebarItemClick(item: SideBarItem) {
     setActiveMenuItemId(item.id);
+    setExpandedMenuItemId(item.id === expandedMenuItemId ? '' : item.id);
   }
 
   function handleSidebarChildItemClick(item) {
@@ -42,11 +59,29 @@ const Sidebar: React.FC = () => {
       setActiveMenuItemId(activeItem.id);
     }
   }, []);
+  useEffect(() => {
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+  const customWidth = collapsed ? 'w-16' : 'w-40';
+  const sidebarRef = useRef<HTMLDivElement>(null);
+  const handleClickOutside = (event: MouseEvent) => {
+    if (
+      sidebarRef.current &&
+      !sidebarRef.current.contains(event.target as Node)
+    ) {
+      setActiveMenuItemId('');
+      setActiveChildMenuItemId(''); // Hide child menu
+    }
+  };
 
   return (
     <aside
       aria-label="Sidebar"
-      className="fixed top-0 left-0 w-40 h-screen translate-x-0 bg-gradient-to-b from-primary-dark to-primary-light"
+      ref={sidebarRef}
+      className={`${customWidth} fixed z-10 top-0 left-0 h-screen translate-x-0 bg-gradient-to-b from-primary-dark to-primary-light ease-in-out duration-400`}
     >
       <div className="h-[168px] flex px-4 items-center justify-start">
         <Link href={is_super_admin ? '' : '/dashboard'}>
@@ -54,12 +89,16 @@ const Sidebar: React.FC = () => {
         </Link>
       </div>
 
-      <div className="h-full px-3 py-4 overflow-y-auto">
+      <div
+        className={`h-full px-3 py-4 overflow-y-auto ${
+          collapsed ? 'flex flex-col items-center' : ''
+        }`}
+      >
         <ul className="space-y-2 font-medium">
           {filteredSidebarItems.map(({ Icon, ...item }) => (
             <li
               key={item.id}
-              className={item.id == 'setting' ? 'absolute bottom-5' : ''}
+              className={`${collapsed && item.child ? 'flex flex-row' : ''}`}
             >
               <Link
                 href={item.path}
@@ -69,10 +108,9 @@ const Sidebar: React.FC = () => {
                   { 'bg-secondary': item.id === activeMenuItemId },
                 )}
               >
-                <Icon />
-                <span className="ms-3">{item.title}</span>
-
-                {item.child && (
+                <Icon size={18} />
+                {!collapsed && <span className="ms-3">{item.title}</span>}
+                {!collapsed && item.child && (
                   <span className="ml-auto">
                     <ChevronDown size={20} />
                   </span>
@@ -85,6 +123,7 @@ const Sidebar: React.FC = () => {
                     'ease-in-out duration-300 my-1 ml-5 py-2 space-y-2 rounded-lg',
                     {
                       hidden: item.id !== activeMenuItemId,
+                      'bg-green-500 fixed ml-14 mt-0': collapsed,
                     },
                   )}
                 >
@@ -113,6 +152,20 @@ const Sidebar: React.FC = () => {
             </li>
           ))}
         </ul>
+        <div
+          className={`bottom-5 space-y-2 fixed ${!collapsed ? 'right-3' : ''}`}
+        >
+          <button
+            className="text-white flex items-center"
+            onClick={toggleCollapse}
+          >
+            {collapsed ? (
+              <CollapseRightIcon size={20} />
+            ) : (
+              <CollapseLeftIcon size={20} />
+            )}
+          </button>
+        </div>
       </div>
     </aside>
   );

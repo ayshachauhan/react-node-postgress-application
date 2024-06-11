@@ -3,10 +3,9 @@ import { ConfigService } from '@nestjs/config';
 import { Cron, Interval } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EmailLogEntity } from '@packages/entities';
-import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import Mail from 'nodemailer/lib/mailer';
 import { ENVIRONMENT_VARIABLES } from 'src/enums/environment.enums';
-import { HealthService } from 'src/healthz/health.service';
+import logger from 'src/logger';
 import { SurgeryService } from 'src/surgery/surgery.service';
 import { TransporterService } from 'src/transporter';
 import { LessThanOrEqual, Repository } from 'typeorm';
@@ -18,8 +17,6 @@ export class SchedulerService {
     private readonly emailLogRepository: Repository<EmailLogEntity>,
     private configService: ConfigService,
     private transporterService: TransporterService,
-    @InjectPinoLogger(HealthService.name)
-    private readonly logger: PinoLogger,
     private readonly surgeryService: SurgeryService,
   ) {}
 
@@ -29,7 +26,7 @@ export class SchedulerService {
 
   @Interval(5000) // This runs the task every 10 minutes
   async handleCron() {
-    this.logger.info('starting to send emails');
+    logger.info('starting to send emails');
     const today = this.getFormattedDate();
 
     const data = await this.emailLogRepository.find({
@@ -37,7 +34,7 @@ export class SchedulerService {
       take: this.getMailLimit(),
     });
 
-    this.logger.info(`Found ${data.length} emails to send`);
+    logger.info(`Found ${data.length} emails to send`);
 
     const promises = data.map(async (mailData: EmailLogEntity) => {
       const { subject, pt_email_address, text, body } = mailData.data;
@@ -65,14 +62,14 @@ export class SchedulerService {
     });
 
     await Promise.allSettled(promises);
-    this.logger.info('Processed emails');
+    logger.info('Processed emails');
   }
 
   @Cron('0 0 * * *') // every 24 hours
   async autoCompleteSurgeries() {
-    this.logger.info('STARTED AUTO APPROVING SURGERIES');
+    logger.info('STARTED AUTO APPROVING SURGERIES');
     await this.surgeryService.autoCompleteSurgeries();
-    this.logger.info('FINISHED AUTO APPROVING SURGERIES');
+    logger.info('FINISHED AUTO APPROVING SURGERIES');
   }
 
   private getFormattedDate() {
