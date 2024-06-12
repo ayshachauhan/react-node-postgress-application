@@ -345,6 +345,7 @@ export class SurgeryService {
         createSurgeryDto,
         resultSurgery,
         surgeryConfigurationEntity,
+        insuranceTypeEntity?.name,
       );
     }
 
@@ -471,6 +472,7 @@ export class SurgeryService {
     dto: CreateSurgeryDto,
     surgery: ISurgery,
     surgeryConfig: ISurgeryConfiguration,
+    insuranceType?: string,
   ): Promise<void> {
     const { id: surgeryConfigId, name } = surgeryConfig;
     const mailVariables: EmailVariables = {
@@ -489,10 +491,12 @@ export class SurgeryService {
       all_cataract_dates: name + ' ' + dto.date,
       all_case_type: name + ' ' + dto.date,
       phoneNumber: dto.phoneNumber,
+      practiceName: practice.name,
+      insuranceType: insuranceType ?? '',
     };
 
     const systemGeneratedMailData = {
-      subject: 'Eval/ Surgery registered',
+      subject: `Surgery Scheduled: ${name}`,
       text: 'text message',
       systemTemplate: SystemTemplates.NOTIFY_PATIENT,
     };

@@ -121,15 +121,11 @@ export class EvalsService {
         createEvalDto.surgeryConfigurationId,
       );
 
-    let insuranceTypeEntity: InsuranceTypeEntity | null =
-      new InsuranceTypeEntity();
-    if (createEvalDto.insuranceTypeId) {
-      insuranceTypeEntity =
-        await this.insuranceTypesService.getInsuranceTypeById(
-          createEvalDto.insuranceTypeId,
-          practiceId,
-        );
-    }
+    let insuranceTypeEntity =
+      await this.insuranceTypesService.getInsuranceTypeById(
+        createEvalDto.insuranceTypeId,
+        practiceId,
+      );
 
     const practiceHomeEntity =
       await this.practiceHomesService.getPracticeHomeById(
@@ -174,6 +170,7 @@ export class EvalsService {
         createEvalDto,
         resultEval,
         surgeryConfigurationEntity,
+        insuranceTypeEntity?.name,
       );
     }
     return resultEval;
@@ -284,6 +281,7 @@ export class EvalsService {
     dto: CreateEvalDto,
     evalEntity: IEval,
     surgeryConfig: ISurgeryConfiguration,
+    insuranceType?: string,
   ): Promise<void> {
     const { id: surgeryConfigId, name } = surgeryConfig;
     const mailVariables: EmailVariables = {
@@ -302,10 +300,12 @@ export class EvalsService {
       all_cataract_dates: name + ' ' + dto.date,
       all_case_type: name + ' ' + dto.date,
       phoneNumber: dto.phoneNumber,
+      practiceName: practice.name,
+      insuranceType: insuranceType ?? '',
     };
 
     const systemGeneratedMailData = {
-      subject: 'Eval/ Surgery registered',
+      subject: `Eval Scheduled: ${name}`,
       text: 'text message',
       systemTemplate: SystemTemplates.NOTIFY_PATIENT,
     };
