@@ -6,8 +6,6 @@ import {
   MessageIcon,
   SettingIcon,
   StethoscopeIcon,
-  TemplateIcon,
-  UsersIcon,
 } from '@components/Icons';
 import { IPermission } from '@packages/entities/index.browser';
 import { USER_PERMISSIONS } from '@packages/entities/permission';
@@ -45,21 +43,6 @@ export const sidebarItems: SideBarItem[] = [
     path: '/practices',
     permissions: ['super_admin'],
     Icon: StethoscopeIcon,
-  },
-  {
-    id: 'users',
-    title: 'Users',
-    path: '/users',
-    permissions: ['admin'],
-    Icon: UsersIcon,
-  },
-  {
-    id: 'templates',
-    title: 'Templates',
-    path: '/templates',
-    permissions: ['admin'],
-    userPermissions: [USER_PERMISSIONS.VIEW_TEMPLATES],
-    Icon: TemplateIcon,
   },
   {
     id: 'messages',
@@ -102,14 +85,27 @@ export const sidebarItems: SideBarItem[] = [
     child: [
       {
         id: 'configuration',
-        title: 'Configuration',
+        title: 'Practice settings',
         path: '/settings/configurations',
         permissions: ['admin'],
       },
       {
         id: 'modularDesign',
-        title: 'Modular Fields',
+        title: 'Surgeries',
         path: '/settings/modularFields',
+        permissions: ['admin'],
+      },
+      {
+        id: 'templates',
+        title: 'Templates',
+        path: '/templates',
+        permissions: ['admin'],
+        userPermissions: [USER_PERMISSIONS.VIEW_TEMPLATES],
+      },
+      {
+        id: 'users',
+        title: 'Users',
+        path: '/users',
         permissions: ['admin'],
       },
     ],
