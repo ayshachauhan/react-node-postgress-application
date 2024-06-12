@@ -8,7 +8,6 @@ import {
   HistoryType,
   IEval,
   ISurgeryConfiguration,
-  InsuranceTypeEntity,
   PatientEntity,
   PracticeEntity,
 } from '@packages/entities';
@@ -121,7 +120,7 @@ export class EvalsService {
         createEvalDto.surgeryConfigurationId,
       );
 
-    let insuranceTypeEntity =
+    const insuranceTypeEntity =
       await this.insuranceTypesService.getInsuranceTypeById(
         createEvalDto.insuranceTypeId,
         practiceId,
