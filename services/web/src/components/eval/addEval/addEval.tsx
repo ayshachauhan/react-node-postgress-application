@@ -178,7 +178,9 @@ const SurgeryPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   };
 
   const handleQuickDateChange = (offset: number) => {
-    setDate(new Date(Date.now() + (1 + offset * (24 * 60 * 60 * 1000))));
+    const date = new Date();
+    const newDate = new Date(date.setMonth(date.getMonth() + offset));
+    setDate(newDate);
   };
 
   const handleMrnBlur = ({ target }) => {
