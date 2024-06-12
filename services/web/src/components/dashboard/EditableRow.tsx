@@ -466,6 +466,7 @@ function EditableRow({
                 onChange={(value) =>
                   handleObjChange('totalProfessionalPricing', value)
                 }
+                backgroundColor="rgba(220, 220, 220, 1)"
               />
             </div>
           )}
@@ -478,6 +479,7 @@ function EditableRow({
                 onChange={(value) =>
                   handleObjChange('totalHospitalPricing', value)
                 }
+                backgroundColor="rgba(220, 220, 220, 1)"
               />
             </div>
           )}
