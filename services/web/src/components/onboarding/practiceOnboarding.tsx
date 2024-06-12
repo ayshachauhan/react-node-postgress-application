@@ -15,6 +15,7 @@ import { AzentiaLogo } from '@utils/constants';
 import { getPracticeId } from '@utils/index';
 import { useRouter, useSearchParams } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
+import RequiredIndicator from '../RequiredIndicator';
 import { AlreadyOnboarded } from './completedOnboarding';
 
 export default function PracticeOnboardPage() {
@@ -116,7 +117,8 @@ export default function PracticeOnboardPage() {
                   <div className="mb-1">
                     {' '}
                     <label htmlFor="oldPassword" className="text-black text-sm">
-                      Old Password
+                      <RequiredIndicator />
+                      &nbsp;Old Password
                     </label>
                   </div>
 
@@ -132,7 +134,8 @@ export default function PracticeOnboardPage() {
                 <div className="mb-4">
                   <div className="mb-1">
                     <label htmlFor="newPassword" className="text-black text-sm">
-                      New Password
+                      <RequiredIndicator />
+                      &nbsp;New Password
                     </label>
                   </div>
 
@@ -152,7 +155,8 @@ export default function PracticeOnboardPage() {
                       htmlFor="confirmPassword"
                       className="text-black text-sm"
                     >
-                      Confirm Password
+                      <RequiredIndicator />
+                      &nbsp;Confirm Password
                     </label>
                   </div>
 

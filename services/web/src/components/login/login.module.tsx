@@ -12,6 +12,7 @@ import {
 import { AzentiaLogo } from '@utils/constants';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
+import RequiredIndicator from '../RequiredIndicator';
 
 export default function LoginPage() {
   const dispatch = useAppDispatch();
@@ -72,7 +73,8 @@ export default function LoginPage() {
             <input type="hidden" name="remember" defaultValue="true" />
             <div className="space-y-4">
               <label htmlFor="email" className="text-black text-sm font-normal">
-                User Name
+                <RequiredIndicator />
+                &nbsp;User Name
               </label>
               <TextInput
                 name="email"
@@ -87,7 +89,8 @@ export default function LoginPage() {
                 htmlFor="password"
                 className="text-black text-sm font-normal"
               >
-                Password
+                <RequiredIndicator />
+                &nbsp;Password
               </label>
 
               <TextInput

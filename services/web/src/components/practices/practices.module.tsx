@@ -6,6 +6,7 @@ import { addRecordAsync } from '@root/store/reducers/practices';
 import { PracticeCreateInterface } from '@store/requests/practices';
 import { FileUploader } from 'baseui/file-uploader';
 import React, { useState } from 'react';
+import RequiredIndicator from '../RequiredIndicator';
 
 const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const dispatch = useAppDispatch();
@@ -94,7 +95,8 @@ const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           <div className="justify-between pt-4">
             <div className="space-y-2">
               <label htmlFor="name" className="text-black text-sm font-normal">
-                Practice Name
+                <RequiredIndicator />
+                &nbsp;Practice Name
               </label>
               <TextInput
                 name="practiceName"
@@ -109,7 +111,8 @@ const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           <div className="flex flex-row justify-between pt-4">
             <div className="">
               <label htmlFor="adminFirstName" className="text-black text-sm">
-                First Name
+                <RequiredIndicator />
+                &nbsp;First Name
               </label>
               <TextInput
                 name="adminFirstName"
@@ -122,7 +125,8 @@ const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             </div>
             <div className="">
               <label htmlFor="adminLastName" className="text-black text-sm">
-                Last Name
+                <RequiredIndicator />
+                &nbsp;Last Name
               </label>
               <TextInput
                 name="adminLastName"
@@ -137,7 +141,8 @@ const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           <div className="flex flex-row justify-between pt-4">
             <div className="">
               <label htmlFor="adminEmail" className="text-black text-sm">
-                Admin Email
+                <RequiredIndicator />
+                &nbsp;Admin Email
               </label>
               <TextInput
                 name="adminEmail"
@@ -153,7 +158,8 @@ const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 htmlFor="adminContactNumber"
                 className="text-black text-sm font-normal"
               >
-                Admin Contact No.
+                <RequiredIndicator />
+                &nbsp;Admin Contact No.
               </label>
               <TextInput
                 name="adminContactNumber"

@@ -145,3 +145,27 @@ export const getDifferenceInDays = (date1: Date, date2: Date): number => {
 
   return diffInDays;
 };
+
+export const jsonResponseFromStream = async (response: Response) => {
+  if (response && response.body) {
+    // Access the response body as a ReadableStream
+    const reader = await response.body?.getReader();
+    const decoder = new TextDecoder();
+    let responseBody = '';
+
+    // Read the response body stream
+    const readStream = async () => {
+      const { done, value } = await reader.read();
+      if (done) {
+        return responseBody;
+      }
+      responseBody += decoder.decode(value, { stream: true });
+      return readStream();
+    };
+
+    const responsedata = await readStream();
+    console.log('JSON response from body: ', JSON.parse(responsedata));
+    return JSON.parse(responsedata);
+  }
+  return response;
+};

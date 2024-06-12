@@ -11,6 +11,7 @@ import { Checkbox, LABEL_PLACEMENT } from 'baseui/checkbox';
 import { SIZE, Select } from 'baseui/select';
 import React, { useEffect, useState } from 'react';
 import { AddIcon, CloseIcon } from '../Icons';
+import RequiredIndicator from '../RequiredIndicator';
 
 const MediaPage: React.FC<{
   onClose: () => void;
@@ -217,7 +218,8 @@ const MediaPage: React.FC<{
           <div>
             <div className="space-y-2">
               <label htmlFor="title" className="text-black text-sm font-normal">
-                Title
+                <RequiredIndicator />
+                &nbsp;Title
               </label>
               <TextInput
                 name="name"
@@ -229,7 +231,8 @@ const MediaPage: React.FC<{
             </div>
             <div className="space-y-2  pt-4">
               <label htmlFor="url" className="text-black text-sm font-normal">
-                URL
+                <RequiredIndicator />
+                &nbsp;URL
               </label>
               <TextInput
                 name="url"
@@ -280,7 +283,8 @@ const MediaPage: React.FC<{
           <div className="flex flex-col">
             <div className="space-y-2">
               <label htmlFor="mrn" className="text-black text-sm font-normal">
-                MRN
+                <RequiredIndicator />
+                &nbsp;MRN
               </label>
               <div className="space-y-2 pt-4">
                 <Select
