@@ -218,7 +218,10 @@ const UpcomingSection: React.FC = () => {
       date: data.date,
       maxSlots: data.maxSlots,
       bookedSlots: data.bookedSlots,
-      surgeryName: data.surgeryConfiguration.name.charAt(0).toUpperCase(),
+      // using data from selectedsurgery here because calendar data doesn't contain surgerytype relation, for fallback using surgeryconfig name
+      surgeryName:
+        selectedSurgery?.surgeryType.name.charAt(0).toUpperCase() ??
+        data.surgeryConfiguration.name.charAt(0).toUpperCase(),
       surgeryNameColor:
         data.surgeryConfiguration.color ?? DEFAULT_SURGERYNAME_COLOR,
     }));
