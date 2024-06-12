@@ -17,6 +17,7 @@ import {
   formatColumnDate,
   generateFullName,
   getPracticeId,
+  toPascalCase,
 } from '@utils/index';
 import React, { useEffect } from 'react';
 import { SurgeryFields } from './constants';
@@ -34,6 +35,7 @@ export type HistoryData = {
   new?: string;
   ip: string;
   action: HistoryAction;
+  type: string;
 };
 
 export default function HistoryTable() {
@@ -110,6 +112,7 @@ export default function HistoryTable() {
         ip: history.ipAddress ?? '',
         field: history.action === HistoryAction.CREATE ? 'Initial' : 'Delete',
         action: history.action,
+        type: toPascalCase(history.entityType),
       };
 
       resolvedData = history.changes
@@ -168,6 +171,7 @@ export default function HistoryTable() {
             <div className="font-bold text-white py-2 px-1 w-40">Date</div>
             <div className="font-bold text-white py-2 px-1 w-40">Name</div>
             <div className="font-bold text-white py-2 px-1 w-40">MRN</div>
+            <div className="font-bold text-white py-2 px-1 w-40">Type</div>
             <div className="font-bold text-white py-2 px-1 w-40">Surgery</div>
             <div className="font-bold text-white py-2 px-1 w-40">Field</div>
             <div className="font-bold text-white py-2 px-1 w-40">User</div>
@@ -192,6 +196,7 @@ export default function HistoryTable() {
                 {row ? generateFullName(row.firstName, row.lastName) : null}
               </div>
               <div className="text-black pt-2 pb-2 px-1 w-40">{row.mrn}</div>
+              <div className="text-black pt-2 pb-2 px-1 w-40">{row.type}</div>
               <div className="text-black pt-2 pb-2 px-1 w-40">
                 {row.surgery}
               </div>

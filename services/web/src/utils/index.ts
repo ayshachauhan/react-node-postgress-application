@@ -145,3 +145,12 @@ export const getDifferenceInDays = (date1: Date, date2: Date): number => {
 
   return diffInDays;
 };
+
+export const toPascalCase = (str: string): string => {
+  if (str) {
+    return str
+      .split(' ') // Split the string by spaces, underscores, or hyphens
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()) // Capitalize the first letter and make the rest lowercase
+      .join('');
+  } else return str;
+};
