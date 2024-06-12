@@ -69,7 +69,7 @@ export const addMedia = async (
         {
           mediaType: payloadData.mediaType,
           entityId: payloadData.entityId,
-          mediaConfig: videoData[0].title ? videoData : [],
+          mediaConfig: videoData,
         },
       );
       const data: IMedia = await response.json();
@@ -78,8 +78,8 @@ export const addMedia = async (
         return await uploadImg({
           practiceId: payloadData.practiceId,
           mediaId: data.id,
-          //@ts-expect-error fix type for undefined
-          files: mediaConfig.image,
+          // @ts-expect-error fix type error
+          files: mediaConfig?.image,
         });
       }
       return data;
