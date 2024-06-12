@@ -22,6 +22,7 @@ import { PracticesService } from 'src/practices/practices.service';
 import { SurgeryConfigurationsService } from 'src/surgeryConfiguration/surgeryConfiguration.service';
 import { SystemTemplates } from 'src/transporter/transporter.types';
 import { UsersService } from 'src/users/users.service';
+import { formatHeaderDate, toLowerCase, toPascalCase } from 'src/utils';
 import { In, Repository } from 'typeorm';
 import {
   EvalChangesKeyValues,
@@ -170,6 +171,7 @@ export class EvalsService {
         resultEval,
         surgeryConfigurationEntity,
         insuranceTypeEntity?.name,
+        practiceHomeEntity?.name,
       );
     }
     return resultEval;
@@ -281,8 +283,11 @@ export class EvalsService {
     evalEntity: IEval,
     surgeryConfig: ISurgeryConfiguration,
     insuranceType?: string,
+    practiceHome?: string,
   ): Promise<void> {
     const { id: surgeryConfigId, name } = surgeryConfig;
+    const formattedDate = formatHeaderDate(String(dto.date));
+
     const mailVariables: EmailVariables = {
       surgery_type: name,
       fname: dto.firstName,
@@ -291,13 +296,13 @@ export class EvalsService {
       pt_email_address: dto.email,
       surgery_date: String(dto.date),
       pt_email_notify: '',
-      laterality: dto.bodyPart,
-      Laterality: dto.bodyPart,
-      pod1_location: '',
+      laterality: toLowerCase(dto.bodyPart),
+      Laterality: toPascalCase(dto.bodyPart),
+      pod1_location: practiceHome ?? '',
       cataract_variable: '',
-      all_cases: name + ' ' + dto.date,
-      all_cataract_dates: name + ' ' + dto.date,
-      all_case_type: name + ' ' + dto.date,
+      all_cases: dto.bodyPart + ' ' + name + ' | ' + formattedDate,
+      all_cataract_dates: name + ' ' + formattedDate,
+      all_case_type: name + ' ' + formattedDate,
       phoneNumber: dto.phoneNumber,
       practiceName: practice.name,
       insuranceType: insuranceType ?? '',

@@ -34,7 +34,13 @@ import { SurgeryConfigurationsService } from 'src/surgeryConfiguration/surgeryCo
 import { SurgeryTypesService } from 'src/surgeryTypes/surgeryTypes.service';
 import { SystemTemplates } from 'src/transporter/transporter.types';
 import { UsersService } from 'src/users/users.service';
-import { getFullYearDateConditions, getStartEndDate } from 'src/utils';
+import {
+  formatHeaderDate,
+  getFullYearDateConditions,
+  getStartEndDate,
+  toLowerCase,
+  toPascalCase,
+} from 'src/utils';
 import { WaitlistService } from 'src/waitlist/waitlist.service';
 import {
   Equal,
@@ -346,6 +352,7 @@ export class SurgeryService {
         resultSurgery,
         surgeryConfigurationEntity,
         insuranceTypeEntity?.name,
+        practiceHomeEntity?.name,
       );
     }
 
@@ -473,8 +480,11 @@ export class SurgeryService {
     surgery: ISurgery,
     surgeryConfig: ISurgeryConfiguration,
     insuranceType?: string,
+    practiceHome?: string,
   ): Promise<void> {
     const { id: surgeryConfigId, name } = surgeryConfig;
+    const formattedDate = formatHeaderDate(String(dto.date));
+
     const mailVariables: EmailVariables = {
       surgery_type: name,
       fname: dto.firstName,
@@ -483,13 +493,13 @@ export class SurgeryService {
       pt_email_address: dto.email,
       surgery_date: String(dto.date),
       pt_email_notify: '',
-      laterality: dto.bodyPart,
-      Laterality: dto.bodyPart,
-      pod1_location: '',
+      laterality: toLowerCase(dto.bodyPart),
+      Laterality: toPascalCase(dto.bodyPart),
+      pod1_location: practiceHome ?? '',
       cataract_variable: '',
-      all_cases: name + ' ' + dto.date,
-      all_cataract_dates: name + ' ' + dto.date,
-      all_case_type: name + ' ' + dto.date,
+      all_cases: dto.bodyPart + ' ' + name + ' | ' + formattedDate,
+      all_cataract_dates: name + ' ' + formattedDate,
+      all_case_type: name + ' ' + formattedDate,
       phoneNumber: dto.phoneNumber,
       practiceName: practice.name,
       insuranceType: insuranceType ?? '',
