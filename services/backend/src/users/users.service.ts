@@ -221,18 +221,39 @@ export class UsersService {
     if (confirmPassword !== newPassword) {
       throw new HttpException(
         'Password does not match',
-        HttpStatus.NOT_ACCEPTABLE,
+        HttpStatus.PRECONDITION_FAILED,
       );
     }
 
     const user = await this.findUserByEmail(email);
     if (user) {
+      const newHashedPassword = await bcrypt.hash(newPassword, 10);
+      if (!oldPassword) {
+        // meaning that user is reseting own password only.
+        if (user.status == UserStatus.ACTIVE) {
+          const updatedResult = await this.usersRepository.update(user.id, {
+            password: newHashedPassword,
+          });
+          if (updatedResult.affected === 0) {
+            throw new HttpException(
+              `Password update failed due to some error`,
+              HttpStatus.NOT_MODIFIED,
+            );
+          }
+        } else {
+          throw new HttpException(
+            'Your account seems to be inactive at our end. Please contact to support.',
+            HttpStatus.PRECONDITION_FAILED,
+          );
+        }
+      }
+
       const isPasswordMatched = await bcrypt.compare(
         oldPassword,
         user.password,
       );
+
       if (isPasswordMatched) {
-        const newHashedPassword = await bcrypt.hash(newPassword, 10);
         const updatedResult = await this.usersRepository.update(user.id, {
           password: newHashedPassword,
           status: UserStatus.ACTIVE,
@@ -250,15 +271,21 @@ export class UsersService {
 
         if (updatedResult.affected === 0) {
           throw new HttpException(
-            `error while updating`,
-            HttpStatus.NOT_ACCEPTABLE,
+            `Password update failed due to some error`,
+            HttpStatus.NOT_MODIFIED,
           );
         }
-        const resultUser = await this.getUserById(user.id);
-        if (resultUser) {
-          return this.sanitizeUser(resultUser);
-        }
       }
+
+      const resultUser = await this.getUserById(user.id);
+      if (resultUser) {
+        return this.sanitizeUser(resultUser);
+      }
+    } else {
+      throw new HttpException(
+        `User email is not registered with us! Please enter registered email.`,
+        HttpStatus.PRECONDITION_FAILED,
+      );
     }
 
     throw new HttpException(`error while updating`, HttpStatus.NOT_ACCEPTABLE);
