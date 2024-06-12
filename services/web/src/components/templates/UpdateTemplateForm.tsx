@@ -150,6 +150,7 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
         ...updatedTemplateInfo,
         active: updatedTemplateInfo.active ?? false,
         emailSubject: updatedTemplateInfo.emailSubject ?? '',
+        dateOffset: updatedTemplateInfo.dateOffset ?? 0,
         emailAttachment: updatedTemplateInfo.emailAttachment,
         emailBody: updatedTemplateInfo.emailBody ?? '',
         messageText: updatedTemplateInfo.messageText ?? '',
@@ -220,6 +221,28 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
                       component: () => null,
                     },
                   }}
+                />
+              </div>
+            </div>
+            <div className="flex flex-row items-center gap-2">
+              <label
+                htmlFor="surgeryConfiguration"
+                className="text-black text-sm font-normal"
+              >
+                Date Offset:
+              </label>
+              <div className="w-56 text-sm text-gray-600">
+                <TextInput
+                  name="dateOffset"
+                  type="number"
+                  value={updatedTemplateInfo?.dateOffset}
+                  onChange={(value) => {
+                    setTemplateInfo({
+                      ...updatedTemplateInfo,
+                      dateOffset: Number(value),
+                    });
+                  }}
+                  required
                 />
               </div>
             </div>

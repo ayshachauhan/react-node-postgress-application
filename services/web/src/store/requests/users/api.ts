@@ -1,6 +1,7 @@
 import { IUser } from '@packages/entities/index.browser';
 import { ApiService } from '@root/services/apiclient';
 import { SanitizedUser } from '@root/store/types';
+import { jsonResponseFromStream } from '@root/utils';
 import { AddUserDto, ChangePasswordInterface, UploadImgPayload } from '.';
 
 const apiClient = new ApiService();
@@ -79,7 +80,8 @@ export const addUser = async (
       sanitizedPayload,
     );
     if (!response.ok) {
-      throw new Error('Failed to add user');
+      const resBody = await jsonResponseFromStream(response);
+      throw new Error(resBody?.message ?? 'Failed to add user');
     }
     const data: SanitizedUser = await response.json();
 
@@ -126,7 +128,8 @@ export const updateUser = async (
       sanitizedPayload,
     );
     if (!response.ok) {
-      throw new Error('Failed to update user');
+      const resBody = await jsonResponseFromStream(response);
+      throw new Error(resBody?.message ?? 'Failed to update user');
     }
     const data: SanitizedUser = await response.json();
 
@@ -160,7 +163,8 @@ export const deleteUser = async (
       null,
     );
     if (!response.ok) {
-      throw new Error('Failed to delete user');
+      const resBody = await jsonResponseFromStream(response);
+      throw new Error(resBody?.message ?? 'Failed to delete user');
     }
     const responseData = await response.text();
 
