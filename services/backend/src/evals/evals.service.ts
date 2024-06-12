@@ -8,7 +8,6 @@ import {
   HistoryType,
   IEval,
   ISurgeryConfiguration,
-  InsuranceTypeEntity,
   PatientEntity,
   PracticeEntity,
 } from '@packages/entities';
@@ -23,6 +22,7 @@ import { PracticesService } from 'src/practices/practices.service';
 import { SurgeryConfigurationsService } from 'src/surgeryConfiguration/surgeryConfiguration.service';
 import { SystemTemplates } from 'src/transporter/transporter.types';
 import { UsersService } from 'src/users/users.service';
+import { formatHeaderDate, toLowerCase, toPascalCase } from 'src/utils';
 import { In, Repository } from 'typeorm';
 import {
   EvalChangesKeyValues,
@@ -121,15 +121,11 @@ export class EvalsService {
         createEvalDto.surgeryConfigurationId,
       );
 
-    let insuranceTypeEntity: InsuranceTypeEntity | null =
-      new InsuranceTypeEntity();
-    if (createEvalDto.insuranceTypeId) {
-      insuranceTypeEntity =
-        await this.insuranceTypesService.getInsuranceTypeById(
-          createEvalDto.insuranceTypeId,
-          practiceId,
-        );
-    }
+    const insuranceTypeEntity =
+      await this.insuranceTypesService.getInsuranceTypeById(
+        createEvalDto.insuranceTypeId,
+        practiceId,
+      );
 
     const practiceHomeEntity =
       await this.practiceHomesService.getPracticeHomeById(
@@ -174,6 +170,8 @@ export class EvalsService {
         createEvalDto,
         resultEval,
         surgeryConfigurationEntity,
+        insuranceTypeEntity?.name,
+        practiceHomeEntity?.name,
       );
     }
     return resultEval;
@@ -284,8 +282,12 @@ export class EvalsService {
     dto: CreateEvalDto,
     evalEntity: IEval,
     surgeryConfig: ISurgeryConfiguration,
+    insuranceType?: string,
+    practiceHome?: string,
   ): Promise<void> {
     const { id: surgeryConfigId, name } = surgeryConfig;
+    const formattedDate = formatHeaderDate(String(dto.date));
+
     const mailVariables: EmailVariables = {
       surgery_type: name,
       fname: dto.firstName,
@@ -294,18 +296,20 @@ export class EvalsService {
       pt_email_address: dto.email,
       surgery_date: String(dto.date),
       pt_email_notify: '',
-      laterality: dto.bodyPart,
-      Laterality: dto.bodyPart,
-      pod1_location: '',
+      laterality: toLowerCase(dto.bodyPart),
+      Laterality: toPascalCase(dto.bodyPart),
+      pod1_location: practiceHome ?? '',
       cataract_variable: '',
-      all_cases: name + ' ' + dto.date,
-      all_cataract_dates: name + ' ' + dto.date,
-      all_case_type: name + ' ' + dto.date,
+      all_cases: dto.bodyPart + ' ' + name + ' | ' + formattedDate,
+      all_cataract_dates: name + ' ' + formattedDate,
+      all_case_type: name + ' ' + formattedDate,
       phoneNumber: dto.phoneNumber,
+      practiceName: practice.name,
+      insuranceType: insuranceType ?? '',
     };
 
     const systemGeneratedMailData = {
-      subject: 'Eval/ Surgery registered',
+      subject: `Eval Scheduled: ${name}`,
       text: 'text message',
       systemTemplate: SystemTemplates.NOTIFY_PATIENT,
     };

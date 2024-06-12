@@ -6,6 +6,7 @@ import { addRecordAsync } from '@root/store/reducers/referrer';
 import { getPracticeId } from '@utils/index';
 import { Select } from 'baseui/select';
 import { useState } from 'react';
+import RequiredIndicator from '../RequiredIndicator';
 import TextInput from '../TextInput/TextInput';
 
 const AddReferrerForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
@@ -59,7 +60,8 @@ const AddReferrerForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 htmlFor="firstName"
                 className="text-black text-sm font-normal"
               >
-                First Name
+                <RequiredIndicator />
+                &nbsp;First Name
               </label>
               <TextInput
                 name="firstName"
@@ -75,7 +77,8 @@ const AddReferrerForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 htmlFor="lastName"
                 className="text-black text-sm font-normal"
               >
-                Last Name
+                <RequiredIndicator />
+                &nbsp;Last Name
               </label>
               <TextInput
                 name="lastName"
@@ -91,7 +94,8 @@ const AddReferrerForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 htmlFor="referrerType"
                 className="text-black text-sm font-normal"
               >
-                Referrer Type
+                <RequiredIndicator />
+                &nbsp;Referrer Type
               </label>
               <Select
                 options={referrerTypeOptions}

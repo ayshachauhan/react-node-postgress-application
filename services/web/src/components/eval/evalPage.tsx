@@ -32,6 +32,7 @@ import {
   toFullName,
   usDateFormatter,
 } from '@root/utils';
+import { Checkbox } from 'baseui/checkbox';
 import React, { useEffect, useState } from 'react';
 import EditableRow from 'src/components/eval/editEval/editableRow';
 import AddSurgeryModal from '../dashboard/addSurgeryModal';
@@ -151,6 +152,8 @@ const EvalPage: React.FC = () => {
         actionDate:
           usDateFormatter(ele.date) +
           ` (${getDifferenceInDays(new Date(ele.date), new Date())})`,
+        referrerVerified:
+          ele.patient.referrer && ele.patient.referrer.verified ? true : false,
       };
 
       return viewData;
@@ -298,7 +301,10 @@ const EvalPage: React.FC = () => {
                     <div className="text-black py-0.5 px-1 overflow-hidden whitespace-nowrap w-20 pl-5">
                       {data.mrn}
                     </div>
-                    <div className="text-black py-0.5 px-1 w-40">
+                    <div
+                      className="text-black py-0.5 px-1 w-40 overflow-hidden whitespace-nowrap"
+                      style={{ textOverflow: 'ellipsis' }}
+                    >
                       {data.email}
                     </div>
                     <div className="text-black py-0.5 px-1 overflow-hidden whitespace-nowrap w-20">
@@ -317,20 +323,48 @@ const EvalPage: React.FC = () => {
                     </div>
                     <div className="text-black">{data.waitlist}</div>
                     <div className="text-black text-center font-semibold pl-12">
-                      Notes:{' '}
+                      Details:{' '}
                     </div>
                     <div className="text-black">{data.notes}</div>
                   </div>
                 </div>
                 <div className="flex flex-col text-black py-0.5 px-1 w-40 items-center">
-                  <div className="text-black py-0.5 px-1 w-40 text-center">
+                  <div
+                    className="text-black py-0.5 px-1 w-40 text-center overflow-hidden whitespace-nowrap"
+                    style={{ textOverflow: 'ellipsis' }}
+                  >
                     {data.email}
                   </div>
                   <div className="text-black py-0.5 px-1 w-20 text-center">
                     {data.phoneNumber}
                   </div>
-                  <div className="text-black py-0.5 px-1 w-20 text-center">
-                    referrer: {data.referrer}
+                  <div className="flex justify-center items-center  w-40 ">
+                    <div className="text-black py-0.5 px-1 text-center">
+                      referrer: {data.referrer}
+                    </div>
+                    <div>
+                      {data.referrerVerified && (
+                        <Checkbox
+                          checked={true}
+                          overrides={{
+                            Checkmark: {
+                              style: ({ $checked }) => ({
+                                backgroundColor: $checked
+                                  ? 'rgba(34, 197, 94, 1)'
+                                  : 'white',
+                                borderColor: $checked
+                                  ? 'rgba(34, 197, 94, 1)'
+                                  : 'rgba(113, 113, 122, 1)',
+                                width: '12px',
+                                height: '12px',
+                                borderRadius: '2px',
+                                borderWidth: '2px',
+                              }),
+                            },
+                          }}
+                        />
+                      )}
+                    </div>
                   </div>
                 </div>
                 <div className="text-gray-900 flex flex-col gap-2">

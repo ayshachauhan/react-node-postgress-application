@@ -99,3 +99,18 @@ export function formatHeaderDate(dateString: string) {
   const finalDate = formattedDate.replace(/(?<=^\w+),/, '');
   return finalDate;
 }
+
+export const toLowerCase = (str: string): string => {
+  if (str) {
+    return String(str).toLowerCase();
+  } else return str;
+};
+
+export const toPascalCase = (str: string): string => {
+  if (str) {
+    return str
+      .split(' ') // Split the string by spaces, underscores, or hyphens
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()) // Capitalize the first letter and make the rest lowercase
+      .join('');
+  } else return str;
+};

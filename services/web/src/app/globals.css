@@ -31,3 +31,13 @@
     }
   }
 }
+
+table {
+  @apply bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 rounded-lg w-full;
+}
+table thead tr td {
+  @apply font-bold text-white p-4;
+}
+table tbody tr td {
+  @apply text-gray-900 bg-gray-50 pt-2 p-4;
+}

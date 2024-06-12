@@ -162,10 +162,10 @@ export const selectedPracticeName = (state: State) =>
 export const userPractices = (state: State) => {
   if (
     state.auth.user &&
-    state.auth.user.userPractices &&
-    state.auth.user.userPractices.length
+    state.auth.user.practices &&
+    state.auth.user.practices.length
   ) {
-    return state.auth.user.userPractices;
+    return state.auth.user.practices;
   }
   return [];
 };

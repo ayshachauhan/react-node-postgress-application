@@ -42,9 +42,6 @@ export class SurgeryEntity extends BaseEntity implements ISurgery {
   @Column({ type: 'varchar' })
   insuranceDetails: string;
 
-  @Column({ type: 'varchar' })
-  surgeryStatus: SurgeryStatus;
-
   @Column({
     default: null,
     nullable: true,
@@ -56,6 +53,9 @@ export class SurgeryEntity extends BaseEntity implements ISurgery {
 
   @Column({ type: 'jsonb' })
   selectedSurgeryOptions: SelectedSurgeryOption;
+
+  @Column({ type: 'enum', enum: SurgeryStatus })
+  surgeryStatus: SurgeryStatus;
 
   @Column()
   totalHospitalPricing: string;
