@@ -28,6 +28,7 @@ import {
 } from '@root/store/reducers/surgery';
 import { toFullName, usDateFormatter } from '@root/utils';
 import { monthOptions } from '@root/utils/constants';
+import { Checkbox } from 'baseui/checkbox';
 import { Select } from 'baseui/select';
 import React, { useEffect, useMemo, useState } from 'react';
 import DeleteFilterModal from './DeleteFilterModal';
@@ -186,6 +187,8 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
       selectedSurgeryOptions: ele.selectedSurgeryOptions,
       selectedChecklistOptions: ele.selectedCheckListOptions,
       waitlist: ele?.waitlist?.name,
+      referrerVerified:
+        ele.patient.referrer && ele.patient.referrer.verified ? true : false,
     };
 
     const optionArr = Object.keys(ele.surgeryConfiguration.options);
@@ -684,8 +687,33 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
                                   <div className="text-black py-0.5 px-1 w-20 text-center">
                                     {row.phoneNumber}
                                   </div>
-                                  <div className="text-black py-0.5 px-1 w-20 text-center">
-                                    referrer: {row.referrer}
+                                  <div className="text-black py-0.5 px-1 w-40 text-center flex items-center justify-center">
+                                    <div className="text-black py-0.5 px-1 text-center">
+                                      referrer: {row.referrer}
+                                    </div>
+                                    <div>
+                                      {row.referrerVerified && (
+                                        <Checkbox
+                                          checked={true}
+                                          overrides={{
+                                            Checkmark: {
+                                              style: ({ $checked }) => ({
+                                                backgroundColor: $checked
+                                                  ? 'rgba(34, 197, 94, 1)'
+                                                  : 'white',
+                                                borderColor: $checked
+                                                  ? 'rgba(34, 197, 94, 1)'
+                                                  : 'rgba(113, 113, 122, 1)',
+                                                width: '12px',
+                                                height: '12px',
+                                                borderRadius: '2px',
+                                                borderWidth: '2px',
+                                              }),
+                                            },
+                                          }}
+                                        />
+                                      )}
+                                    </div>
                                   </div>
                                 </div>
                                 <div className="text-black py-0.5 px-1 w-40 text-center">
