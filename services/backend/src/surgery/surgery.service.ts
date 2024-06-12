@@ -298,7 +298,7 @@ export class SurgeryService {
       insuranceType: insuranceTypeEntity,
       doctor: doctorEntity,
       surgeryConfiguration: surgeryConfigurationEntity,
-      surgeryStatus: SurgeryStatus.BOOKED,
+      surgeryStatus: SurgeryStatus.BOOK,
       waitlist: waitlistEntity,
     });
 

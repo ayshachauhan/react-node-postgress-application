@@ -60,7 +60,12 @@ const PostReview: React.FC = () => {
     e.preventDefault();
     if (validReviewReq && review) {
       const userReviewResponse = await dispatch(
-        postReviewAsyncThunk({ practiceId, token, rating, review }),
+        postReviewAsyncThunk({
+          practiceId,
+          token: token ?? '',
+          rating,
+          reviewComment: review,
+        }),
       );
       if (
         userReviewResponse &&
