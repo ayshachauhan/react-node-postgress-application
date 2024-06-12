@@ -52,7 +52,7 @@ const Header: React.FC<ChildProps> = ({ data }) => {
   const is_super_admin = userInfo ? userInfo.isSuperAdmin : false;
   const selectedUserBox = (
     <span className="inline-flex items-center gap-2">
-      <AvatarIcon size={40}></AvatarIcon>
+      &nbsp;&nbsp;&nbsp;
       {selectedUser?.fullName}
       <ChevronDown />
     </span>
@@ -136,17 +136,24 @@ const Header: React.FC<ChildProps> = ({ data }) => {
         <div className="flex items-center justify-between">
           <div className="flex items-center">
             {!is_super_admin && isDashboardPage && (
-              <Dropdown
-                position="bottomLeft"
-                trigger={selectedUserBox}
-                onSelect={handleUserSelect}
-              >
-                {users.map((user: SanitizedUser, index: number) => (
-                  <Dropdown.Item id={user.id} key={index}>
-                    {user.fullName}
-                  </Dropdown.Item>
-                ))}
-              </Dropdown>
+              <>
+                <div>Doctor:</div>
+                {users && users.length > 1 ? (
+                  <Dropdown
+                    position="bottomLeft"
+                    trigger={selectedUserBox}
+                    onSelect={handleUserSelect}
+                  >
+                    {users.map((user: SanitizedUser, index: number) => (
+                      <Dropdown.Item id={user.id} key={index}>
+                        {user.fullName}
+                      </Dropdown.Item>
+                    ))}
+                  </Dropdown>
+                ) : (
+                  <div>&nbsp;&nbsp;&nbsp;{users && users[0]?.fullName}</div>
+                )}
+              </>
             )}
           </div>
 
@@ -154,7 +161,7 @@ const Header: React.FC<ChildProps> = ({ data }) => {
             <div className="flex items-center">
               {!is_super_admin && (
                 <>
-                  <div>Practice Name:</div>
+                  <div>Practice:</div>
                   <Dropdown
                     position="bottomLeft"
                     trigger={
@@ -167,16 +174,11 @@ const Header: React.FC<ChildProps> = ({ data }) => {
                   >
                     {userPracticesList.map((item) => (
                       <Dropdown.Item
-                        key={item.practice.id}
-                        id={item.practice.id}
-                        onClick={() =>
-                          handlePracticeChange(
-                            item.practice.id,
-                            item.practice.name,
-                          )
-                        }
+                        key={item.id}
+                        id={item.id}
+                        onClick={() => handlePracticeChange(item.id, item.name)}
                       >
-                        {item.practice.name}
+                        {item.name}
                       </Dropdown.Item>
                     ))}
                   </Dropdown>
