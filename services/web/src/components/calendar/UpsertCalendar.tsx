@@ -147,23 +147,6 @@ const UpsertCalendar: React.FC<{
                 />
               )}
             </div>
-
-            <div className="flex-1 space-y-2 px-4">
-              <label
-                htmlFor="bookedSlots"
-                className="text-black text-sm font-normal"
-              >
-                Booked Slots{' '}
-              </label>
-              <TextInput
-                id={calendar.id}
-                name="bookedSlots"
-                value={calendar.bookedSlots}
-                onChange={handleInputChange}
-                required
-                disabled={true}
-              />
-            </div>
             <div className=" flex-1 space-y-2 px-4">
               <label
                 htmlFor="maxSlots"
