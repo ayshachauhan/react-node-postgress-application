@@ -10,6 +10,8 @@ import {
   ISurgeryConfiguration,
   PermissionEntity,
   PracticeEntity,
+  ReviewEntity,
+  ReviewStatus,
   SelectedSurgeryOption,
   SurgeryEntity,
   SurgeryStatus,
@@ -30,6 +32,7 @@ import { InsuranceTypesService } from 'src/insuranceTypes/insuranceTypes.service
 import { PatientsService } from 'src/patients/patients.service';
 import { PracticeHomesService } from 'src/practiceHomes/practiceHomes.service';
 import { PracticesService } from 'src/practices/practices.service';
+import { ReviewService } from 'src/review/review.service';
 import { SurgeryConfigurationsService } from 'src/surgeryConfiguration/surgeryConfiguration.service';
 import { SurgeryTypesService } from 'src/surgeryTypes/surgeryTypes.service';
 import { SystemTemplates } from 'src/transporter/transporter.types';
@@ -102,6 +105,8 @@ export class SurgeryService {
     private historyService: HistoryService,
     @Inject(forwardRef(() => EmailHandlerService))
     private emailHandlerService: EmailHandlerService,
+    @Inject(forwardRef(() => ReviewService))
+    private reviewService: ReviewService,
   ) {}
 
   getFrontEndBaseUrl() {
@@ -225,6 +230,7 @@ export class SurgeryService {
       where: { id },
       relations: [
         'practiceHome',
+        'practiceHome.practice',
         'surgeryConfiguration',
         'patient',
         'insuranceType',
@@ -298,6 +304,7 @@ export class SurgeryService {
       insuranceType: insuranceTypeEntity,
       doctor: doctorEntity,
       surgeryConfiguration: surgeryConfigurationEntity,
+      surgeryStatus: SurgeryStatus.BOOK,
       waitlist: waitlistEntity,
     });
 
@@ -444,16 +451,61 @@ export class SurgeryService {
     });
   }
 
-  async autoCompleteSurgeries() {
-    this.surgeryRepository.update(
-      {
-        date: LessThan(new Date(Date.now())),
-        surgeryStatus: In([SurgeryStatus.PENDING]),
-      },
-      {
-        surgeryStatus: SurgeryStatus.COMPLETED,
-      },
-    );
+  async autoCompleteSurgeries(surgeryId: string = '') {
+    if (surgeryId) {
+      const surgeryResponse = await this.surgeryRepository.update(
+        {
+          id: surgeryId,
+        },
+        {
+          surgeryStatus: SurgeryStatus.COMPLETED,
+        },
+      );
+      if (surgeryResponse.affected) {
+        const surgeryData = await this.getSurgeryById(surgeryId);
+        if (surgeryData && surgeryData.practiceHome.practice) {
+          await this.createReviewEntity([
+            {
+              reviewStatus: ReviewStatus.PENDING,
+              practice: surgeryData.practiceHome.practice,
+              patient: surgeryData.patient,
+            },
+          ]);
+        }
+      }
+    } else {
+      const surgeryCompletedEntries = await this.surgeryRepository.find({
+        where: {
+          date: LessThan(new Date(Date.now())),
+          surgeryStatus: In([SurgeryStatus.PENDING]),
+        },
+        relations: ['practiceHome', 'practiceHome.practice', 'patient'],
+      });
+
+      const surgeryData = await this.surgeryRepository.update(
+        {
+          date: LessThan(new Date(Date.now())),
+          surgeryStatus: In([SurgeryStatus.PENDING]),
+        },
+        {
+          surgeryStatus: SurgeryStatus.COMPLETED,
+        },
+      );
+
+      if (surgeryData.affected && surgeryCompletedEntries.length) {
+        const reviewEntries = surgeryCompletedEntries.map((entry) => ({
+          reviewStatus: ReviewStatus.PENDING,
+          practice: entry.practiceHome.practice,
+          patient: entry.patient,
+        }));
+
+        await this.createReviewEntity(reviewEntries);
+      }
+    }
+  }
+
+  async createReviewEntity(reviewEntries: Partial<ReviewEntity>[]) {
+    await this.reviewService.createReview(reviewEntries);
   }
 
   async remove(

@@ -28,5 +28,6 @@ export enum SystemTemplates {
   ADMIN_INVITE = 'adminInvite',
   NEW_PRACTICE_MAIL_TO_EXISTING_USER = 'newPracticeMailToExistingUser',
   NOTIFY_PATIENT = 'notifyPatient',
+  REVIEW_REQUEST = 'reviewRequest',
   RESET_PASSWORD = 'resetPassword',
 }

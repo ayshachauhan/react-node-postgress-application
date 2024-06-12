@@ -12,6 +12,7 @@ export * from './permission/permission.interface';
 export * from './practice/practice.interface';
 export * from './practiceHomes/practiceHomes.interface';
 export * from './referrer/referrer.interface';
+export * from './review/review.interface';
 export * from './surgery/surgery.interface';
 export * from './surgeryConfiguration/surgeryConfiguration.interface';
 export * from './surgeryType/surgeryType.interface';

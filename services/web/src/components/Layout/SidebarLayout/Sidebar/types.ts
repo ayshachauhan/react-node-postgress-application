@@ -77,6 +77,13 @@ export const sidebarItems: SideBarItem[] = [
     Icon: AddReferrerIcon,
   },
   {
+    id: 'review',
+    title: 'Review',
+    path: '/review',
+    permissions: ['admin'],
+    Icon: SettingIcon,
+  },
+  {
     id: 'setting',
     title: 'Settings',
     path: '#',
