@@ -35,4 +35,6 @@ export interface EmailVariables {
   all_cataract_dates: string;
   all_case_type: string;
   phoneNumber: string;
+  practiceName: string;
+  insuranceType: string;
 }
