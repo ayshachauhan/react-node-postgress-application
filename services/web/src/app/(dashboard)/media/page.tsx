@@ -154,14 +154,6 @@ const Media: React.FC = () => {
   const getPatientById = (id: string): IPatient | undefined =>
     patients.find((data) => data.id === id);
 
-  console.log(
-    selectedPatientId,
-    media,
-    getPatientById(selectedPatientId!),
-    'pat',
-    surgeryConfigurations,
-  );
-
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [deleteMedia, setDeleteMedia] = useState<DeleteMedia | null>({
     mediaId: '',
@@ -222,8 +214,10 @@ const Media: React.FC = () => {
 
   return (
     <div className="mt-4">
-      {showModal && <div className="text-green-700">{successMessage}</div>}
-      {showErrorMessage && <div className="text-red-700">{errorMessage}</div>}
+      <div className="flex flex-col items-center justify-center">
+        {showModal && <div className="text-green-700">{successMessage}</div>}
+        {showErrorMessage && <div className="text-red-700">{errorMessage}</div>}
+      </div>
       <div className="flex justify-between border-gray-400 items-center">
         <div className="flex bg-green-50 pr-2 border-b border-green-200 items-center">
           <div className="flex items-center">
