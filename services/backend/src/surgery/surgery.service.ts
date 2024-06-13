@@ -2,14 +2,12 @@ import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
-  EmailVariables,
   HistoryAction,
   HistoryType,
   ICalendar,
+  IPractice,
   ISurgery,
-  ISurgeryConfiguration,
   PermissionEntity,
-  PracticeEntity,
   ReviewEntity,
   ReviewStatus,
   SelectedSurgeryOption,
@@ -37,13 +35,7 @@ import { SurgeryConfigurationsService } from 'src/surgeryConfiguration/surgeryCo
 import { SurgeryTypesService } from 'src/surgeryTypes/surgeryTypes.service';
 import { SystemTemplates } from 'src/transporter/transporter.types';
 import { UsersService } from 'src/users/users.service';
-import {
-  formatHeaderDate,
-  getFullYearDateConditions,
-  getStartEndDate,
-  toLowerCase,
-  toPascalCase,
-} from 'src/utils';
+import { getFullYearDateConditions, getStartEndDate } from 'src/utils';
 import { WaitlistService } from 'src/waitlist/waitlist.service';
 import {
   Equal,
@@ -54,11 +46,11 @@ import {
   In,
   LessThan,
   LessThanOrEqual,
+  MoreThanOrEqual,
   Repository,
 } from 'typeorm';
 import { CalendarService } from '../calendar/calendar.service';
 import { HistoryService } from '../history/history.service';
-import { CreateSurgeryDto } from './dto/createSurgery.dto';
 
 type DateCondition = {
   date: FindOperator<Date>;
@@ -353,14 +345,7 @@ export class SurgeryService {
     });
 
     if (practiceEntity && surgeryConfigurationEntity) {
-      await this.initiateSendEmail(
-        practiceEntity,
-        createSurgeryDto,
-        resultSurgery,
-        surgeryConfigurationEntity,
-        insuranceTypeEntity?.name,
-        practiceHomeEntity?.name,
-      );
+      await this.initiateSendEmail(resultSurgery, practiceEntity);
     }
 
     return resultSurgery;
@@ -527,35 +512,10 @@ export class SurgeryService {
   }
 
   async initiateSendEmail(
-    practice: PracticeEntity,
-    dto: CreateSurgeryDto,
     surgery: ISurgery,
-    surgeryConfig: ISurgeryConfiguration,
-    insuranceType?: string,
-    practiceHome?: string,
+    practice: IPractice,
   ): Promise<void> {
-    const { id: surgeryConfigId, name } = surgeryConfig;
-    const formattedDate = formatHeaderDate(String(dto.date));
-
-    const mailVariables: EmailVariables = {
-      surgery_type: name,
-      fname: dto.firstName,
-      lname: dto.lastName,
-      mrn: String(dto.mrn),
-      pt_email_address: dto.email,
-      surgery_date: String(dto.date),
-      pt_email_notify: '',
-      laterality: toLowerCase(dto.bodyPart),
-      Laterality: toPascalCase(dto.bodyPart),
-      pod1_location: practiceHome ?? '',
-      cataract_variable: '',
-      all_cases: dto.bodyPart + ' ' + name + ' | ' + formattedDate,
-      all_cataract_dates: name + ' ' + formattedDate,
-      all_case_type: name + ' ' + formattedDate,
-      phoneNumber: dto.phoneNumber,
-      practiceName: practice.name,
-      insuranceType: insuranceType ?? '',
-    };
+    const { name } = surgery.surgeryConfiguration;
 
     const systemGeneratedMailData = {
       subject: `Surgery Scheduled: ${name}`,
@@ -565,12 +525,20 @@ export class SurgeryService {
 
     await this.emailHandlerService.checkAndMakeEmailContent(
       practice,
-      surgeryConfigId,
       surgery,
-      mailVariables,
       systemGeneratedMailData,
       false,
     );
+  }
+
+  async findSurgeryByPatient(
+    patientId: string,
+    date: Date,
+  ): Promise<ISurgery[]> {
+    return await this.surgeryRepository.find({
+      where: { patient: { id: patientId }, date: MoreThanOrEqual(date) },
+      relations: ['surgeryConfiguration'],
+    });
   }
 }
 
