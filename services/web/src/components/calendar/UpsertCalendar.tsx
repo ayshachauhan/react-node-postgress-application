@@ -57,15 +57,17 @@ const UpsertCalendar: React.FC<{
       if (isUpdating) {
         const updatedData: CalendarData[] = upsertCalendarData.filter(
           (calendar, index) =>
-            calendar.maxSlots !== calendarData[index].maxSlots,
+            calendar.maxSlots !== calendarData[index].maxSlots ||
+            calendar.selectedSurgery !== calendarData[index].selectedSurgery,
         );
         const payload: UpdateCalendarsPayload = {
           practiceId,
           userId,
-          data: updatedData.map((data) => ({
+          data: updatedData.map((data: CalendarData) => ({
             id: data.id,
             bookedSlots: data.bookedSlots,
             maxSlots: data.maxSlots,
+            surgeryConfigurationId: data?.selectedSurgery?.id,
           })),
         };
         if (updatedData.length) {
@@ -113,6 +115,7 @@ const UpsertCalendar: React.FC<{
                   (config: ISurgeryConfiguration) => ({
                     label: config.name,
                     id: config.id,
+                    calendarId: calendar.id,
                   }),
                 )}
                 onChange={({ value }) => {
@@ -121,13 +124,17 @@ const UpsertCalendar: React.FC<{
                   }
 
                   setUpsertCalendarData((prevData) =>
-                    prevData.map((cal: CalendarData) => ({
-                      ...cal,
-                      selectedSurgery:
-                        surgeryConfigurations.find(
-                          (data) => data.id === value[0].id,
-                        ) ?? calendar.selectedSurgery,
-                    })),
+                    prevData.map((cal: CalendarData) =>
+                      cal.id === value[0]?.calendarId
+                        ? {
+                            ...cal,
+                            selectedSurgery:
+                              surgeryConfigurations.find(
+                                (data) => data.id === value[0].id,
+                              ) ?? calendar.selectedSurgery,
+                          }
+                        : cal,
+                    ),
                   );
                 }}
                 value={[
