@@ -60,15 +60,15 @@ export function getStartEndDate(
         startDate = new Date(startOfDay);
         endDate = new Date(endOfDay);
       } else if (!hasViewPastCasesPermission) {
-        // User cannot view past cases, start from today
-        startDate = new Date(startOfDay);
+        // User cannot view past cases, start from tomorrow
+        startDate = new Date(endOfDay);
+        startDate.setDate(startDate.getDate() + 1);
       } else if (!hasViewFutureCasesPermission) {
         // User cannot view future cases, end at the end of today
-        endDate = new Date(endOfDay);
+        endDate = new Date(startOfDay);
       }
     }
 
-    console.log(startDate, endDate, 2);
     return { date: Between(startDate, endDate) };
   });
 
