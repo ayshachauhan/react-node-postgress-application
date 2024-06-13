@@ -190,8 +190,8 @@ export class EmailHandlerService {
       pod1_location: practiceHomeName,
       cataract_variable: '',
       all_cases: makeAllCaseString(bodyPart, name, date),
-      all_cataract_dates: allCataractDates,
-      all_case_type: allCaseType,
+      all_cataract_dates: allCataractDates.join(),
+      all_case_type: allCaseType.join(),
       phoneNumber: phoneNumber,
       practiceName: practice.name,
       insuranceType: insuranceType ? insuranceType.name : '',
@@ -202,7 +202,7 @@ export class EmailHandlerService {
 
   async findValueOfMailVariable(
     entity: IEval | ISurgery,
-  ): Promise<Record<string, any>> {
+  ): Promise<Record<string, string[]>> {
     const {
       patient: { id: patientId },
     } = entity;
