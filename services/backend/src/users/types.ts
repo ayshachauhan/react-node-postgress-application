@@ -22,6 +22,7 @@ export type NewUserMailData = {
   practiceName: string;
   fullName: string;
   defaultUserPassword: string;
+  contactEmail: string;
 };
 
 export enum UploadType {

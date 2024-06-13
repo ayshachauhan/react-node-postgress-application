@@ -300,6 +300,7 @@ export class UsersService {
       practiceName: practiceEntity.name,
       fullName,
       defaultUserPassword: this.defaultUserPassword(),
+      contactEmail: newSanitizedUser.email,
     };
 
     await this.transporterService.sendSystemEmails(
@@ -331,6 +332,7 @@ export class UsersService {
       practiceName: practiceEntity.name,
       fullName,
       defaultUserPassword: this.defaultUserPassword(),
+      contactEmail: newUser.email,
     };
 
     await this.transporterService.sendSystemEmails(
