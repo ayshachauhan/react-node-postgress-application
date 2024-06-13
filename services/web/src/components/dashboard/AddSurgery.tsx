@@ -5,8 +5,10 @@ import {
 } from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
+import { EVAL_STATUS } from '@root/enums/evalStatus.enum';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { fetchCalendars } from '@root/store/reducers/calendar';
+import { updateRecordAsync as updateEval } from '@root/store/reducers/evals';
 import { addRecordAsync as addSurgeryRecord } from '@root/store/reducers/surgery';
 import { getPracticeId, toFullName } from '@utils/index';
 import { Checkbox } from 'baseui/checkbox';
@@ -311,6 +313,30 @@ const SurgeryPage: React.FC<{
           waitlistId,
         }),
       );
+
+      if (autoFillFromEval && evalAutoFillInfo) {
+        const {
+          id,
+          date,
+          patient: { firstName, mrn, phoneNumber, email },
+          bodyPart,
+        } = evalAutoFillInfo;
+        dispatch(
+          updateEval({
+            payloadData: {
+              status: EVAL_STATUS.Book,
+              practiceId,
+              date,
+              email,
+              bodyPart,
+              phoneNumber,
+              firstName,
+              mrn,
+            },
+            id,
+          }),
+        );
+      }
 
       dispatch(fetchCalendars({ practiceId, userId: doctorId }));
 

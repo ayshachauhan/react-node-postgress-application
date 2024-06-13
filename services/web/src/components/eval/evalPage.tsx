@@ -7,6 +7,7 @@ import {
   EditIcon,
   HomeIcon,
 } from '@root/components/Icons';
+import { EVAL_STATUS } from '@root/enums/evalStatus.enum';
 import { useUserPermission } from '@root/hooks/userHasPermission';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { fetchLoggedInUser } from '@root/store/reducers/auth';
@@ -390,8 +391,13 @@ const EvalPage: React.FC = () => {
                   </div>
                   {addCaseAllowed && (
                     <Button
+                      disabled={data.status === EVAL_STATUS.Book}
                       kind="secondary"
-                      title="Nurture"
+                      title={
+                        data.status === EVAL_STATUS.Book
+                          ? 'Nurtured'
+                          : 'Nurture'
+                      }
                       fontSize="10px"
                       height={24}
                       width={50}
