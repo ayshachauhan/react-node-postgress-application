@@ -21,16 +21,20 @@ import { useAppDispatch, useAppSelector } from '@root/store';
 import {
   deleteRecordAsync,
   fetchListings,
+  fetchSurgeryInfo,
   setSearchMRNName,
   setSelectedMonth,
   setSelectedValue,
 } from '@root/store/reducers/surgery';
-import { usDateFormatter } from '@root/utils';
+import { toFullName, toPascalCase, usDateFormatter } from '@root/utils';
 import { monthOptions } from '@root/utils/constants';
+import { Checkbox } from 'baseui/checkbox';
 import { Select } from 'baseui/select';
 import React, { useEffect, useMemo, useState } from 'react';
 import DeleteFilterModal from './DeleteFilterModal';
 import EditableRow from './EditableRow';
+import ViewRow from './ViewRow';
+import AddSurgeryModal from './addSurgeryModal';
 
 const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
   const dispatch = useAppDispatch();
@@ -38,8 +42,9 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
     (state) => state.surgeries.surgeryFilters,
   );
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [clonedDivs, setClonedDivs] = useState<string[]>([]);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [selectedAction, setSelectedAction] = useState<string | null>(null);
+  const [selectedSurgery, setSelectedSurgery] = useState({});
   const [selectedRow, setSelectedRow] = useState<string | null>(null);
   const [editableRows, setEditableRows] = useState<string[]>([]);
   const userInfo = useAppSelector((state) => state.auth.user);
@@ -113,28 +118,31 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
     });
   }
 
-  const actionIcons = (id: string) => (
+  const actionIcons = (row) => (
     <div style={{ display: 'flex' }}>
       <StarIcon style={{ marginRight: '8px', cursor: 'pointer' }} />
       <CopyIcon
         style={{ marginRight: '8px', cursor: 'pointer' }}
-        onClick={() => handleCloneClick(id)}
+        onClick={() => handleCloneClick(row.id)}
       />
       <DisplayIcon style={{ marginRight: '8px', cursor: 'pointer' }} />
       <ViewIcon
         style={{ marginRight: '8px', cursor: 'pointer' }}
-        onClick={() => handleViewClick(id)}
+        onClick={() => {
+          handleViewClick(row.id);
+          setSelectedSurgery(row);
+        }}
       />
       {editCaseAllowed && (
         <EditIcon
           style={{ marginRight: '8px', cursor: 'pointer' }}
-          onClick={() => handleEditClick(id)}
+          onClick={() => handleEditClick(row.id)}
         />
       )}
       {deleteCaseAllowed && (
         <DeleteIcon
           style={{ cursor: 'pointer' }}
-          onClick={() => handleOpenDeleteModal(id)}
+          onClick={() => handleOpenDeleteModal(row.id)}
         />
       )}
     </div>
@@ -152,79 +160,69 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
   );
 
   const modifiedObj = {};
-  const modifyEvalList = surgeryList
-    .map((ele, index) => {
-      const modifiedDate: string = usDateFormatter(ele.date);
-      const viewData = {
-        id: ele.id,
-        firstName: ele.patient.firstName,
-        lastName: ele.patient.lastName,
-        mrn: ele.patient.mrn,
-        email: ele.patient.email,
-        phoneNumber: ele.patient.phoneNumber,
-        date: modifiedDate,
-        surgery: ele.surgeryConfiguration.name,
-        home: ele.practiceHome.name,
-        insuranceDetails: ele.insuranceDetails,
-        insurance: ele.insuranceType ? ele.insuranceType?.name : '',
-        pcp: '',
-        referrer: ele.patient.referrer ? ele.patient.referrer.email : '',
-        details: ele.patient.details ? ele.patient.details : '',
-        bodyPart: ele.bodyPart,
-        index: index + 1,
-        hospital: ele.totalHospitalPricing,
-        prof: ele.totalProfessionalPricing,
-        action: actionIcons,
-        hash: 10,
-        status: 'booked',
-        am: 'am',
-        femto: 'Femto',
-        ora: 'ORA',
-        lens: 'Standard',
-        implant: 'D1234',
-        calcs: '5/6PC',
-        auth: '5/6PC',
-        hp: '5/6PC',
-        consent: '5/6PC',
-      };
+  surgeryList.forEach((ele, index) => {
+    const modifiedDate: string = usDateFormatter(ele.date);
+    const viewData = {
+      id: ele.id,
+      firstName: ele.patient.firstName,
+      lastName: ele.patient.lastName,
+      mrn: ele.patient.mrn,
+      email: ele.patient.email,
+      phoneNumber: ele.patient.phoneNumber,
+      date: modifiedDate,
+      surgery: ele.surgeryConfiguration.name,
+      home: ele.practiceHome.name,
+      insuranceDetails: ele.insuranceDetails,
+      insurance: ele.insuranceType ? ele.insuranceType?.name : '',
+      pcp: '',
+      referrer: ele.patient.referrer ? toFullName(ele.patient.referrer) : '',
+      details: ele.patient.details ? ele.patient.details : '',
+      bodyPart: ele.bodyPart,
+      index: index + 1,
+      hospital: ele.totalHospitalPricing,
+      prof: ele.totalProfessionalPricing,
+      action: actionIcons,
+      surgeryOrder: ele.surgeryOrder,
+      surgeryStatus: ele.surgeryStatus,
+      selectedSurgeryOptions: ele.selectedSurgeryOptions,
+      selectedChecklistOptions: ele.selectedCheckListOptions,
+      waitlist: ele?.waitlist?.name,
+      referrerVerified:
+        ele.patient.referrer && ele.patient.referrer.verified ? true : false,
+    };
 
-      const optionArr = Object.keys(ele.surgeryConfiguration.options);
+    const optionArr = Object.keys(ele.surgeryConfiguration.options);
 
-      optionArr.forEach((option) => {
-        viewData[`${option}-count`] =
-          ele.surgeryConfiguration.options[option]?.count;
+    optionArr.forEach((option) => {
+      viewData[`${option}-count`] =
+        ele.surgeryConfiguration.options[option]?.count;
+    });
+
+    Object.keys(ele.selectedSurgeryOptions).forEach((data) => {
+      viewData[data] = ele.selectedSurgeryOptions[data].value;
+    });
+
+    ele.selectedCheckListOptions &&
+      Object.keys(ele.selectedCheckListOptions).forEach((data) => {
+        viewData[data] = ele.selectedCheckListOptions[data].value;
       });
 
-      Object.keys(ele.selectedSurgeryOptions).forEach((data) => {
-        viewData[data] = ele.selectedSurgeryOptions[data].value;
-      });
+    const modifiedObjKey: string = ele.surgeryConfiguration.name;
 
-      ele.selectedCheckListOptions &&
-        Object.keys(ele.selectedCheckListOptions).forEach((data) => {
-          viewData[data] = ele.selectedCheckListOptions[data].value;
-        });
-
-      const modifiedObjKey: string = ele.surgeryConfiguration.name;
-
-      if (modifiedObj[modifiedObjKey]) {
-        if (modifiedObj[modifiedObjKey][modifiedDate]) {
-          modifiedObj[modifiedObjKey][modifiedDate].push(viewData);
-        } else {
-          modifiedObj[modifiedObjKey][modifiedDate] = [viewData];
-        }
+    if (modifiedObj[modifiedObjKey]) {
+      if (modifiedObj[modifiedObjKey][modifiedDate]) {
+        modifiedObj[modifiedObjKey][modifiedDate].push(viewData);
       } else {
-        modifiedObj[modifiedObjKey] = {
-          [modifiedDate]: [viewData],
-        };
+        modifiedObj[modifiedObjKey][modifiedDate] = [viewData];
       }
+    } else {
+      modifiedObj[modifiedObjKey] = {
+        [modifiedDate]: [viewData],
+      };
+    }
 
-      return viewData;
-    })
-    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-
-  const selectedSurgery = modifyEvalList.find(
-    (surgery) => surgery.id === selectedRow,
-  );
+    return viewData;
+  });
 
   const onConfirmDelete = (): void => {
     try {
@@ -256,13 +254,9 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
   };
 
   const handleCloneClick = (rowId: string) => {
-    setSelectedAction('clone');
+    if (practiceId) dispatch(fetchSurgeryInfo({ practiceId, id: rowId }));
+    handleOpenAddModal();
     setSelectedRow(selectedRow === rowId ? null : rowId);
-    const clonedDiv = document.getElementById(rowId);
-    if (clonedDiv) {
-      const clonedDivHTML = clonedDiv.outerHTML;
-      setClonedDivs([clonedDivHTML]);
-    }
   };
 
   const handleOpenDeleteModal = (rowId: string): void => {
@@ -300,6 +294,14 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
     setEditableRows((prevEditableRows) =>
       prevEditableRows.filter((id) => id !== rowId),
     );
+  };
+
+  const handleCloseAddModal = (): void => {
+    setIsAddModalOpen(false);
+  };
+
+  const handleOpenAddModal = (): void => {
+    setIsAddModalOpen(true);
   };
 
   const searchMRNNameStr = searchMRNName || '';
@@ -356,7 +358,7 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
   }, [dispatch, practiceId, loggedInUserId]);
 
   return (
-    <div className="overflow-x-auto">
+    <div>
       <div className="flex w-full bg-purple-50 px-2 border-t border-b border-gray-200 items-center">
         <div className="flex w-1/4 items-center">
           <div className="text-xl font-bold border-r border-gray-300 py-4 pr-4">
@@ -452,396 +454,304 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
           </div>
         </div>
       </div>
-      {surgeryConfigList.length > 0 && Object.keys(modifiedObj).length > 0 ? (
-        <div className="w-max overflow-x-auto mt-2 border rounded-t-lg rounded-b-lg border-gray-200">
-          {Object.keys(modifiedObj).map((key, index) => {
-            const ele = modifiedObj[key];
-            const customOptionsHeaders: string[] =
-              surgeryOptionsHeadersObj[key].surgeryOptionsHeaders;
-            const customCheckListHeaders: string[] =
-              surgeryOptionsHeadersObj[key].checkListHeaders;
+      <div className="overflow-x-auto">
+        {surgeryConfigList.length > 0 && Object.keys(modifiedObj).length > 0 ? (
+          <div className="w-max overflow-x-auto mt-2 border rounded-t-lg rounded-b-lg border-gray-200">
+            {Object.keys(modifiedObj).map((key, index) => {
+              const ele = modifiedObj[key];
+              const customOptionsHeaders: string[] =
+                surgeryOptionsHeadersObj[key].surgeryOptionsHeaders;
+              const customCheckListHeaders: string[] =
+                surgeryOptionsHeadersObj[key].checkListHeaders;
 
-            return (
-              <div key={index} className="w-full">
-                <div
-                  className={`border-solid px-2.5 py-0.5 text-white text-base font-normal   ${
-                    index == 0 ? 'rounded-t-lg' : ''
-                  }`}
-                  style={{ backgroundColor: 'rgba(53, 165, 118, 1)' }}
-                >
-                  {key}
-                </div>
-                {Object.keys(ele).map((date, dateIndex) => {
-                  return (
-                    <div key={dateIndex}>
-                      <div
-                        className={`border-solid px-2.5 py-0 text-white text-sm font-normal ${
-                          index == 0 ? 'rounded-t-lg' : ''
-                        }`}
-                        style={{ backgroundColor: 'rgba(53, 165, 118, 1)' }}
-                      ></div>
-                      <div className="bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 flex gap-2  px-2.5 text-xs">
-                        <div className="font-bold text-white py-1 px-1 w-20">
-                          Date
-                        </div>
-                        <div className="font-bold text-white py-1 px-1 w-10">
-                          <HomeIcon></HomeIcon>
-                        </div>
-                        <div className="font-bold text-white py-1 px-1 w-20">
-                          Status
-                        </div>
-                        <div className="font-bold text-white py-1 px-1 w-20">
-                          Last Name
-                        </div>
-                        <div className="font-bold text-white py-1 px-1 w-20">
-                          First Name
-                        </div>
-                        <div className="font-bold text-white py-1 px-1 w-20">
-                          MRN
-                        </div>
+              return (
+                <div key={index} className="w-full">
+                  <div
+                    className={`border-solid px-2.5 py-0.5 text-white text-base font-normal   ${
+                      index == 0 ? 'rounded-t-lg' : ''
+                    }`}
+                    style={{ backgroundColor: 'rgba(53, 165, 118, 1)' }}
+                  >
+                    {key}
+                  </div>
+                  {Object.keys(ele).map((date, dateIndex) => {
+                    return (
+                      <div key={dateIndex}>
+                        <div
+                          className={`border-solid px-2.5 py-0 text-white text-sm font-normal ${
+                            index == 0 ? 'rounded-t-lg' : ''
+                          }`}
+                          style={{ backgroundColor: 'rgba(53, 165, 118, 1)' }}
+                        ></div>
+                        <div className="bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 flex gap-2  px-2.5 text-xs">
+                          <div className="font-bold text-white py-1 px-1 w-20">
+                            Date
+                          </div>
+                          <div className="font-bold text-white py-1 px-1 w-10">
+                            <HomeIcon></HomeIcon>
+                          </div>
+                          <div className="font-bold text-white py-1 px-1 w-20">
+                            Status
+                          </div>
+                          <div className="font-bold text-white py-1 px-1 w-20">
+                            Last Name
+                          </div>
+                          <div className="font-bold text-white py-1 px-1 w-20">
+                            First Name
+                          </div>
+                          <div className="font-bold text-white py-1 px-1 w-20">
+                            MRN
+                          </div>
 
-                        <div className="font-bold text-white py-1 px-1 w-20">
-                          Surgery
-                        </div>
-                        <div className="font-bold text-white py-1 px-1 w-20">
-                          Body Part
-                        </div>
-                        {customOptionsHeaders.map(
-                          (optionsHeader, optionsHeaderIndex) => (
-                            <div
-                              className="font-bold text-white py-1 px-1 w-20"
-                              key={optionsHeaderIndex}
-                            >
-                              {optionsHeader}
-                            </div>
-                          ),
-                        )}
-                        <div className="font-bold text-white py-1 px-1 w-20">
-                          Notes
-                        </div>
-                        <div className="font-bold text-white py-1 px-1 w-20">
-                          #
-                        </div>
-                        {customCheckListHeaders.map(
-                          (checkListHeader, checkListHeaderIndex) => (
-                            <div
-                              className="font-bold text-white py-1 px-1 w-20"
-                              key={checkListHeaderIndex}
-                            >
-                              {checkListHeader}
-                            </div>
-                          ),
-                        )}
-                        {viewBillingColumn && (
                           <div className="font-bold text-white py-1 px-1 w-20">
-                            Prof
+                            Surgery
                           </div>
-                        )}
-                        {viewBillingColumn && (
                           <div className="font-bold text-white py-1 px-1 w-20">
-                            Hospital
+                            Body Part
                           </div>
-                        )}
-                        <div className="font-bold text-white py-1 px-1 w-20">
-                          Insurance
+                          {customOptionsHeaders.map(
+                            (optionsHeader, optionsHeaderIndex) => (
+                              <div
+                                className="font-bold text-white py-1 px-1 w-20"
+                                key={optionsHeaderIndex}
+                              >
+                                {optionsHeader}
+                              </div>
+                            ),
+                          )}
+                          <div className="font-bold text-white py-1 px-1 w-20">
+                            Notes
+                          </div>
+                          <div className="font-bold text-white py-1 px-1 w-20">
+                            #
+                          </div>
+                          {customCheckListHeaders.map(
+                            (checkListHeader, checkListHeaderIndex) => (
+                              <div
+                                className="font-bold text-white py-1 px-1 w-20"
+                                key={checkListHeaderIndex}
+                              >
+                                {checkListHeader}
+                              </div>
+                            ),
+                          )}
+                          {viewBillingColumn && (
+                            <div className="font-bold text-white py-1 px-1 w-20">
+                              Prof
+                            </div>
+                          )}
+                          {viewBillingColumn && (
+                            <div className="font-bold text-white py-1 px-1 w-20">
+                              Hospital
+                            </div>
+                          )}
+                          <div className="font-bold text-white py-1 px-1 w-20">
+                            Insurance
+                          </div>
+                          <div className="font-bold text-white py-1 px-1 w-40 text-center">
+                            Contact Info
+                          </div>
+                          <div className="font-bold text-white py-1 px-1 w-40">
+                            Action
+                          </div>
                         </div>
-                        <div className="font-bold text-white py-1 px-1 w-40">
-                          Action
-                        </div>
-                      </div>
-                      {ele[date].map((row, index) => {
-                        const isEditable =
-                          editableRows.includes(row.id) &&
-                          selectedAction === 'edit';
-                        const surgeryInfo = surgeryList.find(
-                          (ele) => ele.id === row.id,
-                        );
-                        return isEditable && surgeryInfo ? (
-                          <EditableRow
-                            key={row.id}
-                            rowId={row.id} // Pass the rowId
-                            handleCancelClick={() => handleCancelClick(row.id)}
-                            customHeaders={surgeryOptionsHeadersObj}
-                            surgeryInfo={surgeryInfo}
-                            handleUpdateClick={handleUpdateClick}
-                          />
-                        ) : (
-                          <>
-                            <div
+                        {ele[date].map((row, index) => {
+                          const isEditable =
+                            editableRows.includes(row.id) &&
+                            selectedAction === 'edit';
+                          const surgeryInfo = surgeryList.find(
+                            (ele) => ele.id === row.id,
+                          );
+                          return isEditable && surgeryInfo ? (
+                            <EditableRow
                               key={row.id}
-                              id={row.id}
-                              className={`div-clone flex gap-2 px-2.5 text-xs items-start ${
-                                index !== ele.length - 1
-                                  ? 'border-b border-gray-300'
-                                  : ''
-                              }`}
-                            >
-                              <div className="text-black  py-0.5 px-1 w-20">
-                                {row.date}
-                              </div>
-                              <div className="text-black py-0.5 px-1 w-10">
-                                {row.home[0]}
-                              </div>
-                              <div className="text-gray-900 py-0.5 px-0.5 flex text-center items-center w-20">
-                                <div className="rounded-md text-white p-1 bg-indigo-500">
-                                  {row.status}
+                              rowId={row.id} // Pass the rowId
+                              handleCancelClick={() =>
+                                handleCancelClick(row.id)
+                              }
+                              customHeaders={surgeryOptionsHeadersObj}
+                              surgeryInfo={surgeryInfo}
+                              handleUpdateClick={handleUpdateClick}
+                            />
+                          ) : (
+                            <>
+                              <div
+                                key={row.id}
+                                id={row.id}
+                                className={`div-clone flex gap-2 px-2.5 text-xs items-start ${
+                                  index !== ele.length - 1
+                                    ? 'border-b border-gray-300'
+                                    : ''
+                                }`}
+                              >
+                                <div className="text-black  py-0.5 px-1 w-20 flex">
+                                  <div>{row.date}</div>
                                 </div>
-                              </div>
-                              <div className="text-black py-0.5 px-1 overflow-hidden whitespace-nowrap w-20">
-                                {row.lastName}
-                              </div>
-                              <div className="text-black py-0.5 px-1 overflow-hidden whitespace-nowrap w-20">
-                                {row.firstName}
-                              </div>
-                              <div className="text-black py-0.5 px-1 overflow-hidden whitespace-nowrap w-20">
-                                {row.mrn}
-                              </div>
-                              <div className="text-black py-0.5 px-1 overflow-hidden whitespace-nowrap w-20">
-                                {row.surgery}
-                              </div>
-                              <div className="text-black py-0.5 px-1 w-20">
-                                {row.bodyPart}
-                              </div>
+                                <div className="text-black py-0.5 px-1 w-10">
+                                  {row.home[0]}
+                                </div>
+                                <div className="text-gray-900 py-0.5 px-0.5 flex text-center items-center w-20">
+                                  <div className="rounded-md text-white p-1 bg-indigo-500 text-xs">
+                                    {toPascalCase(row.surgeryStatus)}
+                                  </div>
+                                </div>
+                                <div>
+                                  <div className="text-black py-0.5 px-1 overflow-hidden whitespace-nowrap w-20">
+                                    {row.lastName}
+                                  </div>
+                                  <div className="font-semibold pt-4">
+                                    Waitlist:{' '}
+                                  </div>
+                                </div>
+                                <div>
+                                  <div className="text-black py-0.5 px-1 overflow-hidden whitespace-nowrap w-20">
+                                    {row.firstName}
+                                  </div>
+                                  <div className="pt-4">{row.waitlist}</div>
+                                </div>
+                                <div className="text-black py-0.5 px-1 overflow-hidden whitespace-nowrap w-20">
+                                  {row.mrn}
+                                </div>
+                                <div className="text-black py-0.5 px-1 overflow-hidden whitespace-nowrap w-20">
+                                  {row.surgery}
+                                </div>
+                                <div className="text-black py-0.5 px-1 w-20">
+                                  {row.bodyPart}
+                                </div>
 
-                              {customOptionsHeaders.map(
-                                (optionsHeader, optionsHeaderIndex) => {
-                                  const elements: JSX.Element[] = [];
-                                  if (row[`${optionsHeader}-count`]) {
-                                    for (
-                                      let index = 0;
-                                      index < row[`${optionsHeader}-count`];
-                                      index++
-                                    ) {
-                                      elements.push(
-                                        <div
-                                          className="text-black py-0.5 px-1 w-20"
-                                          key={index}
-                                        >
-                                          {row[`${optionsHeader}-${index}`]}
-                                        </div>,
-                                      );
+                                {customOptionsHeaders.map(
+                                  (optionsHeader, optionsHeaderIndex) => {
+                                    const elements: JSX.Element[] = [];
+                                    if (row[`${optionsHeader}-count`]) {
+                                      for (
+                                        let index = 0;
+                                        index < row[`${optionsHeader}-count`];
+                                        index++
+                                      ) {
+                                        elements.push(
+                                          <div
+                                            className="text-black py-0.5 px-1 w-20"
+                                            key={index}
+                                          >
+                                            {row[`${optionsHeader}-${index}`]}
+                                          </div>,
+                                        );
+                                      }
                                     }
-                                  }
-                                  return (
+                                    return (
+                                      <div
+                                        className="flex flex-col gap-1 justify-center"
+                                        key={optionsHeaderIndex}
+                                      >
+                                        {elements}
+                                      </div>
+                                    );
+                                  },
+                                )}
+                                <div className="text-black py-0.5 px-1 w-20">
+                                  {row.details}
+                                </div>
+                                <div className="text-black py-0.5 px-1 w-20">
+                                  {row.surgeryOrder}
+                                </div>
+                                {customCheckListHeaders.map(
+                                  (checkListHeader, checkListHeaderIndex) => (
                                     <div
-                                      className="flex flex-col gap-1 justify-center"
-                                      key={optionsHeaderIndex}
+                                      className=" text-black py-0.5px-1 w-20"
+                                      key={checkListHeaderIndex}
                                     >
-                                      {elements}
+                                      {row[checkListHeader]}
                                     </div>
-                                  );
-                                },
-                              )}
-                              <div className="text-black py-0.5 px-1 w-20">
-                                {row.details}
-                              </div>
-                              <div className="text-black py-0.5 px-1 w-20">
-                                {row.hash}
-                              </div>
-                              {customCheckListHeaders.map(
-                                (checkListHeader, checkListHeaderIndex) => (
+                                  ),
+                                )}
+                                {viewBillingColumn && (
+                                  <div className="text-black py-0.5 px-1 w-20">
+                                    {row.prof}
+                                  </div>
+                                )}
+                                {viewBillingColumn && (
+                                  <div className="text-black py-0.5 px-1 w-20">
+                                    {row.hospital}
+                                  </div>
+                                )}
+                                <div className="text-black py-0.5 px-1 w-20">
+                                  {row.insurance}
+                                </div>
+                                <div className="flex flex-col text-black py-0.5 px-1 w-40 items-center">
                                   <div
-                                    className=" text-black py-0.5px-1 w-20"
-                                    key={checkListHeaderIndex}
+                                    className="text-black py-0.5 px-1 w-full text-center overflow-hidden whitespace-nowrap"
+                                    style={{ textOverflow: 'ellipsis' }}
                                   >
-                                    {row[checkListHeader]}
+                                    {row.email}
                                   </div>
-                                ),
-                              )}
-                              {viewBillingColumn && (
-                                <div className="text-black py-0.5 px-1 w-20">
-                                  {row.prof}
+                                  <div className="text-black py-0.5 px-1 w-20 text-center">
+                                    {row.phoneNumber}
+                                  </div>
+                                  <div className="text-black py-0.5 px-1 w-40 text-center flex items-center justify-center">
+                                    <div className="text-black py-0.5 px-1 text-center">
+                                      referrer: {row.referrer}
+                                    </div>
+                                    <div>
+                                      {row.referrerVerified && (
+                                        <Checkbox
+                                          checked={true}
+                                          overrides={{
+                                            Checkmark: {
+                                              style: ({ $checked }) => ({
+                                                backgroundColor: $checked
+                                                  ? 'rgba(34, 197, 94, 1)'
+                                                  : 'white',
+                                                borderColor: $checked
+                                                  ? 'rgba(34, 197, 94, 1)'
+                                                  : 'rgba(113, 113, 122, 1)',
+                                                width: '12px',
+                                                height: '12px',
+                                                borderRadius: '2px',
+                                                borderWidth: '2px',
+                                              }),
+                                            },
+                                          }}
+                                        />
+                                      )}
+                                    </div>
+                                  </div>
                                 </div>
-                              )}
-                              {viewBillingColumn && (
-                                <div className="text-black py-0.5 px-1 w-20">
-                                  {row.hospital}
+                                <div className="text-black py-0.5 px-1 w-40 text-center">
+                                  {actionIcons(row)}
                                 </div>
-                              )}
-                              <div className="text-black py-0.5 px-1 w-20">
-                                {row.insurance}
                               </div>
-                              <div className="text-black py-0.5 px-1 w-40">
-                                {actionIcons(row.id)}
-                              </div>
-                            </div>
-                            {selectedRow === row.id &&
-                              selectedSurgery &&
-                              selectedAction == 'view' && (
-                                <div className="flex gap-2 p-2.5 text-xs">
-                                  <div className="flex-1">
-                                    <p>
-                                      <span className="font-bold">Date: </span>
-                                      <span>{selectedSurgery.date}</span>
-                                    </p>
-                                    <p>
-                                      <span className="font-bold">
-                                        Home Location:{' '}
-                                      </span>
-                                      <span>Westwood</span>
-                                    </p>
-                                    <p>
-                                      <span className="font-bold">
-                                        COVID Testing Status:{' '}
-                                      </span>
-                                      <span>Needs COVID Test </span>
-                                    </p>
-                                    <p>
-                                      <span className="font-bold">
-                                        Appointment Status:{' '}
-                                      </span>
-                                      <span>{selectedSurgery.status}</span>
-                                    </p>
-                                    <p>
-                                      <span className="font-bold">Calcs: </span>
-                                      <span>{selectedSurgery.calcs}</span>
-                                    </p>
-                                  </div>
-                                  <div className="flex-1">
-                                    <p>
-                                      <span className="font-bold">
-                                        Last Name:{' '}
-                                      </span>
-                                      <span>{selectedSurgery.firstName}</span>
-                                    </p>
-                                    <p>
-                                      <span className="font-bold">
-                                        First Name:{' '}
-                                      </span>
-                                      <span>{selectedSurgery.lastName}</span>
-                                    </p>
-                                    <p>
-                                      <span className="font-bold">MRN: </span>
-                                      <span>{selectedSurgery.mrn}</span>
-                                    </p>
-                                    <p>
-                                      <span className="font-bold">Eye: </span>
-                                      <span>{selectedSurgery.bodyPart}</span>
-                                    </p>
-                                    <p>
-                                      <span className="font-bold">Auth: </span>
-                                      <span>{selectedSurgery.auth}</span>
-                                    </p>
-                                  </div>
-                                  <div className="flex-1">
-                                    <p>
-                                      <span className="font-bold">
-                                        Surgery:{' '}
-                                      </span>
-                                      <span>{selectedSurgery.surgery}</span>
-                                    </p>
-                                    <p>
-                                      <span className="font-bold">AM: </span>
-                                      <span>{selectedSurgery.am}</span>
-                                    </p>
-                                    <p>
-                                      <span className="font-bold">Femto: </span>
-                                      <span>{selectedSurgery.femto}</span>
-                                    </p>
-                                    <p>
-                                      <span className="font-bold">ORA: </span>
-                                      <span>{selectedSurgery.ora}</span>
-                                    </p>
-                                    <p>
-                                      <span className="font-bold">H&P: </span>
-                                      <span>{selectedSurgery.hp}</span>
-                                    </p>
-                                  </div>
-                                  <div className="flex-1">
-                                    <p>
-                                      <span className="font-bold">Lens: </span>
-                                      <span>{selectedSurgery.lens}</span>
-                                    </p>
-                                    <p>
-                                      <span className="font-bold">
-                                        Implant:{' '}
-                                      </span>
-                                      <span>{selectedSurgery.implant}</span>
-                                    </p>
-                                    <p>
-                                      <span className="font-bold">
-                                        Details:{' '}
-                                      </span>
-                                      <span>{selectedSurgery.details}</span>
-                                    </p>
-                                    <p>
-                                      <span className="font-bold">#: </span>
-                                      <span>{selectedSurgery.hash}</span>
-                                    </p>
-                                  </div>
-                                  <div className="flex-1">
-                                    {viewBillingColumn && (
-                                      <p>
-                                        <span className="font-bold">
-                                          Prof:{' '}
-                                        </span>
-                                        <span>{selectedSurgery.prof}</span>
-                                      </p>
-                                    )}
-                                    {viewBillingColumn && (
-                                      <p>
-                                        <span className="font-bold">
-                                          Hospital:{' '}
-                                        </span>
-                                        <span>{selectedSurgery.hospital}</span>
-                                      </p>
-                                    )}
-                                    <p>
-                                      <span className="font-bold">
-                                        Insurance:{' '}
-                                      </span>
-                                      <span>{selectedSurgery.insurance}</span>
-                                    </p>
-                                    <p>
-                                      <span className="font-bold">
-                                        Consent:{' '}
-                                      </span>
-                                      <span>{selectedSurgery.consent}</span>
-                                    </p>
-                                    <p>
-                                      <span className="font-bold">
-                                        Contact Info:{' '}
-                                      </span>
-                                      <span>rfq@fantasticaltech.enigm</span>
-                                    </p>
-                                    <p>
-                                      <span>(246) 276 9618</span>
-                                    </p>
-                                  </div>
-                                </div>
-                              )}
-                            {selectedRow === row.id &&
-                              clonedDivs.length > 0 &&
-                              selectedAction == 'clone' && (
-                                <div className="border border-red-400 w-max text-xs">
-                                  {clonedDivs.map((clonedDivHTML, index) => (
-                                    <div
-                                      key={index}
-                                      dangerouslySetInnerHTML={{
-                                        __html: clonedDivHTML,
-                                      }}
-                                    />
-                                  ))}
-                                </div>
-                              )}
-                          </>
-                        );
-                      })}
-                    </div>
-                  );
-                })}
-              </div>
-            );
-          })}
-          <DeleteFilterModal
-            onConfirmDelete={onConfirmDelete}
-            isDeleteModalOpen={isDeleteModalOpen}
-            handleCloseDeleteModal={handleCloseDeleteModal}
-          />
-        </div>
-      ) : (
-        <div className="text-center py-3 px-2.5">{errorMessage}</div>
-      )}
+                              {selectedRow === row.id &&
+                                selectedSurgery &&
+                                selectedAction == 'view' && (
+                                  <ViewRow
+                                    selectedSurgery={row}
+                                    viewBillingColumn={viewBillingColumn}
+                                  />
+                                )}
+                            </>
+                          );
+                        })}
+                      </div>
+                    );
+                  })}
+                </div>
+              );
+            })}
+            <DeleteFilterModal
+              onConfirmDelete={onConfirmDelete}
+              isDeleteModalOpen={isDeleteModalOpen}
+              handleCloseDeleteModal={handleCloseDeleteModal}
+            />
+            <AddSurgeryModal
+              isModalOpen={isAddModalOpen}
+              handleCloseModal={handleCloseAddModal}
+              autoFillFromSurgery={true}
+            />
+          </div>
+        ) : (
+          <div className="text-center py-3 px-2.5">{errorMessage}</div>
+        )}
+      </div>
     </div>
   );
 };

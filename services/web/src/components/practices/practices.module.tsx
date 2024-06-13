@@ -6,6 +6,7 @@ import { addRecordAsync } from '@root/store/reducers/practices';
 import { PracticeCreateInterface } from '@store/requests/practices';
 import { FileUploader } from 'baseui/file-uploader';
 import React, { useState } from 'react';
+import RequiredIndicator from '../RequiredIndicator';
 
 const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const dispatch = useAppDispatch();
@@ -22,28 +23,60 @@ const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const [code, setCode] = useState(generateRandomCode().toString());
   const [practiceImg, setPracticeImg] = useState<File | null>(null);
 
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const validateForm = (): boolean => {
+    if (!name.trim()) {
+      setErrorMessage('Practice Name cannot be empty.');
+      return false;
+    }
+    if (!adminFirstName.trim()) {
+      setErrorMessage('First Name cannot be empty.');
+      return false;
+    }
+    if (!adminLastName.trim()) {
+      setErrorMessage('Last Name cannot be empty.');
+      return false;
+    }
+
+    if (!adminEmail.trim() || !/\S+@\S+\.\S+/.test(adminEmail)) {
+      setErrorMessage('Invalid email address.');
+      return false;
+    }
+    if (!adminContactNumber.trim() || !/^\d{10}$/.test(adminContactNumber)) {
+      setErrorMessage('Invalid contact number. Must be 10 digits.');
+      return false;
+    }
+
+    setErrorMessage('');
+    return true;
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const data: PracticeCreateInterface = {
-      name,
-      adminFirstName,
-      adminLastName,
-      adminEmail,
-      adminContactNumber,
+      name: name.trim(),
+      adminFirstName: adminFirstName.trim(),
+      adminLastName: adminLastName.trim(),
+      adminEmail: adminEmail.trim(),
+      adminContactNumber: adminContactNumber.trim(),
       code,
       practiceImg,
     };
+
     try {
-      dispatch(addRecordAsync(data));
-      setName('');
-      setAdminFirstName('');
-      setAdminLastName('');
-      setAdminEmail('');
-      setAdminContactNumber('');
-      setCode('');
-      setPracticeImg(null);
-      onClose();
+      if (validateForm()) {
+        dispatch(addRecordAsync(data));
+        setName('');
+        setAdminFirstName('');
+        setAdminLastName('');
+        setAdminEmail('');
+        setAdminContactNumber('');
+        setCode('');
+        setPracticeImg(null);
+        onClose();
+      }
     } catch (error) {
       onClose();
     }
@@ -51,12 +84,19 @@ const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
 
   return (
     <div>
+      {errorMessage && (
+        <div className="flex justify-center text-red-500 mt-2">
+          {errorMessage}
+        </div>
+      )}
+
       <form onSubmit={handleSubmit}>
         <div className="flex flex-col">
           <div className="justify-between pt-4">
             <div className="space-y-2">
               <label htmlFor="name" className="text-black text-sm font-normal">
-                Practice Name
+                <RequiredIndicator />
+                &nbsp;Practice Name
               </label>
               <TextInput
                 name="practiceName"
@@ -71,7 +111,8 @@ const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           <div className="flex flex-row justify-between pt-4">
             <div className="">
               <label htmlFor="adminFirstName" className="text-black text-sm">
-                First Name
+                <RequiredIndicator />
+                &nbsp;First Name
               </label>
               <TextInput
                 name="adminFirstName"
@@ -84,7 +125,8 @@ const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             </div>
             <div className="">
               <label htmlFor="adminLastName" className="text-black text-sm">
-                Last Name
+                <RequiredIndicator />
+                &nbsp;Last Name
               </label>
               <TextInput
                 name="adminLastName"
@@ -99,7 +141,8 @@ const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           <div className="flex flex-row justify-between pt-4">
             <div className="">
               <label htmlFor="adminEmail" className="text-black text-sm">
-                Admin Email
+                <RequiredIndicator />
+                &nbsp;Admin Email
               </label>
               <TextInput
                 name="adminEmail"
@@ -108,7 +151,6 @@ const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                   setAdminEmail(value);
                 }}
                 required
-                type="email"
               />
             </div>
             <div className="space-y-2">
@@ -116,7 +158,8 @@ const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 htmlFor="adminContactNumber"
                 className="text-black text-sm font-normal"
               >
-                Admin Contact No.
+                <RequiredIndicator />
+                &nbsp;Admin Contact No.
               </label>
               <TextInput
                 name="adminContactNumber"
@@ -125,6 +168,7 @@ const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                   setAdminContactNumber(value);
                 }}
                 required
+                maxLength={14}
               />
             </div>
           </div>
@@ -137,6 +181,10 @@ const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 errorMessage={''}
                 onDrop={(acceptedFiles: File[]) => {
                   setPracticeImg(acceptedFiles[0]);
+                }}
+                onDropRejected={(file: File[]) => {
+                  if (!file[0].type.startsWith('image'))
+                    setErrorMessage('Only Image type Files are allowed.');
                 }}
                 accept="image/*"
                 overrides={{

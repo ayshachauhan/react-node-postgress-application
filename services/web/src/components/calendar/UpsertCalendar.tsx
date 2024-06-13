@@ -18,6 +18,7 @@ import { DatePicker } from 'baseui/datepicker';
 import { Select } from 'baseui/select';
 import moment from 'moment';
 import React, { useState } from 'react';
+import RequiredIndicator from '../RequiredIndicator';
 import { CalendarData } from '../dashboard/UpcomingSection';
 
 const UpsertCalendar: React.FC<{
@@ -101,7 +102,8 @@ const UpsertCalendar: React.FC<{
                 htmlFor="userName"
                 className="text-black text-sm font-normal"
               >
-                Type
+                <RequiredIndicator />
+                &nbsp;Type
               </label>
               <TextInput
                 id={calendar.id}
@@ -114,7 +116,8 @@ const UpsertCalendar: React.FC<{
             </div>
             <div className="flex-1 space-y-2 px-4">
               <label htmlFor="date" className="text-black text-sm font-normal">
-                Date
+                <RequiredIndicator />
+                &nbsp;Date
               </label>
               {isUpdating ? (
                 <TextInput
@@ -128,13 +131,13 @@ const UpsertCalendar: React.FC<{
               ) : (
                 <DatePicker
                   value={calendar.date}
-                  onChange={({ date }) =>
+                  onChange={({ date }) => {
                     handleInputChange(date, {
                       target: { name: 'date' },
                     } as React.ChangeEvent<
                       HTMLInputElement | HTMLTextAreaElement
-                    >)
-                  }
+                    >);
+                  }}
                   placeholder="Surgery Date"
                   required
                   minDate={new Date()}
@@ -166,7 +169,8 @@ const UpsertCalendar: React.FC<{
                 htmlFor="maxSlots"
                 className="text-black text-sm font-normal"
               >
-                Max Slots{' '}
+                <RequiredIndicator />
+                &nbsp;Max Slots{' '}
               </label>
               <Select
                 options={maxSlotsOptions.map((key: number) => ({
@@ -176,6 +180,9 @@ const UpsertCalendar: React.FC<{
                   disabled: isUpdating ? key < calendar.bookedSlots : false,
                 }))}
                 onChange={({ value }) => {
+                  if (!value.length) {
+                    return;
+                  }
                   setUpsertCalendarData((prevData) =>
                     prevData.map((cal: CalendarData) =>
                       cal.id === value[0].calendarId

@@ -1,3 +1,4 @@
+import { ITemplate } from '@packages/entities';
 import { ITemplateUpdate } from '@packages/entities/index.browser';
 import { USER_PERMISSIONS } from '@packages/entities/permission';
 import Button from '@root/components/Button';
@@ -40,7 +41,9 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
   const messageType = data.messageType;
   const versionOffset = data.versionOffset;
 
-  const templateInfo = useAppSelector((state) => {
+  const [attachment, setAttachment] = useState<File | null>(null);
+
+  const templateInfo: ITemplate = useAppSelector((state) => {
     const templates = Object.values(state.templates.entities);
     if (templateId && templates) {
       for (const template of templates) {
@@ -103,10 +106,7 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
     const file = event.target.files?.[0];
 
     if (file) {
-      setTemplateInfo((prevTemplateInfo) => ({
-        ...prevTemplateInfo,
-        emailAttachment: file.name,
-      }));
+      setAttachment(file);
     }
   };
 
@@ -150,7 +150,8 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
         ...updatedTemplateInfo,
         active: updatedTemplateInfo.active ?? false,
         emailSubject: updatedTemplateInfo.emailSubject ?? '',
-        emailAttachment: updatedTemplateInfo.emailAttachment ?? '',
+        dateOffset: updatedTemplateInfo.dateOffset ?? 0,
+        emailAttachment: updatedTemplateInfo.emailAttachment,
         emailBody: updatedTemplateInfo.emailBody ?? '',
         messageText: updatedTemplateInfo.messageText ?? '',
         surgeryConfigurationId: updatedTemplateInfo.surgeryConfiguration
@@ -161,7 +162,7 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
         id: templateId,
       };
       try {
-        dispatch(updateRecordAsync(userPayloadData));
+        dispatch(updateRecordAsync({ ...userPayloadData, file: attachment }));
         onClose();
       } catch (error) {
         onClose();
@@ -220,6 +221,28 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
                       component: () => null,
                     },
                   }}
+                />
+              </div>
+            </div>
+            <div className="flex flex-row items-center gap-2">
+              <label
+                htmlFor="surgeryConfiguration"
+                className="text-black text-sm font-normal"
+              >
+                Date Offset:
+              </label>
+              <div className="w-56 text-sm text-gray-600">
+                <TextInput
+                  name="dateOffset"
+                  type="number"
+                  value={updatedTemplateInfo?.dateOffset}
+                  onChange={(value) => {
+                    setTemplateInfo({
+                      ...updatedTemplateInfo,
+                      dateOffset: Number(value),
+                    });
+                  }}
+                  required
                 />
               </div>
             </div>
@@ -392,7 +415,7 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
                       <a
                         target="_blank"
                         // href={URL.createObjectURL(updatedTemplateInfo?.emailAttachment)}
-                        href={updatedTemplateInfo?.emailAttachment}
+                        href={templateInfo.emailAttachment}
                         className="text-blue-700"
                       >
                         File

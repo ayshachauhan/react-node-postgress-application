@@ -1,8 +1,13 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { State } from '@root/store';
-import Cookies from 'js-cookie';
 import { getPracticeId } from '../../utils/index';
-import { getMe, login, sendResetMail } from '../requests/login';
+import {
+  getMe,
+  login,
+  removeLoginToken,
+  sendResetMail,
+  setLoginCookie,
+} from '../requests/login';
 import { uploadImg } from '../requests/users';
 import { AuthState, EntityLoadingState } from '../types';
 
@@ -31,7 +36,7 @@ const authSlice = createSlice({
       state.isAuthenticated = false;
       state.user = null;
       state.isSuperAdmin = false;
-      Cookies.remove('access_token');
+      removeLoginToken();
       localStorage.removeItem('practiceId');
     },
   },
@@ -46,9 +51,7 @@ const authSlice = createSlice({
       state.isAuthenticated = true;
       state.successMessage = 'User logged in successfully.';
       if (action.payload) {
-        Cookies.set('access_token', action.payload.access_token, {
-          expires: 1,
-        });
+        setLoginCookie(action.payload.access_token);
         state.isSuperAdmin = action.payload.is_super_admin;
       }
       state.errorMessage = undefined;
@@ -159,10 +162,10 @@ export const selectedPracticeName = (state: State) =>
 export const userPractices = (state: State) => {
   if (
     state.auth.user &&
-    state.auth.user.userPractices &&
-    state.auth.user.userPractices.length
+    state.auth.user.practices &&
+    state.auth.user.practices.length
   ) {
-    return state.auth.user.userPractices;
+    return state.auth.user.practices;
   }
   return [];
 };

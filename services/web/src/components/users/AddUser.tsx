@@ -10,6 +10,7 @@ import { Checkbox } from 'baseui/checkbox';
 import { FileUploader } from 'baseui/file-uploader';
 import { Select } from 'baseui/select';
 import React, { useEffect, useState } from 'react';
+import RequiredIndicator from '../RequiredIndicator';
 const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const userTypeOptions = Object.keys(UserType).map((key) => ({
     label: UserType[key as keyof typeof UserType],
@@ -31,6 +32,8 @@ const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const [url, setUrl] = useState('');
   const [type, setType] = useState<UserType>(UserType.ADMIN);
   const [userImg, setUserImg] = useState<File | null>(null);
+  const [errorMessage, setErrorMessage] = useState('');
+
   const practiceId = getPracticeId();
 
   const handleTypeChange = ({ value }) => {
@@ -87,6 +90,11 @@ const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
 
   return (
     <div>
+      {errorMessage && (
+        <div className="flex justify-center text-red-500 mt-2">
+          {errorMessage}
+        </div>
+      )}
       <form onSubmit={handleSubmit}>
         <div className="flex flex-col">
           <div className="flex flex-row justify-between gap-7 pt-4">
@@ -95,7 +103,8 @@ const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 htmlFor="userName"
                 className="text-black text-sm font-normal"
               >
-                User Name
+                <RequiredIndicator />
+                &nbsp;User Name
               </label>
               <TextInput
                 name="userName"
@@ -108,7 +117,8 @@ const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             </div>
             <div className="w-1/2 space-y-2">
               <label htmlFor="email" className="text-black text-sm font-normal">
-                Email
+                <RequiredIndicator />
+                &nbsp;Email
               </label>
               <TextInput
                 name="email"
@@ -126,7 +136,8 @@ const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 htmlFor="firstName"
                 className="text-black text-sm font-normal"
               >
-                First Name
+                <RequiredIndicator />
+                &nbsp;First Name
               </label>
               <TextInput
                 name="firstName"
@@ -142,7 +153,8 @@ const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 htmlFor="lastName"
                 className="text-black text-sm font-normal"
               >
-                Last Name
+                <RequiredIndicator />
+                &nbsp;Last Name
               </label>
               <TextInput
                 name="lastName"
@@ -160,7 +172,8 @@ const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 htmlFor="contactNumber"
                 className="text-black text-sm font-normal"
               >
-                Contact No.
+                <RequiredIndicator />
+                &nbsp;Contact No.
               </label>
               <TextInput
                 name="contactNumber"
@@ -187,7 +200,8 @@ const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           <div className="flex flex-row justify-between gap-7 pt-4">
             <div className="w-1/2 space-y-2">
               <label htmlFor="type" className="text-black text-sm font-normal">
-                User Type
+                <RequiredIndicator />
+                &nbsp;User Type
               </label>
               <Select
                 options={userTypeOptions}
@@ -219,7 +233,6 @@ const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 onChange={(value) => {
                   setDesignation(value);
                 }}
-                required
               />
             </div>
           </div>
@@ -232,6 +245,10 @@ const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 errorMessage={''}
                 onDrop={(acceptedFiles: File[]) => {
                   setUserImg(acceptedFiles[0]);
+                }}
+                onDropRejected={(file: File[]) => {
+                  if (!file[0].type.startsWith('image'))
+                    setErrorMessage('Only Image type Files are allowed.');
                 }}
                 accept="image/*"
                 overrides={{

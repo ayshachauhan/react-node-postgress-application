@@ -61,10 +61,11 @@ export class UsersService {
   async create(
     createUserDto: CreateUserDto,
     practiceId: string,
+    sendUserCreationEmail: boolean,
   ): Promise<SanitizedUser> {
     const { firstName, lastName } = createUserDto;
     const { permissionIds } = createUserDto;
-    const fullName = `${firstName}_${lastName}`;
+    const fullName = `${firstName} ${lastName}`;
     const hashedDefaultPassword = await bcrypt.hash(
       this.defaultUserPassword(),
       10,
@@ -93,13 +94,16 @@ export class UsersService {
         newUser = await this.usersRepository.save({
           ...newUser,
           ...createUserDto,
+          status: UserStatus.PENDING,
           fullName,
           password: hashedDefaultPassword,
           practices: [practiceEntity],
           permissions: permissionEntities || [],
         });
 
-        await this.sendNewUserMail({ newUser, fullName, practiceEntity });
+        if (sendUserCreationEmail) {
+          await this.sendNewUserMail({ newUser, fullName, practiceEntity });
+        }
       } else {
         const emailExists = existingUser.practices.find(
           (ele) => ele.id == practiceId,
@@ -117,11 +121,13 @@ export class UsersService {
         });
 
         newUser = existingUser;
-        await this.sendNewPracticeMailToExistingUser({
-          newUser,
-          fullName,
-          practiceEntity,
-        });
+        if (sendUserCreationEmail) {
+          await this.sendNewPracticeMailToExistingUser({
+            newUser,
+            fullName,
+            practiceEntity,
+          });
+        }
       }
 
       await queryRunner.commitTransaction();
@@ -215,18 +221,39 @@ export class UsersService {
     if (confirmPassword !== newPassword) {
       throw new HttpException(
         'Password does not match',
-        HttpStatus.NOT_ACCEPTABLE,
+        HttpStatus.PRECONDITION_FAILED,
       );
     }
 
     const user = await this.findUserByEmail(email);
     if (user) {
+      const newHashedPassword = await bcrypt.hash(newPassword, 10);
+      if (!oldPassword) {
+        // meaning that user is reseting own password only.
+        if (user.status == UserStatus.ACTIVE) {
+          const updatedResult = await this.usersRepository.update(user.id, {
+            password: newHashedPassword,
+          });
+          if (updatedResult.affected === 0) {
+            throw new HttpException(
+              `Password update failed due to some error`,
+              HttpStatus.NOT_MODIFIED,
+            );
+          }
+        } else {
+          throw new HttpException(
+            'Your account seems to be inactive at our end. Please contact to support.',
+            HttpStatus.PRECONDITION_FAILED,
+          );
+        }
+      }
+
       const isPasswordMatched = await bcrypt.compare(
         oldPassword,
         user.password,
       );
+
       if (isPasswordMatched) {
-        const newHashedPassword = await bcrypt.hash(newPassword, 10);
         const updatedResult = await this.usersRepository.update(user.id, {
           password: newHashedPassword,
           status: UserStatus.ACTIVE,
@@ -244,15 +271,21 @@ export class UsersService {
 
         if (updatedResult.affected === 0) {
           throw new HttpException(
-            `error while updating`,
-            HttpStatus.NOT_ACCEPTABLE,
+            `Password update failed due to some error`,
+            HttpStatus.NOT_MODIFIED,
           );
         }
-        const resultUser = await this.getUserById(user.id);
-        if (resultUser) {
-          return this.sanitizeUser(resultUser);
-        }
       }
+
+      const resultUser = await this.getUserById(user.id);
+      if (resultUser) {
+        return this.sanitizeUser(resultUser);
+      }
+    } else {
+      throw new HttpException(
+        `User email is not registered with us! Please enter registered email.`,
+        HttpStatus.PRECONDITION_FAILED,
+      );
     }
 
     throw new HttpException(`error while updating`, HttpStatus.NOT_ACCEPTABLE);
@@ -268,7 +301,14 @@ export class UsersService {
     practiceEntity: IPractice;
   }): Promise<void> {
     const frontendBaseUrl: string = this.getFrontEndBaseUrl();
-    const newSanitizedUser = this.sanitizeUser(newUser);
+    const { password, practices, permissions, surgeries, ...newSanitizedUser } =
+      newUser;
+
+    password && password;
+    practices && practices;
+    permissions && permissions;
+    surgeries && surgeries;
+
     const token = this.jwtService.sign({
       ...newSanitizedUser,
     });
@@ -287,6 +327,7 @@ export class UsersService {
       practiceName: practiceEntity.name,
       fullName,
       defaultUserPassword: this.defaultUserPassword(),
+      contactEmail: newSanitizedUser.email,
     };
 
     await this.transporterService.sendSystemEmails(
@@ -318,6 +359,7 @@ export class UsersService {
       practiceName: practiceEntity.name,
       fullName,
       defaultUserPassword: this.defaultUserPassword(),
+      contactEmail: newUser.email,
     };
 
     await this.transporterService.sendSystemEmails(

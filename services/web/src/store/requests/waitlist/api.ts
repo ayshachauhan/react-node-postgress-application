@@ -66,6 +66,7 @@ export const deleteWaitlist = async (
   try {
     const response = await apiClient.delete(
       `/practices/${payloadData.practiceId}/waitlist/${payloadData.id}`,
+      null,
     );
     if (!response.ok) {
       throw new Error('Failed to delete waitlist');

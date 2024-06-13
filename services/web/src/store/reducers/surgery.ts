@@ -17,7 +17,7 @@ const getCurrentMonthOption = (): MonthOption => {
   const monthValue = currentDate.toLocaleString('default', {
     month: 'numeric',
   });
-  const id = `${currentDate.getFullYear()}-${monthValue}`;
+  const id = monthValue;
 
   return {
     label: monthLabel,

@@ -81,10 +81,10 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapseChange }) => {
     <aside
       aria-label="Sidebar"
       ref={sidebarRef}
-      className={`${customWidth} fixed z-10 top-0 left-0 h-screen translate-x-0 bg-gradient-to-b from-primary-dark to-primary-light ease-in-out duration-400`}
+      className={`${customWidth} fixed top-0 left-0 h-screen translate-x-0 bg-gradient-to-b from-primary-dark to-primary-light ease-in-out duration-400`}
     >
       <div className="h-[168px] flex px-4 items-center justify-start">
-        <Link href="/dashboard">
+        <Link href={is_super_admin ? '' : '/dashboard'}>
           <img alt="Azentia" src="/images/azentia.svg" />
         </Link>
       </div>

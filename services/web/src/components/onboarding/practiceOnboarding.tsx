@@ -9,12 +9,13 @@ import {
   clearErrorMessage,
   clearSuccessMessage,
 } from '@root/store/reducers/users';
+import { setLoginCookie } from '@root/store/requests/login';
 import { ChangePasswordInterface } from '@root/store/requests/users';
 import { AzentiaLogo } from '@utils/constants';
 import { getPracticeId } from '@utils/index';
-import Cookies from 'js-cookie';
 import { useRouter, useSearchParams } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
+import RequiredIndicator from '../RequiredIndicator';
 import { AlreadyOnboarded } from './completedOnboarding';
 
 export default function PracticeOnboardPage() {
@@ -36,9 +37,7 @@ export default function PracticeOnboardPage() {
 
   useEffect(() => {
     if (token) {
-      Cookies.set('access_token', token, {
-        expires: 1,
-      });
+      setLoginCookie(token);
 
       if (!userInfo) {
         dispatch(fetchLoggedInUser());
@@ -118,7 +117,8 @@ export default function PracticeOnboardPage() {
                   <div className="mb-1">
                     {' '}
                     <label htmlFor="oldPassword" className="text-black text-sm">
-                      Old Password
+                      <RequiredIndicator />
+                      &nbsp;Old Password
                     </label>
                   </div>
 
@@ -134,7 +134,8 @@ export default function PracticeOnboardPage() {
                 <div className="mb-4">
                   <div className="mb-1">
                     <label htmlFor="newPassword" className="text-black text-sm">
-                      New Password
+                      <RequiredIndicator />
+                      &nbsp;New Password
                     </label>
                   </div>
 
@@ -154,7 +155,8 @@ export default function PracticeOnboardPage() {
                       htmlFor="confirmPassword"
                       className="text-black text-sm"
                     >
-                      Confirm Password
+                      <RequiredIndicator />
+                      &nbsp;Confirm Password
                     </label>
                   </div>
 

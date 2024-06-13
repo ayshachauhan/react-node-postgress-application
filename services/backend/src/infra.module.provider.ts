@@ -9,12 +9,14 @@ import {
   EvalEntity,
   HistoryEntity,
   InsuranceTypeEntity,
+  MediaConfigEntity,
   MediaEntity,
   PatientEntity,
   PermissionEntity,
   PracticeEntity,
   PracticeHomesEntity,
   ReferrersEntity,
+  ReviewEntity,
   SurgeryConfigurationEntity,
   SurgeryEmailEntity,
   SurgeryEntity,
@@ -27,6 +29,7 @@ import { LoggerModule } from 'nestjs-pino';
 import { ENV_VALIDATIONS } from './enums/env-validation';
 import { ENVIRONMENT_VARIABLES } from './enums/environment.enums';
 import { TransporterModule } from './transporter';
+import { TypeOrmLogger } from './typeorm.logger';
 
 /**
  * All the imports related to infrastructure should be added here
@@ -56,13 +59,16 @@ export const createInfraModuleProviders = (): Array<
         const nodeEnv: string =
           configService.get(ENVIRONMENT_VARIABLES.NODE_ENV) ?? 'production';
         return {
-          pinoHttp: {
-            level: 'debug',
-            transport:
-              nodeEnv !== 'production'
-                ? { target: 'pino-pretty', options: { colorize: true } }
-                : undefined,
-          },
+          pinoHttp:
+            nodeEnv === 'production'
+              ? {
+                  level: 'debug',
+                  transport:
+                    nodeEnv !== 'production'
+                      ? { target: 'pino-pretty', options: { colorize: true } }
+                      : undefined,
+                }
+              : {},
         };
       },
       imports: [ConfigModule],
@@ -96,13 +102,17 @@ export const createInfraModuleProviders = (): Array<
           SurgeryEntity,
           PatientEntity,
           EvalEntity,
+          ReviewEntity,
           SurgeryConfigurationEntity,
           HistoryEntity,
           EmailLogEntity,
           EvalEmailEntity,
           SurgeryEmailEntity,
           WaitlistEntity,
+          MediaConfigEntity,
         ],
+        logging: 'all',
+        logger: new TypeOrmLogger(),
         synchronize: false,
       }),
     }),

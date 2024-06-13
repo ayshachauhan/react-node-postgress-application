@@ -7,6 +7,7 @@ export interface IEmailLog extends IBaseEntity {
   response?: EmailResponse;
   expectedDate: Date;
   practice: IPractice;
+  attachment?: string;
 }
 
 export interface EmailData {
@@ -34,4 +35,6 @@ export interface EmailVariables {
   all_cataract_dates: string;
   all_case_type: string;
   phoneNumber: string;
+  practiceName: string;
+  insuranceType: string;
 }
