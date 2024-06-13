@@ -102,10 +102,9 @@ function EditableRow({ handleCancelClick, evalInfo, setSelectedAction }) {
     };
 
     const handleQuickDateChange = (offset: number) => {
-      handleObjChange(
-        'date',
-        new Date(Date.now() + (1 + offset * (24 * 60 * 60 * 1000))),
-      );
+      const date = new Date();
+      const newDate = new Date(date.setMonth(date.getMonth() + offset));
+      handleObjChange('date', newDate);
     };
 
     const handleWaitlistChange = ({ value }) => {

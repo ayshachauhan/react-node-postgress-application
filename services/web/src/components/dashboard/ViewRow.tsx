@@ -91,7 +91,7 @@ function ViewRow({ selectedSurgery, viewBillingColumn }) {
         ))}
 
         <p>
-          <span className="font-bold">Details: </span>
+          <span className="font-bold">Notes: </span>
           <span>{selectedSurgery.details}</span>
         </p>
         {selectedSurgery.selectedChecklistOptions

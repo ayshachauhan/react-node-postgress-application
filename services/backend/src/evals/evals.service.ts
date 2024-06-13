@@ -2,14 +2,12 @@ import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
-  EmailVariables,
   EvalEntity,
   HistoryAction,
   HistoryType,
   IEval,
-  ISurgeryConfiguration,
+  IPractice,
   PatientEntity,
-  PracticeEntity,
 } from '@packages/entities';
 import { EmailHandlerService } from 'src/emailHandler/emailHandler.service';
 import { ENVIRONMENT_VARIABLES } from 'src/enums/environment.enums';
@@ -22,8 +20,7 @@ import { PracticesService } from 'src/practices/practices.service';
 import { SurgeryConfigurationsService } from 'src/surgeryConfiguration/surgeryConfiguration.service';
 import { SystemTemplates } from 'src/transporter/transporter.types';
 import { UsersService } from 'src/users/users.service';
-import { formatHeaderDate, toLowerCase, toPascalCase } from 'src/utils';
-import { In, Repository } from 'typeorm';
+import { In, MoreThanOrEqual, Repository } from 'typeorm';
 import {
   EvalChangesKeyValues,
   findChangedValues,
@@ -31,7 +28,6 @@ import {
   transformUpdateEvalDTO,
 } from '../history/utils';
 import { WaitlistService } from '../waitlist/waitlist.service';
-import { CreateEvalDto } from './dto/createEval.dto';
 
 @Injectable()
 export class EvalsService {
@@ -165,14 +161,7 @@ export class EvalsService {
     });
 
     if (practiceEntity && surgeryConfigurationEntity) {
-      await this.initiateSendEmail(
-        practiceEntity,
-        createEvalDto,
-        resultEval,
-        surgeryConfigurationEntity,
-        insuranceTypeEntity?.name,
-        practiceHomeEntity?.name,
-      );
+      await this.initiateSendEmail(resultEval, practiceEntity);
     }
     return resultEval;
   }
@@ -278,35 +267,10 @@ export class EvalsService {
   }
 
   async initiateSendEmail(
-    practice: PracticeEntity,
-    dto: CreateEvalDto,
     evalEntity: IEval,
-    surgeryConfig: ISurgeryConfiguration,
-    insuranceType?: string,
-    practiceHome?: string,
+    practice: IPractice,
   ): Promise<void> {
-    const { id: surgeryConfigId, name } = surgeryConfig;
-    const formattedDate = formatHeaderDate(String(dto.date));
-
-    const mailVariables: EmailVariables = {
-      surgery_type: name,
-      fname: dto.firstName,
-      lname: dto.lastName,
-      mrn: String(dto.mrn),
-      pt_email_address: dto.email,
-      surgery_date: String(dto.date),
-      pt_email_notify: '',
-      laterality: toLowerCase(dto.bodyPart),
-      Laterality: toPascalCase(dto.bodyPart),
-      pod1_location: practiceHome ?? '',
-      cataract_variable: '',
-      all_cases: dto.bodyPart + ' ' + name + ' | ' + formattedDate,
-      all_cataract_dates: name + ' ' + formattedDate,
-      all_case_type: name + ' ' + formattedDate,
-      phoneNumber: dto.phoneNumber,
-      practiceName: practice.name,
-      insuranceType: insuranceType ?? '',
-    };
+    const { name } = evalEntity.surgeryConfiguration;
 
     const systemGeneratedMailData = {
       subject: `Eval Scheduled: ${name}`,
@@ -316,11 +280,16 @@ export class EvalsService {
 
     await this.emailHandlerService.checkAndMakeEmailContent(
       practice,
-      surgeryConfigId,
       evalEntity,
-      mailVariables,
       systemGeneratedMailData,
       true,
     );
+  }
+
+  async findEvalByPatient(patientId: string, date: Date): Promise<IEval[]> {
+    return await this.evalRepository.find({
+      where: { patient: { id: patientId }, date: MoreThanOrEqual(date) },
+      relations: ['surgeryConfiguration'],
+    });
   }
 }
