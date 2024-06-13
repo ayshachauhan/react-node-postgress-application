@@ -35,6 +35,7 @@ const AddTemplateForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const [surgeryConfigurationId, setSurgeryConfigurationId] = useState('');
   const [messageType, setMsgType] = useState('');
   const [dateOffset, setDateOffset] = useState<number>(0);
+  const [showDateOffsetField, setShowDateOffsetField] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -68,6 +69,15 @@ const AddTemplateForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   };
 
   const handleMsgTypeChange = ({ value }) => {
+    if (
+      value[0] &&
+      (value[0].label.toLowerCase().indexOf('preop') !== -1 ||
+        value[0].label.toLowerCase().indexOf('postop') !== -1)
+    ) {
+      setShowDateOffsetField(true);
+    } else {
+      setShowDateOffsetField(false);
+    }
     setMsgType(value[0] ? value[0].label : null);
   };
 
@@ -144,21 +154,23 @@ const AddTemplateForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           />
           <div className="space-y-4"></div>
         </div>
-        <div className="space-y-4">
-          <label
-            htmlFor="dateOffset"
-            className="text-black text-sm font-normal"
-          >
-            Date Offset
-          </label>
-          <TextInput
-            name="dateOffset"
-            type="number"
-            value={dateOffset.toString()}
-            onChange={handleInputChange}
-            required
-          />
-        </div>
+        {showDateOffsetField ? (
+          <div className="space-y-4">
+            <label
+              htmlFor="dateOffset"
+              className="text-black text-sm font-normal"
+            >
+              Date Offset
+            </label>
+            <TextInput
+              name="dateOffset"
+              type="number"
+              value={dateOffset.toString()}
+              onChange={handleInputChange}
+              required
+            />
+          </div>
+        ) : null}
         <div className="text-right text-base mt-4">
           <Button kind="primary" title="Add New Template" width={189} />
         </div>

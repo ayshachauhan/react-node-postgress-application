@@ -46,8 +46,10 @@ export const ResetPassword: React.FC<Props> = ({
 
   useEffect(() => {
     if (token) {
+      const expirationDate = new Date();
+      expirationDate.setTime(expirationDate.getTime() + 15 * 60 * 1000);
       setCookie(COOKIES.ACCESS_TOKEN, token, {
-        expires: 1,
+        expires: expirationDate,
       });
     }
 
@@ -85,6 +87,10 @@ export const ResetPassword: React.FC<Props> = ({
     }
   };
 
+  const handleGoBack = () => {
+    router.back();
+  };
+
   useEffect(() => {
     let timer;
     if (successMessage) {
@@ -108,6 +114,15 @@ export const ResetPassword: React.FC<Props> = ({
 
   return (
     <div>
+      {userInfo ? (
+        <div className="flex justify-between border-gray-400 items-center ml-2 mt-2">
+          <Button
+            kind="primary"
+            title="Go Back"
+            onClick={handleGoBack}
+          ></Button>
+        </div>
+      ) : null}
       <LogoWrapper>
         {isAlreadyOnboared && isOnboarding ? (
           children

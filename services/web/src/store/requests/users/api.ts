@@ -201,7 +201,8 @@ export const changePassword = async (
       payloadData,
     );
     if (!response.ok) {
-      throw new Error('Failed to change password.');
+      const data = await response.json();
+      throw new Error(data?.message ?? 'Failed to change password.');
     }
     const data: SanitizedUser = await response.json();
     return data;
