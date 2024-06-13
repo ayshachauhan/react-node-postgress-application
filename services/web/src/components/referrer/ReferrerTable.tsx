@@ -135,11 +135,11 @@ export default function ReferrerTable() {
           <div className="font-bold text-white p-4 flex-1">Action</div>
         </div>
         {referrers.map((data, index) => {
-          const totalSurgeries = data.patients.reduce(
+          const totalSurgeries = data.patients?.reduce(
             (sum, patient) => sum + (patient.surgeries?.length || 0),
             0,
           );
-          const totalEvals = data.patients.reduce(
+          const totalEvals = data.patients?.reduce(
             (sum, patient) => sum + (patient.evals?.length || 0),
             0,
           );
@@ -192,7 +192,7 @@ export default function ReferrerTable() {
                   {data?.referrerType}
                 </div>
                 <div className="text-gray-900 bg-gray-50 pt-2 px-4 flex-1">
-                  {total}
+                  {total ?? 0}
                 </div>
                 <div className="text-gray-900 bg-gray-50 pt-2 px-4 flex-1">
                   {data?.email}
