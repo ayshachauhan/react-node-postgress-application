@@ -52,19 +52,23 @@ export function getStartEndDate(
     let endDate = new Date(currentYear, monthIndex + 1, 0, 23, 59, 59, 999);
 
     if (monthIndex === currentDate.getMonth() && userPermissions.length) {
+      const startOfDay = new Date(currentDate).setHours(0, 0, 0, 0);
+      const endOfDay = new Date(currentDate).setHours(23, 59, 59, 999);
+
       if (!hasViewPastCasesPermission && !hasViewFutureCasesPermission) {
-        startDate = new Date(currentDate.setHours(0, 0, 0, 0));
-        endDate = new Date(currentDate.setHours(23, 59, 59, 999));
-      } else {
-        if (!hasViewPastCasesPermission) {
-          startDate = new Date(currentDate.setHours(0, 0, 0, 0));
-        }
-        if (!hasViewFutureCasesPermission) {
-          endDate = new Date(currentDate.setHours(23, 59, 59, 999));
-        }
+        // User cannot view past or future cases, show only today’s records
+        startDate = new Date(startOfDay);
+        endDate = new Date(endOfDay);
+      } else if (!hasViewPastCasesPermission) {
+        // User cannot view past cases, start from today
+        startDate = new Date(startOfDay);
+      } else if (!hasViewFutureCasesPermission) {
+        // User cannot view future cases, end at the end of today
+        endDate = new Date(endOfDay);
       }
     }
 
+    console.log(startDate, endDate, 2);
     return { date: Between(startDate, endDate) };
   });
 
