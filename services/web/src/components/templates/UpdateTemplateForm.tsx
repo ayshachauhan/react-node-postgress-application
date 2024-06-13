@@ -251,8 +251,8 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
         <div className="flex gap-5 mt-2">
           <div className="w-1/2 pr-3 border-r border-dotted border-gray-300 text-xs">
             <div className="h-4/6 overflow-auto">
-              <div className="flex justify-between">
-                <div className="border-b border-gray-100 text-base font-bold pb-2 text-black">
+              <div className="flex justify-between border-b border-gray-100">
+                <div className="text-base font-bold pb-2 text-black">
                   Email Message
                 </div>
                 <div>
@@ -363,12 +363,6 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
                 </div>
               </div>
             </div>
-            <div className="mt-3 flex flex-row">
-              <label className="space-y-2 font-bold w-36"> Email Body:</label>
-              <div>
-                {Object.keys(TEMPLATE_VARIABLES).map((ele) => `[${ele}], `)}
-              </div>
-            </div>
             <div>
               <div className=" border-b border-gray-100 mt-3 text-black font-bold text-base pb-1">
                 Text Message
@@ -396,6 +390,12 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
                     },
                   }}
                 />
+              </div>
+            </div>
+            <div className="mt-5 flex flex-row">
+              <label className="space-y-2 font-bold w-36"> Email Body:</label>
+              <div className="text-sm">
+                {Object.keys(TEMPLATE_VARIABLES).map((ele) => `[${ele}], `)}
               </div>
             </div>
           </div>
@@ -431,12 +431,12 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
                 />
               </div>
             </div>
-            <div className="space-y-4 border-b border-gray-100 mt-5 text-black font-bold text-xl pb-2">
+            <div className="space-y-4 border-b border-gray-100 text-black font-bold text-xl pb-2">
               Text Message Preview
             </div>
             <div className="text-black text-sm">
               <div
-                className="mt-2.5 py-1.5 pr-1.5 overflow-hidden break-all"
+                className="mt-2.5 py-1.5 pr-1.5 max-h-20 overflow-auto break-all"
                 dangerouslySetInnerHTML={{
                   __html: updatedTemplateInfo?.messageText || '',
                 }}
@@ -444,7 +444,7 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
             </div>
           </div>
         </div>
-        <div className="flex justify-end gap-3 mt-1">
+        <div className="flex justify-end gap-3 mt-10">
           <Button
             type="button"
             kind="tertiary"

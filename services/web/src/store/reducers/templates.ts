@@ -78,6 +78,7 @@ const templateSlice = createSlice({
         !action.payload.surgeryConfigurationName ||
         !action.payload.messageType
       ) {
+        state.successMessage = 'Template added successfully.';
         return;
       }
       const messageTypeData =
