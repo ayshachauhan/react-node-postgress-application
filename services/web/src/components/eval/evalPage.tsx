@@ -323,7 +323,7 @@ const EvalPage: React.FC = () => {
                     </div>
                     <div className="text-black">{data.waitlist}</div>
                     <div className="text-black text-center font-semibold pl-12">
-                      Details:{' '}
+                      Notes:{' '}
                     </div>
                     <div className="text-black">{data.notes}</div>
                   </div>
