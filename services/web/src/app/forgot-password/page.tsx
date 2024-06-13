@@ -3,11 +3,11 @@ import Button from '@root/components/Button';
 import { LogoWrapper } from '@root/components/LogoWrapper/logoWrapper';
 import TextInput from '@root/components/TextInput';
 import { useAppDispatch, useAppSelector } from '@root/store';
-import { forgotPassword } from '@root/store/reducers/auth';
 import {
   clearErrorMessage,
   clearSuccessMessage,
-} from '@root/store/reducers/users';
+  forgotPassword,
+} from '@root/store/reducers/auth';
 import { useEffect, useState } from 'react';
 
 const ForgotPassword: React.FC = () => {
@@ -15,8 +15,8 @@ const ForgotPassword: React.FC = () => {
   const [email, setEmail] = useState('');
   const [isEmailSent, setIsEmailSent] = useState<boolean>(false);
   const { successMessage, errorMessage } = useAppSelector((state) => ({
-    successMessage: state.users.successMessage,
-    errorMessage: state.users.errorMessage,
+    successMessage: state.auth.successMessage,
+    errorMessage: state.auth.errorMessage,
   }));
   const [showErrorMessage, setShowErrorMessage] = useState(false);
 
@@ -105,7 +105,6 @@ const ForgotPassword: React.FC = () => {
               </div>
             </form>
           )}
-          {errorMessage && <div className="text-red-700">{errorMessage}</div>}{' '}
           {showErrorMessage && (
             <div className="text-red-700">{errorMessage}</div>
           )}
