@@ -192,7 +192,7 @@ export default function ReferrerTable() {
                   {data?.referrerType}
                 </div>
                 <div className="text-gray-900 bg-gray-50 pt-2 px-4 flex-1">
-                  {total ?? 0}
+                  {total ? total : 0}
                 </div>
                 <div className="text-gray-900 bg-gray-50 pt-2 px-4 flex-1">
                   {data?.email}
