@@ -4,7 +4,7 @@ import {
 } from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
-import { useAppDispatch } from '@root/store';
+import { useAppDispatch, useAppSelector } from '@root/store';
 import {
   createCalendarEntry,
   updateBulkCalendars,
@@ -25,11 +25,13 @@ const UpsertCalendar: React.FC<{
   onClose: () => void;
   calendarData: CalendarData[];
   isUpdating: boolean;
-  selectedSurgery: ISurgeryConfiguration;
   calendars: ICalendar[];
-}> = ({ onClose, calendarData, isUpdating, selectedSurgery, calendars }) => {
+}> = ({ onClose, calendarData, isUpdating, calendars }) => {
   const maxSlotsOptions = Array.from({ length: 14 }, (_, index) => index + 1);
   const dispatch = useAppDispatch();
+  const { surgeryConfigurations } = useAppSelector((state) => ({
+    surgeryConfigurations: Object.values(state.surgeryConfigurations.entities),
+  }));
 
   const [upsertCalendarData, setUpsertCalendarData] =
     useState<CalendarData[]>(calendarData);
@@ -81,7 +83,7 @@ const UpsertCalendar: React.FC<{
         > = {
           practiceId,
           userId,
-          surgeryConfigurationId: selectedSurgery.id,
+          surgeryConfigurationId: upsertCalendarData[0]?.selectedSurgery?.id,
           maxSlots: upsertCalendarData[0].maxSlots,
           bookedSlots: upsertCalendarData[0].bookedSlots,
           date: upsertCalendarData[0].date,
@@ -105,13 +107,49 @@ const UpsertCalendar: React.FC<{
                 <RequiredIndicator />
                 &nbsp;Type
               </label>
-              <TextInput
-                id={calendar.id}
-                name="surgeryType"
-                value={calendar.surgeryName}
-                onChange={handleInputChange}
+
+              <Select
+                options={surgeryConfigurations.map(
+                  (config: ISurgeryConfiguration) => ({
+                    label: config.name,
+                    id: config.id,
+                  }),
+                )}
+                onChange={({ value }) => {
+                  if (!value.length) {
+                    return;
+                  }
+
+                  setUpsertCalendarData((prevData) =>
+                    prevData.map((cal: CalendarData) => ({
+                      ...cal,
+                      selectedSurgery:
+                        surgeryConfigurations.find(
+                          (data) => data.id === value[0].id,
+                        ) ?? calendar.selectedSurgery,
+                    })),
+                  );
+                }}
+                value={[
+                  {
+                    label: calendar.selectedSurgery.name,
+                    id: calendar.selectedSurgery.id,
+                  },
+                ]}
                 required
-                disabled={true}
+                overrides={{
+                  ControlContainer: {
+                    style: {
+                      backgroundColor: 'rgba(250, 250, 250, 1)',
+                      border: 'none',
+                      color: 'rgba(82, 82, 91, 1)',
+                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)', // Add shadow CSS here
+                    },
+                  },
+                  ClearIcon: {
+                    component: () => null,
+                  },
+                }}
               />
             </div>
             <div className="flex-1 space-y-2 px-4">

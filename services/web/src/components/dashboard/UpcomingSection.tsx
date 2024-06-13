@@ -24,6 +24,7 @@ export type CalendarData = {
   bookedSlots: number;
   surgeryName: string;
   surgeryNameColor: string;
+  selectedSurgery: ISurgeryConfiguration;
 };
 
 export const DEFAULT_MAX_SLOTS: number = 14;
@@ -224,6 +225,7 @@ const UpcomingSection: React.FC = () => {
         data.surgeryConfiguration.name.charAt(0).toUpperCase(),
       surgeryNameColor:
         data.surgeryConfiguration.color ?? DEFAULT_SURGERYNAME_COLOR,
+      selectedSurgery: selectedSurgery as ISurgeryConfiguration,
     }));
 
   const filteredCalendars = filterCalendarByMonth(upcomingDates);
@@ -309,16 +311,14 @@ const UpcomingSection: React.FC = () => {
                       maxSlots: DEFAULT_MAX_SLOTS,
                       bookedSlots: 0,
                       date: new Date(),
-                      surgeryName: selectedSurgery?.name
-                        .charAt(0)
-                        .toUpperCase() as string,
+                      surgeryName: selectedSurgery?.name ?? 'N/A',
                       surgeryNameColor:
                         selectedSurgery?.color ?? DEFAULT_SURGERYNAME_COLOR,
+                      selectedSurgery: selectedSurgery as ISurgeryConfiguration,
                     },
                   ]
             }
             isUpdating={isUpdating ?? false}
-            selectedSurgery={selectedSurgery as ISurgeryConfiguration}
             calendars={calendars}
           />
         </ModalBody>
