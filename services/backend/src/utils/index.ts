@@ -50,14 +50,21 @@ export function getStartEndDate(
     const monthIndex = monthMap[month];
     let startDate = new Date(currentYear, monthIndex, 1);
     let endDate = new Date(currentYear, monthIndex + 1, 0, 23, 59, 59, 999);
+
     if (monthIndex === currentDate.getMonth() && userPermissions.length) {
-      if (!hasViewPastCasesPermission) {
-        startDate = currentDate;
-      }
-      if (!hasViewFutureCasesPermission) {
-        endDate = currentDate;
+      if (!hasViewPastCasesPermission && !hasViewFutureCasesPermission) {
+        startDate = new Date(currentDate.setHours(0, 0, 0, 0));
+        endDate = new Date(currentDate.setHours(23, 59, 59, 999));
+      } else {
+        if (!hasViewPastCasesPermission) {
+          startDate = new Date(currentDate.setHours(0, 0, 0, 0));
+        }
+        if (!hasViewFutureCasesPermission) {
+          endDate = new Date(currentDate.setHours(23, 59, 59, 999));
+        }
       }
     }
+
     return { date: Between(startDate, endDate) };
   });
 
