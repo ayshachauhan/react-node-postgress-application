@@ -217,18 +217,18 @@ function EditableRow({
                 },
               }}
               value={
-                surgeryInfo?.surgeryStatus
+                obj?.surgeryStatus
                   ? [
                       {
-                        label: surgeryInfo.surgeryStatus,
-                        id: surgeryInfo.surgeryStatus,
+                        label: obj.surgeryStatus,
+                        id: obj.surgeryStatus,
                       },
                     ]
                   : []
               }
               size={SIZE.mini}
-              onChange={(value) =>
-                handleObjChange('surgeryStatus', value?.option?.label)
+              onChange={({ value }) =>
+                handleObjChange('surgeryStatus', value[0].label)
               }
             />
           </div>
