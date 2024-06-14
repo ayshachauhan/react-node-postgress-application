@@ -1,4 +1,5 @@
 import { UpdateSurgeryPayload } from '@packages/entities';
+import { SurgeryStatus } from '@packages/entities/index.browser';
 import { USER_PERMISSIONS } from '@packages/entities/permission';
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
@@ -18,6 +19,11 @@ function EditableRow({
   handleUpdateClick,
 }) {
   const practiceId = getPracticeId();
+  const surgeryStatusOptions = Object.keys(SurgeryStatus).map((key) => ({
+    label: SurgeryStatus[key as keyof typeof SurgeryStatus],
+    id: key,
+  }));
+
   const dispatch = useAppDispatch();
   const userInfo = useAppSelector((state) => state.auth.user);
   const userPermissions = userInfo?.permissions;
@@ -33,6 +39,7 @@ function EditableRow({
     if (surgeryInfo.id && surgeryInfo) {
       setObj({
         insuranceTypeId: surgeryInfo?.insuranceType?.name,
+        surgeryStatus: surgeryInfo?.surgeryStatus,
         date: new Date(surgeryInfo.date),
         firstName: surgeryInfo.patient.firstName,
         lastName: surgeryInfo.patient.lastName,
@@ -127,6 +134,7 @@ function EditableRow({
         lastName: '',
         details: '',
         bodyPart: '',
+        surgeryStatus: SurgeryStatus.PENDING,
         mrn: 0,
         selectedSurgeryOptions: {},
         selectedCheckListOptions: {},
@@ -193,12 +201,35 @@ function EditableRow({
             />
           </div>
           <div className="py-2 w-20">
-            <TextInput
+            <Select
+              options={surgeryStatusOptions}
+              overrides={{
+                ControlContainer: {
+                  style: {
+                    backgroundColor: 'rgba(250, 250, 250, 1)',
+                    border: 'none',
+                    color: 'rgba(82, 82, 91, 1)',
+                    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                  },
+                },
+                ClearIcon: {
+                  component: () => null,
+                },
+              }}
+              value={
+                obj?.surgeryStatus
+                  ? [
+                      {
+                        label: obj.surgeryStatus,
+                        id: obj.surgeryStatus,
+                      },
+                    ]
+                  : []
+              }
               size={SIZE.mini}
-              disabled
-              name="status"
-              value="booked"
-              onChange={() => handleObjChange('status', 'booked')}
+              onChange={({ value }) =>
+                handleObjChange('surgeryStatus', value[0].label)
+              }
             />
           </div>
           <div>

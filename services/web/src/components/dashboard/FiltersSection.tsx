@@ -26,7 +26,7 @@ import {
   setSelectedMonth,
   setSelectedValue,
 } from '@root/store/reducers/surgery';
-import { toFullName, usDateFormatter } from '@root/utils';
+import { toFullName, toPascalCase, usDateFormatter } from '@root/utils';
 import { monthOptions } from '@root/utils/constants';
 import { Checkbox } from 'baseui/checkbox';
 import { Select } from 'baseui/select';
@@ -183,7 +183,7 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
       prof: ele.totalProfessionalPricing,
       action: actionIcons,
       surgeryOrder: ele.surgeryOrder,
-      status: 'booked',
+      surgeryStatus: ele.surgeryStatus,
       selectedSurgeryOptions: ele.selectedSurgeryOptions,
       selectedChecklistOptions: ele.selectedCheckListOptions,
       waitlist: ele?.waitlist?.name,
@@ -591,8 +591,8 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
                                   {row.home[0]}
                                 </div>
                                 <div className="text-gray-900 py-0.5 px-0.5 flex text-center items-center w-20">
-                                  <div className="rounded-md text-white p-1 bg-indigo-500">
-                                    {row.status}
+                                  <div className="rounded-md text-white p-1 bg-indigo-500 text-xs">
+                                    {toPascalCase(row.surgeryStatus)}
                                   </div>
                                 </div>
                                 <div>

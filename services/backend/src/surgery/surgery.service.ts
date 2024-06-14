@@ -400,6 +400,9 @@ export class SurgeryService {
       surgeryOrder: createSurgeryDto.surgeryOrder
         ? createSurgeryDto.surgeryOrder
         : surgeryToUpdate?.surgeryOrder,
+      surgeryStatus: createSurgeryDto.surgeryStatus
+        ? createSurgeryDto.surgeryStatus
+        : surgeryToUpdate?.surgeryStatus,
       practiceHome: practiceHomeEntity
         ? practiceHomeEntity
         : surgeryToUpdate?.practiceHome,
@@ -410,6 +413,9 @@ export class SurgeryService {
       ...surgeryToUpdate,
       ...dataToUpdate,
     });
+    if (createSurgeryDto.surgeryStatus === SurgeryStatus.COMPLETED) {
+      await this.autoCompleteSurgeries(id);
+    }
 
     // depends on dto values, make sure to update the obj values if dot changes
     const transformedCurrentSurgeryValues: SurgeryChangesKeyValues =
