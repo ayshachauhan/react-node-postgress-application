@@ -46,6 +46,20 @@ const MediaPage: React.FC<{
     image: [{ title: '', file: null }],
   });
 
+  const sanitizeStateValues = (data) => {
+    const sanitizeVideoArray = (arr: [{ title: string; url: string }]) =>
+      arr.filter((item) => item.title && item.url);
+
+    const sanitizeImageArray = (arr: [{ title: string; file: File }]) =>
+      arr.filter((item) => item.title && item.file);
+
+    return {
+      ...data,
+      video: sanitizeVideoArray(data.video),
+      ...(data.image ? { image: sanitizeImageArray(data.image) } : {}),
+    };
+  };
+
   const isFormFilled = (): boolean => {
     if (selectedMedia === MediaType.PATIENT) {
       const { video, image } = patientForm;
@@ -103,6 +117,8 @@ const MediaPage: React.FC<{
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (practiceId) {
+      const sanitizedPatientForm = sanitizeStateValues(patientForm);
+
       const data: AddMediaDTO =
         selectedMedia === MediaType.PRACTICE
           ? {
@@ -121,12 +137,7 @@ const MediaPage: React.FC<{
               practiceId,
               mediaType: selectedMedia,
               entityId: patientForm.patientId,
-              mediaConfig:
-                patientForm.image?.length && patientForm.image[0].title
-                  ? patientForm
-                  : {
-                      video: patientForm.video,
-                    },
+              mediaConfig: sanitizedPatientForm,
             };
 
       console.log(data, 'finaldata');
