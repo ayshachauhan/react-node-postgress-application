@@ -53,9 +53,29 @@ resource "aws_db_parameter_group" "postgres16" {
     for_each = [
       {
         name         = "rds.force_ssl"
-        value        = "0"
+        value        = "1"
         apply_method = "pending-reboot"
       },
+      {
+        name         = "log_statement"
+        value        = "all"
+        apply_method = "immediate"
+      },
+      {
+        name         = "log_min_duration_statement"
+        value        = "0"
+        apply_method = "immediate"
+      },
+      {
+        name         = "log_connections"
+        value        = "1"
+        apply_method = "immediate"
+      },
+      {
+        name         = "log_disconnections"
+        value        = "1"
+        apply_method = "immediate"
+      }
     ]
     content {
       apply_method = lookup(parameter.value, "apply_method", null)
