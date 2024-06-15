@@ -107,6 +107,9 @@ jobs:
       - name: pnpm install
         run: pnpm install --frozen-lockfile
 
+      - name : build packages
+        run : pnpm build
+
       - name: build docker images
         run: |
           docker-compose build
@@ -197,9 +200,6 @@ jobs:
       #     export RUNNER_IP=$(curl -s https://httpbin.org/ip | jq -r .origin)
       #     echo "Allowing IP: $RUNNER_IP"
       #     aws ec2 authorize-security-group-ingress --group-id ${{ steps.tf_outputs.outputs.RDS_SG_ID }} --protocol tcp --port 5432 --cidr $RUNNER_IP/32   
-
-      - name : build packages
-        run : pnpm build
 
       - name: show migrations
         run: |
