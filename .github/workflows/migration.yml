@@ -28,7 +28,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name : build packages
-        run : pnpm build
+        run : pnpm build --scope=backend
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4

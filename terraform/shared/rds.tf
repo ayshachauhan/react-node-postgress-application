@@ -61,7 +61,7 @@ resource "aws_db_parameter_group" "postgres16" {
     for_each = [
       {
         name         = "rds.force_ssl"
-        value        = "1"
+        value        = "0"
         apply_method = "pending-reboot"
       },
       {
