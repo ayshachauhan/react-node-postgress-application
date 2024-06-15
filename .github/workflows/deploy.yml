@@ -85,6 +85,15 @@ jobs:
         with:
             node-version: 18.17.1
 
+      - name: setup pnpm
+        uses: pnpm/action-setup@v3
+
+      - name: pnpm install
+        run: pnpm install --frozen-lockfile
+
+      - name : build packages
+        run : pnpm build
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -100,15 +109,6 @@ jobs:
           AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
           SECRET_NAME: ${{ github.event.inputs.environment }}
           OUTPUT_PATH: '.env' # optional
-
-      - name: setup pnpm
-        uses: pnpm/action-setup@v3
-
-      - name: pnpm install
-        run: pnpm install --frozen-lockfile
-
-      - name : build packages
-        run : pnpm build
 
       - name: build docker images
         run: |
