@@ -132,6 +132,10 @@ jobs:
           filenames: |
             .env
 
+      - name: build docker images
+        run: |
+          docker-compose build
+
       - name: tag and push backend docker image
         id: push_backend_image
         env:
