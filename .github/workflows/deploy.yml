@@ -199,7 +199,7 @@ jobs:
       #     aws ec2 authorize-security-group-ingress --group-id ${{ steps.tf_outputs.outputs.RDS_SG_ID }} --protocol tcp --port 5432 --cidr $RUNNER_IP/32   
 
       - name : build packages
-        run : pnpm build --scope=backend
+        run : pnpm build
 
       - name: show migrations
         run: |
