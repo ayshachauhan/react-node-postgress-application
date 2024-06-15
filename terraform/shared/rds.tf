@@ -21,9 +21,9 @@ resource "aws_security_group" "postgres" {
 
   ingress {
     description = "Allow all traffice"
-    protocol    = "tcp"  # TCP protocol for PostgreSQL
-    from_port   = 5432   # PostgreSQL default port
-    to_port     = 5432   # PostgreSQL default port
+    protocol    = "-1"  # TCP protocol for PostgreSQL
+    from_port   = 0   # PostgreSQL default port
+    to_port     = 0   # PostgreSQL default port
     cidr_blocks = ["0.0.0.0/0"]
   }
 

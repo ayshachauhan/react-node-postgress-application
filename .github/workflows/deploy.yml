@@ -110,10 +110,6 @@ jobs:
           SECRET_NAME: ${{ github.event.inputs.environment }}
           OUTPUT_PATH: '.env' # optional
 
-      - name: build docker images
-        run: |
-          docker-compose build
-
       - name: Notify Google Chat
         id: 'notify_google_chat'
         uses: SimonScholz/google-chat-action@main
