@@ -133,29 +133,29 @@ jobs:
           filenames: |
             .env
 
-      # - name: tag and push backend docker image
-      #   id: push_backend_image
-      #   env:
-      #     ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-      #     ECR_REPOSITORY: azentia-${{ github.event.inputs.environment }}-backend-image-repository
-      #   run: |
-      #     echo $VERSION_TAG
-      #     echo $ECR_REGISTRY/$ECR_REPOSITORY:$VERSION_TAG
-      #     docker tag azentia_backend:latest $ECR_REGISTRY/$ECR_REPOSITORY:$VERSION_TAG
-      #     docker push $ECR_REGISTRY/$ECR_REPOSITORY:$VERSION_TAG
-      #     echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$VERSION_TAG"
+      - name: tag and push backend docker image
+        id: push_backend_image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: azentia-${{ github.event.inputs.environment }}-backend-image-repository
+        run: |
+          echo $VERSION_TAG
+          echo $ECR_REGISTRY/$ECR_REPOSITORY:$VERSION_TAG
+          docker tag azentia_backend:latest $ECR_REGISTRY/$ECR_REPOSITORY:$VERSION_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$VERSION_TAG
+          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$VERSION_TAG"
 
-      # - name: tag and push web docker image
-      #   id: push_web_image
-      #   env:
-      #     ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-      #     ECR_REPOSITORY: azentia-${{ github.event.inputs.environment }}-web-image-repository
-      #   run: |
-      #     echo $VERSION_TAG
-      #     echo $ECR_REGISTRY/$ECR_REPOSITORY:$VERSION_TAG
-      #     docker tag azentia_web:latest $ECR_REGISTRY/$ECR_REPOSITORY:$VERSION_TAG
-      #     docker push $ECR_REGISTRY/$ECR_REPOSITORY:$VERSION_TAG
-      #     echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$VERSION_TAG"
+      - name: tag and push web docker image
+        id: push_web_image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: azentia-${{ github.event.inputs.environment }}-web-image-repository
+        run: |
+          echo $VERSION_TAG
+          echo $ECR_REGISTRY/$ECR_REPOSITORY:$VERSION_TAG
+          docker tag azentia_web:latest $ECR_REGISTRY/$ECR_REPOSITORY:$VERSION_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$VERSION_TAG
+          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$VERSION_TAG"
 
 
       - name: Generate provider 
@@ -180,23 +180,23 @@ jobs:
         id: init
         run: terraform -chdir=./terraform init
 
-      - name: Retrieve runner's IP address
-        id: get_ip
-        run: |
-          echo "Runner's public IP:"
-          curl -s https://httpbin.org/ip | jq -r .origin
+      # - name: Retrieve runner's IP address
+      #   id: get_ip
+      #   run: |
+      #     echo "Runner's public IP:"
+      #     curl -s https://httpbin.org/ip | jq -r .origin
       
-      - name: Export Terraform Output
-        id: tf_outputs
-        run: | 
-          echo "RDS_SG_ID=$(terraform -chdir=./terraform output -raw rds_shared_sg_id)" >> $GITHUB_OUTPUT
+      # - name: Export Terraform Output
+      #   id: tf_outputs
+      #   run: | 
+      #     echo "RDS_SG_ID=$(terraform -chdir=./terraform output -raw rds_shared_sg_id)" >> $GITHUB_OUTPUT
 
-      - name: Allow runner IP in RDS security group
-        id: allow_ip
-        run: |
-          export RUNNER_IP=$(curl -s https://httpbin.org/ip | jq -r .origin)
-          echo "Allowing IP: $RUNNER_IP"
-          aws ec2 authorize-security-group-ingress --group-id ${{ steps.tf_outputs.outputs.RDS_SG_ID }} --protocol tcp --port 5432 --cidr $RUNNER_IP/32   
+      # - name: Allow runner IP in RDS security group
+      #   id: allow_ip
+      #   run: |
+      #     export RUNNER_IP=$(curl -s https://httpbin.org/ip | jq -r .origin)
+      #     echo "Allowing IP: $RUNNER_IP"
+      #     aws ec2 authorize-security-group-ingress --group-id ${{ steps.tf_outputs.outputs.RDS_SG_ID }} --protocol tcp --port 5432 --cidr $RUNNER_IP/32   
 
       - name : build packages
         run : pnpm build --scope=backend
@@ -209,13 +209,13 @@ jobs:
         run: |
           pnpm migrate
 
-      - name: Revoke runner IP from RDS security group
-        if: always()
-        id: revoke_ip
-        run: |
-          export RUNNER_IP=$(curl -s https://httpbin.org/ip | jq -r .origin)
-          echo "Revoking IP: $RUNNER_IP"
-          aws ec2 revoke-security-group-ingress --group-id ${{ steps.tf_outputs.outputs.RDS_SG_ID }} --protocol tcp --port 5432 --cidr $RUNNER_IP/32
+      # - name: Revoke runner IP from RDS security group
+      #   if: always()
+      #   id: revoke_ip
+      #   run: |
+      #     export RUNNER_IP=$(curl -s https://httpbin.org/ip | jq -r .origin)
+      #     echo "Revoking IP: $RUNNER_IP"
+      #     aws ec2 revoke-security-group-ingress --group-id ${{ steps.tf_outputs.outputs.RDS_SG_ID }} --protocol tcp --port 5432 --cidr $RUNNER_IP/32
 
       - name: Terraform Apply
         run: terraform -chdir=./terraform apply -auto-approve
