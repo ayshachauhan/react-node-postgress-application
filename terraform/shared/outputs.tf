@@ -97,19 +97,19 @@ output "dkim_tokens" {
   value = aws_ses_domain_dkim.azentia_ses.dkim_tokens
 }
 
-output "mail_from_domain_mx_record" {
-  value = "10 feedback-smtp.${var.mail_from_domain}"
-}
+# output "mail_from_domain_mx_record" {
+#   value = "10 feedback-smtp.${var.mail_from_domain}"
+# }
 
-output "mail_from_domain_txt_record" {
-  value = "\"v=spf1 include:amazonses.com ~all\""
-}
+# output "mail_from_domain_txt_record" {
+#   value = "\"v=spf1 include:amazonses.com ~all\""
+# }
 
-output "smtp_username" {
-  value = aws_iam_access_key.ses_smtp_user_access_key.id
-}
+# output "smtp_username" {
+#   value = aws_iam_access_key.ses_smtp_user_access_key.id
+# }
 
-output "smtp_password" {
-  value = aws_iam_access_key.ses_smtp_user_access_key.secret
-  sensitive = true
-}
+# output "smtp_password" {
+#   value = aws_iam_access_key.ses_smtp_user_access_key.secret
+#   sensitive = true
+# }
