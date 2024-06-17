@@ -87,8 +87,10 @@ output "private_subnet_2_cidr" {
    value = aws_subnet.private-subnet-2.cidr_block
  }
 
-output "domain_verification_token" {
+# Output the verification token
+output "ses_verification_token" {
   value = aws_ses_domain_identity.azentia_ses.verification_token
+  description = "Add this token as a TXT record in DNS to verify the domain."
 }
 
 output "dkim_tokens" {

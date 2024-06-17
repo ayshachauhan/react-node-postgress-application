@@ -6,10 +6,10 @@ resource "aws_ses_domain_dkim" "azentia_ses" {
   domain = aws_ses_domain_identity.azentia_ses.domain
 }
 
-resource "aws_ses_domain_identity_verification" "azentia_ses" {
-  domain = aws_ses_domain_identity.azentia_ses.domain
-  depends_on = [aws_ses_domain_identity.azentia_ses]
-}
+# resource "aws_ses_domain_identity_verification" "azentia_ses" {
+#   domain = aws_ses_domain_identity.azentia_ses.domain
+#   depends_on = [aws_ses_domain_identity.azentia_ses]
+# }
 
 resource "aws_ses_domain_mail_from" "azentia_ses" {
   domain           = var.domain
