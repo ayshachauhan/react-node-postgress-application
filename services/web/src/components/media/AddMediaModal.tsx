@@ -6,6 +6,7 @@ const AddMediaModal = ({
   isSecondModalOpen,
   handleCloseSecondModal,
   selectedMediaType,
+  withLoader,
 }) => {
   return (
     <BaseUIModal
@@ -16,6 +17,7 @@ const AddMediaModal = ({
       <AddMediaForm
         onClose={handleCloseSecondModal}
         selectedMediaType={selectedMediaType}
+        withLoader={withLoader}
       />
     </BaseUIModal>
   );

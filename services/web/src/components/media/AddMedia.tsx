@@ -16,7 +16,8 @@ import RequiredIndicator from '../RequiredIndicator';
 const MediaPage: React.FC<{
   onClose: () => void;
   selectedMediaType: MediaType;
-}> = ({ onClose, selectedMediaType }) => {
+  withLoader: (func: () => Promise<void>) => Promise<void>;
+}> = ({ onClose, selectedMediaType, withLoader }) => {
   const { surgeryConfigurations, patient } = useAppSelector((state) => ({
     surgeryConfigurations: state.surgeryConfigurations.entities,
     patient: state.patients.entities,
@@ -113,7 +114,8 @@ const MediaPage: React.FC<{
       setPatientForm({ ...patientForm, video: newFields });
     }
   };
-
+  const delay = (ms: number): Promise<void> =>
+    new Promise((resolve) => setTimeout(resolve, ms));
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (practiceId) {
@@ -143,7 +145,10 @@ const MediaPage: React.FC<{
       console.log(data, 'finaldata');
 
       try {
-        dispatch(addRecordAsync(data));
+        await withLoader(async () => {
+          await delay(2000); // Add a delay of 1 second
+          await dispatch(addRecordAsync(data));
+        });
         setPracticeForm({
           surgeryConfigurationId: '',
           video: [{ title: '', url: '' }],

@@ -25,3 +25,4 @@ terraform/terraform.auto.tfvars
 terraform
 .terraform-version
 *.sql
+*.gif

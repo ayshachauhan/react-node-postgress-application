@@ -11,7 +11,12 @@ import { SIZE, Select } from 'baseui/select';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 
-const SurgeryPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
+interface SurgeryPageProps {
+  onClose: () => void;
+  withLoader: (func: () => Promise<void>) => Promise<void>;
+}
+
+const SurgeryPage: React.FC<SurgeryPageProps> = ({ onClose, withLoader }) => {
   const {
     practiceHomesList,
     insuranceTypesList,
@@ -201,29 +206,30 @@ const SurgeryPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (practiceId && doctorId) {
-      dispatch(
-        addEvalRecord({
-          firstName,
-          lastName,
-          email,
-          date,
-          phoneNumber,
-          mrn: mrn ? Number(mrn) : 0,
-          practiceHomeId,
-          surgeryConfigurationId: surgeryNameId,
-          insuranceDetails,
-          insuranceTypeId,
-          practiceId,
-          doctorId,
-          pcp,
-          referrerId,
-          details: notes,
-          status: evalStatus,
-          bodyPart,
-          waitlistId,
-        }),
-      );
-
+      await withLoader(async () => {
+        await dispatch(
+          addEvalRecord({
+            firstName,
+            lastName,
+            email,
+            date,
+            phoneNumber,
+            mrn: mrn ? Number(mrn) : 0,
+            practiceHomeId,
+            surgeryConfigurationId: surgeryNameId,
+            insuranceDetails,
+            insuranceTypeId,
+            practiceId,
+            doctorId,
+            pcp,
+            referrerId,
+            details: notes,
+            status: evalStatus,
+            bodyPart,
+            waitlistId,
+          }),
+        );
+      });
       try {
         setFirstName('');
         setLastName('');

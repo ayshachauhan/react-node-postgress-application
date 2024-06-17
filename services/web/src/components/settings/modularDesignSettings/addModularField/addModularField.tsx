@@ -11,10 +11,11 @@ import { Checkbox } from 'baseui/checkbox';
 import { SIZE, Select } from 'baseui/select';
 import React, { useState } from 'react';
 
-const AddModularField: React.FC<{ onClose: () => void; items }> = ({
-  onClose,
-  items,
-}) => {
+const AddModularField: React.FC<{
+  onClose: () => void;
+  items;
+  withLoader: (func: () => Promise<void>) => Promise<void>;
+}> = ({ onClose, items, withLoader }) => {
   const dispatch = useAppDispatch();
   const practiceId = getPracticeId();
 
@@ -135,7 +136,6 @@ const AddModularField: React.FC<{ onClose: () => void; items }> = ({
     values.splice(index, 1);
     setOptionsFields(values);
   };
-
   const [checkListInputFields, setCheckListInputFields] = useState([
     { value: '' },
   ]);
@@ -203,8 +203,9 @@ const AddModularField: React.FC<{ onClose: () => void; items }> = ({
         checkList: checkListObj,
         color: surgeryNameColor,
       };
-
-      dispatch(addRecordAsync({ payloadData, practiceId }));
+      await withLoader(async () => {
+        await dispatch(addRecordAsync({ payloadData, practiceId }));
+      });
     }
 
     try {

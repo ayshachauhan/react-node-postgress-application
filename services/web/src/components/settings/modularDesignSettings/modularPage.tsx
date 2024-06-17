@@ -1,8 +1,10 @@
 'use client';
 import Button from '@root/components/Button';
 import { AddIcon, DeleteIcon, EditIcon } from '@root/components/Icons';
+import Loader from '@root/components/loader';
 import AddForm from '@root/components/settings/modularDesignSettings/addModularField/addModularField';
 import EditForm from '@root/components/settings/modularDesignSettings/editModularFields/editModuleFields';
+import { useLoader } from '@root/hooks/useLoader';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import {
   clearErrorMessage,
@@ -24,13 +26,20 @@ import React, { useEffect, useState } from 'react';
 
 const Dashboard: React.FC = () => {
   const dispatch = useAppDispatch();
+  const { isLoading, withLoader } = useLoader();
   const practiceId = getPracticeId();
   useEffect(() => {
     if (practiceId) {
-      dispatch(fetchSurgeryConfigurationsList({ practiceId }));
-      dispatch(fetchSurgeryTypes({ practiceId }));
+      const loadData = async () => {
+        await withLoader(async () => {
+          await dispatch(fetchSurgeryConfigurationsList({ practiceId }));
+          await dispatch(fetchSurgeryTypes({ practiceId }));
+        });
+      };
+
+      loadData();
     }
-  }, [practiceId, dispatch]);
+  }, [practiceId, dispatch, withLoader]);
   const [showModal, setShowModal] = useState(false);
   const [configurationId, setConfigurationId] = useState<string | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -123,6 +132,7 @@ const Dashboard: React.FC = () => {
             items={{
               surgeryTypesList,
             }}
+            withLoader={withLoader}
           />
         </ModalBody>
       </Modal>
@@ -215,6 +225,7 @@ const Dashboard: React.FC = () => {
                 surgeryTypeId,
               }}
               onClose={handleCloseEditModal}
+              withLoader={withLoader}
             />
           )}
         </ModalBody>
@@ -247,6 +258,7 @@ const Dashboard: React.FC = () => {
 
   return (
     <div id="__next" className="mt-4">
+      {isLoading && <Loader />}
       <div className="flex justify-between border-gray-400">
         <span className="text-xl font-bold">Modular Fields </span>
         {showModal && <div className="text-green-700">{successMessage}</div>}

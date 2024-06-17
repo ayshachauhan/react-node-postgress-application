@@ -11,7 +11,7 @@ import {
 import { formatDate, generateFullName, getPracticeId } from '@utils/index';
 import React, { useEffect, useState } from 'react';
 
-const ReferedPatients = ({ referrerId }) => {
+const ReferedPatients = ({ referrerId, withLoader }) => {
   const practiceId = getPracticeId();
   const [showModal, setShowModal] = useState(false);
   const [showErrorMessage, setShowErrorMessage] = useState(false);
@@ -35,10 +35,19 @@ const ReferedPatients = ({ referrerId }) => {
   const viewBillingColumn = useUserPermission(userPermissions, [
     USER_PERMISSIONS.VIEW_BILLING,
   ]);
-
+  const delay = (ms: number): Promise<void> =>
+    new Promise((resolve) => setTimeout(resolve, ms));
   useEffect(() => {
     if (practiceId !== null && referrerId !== null) {
-      dispatch(fetchReferrerInfo({ id: referrerId, practiceId: practiceId }));
+      const loadData = async () => {
+        await withLoader(async () => {
+          await delay(500); // Add a delay of 1 second
+          await dispatch(
+            fetchReferrerInfo({ id: referrerId, practiceId: practiceId }),
+          );
+        });
+      };
+      loadData();
     }
   }, [practiceId, referrerId, dispatch]);
 

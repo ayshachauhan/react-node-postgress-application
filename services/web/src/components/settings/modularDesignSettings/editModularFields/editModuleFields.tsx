@@ -15,10 +15,11 @@ import { SIZE, Select } from 'baseui/select';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 
-const EditModularField: React.FC<{ onClose: () => void; data }> = ({
-  onClose,
-  data,
-}) => {
+const EditModularField: React.FC<{
+  onClose: () => void;
+  data;
+  withLoader: (func: () => Promise<void>) => Promise<void>;
+}> = ({ onClose, data, withLoader }) => {
   const dispatch = useAppDispatch();
   const practiceId = getPracticeId();
   const surgeryConfigInfo: ISurgeryConfiguration | undefined = Object.values(
@@ -249,10 +250,15 @@ const EditModularField: React.FC<{ onClose: () => void; data }> = ({
         checkList: checkListObj,
         color: surgeryNameColor,
       };
-
-      dispatch(
-        editRecordAsync({ payloadData, practiceId, id: data.configurationId }),
-      );
+      await withLoader(async () => {
+        await dispatch(
+          editRecordAsync({
+            payloadData,
+            practiceId,
+            id: data.configurationId,
+          }),
+        );
+      });
     }
 
     try {

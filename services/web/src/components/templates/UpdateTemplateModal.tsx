@@ -8,6 +8,7 @@ const UpdateTemplateModal = ({
   templateId,
   messageType,
   versionOffset,
+  withLoader,
 }) => {
   return (
     <BaseUIModal
@@ -32,6 +33,7 @@ const UpdateTemplateModal = ({
               versionOffset: versionOffset,
             }}
             onClose={handleCloseUpdateModal}
+            withLoader={withLoader}
           />
         )}
     </BaseUIModal>

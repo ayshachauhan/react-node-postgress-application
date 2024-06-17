@@ -1,5 +1,7 @@
 'use client';
 import { ReviewStatus } from '@packages/entities/index.browser';
+import Loader from '@root/components/loader';
+import { useLoader } from '@root/hooks/useLoader';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import {
   clearErrorMessage,
@@ -17,6 +19,7 @@ const ReviewDashboard: React.FC = () => {
   const practiceId = getPracticeId();
   const router = useRouter();
   const [reviewId, setReviewId] = useState<string | null>(null);
+  const { isLoading, withLoader } = useLoader();
 
   const sendReqest = (id: string) => {
     setReviewId(id);
@@ -74,9 +77,15 @@ const ReviewDashboard: React.FC = () => {
 
   useEffect(() => {
     if (practiceId !== null) {
-      dispatch(fetchListings({ practiceId: practiceId }));
+      const loadData = async () => {
+        await withLoader(async () => {
+          await dispatch(fetchListings({ practiceId: practiceId }));
+        });
+      };
+
+      loadData();
     }
-  }, [practiceId, dispatch]);
+  }, [practiceId, dispatch, withLoader]);
 
   useEffect(() => {
     let timer;
@@ -103,6 +112,7 @@ const ReviewDashboard: React.FC = () => {
 
   return (
     <div className="mt-4">
+      {isLoading && <Loader />}
       <div className="flex justify-between border-gray-400">
         <span className="text-xl font-bold">Review Management</span>
       </div>

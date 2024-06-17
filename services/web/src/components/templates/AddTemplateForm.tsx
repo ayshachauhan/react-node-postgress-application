@@ -12,7 +12,10 @@ import { Select } from 'baseui/select';
 import React, { useEffect, useState } from 'react';
 import RequiredIndicator from '../RequiredIndicator';
 
-const AddTemplateForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
+const AddTemplateForm: React.FC<{
+  onClose: () => void;
+  withLoader: (func: () => Promise<void>) => Promise<void>;
+}> = ({ onClose, withLoader }) => {
   const templateMessageTypeOptions = Object.keys(TemplateMessageType).map(
     (key) => ({
       label: key,
@@ -49,7 +52,9 @@ const AddTemplateForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         surgeryConfigurationId,
       };
       try {
-        dispatch(addRecordAsync(data));
+        await withLoader(async () => {
+          await dispatch(addRecordAsync(data));
+        });
         setDateOffset(0);
         setMsgType('');
         setSurgeryConfigurationId('');

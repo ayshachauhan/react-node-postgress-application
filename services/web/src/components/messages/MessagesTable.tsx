@@ -3,7 +3,9 @@ import { EmailData, IEmailLog } from '@packages/entities';
 import Button from '@root/components/Button';
 import { SearchIcon } from '@root/components/Icons';
 import TextInput from '@root/components/TextInput';
+import Loader from '@root/components/loader';
 import MessageWithReadMore from '@root/components/messages/MessageWithReadMore';
+import { useLoader } from '@root/hooks/useLoader';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { fetchLoggedInUser } from '@root/store/reducers/auth';
 import { fetchListings, setSearchMRNName } from '@root/store/reducers/messages';
@@ -17,16 +19,23 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 export default function MessagesTable() {
   const [activeButton, setActiveButton] = useState<string | null>('All');
-  const toggleActive = (id: string) => {
+  const delay = (ms: number): Promise<void> =>
+    new Promise((resolve) => setTimeout(resolve, ms));
+  const toggleActive = async (id: string) => {
     setActiveButton(id);
-    filterMessagesByType();
+    await withLoader(async () => {
+      await delay(500);
+      const filteredData = await filterMessagesByType();
+      setFilteredData(filteredData);
+    });
   };
   const dispatch = useAppDispatch();
   const messagesData: IEmailLog[] = useAppSelector((state) =>
     Object.values(state.messages.entities),
   );
   const [filteredData, setFilteredData] = useState<IEmailLog[]>([]);
-  const filterMessagesByType = useCallback(() => {
+  const { isLoading, withLoader } = useLoader();
+  const filterMessagesByType = useCallback(async () => {
     if (!messagesData) return [];
 
     let filtered = [...messagesData];
@@ -62,14 +71,18 @@ export default function MessagesTable() {
   }, [dispatch]);
 
   useEffect(() => {
-    const filteredData = filterMessagesByType();
-    if (
-      JSON.stringify(filteredData) !== JSON.stringify(filteredDataRef.current)
-    ) {
-      setFilteredData(filteredData);
-      filteredDataRef.current = filteredData;
-    }
-  }, [messagesData, filterMessagesByType]);
+    const updateFilteredData = async () => {
+      const filteredData = await filterMessagesByType();
+      if (
+        JSON.stringify(filteredData) !== JSON.stringify(filteredDataRef.current)
+      ) {
+        setFilteredData(filteredData);
+        filteredDataRef.current = filteredData;
+      }
+    };
+
+    updateFilteredData();
+  }, [messagesData, filterMessagesByType, filteredDataRef]);
 
   const [groupedMessagesByDate, setGroupedMessagesByDate] = useState<{
     [date: string]: IEmailLog[];
@@ -157,17 +170,23 @@ export default function MessagesTable() {
 
   const dispatchFetchMessages = (searchMRNName: string) => {
     if (practiceId != null) {
-      dispatch(
-        fetchListings({
-          practiceId,
-          searchMRNName,
-        }),
-      );
+      const loadData = async () => {
+        await withLoader(async () => {
+          await dispatch(
+            fetchListings({
+              practiceId,
+              searchMRNName,
+            }),
+          );
+        });
+      };
+      loadData();
     }
   };
 
   return (
     <div className="mt-4 mb-8">
+      {isLoading && <Loader />}
       <div className="flex justify-between border-gray-400">
         <span className="text-xl font-bold">
           All Messages({messagesData.length})
@@ -220,9 +239,9 @@ export default function MessagesTable() {
           ))}
         </div>
       </div>
-      {Object.keys(sortedMessagesByDate).length !== 0 ? (
+      {Object.keys(sortedMessagesByDate).length !== 0 && (
         <div className="w-full overflow-x-auto mt-2 border rounded-t-lg rounded-b-lg border-gray-200">
-          {Object.entries(sortedMessagesByDate).length > 0 ? (
+          {Object.entries(sortedMessagesByDate).length > 0 &&
             Object.entries(sortedMessagesByDate).map(
               ([date, records], index) => (
                 <div key={date}>
@@ -312,18 +331,7 @@ export default function MessagesTable() {
                   ))}
                 </div>
               ),
-            )
-          ) : (
-            <div className="p-2 text-center text-sm text-black">
-              {' '}
-              No records found.
-            </div>
-          )}
-        </div>
-      ) : (
-        <div className="p-2 text-center text-sm text-black">
-          {' '}
-          No records found.
+            )}
         </div>
       )}
     </div>
