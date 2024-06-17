@@ -19,6 +19,7 @@ import {
   getPracticeId,
   toPascalCase,
 } from '@utils/index';
+import { useSearchParams } from 'next/navigation';
 import React, { useEffect } from 'react';
 import { SurgeryFields } from './constants';
 
@@ -28,6 +29,7 @@ export type HistoryData = {
   surgery: string;
   firstName: string;
   lastName: string;
+  patientId: string;
   mrn: number;
   field: string;
   user: string;
@@ -40,6 +42,8 @@ export type HistoryData = {
 
 export default function HistoryTable() {
   const dispatch = useAppDispatch();
+  const searchParams = useSearchParams();
+  const patientId = searchParams.get('id');
 
   const practiceId = getPracticeId();
 
@@ -107,6 +111,7 @@ export default function HistoryTable() {
         surgery: entityData.surgeryConfiguration.name,
         firstName: entityData.patient.firstName,
         lastName: entityData.patient.lastName,
+        patientId: entityData.patient.id,
         mrn: entityData.patient.mrn,
         user: history.user.fullName,
         ip: history.ipAddress ?? '',
@@ -129,7 +134,30 @@ export default function HistoryTable() {
    * @returns resolved history data for surgery and eval
    */
   const getResolvedHistoryData = (): HistoryData[] => {
-    return historyLogs
+    let filteredHistoryLogs = historyLogs;
+
+    if (patientId) {
+      filteredHistoryLogs = historyLogs.filter((history) => {
+        if (history.entityType === HistoryType.SURGERY) {
+          const surgeryData = surgeries.find(
+            (surgery) => surgery.id === history.entityId,
+          );
+          if (surgeryData && surgeryData.patient.id === patientId) {
+            return true;
+          }
+        } else if (history.entityType === HistoryType.EVAL) {
+          const evalData = evals.find(
+            (evaluation) => evaluation.id === history.entityId,
+          );
+          if (evalData && evalData.patient.id === patientId) {
+            return true;
+          }
+        }
+        return false;
+      });
+    }
+
+    return filteredHistoryLogs
       .sort(
         (a, b) =>
           new Date(b.dateCreated).getTime() - new Date(a.dateCreated).getTime(),

@@ -8,6 +8,7 @@ import UsersListing from '@root/components/dashboard/UsersListing';
 import AddSurgeryModal from '@root/components/dashboard/addSurgeryModal';
 import AddEvalModal from '@root/components/eval/addEval/addEvalModal';
 import { useAppDispatch, useAppSelector } from '@root/store';
+import { fetchLoggedInUser } from '@root/store/reducers/auth';
 import { fetchCalendars } from '@root/store/reducers/calendar';
 import {
   clearSuccessMessage as clearEvalSuccessMessage,
@@ -67,6 +68,10 @@ const DashboardPage: React.FC = () => {
   const monthLabels = selectedMonth.map((month) => month.label);
   const month = monthLabels.join(',');
   const searchMRNNameStr = searchMRNName || '';
+
+  useEffect(() => {
+    dispatch(fetchLoggedInUser());
+  }, [dispatch]);
 
   useEffect(() => {
     if (practiceId) {

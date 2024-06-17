@@ -34,6 +34,7 @@ import {
   usDateFormatter,
 } from '@root/utils';
 import { Checkbox } from 'baseui/checkbox';
+import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import EditableRow from 'src/components/eval/editEval/editableRow';
 import AddSurgeryModal from '../dashboard/addSurgeryModal';
@@ -42,7 +43,7 @@ import AddEvalModal from './addEval/addEvalModal';
 
 const EvalPage: React.FC = () => {
   const dispatch = useAppDispatch();
-
+  const router = useRouter();
   const {
     evalsList,
     calendarSuccessMessage,
@@ -57,6 +58,12 @@ const EvalPage: React.FC = () => {
     evalInfo: state.evals.evalInfo,
     userInfo: state.auth.user,
   }));
+  const handleViewHistory = (id: string): void => {
+    const query = { id };
+    const queryString = new URLSearchParams(query).toString();
+    const url = `/history/?${queryString}`;
+    router.push(url);
+  };
 
   const practiceId = getPracticeId();
   const userId = getUserId();
@@ -77,6 +84,10 @@ const EvalPage: React.FC = () => {
   ]);
   const deleteCaseAllowed = useUserPermission(userPermissions, [
     USER_PERMISSIONS.DELETE_CASE,
+  ]);
+
+  const viewHistory = useUserPermission(userPermissions, [
+    USER_PERMISSIONS.VIEW_HX,
   ]);
 
   useEffect(() => {
@@ -131,6 +142,7 @@ const EvalPage: React.FC = () => {
       const viewData = {
         firstName: ele.patient.firstName,
         lastName: ele.patient.lastName,
+        patientId: ele.patient.id,
         fullName: toFullName(ele?.patient),
         mrn: ele.patient.mrn,
         email: ele.patient.email,
@@ -278,7 +290,18 @@ const EvalPage: React.FC = () => {
                 <div
                   className={`text-black  py-0.5 px-1 w-28  flex justify-around items-center`}
                 >
-                  <div>{data.date}</div>
+                  <div>
+                    {viewHistory ? (
+                      <div
+                        onClick={() => handleViewHistory(data.patientId)}
+                        className="cursor-pointer underline"
+                      >
+                        {data.date}
+                      </div>
+                    ) : (
+                      <div>{data.date}</div>
+                    )}
+                  </div>
                 </div>
                 <div className="text-black  py-0.5 px-1 w-28  flex justify-around items-center">
                   <div>{data.actionDate}</div>
