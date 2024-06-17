@@ -126,7 +126,7 @@ export default function SurgeryTypePage() {
             paddingBottom: '8px',
           }}
         >
-          Add New Surgery Type
+          Add New Surgery Location
         </ModalHeader>
         <ModalBody>
           <AddSurgeryType onClose={handleCloseModal} />
@@ -172,7 +172,7 @@ export default function SurgeryTypePage() {
   return (
     <div className="mt-4">
       <div className="flex justify-between border-gray-400">
-        <span className="text-xl font-bold align-middle">Surgery Type</span>
+        <span className="text-xl font-bold align-middle">Surgery Location</span>
         {showModal && <div className="text-green-700">{successMessage}</div>}
         {showErrorMessage && <div className="text-red-700">{errorMessage}</div>}
         <Button
@@ -187,7 +187,7 @@ export default function SurgeryTypePage() {
         <div className="bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 grid grid-cols-4 rounded-lg">
           <div className="font-bold text-white p-4">S. No.</div>
           <div className="font-bold text-white p-4">Practice Name</div>
-          <div className="font-bold text-white p-4">Surgery Type</div>
+          <div className="font-bold text-white p-4">Surgery Location</div>
           <div className="font-bold text-white p-4">Action</div>
           {surgeryTypes.map((data, index) => (
             <React.Fragment key={data.id}>

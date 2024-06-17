@@ -284,7 +284,7 @@ const EditModularField: React.FC<{
           <div className="flex gap-5 mt-4">
             <div className="space-y-2 flex-1">
               <label htmlFor="surgeryName" className="text-black text-sm">
-                Surgery Type
+                Surgery Location
               </label>
               <Select
                 size={SIZE.mini}

@@ -277,7 +277,7 @@ const Dashboard: React.FC = () => {
       <div className="text-gray-50 w-full  items-center  bg-gray-50 py-4 rounded-lg">
         <div className="bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 grid grid-cols-6 rounded-lg">
           <div className="font-bold text-white p-4">S. No.</div>
-          <div className="font-bold text-white p-4">Surgery Type</div>
+          <div className="font-bold text-white p-4">Surgery Location</div>
           <div className="font-bold text-white p-4">Surgery Name</div>
           <div className="font-bold text-white p-4">Body Part</div>
           <div className="font-bold text-white p-4">Facility</div>
