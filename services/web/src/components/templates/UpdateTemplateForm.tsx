@@ -153,8 +153,7 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({
       surgeryConfiguration: selectedSurgeryConfiguration,
     });
   };
-  const delay = (ms: number): Promise<void> =>
-    new Promise((resolve) => setTimeout(resolve, ms));
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (templateId && practiceId && userId) {
@@ -175,7 +174,6 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({
       };
       try {
         await withLoader(async () => {
-          await delay(5000); // Add a delay of 1 second
           await dispatch(
             updateRecordAsync({ ...userPayloadData, file: attachment }),
           );

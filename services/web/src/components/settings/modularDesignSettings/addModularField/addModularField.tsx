@@ -136,8 +136,6 @@ const AddModularField: React.FC<{
     values.splice(index, 1);
     setOptionsFields(values);
   };
-  const delay = (ms: number): Promise<void> =>
-    new Promise((resolve) => setTimeout(resolve, ms));
   const [checkListInputFields, setCheckListInputFields] = useState([
     { value: '' },
   ]);
@@ -206,7 +204,6 @@ const AddModularField: React.FC<{
         color: surgeryNameColor,
       };
       await withLoader(async () => {
-        await delay(2000); // Add a delay of 1 second
         await dispatch(addRecordAsync({ payloadData, practiceId }));
       });
     }

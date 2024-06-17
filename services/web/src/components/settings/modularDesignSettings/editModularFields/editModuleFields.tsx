@@ -210,8 +210,7 @@ const EditModularField: React.FC<{
   const handleSurgeryTypeChange = ({ value }) => {
     setSurgeryTypeId(value[0] ? value[0].id : null);
   };
-  const delay = (ms: number): Promise<void> =>
-    new Promise((resolve) => setTimeout(resolve, ms));
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const surgeryOptionObj = {};
@@ -252,7 +251,6 @@ const EditModularField: React.FC<{
         color: surgeryNameColor,
       };
       await withLoader(async () => {
-        await delay(2000); // Add a delay of 1 second
         await dispatch(
           editRecordAsync({
             payloadData,
