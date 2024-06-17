@@ -65,8 +65,8 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapseChange }) => {
     const settingChildPath = ['/templates', '/users'];
 
     const activeItem = sidebarItems.find((item) => item.path === currentPath);
-    const activeItemForChild = sidebarItems.find((item) =>
-      item.child?.some((childItem) => childItem.path === currentPath),
+    const activeItemForChild = sidebarItems.find(
+      (item) => item.child?.some((childItem) => childItem.path === currentPath),
     );
     const activeChildItem = activeItemForChild?.child?.find(
       (childItem) => childItem.path === currentPath,
