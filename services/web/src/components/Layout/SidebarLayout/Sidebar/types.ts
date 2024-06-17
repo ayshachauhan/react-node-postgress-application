@@ -124,13 +124,36 @@ export function filterSidebarItems(
   userPermissions: IPermission[],
   sidebarItems: SideBarItem[],
 ): SideBarItem[] {
-  return sidebarItems.filter((item) => {
-    const userTypeAllowed = item.permissions.includes(userType);
+  return sidebarItems
+    .map<SideBarItem | null>((item) => {
+      const userTypeAllowed = item.permissions.includes(userType);
 
-    const userPermissionsAllowed = item.userPermissions
-      ? useUserPermission(userPermissions, item.userPermissions)
-      : true;
+      const userPermissionsAllowed = item.userPermissions
+        ? useUserPermission(userPermissions, item.userPermissions)
+        : true;
 
-    return userTypeAllowed && userPermissionsAllowed;
-  });
+      if (!userTypeAllowed || !userPermissionsAllowed) {
+        return null;
+      }
+
+      const filteredChildren = item.child
+        ? item.child.filter((childItem) => {
+            const childTypeAllowed = childItem.permissions.includes(userType);
+            const childPermissionsAllowed = childItem.userPermissions
+              ? useUserPermission(userPermissions, childItem.userPermissions)
+              : true;
+
+            return childTypeAllowed && childPermissionsAllowed;
+          })
+        : undefined;
+
+      return {
+        ...item,
+        child:
+          filteredChildren && filteredChildren.length > 0
+            ? filteredChildren
+            : undefined,
+      };
+    })
+    .filter((item): item is SideBarItem => item !== null); // This filters out the null values
 }

@@ -32,7 +32,7 @@ const AddSurgeryType: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       <form onSubmit={handleSubmit}>
         <div className="space-y-2 pt-4">
           <label htmlFor="firstName" className="text-black text-sm">
-            Surgery Type
+            Surgery Location
           </label>
           <div>
             <div>

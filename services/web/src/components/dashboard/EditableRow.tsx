@@ -17,6 +17,7 @@ function EditableRow({
   customHeaders,
   surgeryInfo,
   handleUpdateClick,
+  withLoader,
 }) {
   const practiceId = getPracticeId();
   const surgeryStatusOptions = Object.keys(SurgeryStatus).map((key) => ({
@@ -121,8 +122,9 @@ function EditableRow({
         referrerId,
         waitlistId,
       };
-
-      await dispatch(updateRecordAsync({ payload, id: surgeryInfo.id }));
+      await withLoader(async () => {
+        await dispatch(updateRecordAsync({ payload, id: surgeryInfo.id }));
+      });
 
       setInsuranceTypeId('');
       setReferrerId('');

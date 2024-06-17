@@ -26,9 +26,14 @@ interface Data {
 interface ChildProps {
   data: Data;
   onClose: () => void;
+  withLoader: (func: () => Promise<void>) => Promise<void>;
 }
 
-const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
+const TemplateUpdatePage: React.FC<ChildProps> = ({
+  data,
+  onClose,
+  withLoader,
+}) => {
   const userInfo = useAppSelector((state) => state.auth.user);
   const userId = userInfo?.id;
   const userPermissions = userInfo?.permissions;
@@ -81,14 +86,20 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
     if (practiceId && userId) {
       const formattedPracticeId = practiceId ?? '';
       const formattedUserId = userId ?? '';
-      dispatch(
-        fetchListings({
-          practiceId: formattedPracticeId,
-          userId: formattedUserId,
-        }),
-      );
+      const loadData = async () => {
+        await withLoader(async () => {
+          await dispatch(
+            fetchListings({
+              practiceId: formattedPracticeId,
+              userId: formattedUserId,
+            }),
+          );
+        });
+      };
+
+      loadData();
     }
-  }, [practiceId, userId, dispatch]);
+  }, [practiceId, userId, dispatch, withLoader]);
 
   useEffect(() => {
     if (practiceId !== null) {
@@ -162,7 +173,11 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
         id: templateId,
       };
       try {
-        dispatch(updateRecordAsync({ ...userPayloadData, file: attachment }));
+        await withLoader(async () => {
+          await dispatch(
+            updateRecordAsync({ ...userPayloadData, file: attachment }),
+          );
+        });
         onClose();
       } catch (error) {
         onClose();

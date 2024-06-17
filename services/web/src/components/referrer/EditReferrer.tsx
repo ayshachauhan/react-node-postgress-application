@@ -14,8 +14,13 @@ interface Data {
 interface ChildProps {
   data: Data;
   onClose: () => void;
+  withLoader: (func: () => Promise<void>) => Promise<void>;
 }
-const EditReferrerForm: React.FC<ChildProps> = ({ data, onClose }) => {
+const EditReferrerForm: React.FC<ChildProps> = ({
+  data,
+  onClose,
+  withLoader,
+}) => {
   const dispatch = useAppDispatch();
   const practiceId = getPracticeId();
   const referrerTypeOptions = Object.keys(ReferrerType).map((key) => ({
@@ -55,7 +60,9 @@ const EditReferrerForm: React.FC<ChildProps> = ({ data, onClose }) => {
         id: referrerId,
       };
       try {
-        dispatch(updateRecordAsync(referrerPayloadData));
+        await withLoader(async () => {
+          await dispatch(updateRecordAsync(referrerPayloadData));
+        });
         onClose();
       } catch (error) {
         onClose();

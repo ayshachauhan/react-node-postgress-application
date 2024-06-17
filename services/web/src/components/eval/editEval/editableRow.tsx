@@ -14,7 +14,12 @@ import { DatePicker } from 'baseui/datepicker';
 import { SIZE, Select } from 'baseui/select';
 import React, { useEffect, useState } from 'react';
 
-function EditableRow({ handleCancelClick, evalInfo, setSelectedAction }) {
+function EditableRow({
+  handleCancelClick,
+  evalInfo,
+  setSelectedAction,
+  withLoader,
+}) {
   const practiceId = getPracticeId();
   const dispatch = useAppDispatch();
   const [obj, setObj] = useState<Partial<UpdateEValInterface>>({});
@@ -122,8 +127,9 @@ function EditableRow({ handleCancelClick, evalInfo, setSelectedAction }) {
           referrerId,
           waitlistId,
         };
-
-        await dispatch(updateRecordAsync({ payloadData, id: evalInfo.id }));
+        await withLoader(async () => {
+          await dispatch(updateRecordAsync({ payloadData, id: evalInfo.id }));
+        });
 
         setSelectedAction(null);
         setInsuranceTypeId('');

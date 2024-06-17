@@ -1,4 +1,5 @@
 'use client';
+import { USER_PERMISSIONS } from '@packages/entities/permission';
 import Button from '@root/components/Button';
 import { AddIcon } from '@root/components/Icons';
 import FiltersSection from '@root/components/dashboard/FiltersSection';
@@ -7,6 +8,9 @@ import UpcomingSection from '@root/components/dashboard/UpcomingSection';
 import UsersListing from '@root/components/dashboard/UsersListing';
 import AddSurgeryModal from '@root/components/dashboard/addSurgeryModal';
 import AddEvalModal from '@root/components/eval/addEval/addEvalModal';
+import Loader from '@root/components/loader';
+import { useLoader } from '@root/hooks/useLoader';
+import { useUserPermission } from '@root/hooks/userHasPermission';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { fetchLoggedInUser } from '@root/store/reducers/auth';
 import { fetchCalendars } from '@root/store/reducers/calendar';
@@ -14,9 +18,6 @@ import {
   clearSuccessMessage as clearEvalSuccessMessage,
   fetchListings as fetchEvalsList,
 } from '@root/store/reducers/evals';
-
-import { USER_PERMISSIONS } from '@packages/entities/permission';
-import { useUserPermission } from '@root/hooks/userHasPermission';
 import { fetchListings as fetchInsuranceTypesList } from '@root/store/reducers/insuranceTypes';
 import { fetchListings as fetchPatients } from '@root/store/reducers/patient';
 import { fetchListings as fetchPracticeHomesListing } from '@root/store/reducers/practiceHomes';
@@ -68,6 +69,7 @@ const DashboardPage: React.FC = () => {
   const monthLabels = selectedMonth.map((month) => month.label);
   const month = monthLabels.join(',');
   const searchMRNNameStr = searchMRNName || '';
+  const { isLoading, withLoader } = useLoader();
 
   useEffect(() => {
     dispatch(fetchLoggedInUser());
@@ -75,52 +77,62 @@ const DashboardPage: React.FC = () => {
 
   useEffect(() => {
     if (practiceId) {
-      dispatch(fetchEvalsList({ practiceId }));
-      if (loggedInUserId !== null) {
-        dispatch(
-          fetchSurgeryList({
-            loggedInUserId,
-            practiceId,
-            month: month,
-            searchMRNName: searchMRNNameStr,
-            option: selectedValueStr,
-          }),
-        );
-      }
-      dispatch(fetchInsuranceTypesList({ practiceId }));
-      dispatch(fetchPracticeHomesListing({ practiceId }));
-      dispatch(fetchSurgeryTypesListing({ practiceId }));
-      dispatch(fetchReferrerList({ practiceId }));
-      dispatch(fetchUsersList({ practiceId }));
-      dispatch(fetchSurgeryConfigurationsListing({ practiceId }));
-      dispatch(fetchPatients({ practiceId }));
-      dispatch(fetchWaitlist({ practiceId }));
+      const loadData = async () => {
+        await withLoader(async () => {
+          await dispatch(fetchEvalsList({ practiceId }));
+          if (loggedInUserId !== null) {
+            await dispatch(
+              fetchSurgeryList({
+                loggedInUserId,
+                practiceId,
+                month: month,
+                searchMRNName: searchMRNNameStr,
+                option: selectedValueStr,
+              }),
+            );
+          }
+          await dispatch(fetchInsuranceTypesList({ practiceId }));
+          await dispatch(fetchPracticeHomesListing({ practiceId }));
+          await dispatch(fetchSurgeryTypesListing({ practiceId }));
+          await dispatch(fetchReferrerList({ practiceId }));
+          await dispatch(fetchUsersList({ practiceId }));
+          await dispatch(fetchSurgeryConfigurationsListing({ practiceId }));
+          await dispatch(fetchPatients({ practiceId }));
+          await dispatch(fetchWaitlist({ practiceId }));
+        });
+      };
+      loadData();
     }
-  }, [practiceId, dispatch]);
+  }, [practiceId, dispatch, withLoader]);
 
   useEffect(() => {
     if (addSurgerySuccessMessage || addEvalSuccessMessage) {
       if (practiceId) {
-        dispatch(fetchEvalsList({ practiceId }));
-        if (loggedInUserId !== null) {
-          dispatch(
-            fetchSurgeryList({
-              loggedInUserId,
-              practiceId,
-              month: month,
-              searchMRNName: searchMRNNameStr,
-              option: selectedValueStr,
-            }),
-          );
-        }
-        dispatch(clearSurgerySuccessMessage());
-        dispatch(clearEvalSuccessMessage());
-        dispatch(fetchSurgeryConfigurationsListing({ practiceId }));
-        dispatch(fetchWaitlist({ practiceId }));
-        dispatch(fetchPatients({ practiceId }));
-        if (userId) {
-          dispatch(fetchCalendars({ practiceId, userId }));
-        }
+        const loadData = async () => {
+          await withLoader(async () => {
+            await dispatch(fetchEvalsList({ practiceId }));
+            if (loggedInUserId !== null) {
+              await dispatch(
+                fetchSurgeryList({
+                  loggedInUserId,
+                  practiceId,
+                  month: month,
+                  searchMRNName: searchMRNNameStr,
+                  option: selectedValueStr,
+                }),
+              );
+            }
+            await dispatch(clearSurgerySuccessMessage());
+            await dispatch(clearEvalSuccessMessage());
+            await dispatch(fetchSurgeryConfigurationsListing({ practiceId }));
+            await dispatch(fetchWaitlist({ practiceId }));
+            await dispatch(fetchPatients({ practiceId }));
+            if (userId) {
+              await dispatch(fetchCalendars({ practiceId, userId }));
+            }
+          });
+        };
+        loadData();
       }
     }
   }, [
@@ -130,6 +142,7 @@ const DashboardPage: React.FC = () => {
     dispatch,
     practiceId,
     userId,
+    withLoader,
   ]);
 
   useEffect(() => {
@@ -167,6 +180,7 @@ const DashboardPage: React.FC = () => {
 
   return (
     <div id="__next" className="">
+      {isLoading && <Loader />}
       <div className="flex justify-between border-gray-400 items-center">
         <span className="text-xl font-bold">Dashboard </span>
         <div className="flex  justify-between">
@@ -225,16 +239,20 @@ const DashboardPage: React.FC = () => {
         </div>
       </div>
       <div className="mt-2 mb-12">
-        {practiceId && <FiltersSection practiceId={practiceId} />}
+        {practiceId && (
+          <FiltersSection practiceId={practiceId} withLoader={withLoader} />
+        )}
       </div>
       <AddSurgeryModal
         isModalOpen={isAddModalOpen}
         handleCloseModal={handleCloseAddModal}
+        withLoader={withLoader}
       />
       <div className="w-400">
         <AddEvalModal
           isSecondModalOpen={isAddEvalModalOpen}
           handleCloseSecondModal={handleCloseAddEvalModal}
+          withLoader={withLoader}
         />
       </div>
     </div>

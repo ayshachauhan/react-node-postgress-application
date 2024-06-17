@@ -7,7 +7,9 @@ import {
   EditIcon,
   HomeIcon,
 } from '@root/components/Icons';
+import Loader from '@root/components/loader';
 import { EVAL_STATUS } from '@root/enums/evalStatus.enum';
+import { useLoader } from '@root/hooks/useLoader';
 import { useUserPermission } from '@root/hooks/userHasPermission';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { fetchLoggedInUser } from '@root/store/reducers/auth';
@@ -43,7 +45,9 @@ import AddEvalModal from './addEval/addEvalModal';
 
 const EvalPage: React.FC = () => {
   const dispatch = useAppDispatch();
+
   const router = useRouter();
+  const { isLoading, withLoader } = useLoader();
   const {
     evalsList,
     calendarSuccessMessage,
@@ -96,27 +100,39 @@ const EvalPage: React.FC = () => {
 
   useEffect(() => {
     if (practiceId) {
-      dispatch(fetchEvalsList({ practiceId }));
-      dispatch(fetchInsuranceTypesList({ practiceId }));
-      dispatch(fetchPracticeHomesListing({ practiceId }));
-      dispatch(fetchSurgeryTypesListing({ practiceId }));
-      dispatch(fetchReferrerList({ practiceId }));
-      dispatch(fetchUsersList({ practiceId }));
-      dispatch(fetchSurgeryConfigurationsListing({ practiceId }));
-      dispatch(fetchPatients({ practiceId }));
-      dispatch(fetchWaitlist({ practiceId }));
+      const loadData = async () => {
+        await withLoader(async () => {
+          await dispatch(fetchEvalsList({ practiceId }));
+          await dispatch(fetchInsuranceTypesList({ practiceId }));
+          await dispatch(fetchPracticeHomesListing({ practiceId }));
+          await dispatch(fetchSurgeryTypesListing({ practiceId }));
+          await dispatch(fetchReferrerList({ practiceId }));
+          await dispatch(fetchUsersList({ practiceId }));
+          await dispatch(fetchSurgeryConfigurationsListing({ practiceId }));
+          await dispatch(fetchPatients({ practiceId }));
+          await dispatch(fetchWaitlist({ practiceId }));
+        });
+      };
+
+      loadData();
     }
-  }, [practiceId, dispatch]);
+  }, [practiceId, dispatch, withLoader]);
 
   useEffect(() => {
     if (addEvalSuccessMessage) {
       if (practiceId) {
-        dispatch(fetchEvalsList({ practiceId }));
-        dispatch(clearEvalSuccessMessage());
-        dispatch(fetchSurgeryConfigurationsListing({ practiceId }));
-        dispatch(fetchPatients({ practiceId }));
-        dispatch(fetchWaitlist({ practiceId }));
-        if (userId) dispatch(fetchCalendars({ practiceId, userId }));
+        const loadData = async () => {
+          await withLoader(async () => {
+            dispatch(fetchEvalsList({ practiceId }));
+            dispatch(clearEvalSuccessMessage());
+            dispatch(fetchSurgeryConfigurationsListing({ practiceId }));
+            dispatch(fetchPatients({ practiceId }));
+            dispatch(fetchWaitlist({ practiceId }));
+            if (userId) dispatch(fetchCalendars({ practiceId, userId }));
+          });
+        };
+
+        loadData();
       }
     }
   }, [addEvalSuccessMessage, calendarSuccessMessage, dispatch]);
@@ -231,6 +247,7 @@ const EvalPage: React.FC = () => {
 
   return (
     <div id="__next" className="text-center">
+      {isLoading && <Loader />}
       <div className="flex justify-between border-gray-400 items-center ">
         <span className="text-xl font-bold">Evals</span>
         <div className="flex  justify-between">
@@ -283,6 +300,7 @@ const EvalPage: React.FC = () => {
               handleCancelClick={handleCancelClick}
               evalInfo={evalInfo}
               setSelectedAction={setSelectedAction}
+              withLoader={withLoader}
             />
           ) : (
             <React.Fragment key={data.id}>
@@ -436,6 +454,7 @@ const EvalPage: React.FC = () => {
       <AddEvalModal
         isSecondModalOpen={isAddModalOpen}
         handleCloseSecondModal={handleCloseAddModal}
+        withLoader={withLoader}
       />
       <DeleteEvalModal
         onConfirmDelete={onConfirmDelete}
@@ -447,6 +466,7 @@ const EvalPage: React.FC = () => {
         isModalOpen={isBookSurgeryOpenModal}
         handleCloseModal={handleCloseBookSurgeryModal}
         autoFillFromEval={true}
+        withLoader={withLoader}
       />
     </div>
   );

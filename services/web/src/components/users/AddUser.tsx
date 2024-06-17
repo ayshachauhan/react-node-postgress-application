@@ -11,7 +11,10 @@ import { FileUploader } from 'baseui/file-uploader';
 import { Select } from 'baseui/select';
 import React, { useEffect, useState } from 'react';
 import RequiredIndicator from '../RequiredIndicator';
-const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
+const AddUserPage: React.FC<{
+  onClose: () => void;
+  withLoader: (func: () => Promise<void>) => Promise<void>;
+}> = ({ onClose, withLoader }) => {
   const userTypeOptions = Object.keys(UserType).map((key) => ({
     label: UserType[key as keyof typeof UserType],
     id: key,
@@ -76,7 +79,9 @@ const AddUserPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         file: userImg,
       };
       try {
-        dispatch(addRecordAsync(userPayloadData));
+        await withLoader(async () => {
+          await dispatch(addRecordAsync(userPayloadData));
+        });
         onClose();
       } catch (error) {
         onClose();

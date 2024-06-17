@@ -37,7 +37,10 @@ import EditableRow from './EditableRow';
 import ViewRow from './ViewRow';
 import AddSurgeryModal from './addSurgeryModal';
 
-const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
+const FiltersSection: React.FC<{
+  practiceId: string;
+  withLoader: (func: () => Promise<void>) => Promise<void>;
+}> = ({ practiceId, withLoader }) => {
   const dispatch = useAppDispatch();
   const { selectedMonth, searchMRNName, selectedValue } = useAppSelector(
     (state) => state.surgeries.surgeryFilters,
@@ -585,6 +588,7 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
                               customHeaders={surgeryOptionsHeadersObj}
                               surgeryInfo={surgeryInfo}
                               handleUpdateClick={handleUpdateClick}
+                              withLoader={withLoader}
                             />
                           ) : (
                             <>
@@ -772,6 +776,7 @@ const FiltersSection: React.FC<{ practiceId: string }> = ({ practiceId }) => {
               isModalOpen={isAddModalOpen}
               handleCloseModal={handleCloseAddModal}
               autoFillFromSurgery={true}
+              withLoader={withLoader}
             />
           </div>
         ) : (

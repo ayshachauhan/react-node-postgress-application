@@ -21,13 +21,14 @@ interface Data {
 interface ChildProps {
   data: Data;
   onClose: () => void;
+  withLoader: (func: () => Promise<void>) => Promise<void>;
 }
 interface SelectedItems {
   permissions: IPermission[];
   checkboxIds: string[];
 }
 
-const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
+const EditUserPage: React.FC<ChildProps> = ({ data, onClose, withLoader }) => {
   const userTypeOptions = Object.keys(UserType).map((key) => ({
     label: UserType[key as keyof typeof UserType],
     id: key,
@@ -74,6 +75,7 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
   const loggedInUserId = loggedInUserInfo?.id;
   const isDisabled = loggedInUserId === userId;
   const [errorMessage, setErrorMessage] = useState('');
+  const [permissionsUpdated, setPermissionsUpdated] = useState(false);
 
   useEffect(() => {
     if (updatedUserInfo?.permissions) {
@@ -103,6 +105,7 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
     const updatedCheckboxes = [...checkboxes];
     updatedCheckboxes[index] = !updatedCheckboxes[index];
     setCheckboxes(updatedCheckboxes);
+    setPermissionsUpdated(true);
   };
 
   useEffect(() => {
@@ -141,15 +144,18 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
         id: userId,
         permissionIds: selectedUserPermissions,
         file: userImg,
+        permissionsUpdated,
       };
       if ('password' in userPayloadData) {
         delete userPayloadData.password;
       }
       try {
-        dispatch(updateRecordAsync(userPayloadData));
-        if (loggedInUserId === userId) {
-          updateUserPermissions(newPermissions);
-        }
+        await withLoader(async () => {
+          await dispatch(updateRecordAsync(userPayloadData));
+          if (loggedInUserId === userId) {
+            updateUserPermissions(newPermissions);
+          }
+        });
         onClose();
       } catch (error) {
         onClose();
