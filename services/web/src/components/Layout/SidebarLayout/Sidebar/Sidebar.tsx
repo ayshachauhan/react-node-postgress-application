@@ -65,10 +65,10 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapseChange }) => {
     const settingChildPath = ['/templates', '/users'];
 
     const activeItem = sidebarItems.find((item) => item.path === currentPath);
-    const activeItemForChild = sidebarItems.find((item) =>
+    const activeItemForChild1 = sidebarItems.find((item) =>
       item.child?.some((childItem) => childItem.path === currentPath),
     );
-    const activeChildItem = activeItemForChild?.child?.find(
+    const activeChildItem = activeItemForChild1?.child?.find(
       (childItem) => childItem.path === currentPath,
     );
 
@@ -77,8 +77,8 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapseChange }) => {
       if (settingChildPath.includes(activeChildItem.path)) {
         setActiveMenuItemId('setting');
       } else {
-        if (activeItemForChild) {
-          setActiveMenuItemId(activeItemForChild.id);
+        if (activeItemForChild1) {
+          setActiveMenuItemId(activeItemForChild1.id);
         }
       }
     } else if (activeItem) {
