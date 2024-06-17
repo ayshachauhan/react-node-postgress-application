@@ -15,10 +15,11 @@ import { SIZE, Select } from 'baseui/select';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 
-const EditModularField: React.FC<{ onClose: () => void; data }> = ({
-  onClose,
-  data,
-}) => {
+const EditModularField: React.FC<{
+  onClose: () => void;
+  data;
+  withLoader: (func: () => Promise<void>) => Promise<void>;
+}> = ({ onClose, data, withLoader }) => {
   const dispatch = useAppDispatch();
   const practiceId = getPracticeId();
   const surgeryConfigInfo: ISurgeryConfiguration | undefined = Object.values(
@@ -209,7 +210,8 @@ const EditModularField: React.FC<{ onClose: () => void; data }> = ({
   const handleSurgeryTypeChange = ({ value }) => {
     setSurgeryTypeId(value[0] ? value[0].id : null);
   };
-
+  const delay = (ms: number): Promise<void> =>
+    new Promise((resolve) => setTimeout(resolve, ms));
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const surgeryOptionObj = {};
@@ -249,10 +251,16 @@ const EditModularField: React.FC<{ onClose: () => void; data }> = ({
         checkList: checkListObj,
         color: surgeryNameColor,
       };
-
-      dispatch(
-        editRecordAsync({ payloadData, practiceId, id: data.configurationId }),
-      );
+      await withLoader(async () => {
+        await delay(2000); // Add a delay of 1 second
+        await dispatch(
+          editRecordAsync({
+            payloadData,
+            practiceId,
+            id: data.configurationId,
+          }),
+        );
+      });
     }
 
     try {

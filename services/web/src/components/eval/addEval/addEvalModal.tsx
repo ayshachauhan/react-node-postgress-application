@@ -2,7 +2,11 @@
 import BaseUIModal from '@root/components/BaseUiModal/BaseUiModal';
 import AddEvalForm from '@root/components/eval/addEval/addEval';
 
-const AddEvalModal = ({ isSecondModalOpen, handleCloseSecondModal }) => {
+const AddEvalModal = ({
+  isSecondModalOpen,
+  handleCloseSecondModal,
+  withLoader,
+}) => {
   return (
     <BaseUIModal
       isOpen={isSecondModalOpen}
@@ -25,7 +29,7 @@ const AddEvalModal = ({ isSecondModalOpen, handleCloseSecondModal }) => {
         },
       }}
     >
-      <AddEvalForm onClose={handleCloseSecondModal} />
+      <AddEvalForm onClose={handleCloseSecondModal} withLoader={withLoader} />
     </BaseUIModal>
   );
 };

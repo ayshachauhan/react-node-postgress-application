@@ -7,8 +7,10 @@ import {
   EditIcon,
   ViewIcon,
 } from '@root/components/Icons';
+import Loader from '@root/components/loader';
 import AddUserModal from '@root/components/users/AddUserModal';
 import EditUserModal from '@root/components/users/EditUserModal';
+import { useLoader } from '@root/hooks/useLoader';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { getPracticeInfo } from '@root/store/reducers/practices';
 import { fetchListings as fetchPermissions } from '@root/store/reducers/userPermissions';
@@ -34,6 +36,7 @@ import React, { useEffect, useState } from 'react';
 
 export default function UserPage() {
   const [showModal, setShowModal] = useState(false);
+  const { isLoading, withLoader } = useLoader();
   const dispatch = useAppDispatch();
   const users = useAppSelector((state) => Object.values(state.users.entities));
   const [userId, setUserId] = useState<string | null>(null);
@@ -50,9 +53,14 @@ export default function UserPage() {
 
   useEffect(() => {
     if (practiceId !== null) {
-      dispatch(fetchListings({ practiceId: practiceId }));
+      const loadData = async () => {
+        await withLoader(async () => {
+          await dispatch(fetchListings({ practiceId: practiceId }));
+        });
+      };
+      loadData();
     }
-  }, [practiceId, dispatch]);
+  }, [practiceId, dispatch, withLoader]);
 
   useEffect(() => {
     dispatch(fetchPermissions(undefined));
@@ -177,6 +185,7 @@ export default function UserPage() {
 
   return (
     <div className="mt-4 mb-8">
+      {isLoading && <Loader />}
       <div className="flex justify-between border-gray-400">
         <span className="text-xl font-bold">Users</span>
         {showModal && <div className="text-green-700">{successMessage}</div>}
@@ -325,11 +334,13 @@ export default function UserPage() {
       <AddUserModal
         isModalOpen={isModalOpen}
         handleCloseModal={handleCloseModal}
+        withLoader={withLoader}
       />
       <EditUserModal
         isEditModalOpen={isEditModalOpen}
         handleCloseEditModal={handleCloseEditModal}
         userId={userId}
+        withLoader={withLoader}
       />
       <UserDeleteModal />
     </div>

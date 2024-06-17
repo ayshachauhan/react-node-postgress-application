@@ -8,9 +8,11 @@ import {
 } from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import { AddIcon, DeleteIcon, PlayIcon } from '@root/components/Icons';
+import Loader from '@root/components/loader';
 import AddMediaModal from '@root/components/media/AddMediaModal';
 import ImageModal from '@root/components/media/ImageModal';
 import PlayVideoModal from '@root/components/media/PlayVideoModal';
+import { useLoader } from '@root/hooks/useLoader';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import {
   clearErrorMessage,
@@ -34,6 +36,7 @@ export type SelectedMedia = {
 
 const Media: React.FC = () => {
   const dispatch = useAppDispatch();
+  const { isLoading, withLoader } = useLoader();
   const { media, surgeryConfigurations, patients } = useAppSelector(
     (state) => ({
       media: Object.values(state.media.entities).reverse(),
@@ -109,11 +112,17 @@ const Media: React.FC = () => {
 
   useEffect(() => {
     if (practiceId !== null) {
-      dispatch(fetchListings({ practiceId: practiceId }));
-      dispatch(fetchPatients({ practiceId: practiceId }));
-      dispatch(fetchSurggeryConfigs({ practiceId: practiceId }));
+      const loadData = async () => {
+        await withLoader(async () => {
+          await dispatch(fetchListings({ practiceId: practiceId }));
+          await dispatch(fetchPatients({ practiceId: practiceId }));
+          await dispatch(fetchSurggeryConfigs({ practiceId: practiceId }));
+        });
+      };
+
+      loadData();
     }
-  }, [practiceId, dispatch]);
+  }, [practiceId, dispatch, withLoader]);
 
   useEffect(() => {
     let timer;
@@ -138,8 +147,14 @@ const Media: React.FC = () => {
     };
   }, [successMessage, errorMessage, dispatch]);
 
-  const toggleActive = (mediaType: MediaType) => {
-    setSelectedMediaType(mediaType);
+  const delay = (ms: number): Promise<void> =>
+    new Promise((resolve) => setTimeout(resolve, ms));
+
+  const toggleActive = async (mediaType: MediaType) => {
+    await withLoader(async () => {
+      await delay(500); // Add a delay of 1 second
+      setSelectedMediaType(mediaType);
+    });
   };
 
   const handlePatientMediaClick = (patientId: string) => {
@@ -214,6 +229,7 @@ const Media: React.FC = () => {
 
   return (
     <div className="mt-4">
+      {isLoading && <Loader />}
       <div className="flex flex-col items-center justify-center">
         {showModal && <div className="text-green-700">{successMessage}</div>}
         {showErrorMessage && <div className="text-red-700">{errorMessage}</div>}
@@ -485,6 +501,7 @@ const Media: React.FC = () => {
         isSecondModalOpen={isSecondModalOpen}
         handleCloseSecondModal={handleCloseSecondModal}
         selectedMediaType={selectedMediaType}
+        withLoader={withLoader}
       />
       <DeleteModal />
     </div>

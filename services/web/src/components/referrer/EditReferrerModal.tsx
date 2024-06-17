@@ -6,6 +6,7 @@ const EditReferrerModal = ({
   isEditModalOpen,
   handleCloseEditModal,
   referrerId,
+  withLoader,
 }) => {
   return (
     <BaseUIModal
@@ -17,6 +18,7 @@ const EditReferrerModal = ({
         <EditReferrer
           data={{ id: referrerId }}
           onClose={handleCloseEditModal}
+          withLoader={withLoader}
         />
       )}
     </BaseUIModal>

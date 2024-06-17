@@ -1,8 +1,10 @@
 'use client';
 import Button from '@root/components/Button';
 import { AddIcon } from '@root/components/Icons';
+import Loader from '@root/components/loader';
 import AddTemplateModal from '@root/components/templates/AddTemplateModal';
 import UpdateTemplateModal from '@root/components/templates/UpdateTemplateModal';
+import { useLoader } from '@root/hooks/useLoader';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import {
   clearErrorMessage,
@@ -17,6 +19,7 @@ const Templates: React.FC = () => {
     Object.values(state.templates.entities),
   );
   const dispatch = useAppDispatch();
+  const { isLoading, withLoader } = useLoader();
   const [templateId, setTemplateId] = useState<string | null>(null);
   const [messageType, setMessageType] = useState<string | null>(null);
   const [versionOffset, setVersionOffset] = useState<string | number | null>(
@@ -62,27 +65,39 @@ const Templates: React.FC = () => {
     if (practiceId && userId) {
       const formattedPracticeId = practiceId ?? '';
       const formattedUserId = userId ?? '';
-      dispatch(
-        fetchListings({
-          practiceId: formattedPracticeId,
-          userId: formattedUserId,
-        }),
-      );
+      const loadData = async () => {
+        await withLoader(async () => {
+          await dispatch(
+            fetchListings({
+              practiceId: formattedPracticeId,
+              userId: formattedUserId,
+            }),
+          );
+        });
+      };
+
+      loadData();
     }
-  }, [practiceId, userId, dispatch]);
+  }, [practiceId, userId, dispatch, withLoader]);
 
   useEffect(() => {
     if (successMessage) {
       if (practiceId && userId) {
-        dispatch(
-          fetchListings({
-            practiceId,
-            userId,
-          }),
-        );
+        const loadData = async () => {
+          await withLoader(async () => {
+            await dispatch(
+              fetchListings({
+                practiceId,
+                userId,
+              }),
+            );
+          });
+        };
+
+        loadData();
       }
     }
-  }, [successMessage, dispatch]);
+  }, [successMessage, dispatch, withLoader]);
 
   useEffect(() => {
     let timer;
@@ -107,6 +122,7 @@ const Templates: React.FC = () => {
 
   return (
     <div className="mt-4">
+      {isLoading && <Loader />}
       <div className="flex justify-between border-gray-400 items-center">
         <span className="text-2xl font-medium">Template Engine </span>
         <div className="text-green-700">{successMessage}</div>
@@ -252,6 +268,7 @@ const Templates: React.FC = () => {
       <AddTemplateModal
         isAddModalOpen={isAddModalOpen}
         handleCloseAddModal={handleCloseAddModal}
+        withLoader={withLoader}
       />
       <UpdateTemplateModal
         isUpdateModalOpen={isUpdateModalOpen}
@@ -259,6 +276,7 @@ const Templates: React.FC = () => {
         templateId={templateId}
         messageType={messageType}
         versionOffset={versionOffset}
+        withLoader={withLoader}
       />
     </div>
   );

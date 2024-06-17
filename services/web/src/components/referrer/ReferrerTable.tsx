@@ -1,9 +1,11 @@
 'use client';
 import Button from '@root/components/Button';
 import { AddIcon, DeleteIcon, EditIcon } from '@root/components/Icons';
+import Loader from '@root/components/loader';
 import AddReferrerModal from '@root/components/referrer/AddReferrerModal';
 import EditReferrerModal from '@root/components/referrer/EditReferrerModal';
 import ReferredListModal from '@root/components/referrer/ReferredListModal';
+import { useLoader } from '@root/hooks/useLoader';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { fetchLoggedInUser } from '@root/store/reducers/auth';
 import {
@@ -19,6 +21,7 @@ import DeleteReferrerModal from './DeleteReferrerModal';
 
 export default function ReferrerTable() {
   const practiceId = getPracticeId();
+  const { isLoading, withLoader } = useLoader();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const handleCloseModal = (): void => {
     setIsModalOpen(false);
@@ -87,9 +90,15 @@ export default function ReferrerTable() {
 
   useEffect(() => {
     if (practiceId !== null) {
-      dispatch(fetchListings({ practiceId: practiceId }));
+      const loadData = async () => {
+        await withLoader(async () => {
+          await dispatch(fetchListings({ practiceId: practiceId }));
+        });
+      };
+
+      loadData();
     }
-  }, [practiceId, dispatch]);
+  }, [practiceId, dispatch, withLoader]);
   useEffect(() => {
     let timer;
     if (successMessage) {
@@ -114,6 +123,7 @@ export default function ReferrerTable() {
   }, [successMessage, errorMessage, dispatch]);
   return (
     <div className="mt-4 mb-8">
+      {isLoading && <Loader />}
       <div className="flex justify-between border-gray-400">
         <span className="text-xl font-bold">Referrer</span>
         {showModal && <div className="text-green-700">{successMessage}</div>}
@@ -219,6 +229,7 @@ export default function ReferrerTable() {
       <AddReferrerModal
         isModalOpen={isModalOpen}
         handleCloseModal={handleCloseModal}
+        withLoader={withLoader}
       />
       <DeleteReferrerModal
         onConfirmDelete={onConfirmDelete}
@@ -229,11 +240,13 @@ export default function ReferrerTable() {
         isListModalOpen={isListModalOpen}
         referrerId={referrerId}
         handleCloseListModal={handleCloseListModal}
+        withLoader={withLoader}
       />
       <EditReferrerModal
         isEditModalOpen={isEditModalOpen}
         handleCloseEditModal={handleCloseEditModal}
         referrerId={referrerId}
+        withLoader={withLoader}
       />
     </div>
   );

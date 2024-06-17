@@ -8,6 +8,8 @@ import {
   IEval,
   IHistory,
 } from '@packages/entities/index.browser';
+import Loader from '@root/components/loader';
+import { useLoader } from '@root/hooks/useLoader';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { fetchLoggedInUser } from '@root/store/reducers/auth';
 import { fetchListings as fetchEvalsList } from '@root/store/reducers/evals';
@@ -40,6 +42,7 @@ export type HistoryData = {
 
 export default function HistoryTable() {
   const dispatch = useAppDispatch();
+  const { isLoading, withLoader } = useLoader();
 
   const practiceId = getPracticeId();
 
@@ -57,15 +60,25 @@ export default function HistoryTable() {
 
   useEffect(() => {
     if (practiceId) {
-      dispatch(fetchHistory({ practiceId }));
-      dispatch(fetchEvalsList({ practiceId }));
-      dispatch(fetchSurgeryList({ practiceId }));
+      const loadData = async () => {
+        await withLoader(async () => {
+          await dispatch(fetchHistory({ practiceId }));
+          await dispatch(fetchEvalsList({ practiceId }));
+          await dispatch(fetchSurgeryList({ practiceId }));
+        });
+      };
+      loadData();
     }
   }, [practiceId, dispatch]);
 
   useEffect(() => {
     if (practiceId) {
-      dispatch(fetchHistory({ practiceId }));
+      const loadData = async () => {
+        await withLoader(async () => {
+          await dispatch(fetchHistory({ practiceId }));
+        });
+      };
+      loadData();
     }
   }, [surgerySuccessMessage, dispatch, practiceId]);
 
@@ -161,6 +174,7 @@ export default function HistoryTable() {
 
   return (
     <div className="my-4">
+      {isLoading && <Loader />}
       <div className="flex justify-between border-gray-400">
         <span className="text-xl font-bold">History</span>
       </div>
