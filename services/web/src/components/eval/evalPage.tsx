@@ -441,6 +441,7 @@ const EvalPage: React.FC = () => {
         isModalOpen={isBookSurgeryOpenModal}
         handleCloseModal={handleCloseBookSurgeryModal}
         autoFillFromEval={true}
+        withLoader={withLoader}
       />
     </div>
   );
