@@ -60,3 +60,41 @@ resource "aws_iam_user_policy" "bucket_user_ro" {
   user   = aws_iam_user.bucket_user.name
   policy = data.aws_iam_policy_document.bucket_user_ro.json
 }
+
+
+# the IAM user for image upload
+resource "aws_iam_user" "image_uploader" {
+  name = "image-uploader-${var.environment}"
+  path = "/${var.environment}/"
+
+  tags = {
+    Name    = "azentia-infra-${var.environment}-image-uploader"
+    Creator = "Terraform"
+  }
+}
+
+# Create access keys for the new IAM user
+resource "aws_iam_access_key" "image_uploader" {
+  user = aws_iam_user.image_uploader.name
+}
+
+# Define the policy document for uploading images to the S3 bucket
+data "aws_iam_policy_document" "image_uploader_policy" {
+  statement {
+    effect    = "Allow"
+    actions   = [
+      "s3:PutObject",
+      "s3:PutObjectAcl"
+    ]
+    resources = [
+      "${aws_s3_bucket.azentia-bucket.arn}/*"
+    ]
+  }
+}
+
+# Attach the policy to the new IAM user
+resource "aws_iam_user_policy" "image_uploader_policy" {
+  name   = "image-uploader-policy-${var.environment}"
+  user   = aws_iam_user.image_uploader.name
+  policy = data.aws_iam_policy_document.image_uploader_policy.json
+}
