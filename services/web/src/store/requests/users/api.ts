@@ -121,7 +121,8 @@ export const updateUser = async (
   { rejectWithValue },
 ): Promise<SanitizedUser> => {
   try {
-    const { practiceId, id, file, ...restPayload } = payloadData;
+    const { practiceId, id, permissionsUpdated, file, ...restPayload } =
+      payloadData;
     const sanitizedPayload = { ...restPayload };
     const response = await apiClient.patch(
       `/practices/${practiceId}/users/${id}`,
@@ -141,7 +142,7 @@ export const updateUser = async (
       });
     }
 
-    return data;
+    return { ...data, permissionsUpdated };
   } catch (error) {
     if (error instanceof Error) {
       return rejectWithValue(error.message);

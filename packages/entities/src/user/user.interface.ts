@@ -21,6 +21,7 @@ export interface IUser extends IBaseEntity {
   permissionIds?: string[];
   surgeries: ISurgery[];
   imgUrl?: string;
+  permissionsUpdated?: boolean;
 }
 
 export enum UserType {

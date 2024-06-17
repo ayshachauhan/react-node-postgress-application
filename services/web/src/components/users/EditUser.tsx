@@ -75,6 +75,7 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose, withLoader }) => {
   const loggedInUserId = loggedInUserInfo?.id;
   const isDisabled = loggedInUserId === userId;
   const [errorMessage, setErrorMessage] = useState('');
+  const [permissionsUpdated, setPermissionsUpdated] = useState(false);
 
   useEffect(() => {
     if (updatedUserInfo?.permissions) {
@@ -104,6 +105,7 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose, withLoader }) => {
     const updatedCheckboxes = [...checkboxes];
     updatedCheckboxes[index] = !updatedCheckboxes[index];
     setCheckboxes(updatedCheckboxes);
+    setPermissionsUpdated(true);
   };
 
   useEffect(() => {
@@ -142,6 +144,7 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose, withLoader }) => {
         id: userId,
         permissionIds: selectedUserPermissions,
         file: userImg,
+        permissionsUpdated,
       };
       if ('password' in userPayloadData) {
         delete userPayloadData.password;

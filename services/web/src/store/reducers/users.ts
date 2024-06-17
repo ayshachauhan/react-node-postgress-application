@@ -108,11 +108,17 @@ const userSlice = createSlice({
 
     builder.addCase(updateRecordAsync.fulfilled, (state, action) => {
       state.status = EntityLoadingState.SUCCEEDED;
+      const { permissionsUpdated, ...restActionPayload } = action.payload;
 
       state.entities = {
         ...state.entities,
-        ...{ [action.payload.id]: action.payload },
+        ...{ [restActionPayload.id]: restActionPayload },
       };
+      if (permissionsUpdated) {
+        state.successMessage =
+          'Please ask user to log out / log back in to see updated permissions.';
+        return;
+      }
       state.successMessage = 'User updated successfully.';
     });
 
