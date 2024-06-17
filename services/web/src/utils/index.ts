@@ -151,7 +151,7 @@ export const toPascalCase = (str: string): string => {
     return str
       .split(' ') // Split the string by spaces, underscores, or hyphens
       .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()) // Capitalize the first letter and make the rest lowercase
-      .join('');
+      .join(' ');
   } else return str;
 };
 
