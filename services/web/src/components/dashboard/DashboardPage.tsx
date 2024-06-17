@@ -12,6 +12,7 @@ import Loader from '@root/components/loader';
 import { useLoader } from '@root/hooks/useLoader';
 import { useUserPermission } from '@root/hooks/userHasPermission';
 import { useAppDispatch, useAppSelector } from '@root/store';
+import { fetchLoggedInUser } from '@root/store/reducers/auth';
 import { fetchCalendars } from '@root/store/reducers/calendar';
 import {
   clearSuccessMessage as clearEvalSuccessMessage,
@@ -69,6 +70,10 @@ const DashboardPage: React.FC = () => {
   const month = monthLabels.join(',');
   const searchMRNNameStr = searchMRNName || '';
   const { isLoading, withLoader } = useLoader();
+
+  useEffect(() => {
+    dispatch(fetchLoggedInUser());
+  }, [dispatch]);
 
   useEffect(() => {
     if (practiceId) {

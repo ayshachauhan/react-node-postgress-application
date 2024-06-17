@@ -30,6 +30,7 @@ import { toFullName, toPascalCase, usDateFormatter } from '@root/utils';
 import { monthOptions } from '@root/utils/constants';
 import { Checkbox } from 'baseui/checkbox';
 import { Select } from 'baseui/select';
+import { useRouter } from 'next/navigation';
 import React, { useEffect, useMemo, useState } from 'react';
 import DeleteFilterModal from './DeleteFilterModal';
 import EditableRow from './EditableRow';
@@ -72,6 +73,10 @@ const FiltersSection: React.FC<{
 
   const viewBillingColumn = useUserPermission(userPermissions, [
     USER_PERMISSIONS.VIEW_BILLING,
+  ]);
+
+  const viewHistory = useUserPermission(userPermissions, [
+    USER_PERMISSIONS.VIEW_HX,
   ]);
 
   const getMonthOptions = (
@@ -161,7 +166,7 @@ const FiltersSection: React.FC<{
     () => getUpdatedOptions(viewPastCases),
     [viewPastCases],
   );
-
+  const router = useRouter();
   const modifiedObj = {};
   surgeryList.forEach((ele, index) => {
     const modifiedDate: string = usDateFormatter(ele.date);
@@ -169,6 +174,7 @@ const FiltersSection: React.FC<{
       id: ele.id,
       firstName: ele.patient.firstName,
       lastName: ele.patient.lastName,
+      patientId: ele.patient.id,
       mrn: ele.patient.mrn,
       email: ele.patient.email,
       phoneNumber: ele.patient.phoneNumber,
@@ -280,6 +286,13 @@ const FiltersSection: React.FC<{
     dispatch(setSelectedMonth([]));
     dispatch(setSearchMRNName(null));
     dispatch(setSelectedValue(null));
+  };
+
+  const handleViewHistory = (id: string): void => {
+    const query = { id };
+    const queryString = new URLSearchParams(query).toString();
+    const url = `/history/?${queryString}`;
+    router.push(url);
   };
 
   const handleEditClick = (rowId: string) => {
@@ -589,7 +602,20 @@ const FiltersSection: React.FC<{
                                 }`}
                               >
                                 <div className="text-black  py-0.5 px-1 w-20 flex">
-                                  <div>{row.date}</div>
+                                  <div>
+                                    {viewHistory ? (
+                                      <div
+                                        onClick={() =>
+                                          handleViewHistory(row.patientId)
+                                        }
+                                        className="cursor-pointer underline"
+                                      >
+                                        {row.date}
+                                      </div>
+                                    ) : (
+                                      <div>{row.date}</div>
+                                    )}
+                                  </div>
                                 </div>
                                 <div className="text-black py-0.5 px-1 w-10">
                                   {row.home[0]}
