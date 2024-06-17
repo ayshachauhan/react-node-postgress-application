@@ -6,7 +6,6 @@ module "shared" {
   availability_zones    = [var.availability_zones[0], var.availability_zones[1]]
   subnet_ids            = [module.shared.public_subnet_ids[0], module.shared.public_subnet_ids[1]]
   domain                = "pod111.com"
-  mail_from_domain      = "no-reply@pod111.com"
 }
 
 

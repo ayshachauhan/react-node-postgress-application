@@ -61,7 +61,7 @@ variable "domain" {
   type        = string
 }
 
-variable "mail_from_domain" {
-  description = "The custom MAIL FROM domain"
-  type        = string
-}
+# variable "mail_from_domain" {
+#   description = "The custom MAIL FROM domain"
+#   type        = string
+# }

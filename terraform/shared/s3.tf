@@ -64,7 +64,7 @@ resource "aws_iam_user_policy" "bucket_user_ro" {
 
 # the IAM user for image upload
 resource "aws_iam_user" "image_uploader" {
-  name = "image-uploader-${var.environment}"
+  name = "azentia-image-uploader-${var.environment}"
   path = "/${var.environment}/"
 
   tags = {
@@ -94,7 +94,7 @@ data "aws_iam_policy_document" "image_uploader_policy" {
 
 # Attach the policy to the new IAM user
 resource "aws_iam_user_policy" "image_uploader_policy" {
-  name   = "image-uploader-policy-${var.environment}"
+  name   = "azentia-image-uploader-policy-${var.environment}"
   user   = aws_iam_user.image_uploader.name
   policy = data.aws_iam_policy_document.image_uploader_policy.json
 }
