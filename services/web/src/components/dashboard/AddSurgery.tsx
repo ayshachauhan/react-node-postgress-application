@@ -5,8 +5,10 @@ import {
 } from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
+import { EVAL_STATUS } from '@root/enums/evalStatus.enum';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { fetchCalendars } from '@root/store/reducers/calendar';
+import { updateRecordAsync as updateEval } from '@root/store/reducers/evals';
 import { addRecordAsync as addSurgeryRecord } from '@root/store/reducers/surgery';
 import { getPracticeId, toFullName } from '@utils/index';
 import { Checkbox } from 'baseui/checkbox';
@@ -16,11 +18,19 @@ import moment from 'moment';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 
-const SurgeryPage: React.FC<{
+interface SurgeryPageProps {
   onClose: () => void;
   autoFillFromEval?: boolean;
   autoFillFromSurgery?: boolean;
-}> = ({ onClose, autoFillFromEval = false, autoFillFromSurgery = false }) => {
+  withLoader: (func: () => Promise<void>) => Promise<void>;
+}
+
+const SurgeryPage: React.FC<SurgeryPageProps> = ({
+  onClose,
+  autoFillFromEval = false,
+  autoFillFromSurgery = false,
+  withLoader,
+}) => {
   const dispatch = useAppDispatch();
   const {
     practiceHomesList,
@@ -285,54 +295,79 @@ const SurgeryPage: React.FC<{
         };
       }
     });
+    await withLoader(async () => {
+      if (practiceId && doctorId) {
+        await dispatch(
+          addSurgeryRecord({
+            firstName,
+            lastName,
+            email,
+            date: surgeryDate ?? new Date(),
+            phoneNumber,
+            mrn: mrn ? Number(mrn) : 0,
+            practiceHomeId,
+            surgeryConfigurationId: surgeryNameId,
+            insuranceDetails,
+            insuranceTypeId,
+            practiceId,
+            doctorId,
+            pcp,
+            referrerId,
+            details: notes,
+            selectedSurgeryOptions: surgeryOptionObj,
+            bodyPart,
+            totalHospitalPricing: '0',
+            totalProfessionalPricing: '0',
+            waitlistId,
+          }),
+        );
 
-    if (practiceId && doctorId) {
-      dispatch(
-        addSurgeryRecord({
-          firstName,
-          lastName,
-          email,
-          date: surgeryDate ?? new Date(),
-          phoneNumber,
-          mrn: mrn ? Number(mrn) : 0,
-          practiceHomeId,
-          surgeryConfigurationId: surgeryNameId,
-          insuranceDetails,
-          insuranceTypeId,
-          practiceId,
-          doctorId,
-          pcp,
-          referrerId,
-          details: notes,
-          selectedSurgeryOptions: surgeryOptionObj,
-          bodyPart,
-          totalHospitalPricing: '0',
-          totalProfessionalPricing: '0',
-          waitlistId,
-        }),
-      );
+        if (autoFillFromEval && evalAutoFillInfo) {
+          const {
+            id,
+            date,
+            patient: { firstName, mrn, phoneNumber, email },
+            bodyPart,
+          } = evalAutoFillInfo;
+          await dispatch(
+            updateEval({
+              payloadData: {
+                status: EVAL_STATUS.Book,
+                practiceId,
+                date,
+                email,
+                bodyPart,
+                phoneNumber,
+                firstName,
+                mrn,
+              },
+              id,
+            }),
+          );
+        }
 
-      dispatch(fetchCalendars({ practiceId, userId: doctorId }));
+        await dispatch(fetchCalendars({ practiceId, userId: doctorId }));
 
-      try {
-        setFirstName('');
-        setLastName('');
-        setMrn('');
-        setPhoneNumber('');
-        setEmail('');
-        setPracticeHomeId('');
-        setInsuranceDetails('');
-        setInsuranceTypeId('');
-        setPcp('');
-        setReferrerId('');
-        setNotes('');
-        setBodyPart('');
-        setWaitlistId('');
-        onClose();
-      } catch (error) {
-        onClose();
+        try {
+          setFirstName('');
+          setLastName('');
+          setMrn('');
+          setPhoneNumber('');
+          setEmail('');
+          setPracticeHomeId('');
+          setInsuranceDetails('');
+          setInsuranceTypeId('');
+          setPcp('');
+          setReferrerId('');
+          setNotes('');
+          setBodyPart('');
+          setWaitlistId('');
+          onClose();
+        } catch (error) {
+          onClose();
+        }
       }
-    }
+    });
 
     router.refresh();
     onClose();

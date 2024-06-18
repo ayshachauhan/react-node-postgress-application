@@ -69,6 +69,7 @@ export interface UpdateSurgeryPayload {
   lastName: string;
   mrn: number;
   bodyPart: string;
+  surgeryStatus: SurgeryStatus;
   selectedSurgeryOptions: SelectedSurgeryOption;
   selectedCheckListOptions?: CheckListOptions;
   totalHospitalPricing: string;

@@ -1,5 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { CheckListOptions, SelectedSurgeryOption } from '@packages/entities';
+import {
+  CheckListOptions,
+  SelectedSurgeryOption,
+  SurgeryStatus,
+} from '@packages/entities';
 import { IsNotEmpty, IsOptional } from 'class-validator';
 
 export class UpdateSurgeryDto {
@@ -60,4 +64,8 @@ export class UpdateSurgeryDto {
   @IsOptional()
   @ApiProperty()
   referrerId: string;
+
+  @IsOptional()
+  @ApiProperty()
+  surgeryStatus: SurgeryStatus;
 }

@@ -20,6 +20,14 @@ resource "aws_security_group" "postgres" {
   }
 
   ingress {
+    description = "Allow all traffice"
+    protocol    = "-1"  # TCP protocol for PostgreSQL
+    from_port   = 0   # PostgreSQL default port
+    to_port     = 0   # PostgreSQL default port
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
     description = "Allow incoming traffic ECS"
     protocol    = "tcp"  # TCP protocol for PostgreSQL
     from_port   = 5432   # PostgreSQL default port
@@ -56,6 +64,26 @@ resource "aws_db_parameter_group" "postgres16" {
         value        = "0"
         apply_method = "pending-reboot"
       },
+      {
+        name         = "log_statement"
+        value        = "all"
+        apply_method = "immediate"
+      },
+      {
+        name         = "log_min_duration_statement"
+        value        = "0"
+        apply_method = "immediate"
+      },
+      {
+        name         = "log_connections"
+        value        = "1"
+        apply_method = "immediate"
+      },
+      {
+        name         = "log_disconnections"
+        value        = "1"
+        apply_method = "immediate"
+      }
     ]
     content {
       apply_method = lookup(parameter.value, "apply_method", null)

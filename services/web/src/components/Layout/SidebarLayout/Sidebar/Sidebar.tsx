@@ -27,6 +27,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapseChange }) => {
     sidebarItems,
   );
   const [collapsed, setCollapsed] = useState(false);
+  const [hideChildMenu, setHideChildMenu] = useState(false);
 
   const toggleCollapse = () => {
     const newCollapsed = !collapsed;
@@ -41,6 +42,12 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapseChange }) => {
   function handleSidebarItemClick(item: SideBarItem) {
     setActiveMenuItemId(item.id);
     setExpandedMenuItemId(item.id === expandedMenuItemId ? '' : item.id);
+    if (item.id === 'setting') {
+      setHideChildMenu(false);
+    }
+    if (item.id !== 'setting') {
+      setActiveChildMenuItemId('');
+    }
   }
 
   function handleSidebarChildItemClick(item) {
@@ -52,28 +59,49 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapseChange }) => {
       updateUserPermissions(userInfo.permissions);
     }
   }, [userPermissions, userInfo, updateUserPermissions]);
+
   useEffect(() => {
     const currentPath = window.location.pathname;
-    const activeItem = sidebarItems.find((item) => currentPath === item.path);
-    if (activeItem) {
+    const settingChildPath = ['/templates', '/users'];
+
+    const activeItem = sidebarItems.find((item) => item.path === currentPath);
+    const activeItemForChild = sidebarItems.find(
+      (item) => item.child?.some((childItem) => childItem.path === currentPath),
+    );
+    const activeChildItem = activeItemForChild?.child?.find(
+      (childItem) => childItem.path === currentPath,
+    );
+
+    if (activeChildItem) {
+      setActiveChildMenuItemId(activeChildItem.id);
+      if (settingChildPath.includes(activeChildItem.path)) {
+        setActiveMenuItemId('setting');
+      } else {
+        if (activeItemForChild) {
+          setActiveMenuItemId(activeItemForChild.id);
+        }
+      }
+    } else if (activeItem) {
       setActiveMenuItemId(activeItem.id);
     }
   }, []);
+
   useEffect(() => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, []);
+  }, [collapsed]);
+
   const customWidth = collapsed ? 'w-16' : 'w-40';
   const sidebarRef = useRef<HTMLDivElement>(null);
   const handleClickOutside = (event: MouseEvent) => {
     if (
       sidebarRef.current &&
-      !sidebarRef.current.contains(event.target as Node)
+      !sidebarRef.current.contains(event.target as Node) &&
+      collapsed
     ) {
-      setActiveMenuItemId('');
-      setActiveChildMenuItemId(''); // Hide child menu
+      setHideChildMenu(true); // Hide child menu
     }
   };
 
@@ -81,7 +109,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapseChange }) => {
     <aside
       aria-label="Sidebar"
       ref={sidebarRef}
-      className={`${customWidth} fixed z-10 top-0 left-0 h-screen translate-x-0 bg-gradient-to-b from-primary-dark to-primary-light ease-in-out duration-400`}
+      className={`${customWidth} fixed top-0 left-0 h-screen translate-x-0 bg-gradient-to-b from-primary-dark to-primary-light ease-in-out duration-400`}
     >
       <div className="h-[168px] flex px-4 items-center justify-start">
         <Link href={is_super_admin ? '' : '/dashboard'}>
@@ -117,7 +145,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapseChange }) => {
                 )}
               </Link>
 
-              {item.child && (
+              {item.child && !hideChildMenu && (
                 <ul
                   className={clsx(
                     'ease-in-out duration-300 my-1 ml-5 py-2 space-y-2 rounded-lg',

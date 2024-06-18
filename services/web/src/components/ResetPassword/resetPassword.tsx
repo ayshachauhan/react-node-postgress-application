@@ -1,5 +1,4 @@
 'use client';
-import { CloseIcon } from '@components/Icons';
 import Button from '@root/components/Button';
 import { COOKIES, setCookie } from '@root/services/cookies';
 import { useAppDispatch, useAppSelector } from '@root/store';
@@ -47,8 +46,10 @@ export const ResetPassword: React.FC<Props> = ({
 
   useEffect(() => {
     if (token) {
+      const expirationDate = new Date();
+      expirationDate.setTime(expirationDate.getTime() + 15 * 60 * 1000);
       setCookie(COOKIES.ACCESS_TOKEN, token, {
-        expires: 1,
+        expires: expirationDate,
       });
     }
 
@@ -113,9 +114,15 @@ export const ResetPassword: React.FC<Props> = ({
 
   return (
     <div>
-      <div className="border border-gray-700 w-7 h-7 rounded-full items-center text-center cursor-pointer">
-        <CloseIcon size={10} onClick={handleGoBack} />
-      </div>
+      {userInfo ? (
+        <div className="flex justify-between border-gray-400 items-center ml-2 mt-2">
+          <Button
+            kind="primary"
+            title="Go Back"
+            onClick={handleGoBack}
+          ></Button>
+        </div>
+      ) : null}
       <LogoWrapper>
         {isAlreadyOnboared && isOnboarding ? (
           children
@@ -124,23 +131,28 @@ export const ResetPassword: React.FC<Props> = ({
             <div className="mt-11 mx-11">
               <form className="w-full" onSubmit={handleSubmit}>
                 <input type="hidden" name="remember" defaultValue="true" />
-                <div className="mb-4">
-                  <div className="mb-1">
-                    {' '}
-                    <label htmlFor="oldPassword" className="text-black text-sm">
-                      Old Password
-                    </label>
-                  </div>
+                {!isAlreadyOnboared && isOnboarding ? (
+                  <div className="mb-4">
+                    <div className="mb-1">
+                      {' '}
+                      <label
+                        htmlFor="oldPassword"
+                        className="text-black text-sm"
+                      >
+                        Old Password
+                      </label>
+                    </div>
 
-                  <TextInput
-                    name="oldPassword"
-                    value={oldPassword}
-                    onChange={(value) => setOldPassword(value)}
-                    required
-                    type="password"
-                  />
-                  <div className="space-y-4"></div>
-                </div>
+                    <TextInput
+                      name="oldPassword"
+                      value={oldPassword}
+                      onChange={(value) => setOldPassword(value)}
+                      required
+                      type="password"
+                    />
+                    <div className="space-y-4"></div>
+                  </div>
+                ) : null}
                 <div className="mb-4">
                   <div className="mb-1">
                     <label htmlFor="newPassword" className="text-black text-sm">
@@ -186,9 +198,6 @@ export const ResetPassword: React.FC<Props> = ({
                   />
                 </div>
               </form>
-              {errorMessage && (
-                <div className="text-red-700">{errorMessage}</div>
-              )}{' '}
               {showErrorMessage && (
                 <div className="text-red-700">{errorMessage}</div>
               )}

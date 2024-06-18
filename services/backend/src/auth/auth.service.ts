@@ -94,22 +94,35 @@ export class AuthService {
   }
 
   async sendPasswordResetEmail(email: string): Promise<void> {
-    const user = await this.usersService.findUserByEmail(email);
-    if (!user) {
-      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    if (!email) {
+      throw new HttpException(
+        'Email cannot be empty',
+        HttpStatus.PRECONDITION_FAILED,
+      );
     }
 
-    const token: string = this.jwtService.sign({
-      id: user.id,
-      email: user.email,
-      type: user.type,
-      status: user.status,
-      fullName: user.fullName,
-    });
+    const user = await this.usersService.findUserByEmail(email);
+    if (!user) {
+      throw new HttpException(
+        'User email is not registered with us! Please enter registered email.',
+        HttpStatus.PRECONDITION_FAILED,
+      );
+    }
+
+    const token: string = this.jwtService.sign(
+      {
+        id: user.id,
+        email: user.email,
+        type: user.type,
+        status: user.status,
+        fullName: user.fullName,
+      },
+      { expiresIn: '15m' },
+    );
 
     const mailOptions: Mail.Options = {
       to: user.email,
-      subject: 'Reset Your Password - POD',
+      subject: 'POD: Reset Your Password',
     };
 
     const frontendBaseUrl: string | undefined = this.configService.get(

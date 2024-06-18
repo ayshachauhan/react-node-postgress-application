@@ -7,6 +7,9 @@ import {
   EditIcon,
   HomeIcon,
 } from '@root/components/Icons';
+import Loader from '@root/components/loader';
+import { EVAL_STATUS } from '@root/enums/evalStatus.enum';
+import { useLoader } from '@root/hooks/useLoader';
 import { useUserPermission } from '@root/hooks/userHasPermission';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { fetchLoggedInUser } from '@root/store/reducers/auth';
@@ -32,6 +35,8 @@ import {
   toFullName,
   usDateFormatter,
 } from '@root/utils';
+import { Checkbox } from 'baseui/checkbox';
+import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import EditableRow from 'src/components/eval/editEval/editableRow';
 import AddSurgeryModal from '../dashboard/addSurgeryModal';
@@ -41,6 +46,8 @@ import AddEvalModal from './addEval/addEvalModal';
 const EvalPage: React.FC = () => {
   const dispatch = useAppDispatch();
 
+  const router = useRouter();
+  const { isLoading, withLoader } = useLoader();
   const {
     evalsList,
     calendarSuccessMessage,
@@ -55,6 +62,12 @@ const EvalPage: React.FC = () => {
     evalInfo: state.evals.evalInfo,
     userInfo: state.auth.user,
   }));
+  const handleViewHistory = (id: string): void => {
+    const query = { id };
+    const queryString = new URLSearchParams(query).toString();
+    const url = `/history/?${queryString}`;
+    router.push(url);
+  };
 
   const practiceId = getPracticeId();
   const userId = getUserId();
@@ -77,33 +90,49 @@ const EvalPage: React.FC = () => {
     USER_PERMISSIONS.DELETE_CASE,
   ]);
 
+  const viewHistory = useUserPermission(userPermissions, [
+    USER_PERMISSIONS.VIEW_HX,
+  ]);
+
   useEffect(() => {
     dispatch(fetchLoggedInUser());
   }, [dispatch]);
 
   useEffect(() => {
     if (practiceId) {
-      dispatch(fetchEvalsList({ practiceId }));
-      dispatch(fetchInsuranceTypesList({ practiceId }));
-      dispatch(fetchPracticeHomesListing({ practiceId }));
-      dispatch(fetchSurgeryTypesListing({ practiceId }));
-      dispatch(fetchReferrerList({ practiceId }));
-      dispatch(fetchUsersList({ practiceId }));
-      dispatch(fetchSurgeryConfigurationsListing({ practiceId }));
-      dispatch(fetchPatients({ practiceId }));
-      dispatch(fetchWaitlist({ practiceId }));
+      const loadData = async () => {
+        await withLoader(async () => {
+          await dispatch(fetchEvalsList({ practiceId }));
+          await dispatch(fetchInsuranceTypesList({ practiceId }));
+          await dispatch(fetchPracticeHomesListing({ practiceId }));
+          await dispatch(fetchSurgeryTypesListing({ practiceId }));
+          await dispatch(fetchReferrerList({ practiceId }));
+          await dispatch(fetchUsersList({ practiceId }));
+          await dispatch(fetchSurgeryConfigurationsListing({ practiceId }));
+          await dispatch(fetchPatients({ practiceId }));
+          await dispatch(fetchWaitlist({ practiceId }));
+        });
+      };
+
+      loadData();
     }
-  }, [practiceId, dispatch]);
+  }, [practiceId, dispatch, withLoader]);
 
   useEffect(() => {
     if (addEvalSuccessMessage) {
       if (practiceId) {
-        dispatch(fetchEvalsList({ practiceId }));
-        dispatch(clearEvalSuccessMessage());
-        dispatch(fetchSurgeryConfigurationsListing({ practiceId }));
-        dispatch(fetchPatients({ practiceId }));
-        dispatch(fetchWaitlist({ practiceId }));
-        if (userId) dispatch(fetchCalendars({ practiceId, userId }));
+        const loadData = async () => {
+          await withLoader(async () => {
+            dispatch(fetchEvalsList({ practiceId }));
+            dispatch(clearEvalSuccessMessage());
+            dispatch(fetchSurgeryConfigurationsListing({ practiceId }));
+            dispatch(fetchPatients({ practiceId }));
+            dispatch(fetchWaitlist({ practiceId }));
+            if (userId) dispatch(fetchCalendars({ practiceId, userId }));
+          });
+        };
+
+        loadData();
       }
     }
   }, [addEvalSuccessMessage, calendarSuccessMessage, dispatch]);
@@ -129,6 +158,7 @@ const EvalPage: React.FC = () => {
       const viewData = {
         firstName: ele.patient.firstName,
         lastName: ele.patient.lastName,
+        patientId: ele.patient.id,
         fullName: toFullName(ele?.patient),
         mrn: ele.patient.mrn,
         email: ele.patient.email,
@@ -151,6 +181,8 @@ const EvalPage: React.FC = () => {
         actionDate:
           usDateFormatter(ele.date) +
           ` (${getDifferenceInDays(new Date(ele.date), new Date())})`,
+        referrerVerified:
+          ele.patient.referrer && ele.patient.referrer.verified ? true : false,
       };
 
       return viewData;
@@ -215,6 +247,7 @@ const EvalPage: React.FC = () => {
 
   return (
     <div id="__next" className="text-center">
+      {isLoading && <Loader />}
       <div className="flex justify-between border-gray-400 items-center ">
         <span className="text-xl font-bold">Evals</span>
         <div className="flex  justify-between">
@@ -267,6 +300,7 @@ const EvalPage: React.FC = () => {
               handleCancelClick={handleCancelClick}
               evalInfo={evalInfo}
               setSelectedAction={setSelectedAction}
+              withLoader={withLoader}
             />
           ) : (
             <React.Fragment key={data.id}>
@@ -274,7 +308,18 @@ const EvalPage: React.FC = () => {
                 <div
                   className={`text-black  py-0.5 px-1 w-28  flex justify-around items-center`}
                 >
-                  <div>{data.date}</div>
+                  <div>
+                    {viewHistory ? (
+                      <div
+                        onClick={() => handleViewHistory(data.patientId)}
+                        className="cursor-pointer underline"
+                      >
+                        {data.date}
+                      </div>
+                    ) : (
+                      <div>{data.date}</div>
+                    )}
+                  </div>
                 </div>
                 <div className="text-black  py-0.5 px-1 w-28  flex justify-around items-center">
                   <div>{data.actionDate}</div>
@@ -298,7 +343,10 @@ const EvalPage: React.FC = () => {
                     <div className="text-black py-0.5 px-1 overflow-hidden whitespace-nowrap w-20 pl-5">
                       {data.mrn}
                     </div>
-                    <div className="text-black py-0.5 px-1 w-40">
+                    <div
+                      className="text-black py-0.5 px-1 w-40 overflow-hidden whitespace-nowrap"
+                      style={{ textOverflow: 'ellipsis' }}
+                    >
                       {data.email}
                     </div>
                     <div className="text-black py-0.5 px-1 overflow-hidden whitespace-nowrap w-20">
@@ -323,14 +371,42 @@ const EvalPage: React.FC = () => {
                   </div>
                 </div>
                 <div className="flex flex-col text-black py-0.5 px-1 w-40 items-center">
-                  <div className="text-black py-0.5 px-1 w-40 text-center">
+                  <div
+                    className="text-black py-0.5 px-1 w-40 text-center overflow-hidden whitespace-nowrap"
+                    style={{ textOverflow: 'ellipsis' }}
+                  >
                     {data.email}
                   </div>
                   <div className="text-black py-0.5 px-1 w-20 text-center">
                     {data.phoneNumber}
                   </div>
-                  <div className="text-black py-0.5 px-1 w-20 text-center">
-                    referrer: {data.referrer}
+                  <div className="flex justify-center items-center  w-40 ">
+                    <div className="text-black py-0.5 px-1 text-center">
+                      referrer: {data.referrer}
+                    </div>
+                    <div>
+                      {data.referrerVerified && (
+                        <Checkbox
+                          checked={true}
+                          overrides={{
+                            Checkmark: {
+                              style: ({ $checked }) => ({
+                                backgroundColor: $checked
+                                  ? 'rgba(34, 197, 94, 1)'
+                                  : 'white',
+                                borderColor: $checked
+                                  ? 'rgba(34, 197, 94, 1)'
+                                  : 'rgba(113, 113, 122, 1)',
+                                width: '12px',
+                                height: '12px',
+                                borderRadius: '2px',
+                                borderWidth: '2px',
+                              }),
+                            },
+                          }}
+                        />
+                      )}
+                    </div>
                   </div>
                 </div>
                 <div className="text-gray-900 flex flex-col gap-2">
@@ -356,8 +432,13 @@ const EvalPage: React.FC = () => {
                   </div>
                   {addCaseAllowed && (
                     <Button
+                      disabled={data.status === EVAL_STATUS.Book}
                       kind="secondary"
-                      title="Nurture"
+                      title={
+                        data.status === EVAL_STATUS.Book
+                          ? 'Nurtured'
+                          : 'Nurture'
+                      }
                       fontSize="10px"
                       height={24}
                       width={50}
@@ -373,6 +454,7 @@ const EvalPage: React.FC = () => {
       <AddEvalModal
         isSecondModalOpen={isAddModalOpen}
         handleCloseSecondModal={handleCloseAddModal}
+        withLoader={withLoader}
       />
       <DeleteEvalModal
         onConfirmDelete={onConfirmDelete}
@@ -384,6 +466,7 @@ const EvalPage: React.FC = () => {
         isModalOpen={isBookSurgeryOpenModal}
         handleCloseModal={handleCloseBookSurgeryModal}
         autoFillFromEval={true}
+        withLoader={withLoader}
       />
     </div>
   );

@@ -1,4 +1,5 @@
 import Button from '@root/components/Button';
+import RequiredIndicator from '@root/components/RequiredIndicator';
 import TextInput from '@root/components/TextInput';
 import { EVAL_STATUS } from '@root/enums/evalStatus.enum';
 import { useAppDispatch, useAppSelector } from '@root/store';
@@ -10,7 +11,12 @@ import { SIZE, Select } from 'baseui/select';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 
-const SurgeryPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
+interface SurgeryPageProps {
+  onClose: () => void;
+  withLoader: (func: () => Promise<void>) => Promise<void>;
+}
+
+const SurgeryPage: React.FC<SurgeryPageProps> = ({ onClose, withLoader }) => {
   const {
     practiceHomesList,
     insuranceTypesList,
@@ -177,7 +183,9 @@ const SurgeryPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   };
 
   const handleQuickDateChange = (offset: number) => {
-    setDate(new Date(Date.now() + (1 + offset * (24 * 60 * 60 * 1000))));
+    const date = new Date();
+    const newDate = new Date(date.setMonth(date.getMonth() + offset));
+    setDate(newDate);
   };
 
   const handleMrnBlur = ({ target }) => {
@@ -198,29 +206,30 @@ const SurgeryPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (practiceId && doctorId) {
-      dispatch(
-        addEvalRecord({
-          firstName,
-          lastName,
-          email,
-          date,
-          phoneNumber,
-          mrn: mrn ? Number(mrn) : 0,
-          practiceHomeId,
-          surgeryConfigurationId: surgeryNameId,
-          insuranceDetails,
-          insuranceTypeId,
-          practiceId,
-          doctorId,
-          pcp,
-          referrerId,
-          details: notes,
-          status: evalStatus,
-          bodyPart,
-          waitlistId,
-        }),
-      );
-
+      await withLoader(async () => {
+        await dispatch(
+          addEvalRecord({
+            firstName,
+            lastName,
+            email,
+            date,
+            phoneNumber,
+            mrn: mrn ? Number(mrn) : 0,
+            practiceHomeId,
+            surgeryConfigurationId: surgeryNameId,
+            insuranceDetails,
+            insuranceTypeId,
+            practiceId,
+            doctorId,
+            pcp,
+            referrerId,
+            details: notes,
+            status: evalStatus,
+            bodyPart,
+            waitlistId,
+          }),
+        );
+      });
       try {
         setFirstName('');
         setLastName('');
@@ -285,7 +294,8 @@ const SurgeryPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           <div className="flex gap-5 mt-4">
             <div className="space-y-1 flex-1">
               <label htmlFor="mrn" className="text-black text-xs">
-                MRN
+                <RequiredIndicator />
+                &nbsp;MRN
               </label>
               <Select
                 size={SIZE.mini}
@@ -322,7 +332,8 @@ const SurgeryPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             </div>
             <div className="space-y-1 flex-1">
               <label htmlFor="firstName" className="text-black text-xs">
-                First Name
+                <RequiredIndicator />
+                &nbsp;First Name
               </label>
               <TextInput
                 name="name"
@@ -336,7 +347,8 @@ const SurgeryPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             </div>
             <div className="space-y-1 flex-1">
               <label htmlFor="lastName" className="text-black text-xs">
-                Last Name
+                <RequiredIndicator />
+                &nbsp;Last Name
               </label>
               <TextInput
                 size={SIZE.mini}
@@ -353,7 +365,8 @@ const SurgeryPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           <div className="flex gap-5">
             <div className="space-y-1 flex-1">
               <label htmlFor="email" className="text-black text-xs">
-                Email
+                <RequiredIndicator />
+                &nbsp;Email
               </label>
               <TextInput
                 size={SIZE.mini}
@@ -368,7 +381,8 @@ const SurgeryPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             </div>
             <div className="space-y-1 flex-1">
               <label htmlFor="phoneNumber" className="text-black text-xs">
-                Phone Number
+                <RequiredIndicator />
+                &nbsp;Phone Number
               </label>
               <TextInput
                 size={SIZE.mini}
@@ -383,7 +397,8 @@ const SurgeryPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             </div>
             <div className="space-y-1 flex-1">
               <label htmlFor="practiceHome" className="text-black text-xs">
-                Home
+                <RequiredIndicator />
+                &nbsp;Home
               </label>
               <Select
                 placeholder="Select Practice Home"
@@ -624,6 +639,10 @@ const SurgeryPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               </div>
               <div className="flex gap-5 mt-2">
                 <div className="space-y-1 flex-1">
+                  <label htmlFor="notes" className="text-black text-xs">
+                    <RequiredIndicator />
+                    &nbsp;Surgery
+                  </label>
                   <Select
                     required
                     placeholder="Select Surgery"
@@ -653,6 +672,10 @@ const SurgeryPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                   <div className="space-y-1"></div>
                 </div>
                 <div className="space-y-1 flex-1">
+                  <label htmlFor="notes" className="text-black text-xs">
+                    <RequiredIndicator />
+                    &nbsp;Body Part
+                  </label>
                   <Select
                     required
                     placeholder="Select Body Part"
@@ -680,6 +703,10 @@ const SurgeryPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 </div>
 
                 <div className="space-y-1 flex-1">
+                  <label htmlFor="notes" className="text-black text-xs">
+                    <RequiredIndicator />
+                    &nbsp;Surgery Date
+                  </label>
                   <DatePicker
                     size={SIZE.mini}
                     value={date}

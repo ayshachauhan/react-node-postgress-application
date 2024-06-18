@@ -2,7 +2,12 @@
 import BaseUIModal from '@root/components/BaseUiModal/BaseUiModal';
 import EditUser from '@root/components/users/EditUser';
 
-const EditUserModal = ({ isEditModalOpen, handleCloseEditModal, userId }) => {
+const EditUserModal = ({
+  isEditModalOpen,
+  handleCloseEditModal,
+  userId,
+  withLoader,
+}) => {
   return (
     <BaseUIModal
       isOpen={isEditModalOpen}
@@ -17,7 +22,11 @@ const EditUserModal = ({ isEditModalOpen, handleCloseEditModal, userId }) => {
       }}
     >
       {userId !== null && (
-        <EditUser data={{ id: userId }} onClose={handleCloseEditModal} />
+        <EditUser
+          data={{ id: userId }}
+          onClose={handleCloseEditModal}
+          withLoader={withLoader}
+        />
       )}
     </BaseUIModal>
   );

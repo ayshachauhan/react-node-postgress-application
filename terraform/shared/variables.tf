@@ -55,3 +55,13 @@ variable "subnet_ids" {
   type        = list(string)
   description = "List of subnet IDs for the RDS subnet group."
 }
+
+variable "domain" {
+  description = "The domain to be used with SES"
+  type        = string
+}
+
+# variable "mail_from_domain" {
+#   description = "The custom MAIL FROM domain"
+#   type        = string
+# }

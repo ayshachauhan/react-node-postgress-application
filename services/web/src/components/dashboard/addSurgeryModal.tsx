@@ -7,6 +7,7 @@ const AddSurgeryModal = ({
   handleCloseModal,
   autoFillFromEval = false,
   autoFillFromSurgery = false,
+  withLoader,
 }) => {
   return (
     <BaseUIModal
@@ -34,6 +35,7 @@ const AddSurgeryModal = ({
         onClose={handleCloseModal}
         autoFillFromEval={autoFillFromEval}
         autoFillFromSurgery={autoFillFromSurgery}
+        withLoader={withLoader}
       />
     </BaseUIModal>
   );

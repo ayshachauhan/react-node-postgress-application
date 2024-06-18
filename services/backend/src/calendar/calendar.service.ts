@@ -7,7 +7,11 @@ import {
   forwardRef,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { PermissionEntity, UserEntity } from '@packages/entities/*';
+import {
+  PermissionEntity,
+  SurgeryConfigurationEntity,
+  UserEntity,
+} from '@packages/entities';
 import { CalendarEntity } from '@packages/entities/calendar';
 import { USER_PERMISSIONS } from '@packages/entities/permission';
 import { UsersService } from 'src/users/users.service';
@@ -148,8 +152,6 @@ export class CalendarService {
         dto.surgeryConfigurationId,
       );
 
-    console.log(dto, 'dtocreate');
-
     //TODO: need to check why we need to add the ! operator here, giving typeerror whithout them about DeepPartialEntity
     const calendar = this.calendarRepo.create({
       ...dto,
@@ -202,10 +204,11 @@ export class CalendarService {
     data,
   }: UpdateCalendarsDto): Promise<CalendarEntity[] | null> {
     const updatedCalendars: CalendarEntity[] = [];
+    let surgeryConfigurationEntity: SurgeryConfigurationEntity | null;
 
     await Promise.all(
       data.map(async (data) => {
-        const { id, maxSlots, bookedSlots } = data;
+        const { id, maxSlots, bookedSlots, surgeryConfigurationId } = data;
 
         if (maxSlots && bookedSlots && maxSlots < bookedSlots) {
           throw new HttpException(
@@ -214,7 +217,20 @@ export class CalendarService {
           );
         }
 
-        await this.calendarRepo.update(id, { maxSlots, bookedSlots });
+        if (surgeryConfigurationId) {
+          surgeryConfigurationEntity =
+            await this.surgeryConfifurationService.getSurgeryConfigurationById(
+              surgeryConfigurationId,
+            );
+        }
+
+        await this.calendarRepo.update(id, {
+          maxSlots,
+          bookedSlots,
+          ...(surgeryConfigurationEntity
+            ? { surgeryConfiguration: surgeryConfigurationEntity }
+            : {}),
+        });
 
         const updatedCalendar = (await this.calendarRepo.findOne({
           where: { id },

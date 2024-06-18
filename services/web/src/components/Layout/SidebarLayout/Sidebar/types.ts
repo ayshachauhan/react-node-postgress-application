@@ -6,8 +6,6 @@ import {
   MessageIcon,
   SettingIcon,
   StethoscopeIcon,
-  TemplateIcon,
-  UsersIcon,
 } from '@components/Icons';
 import { IPermission } from '@packages/entities/index.browser';
 import { USER_PERMISSIONS } from '@packages/entities/permission';
@@ -47,21 +45,6 @@ export const sidebarItems: SideBarItem[] = [
     Icon: StethoscopeIcon,
   },
   {
-    id: 'users',
-    title: 'Users',
-    path: '/users',
-    permissions: ['admin'],
-    Icon: UsersIcon,
-  },
-  {
-    id: 'templates',
-    title: 'Templates',
-    path: '/templates',
-    permissions: ['admin'],
-    userPermissions: [USER_PERMISSIONS.VIEW_TEMPLATES],
-    Icon: TemplateIcon,
-  },
-  {
     id: 'messages',
     title: 'Messages',
     path: '/messages',
@@ -94,6 +77,13 @@ export const sidebarItems: SideBarItem[] = [
     Icon: AddReferrerIcon,
   },
   {
+    id: 'review',
+    title: 'Review',
+    path: '/review',
+    permissions: ['admin'],
+    Icon: SettingIcon,
+  },
+  {
     id: 'setting',
     title: 'Settings',
     path: '#',
@@ -102,14 +92,27 @@ export const sidebarItems: SideBarItem[] = [
     child: [
       {
         id: 'configuration',
-        title: 'Configuration',
+        title: 'Practice settings',
         path: '/settings/configurations',
         permissions: ['admin'],
       },
       {
         id: 'modularDesign',
-        title: 'Modular Fields',
+        title: 'Surgeries',
         path: '/settings/modularFields',
+        permissions: ['admin'],
+      },
+      {
+        id: 'templates',
+        title: 'Templates',
+        path: '/templates',
+        permissions: ['admin'],
+        userPermissions: [USER_PERMISSIONS.VIEW_TEMPLATES],
+      },
+      {
+        id: 'users',
+        title: 'Users',
+        path: '/users',
         permissions: ['admin'],
       },
     ],
@@ -121,13 +124,36 @@ export function filterSidebarItems(
   userPermissions: IPermission[],
   sidebarItems: SideBarItem[],
 ): SideBarItem[] {
-  return sidebarItems.filter((item) => {
-    const userTypeAllowed = item.permissions.includes(userType);
+  return sidebarItems
+    .map<SideBarItem | null>((item) => {
+      const userTypeAllowed = item.permissions.includes(userType);
 
-    const userPermissionsAllowed = item.userPermissions
-      ? useUserPermission(userPermissions, item.userPermissions)
-      : true;
+      const userPermissionsAllowed = item.userPermissions
+        ? useUserPermission(userPermissions, item.userPermissions)
+        : true;
 
-    return userTypeAllowed && userPermissionsAllowed;
-  });
+      if (!userTypeAllowed || !userPermissionsAllowed) {
+        return null;
+      }
+
+      const filteredChildren = item.child
+        ? item.child.filter((childItem) => {
+            const childTypeAllowed = childItem.permissions.includes(userType);
+            const childPermissionsAllowed = childItem.userPermissions
+              ? useUserPermission(userPermissions, childItem.userPermissions)
+              : true;
+
+            return childTypeAllowed && childPermissionsAllowed;
+          })
+        : undefined;
+
+      return {
+        ...item,
+        child:
+          filteredChildren && filteredChildren.length > 0
+            ? filteredChildren
+            : undefined,
+      };
+    })
+    .filter((item): item is SideBarItem => item !== null); // This filters out the null values
 }

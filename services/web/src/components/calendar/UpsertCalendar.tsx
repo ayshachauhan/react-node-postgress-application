@@ -4,7 +4,7 @@ import {
 } from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
-import { useAppDispatch } from '@root/store';
+import { useAppDispatch, useAppSelector } from '@root/store';
 import {
   createCalendarEntry,
   updateBulkCalendars,
@@ -18,17 +18,20 @@ import { DatePicker } from 'baseui/datepicker';
 import { Select } from 'baseui/select';
 import moment from 'moment';
 import React, { useState } from 'react';
+import RequiredIndicator from '../RequiredIndicator';
 import { CalendarData } from '../dashboard/UpcomingSection';
 
 const UpsertCalendar: React.FC<{
   onClose: () => void;
   calendarData: CalendarData[];
   isUpdating: boolean;
-  selectedSurgery: ISurgeryConfiguration;
   calendars: ICalendar[];
-}> = ({ onClose, calendarData, isUpdating, selectedSurgery, calendars }) => {
+}> = ({ onClose, calendarData, isUpdating, calendars }) => {
   const maxSlotsOptions = Array.from({ length: 14 }, (_, index) => index + 1);
   const dispatch = useAppDispatch();
+  const { surgeryConfigurations } = useAppSelector((state) => ({
+    surgeryConfigurations: Object.values(state.surgeryConfigurations.entities),
+  }));
 
   const [upsertCalendarData, setUpsertCalendarData] =
     useState<CalendarData[]>(calendarData);
@@ -54,15 +57,17 @@ const UpsertCalendar: React.FC<{
       if (isUpdating) {
         const updatedData: CalendarData[] = upsertCalendarData.filter(
           (calendar, index) =>
-            calendar.maxSlots !== calendarData[index].maxSlots,
+            calendar.maxSlots !== calendarData[index].maxSlots ||
+            calendar.selectedSurgery !== calendarData[index].selectedSurgery,
         );
         const payload: UpdateCalendarsPayload = {
           practiceId,
           userId,
-          data: updatedData.map((data) => ({
+          data: updatedData.map((data: CalendarData) => ({
             id: data.id,
             bookedSlots: data.bookedSlots,
             maxSlots: data.maxSlots,
+            surgeryConfigurationId: data?.selectedSurgery?.id,
           })),
         };
         if (updatedData.length) {
@@ -80,7 +85,7 @@ const UpsertCalendar: React.FC<{
         > = {
           practiceId,
           userId,
-          surgeryConfigurationId: selectedSurgery.id,
+          surgeryConfigurationId: upsertCalendarData[0]?.selectedSurgery?.id,
           maxSlots: upsertCalendarData[0].maxSlots,
           bookedSlots: upsertCalendarData[0].bookedSlots,
           date: upsertCalendarData[0].date,
@@ -101,20 +106,63 @@ const UpsertCalendar: React.FC<{
                 htmlFor="userName"
                 className="text-black text-sm font-normal"
               >
-                Type
+                <RequiredIndicator />
+                &nbsp;Type
               </label>
-              <TextInput
-                id={calendar.id}
-                name="surgeryType"
-                value={calendar.surgeryName}
-                onChange={handleInputChange}
+
+              <Select
+                options={surgeryConfigurations.map(
+                  (config: ISurgeryConfiguration) => ({
+                    label: config.name,
+                    id: config.id,
+                    calendarId: calendar.id,
+                  }),
+                )}
+                onChange={({ value }) => {
+                  if (!value.length) {
+                    return;
+                  }
+
+                  setUpsertCalendarData((prevData) =>
+                    prevData.map((cal: CalendarData) =>
+                      cal.id === value[0]?.calendarId
+                        ? {
+                            ...cal,
+                            selectedSurgery:
+                              surgeryConfigurations.find(
+                                (data) => data.id === value[0].id,
+                              ) ?? calendar.selectedSurgery,
+                          }
+                        : cal,
+                    ),
+                  );
+                }}
+                value={[
+                  {
+                    label: calendar.selectedSurgery.name,
+                    id: calendar.selectedSurgery.id,
+                  },
+                ]}
                 required
-                disabled={true}
+                overrides={{
+                  ControlContainer: {
+                    style: {
+                      backgroundColor: 'rgba(250, 250, 250, 1)',
+                      border: 'none',
+                      color: 'rgba(82, 82, 91, 1)',
+                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)', // Add shadow CSS here
+                    },
+                  },
+                  ClearIcon: {
+                    component: () => null,
+                  },
+                }}
               />
             </div>
             <div className="flex-1 space-y-2 px-4">
               <label htmlFor="date" className="text-black text-sm font-normal">
-                Date
+                <RequiredIndicator />
+                &nbsp;Date
               </label>
               {isUpdating ? (
                 <TextInput
@@ -144,29 +192,13 @@ const UpsertCalendar: React.FC<{
                 />
               )}
             </div>
-
-            <div className="flex-1 space-y-2 px-4">
-              <label
-                htmlFor="bookedSlots"
-                className="text-black text-sm font-normal"
-              >
-                Booked Slots{' '}
-              </label>
-              <TextInput
-                id={calendar.id}
-                name="bookedSlots"
-                value={calendar.bookedSlots}
-                onChange={handleInputChange}
-                required
-                disabled={true}
-              />
-            </div>
             <div className=" flex-1 space-y-2 px-4">
               <label
                 htmlFor="maxSlots"
                 className="text-black text-sm font-normal"
               >
-                Max Slots{' '}
+                <RequiredIndicator />
+                &nbsp;Max Slots{' '}
               </label>
               <Select
                 options={maxSlotsOptions.map((key: number) => ({

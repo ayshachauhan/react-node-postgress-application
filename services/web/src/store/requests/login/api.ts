@@ -44,20 +44,24 @@ export const login = async (
 };
 
 export const getMe = async (): Promise<User> => {
-  const response = await apiClient.get('/auth/me');
+  try {
+    const response = await apiClient.get('/auth/me');
 
-  if (!response.ok) {
-    const errorResponse = await response.json();
+    if (!response.ok) {
+      const errorResponse = await response.json();
+      if (response.status === 403) {
+        throw new Error('Access Denied');
+      }
 
-    if (response.status === 403) {
-      throw new Error('Access Denied');
+      throw new Error(errorResponse.message || 'Failed to fetch user data');
     }
 
-    throw new Error(errorResponse.message || 'Failed to fetch user data');
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.log(error);
+    throw error;
   }
-
-  const data = await response.json();
-  return data;
 };
 
 /**
@@ -65,26 +69,34 @@ export const getMe = async (): Promise<User> => {
  * @param param0 email
  * @returns string msg
  */
-export const sendResetMail = async ({
-  email,
-}: {
-  email: string;
-}): Promise<string> => {
-  const response = await apiClient.get(`/auth/resetLink/${email}`);
+export const sendResetMail = async (
+  {
+    email,
+  }: {
+    email: string;
+  },
+  { rejectWithValue },
+): Promise<string> => {
+  try {
+    const response = await apiClient.get(`/auth/resetLink/${email}`);
 
-  if (!response.ok) {
-    const errorResponse = await response.json();
+    if (!response.ok) {
+      const errorResponse = await response.json();
+      if (response.status === 403) {
+        throw new Error('Access Denied');
+      }
 
-    if (response.status === 403) {
-      throw new Error('Access Denied');
+      throw new Error(
+        errorResponse.message || 'Failed to send reset password mail',
+      );
     }
 
-    throw new Error(
-      errorResponse.message || 'Failed to send reset password mail',
-    );
+    const data: string = 'Email Sent!';
+    return data;
+  } catch (error) {
+    if (error instanceof Error) {
+      return rejectWithValue(error.message);
+    }
+    return rejectWithValue('An unknown error during sending review request');
   }
-
-  const data: string = 'Email Sent!';
-
-  return data;
 };

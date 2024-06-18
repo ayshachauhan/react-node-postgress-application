@@ -11,6 +11,7 @@ type Props = Partial<Omit<InputProps, 'onChange'>> & {
   onBlur?: (event: React.FocusEvent) => void;
   onFocus?: () => void;
   size?: string | undefined;
+  backgroundColor?: string;
 };
 
 const TextInputOverrides: InputOverrides = {
@@ -30,6 +31,7 @@ const TextInput: React.FC<Props> = ({
   onBlur,
   onFocus,
   size,
+  backgroundColor = 'rgba(250, 250, 250, 1)',
   ...props
 }) => {
   function handleChange(
@@ -60,7 +62,7 @@ const TextInput: React.FC<Props> = ({
             props: {
               style: {
                 color: 'rgba(82, 82, 91, 1)',
-                backgroundColor: 'rgba(250, 250, 250, 1)',
+                backgroundColor: backgroundColor,
                 paddingLeft: '8px',
                 paddingRight: '4px',
               },

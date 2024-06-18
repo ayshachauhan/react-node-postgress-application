@@ -2,7 +2,7 @@
 import BaseUIModal from '@root/components/BaseUiModal/BaseUiModal';
 import Form from '@root/components/users/AddUser';
 
-const UserAddModal = ({ isModalOpen, handleCloseModal }) => {
+const UserAddModal = ({ isModalOpen, handleCloseModal, withLoader }) => {
   return (
     <BaseUIModal
       isOpen={isModalOpen}
@@ -16,7 +16,7 @@ const UserAddModal = ({ isModalOpen, handleCloseModal }) => {
         },
       }}
     >
-      <Form onClose={handleCloseModal} />
+      <Form onClose={handleCloseModal} withLoader={withLoader} />
     </BaseUIModal>
   );
 };

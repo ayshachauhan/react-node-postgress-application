@@ -2,14 +2,14 @@ import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
-  EmailVariables,
   HistoryAction,
   HistoryType,
   ICalendar,
+  IPractice,
   ISurgery,
-  ISurgeryConfiguration,
   PermissionEntity,
-  PracticeEntity,
+  ReviewEntity,
+  ReviewStatus,
   SelectedSurgeryOption,
   SurgeryEntity,
   SurgeryStatus,
@@ -30,6 +30,7 @@ import { InsuranceTypesService } from 'src/insuranceTypes/insuranceTypes.service
 import { PatientsService } from 'src/patients/patients.service';
 import { PracticeHomesService } from 'src/practiceHomes/practiceHomes.service';
 import { PracticesService } from 'src/practices/practices.service';
+import { ReviewService } from 'src/review/review.service';
 import { SurgeryConfigurationsService } from 'src/surgeryConfiguration/surgeryConfiguration.service';
 import { SurgeryTypesService } from 'src/surgeryTypes/surgeryTypes.service';
 import { SystemTemplates } from 'src/transporter/transporter.types';
@@ -45,11 +46,11 @@ import {
   In,
   LessThan,
   LessThanOrEqual,
+  MoreThanOrEqual,
   Repository,
 } from 'typeorm';
 import { CalendarService } from '../calendar/calendar.service';
 import { HistoryService } from '../history/history.service';
-import { CreateSurgeryDto } from './dto/createSurgery.dto';
 
 type DateCondition = {
   date: FindOperator<Date>;
@@ -96,6 +97,8 @@ export class SurgeryService {
     private historyService: HistoryService,
     @Inject(forwardRef(() => EmailHandlerService))
     private emailHandlerService: EmailHandlerService,
+    @Inject(forwardRef(() => ReviewService))
+    private reviewService: ReviewService,
   ) {}
 
   getFrontEndBaseUrl() {
@@ -219,6 +222,7 @@ export class SurgeryService {
       where: { id },
       relations: [
         'practiceHome',
+        'practiceHome.practice',
         'surgeryConfiguration',
         'patient',
         'insuranceType',
@@ -292,6 +296,7 @@ export class SurgeryService {
       insuranceType: insuranceTypeEntity,
       doctor: doctorEntity,
       surgeryConfiguration: surgeryConfigurationEntity,
+      surgeryStatus: SurgeryStatus.BOOK,
       waitlist: waitlistEntity,
     });
 
@@ -340,12 +345,7 @@ export class SurgeryService {
     });
 
     if (practiceEntity && surgeryConfigurationEntity) {
-      await this.initiateSendEmail(
-        practiceEntity,
-        createSurgeryDto,
-        resultSurgery,
-        surgeryConfigurationEntity,
-      );
+      await this.initiateSendEmail(resultSurgery, practiceEntity);
     }
 
     return resultSurgery;
@@ -400,6 +400,9 @@ export class SurgeryService {
       surgeryOrder: createSurgeryDto.surgeryOrder
         ? createSurgeryDto.surgeryOrder
         : surgeryToUpdate?.surgeryOrder,
+      surgeryStatus: createSurgeryDto.surgeryStatus
+        ? createSurgeryDto.surgeryStatus
+        : surgeryToUpdate?.surgeryStatus,
       practiceHome: practiceHomeEntity
         ? practiceHomeEntity
         : surgeryToUpdate?.practiceHome,
@@ -410,6 +413,9 @@ export class SurgeryService {
       ...surgeryToUpdate,
       ...dataToUpdate,
     });
+    if (createSurgeryDto.surgeryStatus === SurgeryStatus.COMPLETED) {
+      await this.autoCompleteSurgeries(id);
+    }
 
     // depends on dto values, make sure to update the obj values if dot changes
     const transformedCurrentSurgeryValues: SurgeryChangesKeyValues =
@@ -436,16 +442,61 @@ export class SurgeryService {
     });
   }
 
-  async autoCompleteSurgeries() {
-    this.surgeryRepository.update(
-      {
-        date: LessThan(new Date(Date.now())),
-        surgeryStatus: In([SurgeryStatus.PENDING]),
-      },
-      {
-        surgeryStatus: SurgeryStatus.COMPLETED,
-      },
-    );
+  async autoCompleteSurgeries(surgeryId: string = '') {
+    if (surgeryId) {
+      const surgeryResponse = await this.surgeryRepository.update(
+        {
+          id: surgeryId,
+        },
+        {
+          surgeryStatus: SurgeryStatus.COMPLETED,
+        },
+      );
+      if (surgeryResponse.affected) {
+        const surgeryData = await this.getSurgeryById(surgeryId);
+        if (surgeryData && surgeryData.practiceHome.practice) {
+          await this.createReviewEntity([
+            {
+              reviewStatus: ReviewStatus.PENDING,
+              practice: surgeryData.practiceHome.practice,
+              patient: surgeryData.patient,
+            },
+          ]);
+        }
+      }
+    } else {
+      const surgeryCompletedEntries = await this.surgeryRepository.find({
+        where: {
+          date: LessThan(new Date(Date.now())),
+          surgeryStatus: In([SurgeryStatus.PENDING]),
+        },
+        relations: ['practiceHome', 'practiceHome.practice', 'patient'],
+      });
+
+      const surgeryData = await this.surgeryRepository.update(
+        {
+          date: LessThan(new Date(Date.now())),
+          surgeryStatus: In([SurgeryStatus.PENDING]),
+        },
+        {
+          surgeryStatus: SurgeryStatus.COMPLETED,
+        },
+      );
+
+      if (surgeryData.affected && surgeryCompletedEntries.length) {
+        const reviewEntries = surgeryCompletedEntries.map((entry) => ({
+          reviewStatus: ReviewStatus.PENDING,
+          practice: entry.practiceHome.practice,
+          patient: entry.patient,
+        }));
+
+        await this.createReviewEntity(reviewEntries);
+      }
+    }
+  }
+
+  async createReviewEntity(reviewEntries: Partial<ReviewEntity>[]) {
+    await this.reviewService.createReview(reviewEntries);
   }
 
   async remove(
@@ -467,44 +518,33 @@ export class SurgeryService {
   }
 
   async initiateSendEmail(
-    practice: PracticeEntity,
-    dto: CreateSurgeryDto,
     surgery: ISurgery,
-    surgeryConfig: ISurgeryConfiguration,
+    practice: IPractice,
   ): Promise<void> {
-    const { id: surgeryConfigId, name } = surgeryConfig;
-    const mailVariables: EmailVariables = {
-      surgery_type: name,
-      fname: dto.firstName,
-      lname: dto.lastName,
-      mrn: String(dto.mrn),
-      pt_email_address: dto.email,
-      surgery_date: String(dto.date),
-      pt_email_notify: '',
-      laterality: dto.bodyPart,
-      Laterality: dto.bodyPart,
-      pod1_location: '',
-      cataract_variable: '',
-      all_cases: name + ' ' + dto.date,
-      all_cataract_dates: name + ' ' + dto.date,
-      all_case_type: name + ' ' + dto.date,
-      phoneNumber: dto.phoneNumber,
-    };
+    const { name } = surgery.surgeryConfiguration;
 
     const systemGeneratedMailData = {
-      subject: 'Eval/ Surgery registered',
+      subject: `Surgery Scheduled: ${name}`,
       text: 'text message',
       systemTemplate: SystemTemplates.NOTIFY_PATIENT,
     };
 
     await this.emailHandlerService.checkAndMakeEmailContent(
       practice,
-      surgeryConfigId,
       surgery,
-      mailVariables,
       systemGeneratedMailData,
       false,
     );
+  }
+
+  async findSurgeryByPatient(
+    patientId: string,
+    date: Date,
+  ): Promise<ISurgery[]> {
+    return await this.surgeryRepository.find({
+      where: { patient: { id: patientId }, date: MoreThanOrEqual(date) },
+      relations: ['surgeryConfiguration'],
+    });
   }
 }
 

@@ -1,22 +1,25 @@
 <body>
   <h3>Dear {{fname}} {{lname}},</h3>
   <p>
-    We are delighted to inform you that your eval/surgery has been successfully
-    registered with , {{practiceName}}. .
+    We hope you are doing well. We are writing to inform you that a new surgery
+    has been scheduled for you at {{practiceName}}. Here are the details:
   </p>
   <p>
-    Please check the details given below:<br />
-
-    First Name: {{fname}},<br />
-    Last Name: {{lname}},<br />
-    Email:{{pt_email_address}},<br />
-    Phone Number: {{phoneNumber}}<br />
+    MRN: {{mrn}}<br />
+    Surgery Name: {{fname}}<br />
+    Patient Name: {{fname}} {{lname}}<br />
     Date: {{surgery_date}}<br />
+    Insurance: {{insuranceType}}<br />
   </p>
-  <p>Please note your MRN number: {{mrn}}</p>
   <p>
-    If you have any questions or need assistance feel free to contact us.<br />
+    Please make a note of this appointment in your calendar. If you have any
+    questions or need to reschedule, please contact us as soon as possible.
+  </p>
+  <p>
+    We look forward to seeing you on the day of your surgery. Thank you for
+    choosing {{practiceName}}.<br />
   </p>
   <br />
-  <p>Thank you.</p>
+  <p>Best regards.</p>
+  <p>POD Team</p>
 </body>

@@ -12,9 +12,12 @@ import {
   SurgeryEmailEntity,
 } from '@packages/entities';
 import { ENVIRONMENT_VARIABLES } from 'src/enums/environment.enums';
+import { EvalsService } from 'src/evals/evals.service';
+import { SurgeryService } from 'src/surgery/surgery.service';
 import { TemplatesService } from 'src/templates/templates.service';
 import { TransporterService } from 'src/transporter';
 import { SystemTemplates } from 'src/transporter/transporter.types';
+import { formatHeaderDate, toLowerCase, toPascalCase } from 'src/utils';
 import { Repository } from 'typeorm';
 
 export type SystemGeneratedMailData = {
@@ -36,6 +39,10 @@ export class EmailHandlerService {
     private templateService: TemplatesService,
     @Inject(forwardRef(() => TransporterService))
     private transporterService: TransporterService,
+    @Inject(forwardRef(() => EvalsService))
+    private evalService: EvalsService,
+    @Inject(forwardRef(() => SurgeryService))
+    private surgeryService: SurgeryService,
     private readonly configService: ConfigService,
   ) {}
 
@@ -44,16 +51,16 @@ export class EmailHandlerService {
   }
 
   async checkAndMakeEmailContent(
-    practiceEntity: IPractice,
-    surgeryConfigurationId: string,
+    practice: IPractice,
     entity: IEval | ISurgery,
-    mailVariable: EmailVariables,
     systemGeneratedMailData?: SystemGeneratedMailData,
     fromEval?: boolean,
   ): Promise<void> {
     let bookingTemplateFound: boolean = false;
+    const mailVariables = await this.makeEmailVariable(entity, practice);
+    const surgeryConfigId = entity.surgeryConfiguration.id;
     const templates = await this.templateService.getFilteredTemplates({
-      surgeryConfigurationId,
+      surgeryConfigId,
     });
 
     const emailLogsEntries: Partial<IEmailLog>[] = [];
@@ -62,7 +69,7 @@ export class EmailHandlerService {
       templates.forEach((template) => {
         const today = new Date();
         const entry: Partial<IEmailLog> = {
-          practice: practiceEntity,
+          practice: practice,
           expectedDate: entity.date,
           status: 'pending',
           data: {
@@ -78,7 +85,7 @@ export class EmailHandlerService {
             text: template.messageText
               ? this.mailVariableManipulator(template.messageText)
               : '',
-            ...mailVariable,
+            ...mailVariables,
             '1stCataract': template.email1stCataract
               ? this.mailVariableManipulator(template.email1stCataract)
               : '',
@@ -116,12 +123,12 @@ export class EmailHandlerService {
     if (!bookingTemplateFound && systemGeneratedMailData) {
       const systemTemplateName = systemGeneratedMailData.systemTemplate;
       const entry: Partial<IEmailLog> = {
-        practice: practiceEntity,
+        practice: practice,
         expectedDate: entity.date,
         status: 'pending',
         data: {
           body: this.transporterService.readTemplates(systemTemplateName),
-          ...mailVariable,
+          ...mailVariables,
           subject: systemGeneratedMailData.subject,
           text: systemGeneratedMailData.text,
         },
@@ -153,4 +160,89 @@ export class EmailHandlerService {
   mailVariableManipulator(str: string): string {
     return str.replaceAll('[', '{{').replaceAll(']', '}}');
   }
+
+  async makeEmailVariable(
+    entity: IEval | ISurgery,
+    practice: IPractice,
+  ): Promise<EmailVariables> {
+    const {
+      patient: { firstName, lastName, email, mrn, phoneNumber },
+      surgeryConfiguration: { name },
+      date,
+      bodyPart,
+      practiceHome: { name: practiceHomeName },
+      insuranceType,
+    } = entity;
+
+    const { allCataractDates, allCaseType } =
+      await this.findValueOfMailVariable(entity);
+
+    const mailVariables: EmailVariables = {
+      surgery_type: name,
+      fname: firstName,
+      lname: lastName,
+      mrn: String(mrn),
+      pt_email_address: email,
+      surgery_date: String(date),
+      pt_email_notify: `You have received an email at ${email} with more details`,
+      laterality: toLowerCase(bodyPart),
+      Laterality: toPascalCase(bodyPart),
+      pod1_location: practiceHomeName,
+      cataract_variable: '',
+      all_cases: makeAllCaseString(bodyPart, name, date),
+      all_cataract_dates: allCataractDates.join(),
+      all_case_type: allCaseType.join(),
+      phoneNumber: phoneNumber,
+      practiceName: practice.name,
+      insuranceType: insuranceType ? insuranceType.name : '',
+    };
+
+    return mailVariables;
+  }
+
+  async findValueOfMailVariable(
+    entity: IEval | ISurgery,
+  ): Promise<Record<string, string[]>> {
+    const {
+      patient: { id: patientId },
+    } = entity;
+
+    const allCaseType: string[] = [];
+    const upcomingEvals = await this.evalService.findEvalByPatient(
+      patientId,
+      new Date(),
+    );
+
+    allCaseType.push(...makeAllCaseArray(upcomingEvals));
+
+    const upcomingSurgeries = await this.surgeryService.findSurgeryByPatient(
+      patientId,
+      new Date(),
+    );
+    allCaseType.push(...makeAllCaseArray(upcomingSurgeries));
+
+    return {
+      allCataractDates: allCaseType.filter((ele) =>
+        toLowerCase(ele).includes('cataract'),
+      ),
+      allCaseType,
+    };
+  }
 }
+
+const makeAllCaseArray = (dataArray: IEval[] | ISurgery[]) => {
+  const caseArray: string[] = [];
+  dataArray.forEach((ele: IEval | ISurgery) =>
+    caseArray.push(
+      makeAllCaseString(ele.bodyPart, ele.surgeryConfiguration.name, ele.date),
+    ),
+  );
+  return caseArray;
+};
+
+const makeAllCaseString = (
+  bodyPart: string,
+  surgery: string,
+  date: Date,
+): string =>
+  `${bodyPart + ' ' + surgery + ' | ' + formatHeaderDate(String(date))})`;

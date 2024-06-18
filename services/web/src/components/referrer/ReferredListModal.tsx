@@ -6,6 +6,7 @@ const ReferredListModal = ({
   isListModalOpen,
   referrerId,
   handleCloseListModal,
+  withLoader,
 }) => {
   return (
     <BaseUIModal
@@ -20,7 +21,7 @@ const ReferredListModal = ({
         },
       }}
     >
-      <ReferedPatients referrerId={referrerId} />
+      <ReferedPatients referrerId={referrerId} withLoader={withLoader} />
     </BaseUIModal>
   );
 };

@@ -40,5 +40,6 @@ export class UpdateCalendarsDto {
     id: string;
     bookedSlots?: number;
     maxSlots?: number;
+    surgeryConfigurationId?: string;
   }[];
 }

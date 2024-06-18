@@ -3,4 +3,5 @@ export enum EVAL_STATUS {
   Return = 'Return',
   Cancel = 'Cancel',
   'No Show' = 'No Show',
+  'Book' = 'Book',
 }

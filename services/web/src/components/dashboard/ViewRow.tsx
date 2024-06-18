@@ -1,3 +1,4 @@
+import { Checkbox } from 'baseui/checkbox';
 import React from 'react';
 
 function ViewRow({ selectedSurgery, viewBillingColumn }) {
@@ -45,6 +46,33 @@ function ViewRow({ selectedSurgery, viewBillingColumn }) {
           <span className="font-bold">Phone number: </span>
           <span>{selectedSurgery.phoneNumber}</span>
         </p>
+        <p className="flex items-center">
+          <span className="font-bold">Referrer: </span>
+          <span>{selectedSurgery.referrer}</span>
+          <span>
+            {selectedSurgery.referrerVerified && (
+              <Checkbox
+                checked={true}
+                overrides={{
+                  Checkmark: {
+                    style: ({ $checked }) => ({
+                      backgroundColor: $checked
+                        ? 'rgba(34, 197, 94, 1)'
+                        : 'white',
+                      borderColor: $checked
+                        ? 'rgba(34, 197, 94, 1)'
+                        : 'rgba(113, 113, 122, 1)',
+                      width: '12px',
+                      height: '12px',
+                      borderRadius: '2px',
+                      borderWidth: '2px',
+                    }),
+                  },
+                }}
+              />
+            )}
+          </span>
+        </p>
       </div>
       <div className="flex-1">
         <p>
@@ -63,7 +91,7 @@ function ViewRow({ selectedSurgery, viewBillingColumn }) {
         ))}
 
         <p>
-          <span className="font-bold">Details: </span>
+          <span className="font-bold">Notes: </span>
           <span>{selectedSurgery.details}</span>
         </p>
         {selectedSurgery.selectedChecklistOptions

@@ -11,11 +11,13 @@ import { Checkbox, LABEL_PLACEMENT } from 'baseui/checkbox';
 import { SIZE, Select } from 'baseui/select';
 import React, { useEffect, useState } from 'react';
 import { AddIcon, CloseIcon } from '../Icons';
+import RequiredIndicator from '../RequiredIndicator';
 
 const MediaPage: React.FC<{
   onClose: () => void;
   selectedMediaType: MediaType;
-}> = ({ onClose, selectedMediaType }) => {
+  withLoader: (func: () => Promise<void>) => Promise<void>;
+}> = ({ onClose, selectedMediaType, withLoader }) => {
   const { surgeryConfigurations, patient } = useAppSelector((state) => ({
     surgeryConfigurations: state.surgeryConfigurations.entities,
     patient: state.patients.entities,
@@ -44,6 +46,20 @@ const MediaPage: React.FC<{
     video: [{ title: '', url: '' }],
     image: [{ title: '', file: null }],
   });
+
+  const sanitizeStateValues = (data) => {
+    const sanitizeVideoArray = (arr: [{ title: string; url: string }]) =>
+      arr.filter((item) => item.title && item.url);
+
+    const sanitizeImageArray = (arr: [{ title: string; file: File }]) =>
+      arr.filter((item) => item.title && item.file);
+
+    return {
+      ...data,
+      video: sanitizeVideoArray(data.video),
+      ...(data.image ? { image: sanitizeImageArray(data.image) } : {}),
+    };
+  };
 
   const isFormFilled = (): boolean => {
     if (selectedMedia === MediaType.PATIENT) {
@@ -98,10 +114,13 @@ const MediaPage: React.FC<{
       setPatientForm({ ...patientForm, video: newFields });
     }
   };
-
+  const delay = (ms: number): Promise<void> =>
+    new Promise((resolve) => setTimeout(resolve, ms));
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (practiceId) {
+      const sanitizedPatientForm = sanitizeStateValues(patientForm);
+
       const data: AddMediaDTO =
         selectedMedia === MediaType.PRACTICE
           ? {
@@ -120,18 +139,16 @@ const MediaPage: React.FC<{
               practiceId,
               mediaType: selectedMedia,
               entityId: patientForm.patientId,
-              mediaConfig:
-                patientForm.image?.length && patientForm.image[0].title
-                  ? patientForm
-                  : {
-                      video: patientForm.video,
-                    },
+              mediaConfig: sanitizedPatientForm,
             };
 
       console.log(data, 'finaldata');
 
       try {
-        dispatch(addRecordAsync(data));
+        await withLoader(async () => {
+          await delay(2000); // Add a delay of 1 second
+          await dispatch(addRecordAsync(data));
+        });
         setPracticeForm({
           surgeryConfigurationId: '',
           video: [{ title: '', url: '' }],
@@ -217,7 +234,8 @@ const MediaPage: React.FC<{
           <div>
             <div className="space-y-2">
               <label htmlFor="title" className="text-black text-sm font-normal">
-                Title
+                <RequiredIndicator />
+                &nbsp;Title
               </label>
               <TextInput
                 name="name"
@@ -229,7 +247,8 @@ const MediaPage: React.FC<{
             </div>
             <div className="space-y-2  pt-4">
               <label htmlFor="url" className="text-black text-sm font-normal">
-                URL
+                <RequiredIndicator />
+                &nbsp;URL
               </label>
               <TextInput
                 name="url"
@@ -280,7 +299,8 @@ const MediaPage: React.FC<{
           <div className="flex flex-col">
             <div className="space-y-2">
               <label htmlFor="mrn" className="text-black text-sm font-normal">
-                MRN
+                <RequiredIndicator />
+                &nbsp;MRN
               </label>
               <div className="space-y-2 pt-4">
                 <Select
