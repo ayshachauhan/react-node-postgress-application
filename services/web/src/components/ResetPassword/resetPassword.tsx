@@ -33,6 +33,7 @@ export const ResetPassword: React.FC<Props> = ({
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [tokenExpired, setTokenExpired] = useState(false);
   const { successMessage, errorMessage } = useAppSelector((state) => ({
     successMessage: state.users.successMessage,
     errorMessage: state.users.errorMessage,
@@ -54,7 +55,21 @@ export const ResetPassword: React.FC<Props> = ({
     }
 
     if (!userInfo) {
-      dispatch(fetchLoggedInUser());
+      (async () => {
+        try {
+          const userResponse = await dispatch(fetchLoggedInUser(true));
+          if (userResponse?.type == 'users/fetchLoggedInUser/rejected') {
+            if (
+              userResponse?.error &&
+              userResponse.error.message === 'Token expired'
+            ) {
+              setTokenExpired(true);
+            }
+          }
+        } catch (error) {
+          console.log(error);
+        }
+      })();
     }
 
     const isPracticeInfoEmpty =
@@ -68,6 +83,7 @@ export const ResetPassword: React.FC<Props> = ({
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (userInfo && userInfo.practices) {
+      setTokenExpired(false);
       const payload: ChangePasswordInterface = {
         practiceId: userInfo.practices[0].id,
         email: userInfo?.email,
@@ -88,6 +104,7 @@ export const ResetPassword: React.FC<Props> = ({
   };
 
   const handleGoBack = () => {
+    setTokenExpired(false);
     router.back();
   };
 
@@ -96,14 +113,14 @@ export const ResetPassword: React.FC<Props> = ({
     if (successMessage) {
       timer = setTimeout(() => {
         dispatch(clearSuccessMessage());
-      }, 2000);
+      }, 5000);
     }
     if (errorMessage) {
       setShowErrorMessage(true);
       timer = setTimeout(() => {
         setShowErrorMessage(false);
         dispatch(clearErrorMessage());
-      }, 2000);
+      }, 5000);
     }
     return () => {
       if (timer) {
@@ -121,6 +138,11 @@ export const ResetPassword: React.FC<Props> = ({
             title="Go Back"
             onClick={handleGoBack}
           ></Button>
+        </div>
+      ) : null}
+      {tokenExpired ? (
+        <div className="flex justify-between border-gray-400 items-center ml-2 mt-5 flex-col text-red-900">
+          <p>Reset Password link has been expired</p>
         </div>
       ) : null}
       <LogoWrapper>
