@@ -185,7 +185,6 @@ const Media: React.FC = () => {
 
   const handleCloseDeleteModal = (event?: ModalCloseEvent): void => {
     if (event?.closeSource === 'backdrop') {
-      console.log(event);
       return;
     }
     setIsDeleteModalOpen(false);
