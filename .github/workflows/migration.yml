@@ -163,7 +163,7 @@ jobs:
 
       - name: Allow DB Security group rule to connect Github Actions
         run: |
-          aws ec2 authorize-security-group-ingress --group-name azentia-infra-qa-db-sg20240611093945832000000001 --protocol tcp --port 5432 --cidr $/32 --vpc-id vpc-054009045712927ff
+          aws ec2 authorize-security-group-ingress --group-id sg-07e3c0631c4fc9326 --protocol tcp --port 5432 --cidr $/32
 
       - name: Show migrations
         run: |
@@ -184,5 +184,5 @@ jobs:
 
       - name: Deny Security group rule to connect Github Actions to Mongo-port
         run: |
-          aws ec2 revoke-security-group-ingress --group-name azentia-infra-qa-db-sg20240611093945832000000001 --protocol tcp --port 5432 --cidr $/32 --vpc-id vpc-054009045712927ff
+          aws ec2 revoke-security-group-ingress --group-id sg-07e3c0631c4fc9326 --protocol tcp --port 5432 --cidr $/32
         if: always()
