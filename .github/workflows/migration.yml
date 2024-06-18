@@ -140,11 +140,18 @@ jobs:
         run: |
           echo "::set-output name=rds_sg_id::$(terraform -chdir=./terraform output -raw rds_shared_sg_id)"
 
+      - name: Debug Terraform Output
+        run: |
+          echo "RDS_SG_ID=${{ steps.tf_outputs.outputs.rds_sg_id }}"
+          echo "Runner IP=${{ steps.get_ip.outputs.runner_ip }}"
+
       - name: Allow runner IP in RDS security group
         id: allow_ip
         run: |
-          echo "Allowing IP: ${{ steps.get_ip.outputs.runner_ip }}"
-          aws ec2 authorize-security-group-ingress --group-id ${{ steps.tf_outputs.outputs.rds_sg_id }} --protocol tcp --port 5432 --cidr ${{ steps.get_ip.outputs.runner_ip }}/32
+          RDS_SG_ID=${{ steps.tf_outputs.outputs.rds_sg_id }}
+          RUNNER_IP=${{ steps.get_ip.outputs.runner_ip }}
+          echo "Allowing IP: $RUNNER_IP in SG: $RDS_SG_ID"
+          aws ec2 authorize-security-group-ingress --group-id $RDS_SG_ID --protocol tcp --port 5432 --cidr $RUNNER_IP/32
 
       - name: Show migrations
         run: |
@@ -158,5 +165,7 @@ jobs:
         if: always()
         id: revoke_ip
         run: |
-          echo "Revoking IP: ${{ steps.get_ip.outputs.runner_ip }}"
-          aws ec2 revoke-security-group-ingress --group-id ${{ steps.tf_outputs.outputs.rds_sg_id }} --protocol tcp --port 5432 --cidr ${{ steps.get_ip.outputs.runner_ip }}/32
+          RDS_SG_ID=${{ steps.tf_outputs.outputs.rds_sg_id }}
+          RUNNER_IP=${{ steps.get_ip.outputs.runner_ip }}
+          echo "Revoking IP: $RUNNER_IP from SG: $RDS_SG_ID"
+          aws ec2 revoke-security-group-ingress --group-id $RDS_SG_ID --protocol tcp --port 5432 --cidr $RUNNER_IP/32
