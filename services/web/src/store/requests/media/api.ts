@@ -168,3 +168,24 @@ export const deleteMedia = async (
     return rejectWithValue('An unknown error occurred');
   }
 };
+
+export const sendMediaToPatient = async (payloadData: {
+  practiceId: string;
+  data: {
+    mrn: string;
+    links: string[];
+  };
+}) => {
+  try {
+    const response: Response = await apiClient.post(
+      `/practices/${payloadData.practiceId}/media/send-video-to-patient`,
+      payloadData.data,
+    );
+
+    const data = await response.json();
+
+    return data;
+  } catch (error) {
+    return error;
+  }
+};

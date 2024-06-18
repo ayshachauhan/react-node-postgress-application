@@ -228,6 +228,28 @@ export class EmailHandlerService {
       allCaseType,
     };
   }
+
+  async sendVideoToPatient(
+    data: Record<string, string>,
+    practice: IPractice,
+  ): Promise<void> {
+    const entry: Partial<IEmailLog> = {
+      practice,
+      expectedDate: new Date(),
+      status: 'pending',
+      data: {
+        body: this.transporterService.readTemplates(
+          SystemTemplates.SEND_VIDEO_TO_PATIENT,
+        ),
+        patientName: `${data.firstName} ${data.lastName}`,
+        links: data.links,
+        subject: 'Surgery Videos.',
+        text: '',
+        pt_email_address: data.email,
+      },
+    };
+    await this.emailLogRepository.save(entry);
+  }
 }
 
 const makeAllCaseArray = (dataArray: IEval[] | ISurgery[]) => {

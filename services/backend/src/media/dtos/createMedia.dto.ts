@@ -15,3 +15,13 @@ export class CreateMediaDto {
   @IsOptional()
   entityId: string | null;
 }
+
+export class SendVideoDto {
+  @IsNotEmpty({ message: 'Media Type is required' })
+  @ApiProperty()
+  mrn: string;
+
+  @IsNotEmpty({ message: 'Media Config type is required' })
+  @ApiProperty()
+  links: string[];
+}

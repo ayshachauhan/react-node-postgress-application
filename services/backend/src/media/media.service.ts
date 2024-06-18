@@ -1,17 +1,27 @@
 import {
   HttpException,
   HttpStatus,
+  Inject,
   Injectable,
   NotFoundException,
+  forwardRef,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { MediaConfigEntity, MediaConfigType } from '@packages/entities';
+import {
+  IPatient,
+  IPractice,
+  MediaConfigEntity,
+  MediaConfigType,
+} from '@packages/entities';
 import { IMedia, MediaEntity, MediaType } from '@packages/entities/media';
+import { EmailHandlerService } from 'src/emailHandler/emailHandler.service';
+import { PatientsService } from 'src/patients/patients.service';
+import { SystemTemplates } from 'src/transporter/transporter.types';
 import { UploadType } from 'src/users/types';
 import { getUploadFileKey } from 'src/users/utils';
 import { Repository } from 'typeorm';
 import { S3Service } from '../users/s3.service';
-import { CreateMediaDto } from './dtos/createMedia.dto';
+import { CreateMediaDto, SendVideoDto } from './dtos/createMedia.dto';
 import { MediaConfigDTO, UploadPatientImagesData } from './types';
 
 @Injectable()
@@ -21,6 +31,10 @@ export class MediaService {
     private readonly media: Repository<MediaEntity>,
     @InjectRepository(MediaConfigEntity)
     private readonly mediaConfigRepo: Repository<MediaConfigEntity>,
+    @Inject(forwardRef(() => EmailHandlerService))
+    private emailHandlerService: EmailHandlerService,
+    @Inject(forwardRef(() => PatientsService))
+    private patientService: PatientsService,
     private readonly s3Service: S3Service,
   ) {}
 
@@ -180,5 +194,26 @@ export class MediaService {
     const user = await this.createMediaConfig(id, uploadResults);
 
     return user;
+  }
+
+  async sendVideoToPatient(
+    practice: IPractice,
+    payload: SendVideoDto,
+  ): Promise<void> {
+    const patientData: IPatient | null =
+      await this.patientService.getPatientsByMrn(
+        practice.id,
+        Number(payload.mrn),
+      );
+    if (patientData) {
+      const data = {
+        systemTemplate: SystemTemplates.SEND_VIDEO_TO_PATIENT,
+        firstName: patientData.firstName,
+        lastName: patientData.lastName,
+        email: patientData.email,
+        links: payload.links.join(','),
+      };
+      await this.emailHandlerService.sendVideoToPatient(data, practice);
+    }
   }
 }
