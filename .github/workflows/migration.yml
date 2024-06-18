@@ -139,7 +139,8 @@ jobs:
       - name: Export Terraform Output
         id: tf_outputs
         run: |
-          echo "RDS_SG_ID=$(terraform -chdir=./terraform output -raw rds_shared_sg_id)" >> $GITHUB_ENV
+          RDS_SG_ID=$(terraform -chdir=./terraform output -raw rds_shared_sg_id)
+          echo "RDS_SG_ID=$RDS_SG_ID" >> $GITHUB_ENV
 
       - name: Allow runner IP in RDS security group
         id: allow_ip
