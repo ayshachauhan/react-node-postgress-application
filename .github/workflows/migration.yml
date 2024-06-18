@@ -133,19 +133,20 @@ jobs:
       - name: Retrieve runner's IP address
         id: get_ip
         run: |
-          RUNNER_IP=$(curl -s https://httpbin.org/ip | jq -r .origin)
-          echo "RUNNER_IP=$RUNNER_IP" >> $GITHUB_ENV
-
+          echo "Runner's public IP:"
+          curl -s https://httpbin.org/ip | jq -r .origin
+      
       - name: Export Terraform Output
         id: tf_outputs
-        run: |
-          RDS_SG_ID=$(terraform -chdir=./terraform output -json | jq -r .rds_shared_sg_id.value)
-          echo "RDS_SG_ID=$RDS_SG_ID" >> $GITHUB_ENV
+        run: | 
+          echo "RDS_SG_ID=$(terraform -chdir=./terraform output -raw rds_shared_sg_id)" >> $GITHUB_OUTPUT
 
       - name: Allow runner IP in RDS security group
         id: allow_ip
         run: |
-          aws ec2 authorize-security-group-ingress --group-id ${{ env.RDS_SG_ID }} --protocol tcp --port 5432 --cidr ${{ env.RUNNER_IP }}/32  
+          export RUNNER_IP=$(curl -s https://httpbin.org/ip | jq -r .origin)
+          echo "Allowing IP: $RUNNER_IP"
+          aws ec2 authorize-security-group-ingress --group-id ${{ steps.tf_outputs.outputs.RDS_SG_ID }} --protocol tcp --port 5432 --cidr $RUNNER_IP/32
 
       - name: Show migrations
         run: |
@@ -159,4 +160,6 @@ jobs:
         if: always()
         id: revoke_ip
         run: |
-          aws ec2 revoke-security-group-ingress --group-id ${{ env.RDS_SG_ID }} --protocol tcp --port 5432 --cidr ${{ env.RUNNER_IP }}/32
+          export RUNNER_IP=$(curl -s https://httpbin.org/ip | jq -r .origin)
+          echo "Revoking IP: $RUNNER_IP"
+          aws ec2 revoke-security-group-ingress --group-id ${{ steps.tf_outputs.outputs.RDS_SG_ID }} --protocol tcp --port 5432 --cidr $RUNNER_IP/32
