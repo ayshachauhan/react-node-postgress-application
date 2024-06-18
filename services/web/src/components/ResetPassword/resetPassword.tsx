@@ -58,11 +58,8 @@ export const ResetPassword: React.FC<Props> = ({
       (async () => {
         try {
           const userResponse = await dispatch(fetchLoggedInUser(true));
-          if (userResponse?.type == 'users/fetchLoggedInUser/rejected') {
-            if (
-              userResponse?.error &&
-              userResponse.error.message === 'Token expired'
-            ) {
+          if (fetchLoggedInUser.rejected.match(userResponse)) {
+            if (userResponse.error.message === 'Token expired') {
               setTokenExpired(true);
             }
           }
