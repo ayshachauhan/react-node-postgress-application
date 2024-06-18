@@ -14,7 +14,8 @@ import { DEFAULT_SURGERYNAME_COLOR } from '@root/utils/constants';
 import { getPracticeId, getUserId } from '@root/utils/index';
 import { Modal, ModalBody, ModalHeader, ROLE } from 'baseui/modal';
 import moment from 'moment';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { ModalCloseEvent } from '../BaseUiModal/BaseUiModal';
 import UpsertCalendar from '../calendar/UpsertCalendar';
 
 export type CalendarData = {
@@ -49,6 +50,7 @@ const UpcomingSection: React.FC = () => {
 
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isUpdating, setIsUpdating] = useState<boolean>(false);
+  const modalRef = useRef(null);
 
   const [selectedSurgery, setSelectedSurgery] =
     useState<ISurgeryConfiguration | null>(null);
@@ -234,7 +236,10 @@ const UpcomingSection: React.FC = () => {
     setIsModalOpen(true);
     setIsUpdating(isUpdating);
   };
-  const handleCloseModal = (): void => {
+  const handleCloseModal = (event?: ModalCloseEvent): void => {
+    if (event?.closeSource === 'backdrop') {
+      return;
+    }
     setIsModalOpen(false);
   };
 
@@ -274,6 +279,7 @@ const UpcomingSection: React.FC = () => {
         autoFocus
         size={'60vw'}
         role={ROLE.dialog}
+        ref={modalRef}
         overrides={{
           Root: {
             style: ({ $theme }) => ({

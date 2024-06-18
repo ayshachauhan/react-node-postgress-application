@@ -1,5 +1,6 @@
 'use client';
 import { IWaitlist } from '@packages/entities';
+import { ModalCloseEvent } from '@root/components/BaseUiModal/BaseUiModal';
 import Button from '@root/components/Button';
 import { AddIcon, DeleteIcon } from '@root/components/Icons';
 import AddWaitlist from '@root/components/settings/configurationSettings/waitlist/addWaitlist';
@@ -20,7 +21,7 @@ import {
   ROLE,
   SIZE,
 } from 'baseui/modal';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 export default function WaitlistPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -28,6 +29,7 @@ export default function WaitlistPage() {
   const [waitlistId, setWaitlistId] = useState('');
   const [showErrorMessage, setShowErrorMessage] = useState(false);
   const [showSuccessMessage, setShowSuccessMessage] = useState<boolean>(false);
+  const modalRef = useRef(null);
 
   const dispatch = useAppDispatch();
   const practiceId = getPracticeId();
@@ -77,7 +79,10 @@ export default function WaitlistPage() {
     setIsModalOpen(true);
   };
 
-  const handleCloseModal = () => {
+  const handleCloseModal = (event?: ModalCloseEvent) => {
+    if (event?.closeSource === 'backdrop') {
+      return;
+    }
     setIsModalOpen(false);
   };
 
@@ -86,7 +91,10 @@ export default function WaitlistPage() {
     setIsDeleteModalOpen(true);
   };
 
-  const handleCloseDeleteModal = () => {
+  const handleCloseDeleteModal = (event?: ModalCloseEvent) => {
+    if (event?.closeSource === 'backdrop') {
+      return;
+    }
     setIsDeleteModalOpen(false);
   };
 
@@ -107,6 +115,7 @@ export default function WaitlistPage() {
         autoFocus
         size={SIZE.default}
         role={ROLE.dialog}
+        ref={modalRef}
         overrides={{
           Root: {
             style: ({ $theme }) => ({
@@ -143,6 +152,7 @@ export default function WaitlistPage() {
         autoFocus
         size={SIZE.default}
         role={ROLE.dialog}
+        ref={modalRef}
         overrides={{
           Root: {
             style: ({ $theme }) => ({

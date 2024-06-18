@@ -1,6 +1,7 @@
 'use client';
 import { AddIcon, AvatarIcon, DeleteIcon, EditIcon } from '@components/Icons';
 import AddPracticeForm from '@components/practices/practices.module';
+import { ModalCloseEvent } from '@root/components/BaseUiModal/BaseUiModal';
 import Button from '@root/components/Button';
 import PracticeEditModule from '@root/components/practices/editPractice.module';
 import { useAppDispatch, useAppSelector } from '@root/store';
@@ -20,7 +21,7 @@ import {
   SIZE,
 } from 'baseui/modal';
 import Image from 'next/image';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 const Practice: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -43,6 +44,7 @@ const Practice: React.FC = () => {
     successMessage: state.practices.successMessage,
     errorMessage: state.practices.errorMessage,
   }));
+  const modalRef = useRef(null);
 
   const [showErrorMessage, setShowErrorMessage] = useState(false);
 
@@ -60,7 +62,10 @@ const Practice: React.FC = () => {
     setIsCreateModalOpen(true);
   };
 
-  const handleCloseCreateModal = (): void => {
+  const handleCloseCreateModal = (event?: ModalCloseEvent): void => {
+    if (event?.closeSource === 'backdrop') {
+      return;
+    }
     setIsCreateModalOpen(false);
   };
 
@@ -71,7 +76,10 @@ const Practice: React.FC = () => {
     setIsEditModalOpen(true);
   };
 
-  const handleCloseEditModal = (): void => {
+  const handleCloseEditModal = (event?: ModalCloseEvent): void => {
+    if (event?.closeSource === 'backdrop') {
+      return;
+    }
     setIsEditModalOpen(false);
   };
 
@@ -80,7 +88,10 @@ const Practice: React.FC = () => {
     setPracticeId(Id);
   };
 
-  const handleCloseDeleteModal = (): void => {
+  const handleCloseDeleteModal = (event?: ModalCloseEvent): void => {
+    if (event?.closeSource === 'backdrop') {
+      return;
+    }
     setIsDeleteModalOpen(false);
     setPracticeId(null);
   };
@@ -143,6 +154,7 @@ const Practice: React.FC = () => {
         autoFocus
         size={SIZE.default}
         role={ROLE.dialog}
+        ref={modalRef}
         overrides={{
           Root: {
             style: ({ $theme }) => ({
@@ -175,6 +187,7 @@ const Practice: React.FC = () => {
         autoFocus
         size={SIZE.default}
         role={ROLE.dialog}
+        ref={modalRef}
         overrides={{
           Root: {
             style: ({ $theme }) => ({
