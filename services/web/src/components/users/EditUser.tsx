@@ -1,6 +1,7 @@
 import {
   IPermission,
   IUser,
+  UserDesignation,
   UserStatus,
   UserType,
 } from '@packages/entities/index.browser';
@@ -35,6 +36,11 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose, withLoader }) => {
   }));
   const userStatusOptions = Object.keys(UserStatus).map((key) => ({
     label: UserStatus[key as keyof typeof UserStatus],
+    id: key,
+  }));
+
+  const userDesignations = Object.keys(UserDesignation).map((key) => ({
+    label: UserDesignation[key as keyof typeof UserDesignation],
     id: key,
   }));
 
@@ -76,6 +82,7 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose, withLoader }) => {
   const isDisabled = loggedInUserId === userId;
   const [errorMessage, setErrorMessage] = useState('');
   const [permissionsUpdated, setPermissionsUpdated] = useState(false);
+  const [designation, setDesignation] = useState('');
 
   useEffect(() => {
     if (updatedUserInfo?.permissions) {
@@ -101,6 +108,17 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose, withLoader }) => {
     setUserInfo({ ...updatedUserInfo, type: label });
   };
 
+  const handleDesignationChange = ({ value }) => {
+    setDesignation(value[0] ? value[0].label : null);
+  };
+
+  const handleDesignationBlur = ({ target }) => {
+    if (target.value) {
+      const newValue: string = target.value;
+      setDesignation(newValue);
+    }
+  };
+
   const handleCheckboxChange = (index: number) => {
     const updatedCheckboxes = [...checkboxes];
     updatedCheckboxes[index] = !updatedCheckboxes[index];
@@ -111,6 +129,7 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose, withLoader }) => {
   useEffect(() => {
     if (data.id && userInfo) {
       setUserInfo(userInfo);
+      setDesignation(userInfo?.designation);
     }
   }, [data.id, userInfo]);
   const selectedItems = getSelectedItems();
@@ -137,7 +156,9 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose, withLoader }) => {
         fullName: updatedPayloadData.fullName ?? '',
         email: updatedUserInfo.email ?? '',
         url: updatedUserInfo.url ?? '',
-        designation: updatedUserInfo.designation ?? '',
+        designation: designation
+          ? designation
+          : updatedUserInfo.designation || '',
         status: updatedUserInfo.status ?? UserStatus.INACTIVE,
         type: updatedUserInfo.type ?? UserType.EMPLOYEE,
         practiceId: practiceId,
@@ -353,12 +374,33 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose, withLoader }) => {
               >
                 Designation
               </label>
-              <TextInput
-                name="designation"
-                value={updatedUserInfo?.designation || ''}
-                onChange={(value) => {
-                  setUserInfo({ ...updatedUserInfo, designation: value });
+              <Select
+                options={userDesignations}
+                onChange={handleDesignationChange}
+                onBlur={handleDesignationBlur}
+                overrides={{
+                  ControlContainer: {
+                    style: {
+                      backgroundColor: 'rgba(250, 250, 250, 1)',
+                      border: 'none',
+                      color: 'rgba(82, 82, 91, 1)',
+                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)', // Add shadow CSS here
+                    },
+                  },
+                  ClearIcon: {
+                    component: () => null,
+                  },
                 }}
+                value={
+                  designation
+                    ? [
+                        {
+                          id: String(designation),
+                          label: String(String(designation)),
+                        },
+                      ]
+                    : []
+                }
               />
             </div>
           </div>
