@@ -153,10 +153,7 @@ const Dashboard: React.FC = () => {
     setIsAddModalOpen(true);
   };
 
-  const handleCloseDeleteModal = (event?: ModalCloseEvent): void => {
-    if (event?.closeSource === 'backdrop') {
-      return;
-    }
+  const handleCloseDeleteModal = (): void => {
     setIsDeleteModalOpen(false);
     setConfigurationId(null);
   };
