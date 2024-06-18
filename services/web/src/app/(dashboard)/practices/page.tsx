@@ -2,7 +2,9 @@
 import { AddIcon, AvatarIcon, DeleteIcon, EditIcon } from '@components/Icons';
 import AddPracticeForm from '@components/practices/practices.module';
 import Button from '@root/components/Button';
+import Loader from '@root/components/loader';
 import PracticeEditModule from '@root/components/practices/editPractice.module';
+import { useLoader } from '@root/hooks/useLoader';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import {
   clearErrorMessage,
@@ -27,6 +29,7 @@ const Practice: React.FC = () => {
   const practices = useAppSelector((state) =>
     Object.values(state.practices.entities),
   );
+  const { isLoading, withLoader } = useLoader();
   const [practiceId, setPracticeId] = useState<string | null>(null);
   const [editExistingValues, setEditExistingValue] =
     useState<PracticesEditInterface>({
@@ -47,14 +50,24 @@ const Practice: React.FC = () => {
   const [showErrorMessage, setShowErrorMessage] = useState(false);
 
   useEffect(() => {
-    dispatch(fetchListings(undefined));
-  }, []);
+    const loadData = async () => {
+      await withLoader(async () => {
+        await dispatch(fetchListings(undefined));
+      });
+    };
+    loadData();
+  }, [withLoader]);
 
   useEffect(() => {
     if (successMessage) {
-      dispatch(fetchListings(undefined));
+      const loadData = async () => {
+        await withLoader(async () => {
+          await dispatch(fetchListings(undefined));
+        });
+      };
+      loadData();
     }
-  }, [successMessage, dispatch]);
+  }, [successMessage, dispatch, withLoader]);
 
   const handleOpenCreateModal = (): void => {
     setIsCreateModalOpen(true);
@@ -127,7 +140,10 @@ const Practice: React.FC = () => {
           Add New Practice
         </ModalHeader>
         <ModalBody>
-          <AddPracticeForm onClose={handleCloseCreateModal} />
+          <AddPracticeForm
+            onClose={handleCloseCreateModal}
+            withLoader={withLoader}
+          />
         </ModalBody>
       </Modal>
     );
@@ -159,6 +175,7 @@ const Practice: React.FC = () => {
           <PracticeEditModule
             onClose={handleCloseEditModal}
             initialValues={editExistingValues}
+            withLoader={withLoader}
           />
         </ModalBody>
       </Modal>
@@ -222,6 +239,7 @@ const Practice: React.FC = () => {
 
   return (
     <div className="my-4">
+      {isLoading && <Loader />}
       <div className="flex justify-between border-gray-400">
         <span className="text-xl font-bold">All Practices</span>
         {showModal && <div className="text-green-700">{successMessage}</div>}

@@ -12,7 +12,8 @@ import React, { useEffect, useState } from 'react';
 const PracticeEditModule: React.FC<{
   onClose: () => void;
   initialValues: PracticesEditInterface;
-}> = ({ onClose, initialValues }) => {
+  withLoader: (func: () => Promise<void>) => Promise<void>;
+}> = ({ onClose, initialValues, withLoader }) => {
   const dispatch = useAppDispatch();
   const [name, setName] = useState(initialValues.name);
   const [status, setStatus] = useState(initialValues.status);
@@ -70,7 +71,9 @@ const PracticeEditModule: React.FC<{
     };
     try {
       if (validateForm()) {
-        dispatch(updateRecordAsync(data));
+        await withLoader(async () => {
+          await dispatch(updateRecordAsync(data));
+        });
         setName('');
         setStatus('');
         setPracticeImg(null);
