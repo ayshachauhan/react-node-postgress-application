@@ -1,5 +1,6 @@
 'use client';
 import { IPracticeHomes } from '@packages/entities';
+import { ModalCloseEvent } from '@root/components/BaseUiModal/BaseUiModal';
 import Button from '@root/components/Button';
 import { AddIcon, DeleteIcon } from '@root/components/Icons';
 import AddPracticeHome from '@root/components/settings/configurationSettings/PracticeHomes/addPracticeHome';
@@ -20,7 +21,7 @@ import {
   ROLE,
   SIZE,
 } from 'baseui/modal';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 export default function PracticeHomesPage() {
   const [practiceHomeId, setPracticeHomeId] = useState('');
@@ -42,6 +43,7 @@ export default function PracticeHomesPage() {
     successMessage: state.practiceHomes.successMessage,
     errorMessage: state.practiceHomes.errorMessage,
   }));
+  const modalRef = useRef(null);
 
   useEffect(() => {
     if (practiceId !== null) {
@@ -77,7 +79,10 @@ export default function PracticeHomesPage() {
     setIsModalOpen(true);
   };
 
-  const handleCloseModal = (): void => {
+  const handleCloseModal = (event?: ModalCloseEvent): void => {
+    if (event?.closeSource === 'backdrop') {
+      return;
+    }
     setIsModalOpen(false);
   };
 
@@ -86,7 +91,10 @@ export default function PracticeHomesPage() {
     setIsDeleteModalOpen(true);
   };
 
-  const handleCloseDeleteModal = (): void => {
+  const handleCloseDeleteModal = (event?: ModalCloseEvent): void => {
+    if (event?.closeSource === 'backdrop') {
+      return;
+    }
     setIsDeleteModalOpen(false);
   };
 
@@ -151,6 +159,7 @@ export default function PracticeHomesPage() {
         autoFocus
         size={SIZE.default}
         role={ROLE.dialog}
+        ref={modalRef}
         overrides={{
           Root: {
             style: ({ $theme }) => ({
@@ -183,6 +192,7 @@ export default function PracticeHomesPage() {
         autoFocus
         size={SIZE.default}
         role={ROLE.dialog}
+        ref={modalRef}
         overrides={{
           Root: {
             style: ({ $theme }) => ({

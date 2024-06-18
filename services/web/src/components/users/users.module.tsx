@@ -32,7 +32,8 @@ import {
 } from 'baseui/modal';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { ModalCloseEvent } from '../BaseUiModal/BaseUiModal';
 
 export default function UserPage() {
   const [showModal, setShowModal] = useState(false);
@@ -50,6 +51,8 @@ export default function UserPage() {
     errorMessage: state.users.errorMessage,
   }));
   const router = useRouter();
+
+  const modalRef = useRef(null);
 
   useEffect(() => {
     if (practiceId !== null) {
@@ -146,7 +149,10 @@ export default function UserPage() {
     setUserId(null);
   };
 
-  const handleCloseDeleteModal = (): void => {
+  const handleCloseDeleteModal = (event?: ModalCloseEvent): void => {
+    if (event?.closeSource === 'backdrop') {
+      return;
+    }
     setIsDeleteModalOpen(false);
     setUserId(null);
   };
@@ -161,6 +167,7 @@ export default function UserPage() {
         autoFocus
         size={SIZE.default}
         role={ROLE.dialog}
+        ref={modalRef}
         overrides={{
           Root: {
             style: ({ $theme }) => ({

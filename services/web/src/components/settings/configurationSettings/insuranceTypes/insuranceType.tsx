@@ -1,5 +1,6 @@
 'use client';
 import { IInsuranceType } from '@packages/entities/index.browser';
+import { ModalCloseEvent } from '@root/components/BaseUiModal/BaseUiModal';
 import Button from '@root/components/Button';
 import { AddIcon, DeleteIcon } from '@root/components/Icons';
 import AddInsuranceType from '@root/components/settings/configurationSettings/insuranceTypes/addInsuranceType';
@@ -20,7 +21,7 @@ import {
   ROLE,
   SIZE,
 } from 'baseui/modal';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 export default function InsuranceTypePage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -37,6 +38,7 @@ export default function InsuranceTypePage() {
   const insuranceTypes: IInsuranceType[] = useAppSelector((state) =>
     Object.values(state.insuranceTypes.entities),
   );
+  const modalRef = useRef(null);
 
   const { successMessage, errorMessage } = useAppSelector((state) => ({
     successMessage: state.insuranceTypes.successMessage,
@@ -77,7 +79,10 @@ export default function InsuranceTypePage() {
     setIsModalOpen(true);
   };
 
-  const handleCloseModal = () => {
+  const handleCloseModal = (event?: ModalCloseEvent) => {
+    if (event?.closeSource === 'backdrop') {
+      return;
+    }
     setIsModalOpen(false);
   };
 
@@ -86,7 +91,10 @@ export default function InsuranceTypePage() {
     setIsDeleteModalOpen(true);
   };
 
-  const handleCloseDeleteModal = () => {
+  const handleCloseDeleteModal = (event?: ModalCloseEvent) => {
+    if (event?.closeSource === 'backdrop') {
+      return;
+    }
     setIsDeleteModalOpen(false);
   };
 
@@ -107,6 +115,7 @@ export default function InsuranceTypePage() {
         autoFocus
         size={SIZE.default}
         role={ROLE.dialog}
+        ref={modalRef}
         overrides={{
           Root: {
             style: ({ $theme }) => ({
@@ -143,6 +152,7 @@ export default function InsuranceTypePage() {
         autoFocus
         size={SIZE.default}
         role={ROLE.dialog}
+        ref={modalRef}
         overrides={{
           Root: {
             style: ({ $theme }) => ({

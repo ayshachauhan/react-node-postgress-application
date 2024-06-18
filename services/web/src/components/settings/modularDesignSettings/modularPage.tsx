@@ -1,4 +1,5 @@
 'use client';
+import { ModalCloseEvent } from '@root/components/BaseUiModal/BaseUiModal';
 import Button from '@root/components/Button';
 import { AddIcon, DeleteIcon, EditIcon } from '@root/components/Icons';
 import Loader from '@root/components/loader';
@@ -22,7 +23,7 @@ import {
   ROLE,
   SIZE,
 } from 'baseui/modal';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 const Dashboard: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -51,6 +52,7 @@ const Dashboard: React.FC = () => {
     successMessage: state.users.successMessage,
     errorMessage: state.users.errorMessage,
   }));
+  const modalRef = useRef(null);
 
   const surgeryConfigurationsList = useAppSelector((state) =>
     Object.values(state.surgeryConfigurations.entities),
@@ -111,6 +113,7 @@ const Dashboard: React.FC = () => {
         autoFocus
         size={SIZE.default}
         role={ROLE.dialog}
+        ref={modalRef}
         overrides={{
           Dialog: {
             style: () => ({
@@ -139,7 +142,10 @@ const Dashboard: React.FC = () => {
     );
   };
 
-  const handleCloseAddModal = (): void => {
+  const handleCloseAddModal = (event?: ModalCloseEvent): void => {
+    if (event?.closeSource === 'backdrop') {
+      return;
+    }
     setIsAddModalOpen(false);
   };
 
@@ -152,7 +158,10 @@ const Dashboard: React.FC = () => {
     setConfigurationId(null);
   };
 
-  const handleCloseEditModal = (): void => {
+  const handleCloseEditModal = (event?: ModalCloseEvent): void => {
+    if (event?.closeSource === 'backdrop') {
+      return;
+    }
     setIsEditModalOpen(false);
     setConfigurationId(null);
   };
@@ -167,6 +176,7 @@ const Dashboard: React.FC = () => {
         autoFocus
         size={SIZE.default}
         role={ROLE.dialog}
+        ref={modalRef}
         overrides={{
           Root: {
             style: ({ $theme }) => ({
@@ -201,6 +211,7 @@ const Dashboard: React.FC = () => {
         autoFocus
         size={SIZE.default}
         role={ROLE.dialog}
+        ref={modalRef}
         overrides={{
           Dialog: {
             style: () => ({

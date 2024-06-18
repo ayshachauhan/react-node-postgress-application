@@ -6,6 +6,7 @@ import {
   ISurgeryConfiguration,
   MediaConfigType,
 } from '@packages/entities/index.browser';
+import { ModalCloseEvent } from '@root/components/BaseUiModal/BaseUiModal';
 import Button from '@root/components/Button';
 import { AddIcon, DeleteIcon, PlayIcon } from '@root/components/Icons';
 import Loader from '@root/components/loader';
@@ -27,7 +28,7 @@ import { extractVideoId, getImageUrl, getPracticeId } from '@utils/index';
 import { SIZE } from 'baseui/input';
 import { Modal, ModalBody, ModalFooter, ModalHeader, ROLE } from 'baseui/modal';
 import Image from 'next/image';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 export type SelectedMedia = {
   name: string;
@@ -65,6 +66,7 @@ const Media: React.FC = () => {
   const [selectedPatientId, setSelectedPatientId] = useState<string | null>(
     null,
   );
+  const modalRef = useRef(null);
 
   const mediaTab: SelectedMedia[] = [
     {
@@ -181,7 +183,10 @@ const Media: React.FC = () => {
     setDeleteMedia(data);
   };
 
-  const handleCloseDeleteModal = (): void => {
+  const handleCloseDeleteModal = (event?: ModalCloseEvent): void => {
+    if (event?.closeSource === 'backdrop') {
+      return;
+    }
     setIsDeleteModalOpen(false);
     setDeleteMedia(null);
   };
@@ -205,6 +210,7 @@ const Media: React.FC = () => {
         autoFocus
         size={SIZE.default}
         role={ROLE.dialog}
+        ref={modalRef}
         overrides={{
           Root: {
             style: ({ $theme }) => ({
