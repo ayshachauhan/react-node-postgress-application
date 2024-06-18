@@ -620,7 +620,7 @@ const FiltersSection: React.FC<{
                                 <div className="text-black py-0.5 px-1 w-10">
                                   {row.home[0]}
                                 </div>
-                                <div className="text-gray-900 py-0.5 px-0.5 flex text-center items-center w-20">
+                                <div className="text-gray-900 py-0.5 px-0.5 flex text-center items-center w-40">
                                   <div className="rounded-md text-white p-1 bg-indigo-500 text-xs">
                                     {toPascalCase(row.surgeryStatus)}
                                   </div>
