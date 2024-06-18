@@ -57,8 +57,12 @@ const UpcomingSection: React.FC = () => {
    * @summary append + sign
    * @param cellValue number
    */
-  const appendAddSign = (cellValue: number): string => {
-    return cellValue > 0 ? '+' + cellValue : cellValue.toString();
+  const appendAddSign = (availableSlots: number): string => {
+    return availableSlots > 0
+      ? '+' + availableSlots
+      : availableSlots === 0
+        ? 'F'
+        : availableSlots.toString();
   };
 
   /**
@@ -67,8 +71,8 @@ const UpcomingSection: React.FC = () => {
    * @returns css for available slots view
    */
   const maxCellStyle = (availableSlots: number): Record<string, string> => {
-    const isMax = availableSlots === DEFAULT_MAX_SLOTS;
-    const isRed = availableSlots <= 0;
+    const isFull = availableSlots === 0;
+    const isRed = availableSlots < 0;
     const isGreen = availableSlots > 0;
 
     const cssObject = {
@@ -81,7 +85,7 @@ const UpcomingSection: React.FC = () => {
       justifyContent: 'center',
     };
 
-    if (isMax) {
+    if (isFull) {
       return {
         ...cssObject,
         backgroundColor: 'rgba(34, 197, 94, 1)',
