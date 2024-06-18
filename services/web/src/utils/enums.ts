@@ -4,6 +4,8 @@ export enum TEMPLATE_VARIABLES {
   'mrn' = 'mrn',
   'pt_email_address' = 'pt_email_address',
   'doc_email_address' = 'doc_email_address',
+  'doctorFirstname' = 'doctorFirstname',
+  'doctorLastname' = 'doctorLastname',
   'surgery_date' = 'surgery_date',
   'pt_email_notify' = 'pt_email_notify',
   'laterality' = 'laterality',

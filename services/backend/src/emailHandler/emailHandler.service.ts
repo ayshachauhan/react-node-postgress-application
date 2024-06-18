@@ -273,7 +273,18 @@ export class EmailHandlerService {
     practice: IPractice,
   ): Promise<EmailVariables> {
     const {
-      patient: { firstName, lastName, email, mrn, phoneNumber },
+      patient: {
+        firstName: patientFirstName,
+        lastName: patientLastName,
+        email: patientEmail,
+        mrn,
+        phoneNumber,
+      },
+      doctor: {
+        firstName: doctorFirstName,
+        lastName: doctorLastName,
+        email: doctorEmail,
+      },
       surgeryConfiguration: { name },
       date,
       bodyPart,
@@ -286,13 +297,15 @@ export class EmailHandlerService {
 
     const mailVariables: EmailVariables = {
       surgery_type: name,
-      fname: firstName,
-      lname: lastName,
+      fname: patientFirstName,
+      lname: patientLastName,
       mrn: String(mrn),
-      pt_email_address: email,
-      doc_email_address: 'aggarwal.himani@thinksys.com',
+      pt_email_address: patientEmail,
+      doc_email_address: doctorEmail,
+      doctorFirstname: doctorFirstName,
+      doctorLastname: doctorLastName,
       surgery_date: String(date),
-      pt_email_notify: `You have received an email at ${email} with more details`,
+      pt_email_notify: `You have received an email at ${patientEmail} with more details`,
       laterality: toLowerCase(bodyPart),
       Laterality: toPascalCase(bodyPart),
       pod1_location: practiceHomeName,
