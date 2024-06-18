@@ -169,9 +169,14 @@ jobs:
         id: ip
         uses: haythem/public-ip@v1.2
 
+      - name: Export Terraform Output
+        id: tf_outputs
+        run: |
+          echo "::set-output name=rds_sg_id::$(terraform -chdir=./terraform output -raw rds_shared_sg_id)"        
+
       - name: Allow DB Security group rule to connect Github Actions
         run: |
-          aws ec2 authorize-security-group-ingress --group-id sg-07e3c0631c4fc9326 --protocol tcp --port 5432 --cidr ${{ steps.ip.outputs.ipv4 }}/32       
+          aws ec2 authorize-security-group-ingress --group-id ${{ steps.tf_outputs.outputs.rds_sg_id }} --protocol tcp --port 5432 --cidr ${{ steps.ip.outputs.ipv4 }}/32       
 
       # - name: Retrieve runner's IP address
       #   id: get_ip
@@ -216,7 +221,7 @@ jobs:
 
       - name: Deny Security group rule to connect Github Actions
         run: |
-          aws ec2 revoke-security-group-ingress --group-id sg-07e3c0631c4fc9326 --protocol tcp --port 5432 --cidr ${{ steps.ip.outputs.ipv4 }}/32
+          aws ec2 revoke-security-group-ingress --group-id ${{ steps.tf_outputs.outputs.rds_sg_id }} --protocol tcp --port 5432 --cidr ${{ steps.ip.outputs.ipv4 }}/32
         if: always()      
 
       # - name: Revoke runner IP from RDS security group
