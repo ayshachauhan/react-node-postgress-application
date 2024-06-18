@@ -171,12 +171,11 @@ jobs:
 
       - name: Get RDS Security Group ID
         id: rds_sg
-        run: |
-          run: echo "::set-output name=rds_sg_id::${rds_sg_id}"        
+        run: echo "rds_sg_id=${rds_sg_id}" >> $GITHUB_ENV      
 
       - name: Allow DB Security group rule to connect Github Actions
         run: |
-          aws ec2 authorize-security-group-ingress --group-id ${{ steps.rds_sg.outputs.rds_sg_id }} --protocol tcp --port 5432 --cidr ${{ steps.ip.outputs.ipv4 }}/32       
+          aws ec2 authorize-security-group-ingress --group-id ${{ env.rds_sg_id }} --protocol tcp --port 5432 --cidr ${{ steps.ip.outputs.ipv4 }}/32       
 
       # - name: Retrieve runner's IP address
       #   id: get_ip
@@ -221,7 +220,7 @@ jobs:
 
       - name: Deny Security group rule to connect Github Actions
         run: |
-          aws ec2 revoke-security-group-ingress --group-id ${{ steps.rds_sg.outputs.rds_sg_id }} --protocol tcp --port 5432 --cidr ${{ steps.ip.outputs.ipv4 }}/32
+          aws ec2 revoke-security-group-ingress --group-id ${{ env.rds_sg_id }} --protocol tcp --port 5432 --cidr ${{ steps.ip.outputs.ipv4 }}/32
         if: always()      
 
       # - name: Revoke runner IP from RDS security group
