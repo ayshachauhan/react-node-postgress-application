@@ -94,4 +94,5 @@ export enum SurgeryStatus {
   POSTPONE = 'POSTPONE',
   CANCELLED = 'CANCELLED',
   COMPLETED = 'COMPLETED',
+  CONFIRMED = 'CONFIRMED',
 }
