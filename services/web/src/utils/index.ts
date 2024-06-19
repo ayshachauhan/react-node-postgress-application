@@ -186,7 +186,7 @@ export const validateEmail = (email?: string) => {
     validObj.error = 'Please enter the email address.';
     return validObj;
   }
-  const regex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+  const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   const isValid = regex.test(String(email).toLowerCase());
   if (!isValid) {
     validObj.isValid = false;
