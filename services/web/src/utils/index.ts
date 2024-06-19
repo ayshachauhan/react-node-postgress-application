@@ -180,7 +180,7 @@ export const jsonResponseFromStream = async (response: Response) => {
 };
 
 export const validateEmail = (email?: string) => {
-  let validObj = { isValid: true, error: '' };
+  const validObj = { isValid: true, error: '' };
   if (!email) {
     validObj.isValid = false;
     validObj.error = 'Please enter the email address.';
