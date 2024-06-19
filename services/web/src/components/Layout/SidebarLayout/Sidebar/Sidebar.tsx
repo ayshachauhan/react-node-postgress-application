@@ -67,7 +67,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapseChange }) => {
     const activeItem = sidebarItems.find((item) => {
       const itemPath = item.path.endsWith('*')
         ? item.path.slice(0, -1)
-        : item.path; // Remove the wildcard if present
+        : item.path;
       return currentPath.startsWith(itemPath);
     });
     const activeItemForChild = sidebarItems.find(
@@ -75,7 +75,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapseChange }) => {
         item.child?.some((childItem) => {
           const childPath = childItem.path.endsWith('*')
             ? childItem.path.slice(0, -1)
-            : childItem.path; // Remove the wildcard if present
+            : childItem.path;
           return currentPath.startsWith(childPath);
         }),
     );
