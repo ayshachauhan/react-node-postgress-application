@@ -38,11 +38,11 @@ export enum UserStatus {
 }
 
 export enum UserDesignation {
-  MANAGER = 'manager',
-  ADMIN = 'admin',
-  PHYSICIAN = 'physician',
+  MANAGER = 'Manager',
+  ADMIN = 'Admin',
+  PHYSICIAN = 'Physician',
   PHYSICIAN_ASSISTANT = 'Physician Assistant',
-  TECHNICIAN = 'technician',
+  TECHNICIAN = 'Technician',
   NURSE_PRACTITIONER = 'Nurse Practitioner',
   OPTOMETRIST = 'Optometrist',
   STAFF = 'Staff',
