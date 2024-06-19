@@ -202,7 +202,7 @@ function EditableRow({
               }}
             />
           </div>
-          <div className="py-2 w-20">
+          <div className="py-2 w-40">
             <Select
               options={surgeryStatusOptions}
               overrides={{

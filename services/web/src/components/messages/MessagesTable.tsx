@@ -8,7 +8,12 @@ import MessageWithReadMore from '@root/components/messages/MessageWithReadMore';
 import { useLoader } from '@root/hooks/useLoader';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { fetchLoggedInUser } from '@root/store/reducers/auth';
-import { fetchListings, setSearchMRNName } from '@root/store/reducers/messages';
+import {
+  clearErrorMessage,
+  clearSuccessMessage,
+  fetchListings,
+  setSearchMRNName,
+} from '@root/store/reducers/messages';
 import {
   formatColumnDate,
   formatHeaderDate,
@@ -105,7 +110,7 @@ export default function MessagesTable() {
       {},
     );
   };
-
+  const [showErrorMessage, setShowErrorMessage] = useState(false);
   useEffect(() => {
     const newMessageDataByDate = generateMessageDataByDate(filteredData);
     setGroupedMessagesByDate(newMessageDataByDate);
@@ -155,7 +160,11 @@ export default function MessagesTable() {
   };
 
   const searchMRNNameStr = searchMRNName || '';
-
+  const { successMessage, errorMessage } = useAppSelector((state) => ({
+    successMessage: state.messages.successMessage,
+    errorMessage: state.messages.errorMessage,
+  }));
+  const [showModal, setShowModal] = useState(false);
   useEffect(() => {
     if (practiceId !== null) {
       dispatchFetchMessages(searchMRNNameStr);
@@ -184,6 +193,29 @@ export default function MessagesTable() {
     }
   };
 
+  useEffect(() => {
+    let timer;
+    if (successMessage) {
+      setShowModal(true);
+      timer = setTimeout(() => {
+        setShowModal(false);
+        dispatch(clearSuccessMessage());
+      }, 2000);
+    }
+    if (errorMessage) {
+      setShowErrorMessage(true);
+      timer = setTimeout(() => {
+        setShowErrorMessage(false);
+        dispatch(clearErrorMessage());
+      }, 2000);
+    }
+    return () => {
+      if (timer) {
+        clearTimeout(timer);
+      }
+    };
+  }, [successMessage, errorMessage, dispatch]);
+
   return (
     <div className="mt-4 mb-8">
       {isLoading && <Loader />}
@@ -191,6 +223,8 @@ export default function MessagesTable() {
         <span className="text-xl font-bold">
           All Messages({messagesData.length})
         </span>
+        {showModal && <div className="text-green-700">{successMessage}</div>}
+        {showErrorMessage && <div className="text-red-700">{errorMessage}</div>}
         <div className="flex items-center">
           <TextInput
             name="search"
