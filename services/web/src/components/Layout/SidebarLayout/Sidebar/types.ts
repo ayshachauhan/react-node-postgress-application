@@ -9,6 +9,7 @@ import {
 } from '@components/Icons';
 import { IPermission } from '@packages/entities/index.browser';
 import { USER_PERMISSIONS } from '@packages/entities/permission';
+import ReviewIcon from '@root/components/Icons/Review';
 import { useUserPermission } from '@root/hooks/userHasPermission';
 
 export type SideBarItem = {
@@ -81,7 +82,7 @@ export const sidebarItems: SideBarItem[] = [
     title: 'Review',
     path: '/review',
     permissions: ['admin'],
-    Icon: SettingIcon,
+    Icon: ReviewIcon,
   },
   {
     id: 'setting',
