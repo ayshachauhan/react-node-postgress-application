@@ -126,7 +126,7 @@ export const createInfraModuleProviders = (): Array<
         )!;
 
         const user: string = configService.get(
-          ENVIRONMENT_VARIABLES.SMTP_EMAIL,
+          ENVIRONMENT_VARIABLES.SMTP_USER,
         )!;
         const pass: string = configService.get(
           ENVIRONMENT_VARIABLES.SMTP_PASSWORD,
