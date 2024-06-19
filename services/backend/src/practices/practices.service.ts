@@ -6,23 +6,23 @@ import {
   forwardRef,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { JwtService } from '@nestjs/jwt';
+// import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PracticeEntity } from '@packages/entities/practice';
 import { UserEntity, UserType } from '@packages/entities/user';
-import Mail from 'nodemailer/lib/mailer';
-import { SystemTemplates } from 'src/transporter/transporter.types';
+// import Mail from 'nodemailer/lib/mailer';
+// import { SystemTemplates } from 'src/transporter/transporter.types';
 import { UploadType } from 'src/users/types';
 import { getUploadFileKey } from 'src/users/utils';
 import { DataSource, Repository, UpdateResult } from 'typeorm';
 import { ENVIRONMENT_VARIABLES } from '../enums/environment.enums';
-import { TransporterService } from '../transporter';
+// import { TransporterService } from '../transporter';
 import { S3Service } from '../users/s3.service';
 import { UsersService } from '../users/users.service';
 import { PracticeCreateDto } from './dto/create.dto';
 import { PracticePatchDto } from './dto/patch.dto';
 import {
-  CreatePracticeInviteMailData,
+  // CreatePracticeInviteMailData,
   PracticesGetInterface,
   UploadPracticeImgData,
 } from './types';
@@ -34,9 +34,9 @@ export class PracticesService {
     private practicesRepository: Repository<PracticeEntity>,
     @Inject(forwardRef(() => UsersService))
     private readonly userService: UsersService,
-    private readonly transporterService: TransporterService,
+    // private readonly transporterService: TransporterService,
     private dataSource: DataSource,
-    private jwtService: JwtService,
+    // private jwtService: JwtService,
     private configService: ConfigService,
     private readonly s3Service: S3Service,
   ) {}
@@ -140,7 +140,7 @@ export class PracticesService {
 
       // creating admin user
       const sendUserCreationEmail: boolean = false;
-      const newAdmin = await this.userService.create(
+      await this.userService.create(
         {
           firstName: adminFirstName,
           lastName: adminLastName,
@@ -156,33 +156,33 @@ export class PracticesService {
         sendUserCreationEmail,
       );
 
-      const token: string = this.jwtService.sign({
-        ...newAdmin,
-        practiceId: practice.id,
-      });
+      // const token: string = this.jwtService.sign({
+      //   ...newAdmin,
+      //   practiceId: practice.id,
+      // });
 
-      const mailOptions: Mail.Options = {
-        to: newAdmin.email,
-        subject:
-          'Welcome to Practice Optimizer Dashboard - Complete Your Sign-up Process',
-      };
+      // const mailOptions: Mail.Options = {
+      //   to: newAdmin.email,
+      //   subject:
+      //     'Welcome to Practice Optimizer Dashboard - Complete Your Sign-up Process',
+      // };
 
-      const frontendBaseUrl: string | undefined = this.getFrontEndBaseUrl();
+      // const frontendBaseUrl: string | undefined = this.getFrontEndBaseUrl();
 
-      const mailData: CreatePracticeInviteMailData = {
-        signUpLink: frontendBaseUrl + `/onboarding/practice?token=${token}`,
-        practiceName: practice.name,
-        userFirstName: adminFirstName,
-        userLastName: adminLastName,
-        contactEmail: adminEmail,
-        contactPhone: adminContactNumber,
-      };
+      // const mailData: CreatePracticeInviteMailData = {
+      //   signUpLink: frontendBaseUrl + `/onboarding/practice?token=${token}`,
+      //   practiceName: practice.name,
+      //   userFirstName: adminFirstName,
+      //   userLastName: adminLastName,
+      //   contactEmail: adminEmail,
+      //   contactPhone: adminContactNumber,
+      // };
 
-      await this.transporterService.sendSystemEmails(
-        mailOptions,
-        mailData,
-        SystemTemplates.ADMIN_INVITE,
-      );
+      // await this.transporterService.sendSystemEmails(
+      //   mailOptions,
+      //   mailData,
+      //   SystemTemplates.ADMIN_INVITE,
+      // );
       await queryRunner.commitTransaction();
 
       return practice;
