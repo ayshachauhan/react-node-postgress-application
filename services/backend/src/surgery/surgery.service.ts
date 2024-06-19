@@ -469,7 +469,12 @@ export class SurgeryService {
       const surgeryCompletedEntries = await this.surgeryRepository.find({
         where: {
           date: LessThan(new Date(Date.now())),
-          surgeryStatus: In([SurgeryStatus.PENDING]),
+          surgeryStatus: In([
+            SurgeryStatus.PENDING,
+            SurgeryStatus.BOOK,
+            SurgeryStatus.POSTPONE,
+            SurgeryStatus.DATE_CHANGE,
+          ]),
         },
         relations: ['practiceHome', 'practiceHome.practice', 'patient'],
       });
@@ -477,7 +482,12 @@ export class SurgeryService {
       const surgeryData = await this.surgeryRepository.update(
         {
           date: LessThan(new Date(Date.now())),
-          surgeryStatus: In([SurgeryStatus.PENDING]),
+          surgeryStatus: In([
+            SurgeryStatus.PENDING,
+            SurgeryStatus.BOOK,
+            SurgeryStatus.POSTPONE,
+            SurgeryStatus.DATE_CHANGE,
+          ]),
         },
         {
           surgeryStatus: SurgeryStatus.COMPLETED,
