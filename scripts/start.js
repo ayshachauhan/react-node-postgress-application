@@ -26,6 +26,7 @@ const ENV_KEYS = [
   'FRONT_END_BASE_URL',
   'NEXT_PUBLIC_API_BASE_URL',
   'WEB_PORT',
+  'SMTP_USER',
 ];
 
 const start = async () => {
