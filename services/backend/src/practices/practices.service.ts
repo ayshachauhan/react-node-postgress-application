@@ -139,7 +139,7 @@ export class PracticesService {
         await this.practicesRepository.save(newPractice);
 
       // creating admin user
-      const sendUserCreationEmail: boolean = false;
+      const sendUserCreationEmail: boolean = true;
       await this.userService.create(
         {
           firstName: adminFirstName,
