@@ -178,3 +178,20 @@ export const jsonResponseFromStream = async (response: Response) => {
   }
   return response;
 };
+
+export const validateEmail = (email?: string) => {
+  let validObj = { isValid: true, error: '' };
+  if (!email) {
+    validObj.isValid = false;
+    validObj.error = 'Please enter the email address.';
+    return validObj;
+  }
+  const regex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+  const isValid = regex.test(String(email).toLowerCase());
+  if (!isValid) {
+    validObj.isValid = false;
+    validObj.error = 'Invalid Email address';
+    return validObj;
+  }
+  return validObj;
+};
