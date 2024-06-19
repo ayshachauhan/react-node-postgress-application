@@ -35,6 +35,7 @@ export class ReferrersService {
         'patients',
         'patients.surgeries',
         'patients.evals',
+        'patients.surgeries.surgeryConfiguration',
         'patients.evals.surgeryConfiguration',
       ],
     });

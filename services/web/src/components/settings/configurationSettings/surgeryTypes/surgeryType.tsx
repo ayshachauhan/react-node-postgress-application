@@ -168,7 +168,7 @@ export default function SurgeryTypePage() {
           Confirm Deletion
         </ModalHeader>
         <ModalBody>
-          Are you sure you want to delete this surgery type?
+          Are you sure you want to delete this surgery Location?
         </ModalBody>
         <ModalFooter>
           <Button kind="primary" title="Delete" onClick={onConfirmDelete}>
