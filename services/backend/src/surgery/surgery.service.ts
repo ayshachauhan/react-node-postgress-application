@@ -346,6 +346,7 @@ export class SurgeryService {
 
     if (practiceEntity && surgeryConfigurationEntity) {
       await this.initiateSendEmail(resultSurgery, practiceEntity);
+      await this.initiateDoctorSendEmail(resultSurgery, practiceEntity);
     }
 
     return resultSurgery;
@@ -524,12 +525,32 @@ export class SurgeryService {
     const { name } = surgery.surgeryConfiguration;
 
     const systemGeneratedMailData = {
-      subject: `Surgery Scheduled: ${name}`,
+      subject: `New Surgery Scheduled: ${name}`,
       text: 'text message',
       systemTemplate: SystemTemplates.NOTIFY_PATIENT,
     };
 
     await this.emailHandlerService.checkAndMakeEmailContent(
+      practice,
+      surgery,
+      systemGeneratedMailData,
+      false,
+    );
+  }
+
+  async initiateDoctorSendEmail(
+    surgery: ISurgery,
+    practice: IPractice,
+  ): Promise<void> {
+    const name = practice.name;
+
+    const systemGeneratedMailData = {
+      subject: `A new surgery added to your practice ${name}`,
+      text: 'text message',
+      systemTemplate: SystemTemplates.NOTIFY_DOCTOR,
+    };
+
+    await this.emailHandlerService.checkAndMakeDoctorEmailContent(
       practice,
       surgery,
       systemGeneratedMailData,

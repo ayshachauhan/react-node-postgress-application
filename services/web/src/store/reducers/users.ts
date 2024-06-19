@@ -115,8 +115,7 @@ const userSlice = createSlice({
         ...{ [restActionPayload.id]: restActionPayload },
       };
       if (permissionsUpdated) {
-        state.successMessage =
-          'Please ask user to log out / log back in to see updated permissions.';
+        state.successMessage = 'Permissions updated successfully.';
         return;
       }
       state.successMessage = 'User updated successfully.';

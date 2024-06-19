@@ -162,6 +162,7 @@ export class EvalsService {
 
     if (practiceEntity && surgeryConfigurationEntity) {
       await this.initiateSendEmail(resultEval, practiceEntity);
+      await this.initiateDoctorSendEmail(resultEval, practiceEntity);
     }
     return resultEval;
   }
@@ -279,6 +280,26 @@ export class EvalsService {
     };
 
     await this.emailHandlerService.checkAndMakeEmailContent(
+      practice,
+      evalEntity,
+      systemGeneratedMailData,
+      true,
+    );
+  }
+
+  async initiateDoctorSendEmail(
+    evalEntity: IEval,
+    practice: IPractice,
+  ): Promise<void> {
+    const name = practice.name;
+
+    const systemGeneratedMailData = {
+      subject: `A new surgery added to your practice ${name}`,
+      text: 'text message',
+      systemTemplate: SystemTemplates.NOTIFY_DOCTOR,
+    };
+
+    await this.emailHandlerService.checkAndMakeDoctorEmailContent(
       practice,
       evalEntity,
       systemGeneratedMailData,
