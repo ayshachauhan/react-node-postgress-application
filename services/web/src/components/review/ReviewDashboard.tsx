@@ -147,7 +147,11 @@ const ReviewDashboard: React.FC = () => {
                 <td>{data?.source}</td>
                 <td className="text-center">{data?.userRating}</td>
                 <td>{data?.reviewComment}</td>
-                <td>{formatColumnDate(new Date(data?.reviewRequestDate))}</td>
+                <td>
+                  {data?.reviewRequestDate
+                    ? formatColumnDate(new Date(data?.reviewRequestDate))
+                    : null}
+                </td>
                 <td>{data?.reviewStatus}</td>
                 <td>{renderReviewStatus(data)}</td>
               </tr>
