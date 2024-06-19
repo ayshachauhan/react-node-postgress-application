@@ -101,7 +101,8 @@ const Templates: React.FC = () => {
     };
 
     if (
-      successMessage === 'Template deleted successfully.' &&
+      successMessage &&
+      successMessage.trim() === 'Template deleted successfully.' &&
       practiceId &&
       userId
     ) {
@@ -124,14 +125,14 @@ const Templates: React.FC = () => {
       timer = setTimeout(() => {
         setShowModal(false);
         dispatch(clearSuccessMessage());
-      }, 2000);
+      }, 1000);
     }
     if (errorMessage) {
       setShowErrorMessage(true);
       timer = setTimeout(() => {
         setShowErrorMessage(false);
         dispatch(clearErrorMessage());
-      }, 2000);
+      }, 1000);
     }
     return () => {
       if (timer) {
