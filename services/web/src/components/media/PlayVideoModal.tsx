@@ -12,14 +12,10 @@ const PlayVideoModal = ({
       onClose={handleCloseFirstModal}
       title=""
       additionalOverrides={{
-        Close: {
-          style: {
-            display: 'none',
-          },
-        },
         Dialog: {
           style: {
-            width: 'auto',
+            width: '900px',
+            maxWidth: '90%',
           },
         },
       }}
@@ -31,6 +27,9 @@ const PlayVideoModal = ({
           height: 600,
           paddingBottom: '56.25%',
           overflow: 'hidden',
+          margin: 'auto',
+          marginTop: '40px',
+          marginBottom: '40px',
         }}
       >
         <iframe
