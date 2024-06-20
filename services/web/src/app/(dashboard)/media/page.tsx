@@ -364,9 +364,8 @@ const Media: React.FC = () => {
                       onClick={() => handlePatientMediaClick(data.entityId!)}
                     />
                     <div className="text-gray-900 pt-2 flex justify-between">
-                      {`Patient Name: ${
-                        getPatientById(data.entityId!)?.firstName
-                      }`}
+                      {`Patient Name: ${getPatientById(data.entityId!)
+                        ?.firstName}`}
 
                       <DeleteIcon
                         style={{ cursor: 'pointer' }}
