@@ -216,11 +216,12 @@ const UpcomingSection: React.FC = () => {
     return splitData;
   };
 
-  const upcomingDates: CalendarData[] = calendars
-    .filter(
-      (data: ICalendar) => data.surgeryConfiguration.id === selectedSurgery?.id,
-    )
-    .map((data: ICalendar) => ({
+  const selectedSurgeryCalData: ICalendar[] = calendars.filter(
+    (data: ICalendar) => data.surgeryConfiguration.id === selectedSurgery?.id,
+  );
+
+  const upcomingDates: CalendarData[] = selectedSurgeryCalData.map(
+    (data: ICalendar) => ({
       id: data.id,
       date: data.date,
       maxSlots: data.maxSlots,
@@ -232,7 +233,8 @@ const UpcomingSection: React.FC = () => {
       surgeryNameColor:
         data.surgeryConfiguration.color ?? DEFAULT_SURGERYNAME_COLOR,
       selectedSurgery: selectedSurgery as ISurgeryConfiguration,
-    }));
+    }),
+  );
 
   const filteredCalendars = filterCalendarByMonth(upcomingDates);
 
@@ -267,6 +269,40 @@ const UpcomingSection: React.FC = () => {
   } else {
     displayErrorMessage = 'No records found';
   }
+
+  const getNextValidDate = (excludedDates: Date[]) => {
+    // Started from today, stripped time only checking day
+    const nextDate = moment().startOf('day');
+
+    while (excludedDates.some((date) => moment(date).isSame(nextDate, 'day'))) {
+      // Move to the next day
+      nextDate.add(1, 'days');
+    }
+
+    // Convert back to a Date object for DatePicker
+    return nextDate.toDate();
+  };
+
+  const resolvedCalendarData: CalendarData[] = calendars.map(
+    (data: ICalendar) => ({
+      id: data.id,
+      date: data.date,
+      maxSlots: data.maxSlots,
+      bookedSlots: data.bookedSlots,
+      // using data from selectedsurgery here because calendar data doesn't contain surgerytype relation, for fallback using surgeryconfig name
+      surgeryName:
+        selectedSurgery?.surgeryType.name.charAt(0).toUpperCase() ??
+        data.surgeryConfiguration.name.charAt(0).toUpperCase(),
+      surgeryNameColor:
+        data.surgeryConfiguration.color ?? DEFAULT_SURGERYNAME_COLOR,
+      selectedSurgery: selectedSurgery as ISurgeryConfiguration,
+    }),
+  );
+
+  const excludedDates: Date[] = resolvedCalendarData.map(
+    (calendar) => new Date(calendar.date),
+  );
+  const nextValidDate: Date = getNextValidDate(excludedDates);
 
   /**
    * @summary Upsert calendar modal to add or update the data
@@ -320,7 +356,7 @@ const UpcomingSection: React.FC = () => {
                       id: '',
                       maxSlots: DEFAULT_MAX_SLOTS,
                       bookedSlots: 0,
-                      date: new Date(),
+                      date: nextValidDate,
                       surgeryName: selectedSurgery?.name ?? 'N/A',
                       surgeryNameColor:
                         selectedSurgery?.color ?? DEFAULT_SURGERYNAME_COLOR,
