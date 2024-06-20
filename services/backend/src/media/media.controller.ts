@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Req,
   UploadedFiles,
   UseGuards,
   UseInterceptors,
@@ -18,7 +19,7 @@ import { USER_PERMISSIONS } from '@packages/entities/permission';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { PermissionGuard } from 'src/auth/userPermissions.guard';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
-import { CreateMediaDto } from './dtos/createMedia.dto';
+import { CreateMediaDto, SendVideoDto } from './dtos/createMedia.dto';
 import { MediaService } from './media.service';
 
 @ApiTags('Media')
@@ -77,5 +78,14 @@ export class MediaController {
       practiceId,
       files: files?.files || [],
     });
+  }
+
+  @Post('send-video-to-patient')
+  sendVideo(
+    @Req() request: Request,
+    @Body(new ValidationPipe()) data: SendVideoDto,
+  ) {
+    const practiceEntity = request['practiceEntity'];
+    return this.mediaService.sendVideoToPatient(practiceEntity, data);
   }
 }

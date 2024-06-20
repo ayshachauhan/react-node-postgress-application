@@ -31,4 +31,5 @@ export enum SystemTemplates {
   NOTIFY_DOCTOR = 'notifyDoctor',
   REVIEW_REQUEST = 'reviewRequest',
   RESET_PASSWORD = 'resetPassword',
+  SEND_VIDEO_TO_PATIENT = 'sendVideoToPatient',
 }

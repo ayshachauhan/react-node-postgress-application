@@ -1,26 +1,45 @@
 'use client';
-import { EmailData, IEmailLog } from '@packages/entities';
+import {
+  EmailData,
+  IEmailLog,
+  IMediaConfig,
+  IPatient,
+  MediaType,
+} from '@packages/entities';
 import Button from '@root/components/Button';
 import { SearchIcon } from '@root/components/Icons';
-import TextInput from '@root/components/TextInput';
 import Loader from '@root/components/loader';
 import MessageWithReadMore from '@root/components/messages/MessageWithReadMore';
 import { useLoader } from '@root/hooks/useLoader';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { fetchLoggedInUser } from '@root/store/reducers/auth';
 import {
+  fetchListings as fetchMedia,
+  sendMediaToPatientAsync,
+} from '@root/store/reducers/media';
+import {
   clearErrorMessage,
   clearSuccessMessage,
   fetchListings,
   setSearchMRNName,
 } from '@root/store/reducers/messages';
+import { fetchListings as fetchPatients } from '@root/store/reducers/patient';
 import {
   formatColumnDate,
   formatHeaderDate,
   generateFullName,
+  getImageUrl,
   getPracticeId,
+  toFullName,
 } from '@utils/index';
+import { Checkbox } from 'baseui/checkbox';
+import { Select } from 'baseui/select';
+import Image from 'next/image';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+
+export interface customerMediaConfig extends IMediaConfig {
+  isChecked?: boolean;
+}
 
 export default function MessagesTable() {
   const [activeButton, setActiveButton] = useState<string | null>('All');
@@ -35,9 +54,37 @@ export default function MessagesTable() {
     });
   };
   const dispatch = useAppDispatch();
-  const messagesData: IEmailLog[] = useAppSelector((state) =>
-    Object.values(state.messages.entities),
+  const practiceId = getPracticeId();
+  const [mrn, setMrn] = useState<string>('');
+  const [patientInfo, setPatientInfo] = useState<IPatient>();
+  const [mediaConfigList, setMediaConfigList] = useState<customerMediaConfig[]>(
+    [],
   );
+
+  const [selectedPreviewMediaConfig, setSelectedPreviewMediaConfig] =
+    useState<IMediaConfig>();
+  const {
+    filteredMrn: { searchMRNName },
+    patientsList,
+    messagesData,
+    mediaList,
+  } = useAppSelector((state) => ({
+    filteredMrn: state.messages.messageFilters,
+    patientsList: Object.values(state.patients.entities),
+    messagesData: Object.values(state.messages.entities),
+    mediaList: Object.values(state.media.entities).filter(
+      (ele) => ele.mediaType == MediaType.PRACTICE && ele.mediaConfigs.length,
+    ),
+  }));
+
+  useEffect(() => {
+    if (practiceId !== null) {
+      dispatchFetchMessages(searchMRNNameStr);
+      dispatch(fetchPatients({ practiceId }));
+      dispatch(fetchMedia({ practiceId }));
+    }
+  }, [practiceId, dispatch]);
+
   const [filteredData, setFilteredData] = useState<IEmailLog[]>([]);
   const { isLoading, withLoader } = useLoader();
   const filterMessagesByType = useCallback(async () => {
@@ -130,14 +177,29 @@ export default function MessagesTable() {
   const resetFilters = (): void => {
     dispatch(setSearchMRNName(null));
   };
-  const practiceId = getPracticeId();
-  const { searchMRNName } = useAppSelector(
-    (state) => state.messages.messageFilters,
-  );
 
-  const handleSearchMRNNameChange = (value: string) => {
-    const mrn = value.toLowerCase();
-    dispatch(setSearchMRNName(mrn));
+  const handleSearchMRNNameChange = (value) => {
+    if (value) {
+      const selectedMrn = value.id;
+      setMrn(selectedMrn);
+      const selectedPatient = patientsList.find(
+        (patient) => patient.mrn == selectedMrn,
+      );
+      if (selectedPatient) {
+        setPatientInfo(selectedPatient);
+      }
+      const updatedMediaConfigList: IMediaConfig[] = [];
+      mediaList.forEach((ele) => {
+        updatedMediaConfigList.push(...ele.mediaConfigs);
+      });
+      setMediaConfigList([...updatedMediaConfigList]);
+      setSelectedPreviewMediaConfig(updatedMediaConfigList[0]);
+
+      dispatch(setSearchMRNName(selectedMrn));
+    } else {
+      setMrn('');
+      resetFilters();
+    }
   };
 
   const convertVariables = (
@@ -166,12 +228,6 @@ export default function MessagesTable() {
   }));
   const [showModal, setShowModal] = useState(false);
   useEffect(() => {
-    if (practiceId !== null) {
-      dispatchFetchMessages(searchMRNNameStr);
-    }
-  }, [practiceId, dispatch]);
-
-  useEffect(() => {
     if (practiceId != null) {
       dispatchFetchMessages(searchMRNNameStr);
     }
@@ -193,6 +249,39 @@ export default function MessagesTable() {
     }
   };
 
+  const handleSelectedVideoCheckBox = (index: number) => {
+    mediaConfigList[index] = {
+      ...mediaConfigList[index],
+      isChecked: !mediaConfigList[index].isChecked,
+    };
+
+    setMediaConfigList([...mediaConfigList]);
+  };
+
+  const handleSendVideoButton = () => {
+    if (practiceId && mrn) {
+      const selectedMediaConfigList: string[] = mediaConfigList
+        .filter((ele) => ele.isChecked)
+        .map((ele) => ele.url);
+      dispatch(
+        sendMediaToPatientAsync({
+          practiceId,
+          data: {
+            mrn,
+            links: selectedMediaConfigList,
+          },
+        }),
+      );
+
+      resetFilters();
+      setMrn('');
+    }
+  };
+
+  const handlePreviewMediaConfig = (id: string) => {
+    const selectedConfig = mediaConfigList.find((ele) => ele.id === id);
+    if (selectedConfig) setSelectedPreviewMediaConfig(selectedConfig);
+  };
   useEffect(() => {
     let timer;
     if (successMessage) {
@@ -225,12 +314,30 @@ export default function MessagesTable() {
         </span>
         {showModal && <div className="text-green-700">{successMessage}</div>}
         {showErrorMessage && <div className="text-red-700">{errorMessage}</div>}
-        <div className="flex items-center">
-          <TextInput
-            name="search"
-            value={searchMRNName || ''}
-            onChange={handleSearchMRNNameChange}
+        <div className="flex items-center w-2/4">
+          <Select
+            backspaceClearsInputValue
+            backspaceRemoves
+            value={mrn ? [{ id: mrn, label: mrn }] : [{ id: '', label: '' }]}
+            onChange={({ value }) => handleSearchMRNNameChange(value[0])}
+            options={patientsList.map((patient) => ({
+              id: patient.mrn,
+              label: `${patient.lastName}, ${patient.firstName} | ${patient.mrn}`,
+            }))}
             placeholder="Search MRN or Name"
+            overrides={{
+              ControlContainer: {
+                style: {
+                  backgroundColor: 'rgba(250, 250, 250, 1)',
+                  border: 'none',
+                  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                  color: '#52525B',
+                },
+              },
+              ClearIcon: {
+                component: () => null,
+              },
+            }}
           />
           <div className="bg-gradient-to-br from-teal-600 to-green-500 text-white px-2 py-2.5 items-center rounded-r-lg border-r border-gray-300">
             <SearchIcon size={20}></SearchIcon>
@@ -249,7 +356,99 @@ export default function MessagesTable() {
           />
         </div>
       </div>
-      <hr className="h-px my-2.5 bg-gray-100 border-1 dark:bg-gray-700"></hr>
+      {mrn && patientInfo ? (
+        <div>
+          <div className="bg-green-50 border-b border-green-200 ">
+            <hr className="h-px my-2.5 bg-gray-100 border-1 dark:bg-gray-700"></hr>
+            <div className="bg-green-50">
+              <div className="flex w-full bg-green-50 pr-2 items-center justify-around p-2 flex-col">
+                <div className="text-xl font-bold">
+                  {toFullName(patientInfo)}
+                </div>
+                <div className="text-lg">Cell: {patientInfo.phoneNumber}</div>
+                <div className="text-lg">Email: {patientInfo.email}</div>
+              </div>
+            </div>
+            <div className="p-2">
+              {mediaConfigList.map((ele, configIndex) => {
+                return (
+                  <div className="flex flex-col" key={configIndex}>
+                    <div className="flex flex-row items-center">
+                      <div>
+                        <Checkbox
+                          checked={ele.isChecked}
+                          onChange={() =>
+                            handleSelectedVideoCheckBox(configIndex)
+                          }
+                        />
+                      </div>
+                      <div className="p-2">{ele.title}</div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            <div className="pb-2 flex items-center justify-around">
+              <Button
+                onClick={handleSendVideoButton}
+                type="button"
+                kind="tertiary"
+                title="Send Video"
+                height={30}
+                style={{
+                  backgroundColor: 'rgba(212, 212, 216, 1)',
+                  color: 'black',
+                  marginLeft: '20px',
+                  padding: '10px 15px 10px 15px',
+                }}
+              />
+            </div>
+          </div>
+          <div className="mt-2 pl-3 bg-gray-100 border-1 flex flex-row ">
+            <div className="w-1/2 border-2 rounded-xl border-gray-700  mt-2 ">
+              {mediaConfigList.map((ele, i) => {
+                return (
+                  <div
+                    className="flex flex-col items-center justify-around border-b-2 border-gray-300 mx-2"
+                    key={i}
+                  >
+                    <div
+                      className="p-0.5 flex justify-around"
+                      onClick={() => handlePreviewMediaConfig(ele.id)}
+                    >
+                      {ele.title}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="pl-2 w-1/2 justify-around h-fit">
+              {selectedPreviewMediaConfig ? (
+                <div className="flex justify-around">
+                  <React.Fragment key={selectedPreviewMediaConfig.id}>
+                    <div className="rounded-lg shadow-sm p-1 h-190x` relative">
+                      <div style={{ cursor: 'pointer' }}>
+                        <Image
+                          src={getImageUrl(selectedPreviewMediaConfig?.url)}
+                          className="rounded-lg"
+                          alt="External image description"
+                          width={420}
+                          height={190}
+                        />
+                        <div className="text-gray-900 pt-2 flex justify-around">
+                          <div>{selectedPreviewMediaConfig.title}</div>
+                        </div>
+                      </div>
+                    </div>
+                  </React.Fragment>
+                </div>
+              ) : null}
+            </div>
+          </div>
+        </div>
+      ) : null}
+      <hr className="h-px my-1.5 bg-gray-100 border-1 dark:bg-gray-700"></hr>
       <div className="flex w-full bg-green-50 pr-2 border-b border-green-200 items-center">
         <div className="flex items-center">
           {['All', 'Emails', 'Texts', 'Referrers'].map((item) => (

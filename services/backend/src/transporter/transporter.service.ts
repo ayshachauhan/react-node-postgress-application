@@ -29,6 +29,9 @@ export class TransporterService {
     data: Record<string, unknown>,
   ): Promise<EmailResponse> {
     const smtpEmail: string | undefined = this.getSmtpEmail();
+    if (data.link && typeof data.links == 'string') {
+      data.links = data.links.split(',');
+    }
 
     const result = await this.emailTransporter.sendMail({
       ...options,
