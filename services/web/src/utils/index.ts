@@ -1,3 +1,5 @@
+import { MonthOption } from '@packages/entities/index.browser';
+
 export function indexBy<K extends keyof T, T>(
   key: K,
   array: T[],
@@ -194,4 +196,10 @@ export const validateEmail = (email?: string) => {
     return validObj;
   }
   return validObj;
+};
+
+export const getSelectedMonths = (selectedMonth: MonthOption[]) => {
+  const monthLabels = selectedMonth.map((month) => month.label);
+  const month = monthLabels.join(',');
+  return month;
 };
