@@ -39,8 +39,14 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({ onClose, withLoader }) => {
   }));
 
   const SELECTED_DOCTOR_KEY: string = 'SELECTED_DOCTOR';
-  const getSelectedUserId: string | null =
-    localStorage.getItem(SELECTED_DOCTOR_KEY);
+  const selectedDoctorKey = localStorage.getItem(SELECTED_DOCTOR_KEY);
+  const selectedDoctorId = usersList.some(
+    (user) => user?.id === selectedDoctorKey,
+  )
+    ? selectedDoctorKey
+    : null;
+
+  const getSelectedUserId: string | null = selectedDoctorId;
 
   const dispatch = useAppDispatch();
   const surgeryConfigurationsList = useAppSelector(
