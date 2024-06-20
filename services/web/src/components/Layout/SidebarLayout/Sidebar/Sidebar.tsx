@@ -70,13 +70,14 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapseChange }) => {
         : item.path;
       return currentPath.startsWith(itemPath);
     });
-    const activeItemForChild = sidebarItems.find((item) =>
-      item.child?.some((childItem) => {
-        const childPath = childItem.path.endsWith('*')
-          ? childItem.path.slice(0, -1)
-          : childItem.path;
-        return currentPath.startsWith(childPath);
-      }),
+    const activeItemForChild = sidebarItems.find(
+      (item) =>
+        item.child?.some((childItem) => {
+          const childPath = childItem.path.endsWith('*')
+            ? childItem.path.slice(0, -1)
+            : childItem.path;
+          return currentPath.startsWith(childPath);
+        }),
     );
     const activeChildItem = activeItemForChild?.child?.find(
       (childItem) => childItem.path === currentPath,
