@@ -183,14 +183,14 @@ const DashboardPage: React.FC = () => {
       {isLoading && <Loader />}
       <div className="flex justify-between border-gray-400 items-center">
         <span className="text-xl font-bold">Dashboard </span>
+        {showModal && (
+          <div className="text-green-700">
+            {addSurgerySuccessMessage
+              ? addSurgerySuccessMessage
+              : addEvalSuccessMessage}
+          </div>
+        )}
         <div className="flex  justify-between">
-          {showModal && (
-            <div className="text-green-700">
-              {addSurgerySuccessMessage
-                ? addSurgerySuccessMessage
-                : addEvalSuccessMessage}
-            </div>
-          )}
           <div className="flex">
             {addCaseAllowed && (
               <div className="flex gap-2">
