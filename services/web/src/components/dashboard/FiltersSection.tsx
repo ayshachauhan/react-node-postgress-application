@@ -30,7 +30,6 @@ import { toFullName, toPascalCase, usDateFormatter } from '@root/utils';
 import { monthOptions } from '@root/utils/constants';
 import { Checkbox } from 'baseui/checkbox';
 import { Select } from 'baseui/select';
-import { useRouter } from 'next/navigation';
 import React, { useEffect, useMemo, useState } from 'react';
 import DeleteFilterModal from './DeleteFilterModal';
 import EditableRow from './EditableRow';
@@ -166,7 +165,7 @@ const FiltersSection: React.FC<{
     () => getUpdatedOptions(viewPastCases),
     [viewPastCases],
   );
-  const router = useRouter();
+
   const modifiedObj = {};
   surgeryList.forEach((ele, index) => {
     const modifiedDate: string = usDateFormatter(ele.date);
@@ -292,7 +291,7 @@ const FiltersSection: React.FC<{
     const query = { id };
     const queryString = new URLSearchParams(query).toString();
     const url = `/history/?${queryString}`;
-    router.push(url);
+    window.location.href = url;
   };
 
   const handleEditClick = (rowId: string) => {
@@ -640,7 +639,20 @@ const FiltersSection: React.FC<{
                                   <div className="pt-4">{row.waitlist}</div>
                                 </div>
                                 <div className="text-black py-0.5 px-1 overflow-hidden whitespace-nowrap w-20">
-                                  {row.mrn}
+                                  <div>
+                                    {viewHistory ? (
+                                      <div
+                                        onClick={() =>
+                                          handleViewHistory(row.patientId)
+                                        }
+                                        className="cursor-pointer underline"
+                                      >
+                                        {row.mrn}
+                                      </div>
+                                    ) : (
+                                      <div>{row.mrn}</div>
+                                    )}
+                                  </div>
                                 </div>
                                 <div className="text-black py-0.5 px-1 overflow-hidden whitespace-nowrap w-20">
                                   {row.surgery}
