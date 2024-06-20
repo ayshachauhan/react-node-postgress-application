@@ -128,7 +128,7 @@ export const ResetPassword: React.FC<Props> = ({
 
   return (
     <div>
-      {userInfo ? (
+      {!token ? (
         <div className="flex justify-between border-gray-400 items-center ml-2 mt-2">
           <Button
             kind="primary"

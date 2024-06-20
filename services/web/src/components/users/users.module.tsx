@@ -214,7 +214,7 @@ export default function UserPage() {
           <div className="font-bold text-white">Display Name</div>
           <div className="font-bold text-white">Contact No.</div>
           <div className="font-bold text-white">User Type</div>
-          <div className="font-bold text-white">Designation</div>
+          <div className="font-bold text-white w-36">Designation</div>
           <div className="font-bold text-white">Permissions</div>
           <div className="font-bold text-white">Social Media URL</div>
           <div className="font-bold text-white">Status</div>
@@ -260,7 +260,7 @@ export default function UserPage() {
               <div className="text-gray-900 overflow-hidden whitespace-nowrap">
                 {data.type}
               </div>
-              <div className="text-gray-900 overflow-hidden whitespace-nowrap">
+              <div className="text-gray-900 overflow-hidden whitespace-nowrap ml-2 w-36">
                 {data.designation}
               </div>
               <div className="text-gray-900">
