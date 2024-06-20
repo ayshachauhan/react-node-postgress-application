@@ -6,6 +6,7 @@ import AddTemplateModal from '@root/components/templates/AddTemplateModal';
 import UpdateTemplateModal from '@root/components/templates/UpdateTemplateModal';
 import { useLoader } from '@root/hooks/useLoader';
 import { useAppDispatch, useAppSelector } from '@root/store';
+import { fetchLoggedInUser } from '@root/store/reducers/auth';
 import {
   clearErrorMessage,
   clearSuccessMessage,
@@ -33,6 +34,7 @@ const Templates: React.FC = () => {
     errorMessage: state.templates.errorMessage,
   }));
   const [showErrorMessage, setShowErrorMessage] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const handleOpenAddModal = (): void => {
     setIsAddModalOpen(true);
   };
@@ -62,6 +64,10 @@ const Templates: React.FC = () => {
   const userId = userInfo?.id;
 
   useEffect(() => {
+    dispatch(fetchLoggedInUser());
+  }, [dispatch]);
+
+  useEffect(() => {
     if (practiceId && userId) {
       const formattedPracticeId = practiceId ?? '';
       const formattedUserId = userId ?? '';
@@ -81,37 +87,52 @@ const Templates: React.FC = () => {
   }, [practiceId, userId, dispatch, withLoader]);
 
   useEffect(() => {
-    if (successMessage) {
-      if (practiceId && userId) {
-        const loadData = async () => {
-          await withLoader(async () => {
-            await dispatch(
-              fetchListings({
-                practiceId,
-                userId,
-              }),
-            );
-          });
-        };
+    let timeoutId: NodeJS.Timeout | null = null;
 
-        loadData();
+    const fetchData = async () => {
+      if (practiceId && userId) {
+        await dispatch(
+          fetchListings({
+            practiceId,
+            userId,
+          }),
+        );
       }
+    };
+
+    if (
+      successMessage &&
+      successMessage.trim() === 'Template deleted successfully.' &&
+      practiceId &&
+      userId
+    ) {
+      timeoutId = setTimeout(fetchData, 2000);
+    } else {
+      fetchData(); // Immediately fetch data
     }
-  }, [successMessage, dispatch, withLoader]);
+
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
+  }, [successMessage, dispatch, practiceId, userId]);
 
   useEffect(() => {
     let timer;
     if (successMessage) {
+      setShowModal(true);
       timer = setTimeout(() => {
+        setShowModal(false);
         dispatch(clearSuccessMessage());
-      }, 2000);
+      }, 1000);
     }
     if (errorMessage) {
       setShowErrorMessage(true);
       timer = setTimeout(() => {
         setShowErrorMessage(false);
         dispatch(clearErrorMessage());
-      }, 2000);
+      }, 1000);
     }
     return () => {
       if (timer) {
@@ -123,19 +144,16 @@ const Templates: React.FC = () => {
   return (
     <div className="mt-4">
       {isLoading && <Loader />}
-      <div className="flex justify-between border-gray-400 items-center">
-        <span className="text-2xl font-medium">Template Engine </span>
-        <div className="text-green-700">{successMessage}</div>
+      <div className="flex justify-between border-gray-400">
+        <span className="text-xl font-bold">Template Engine </span>
+        {showModal && <div className="text-green-700">{successMessage}</div>}
         {showErrorMessage && <div className="text-red-700">{errorMessage}</div>}
-        <div className="flex w-2/6 justify-between">
-          <div className="flex ml-5"></div>
-          <Button
-            kind="secondary"
-            title="Add New"
-            onClick={handleOpenAddModal}
-            startEnhancer={() => <AddIcon className="mt-2" size={25}></AddIcon>}
-          />
-        </div>
+        <Button
+          kind="secondary"
+          title="Add New"
+          onClick={handleOpenAddModal}
+          startEnhancer={() => <AddIcon className="mt-2" size={25}></AddIcon>}
+        />
       </div>
       <hr className="h-px my-2.5 px-0 mx-0 bg-gray-100 border-1 border-gray-100"></hr>
       <div className="flex flex-wrap gap-7">
