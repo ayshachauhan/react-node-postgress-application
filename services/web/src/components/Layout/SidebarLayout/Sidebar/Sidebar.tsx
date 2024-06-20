@@ -61,12 +61,22 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapseChange }) => {
   }, [userPermissions, userInfo, updateUserPermissions]);
 
   useEffect(() => {
-    const currentPath = window.location.pathname;
+    const currentPath = window.location.pathname + window.location.search;
     const settingChildPath = ['/templates', '/users'];
 
-    const activeItem = sidebarItems.find((item) => item.path === currentPath);
-    const activeItemForChild = sidebarItems.find(
-      (item) => item.child?.some((childItem) => childItem.path === currentPath),
+    const activeItem = sidebarItems.find((item) => {
+      const itemPath = item.path.endsWith('*')
+        ? item.path.slice(0, -1)
+        : item.path;
+      return currentPath.startsWith(itemPath);
+    });
+    const activeItemForChild = sidebarItems.find((item) =>
+      item.child?.some((childItem) => {
+        const childPath = childItem.path.endsWith('*')
+          ? childItem.path.slice(0, -1)
+          : childItem.path;
+        return currentPath.startsWith(childPath);
+      }),
     );
     const activeChildItem = activeItemForChild?.child?.find(
       (childItem) => childItem.path === currentPath,

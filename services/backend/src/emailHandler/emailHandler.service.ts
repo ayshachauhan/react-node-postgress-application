@@ -50,6 +50,113 @@ export class EmailHandlerService {
     return this.configService.get(ENVIRONMENT_VARIABLES.FRONT_END_BASE_URL);
   }
 
+  async checkAndMakeDoctorEmailContent(
+    practice: IPractice,
+    entity: IEval | ISurgery,
+    systemGeneratedMailData?: SystemGeneratedMailData,
+    fromEval?: boolean,
+  ): Promise<void> {
+    let bookingTemplateFound: boolean = false;
+    const mailVariables = await this.makeEmailVariable(entity, practice);
+    const surgeryConfigId = entity.surgeryConfiguration.id;
+    const templates = await this.templateService.getFilteredTemplates({
+      surgeryConfigId,
+    });
+
+    const emailLogsEntries: Partial<IEmailLog>[] = [];
+
+    if (templates.length) {
+      templates.forEach((template) => {
+        const today = new Date();
+        const entry: Partial<IEmailLog> = {
+          practice: practice,
+          expectedDate: entity.date,
+          status: 'pending',
+          data: {
+            subject: template.emailSubject
+              ? this.mailVariableManipulator(template.emailSubject)
+              : '',
+            body: template.emailBody
+              ? this.mailVariableManipulator(template.emailBody)
+              : '',
+            attachment: template.emailAttachment
+              ? template.emailAttachment
+              : '',
+            text: template.messageText
+              ? this.mailVariableManipulator(template.messageText)
+              : '',
+            ...mailVariables,
+            '1stCataract': template.email1stCataract
+              ? this.mailVariableManipulator(template.email1stCataract)
+              : '',
+            '2ndCataract': template.email2ndCataract
+              ? this.mailVariableManipulator(template.email2ndCataract)
+              : '',
+          },
+          attachment: template.emailAttachment,
+        };
+
+        const surgeryDate = new Date(entity.date);
+        if (template.messageType === 'preop') {
+          surgeryDate.setDate(surgeryDate.getDate() - template.dateOffset);
+          entry.expectedDate = surgeryDate;
+          entry.status = surgeryDate < today ? 'completed' : 'pending';
+          emailLogsEntries.push(entry);
+        } else if (template.messageType === 'postop') {
+          surgeryDate.setDate(surgeryDate.getDate() + template.dateOffset);
+          entry.expectedDate = surgeryDate;
+          entry.status = surgeryDate < today ? 'completed' : 'pending';
+          emailLogsEntries.push(entry);
+        } else if (template.messageType === 'booking') {
+          bookingTemplateFound = true;
+          surgeryDate.setDate(surgeryDate.getDate() + template.dateOffset);
+          entry.expectedDate = surgeryDate;
+          emailLogsEntries.push(entry);
+        } else if (template.messageType === 'referrer') {
+          //
+        } else if (template.messageType === 'pcp') {
+          //
+        }
+      });
+    }
+
+    if (!bookingTemplateFound && systemGeneratedMailData) {
+      const systemTemplateName = systemGeneratedMailData.systemTemplate;
+      const entry: Partial<IEmailLog> = {
+        practice: practice,
+        expectedDate: entity.date,
+        status: 'pending',
+        data: {
+          body: this.transporterService.readTemplates(systemTemplateName),
+          ...mailVariables,
+          subject: systemGeneratedMailData.subject,
+          text: systemGeneratedMailData.text,
+        },
+      };
+      emailLogsEntries.push(entry);
+    }
+
+    // creating entries for cron job
+    const dbEmailLogEntries =
+      await this.emailLogRepository.save(emailLogsEntries);
+
+    if (fromEval) {
+      // creating entries in eval email log table
+      const evalEmailEntries = dbEmailLogEntries.map((ele) => ({
+        eval: entity,
+        emailLog: ele,
+      }));
+      await this.evalEmailRepository.save(evalEmailEntries);
+    } else {
+      // creating entries in surgery email log table
+      const surgeryEmailEntries = dbEmailLogEntries.map((ele) => ({
+        surgery: entity,
+        emailLog: ele,
+      }));
+      await this.surgeryEmailRepository.save(surgeryEmailEntries);
+    }
+  }
+
   async checkAndMakeEmailContent(
     practice: IPractice,
     entity: IEval | ISurgery,
@@ -166,7 +273,18 @@ export class EmailHandlerService {
     practice: IPractice,
   ): Promise<EmailVariables> {
     const {
-      patient: { firstName, lastName, email, mrn, phoneNumber },
+      patient: {
+        firstName: patientFirstName,
+        lastName: patientLastName,
+        email: patientEmail,
+        mrn,
+        phoneNumber,
+      },
+      doctor: {
+        firstName: doctorFirstName,
+        lastName: doctorLastName,
+        email: doctorEmail,
+      },
       surgeryConfiguration: { name },
       date,
       bodyPart,
@@ -179,12 +297,15 @@ export class EmailHandlerService {
 
     const mailVariables: EmailVariables = {
       surgery_type: name,
-      fname: firstName,
-      lname: lastName,
+      fname: patientFirstName,
+      lname: patientLastName,
       mrn: String(mrn),
-      pt_email_address: email,
+      pt_email_address: patientEmail,
+      doc_email_address: doctorEmail,
+      doctorFirstname: doctorFirstName,
+      doctorLastname: doctorLastName,
       surgery_date: String(date),
-      pt_email_notify: `You have received an email at ${email} with more details`,
+      pt_email_notify: `You have received an email at ${patientEmail} with more details`,
       laterality: toLowerCase(bodyPart),
       Laterality: toPascalCase(bodyPart),
       pod1_location: practiceHomeName,

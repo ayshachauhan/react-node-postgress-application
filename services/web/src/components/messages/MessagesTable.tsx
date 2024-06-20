@@ -17,7 +17,12 @@ import {
   fetchListings as fetchMedia,
   sendMediaToPatientAsync,
 } from '@root/store/reducers/media';
-import { fetchListings, setSearchMRNName } from '@root/store/reducers/messages';
+import {
+  clearErrorMessage,
+  clearSuccessMessage,
+  fetchListings,
+  setSearchMRNName,
+} from '@root/store/reducers/messages';
 import { fetchListings as fetchPatients } from '@root/store/reducers/patient';
 import {
   formatColumnDate,
@@ -152,7 +157,7 @@ export default function MessagesTable() {
       {},
     );
   };
-
+  const [showErrorMessage, setShowErrorMessage] = useState(false);
   useEffect(() => {
     const newMessageDataByDate = generateMessageDataByDate(filteredData);
     setGroupedMessagesByDate(newMessageDataByDate);
@@ -217,7 +222,11 @@ export default function MessagesTable() {
   };
 
   const searchMRNNameStr = searchMRNName || '';
-
+  const { successMessage, errorMessage } = useAppSelector((state) => ({
+    successMessage: state.messages.successMessage,
+    errorMessage: state.messages.errorMessage,
+  }));
+  const [showModal, setShowModal] = useState(false);
   useEffect(() => {
     if (practiceId != null) {
       dispatchFetchMessages(searchMRNNameStr);
@@ -273,6 +282,28 @@ export default function MessagesTable() {
     const selectedConfig = mediaConfigList.find((ele) => ele.id === id);
     if (selectedConfig) setSelectedPreviewMediaConfig(selectedConfig);
   };
+  useEffect(() => {
+    let timer;
+    if (successMessage) {
+      setShowModal(true);
+      timer = setTimeout(() => {
+        setShowModal(false);
+        dispatch(clearSuccessMessage());
+      }, 2000);
+    }
+    if (errorMessage) {
+      setShowErrorMessage(true);
+      timer = setTimeout(() => {
+        setShowErrorMessage(false);
+        dispatch(clearErrorMessage());
+      }, 2000);
+    }
+    return () => {
+      if (timer) {
+        clearTimeout(timer);
+      }
+    };
+  }, [successMessage, errorMessage, dispatch]);
 
   return (
     <div className="mt-4 mb-8">
@@ -281,6 +312,8 @@ export default function MessagesTable() {
         <span className="text-xl font-bold">
           All Messages({messagesData.length})
         </span>
+        {showModal && <div className="text-green-700">{successMessage}</div>}
+        {showErrorMessage && <div className="text-red-700">{errorMessage}</div>}
         <div className="flex items-center w-2/4">
           <Select
             backspaceClearsInputValue

@@ -1,4 +1,8 @@
-import { UserStatus, UserType } from '@packages/entities/index.browser';
+import {
+  UserDesignation,
+  UserStatus,
+  UserType,
+} from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
 import { useAppDispatch, useAppSelector } from '@root/store';
@@ -19,6 +23,12 @@ const AddUserPage: React.FC<{
     label: UserType[key as keyof typeof UserType],
     id: key,
   }));
+
+  const userDesignations = Object.keys(UserDesignation).map((key) => ({
+    label: UserDesignation[key as keyof typeof UserDesignation],
+    id: key,
+  }));
+
   const dispatch = useAppDispatch();
   const permissions = useAppSelector((state) =>
     Object.values(state.permissions.entities),
@@ -56,6 +66,17 @@ const AddUserPage: React.FC<{
       }
       return selectedIds;
     }, []);
+  };
+
+  const handleDesignationChange = ({ value }) => {
+    setDesignation(value[0] ? value[0].label : null);
+  };
+
+  const handleDesignationBlur = ({ target }) => {
+    if (target.value) {
+      const newValue: string = target.value;
+      setDesignation(newValue);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -232,12 +253,33 @@ const AddUserPage: React.FC<{
               <label htmlFor="type" className="text-black text-sm font-normal">
                 Designation
               </label>
-              <TextInput
-                name="designation"
-                value={designation}
-                onChange={(value) => {
-                  setDesignation(value);
+              <Select
+                options={userDesignations}
+                onChange={handleDesignationChange}
+                onBlur={handleDesignationBlur}
+                overrides={{
+                  ControlContainer: {
+                    style: {
+                      backgroundColor: 'rgba(250, 250, 250, 1)',
+                      border: 'none',
+                      color: 'rgba(82, 82, 91, 1)',
+                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)', // Add shadow CSS here
+                    },
+                  },
+                  ClearIcon: {
+                    component: () => null,
+                  },
                 }}
+                value={
+                  designation
+                    ? [
+                        {
+                          id: String(designation),
+                          label: String(String(designation)),
+                        },
+                      ]
+                    : []
+                }
               />
             </div>
           </div>

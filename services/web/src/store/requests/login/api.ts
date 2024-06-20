@@ -43,9 +43,13 @@ export const login = async (
   }
 };
 
-export const getMe = async (): Promise<User> => {
+export const getMe = async (
+  requestFromResetPwd: boolean = false,
+): Promise<User> => {
   try {
-    const response = await apiClient.get('/auth/me');
+    const response = await apiClient.get(
+      `/auth/me?reqFromReset=${requestFromResetPwd}`,
+    );
 
     if (!response.ok) {
       const errorResponse = await response.json();

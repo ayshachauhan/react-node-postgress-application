@@ -8,7 +8,10 @@ import { FileUploader } from 'baseui/file-uploader';
 import React, { useState } from 'react';
 import RequiredIndicator from '../RequiredIndicator';
 
-const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
+const PracticePage: React.FC<{
+  onClose: () => void;
+  withLoader: (func: () => Promise<void>) => Promise<void>;
+}> = ({ onClose, withLoader }) => {
   const dispatch = useAppDispatch();
   const [name, setName] = useState('');
   const [adminFirstName, setAdminFirstName] = useState('');
@@ -67,7 +70,9 @@ const PracticePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
 
     try {
       if (validateForm()) {
-        dispatch(addRecordAsync(data));
+        await withLoader(async () => {
+          await dispatch(addRecordAsync(data));
+        });
         setName('');
         setAdminFirstName('');
         setAdminLastName('');

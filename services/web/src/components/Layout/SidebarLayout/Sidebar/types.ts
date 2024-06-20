@@ -9,7 +9,8 @@ import {
 } from '@components/Icons';
 import { IPermission } from '@packages/entities/index.browser';
 import { USER_PERMISSIONS } from '@packages/entities/permission';
-import { useUserPermission } from '@root/hooks/userHasPermission';
+
+import ReviewIcon from '@root/components/Icons/Review';
 
 export type SideBarItem = {
   id: string;
@@ -81,7 +82,7 @@ export const sidebarItems: SideBarItem[] = [
     title: 'Review',
     path: '/review',
     permissions: ['admin'],
-    Icon: SettingIcon,
+    Icon: ReviewIcon,
   },
   {
     id: 'setting',
@@ -124,36 +125,52 @@ export function filterSidebarItems(
   userPermissions: IPermission[],
   sidebarItems: SideBarItem[],
 ): SideBarItem[] {
-  return sidebarItems
-    .map<SideBarItem | null>((item) => {
-      const userTypeAllowed = item.permissions.includes(userType);
+  const hasPermission = (permissions: string[] | undefined): boolean => {
+    if (!permissions) return true;
+    return permissions.every((permission) =>
+      userPermissions.some(
+        (userPermission) => userPermission.name === permission,
+      ),
+    );
+  };
 
-      const userPermissionsAllowed = item.userPermissions
-        ? useUserPermission(userPermissions, item.userPermissions)
-        : true;
+  const filterItem = (item: SideBarItem): SideBarItem | null => {
+    const userTypeAllowed = item.permissions.includes(userType);
+    const userPermissionsAllowed = hasPermission(item.userPermissions);
 
-      if (!userTypeAllowed || !userPermissionsAllowed) {
-        return null;
-      }
+    if (!userTypeAllowed || !userPermissionsAllowed) {
+      return null;
+    }
 
-      const filteredChildren = item.child
-        ? item.child.filter((childItem) => {
-            const childTypeAllowed = childItem.permissions.includes(userType);
-            const childPermissionsAllowed = childItem.userPermissions
-              ? useUserPermission(userPermissions, childItem.userPermissions)
-              : true;
+    // Recursively filter child items if they exist
+    const filteredChildren = item.child
+      ? item.child.reduce<SideBarItem[]>((acc, childItem) => {
+          const filteredChild = filterItem(childItem as SideBarItem);
+          if (filteredChild) {
+            acc.push(filteredChild);
+          }
+          return acc;
+        }, [])
+      : undefined;
 
-            return childTypeAllowed && childPermissionsAllowed;
-          })
-        : undefined;
+    const newItem: SideBarItem = {
+      ...item,
+      child:
+        filteredChildren && filteredChildren.length > 0
+          ? filteredChildren
+          : undefined,
+    };
 
-      return {
-        ...item,
-        child:
-          filteredChildren && filteredChildren.length > 0
-            ? filteredChildren
-            : undefined,
-      };
-    })
-    .filter((item): item is SideBarItem => item !== null); // This filters out the null values
+    return newItem;
+  };
+
+  const filteredItems = sidebarItems.reduce<SideBarItem[]>((acc, item) => {
+    const filteredItem = filterItem(item);
+    if (filteredItem) {
+      acc.push(filteredItem);
+    }
+    return acc;
+  }, []);
+
+  return filteredItems;
 }

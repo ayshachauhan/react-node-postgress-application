@@ -17,6 +17,7 @@ export const ENV_VARIABLES_SCHEMA: Record<ENVIRONMENT_VARIABLES, Joi.Schema> = {
   [ENVIRONMENT_VARIABLES.DB_PASSWORD]: Joi.string().required(),
   [ENVIRONMENT_VARIABLES.DB_DATABASE]: Joi.string().required(),
   [ENVIRONMENT_VARIABLES.SMTP_EMAIL]: Joi.string().required(),
+  [ENVIRONMENT_VARIABLES.SMTP_USER]: Joi.string().required(),
   [ENVIRONMENT_VARIABLES.SMTP_PASSWORD]: Joi.string().required(),
   [ENVIRONMENT_VARIABLES.SMTP_HOST]: Joi.string().required(),
   [ENVIRONMENT_VARIABLES.SMTP_PORT]: Joi.number().required(),

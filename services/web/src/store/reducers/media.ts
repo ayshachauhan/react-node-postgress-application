@@ -75,7 +75,7 @@ const mediaSlice = createSlice({
         ...state.entities,
         ...{ [action.payload.id]: action.payload },
       };
-      state.successMessage = 'Record added successfully.';
+      state.successMessage = 'Media added successfully.';
     });
 
     builder.addCase(addRecordAsync.rejected, (state, action) => {

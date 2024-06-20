@@ -37,4 +37,18 @@ export enum UserStatus {
   PENDING = 'pending',
 }
 
+export enum UserDesignation {
+  MANAGER = 'Manager',
+  ADMIN = 'Admin',
+  PHYSICIAN = 'Physician',
+  PHYSICIAN_ASSISTANT = 'Physician Assistant',
+  TECHNICIAN = 'Technician',
+  NURSE_PRACTITIONER = 'Nurse Practitioner',
+  OPTOMETRIST = 'Optometrist',
+  STAFF = 'Staff',
+  COUNSELOR = 'Counselor',
+  EMPLOYEE = 'Employee',
+  OTHER = 'Other',
+}
+
 export type ISanitizedUser = Omit<IUser, 'password'>;

@@ -8,6 +8,7 @@ import {
   clearSuccessMessage,
   forgotPassword,
 } from '@root/store/reducers/auth';
+import { validateEmail } from '@root/utils';
 import { useEffect, useState } from 'react';
 
 const ForgotPassword: React.FC = () => {
@@ -19,11 +20,16 @@ const ForgotPassword: React.FC = () => {
     errorMessage: state.auth.errorMessage,
   }));
   const [showErrorMessage, setShowErrorMessage] = useState(false);
+  const [fieldError, setFieldError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     try {
+      const { isValid, error } = validateEmail(email);
+      if (!isValid) {
+        setFieldError(error);
+      }
       const response = await dispatch(forgotPassword({ email }));
 
       if (response?.type == 'users/forgotPassword/fulfilled') {
@@ -41,10 +47,11 @@ const ForgotPassword: React.FC = () => {
         dispatch(clearSuccessMessage());
       }, 2000);
     }
-    if (errorMessage) {
+    if (errorMessage || fieldError) {
       setShowErrorMessage(true);
       timer = setTimeout(() => {
         setShowErrorMessage(false);
+        setFieldError('');
         dispatch(clearErrorMessage());
       }, 2000);
     }
@@ -53,7 +60,7 @@ const ForgotPassword: React.FC = () => {
         clearTimeout(timer);
       }
     };
-  }, [successMessage, errorMessage, dispatch]);
+  }, [successMessage, errorMessage, dispatch, fieldError]);
 
   return (
     <LogoWrapper>
@@ -88,8 +95,6 @@ const ForgotPassword: React.FC = () => {
                   name="email"
                   value={email}
                   onChange={(value) => setEmail(value)}
-                  required
-                  type="email"
                 />
                 <div className="space-y-4"></div>
               </div>
@@ -106,7 +111,7 @@ const ForgotPassword: React.FC = () => {
             </form>
           )}
           {showErrorMessage && (
-            <div className="text-red-700">{errorMessage}</div>
+            <div className="text-red-700">{fieldError || errorMessage}</div>
           )}
         </div>
       </>

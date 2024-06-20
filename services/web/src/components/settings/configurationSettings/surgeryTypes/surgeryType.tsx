@@ -1,4 +1,5 @@
 'use client';
+import { ModalCloseEvent } from '@root/components/BaseUiModal/BaseUiModal';
 import Button from '@root/components/Button';
 import { AddIcon, DeleteIcon } from '@root/components/Icons';
 import AddSurgeryType from '@root/components/settings/configurationSettings/surgeryTypes/addSurgeryType';
@@ -21,7 +22,7 @@ import {
   ROLE,
   SIZE,
 } from 'baseui/modal';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 export default function SurgeryTypePage() {
   const [showModal, setShowModal] = useState(false);
@@ -40,6 +41,7 @@ export default function SurgeryTypePage() {
   const [showErrorMessage, setShowErrorMessage] = useState(false);
   const successMessage = useAppSelector(selectSuccessMessage);
   const errorMessage = useAppSelector(selectError);
+  const modalRef = useRef(null);
 
   useEffect(() => {
     if (practiceId !== null) {
@@ -91,11 +93,17 @@ export default function SurgeryTypePage() {
     setSurgeryTypeId(Id);
   };
 
-  const handleCloseModal = (): void => {
+  const handleCloseModal = (event?: ModalCloseEvent): void => {
+    if (event?.closeSource === 'backdrop') {
+      return;
+    }
     setIsModalOpen(false);
   };
 
-  const handleCloseDeleteModal = (): void => {
+  const handleCloseDeleteModal = (event?: ModalCloseEvent): void => {
+    if (event?.closeSource === 'backdrop') {
+      return;
+    }
     setIsDeleteModalOpen(false);
   };
 
@@ -109,6 +117,7 @@ export default function SurgeryTypePage() {
         autoFocus
         size={SIZE.default}
         role={ROLE.dialog}
+        ref={modalRef}
         overrides={{
           Root: {
             style: ({ $theme }) => ({
@@ -145,6 +154,7 @@ export default function SurgeryTypePage() {
         autoFocus
         size={SIZE.default}
         role={ROLE.dialog}
+        ref={modalRef}
         overrides={{
           Root: {
             style: ({ $theme }) => ({
@@ -158,7 +168,7 @@ export default function SurgeryTypePage() {
           Confirm Deletion
         </ModalHeader>
         <ModalBody>
-          Are you sure you want to delete this surgery type?
+          Are you sure you want to delete this surgery Location?
         </ModalBody>
         <ModalFooter>
           <Button kind="primary" title="Delete" onClick={onConfirmDelete}>

@@ -24,6 +24,9 @@ export interface EmailVariables {
   lname: string;
   mrn: string;
   pt_email_address: string;
+  doc_email_address: string;
+  doctorFirstname: string;
+  doctorLastname: string;
   surgery_date: string;
   pt_email_notify: string;
   laterality: string;

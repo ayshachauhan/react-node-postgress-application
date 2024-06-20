@@ -88,7 +88,7 @@ const ReferedPatients = ({ referrerId, withLoader }) => {
           <div className="font-bold text-white px-2 py-4 flex-1">
             Surgery/Eval Date
           </div>
-          <div className="font-bold text-white py-4 w-40">Options</div>
+          <div className="font-bold text-white py-4 w-40">Surgery Name</div>
           {viewBillingColumn && (
             <div className="font-bold text-white px-2 py-4 flex-1">Billing</div>
           )}
@@ -114,11 +114,7 @@ const ReferedPatients = ({ referrerId, withLoader }) => {
                       {surgery.dateCreated ? formatDate(surgery.date) : 'NA'}
                     </div>
                     <div className="text-gray-900 w-40">
-                      {surgery.selectedSurgeryOptions
-                        ? Object.values(surgery.selectedSurgeryOptions)
-                            .map((option) => option.value)
-                            .join(', ')
-                        : 'NA'}
+                      {surgery?.surgeryConfiguration?.name || ''}
                     </div>
                     {viewBillingColumn && (
                       <div className="text-gray-900 px-2 flex-1">

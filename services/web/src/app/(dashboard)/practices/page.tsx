@@ -1,8 +1,11 @@
 'use client';
 import { AddIcon, AvatarIcon, DeleteIcon, EditIcon } from '@components/Icons';
 import AddPracticeForm from '@components/practices/practices.module';
+import { ModalCloseEvent } from '@root/components/BaseUiModal/BaseUiModal';
 import Button from '@root/components/Button';
+import Loader from '@root/components/loader';
 import PracticeEditModule from '@root/components/practices/editPractice.module';
+import { useLoader } from '@root/hooks/useLoader';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import {
   clearErrorMessage,
@@ -20,13 +23,14 @@ import {
   SIZE,
 } from 'baseui/modal';
 import Image from 'next/image';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 const Practice: React.FC = () => {
   const dispatch = useAppDispatch();
   const practices = useAppSelector((state) =>
     Object.values(state.practices.entities),
   );
+  const { isLoading, withLoader } = useLoader();
   const [practiceId, setPracticeId] = useState<string | null>(null);
   const [editExistingValues, setEditExistingValue] =
     useState<PracticesEditInterface>({
@@ -43,24 +47,38 @@ const Practice: React.FC = () => {
     successMessage: state.practices.successMessage,
     errorMessage: state.practices.errorMessage,
   }));
+  const modalRef = useRef(null);
 
   const [showErrorMessage, setShowErrorMessage] = useState(false);
 
   useEffect(() => {
-    dispatch(fetchListings(undefined));
-  }, []);
+    const loadData = async () => {
+      await withLoader(async () => {
+        await dispatch(fetchListings(undefined));
+      });
+    };
+    loadData();
+  }, [withLoader]);
 
   useEffect(() => {
     if (successMessage) {
-      dispatch(fetchListings(undefined));
+      const loadData = async () => {
+        await withLoader(async () => {
+          await dispatch(fetchListings(undefined));
+        });
+      };
+      loadData();
     }
-  }, [successMessage, dispatch]);
+  }, [successMessage, dispatch, withLoader]);
 
   const handleOpenCreateModal = (): void => {
     setIsCreateModalOpen(true);
   };
 
-  const handleCloseCreateModal = (): void => {
+  const handleCloseCreateModal = (event?: ModalCloseEvent): void => {
+    if (event?.closeSource === 'backdrop') {
+      return;
+    }
     setIsCreateModalOpen(false);
   };
 
@@ -71,7 +89,10 @@ const Practice: React.FC = () => {
     setIsEditModalOpen(true);
   };
 
-  const handleCloseEditModal = (): void => {
+  const handleCloseEditModal = (event?: ModalCloseEvent): void => {
+    if (event?.closeSource === 'backdrop') {
+      return;
+    }
     setIsEditModalOpen(false);
   };
 
@@ -80,7 +101,10 @@ const Practice: React.FC = () => {
     setPracticeId(Id);
   };
 
-  const handleCloseDeleteModal = (): void => {
+  const handleCloseDeleteModal = (event?: ModalCloseEvent): void => {
+    if (event?.closeSource === 'backdrop') {
+      return;
+    }
     setIsDeleteModalOpen(false);
     setPracticeId(null);
   };
@@ -127,7 +151,10 @@ const Practice: React.FC = () => {
           Add New Practice
         </ModalHeader>
         <ModalBody>
-          <AddPracticeForm onClose={handleCloseCreateModal} />
+          <AddPracticeForm
+            onClose={handleCloseCreateModal}
+            withLoader={withLoader}
+          />
         </ModalBody>
       </Modal>
     );
@@ -143,6 +170,7 @@ const Practice: React.FC = () => {
         autoFocus
         size={SIZE.default}
         role={ROLE.dialog}
+        ref={modalRef}
         overrides={{
           Root: {
             style: ({ $theme }) => ({
@@ -159,6 +187,7 @@ const Practice: React.FC = () => {
           <PracticeEditModule
             onClose={handleCloseEditModal}
             initialValues={editExistingValues}
+            withLoader={withLoader}
           />
         </ModalBody>
       </Modal>
@@ -175,6 +204,7 @@ const Practice: React.FC = () => {
         autoFocus
         size={SIZE.default}
         role={ROLE.dialog}
+        ref={modalRef}
         overrides={{
           Root: {
             style: ({ $theme }) => ({
@@ -222,6 +252,7 @@ const Practice: React.FC = () => {
 
   return (
     <div className="my-4">
+      {isLoading && <Loader />}
       <div className="flex justify-between border-gray-400">
         <span className="text-xl font-bold">All Practices</span>
         {showModal && <div className="text-green-700">{successMessage}</div>}

@@ -346,6 +346,7 @@ export class SurgeryService {
 
     if (practiceEntity && surgeryConfigurationEntity) {
       await this.initiateSendEmail(resultSurgery, practiceEntity);
+      await this.initiateDoctorSendEmail(resultSurgery, practiceEntity);
     }
 
     return resultSurgery;
@@ -468,7 +469,12 @@ export class SurgeryService {
       const surgeryCompletedEntries = await this.surgeryRepository.find({
         where: {
           date: LessThan(new Date(Date.now())),
-          surgeryStatus: In([SurgeryStatus.PENDING]),
+          surgeryStatus: In([
+            SurgeryStatus.PENDING,
+            SurgeryStatus.BOOK,
+            SurgeryStatus.POSTPONE,
+            SurgeryStatus.DATE_CHANGE,
+          ]),
         },
         relations: ['practiceHome', 'practiceHome.practice', 'patient'],
       });
@@ -476,7 +482,12 @@ export class SurgeryService {
       const surgeryData = await this.surgeryRepository.update(
         {
           date: LessThan(new Date(Date.now())),
-          surgeryStatus: In([SurgeryStatus.PENDING]),
+          surgeryStatus: In([
+            SurgeryStatus.PENDING,
+            SurgeryStatus.BOOK,
+            SurgeryStatus.POSTPONE,
+            SurgeryStatus.DATE_CHANGE,
+          ]),
         },
         {
           surgeryStatus: SurgeryStatus.COMPLETED,
@@ -524,12 +535,32 @@ export class SurgeryService {
     const { name } = surgery.surgeryConfiguration;
 
     const systemGeneratedMailData = {
-      subject: `Surgery Scheduled: ${name}`,
+      subject: `New Surgery Scheduled: ${name}`,
       text: 'text message',
       systemTemplate: SystemTemplates.NOTIFY_PATIENT,
     };
 
     await this.emailHandlerService.checkAndMakeEmailContent(
+      practice,
+      surgery,
+      systemGeneratedMailData,
+      false,
+    );
+  }
+
+  async initiateDoctorSendEmail(
+    surgery: ISurgery,
+    practice: IPractice,
+  ): Promise<void> {
+    const name = practice.name;
+
+    const systemGeneratedMailData = {
+      subject: `A new surgery added to your practice ${name}`,
+      text: 'text message',
+      systemTemplate: SystemTemplates.NOTIFY_DOCTOR,
+    };
+
+    await this.emailHandlerService.checkAndMakeDoctorEmailContent(
       practice,
       surgery,
       systemGeneratedMailData,

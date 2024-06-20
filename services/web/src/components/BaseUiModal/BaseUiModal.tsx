@@ -1,6 +1,10 @@
 import { Modal, ModalBody, ModalHeader } from 'baseui/modal';
 import React, { useRef } from 'react';
 
+export type ModalCloseEvent = {
+  closeSource?: 'closeButton' | 'backdrop' | 'escape';
+};
+
 const BaseUIModal = ({
   isOpen,
   onClose,
