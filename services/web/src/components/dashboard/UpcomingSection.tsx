@@ -377,20 +377,20 @@ const UpcomingSection: React.FC = () => {
       <div className="text-lg font-normal flex justify-between">
         <span>Calendar</span>
         {selectedSurgery && (
-          <div className="flex">
+          <div className="flex gap-1 items-center">
             <div
-              className="cursor-pointer px-2"
+              className="cursor-pointer"
               onClick={() => handleOpenModal(false)}
             >
-              <AddIcon className="mt-2" size={25}></AddIcon>
+              <AddIcon size={20}></AddIcon>
               {''}
             </div>
             {editCalendar && (
               <div
-                className="cursor-pointer px-2"
+                className="cursor-pointer"
                 onClick={() => handleOpenModal(true)}
               >
-                <EditIcon className="mt-2"></EditIcon>
+                <EditIcon></EditIcon>
               </div>
             )}
           </div>

@@ -341,7 +341,7 @@ const Practice: React.FC = () => {
                   {data.status?.toString()}
                 </div>
               </div>
-              <div className="flex flex-row bg-gray-50 pt-2 px-6 text-center item-center gap-3 justify-center">
+              <div className="flex flex-row bg-gray-50 pt-2 px-6 text-center item-center gap-1 justify-center">
                 <div className="text-center">
                   <Button
                     kind="tertiary"

@@ -210,7 +210,7 @@ export default function SurgeryTypePage() {
               <div className="text-gray-900 bg-gray-50 pt-2 px-4">
                 {data.name}
               </div>
-              <div className="text-gray-900 bg-gray-50 pt-2 px-4 flex gap-4">
+              <div className="text-gray-900 bg-gray-50 pt-2 px-4">
                 <div
                   onClick={() => data.id && handleOpenDeleteModal(data.id)}
                   className="cursor-pointer"

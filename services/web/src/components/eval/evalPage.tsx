@@ -409,12 +409,12 @@ const EvalPage: React.FC = () => {
                     </div>
                   </div>
                 </div>
-                <div className="text-gray-900 flex flex-col gap-2">
-                  <div className="flex flex-row justify-around">
+                <div className="text-gray-900 flex flex-col gap-1">
+                  <div className="flex flex-row gap-1">
                     {editCaseAllowed && (
                       <div className="cursor-pointer ">
                         <EditIcon
-                          style={{ marginRight: '8px', cursor: 'pointer' }}
+                          style={{ cursor: 'pointer' }}
                           onClick={() => handleEditClick(data.id)}
                         ></EditIcon>
                       </div>
