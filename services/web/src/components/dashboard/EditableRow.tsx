@@ -575,7 +575,14 @@ function EditableRow({
                   label: toFullName(ele),
                 }))}
                 value={
-                  referrerId ? [{ label: referrerId, id: referrerId }] : []
+                  referrerId && surgeryInfo?.patient?.referrer
+                    ? [
+                        {
+                          label: toFullName(surgeryInfo.patient.referrer),
+                          id: referrerId,
+                        },
+                      ]
+                    : []
                 }
                 onChange={handleReferrerChange}
                 size={SIZE.mini}
