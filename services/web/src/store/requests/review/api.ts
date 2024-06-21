@@ -174,7 +174,8 @@ export const sendReviewRequest = async (
       sanitizedPayload,
     );
     if (!response.ok) {
-      throw new Error('Failed to send review request');
+      const errResponse = await response.json();
+      throw new Error(errResponse?.message || 'Failed to send review request');
     }
     const data: SendReview = await response.json();
     return data;

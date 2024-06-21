@@ -33,7 +33,6 @@ export class ReviewController {
     @Body(new ValidationPipe()) reviewBody: reviewRequestDto,
   ) {
     const { id } = reviewBody;
-    console.log(id);
     return this.reviewService.sendReviewRequest(practiceId, id ?? '');
   }
 
@@ -47,7 +46,6 @@ export class ReviewController {
     @Param('id') id: string,
     @Body(new ValidationPipe()) reviewData: updateReviewDto,
   ) {
-    console.log('', id, '', reviewData);
     return this.reviewService.updateReview(id, reviewData);
   }
 
