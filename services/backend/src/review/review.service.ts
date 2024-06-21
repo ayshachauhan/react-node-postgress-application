@@ -17,6 +17,7 @@ import Mail from 'nodemailer/lib/mailer';
 import { PatientsService } from 'src/patients/patients.service';
 import { PracticesService } from 'src/practices/practices.service';
 import { Repository } from 'typeorm';
+import logger from '../logger';
 import { TransporterService } from '../transporter';
 import { SystemTemplates } from '../transporter/transporter.types';
 import { ReviewMailData } from './types';
@@ -39,53 +40,69 @@ export class ReviewService {
   }
 
   async sendReviewRequest(practiceId: string, reviewId: string) {
-    const reviewData = await this.getReviewById(reviewId);
+    try {
+      const reviewData = await this.getReviewById(reviewId);
 
-    if (practiceId && reviewId) {
-      const patientList: PatientEntity[] =
-        await this.patientService.getPatientsByPractice(practiceId);
-      const reviewPatient: PatientEntity | undefined = patientList.find(
-        (p) => p.id === reviewData.patient.id,
+      if (practiceId && reviewId) {
+        const patientList: PatientEntity[] =
+          await this.patientService.getPatientsByPractice(practiceId);
+        const reviewPatient: PatientEntity | undefined = patientList.find(
+          (p) => p.id === reviewData.patient.id,
+        );
+        const token: string = this.jwtService.sign({
+          practiceId: practiceId,
+          reviewId: reviewId,
+          id: reviewPatient?.id,
+        });
+
+        const mailOptions: Mail.Options = {
+          to: reviewPatient?.email,
+          subject: 'Practice Optimizer Dashboard - Rate your visit',
+        };
+
+        const frontendBaseUrl: string | undefined =
+          this.practiceService.getFrontEndBaseUrl();
+
+        const mailData: ReviewMailData = {
+          reviewLink: frontendBaseUrl + `/post/review/${practiceId}?r=${token}`,
+          patientName: reviewPatient?.firstName || '',
+          practiceName: '',
+        };
+
+        await this.transporterService.sendSystemEmails(
+          mailOptions,
+          mailData,
+          SystemTemplates.REVIEW_REQUEST,
+        );
+
+        const reviewResponse = await this.updateReview(reviewId, {
+          reviewStatus: ReviewStatus.SENT,
+          reviewRequestDate: new Date(),
+        });
+
+        return reviewResponse;
+      } else {
+        logger.info(`Practice Id or Review id is missing`, [
+          practiceId,
+          reviewId,
+        ]);
+        throw new HttpException(
+          'Invalid review request',
+          HttpStatus.PRECONDITION_FAILED,
+        );
+      }
+    } catch (ex) {
+      logger.error(ex);
+      throw new HttpException(
+        'An error occured in sending review',
+        HttpStatus.INTERNAL_SERVER_ERROR,
       );
-      const token: string = this.jwtService.sign({
-        practiceId: practiceId,
-        reviewId: reviewId,
-        id: reviewPatient?.id,
-      });
-
-      const mailOptions: Mail.Options = {
-        to: reviewPatient?.email,
-        subject: 'Practice Optimizer Dashboard - Rate your visit',
-      };
-
-      const frontendBaseUrl: string | undefined =
-        this.practiceService.getFrontEndBaseUrl();
-
-      const mailData: ReviewMailData = {
-        reviewLink: frontendBaseUrl + `/post/review/${practiceId}?r=${token}`,
-        patientName: reviewPatient?.firstName || '',
-        practiceName: '',
-      };
-
-      await this.transporterService.sendSystemEmails(
-        mailOptions,
-        mailData,
-        SystemTemplates.REVIEW_REQUEST,
-      );
-
-      await this.updateReview(reviewId, {
-        reviewStatus: ReviewStatus.SENT,
-        reviewRequestDate: new Date(),
-      });
-    } else {
-      console.log(`Review data not inserted`);
     }
   }
 
   async validateReviewRequest(practice_id: string, _token: string) {
     try {
       const jwtResponse = await this.jwtService.verify(_token);
-      console.log('calling validation ', jwtResponse);
       const { practiceId, reviewId, id: patientId } = jwtResponse;
 
       if (practiceId && reviewId && patientId) {
@@ -96,7 +113,6 @@ export class ReviewService {
         );
 
         const review = await this.getReviewById(reviewId);
-        console.log(review.patient.id, '  ---   ', reviewPatient?.id);
         if (!review || !reviewPatient) {
           return {
             status: HttpStatus.BAD_REQUEST,
@@ -124,7 +140,6 @@ export class ReviewService {
           id: reviewId,
         };
       } else {
-        console.log(`Invalid review request`);
         return {
           status: HttpStatus.PRECONDITION_FAILED,
           message: 'Invalid review request',
@@ -156,7 +171,6 @@ export class ReviewService {
         userRating: rating,
       });
     } else {
-      console.log(`Invalid review request`);
       throw new BadRequestException('User review parameter missing');
     }
   }
