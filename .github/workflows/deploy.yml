@@ -183,23 +183,18 @@ jobs:
         id: init
         run: terraform -chdir=./terraform init
 
-      # - name: Retrieve runner's IP address
-      #   id: get_ip
-      #   run: |
-      #     echo "Runner's public IP:"
-      #     curl -s https://httpbin.org/ip | jq -r .origin
-      
-      # - name: Export Terraform Output
-      #   id: tf_outputs
-      #   run: | 
-      #     echo "RDS_SG_ID=$(terraform -chdir=./terraform output -raw rds_shared_sg_id)" >> $GITHUB_OUTPUT
 
-      # - name: Allow runner IP in RDS security group
-      #   id: allow_ip
-      #   run: |
-      #     export RUNNER_IP=$(curl -s https://httpbin.org/ip | jq -r .origin)
-      #     echo "Allowing IP: $RUNNER_IP"
-      #     aws ec2 authorize-security-group-ingress --group-id ${{ steps.tf_outputs.outputs.RDS_SG_ID }} --protocol tcp --port 5432 --cidr $RUNNER_IP/32   
+      - name: get runner ip addresses
+        id: ip
+        uses: haythem/public-ip@v1.2
+
+      - name: Get RDS Security Group ID
+        id: rds_sg
+        run: echo "rds_sg_id=${rds_sg_id}" >> $GITHUB_ENV      
+
+      - name: Allow DB Security group rule to connect Github Actions
+        run: |
+          aws ec2 authorize-security-group-ingress --group-id ${{ env.rds_sg_id }} --protocol tcp --port 5432 --cidr ${{ steps.ip.outputs.ipv4 }}/32       
 
       - name: show migrations
         run: |
@@ -209,13 +204,10 @@ jobs:
         run: |
           pnpm migrate
 
-      # - name: Revoke runner IP from RDS security group
-      #   if: always()
-      #   id: revoke_ip
-      #   run: |
-      #     export RUNNER_IP=$(curl -s https://httpbin.org/ip | jq -r .origin)
-      #     echo "Revoking IP: $RUNNER_IP"
-      #     aws ec2 revoke-security-group-ingress --group-id ${{ steps.tf_outputs.outputs.RDS_SG_ID }} --protocol tcp --port 5432 --cidr $RUNNER_IP/32
+      - name: Remove Security group rule to connect Github Actions
+        run: |
+          aws ec2 revoke-security-group-ingress --group-id ${{ env.rds_sg_id }} --protocol tcp --port 5432 --cidr ${{ steps.ip.outputs.ipv4 }}/32
+        if: always() 
 
       - name: Terraform Apply
         run: terraform -chdir=./terraform apply -auto-approve
