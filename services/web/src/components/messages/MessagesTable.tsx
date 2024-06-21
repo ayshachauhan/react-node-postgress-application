@@ -18,6 +18,7 @@ import {
   sendMediaToPatientAsync,
 } from '@root/store/reducers/media';
 import {
+  clearData,
   clearErrorMessage,
   clearSuccessMessage,
   fetchListings,
@@ -73,6 +74,9 @@ export default function MessagesTable() {
       (ele) => ele.mediaType == MediaType.PRACTICE && ele.mediaConfigs.length,
     ),
   }));
+  useEffect(() => {
+    dispatch(clearData());
+  }, [dispatch, practiceId]);
 
   useEffect(() => {
     if (practiceId !== null) {

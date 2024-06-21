@@ -29,6 +29,10 @@ const evalsSlice = createSlice({
     clearErrorMessage(state) {
       state.errorMessage = undefined;
     },
+    clearData(state) {
+      state.entities = {};
+      state.status = EntityLoadingState.IDLE;
+    },
   },
   extraReducers(builder) {
     builder.addCase(fetchListings.pending, (state) => {
@@ -141,7 +145,8 @@ const evalsSlice = createSlice({
     });
   },
 });
-export const { clearSuccessMessage, clearErrorMessage } = evalsSlice.actions;
+export const { clearSuccessMessage, clearErrorMessage, clearData } =
+  evalsSlice.actions;
 
 export const fetchListings = createAsyncThunk('eval/fetchListings', getEvals);
 
