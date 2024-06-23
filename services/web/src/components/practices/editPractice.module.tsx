@@ -16,6 +16,15 @@ const PracticeEditModule: React.FC<{
 }> = ({ onClose, initialValues, withLoader }) => {
   const dispatch = useAppDispatch();
   const [name, setName] = useState(initialValues.name);
+  const [adminFirstName, setAdminFirstName] = useState(
+    initialValues.adminFirstName,
+  );
+  const [adminLastName, setAdminLastName] = useState(
+    initialValues.adminLastName,
+  );
+  const [adminContactNumber, setAdminContactNumber] = useState(
+    initialValues.adminContactNumber,
+  );
   const [status, setStatus] = useState(initialValues.status);
   const practiceStatusOptions = Object.keys(PracticeStatus).map((key) => ({
     label: PracticeStatus[key as keyof typeof PracticeStatus],
@@ -50,9 +59,21 @@ const PracticeEditModule: React.FC<{
     setFormChanged(
       name !== initialValues.name ||
         status !== initialValues.status ||
+        adminContactNumber !== initialValues.adminContactNumber ||
+        adminLastName !== initialValues.adminLastName ||
+        adminFirstName !== initialValues.adminFirstName ||
+        status !== initialValues.status ||
         practiceImg !== null,
     );
-  }, [name, status, practiceImg, initialValues]);
+  }, [
+    name,
+    status,
+    practiceImg,
+    adminContactNumber,
+    adminLastName,
+    adminFirstName,
+    initialValues,
+  ]);
 
   const handleStatusDropdown = (params) => {
     const { label } = params.option;
@@ -68,6 +89,10 @@ const PracticeEditModule: React.FC<{
       status,
       code: initialValues.code,
       practiceImg,
+      adminFirstName,
+      adminLastName,
+      adminContactNumber,
+      adminId: initialValues.adminId,
     };
     try {
       if (validateForm()) {
@@ -135,7 +160,58 @@ const PracticeEditModule: React.FC<{
               />
             </div>
           </div>
-
+          <div className="flex flex-row gap-7 pt-4">
+            <div className="space-y-2">
+              <label
+                htmlFor="adminFirstName"
+                className="text-black text-sm font-normal"
+              >
+                First Name
+              </label>
+              <TextInput
+                name="adminFirstName"
+                value={adminFirstName}
+                onChange={(value) => {
+                  setAdminFirstName(value);
+                }}
+                required
+              />
+            </div>
+            <div className="flex flex-col space-y-2 w-1/2">
+              <label
+                htmlFor="adminLastName"
+                className="text-black text-sm font-normal"
+              >
+                Last Name
+              </label>
+              <TextInput
+                name="adminLastName"
+                value={adminLastName}
+                onChange={(value) => {
+                  setAdminLastName(value);
+                }}
+                required
+              />
+            </div>
+          </div>
+          <div className="flex flex-row gap-7 pt-4">
+            <div className="space-y-2">
+              <label
+                htmlFor="adminContactNumber"
+                className="text-black text-sm font-normal"
+              >
+                Admin Contact No.
+              </label>
+              <TextInput
+                name="adminContactNumber"
+                value={adminContactNumber}
+                onChange={(value) => {
+                  setAdminContactNumber(value);
+                }}
+                required
+              />
+            </div>
+          </div>
           <div className="flex flex-row justify-between pt-4">
             <div className="space-y-2">
               <label htmlFor="imgUrl" className="text-black text-sm">
