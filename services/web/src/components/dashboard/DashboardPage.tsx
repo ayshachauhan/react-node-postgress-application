@@ -110,7 +110,6 @@ const DashboardPage: React.FC = () => {
       if (practiceId) {
         const loadData = async () => {
           await withLoader(async () => {
-            await dispatch(fetchEvalsList({ practiceId }));
             if (loggedInUserId !== null) {
               await dispatch(
                 fetchSurgeryList({
@@ -122,6 +121,7 @@ const DashboardPage: React.FC = () => {
                 }),
               );
             }
+            await dispatch(fetchEvalsList({ practiceId }));
             await dispatch(clearSurgerySuccessMessage());
             await dispatch(clearEvalSuccessMessage());
             await dispatch(fetchSurgeryConfigurationsListing({ practiceId }));
