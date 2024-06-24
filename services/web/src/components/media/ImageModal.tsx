@@ -29,6 +29,9 @@ const ImageModal = ({ isModalOpen, handleCloseModal, imgUrl }) => {
           height: 600,
           paddingBottom: '56.25%',
           overflow: 'hidden',
+          margin: 'auto',
+          marginTop: '40px',
+          marginBottom: '40px',
         }}
       >
         <Image
