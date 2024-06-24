@@ -17,6 +17,7 @@ import { SIZE, Select } from 'baseui/select';
 import moment from 'moment';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
+import RequiredIndicator from '../RequiredIndicator';
 
 interface SurgeryPageProps {
   onClose: () => void;
@@ -480,7 +481,8 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
           <div className="flex gap-5 mt-4">
             <div className="space-y-1 flex-1">
               <label htmlFor="mrn" className="text-black text-xs">
-                MRN
+                <RequiredIndicator />
+                &nbsp;MRN
               </label>
               <Select
                 size={SIZE.mini}
@@ -516,7 +518,8 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
             </div>
             <div className="space-y-1 flex-1">
               <label htmlFor="firstName" className="text-black text-xs">
-                First Name
+                <RequiredIndicator />
+                &nbsp;First Name
               </label>
               <TextInput
                 size={SIZE.mini}
@@ -532,7 +535,8 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
             </div>
             <div className="space-y-1 flex-1">
               <label htmlFor="lastName" className="text-black text-xs">
-                Last Name
+                <RequiredIndicator />
+                &nbsp;Last Name
               </label>
               <TextInput
                 size={SIZE.mini}
@@ -550,7 +554,8 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
           <div className="flex gap-5 mt-2">
             <div className="space-y-1 flex-1">
               <label htmlFor="email" className="text-black text-xs">
-                Email
+                <RequiredIndicator />
+                &nbsp;Email
               </label>
               <TextInput
                 size={SIZE.mini}
@@ -566,7 +571,8 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
             </div>
             <div className="space-y-1 flex-1">
               <label htmlFor="phoneNumber" className="text-black text-xs">
-                Phone Number
+                <RequiredIndicator />
+                &nbsp;Phone Number
               </label>
               <TextInput
                 size={SIZE.mini}
@@ -582,7 +588,8 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
             </div>
             <div className="space-y-1 flex-1">
               <label htmlFor="practiceHome" className="text-black text-xs">
-                Home
+                <RequiredIndicator />
+                &nbsp;Home
               </label>
               <Select
                 placeholder="Select Practice Home"
@@ -806,7 +813,11 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
                 Add Surgery
               </div>
               <div className="flex gap-5 mt-2">
-                <div className="space-y-4 flex-1">
+                <div className="space-y-1 flex-1">
+                  <label htmlFor="surgeryType" className="text-black text-xs">
+                    <RequiredIndicator />
+                    &nbsp;Surgery
+                  </label>
                   <Select
                     placeholder="Select Surgery"
                     backspaceClearsInputValue
@@ -834,7 +845,11 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
                     }}
                   />
                 </div>
-                <div className="space-y-4 flex-1 w-1/3">
+                <div className="space-y-1 flex-1 w-1/3">
+                  <label htmlFor="bodypart" className="text-black text-xs">
+                    <RequiredIndicator />
+                    &nbsp;Body Part
+                  </label>
                   <Select
                     placeholder="Select Body Part"
                     backspaceClearsInputValue
@@ -865,7 +880,11 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
                     }}
                   />
                 </div>
-                <div className="space-y-4 flex-1 w-1/3">
+                <div className="space-y-1 flex-1 w-1/3">
+                  <label htmlFor="surgeryDate" className="text-black text-xs">
+                    <RequiredIndicator />
+                    &nbsp;Surgery Date
+                  </label>
                   <DatePicker
                     size={SIZE.mini}
                     value={surgeryDate}

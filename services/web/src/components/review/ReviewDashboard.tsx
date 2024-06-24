@@ -9,7 +9,7 @@ import {
   fetchListings,
   sendReviewRequestAsyncThunk,
 } from '@root/store/reducers/review';
-import { formatColumnDate, getPracticeId } from '@utils/index';
+import { formatDate, getPracticeId } from '@utils/index';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import LinkBtn from '../LinkBtn/LinkBtn';
@@ -156,7 +156,7 @@ const ReviewDashboard: React.FC = () => {
                 <td>{data?.reviewComment}</td>
                 <td>
                   {data?.reviewRequestDate
-                    ? formatColumnDate(new Date(data?.reviewRequestDate))
+                    ? formatDate(new Date(data?.reviewRequestDate))
                     : null}
                 </td>
                 <td>{data?.reviewStatus}</td>

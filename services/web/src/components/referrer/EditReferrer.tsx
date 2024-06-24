@@ -6,6 +6,7 @@ import { updateRecordAsync } from '@root/store/reducers/referrer';
 import { getPracticeId } from '@utils/index';
 import { Select } from 'baseui/select';
 import { useEffect, useState } from 'react';
+import RequiredIndicator from '../RequiredIndicator';
 import TextInput from '../TextInput/TextInput';
 
 interface Data {
@@ -86,7 +87,8 @@ const EditReferrerForm: React.FC<ChildProps> = ({
                 htmlFor="firstName"
                 className="text-black text-sm font-normal"
               >
-                First Name
+                <RequiredIndicator />
+                &nbsp;First Name
               </label>
               <TextInput
                 name="firstName"
@@ -104,7 +106,8 @@ const EditReferrerForm: React.FC<ChildProps> = ({
                 htmlFor="lastName"
                 className="text-black text-sm font-normal"
               >
-                Last Name
+                <RequiredIndicator />
+                &nbsp;Last Name
               </label>
               <TextInput
                 name="lastName"
@@ -122,7 +125,8 @@ const EditReferrerForm: React.FC<ChildProps> = ({
                 htmlFor="referrerType"
                 className="text-black text-sm font-normal"
               >
-                Referrer Type
+                <RequiredIndicator />
+                &nbsp;Referrer Type
               </label>
               <Select
                 options={referrerTypeOptions}
