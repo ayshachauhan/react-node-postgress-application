@@ -46,4 +46,8 @@ export class UpdateUserDto {
   @IsOptional()
   @ApiProperty()
   imgUrl: string;
+
+  @IsOptional()
+  @ApiProperty()
+  contactNumber: string;
 }

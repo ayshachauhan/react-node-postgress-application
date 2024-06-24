@@ -38,6 +38,10 @@ const Practice: React.FC = () => {
       status: '',
       code: '',
       id: '',
+      adminFirstName: '',
+      adminLastName: '',
+      adminContactNumber: '',
+      adminId: '',
     });
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -353,6 +357,10 @@ const Practice: React.FC = () => {
                         code: data.code,
                         status: data.status,
                         id: data.id,
+                        adminFirstName: data.adminFirstName,
+                        adminLastName: data.adminLastName,
+                        adminContactNumber: data.adminContactNumber,
+                        adminId: data.adminId,
                       })
                     }
                     startEnhancer={() => <EditIcon />}
