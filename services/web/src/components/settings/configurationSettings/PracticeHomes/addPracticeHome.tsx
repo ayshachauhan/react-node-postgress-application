@@ -34,7 +34,7 @@ const AddPracticeHome: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         <div className="space-y-1 pt-4">
           <label htmlFor="firstName" className="text-black text-sm">
             <RequiredIndicator />
-            &nbsp;Practice Home
+            &nbsp;Patient Home Location
           </label>
           <div>
             <div>
