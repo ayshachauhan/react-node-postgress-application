@@ -23,24 +23,12 @@ import {
   ROLE,
   SIZE,
 } from 'baseui/modal';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 
 const Dashboard: React.FC = () => {
   const dispatch = useAppDispatch();
   const { isLoading, withLoader } = useLoader();
   const practiceId = getPracticeId();
-  useEffect(() => {
-    if (practiceId) {
-      const loadData = async () => {
-        await withLoader(async () => {
-          await dispatch(fetchSurgeryConfigurationsList({ practiceId }));
-          await dispatch(fetchSurgeryTypes({ practiceId }));
-        });
-      };
-
-      loadData();
-    }
-  }, [practiceId, dispatch, withLoader]);
   const [showModal, setShowModal] = useState(false);
   const [configurationId, setConfigurationId] = useState<string | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -61,6 +49,19 @@ const Dashboard: React.FC = () => {
   const surgeryTypesList = useAppSelector((state) =>
     Object.values(state.surgeryTypes.entities),
   );
+
+  useEffect(() => {
+    if (practiceId) {
+      const loadData = async () => {
+        await withLoader(async () => {
+          await dispatch(fetchSurgeryConfigurationsList({ practiceId }));
+          await dispatch(fetchSurgeryTypes({ practiceId }));
+        });
+      };
+
+      loadData();
+    }
+  }, [practiceId, dispatch, withLoader]);
 
   const handleOpenDeleteModal = (Id: string): void => {
     setIsDeleteModalOpen(true);
@@ -89,19 +90,21 @@ const Dashboard: React.FC = () => {
     setConfigurationId(null);
   };
 
-  const modifySurgeryConfigList = surgeryConfigurationsList
-    .map((ele, index) => {
-      return {
-        surgeryName: ele.name,
-        surgeryType: ele.surgeryType.name,
-        surgeryTypeId: ele.surgeryType.id,
-        bodyPart: ele.bodyPart ? ele.bodyPart.join(', ') : '',
-        facility: ele.facility ? ele.facility.join(', ') : '',
-        index: index + 1,
-        id: ele.id,
-      };
-    })
-    .filter((ele) => ele.surgeryName);
+  const modifySurgeryConfigList = useMemo(() => {
+    return surgeryConfigurationsList
+      .map((ele, index) => {
+        return {
+          surgeryName: ele.name,
+          surgeryType: ele.surgeryType.name,
+          surgeryTypeId: ele.surgeryType.id,
+          bodyPart: ele.bodyPart ? ele.bodyPart.join(', ') : '',
+          facility: ele.facility ? ele.facility.join(', ') : '',
+          index: index + 1,
+          id: ele.id,
+        };
+      })
+      .filter((ele) => ele.surgeryName);
+  }, [surgeryConfigurationsList]);
 
   const ConfigurationAddModel = () => {
     return (
