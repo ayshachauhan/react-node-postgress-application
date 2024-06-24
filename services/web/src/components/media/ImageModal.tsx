@@ -11,7 +11,8 @@ const ImageModal = ({ isModalOpen, handleCloseModal, imgUrl }) => {
       additionalOverrides={{
         Close: {
           style: {
-            display: 'none',
+            width: '900px',
+            maxWidth: '90%',
           },
         },
         Dialog: {
@@ -28,6 +29,9 @@ const ImageModal = ({ isModalOpen, handleCloseModal, imgUrl }) => {
           height: 600,
           paddingBottom: '56.25%',
           overflow: 'hidden',
+          margin: 'auto',
+          marginTop: '40px',
+          marginBottom: '40px',
         }}
       >
         <Image
