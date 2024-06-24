@@ -13,7 +13,7 @@ import { useLoader } from '@root/hooks/useLoader';
 import { useUserPermission } from '@root/hooks/userHasPermission';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { fetchLoggedInUser } from '@root/store/reducers/auth';
-import { fetchCalendars } from '@root/store/reducers/calendar';
+import { fetchFilteredCalendars } from '@root/store/reducers/calendar';
 import {
   clearSuccessMessage as clearEvalSuccessMessage,
   deleteRecordAsync,
@@ -31,6 +31,7 @@ import { fetchListings as fetchWaitlist } from '@root/store/reducers/waitlist';
 import {
   getDifferenceInDays,
   getPracticeId,
+  getSelectedMonths,
   getUserId,
   toFullName,
   usDateFormatter,
@@ -62,6 +63,7 @@ const EvalPage: React.FC = () => {
     evalInfo: state.evals.evalInfo,
     userInfo: state.auth.user,
   }));
+  const loggedInUserId = userInfo?.id ?? null;
   const handleViewHistory = (id: string): void => {
     const query = { id };
     const queryString = new URLSearchParams(query).toString();
@@ -93,6 +95,12 @@ const EvalPage: React.FC = () => {
   const viewHistory = useUserPermission(userPermissions, [
     USER_PERMISSIONS.VIEW_HX,
   ]);
+  const { selectedMonth, selectedValue } = useAppSelector(
+    (state) => state.surgeries.surgeryFilters,
+  );
+  const selectedValueStr = selectedValue || '';
+
+  const month = getSelectedMonths(selectedMonth);
 
   useEffect(() => {
     dispatch(fetchLoggedInUser());
@@ -128,7 +136,17 @@ const EvalPage: React.FC = () => {
             dispatch(fetchSurgeryConfigurationsListing({ practiceId }));
             dispatch(fetchPatients({ practiceId }));
             dispatch(fetchWaitlist({ practiceId }));
-            if (userId) dispatch(fetchCalendars({ practiceId, userId }));
+            if (userId && loggedInUserId !== null) {
+              dispatch(
+                fetchFilteredCalendars({
+                  practiceId,
+                  userId,
+                  month,
+                  option: selectedValueStr,
+                  loggedInUserId,
+                }),
+              );
+            }
           });
         };
 

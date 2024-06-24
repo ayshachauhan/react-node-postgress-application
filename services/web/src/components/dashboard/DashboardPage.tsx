@@ -13,7 +13,7 @@ import { useLoader } from '@root/hooks/useLoader';
 import { useUserPermission } from '@root/hooks/userHasPermission';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { fetchLoggedInUser } from '@root/store/reducers/auth';
-import { fetchCalendars } from '@root/store/reducers/calendar';
+import { fetchFilteredCalendars } from '@root/store/reducers/calendar';
 import {
   clearSuccessMessage as clearEvalSuccessMessage,
   fetchListings as fetchEvalsList,
@@ -127,8 +127,16 @@ const DashboardPage: React.FC = () => {
             await dispatch(fetchSurgeryConfigurationsListing({ practiceId }));
             await dispatch(fetchWaitlist({ practiceId }));
             await dispatch(fetchPatients({ practiceId }));
-            if (userId) {
-              await dispatch(fetchCalendars({ practiceId, userId }));
+            if (userId && loggedInUserId !== null) {
+              await dispatch(
+                fetchFilteredCalendars({
+                  practiceId,
+                  userId,
+                  month,
+                  option: selectedValueStr,
+                  loggedInUserId,
+                }),
+              );
             }
           });
         };

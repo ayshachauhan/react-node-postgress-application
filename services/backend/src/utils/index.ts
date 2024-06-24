@@ -23,6 +23,8 @@ export function getStartEndDate(
     'November',
     'December',
   ];
+  const currentMonth = currentDate.getMonth();
+  const currentDay = currentDate.getDate();
 
   const monthMap: Record<string, number> = monthNames.reduce(
     (acc, month, index) => {
@@ -57,8 +59,16 @@ export function getStartEndDate(
 
       if (!hasViewPastCasesPermission && !hasViewFutureCasesPermission) {
         // User cannot view past or future cases, show only today’s records
-        startDate = new Date(startOfDay);
-        endDate = new Date(endOfDay);
+        startDate = new Date(currentYear, currentMonth, currentDay, 0, 0, 0, 0);
+        endDate = new Date(
+          currentYear,
+          currentMonth,
+          currentDay,
+          23,
+          59,
+          59,
+          999,
+        );
       } else if (!hasViewPastCasesPermission) {
         // User cannot view past cases, start from tomorrow
         startDate = new Date(endOfDay);
