@@ -79,7 +79,6 @@ const DashboardPage: React.FC = () => {
     if (practiceId) {
       const loadData = async () => {
         await withLoader(async () => {
-          await dispatch(fetchEvalsList({ practiceId }));
           if (loggedInUserId !== null) {
             await dispatch(
               fetchSurgeryList({
@@ -91,17 +90,18 @@ const DashboardPage: React.FC = () => {
               }),
             );
           }
-          await dispatch(fetchInsuranceTypesList({ practiceId }));
-          await dispatch(fetchPracticeHomesListing({ practiceId }));
-          await dispatch(fetchSurgeryTypesListing({ practiceId }));
-          await dispatch(fetchReferrerList({ practiceId }));
-          await dispatch(fetchUsersList({ practiceId }));
-          await dispatch(fetchSurgeryConfigurationsListing({ practiceId }));
-          await dispatch(fetchPatients({ practiceId }));
-          await dispatch(fetchWaitlist({ practiceId }));
         });
       };
       loadData();
+      dispatch(fetchEvalsList({ practiceId }));
+      dispatch(fetchInsuranceTypesList({ practiceId }));
+      dispatch(fetchPracticeHomesListing({ practiceId }));
+      dispatch(fetchSurgeryTypesListing({ practiceId }));
+      dispatch(fetchReferrerList({ practiceId }));
+      dispatch(fetchUsersList({ practiceId }));
+      dispatch(fetchSurgeryConfigurationsListing({ practiceId }));
+      dispatch(fetchPatients({ practiceId }));
+      dispatch(fetchWaitlist({ practiceId }));
     }
   }, [practiceId, dispatch, withLoader]);
 
@@ -121,26 +121,26 @@ const DashboardPage: React.FC = () => {
                 }),
               );
             }
-            await dispatch(fetchEvalsList({ practiceId }));
-            await dispatch(clearSurgerySuccessMessage());
-            await dispatch(clearEvalSuccessMessage());
-            await dispatch(fetchSurgeryConfigurationsListing({ practiceId }));
-            await dispatch(fetchWaitlist({ practiceId }));
-            await dispatch(fetchPatients({ practiceId }));
-            if (userId && loggedInUserId !== null) {
-              await dispatch(
-                fetchFilteredCalendars({
-                  practiceId,
-                  userId,
-                  month,
-                  option: selectedValueStr,
-                  loggedInUserId,
-                }),
-              );
-            }
           });
         };
         loadData();
+        dispatch(fetchEvalsList({ practiceId }));
+        dispatch(clearSurgerySuccessMessage());
+        dispatch(clearEvalSuccessMessage());
+        dispatch(fetchSurgeryConfigurationsListing({ practiceId }));
+        dispatch(fetchWaitlist({ practiceId }));
+        dispatch(fetchPatients({ practiceId }));
+        if (userId && loggedInUserId !== null) {
+          dispatch(
+            fetchFilteredCalendars({
+              practiceId,
+              userId,
+              month,
+              option: selectedValueStr,
+              loggedInUserId,
+            }),
+          );
+        }
       }
     }
   }, [
@@ -248,7 +248,11 @@ const DashboardPage: React.FC = () => {
       </div>
       <div className="mt-2 mb-12">
         {practiceId && (
-          <FiltersSection practiceId={practiceId} withLoader={withLoader} />
+          <FiltersSection
+            practiceId={practiceId}
+            withLoader={withLoader}
+            isLoading={isLoading}
+          />
         )}
       </div>
       <AddSurgeryModal

@@ -67,11 +67,11 @@ export default function HistoryTable() {
       const loadData = async () => {
         await withLoader(async () => {
           await dispatch(fetchHistory({ practiceId }));
-          await dispatch(fetchEvalsList({ practiceId }));
-          await dispatch(fetchSurgeryList({ practiceId }));
         });
       };
       loadData();
+      dispatch(fetchEvalsList({ practiceId }));
+      dispatch(fetchSurgeryList({ practiceId }));
     }
   }, [practiceId, dispatch]);
 
@@ -207,7 +207,7 @@ export default function HistoryTable() {
         <span className="text-xl font-bold">History</span>
       </div>
       <hr className="h-px my-2.5 bg-gray-100 border-1 dark:bg-gray-700"></hr>
-      {historyLogs && historyLogs.length > 0 && (
+      {!isLoading && historyLogs && historyLogs.length > 0 && (
         <div className="w-full overflow-x-auto mt-2 border border-gray-200 rounded-t-lg rounded-b-lg">
           <div className="bg-gradient-to-br from-teal-600 to-green-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 flex gap-2 py-2 px-2.5 text-sm">
             <div className="font-bold text-white py-2 px-1 w-40">Date</div>

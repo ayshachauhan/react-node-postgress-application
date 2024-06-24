@@ -141,29 +141,32 @@ const ReviewDashboard: React.FC = () => {
           </tr>
         </thead>
         <tbody>
-          {reviews.map((data, index) => (
-            <React.Fragment key={data.id}>
-              <tr
-                className={`${
-                  index !== reviews.length - 1 ? 'border-b border-gray-300' : ''
-                }`}
-              >
-                <td>{data?.practice?.name}</td>
-                <td>{data?.patient.mrn}</td>
-                <td>{data?.patient.firstName}</td>
-                <td>{data?.source}</td>
-                <td className="text-center">{data?.userRating}</td>
-                <td>{data?.reviewComment}</td>
-                <td>
-                  {data?.reviewRequestDate
-                    ? formatColumnDate(new Date(data?.reviewRequestDate))
-                    : null}
-                </td>
-                <td>{data?.reviewStatus}</td>
-                <td>{renderReviewStatus(data)}</td>
-              </tr>
-            </React.Fragment>
-          ))}
+          {!isLoading &&
+            reviews.map((data, index) => (
+              <React.Fragment key={data.id}>
+                <tr
+                  className={`${
+                    index !== reviews.length - 1
+                      ? 'border-b border-gray-300'
+                      : ''
+                  }`}
+                >
+                  <td>{data?.practice?.name}</td>
+                  <td>{data?.patient.mrn}</td>
+                  <td>{data?.patient.firstName}</td>
+                  <td>{data?.source}</td>
+                  <td className="text-center">{data?.userRating}</td>
+                  <td>{data?.reviewComment}</td>
+                  <td>
+                    {data?.reviewRequestDate
+                      ? formatColumnDate(new Date(data?.reviewRequestDate))
+                      : null}
+                  </td>
+                  <td>{data?.reviewStatus}</td>
+                  <td>{renderReviewStatus(data)}</td>
+                </tr>
+              </React.Fragment>
+            ))}
         </tbody>
       </table>
     </div>
