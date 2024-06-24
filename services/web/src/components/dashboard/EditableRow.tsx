@@ -596,7 +596,7 @@ function EditableRow({
               />
             </div>
           </div>
-          <div className="flex items-center gap-2 py-2 w-40">
+          <div className="flex items-center gap-1 py-2 w-40">
             <Button
               kind="primary"
               title="Update"

@@ -127,14 +127,14 @@ const FiltersSection: React.FC<{
 
   const actionIcons = (row) => (
     <div style={{ display: 'flex' }}>
-      <StarIcon style={{ marginRight: '8px', cursor: 'pointer' }} />
+      <StarIcon style={{ marginRight: '4px', cursor: 'pointer' }} />
       <CopyIcon
-        style={{ marginRight: '8px', cursor: 'pointer' }}
+        style={{ marginRight: '4px', cursor: 'pointer' }}
         onClick={() => handleCloneClick(row.id)}
       />
-      <DisplayIcon style={{ marginRight: '8px', cursor: 'pointer' }} />
+      <DisplayIcon style={{ marginRight: '4px', cursor: 'pointer' }} />
       <ViewIcon
-        style={{ marginRight: '8px', cursor: 'pointer' }}
+        style={{ marginRight: '4px', cursor: 'pointer' }}
         onClick={() => {
           handleViewClick(row.id);
           setSelectedSurgery(row);
@@ -142,7 +142,7 @@ const FiltersSection: React.FC<{
       />
       {editCaseAllowed && (
         <EditIcon
-          style={{ marginRight: '8px', cursor: 'pointer' }}
+          style={{ marginRight: '4px', cursor: 'pointer' }}
           onClick={() => handleEditClick(row.id)}
         />
       )}
