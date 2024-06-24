@@ -1,5 +1,6 @@
 import { CreateInsuranceTypeInterface } from '@packages/entities';
 import Button from '@root/components/Button';
+import RequiredIndicator from '@root/components/RequiredIndicator';
 import TextInput from '@root/components/TextInput';
 import { useAppDispatch } from '@root/store';
 import { addRecordAsync } from '@root/store/reducers/insuranceTypes';
@@ -30,9 +31,10 @@ const AddInsuranceType: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   return (
     <div>
       <form onSubmit={handleSubmit}>
-        <div className="space-y-2 pt-4">
+        <div className="space-y-1 pt-4">
           <label htmlFor="firstName" className="text-black text-sm">
-            Insurance Type
+            <RequiredIndicator />
+            &nbsp;Insurance Type
           </label>
           <div>
             <div>

@@ -16,6 +16,7 @@ import { Checkbox } from 'baseui/checkbox';
 import { FileUploader } from 'baseui/file-uploader';
 import { Select } from 'baseui/select';
 import React, { useEffect, useState } from 'react';
+import RequiredIndicator from '../RequiredIndicator';
 interface Data {
   id: string;
 }
@@ -199,7 +200,8 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose, withLoader }) => {
                 htmlFor="userName"
                 className="text-black text-sm font-normal"
               >
-                Username
+                <RequiredIndicator />
+                &nbsp;Username
               </label>
               <TextInput
                 name="userName"
@@ -213,7 +215,8 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose, withLoader }) => {
             </div>
             <div className="w-1/2 space-y-2">
               <label htmlFor="email" className="text-black text-sm font-normal">
-                Email
+                <RequiredIndicator />
+                &nbsp;Email
               </label>
               <TextInput
                 name="email"
@@ -232,7 +235,8 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose, withLoader }) => {
                 htmlFor="firstName"
                 className="text-black text-sm font-normal"
               >
-                First Name
+                <RequiredIndicator />
+                &nbsp;First Name
               </label>
               <TextInput
                 name="firstName"
@@ -249,7 +253,8 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose, withLoader }) => {
                 htmlFor="lastName"
                 className="text-black text-sm font-normal"
               >
-                Last Name
+                <RequiredIndicator />
+                &nbsp;Last Name
               </label>
               <TextInput
                 name="lastName"
@@ -268,7 +273,8 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose, withLoader }) => {
                 htmlFor="contactNumber"
                 className="text-black text-sm font-normal"
               >
-                Contact No.
+                <RequiredIndicator />
+                &nbsp;Contact No.
               </label>
               <TextInput
                 name="contactNumber"
@@ -297,7 +303,8 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose, withLoader }) => {
           <div className="flex flex-row gap-6 pt-4">
             <div className="w-1/2 space-y-2">
               <label htmlFor="type" className="text-black text-sm font-normal">
-                User Type
+                <RequiredIndicator />
+                &nbsp;User Type
               </label>
               <Select
                 options={userTypeOptions}
