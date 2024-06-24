@@ -171,10 +171,7 @@ export default function HistoryTable() {
     }
 
     return filteredHistoryLogs
-      .sort(
-        (a, b) =>
-          new Date(b.dateCreated).getTime() - new Date(a.dateCreated).getTime(),
-      )
+
       .map((history: IHistory) => {
         switch (history.entityType) {
           case HistoryType.SURGERY: {
