@@ -375,7 +375,7 @@ const FiltersSection: React.FC<{
 
   return (
     <div>
-      {isLoading && (
+      {!isLoading && (
         <div>
           <div className="flex w-full bg-purple-50 px-2 border-t border-b border-gray-200 items-center">
             <div className="flex w-1/4 items-center">
