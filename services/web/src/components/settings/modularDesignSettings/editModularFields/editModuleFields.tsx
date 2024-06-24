@@ -4,6 +4,7 @@ import {
 } from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import { AddIcon, CloseIcon } from '@root/components/Icons';
+import RequiredIndicator from '@root/components/RequiredIndicator';
 import TextInput from '@root/components/TextInput';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { editRecordAsync } from '@root/store/reducers/surgeryConfigurations';
@@ -284,7 +285,8 @@ const EditModularField: React.FC<{
           <div className="flex gap-5 mt-4">
             <div className="space-y-2 flex-1">
               <label htmlFor="surgeryName" className="text-black text-sm">
-                Surgery Location
+                <RequiredIndicator />
+                &nbsp;Surgery Location
               </label>
               <Select
                 size={SIZE.mini}
@@ -313,7 +315,8 @@ const EditModularField: React.FC<{
             </div>
             <div className="space-y-2 flex-2">
               <label htmlFor="surgeryName" className="text-black text-sm">
-                Surgery Name
+                <RequiredIndicator />
+                &nbsp;Surgery Name
               </label>
               <TextInput
                 size={SIZE.mini}
@@ -327,7 +330,8 @@ const EditModularField: React.FC<{
             </div>
             <div className="space-y-4 flex-2">
               <label htmlFor="surgeryName" className="text-black text-sm">
-                Surgery Name Color
+                <RequiredIndicator />
+                &nbsp;Surgery Name Color
               </label>
               <div className="d-block">
                 <input
