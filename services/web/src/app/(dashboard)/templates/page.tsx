@@ -157,131 +157,132 @@ const Templates: React.FC = () => {
       </div>
       <hr className="h-px my-2.5 px-0 mx-0 bg-gray-100 border-1 border-gray-100"></hr>
       <div className="flex flex-wrap gap-7">
-        {templates.map((data, i) => (
-          <React.Fragment key={i}>
-            <div className="rounded-lg shadow-md w-[370px] h-292 relative">
-              <div className="text-white py-2.5 text-center bg-gradient-to-r from-primary-light to-primary-dark uppercase rounded-t-lg font-bold">
-                {data?.surgeryConfigurationName}
-              </div>
-              <div className="rounded-lg" style={{ height: '245px' }}>
-                <div className="grid grid-rows-5 h-full p-2">
-                  <div className="row-start-1 row-span-1 flex items-center border-b border-gray-200">
-                    <p>
-                      <span className="font-bold text-sm">Booking: </span>{' '}
-                      {data.booking &&
-                        data.booking.map((ele, i) => (
-                          <span
-                            key={i}
-                            onClick={() =>
-                              ele.id &&
-                              handleOpenUpdateModal(
-                                ele.id,
-                                ele.messageType,
-                                ele.version,
-                              )
-                            }
-                            className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1 cursor-pointer"
-                          >
-                            {ele.version}
-                          </span>
-                        ))}
-                    </p>
-                  </div>
-                  <div className="row-start-2 row-span-1 flex items-center border-b border-gray-200">
-                    <p>
-                      <span className="font-bold text-sm">Referrer: </span>
-                      {data.referrer &&
-                        data.referrer.map((ele, i) => (
-                          <span
-                            key={i}
-                            onClick={() =>
-                              ele.id &&
-                              handleOpenUpdateModal(
-                                ele.id,
-                                ele.messageType,
-                                ele.version,
-                              )
-                            }
-                            className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1 cursor-pointer"
-                          >
-                            {ele.version}
-                          </span>
-                        ))}
-                    </p>
-                  </div>
-                  <div className="row-start-3 row-span-1 flex items-center border-b border-gray-200">
-                    <p>
-                      <span className="font-bold text-sm">PCP: </span>
-                      {data.pcp &&
-                        data.pcp.map((ele, i) => (
-                          <span
-                            key={i}
-                            onClick={() =>
-                              ele.id &&
-                              handleOpenUpdateModal(
-                                ele.id,
-                                ele.messageType,
-                                ele.version,
-                              )
-                            }
-                            className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1 cursor-pointer"
-                          >
-                            {ele.version}
-                          </span>
-                        ))}
-                    </p>
-                  </div>
-                  <div className="row-start-4 row-span-1 flex items-center border-b border-gray-200">
-                    <p>
-                      <span className="font-bold text-sm">Preop: </span>
-                      {data.preop &&
-                        data.preop.map((ele, i) => (
-                          <span
-                            key={i}
-                            onClick={() =>
-                              ele.id &&
-                              ele.dateOffset !== undefined &&
-                              handleOpenUpdateModal(
-                                ele.id,
-                                ele.messageType,
-                                ele.dateOffset,
-                              )
-                            }
-                            className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1 cursor-pointer"
-                          >
-                            {ele.dateOffset}
-                          </span>
-                        ))}
-                    </p>
-                  </div>
-                  <div className="row-start-5 row-span flex items-center  border-gray-200">
-                    <p>
-                      <span className="font-bold text-sm">Postop: </span>
-                      {data.postop &&
-                        data.postop.map((ele, i) => (
-                          <span
-                            key={i}
-                            onClick={() =>
-                              ele.id &&
-                              ele.dateOffset !== undefined &&
-                              handleOpenUpdateModal(
-                                ele.id,
-                                ele.messageType,
-                                ele.dateOffset,
-                              )
-                            }
-                            className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1 cursor-pointer"
-                          >
-                            {ele.dateOffset}
-                          </span>
-                        ))}
-                    </p>
+        {!isLoading &&
+          templates.map((data, i) => (
+            <React.Fragment key={i}>
+              <div className="rounded-lg shadow-md w-[370px] h-292 relative">
+                <div className="text-white py-2.5 text-center bg-gradient-to-r from-primary-light to-primary-dark uppercase rounded-t-lg font-bold">
+                  {data?.surgeryConfigurationName}
+                </div>
+                <div className="rounded-lg" style={{ height: '245px' }}>
+                  <div className="grid grid-rows-5 h-full p-2">
+                    <div className="row-start-1 row-span-1 flex items-center border-b border-gray-200">
+                      <p>
+                        <span className="font-bold text-sm">Booking: </span>{' '}
+                        {data.booking &&
+                          data.booking.map((ele, i) => (
+                            <span
+                              key={i}
+                              onClick={() =>
+                                ele.id &&
+                                handleOpenUpdateModal(
+                                  ele.id,
+                                  ele.messageType,
+                                  ele.version,
+                                )
+                              }
+                              className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1 cursor-pointer"
+                            >
+                              {ele.version}
+                            </span>
+                          ))}
+                      </p>
+                    </div>
+                    <div className="row-start-2 row-span-1 flex items-center border-b border-gray-200">
+                      <p>
+                        <span className="font-bold text-sm">Referrer: </span>
+                        {data.referrer &&
+                          data.referrer.map((ele, i) => (
+                            <span
+                              key={i}
+                              onClick={() =>
+                                ele.id &&
+                                handleOpenUpdateModal(
+                                  ele.id,
+                                  ele.messageType,
+                                  ele.version,
+                                )
+                              }
+                              className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1 cursor-pointer"
+                            >
+                              {ele.version}
+                            </span>
+                          ))}
+                      </p>
+                    </div>
+                    <div className="row-start-3 row-span-1 flex items-center border-b border-gray-200">
+                      <p>
+                        <span className="font-bold text-sm">PCP: </span>
+                        {data.pcp &&
+                          data.pcp.map((ele, i) => (
+                            <span
+                              key={i}
+                              onClick={() =>
+                                ele.id &&
+                                handleOpenUpdateModal(
+                                  ele.id,
+                                  ele.messageType,
+                                  ele.version,
+                                )
+                              }
+                              className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1 cursor-pointer"
+                            >
+                              {ele.version}
+                            </span>
+                          ))}
+                      </p>
+                    </div>
+                    <div className="row-start-4 row-span-1 flex items-center border-b border-gray-200">
+                      <p>
+                        <span className="font-bold text-sm">Preop: </span>
+                        {data.preop &&
+                          data.preop.map((ele, i) => (
+                            <span
+                              key={i}
+                              onClick={() =>
+                                ele.id &&
+                                ele.dateOffset !== undefined &&
+                                handleOpenUpdateModal(
+                                  ele.id,
+                                  ele.messageType,
+                                  ele.dateOffset,
+                                )
+                              }
+                              className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1 cursor-pointer"
+                            >
+                              {ele.dateOffset}
+                            </span>
+                          ))}
+                      </p>
+                    </div>
+                    <div className="row-start-5 row-span flex items-center  border-gray-200">
+                      <p>
+                        <span className="font-bold text-sm">Postop: </span>
+                        {data.postop &&
+                          data.postop.map((ele, i) => (
+                            <span
+                              key={i}
+                              onClick={() =>
+                                ele.id &&
+                                ele.dateOffset !== undefined &&
+                                handleOpenUpdateModal(
+                                  ele.id,
+                                  ele.messageType,
+                                  ele.dateOffset,
+                                )
+                              }
+                              className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1 cursor-pointer"
+                            >
+                              {ele.dateOffset}
+                            </span>
+                          ))}
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </React.Fragment>
-        ))}
+            </React.Fragment>
+          ))}
       </div>
       <AddTemplateModal
         isAddModalOpen={isAddModalOpen}

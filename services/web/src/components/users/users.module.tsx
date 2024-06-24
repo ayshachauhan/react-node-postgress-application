@@ -220,123 +220,124 @@ export default function UserPage() {
           <div className="font-bold text-white">Status</div>
           <div className="font-bold text-white">Action</div>
         </div>
-        {users.map((data) => (
-          <React.Fragment key={data.id}>
-            <div className="grid grid-cols-[0.5fr_1fr_1fr_1fr_1fr_0.5fr_0.5fr_0.5fr_2fr_1fr_0.5fr_0.5fr] gap-4 px-4 py-2 flex ">
-              <div className="text-gray-900 overflow-hidden whitespace-nowrap">
-                {data.imgUrl ? (
-                  <Image
-                    src={data.imgUrl}
-                    alt={data.id}
-                    width={50}
-                    height={50}
-                    className="inline-block mr-2 rounded-[10px]"
-                    style={{
-                      width: '50px',
-                      height: '50px',
-                      objectFit: 'cover',
-                      borderRadius: '100px',
-                    }}
-                  />
-                ) : (
-                  <AvatarIcon size={50}></AvatarIcon>
-                )}
-              </div>
-              <div className="text-gray-900 overflow-hidden whitespace-nowrap">
-                {data.userName}
-              </div>
-              <div className="text-gray-900 overflow-hidden whitespace-nowrap">
-                {data.email}
-              </div>
-              <div className="text-gray-900 overflow-hidden whitespace-nowrap">
-                {practiceName}
-              </div>
-              <div className="text-gray-900 overflow-hidden whitespace-nowrap">
-                {data.fullName}
-              </div>
-              <div className="text-gray-900 overflow-hidden whitespace-nowrap">
-                {data.contactNumber}
-              </div>
-              <div className="text-gray-900 overflow-hidden whitespace-nowrap">
-                {data.type}
-              </div>
-              <div className="text-gray-900 overflow-hidden whitespace-nowrap ml-2 w-36">
-                {data.designation}
-              </div>
-              <div className="text-gray-900">
-                <div className="grid grid-cols-2 gap-1">
-                  {data?.permissions.map((label, index) => (
-                    <Checkbox
-                      key={index}
-                      checked={true}
-                      overrides={{
-                        Checkmark: {
-                          style: ({ $checked }) => ({
-                            backgroundColor: $checked
-                              ? 'rgba(34, 197, 94, 1)'
-                              : 'white',
-                            borderColor: $checked
-                              ? 'rgba(34, 197, 94, 1)'
-                              : 'rgba(113, 113, 122, 1)',
-                            width: '15px',
-                            height: '15px',
-                            marginTop: '7px',
-                            marginRight: '0px',
-                            borderRadius: '2px',
-                            borderWidth: '2px',
-                          }),
-                        },
+        {!isLoading &&
+          users.map((data) => (
+            <React.Fragment key={data.id}>
+              <div className="grid grid-cols-[0.5fr_1fr_1fr_1fr_1fr_0.5fr_0.5fr_0.5fr_2fr_1fr_0.5fr_0.5fr] gap-4 px-4 py-2 flex ">
+                <div className="text-gray-900 overflow-hidden whitespace-nowrap">
+                  {data.imgUrl ? (
+                    <Image
+                      src={data.imgUrl}
+                      alt={data.id}
+                      width={50}
+                      height={50}
+                      className="inline-block mr-2 rounded-[10px]"
+                      style={{
+                        width: '50px',
+                        height: '50px',
+                        objectFit: 'cover',
+                        borderRadius: '100px',
                       }}
-                    >
-                      <label
-                        htmlFor={`checkbox-${index}`}
-                        className="text-black text-sm font-normal"
+                    />
+                  ) : (
+                    <AvatarIcon size={50}></AvatarIcon>
+                  )}
+                </div>
+                <div className="text-gray-900 overflow-hidden whitespace-nowrap">
+                  {data.userName}
+                </div>
+                <div className="text-gray-900 overflow-hidden whitespace-nowrap">
+                  {data.email}
+                </div>
+                <div className="text-gray-900 overflow-hidden whitespace-nowrap">
+                  {practiceName}
+                </div>
+                <div className="text-gray-900 overflow-hidden whitespace-nowrap">
+                  {data.fullName}
+                </div>
+                <div className="text-gray-900 overflow-hidden whitespace-nowrap">
+                  {data.contactNumber}
+                </div>
+                <div className="text-gray-900 overflow-hidden whitespace-nowrap">
+                  {data.type}
+                </div>
+                <div className="text-gray-900 overflow-hidden whitespace-nowrap ml-2 w-36">
+                  {data.designation}
+                </div>
+                <div className="text-gray-900">
+                  <div className="grid grid-cols-2 gap-1">
+                    {data?.permissions.map((label, index) => (
+                      <Checkbox
+                        key={index}
+                        checked={true}
+                        overrides={{
+                          Checkmark: {
+                            style: ({ $checked }) => ({
+                              backgroundColor: $checked
+                                ? 'rgba(34, 197, 94, 1)'
+                                : 'white',
+                              borderColor: $checked
+                                ? 'rgba(34, 197, 94, 1)'
+                                : 'rgba(113, 113, 122, 1)',
+                              width: '15px',
+                              height: '15px',
+                              marginTop: '7px',
+                              marginRight: '0px',
+                              borderRadius: '2px',
+                              borderWidth: '2px',
+                            }),
+                          },
+                        }}
                       >
-                        <span className="truncate">{label.name}</span>
-                      </label>
-                    </Checkbox>
-                  ))}
+                        <label
+                          htmlFor={`checkbox-${index}`}
+                          className="text-black text-sm font-normal"
+                        >
+                          <span className="truncate">{label.name}</span>
+                        </label>
+                      </Checkbox>
+                    ))}
+                  </div>
+                </div>
+                <div className="text-gray-900 overflow-hidden whitespace-nowrap">
+                  {data.url}
+                </div>
+                <div className="text-gray-900 text-center overflow-hidden whitespace-nowrap">
+                  <div
+                    className={`rounded-md text-white px-1 ${
+                      data.status?.toString() === 'pending'
+                        ? 'bg-yellow-500'
+                        : data.status?.toString() === 'inactive'
+                          ? 'bg-red-500'
+                          : 'bg-green-500'
+                    }`}
+                  >
+                    {data.status?.toString()}
+                  </div>
+                </div>
+                <div className="text-gray-900 flex gap-1">
+                  <div
+                    onClick={() => data.id && handleViewUser(data.id)}
+                    className="cursor-pointer"
+                  >
+                    <ViewIcon></ViewIcon>
+                  </div>
+                  <div
+                    onClick={() => data.id && handleOpenEditModal(data.id)}
+                    className="cursor-pointer"
+                  >
+                    <EditIcon></EditIcon>
+                  </div>
+                  <div
+                    onClick={() => data.id && handleOpenDeleteModal(data.id)}
+                    className="cursor-pointer"
+                  >
+                    <DeleteIcon></DeleteIcon>
+                  </div>
                 </div>
               </div>
-              <div className="text-gray-900 overflow-hidden whitespace-nowrap">
-                {data.url}
-              </div>
-              <div className="text-gray-900 text-center overflow-hidden whitespace-nowrap">
-                <div
-                  className={`rounded-md text-white px-1 ${
-                    data.status?.toString() === 'pending'
-                      ? 'bg-yellow-500'
-                      : data.status?.toString() === 'inactive'
-                        ? 'bg-red-500'
-                        : 'bg-green-500'
-                  }`}
-                >
-                  {data.status?.toString()}
-                </div>
-              </div>
-              <div className="text-gray-900 flex gap-1">
-                <div
-                  onClick={() => data.id && handleViewUser(data.id)}
-                  className="cursor-pointer"
-                >
-                  <ViewIcon></ViewIcon>
-                </div>
-                <div
-                  onClick={() => data.id && handleOpenEditModal(data.id)}
-                  className="cursor-pointer"
-                >
-                  <EditIcon></EditIcon>
-                </div>
-                <div
-                  onClick={() => data.id && handleOpenDeleteModal(data.id)}
-                  className="cursor-pointer"
-                >
-                  <DeleteIcon></DeleteIcon>
-                </div>
-              </div>
-            </div>
-          </React.Fragment>
-        ))}
+            </React.Fragment>
+          ))}
       </div>
       <AddUserModal
         isModalOpen={isModalOpen}
