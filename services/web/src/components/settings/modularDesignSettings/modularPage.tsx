@@ -94,9 +94,9 @@ const Dashboard: React.FC = () => {
     return surgeryConfigurationsList
       .map((ele, index) => {
         return {
-          surgeryName: ele.name,
-          surgeryType: ele.surgeryType.name,
-          surgeryTypeId: ele.surgeryType.id,
+          surgeryName: ele?.name,
+          surgeryType: ele?.surgeryType?.name,
+          surgeryTypeId: ele?.surgeryType?.id,
           bodyPart: ele.bodyPart ? ele.bodyPart.join(', ') : '',
           facility: ele.facility ? ele.facility.join(', ') : '',
           index: index + 1,
