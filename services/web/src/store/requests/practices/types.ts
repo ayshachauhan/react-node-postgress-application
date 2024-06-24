@@ -15,6 +15,7 @@ export interface PracticesGetInterface {
   adminLastName: string;
   adminEmail: string;
   adminContactNumber: string;
+  adminId: string;
   status: string;
   code: string;
   dateCreated?: string;
@@ -28,6 +29,10 @@ export interface PracticesEditInterface {
   status: string;
   code: string;
   imgUrl?: string;
+  adminFirstName?: string;
+  adminLastName?: string;
+  adminContactNumber?: string;
+  adminId?: string;
   practiceImg?: File | null;
 }
 

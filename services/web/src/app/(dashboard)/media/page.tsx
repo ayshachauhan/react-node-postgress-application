@@ -149,12 +149,8 @@ const Media: React.FC = () => {
     };
   }, [successMessage, errorMessage, dispatch]);
 
-  const delay = (ms: number): Promise<void> =>
-    new Promise((resolve) => setTimeout(resolve, ms));
-
   const toggleActive = async (mediaType: MediaType) => {
     await withLoader(async () => {
-      await delay(500); // Add a delay of 1 second
       setSelectedMediaType(mediaType);
     });
   };

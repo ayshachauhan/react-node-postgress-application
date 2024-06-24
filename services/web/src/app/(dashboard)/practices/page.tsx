@@ -38,6 +38,10 @@ const Practice: React.FC = () => {
       status: '',
       code: '',
       id: '',
+      adminFirstName: '',
+      adminLastName: '',
+      adminContactNumber: '',
+      adminId: '',
     });
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -341,31 +345,33 @@ const Practice: React.FC = () => {
                   {data.status?.toString()}
                 </div>
               </div>
-              <div className="flex flex-row bg-gray-50 pt-2 px-6 text-center item-center gap-3 justify-center">
+              <div className="flex flex-row bg-gray-50 pt-2 px-6 text-center items-center gap-1 justify-center">
                 <div className="text-center">
-                  <Button
-                    kind="tertiary"
-                    title=""
-                    colors={{ backgroundColor: 'Transparent', color: 'black' }}
+                  <div
+                    className="rounded-lg bg-black text-white border-2 p-2 flex items-center justify-center"
                     onClick={() =>
                       handleOpenEditModal({
                         name: data.name,
                         code: data.code,
                         status: data.status,
                         id: data.id,
+                        adminFirstName: data.adminFirstName,
+                        adminLastName: data.adminLastName,
+                        adminContactNumber: data.adminContactNumber,
+                        adminId: data.adminId,
                       })
                     }
-                    startEnhancer={() => <EditIcon />}
-                  />
+                  >
+                    <EditIcon />
+                  </div>
                 </div>
                 <div className="text-center">
-                  <Button
-                    kind="tertiary"
-                    title=""
-                    colors={{ backgroundColor: 'Transparent', color: 'black' }}
+                  <div
+                    className="rounded-lg bg-black text-white border-2 p-2 flex items-center justify-center"
                     onClick={() => data.id && handleOpenDeleteModal(data.id)}
-                    startEnhancer={() => <DeleteIcon />}
-                  />
+                  >
+                    <DeleteIcon />
+                  </div>
                 </div>
               </div>
             </React.Fragment>

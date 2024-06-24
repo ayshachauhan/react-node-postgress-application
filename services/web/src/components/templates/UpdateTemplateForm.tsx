@@ -17,6 +17,7 @@ import { Checkbox, STYLE_TYPE } from 'baseui/checkbox';
 import { SIZE, Select } from 'baseui/select';
 import { Textarea } from 'baseui/textarea';
 import React, { useEffect, useState } from 'react';
+import RequiredIndicator from '../RequiredIndicator';
 
 interface Data {
   id: string;
@@ -316,7 +317,8 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({
                       htmlFor="title"
                       className="text-black text-sm font-normal"
                     >
-                      Subject
+                      <RequiredIndicator />
+                      &nbsp;Subject
                     </label>
                     <TextInput
                       size={SIZE.mini}

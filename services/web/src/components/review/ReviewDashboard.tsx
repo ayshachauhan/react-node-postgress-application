@@ -9,7 +9,7 @@ import {
   fetchListings,
   sendReviewRequestAsyncThunk,
 } from '@root/store/reducers/review';
-import { formatColumnDate, getPracticeId } from '@utils/index';
+import { formatDate, getPracticeId } from '@utils/index';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import LinkBtn from '../LinkBtn/LinkBtn';
@@ -25,7 +25,6 @@ const ReviewDashboard: React.FC = () => {
     setReviewId(id);
     if (practiceId && id) {
       try {
-        console.log(`Request sent ${practiceId}  -  ${id}`);
         dispatch(
           sendReviewRequestAsyncThunk({
             practiceId,
@@ -94,14 +93,14 @@ const ReviewDashboard: React.FC = () => {
       timer = setTimeout(() => {
         setShowModal(false);
         dispatch(clearSuccessMessage());
-      }, 2000);
+      }, 5000);
     }
     if (errorMessage) {
       setShowErrorMessage(true);
       timer = setTimeout(() => {
         setShowErrorMessage(false);
         dispatch(clearErrorMessage());
-      }, 2000);
+      }, 5000);
     }
     return () => {
       if (timer) {
@@ -113,11 +112,19 @@ const ReviewDashboard: React.FC = () => {
   return (
     <div className="mt-4">
       {isLoading && <Loader />}
-      <div className="flex justify-between border-gray-400">
+      <div className="flex flex-col justify-between border-gray-400">
         <span className="text-xl font-bold">Review Management</span>
+        {showModal && (
+          <span className="items-center text-green-700 text-center mt-2">
+            {successMessage}
+          </span>
+        )}
+        {showErrorMessage && (
+          <span className="items-center text-red-700 text-center mt-2">
+            {errorMessage}
+          </span>
+        )}
       </div>
-      {showModal && <div className="text-green-700">{successMessage}</div>}
-      {showErrorMessage && <div className="text-red-700">{errorMessage}</div>}
       <hr className="h-px my-2.5 bg-gray-100 border-1 dark:bg-gray-700"></hr>
       <table>
         <thead>
@@ -149,7 +156,7 @@ const ReviewDashboard: React.FC = () => {
                 <td>{data?.reviewComment}</td>
                 <td>
                   {data?.reviewRequestDate
-                    ? formatColumnDate(new Date(data?.reviewRequestDate))
+                    ? formatDate(new Date(data?.reviewRequestDate))
                     : null}
                 </td>
                 <td>{data?.reviewStatus}</td>

@@ -17,4 +17,16 @@ export class PracticePatchDto {
 
   @IsOptional()
   imgUrl?: string;
+
+  @IsOptional()
+  @ApiProperty()
+  adminFirstName: string;
+
+  @IsOptional()
+  @ApiProperty()
+  adminLastName: string;
+
+  @IsOptional()
+  @ApiProperty()
+  adminContactNumber: string;
 }

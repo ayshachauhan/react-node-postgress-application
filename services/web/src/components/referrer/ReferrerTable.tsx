@@ -207,18 +207,18 @@ export default function ReferrerTable() {
                 <div className="text-gray-900 bg-gray-50 pt-2 px-4 flex-1">
                   {data?.email}
                 </div>
-                <div className="text-gray-900 bg-gray-50 pt-2 px-4 flex-1 flex gap-4">
+                <div className="text-gray-900 bg-gray-50 pt-2 px-4 flex-1 flex gap-1">
                   <div
                     onClick={() => data.id && handleOpenEditModal(data.id)}
                     className="cursor-pointer"
                   >
-                    <EditIcon className="mt-2"></EditIcon>
+                    <EditIcon></EditIcon>
                   </div>
                   <div
                     onClick={() => data.id && handleOpenDeleteModal(data.id)}
                     className="cursor-pointer"
                   >
-                    <DeleteIcon className="mt-2"></DeleteIcon>
+                    <DeleteIcon></DeleteIcon>
                   </div>
                 </div>
               </div>

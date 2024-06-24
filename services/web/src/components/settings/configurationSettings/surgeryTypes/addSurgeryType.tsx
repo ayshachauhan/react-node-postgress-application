@@ -1,5 +1,6 @@
 import { SurgeryType } from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
+import RequiredIndicator from '@root/components/RequiredIndicator';
 import TextInput from '@root/components/TextInput';
 import { useAppDispatch } from '@root/store';
 import { addRecordAsync } from '@root/store/reducers/surgeryTypes';
@@ -30,9 +31,10 @@ const AddSurgeryType: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   return (
     <div>
       <form onSubmit={handleSubmit}>
-        <div className="space-y-2 pt-4">
+        <div className="space-y-1 pt-4">
           <label htmlFor="firstName" className="text-black text-sm">
-            Surgery Location
+            <RequiredIndicator />
+            &nbsp;Surgery Location
           </label>
           <div>
             <div>

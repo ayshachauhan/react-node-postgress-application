@@ -17,6 +17,7 @@ import { getUploadFileKey } from 'src/users/utils';
 import { DataSource, Repository, UpdateResult } from 'typeorm';
 import { ENVIRONMENT_VARIABLES } from '../enums/environment.enums';
 // import { TransporterService } from '../transporter';
+import { UpdateUserDto } from 'src/users/dto/update.dto';
 import { S3Service } from '../users/s3.service';
 import { UsersService } from '../users/users.service';
 import { PracticeCreateDto } from './dto/create.dto';
@@ -84,6 +85,7 @@ export class PracticesService {
         finalPractice.adminLastName = adminUser.lastName;
         finalPractice.adminEmail = adminUser.email;
         finalPractice.adminContactNumber = adminUser.contactNumber;
+        finalPractice.adminId = adminUser.id;
       }
       resultArray.push(finalPractice);
     });
@@ -194,23 +196,63 @@ export class PracticesService {
     }
   }
 
-  async update(
-    id: string,
-    practicePatchDto: Partial<PracticePatchDto>,
-  ): Promise<PracticeEntity | null> {
-    const updateResult: UpdateResult = await this.practicesRepository.update(
-      id,
-      practicePatchDto,
-    );
+  async update(id: string, practicePatchDto): Promise<PracticeEntity | null> {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
 
-    if (updateResult.affected === 0) {
-      throw new HttpException(
-        `Practice with id ${id} not found`,
-        HttpStatus.NOT_FOUND,
+    try {
+      const sanitizedPracticePayload: Partial<PracticePatchDto> = {
+        name: practicePatchDto.name,
+        status: practicePatchDto.status,
+        code: practicePatchDto.code,
+      };
+      const sanitizedUserPayload: Partial<UpdateUserDto> = {
+        contactNumber: practicePatchDto.adminContactNumber,
+        lastName: practicePatchDto.adminLastName,
+        firstName: practicePatchDto.adminFirstName,
+      };
+
+      const practiceUpdateResult: UpdateResult =
+        await this.practicesRepository.update(id, sanitizedPracticePayload);
+
+      if (practiceUpdateResult.affected === 0) {
+        throw new HttpException(
+          `Practice with id ${id} not found`,
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      const adminUser = practicePatchDto.adminId;
+      const userToUpdate = await this.userService.getUserById(adminUser);
+      if (!userToUpdate) {
+        throw new HttpException(
+          `User with id ${adminUser} not found`,
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      const adminUpdateResult = await this.userService.updateUser(
+        practicePatchDto.adminId,
+        sanitizedUserPayload as UpdateUserDto, // Type assertion here
       );
-    }
 
-    return await this.practicesRepository.findOne({ where: { id } });
+      if (adminUpdateResult === null) {
+        throw new HttpException(
+          `User with id ${adminUser} not found`,
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      await queryRunner.commitTransaction();
+
+      return await this.practicesRepository.findOne({ where: { id } });
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
   }
 
   async uploadPracticeImg({

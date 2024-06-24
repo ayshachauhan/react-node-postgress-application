@@ -11,7 +11,7 @@ import { useAppDispatch, useAppSelector } from '@root/store';
 import { fetchFilteredCalendars } from '@root/store/reducers/calendar';
 import { fetchListings } from '@root/store/reducers/surgeryConfigurations';
 import { DEFAULT_SURGERYNAME_COLOR } from '@root/utils/constants';
-import { getPracticeId, getUserId } from '@root/utils/index';
+import { getPracticeId, getSelectedMonths, getUserId } from '@root/utils/index';
 import { Modal, ModalBody, ModalHeader, ROLE } from 'baseui/modal';
 import moment from 'moment';
 import React, { useEffect, useRef, useState } from 'react';
@@ -109,11 +109,6 @@ const UpcomingSection: React.FC = () => {
     (state) => state.surgeries.surgeryFilters,
   );
   const selectedValueStr = selectedValue || '';
-  const getSelectedMonths = (selectedMonth: MonthOption[]) => {
-    const monthLabels = selectedMonth.map((month) => month.label);
-    const month = monthLabels.join(',');
-    return month;
-  };
 
   const dispatchFetchFilteredCalendars = (
     practiceId: string,
@@ -377,20 +372,20 @@ const UpcomingSection: React.FC = () => {
       <div className="text-lg font-normal flex justify-between">
         <span>Calendar</span>
         {selectedSurgery && (
-          <div className="flex">
+          <div className="flex gap-1 items-center">
             <div
-              className="cursor-pointer px-2"
+              className="cursor-pointer"
               onClick={() => handleOpenModal(false)}
             >
-              <AddIcon className="mt-2" size={25}></AddIcon>
+              <AddIcon size={20}></AddIcon>
               {''}
             </div>
             {editCalendar && (
               <div
-                className="cursor-pointer px-2"
+                className="cursor-pointer"
                 onClick={() => handleOpenModal(true)}
               >
-                <EditIcon className="mt-2"></EditIcon>
+                <EditIcon></EditIcon>
               </div>
             )}
           </div>

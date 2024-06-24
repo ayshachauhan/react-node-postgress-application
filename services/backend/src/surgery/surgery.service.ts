@@ -310,7 +310,9 @@ export class SurgeryService {
       const selectedCalendar = calendars.find(
         (calendar: ICalendar) =>
           moment(calendar.date).format('YYYY-MM-DD') ===
-          moment(createSurgeryDto.date).format('YYYY-MM-DD'),
+            moment(createSurgeryDto.date).format('YYYY-MM-DD') &&
+          calendar.surgeryConfiguration.id ===
+            createSurgeryDto.surgeryConfigurationId,
       );
 
       if (selectedCalendar) {

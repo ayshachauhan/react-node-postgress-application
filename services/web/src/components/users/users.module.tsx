@@ -314,7 +314,7 @@ export default function UserPage() {
                   {data.status?.toString()}
                 </div>
               </div>
-              <div className="text-gray-900 flex gap-4">
+              <div className="text-gray-900 flex gap-1">
                 <div
                   onClick={() => data.id && handleViewUser(data.id)}
                   className="cursor-pointer"
