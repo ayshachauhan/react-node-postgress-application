@@ -28,6 +28,10 @@ const messageSlice = createSlice({
     setSearchMRNName: (state, action) => {
       state.messageFilters.searchMRNName = action.payload;
     },
+    clearData(state) {
+      state.entities = {};
+      state.status = EntityLoadingState.IDLE;
+    },
   },
   extraReducers(builder) {
     builder.addCase(fetchListings.pending, (state) => {
@@ -51,7 +55,8 @@ const messageSlice = createSlice({
     });
   },
 });
-export const { clearSuccessMessage, clearErrorMessage } = messageSlice.actions;
+export const { clearSuccessMessage, clearErrorMessage, clearData } =
+  messageSlice.actions;
 
 export const fetchListings = createAsyncThunk(
   'messages/fetchListings',

@@ -39,7 +39,7 @@ export class UsersController {
     @Body(new ValidationPipe()) createUserDto: CreateUserDto,
     @Param() { practiceId }: { practiceId: string },
   ): Promise<SanitizedUser> {
-    return this.usersService.create(createUserDto, practiceId, false);
+    return this.usersService.create(createUserDto, practiceId, true);
   }
 
   @Get()

@@ -32,9 +32,6 @@ export default function PracticeHomesPage() {
 
   const dispatch = useAppDispatch();
   const practiceId = getPracticeId();
-  const practiceName = useAppSelector(
-    (state) => state.practices.practiceInfo?.name,
-  );
   const practiceHomes: IPracticeHomes[] = useAppSelector((state) =>
     Object.values(state.practiceHomes.entities),
   );
@@ -108,7 +105,9 @@ export default function PracticeHomesPage() {
   return (
     <div className="mt-4">
       <div className="flex justify-between border-gray-400">
-        <span className="text-xl font-bold align-middle">Practice Home</span>
+        <span className="text-xl font-bold align-middle">
+          Patient Home Location
+        </span>
         {showSuccessMessage && (
           <div className="text-green-700">{successMessage}</div>
         )}
@@ -122,18 +121,14 @@ export default function PracticeHomesPage() {
       </div>
       <hr className="h-px my-2.5 bg-gray-100 border-1 border-gray-100" />
       <div className="text-gray-50 w-full items-center bg-gray-50 py-4 rounded-lg">
-        <div className="bg-gradient-to-br from-teal-600 to-green-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 grid grid-cols-4 rounded-lg">
+        <div className="bg-gradient-to-br from-teal-600 to-green-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 grid grid-cols-3 rounded-lg">
           <div className="font-bold text-white p-4">S. No.</div>
-          <div className="font-bold text-white p-4">Practice Name</div>
-          <div className="font-bold text-white p-4">Practice Home</div>
+          <div className="font-bold text-white p-4">Patient Home Location</div>
           <div className="font-bold text-white p-4">Action</div>
           {practiceHomes.map((data, index) => (
             <React.Fragment key={data.id}>
               <div className="text-gray-900 bg-gray-50 pt-2 px-4">
                 {index + 1}
-              </div>
-              <div className="text-gray-900 bg-gray-50 pt-2 px-4">
-                {practiceName}
               </div>
               <div className="text-gray-900 bg-gray-50 pt-2 px-4">
                 {data.name}
@@ -177,7 +172,7 @@ export default function PracticeHomesPage() {
             paddingBottom: '8px',
           }}
         >
-          Add New Practice Home
+          Add New Patient Home Location
         </ModalHeader>
         <ModalBody>
           <AddPracticeHome onClose={handleCloseModal} />
@@ -206,7 +201,7 @@ export default function PracticeHomesPage() {
           Confirm Deletion
         </ModalHeader>
         <ModalBody>
-          Are you sure you want to delete this Practice Home?
+          Are you sure you want to delete this Patient Home Location?
         </ModalBody>
         <ModalFooter>
           <Button kind="primary" title="Delete" onClick={handleConfirmDelete}>

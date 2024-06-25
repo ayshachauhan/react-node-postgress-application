@@ -9,15 +9,17 @@ import React, { useState } from 'react';
 
 const AddInsuranceType: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const dispatch = useAppDispatch();
+  const [errorMessage, setErrorMessage] = useState('');
   const [insuranceType, setInsuranceType] = useState('');
   const practiceId = getPracticeId();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (practiceId) {
+    const trimmedInsuranceType = insuranceType.trim();
+    if (practiceId && trimmedInsuranceType !== '') {
       const insuranceTypePayload: CreateInsuranceTypeInterface = {
         practiceId,
-        name: insuranceType,
+        name: trimmedInsuranceType,
       };
       try {
         dispatch(addRecordAsync(insuranceTypePayload));
@@ -25,11 +27,18 @@ const AddInsuranceType: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       } catch (error) {
         onClose();
       }
+    } else {
+      setErrorMessage('Insurance type is required.');
     }
   };
 
   return (
     <div>
+      {errorMessage && (
+        <div className="flex justify-center text-red-500 mt-2">
+          {errorMessage}
+        </div>
+      )}
       <form onSubmit={handleSubmit}>
         <div className="space-y-1 pt-4">
           <label htmlFor="firstName" className="text-black text-sm">
@@ -43,6 +52,7 @@ const AddInsuranceType: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 value={insuranceType}
                 onChange={(value) => {
                   setInsuranceType(value);
+                  setErrorMessage('');
                 }}
                 required
               />

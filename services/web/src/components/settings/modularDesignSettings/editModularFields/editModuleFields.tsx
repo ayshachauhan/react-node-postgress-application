@@ -290,6 +290,7 @@ const EditModularField: React.FC<{
               </label>
               <Select
                 size={SIZE.mini}
+                backspaceClearsInputValue
                 options={surgeryTypeOptions}
                 onChange={handleSurgeryTypeChange}
                 value={

@@ -35,13 +35,11 @@ const ReferedPatients = ({ referrerId, withLoader }) => {
   const viewBillingColumn = useUserPermission(userPermissions, [
     USER_PERMISSIONS.VIEW_BILLING,
   ]);
-  const delay = (ms: number): Promise<void> =>
-    new Promise((resolve) => setTimeout(resolve, ms));
+
   useEffect(() => {
     if (practiceId !== null && referrerId !== null) {
       const loadData = async () => {
         await withLoader(async () => {
-          await delay(500); // Add a delay of 1 second
           await dispatch(
             fetchReferrerInfo({ id: referrerId, practiceId: practiceId }),
           );
@@ -108,10 +106,12 @@ const ReferedPatients = ({ referrerId, withLoader }) => {
                         : null}
                     </div>
                     <div className="text-gray-900 px-2 flex-1">
-                      {data.dateCreated ? formatDate(data.dateCreated) : 'NA'}
+                      {surgery.dateCreated
+                        ? formatDate(surgery.dateCreated)
+                        : 'NA'}
                     </div>
                     <div className="text-gray-900 px-2 flex-1">
-                      {surgery.dateCreated ? formatDate(surgery.date) : 'NA'}
+                      {surgery.date ? formatDate(surgery.date) : 'NA'}
                     </div>
                     <div className="text-gray-900 w-40">
                       {surgery?.surgeryConfiguration?.name || ''}
@@ -137,12 +137,12 @@ const ReferedPatients = ({ referrerId, withLoader }) => {
                         : null}
                     </div>
                     <div className="text-gray-900 px-2 flex-1">
-                      {data.dateCreated ? formatDate(data.dateCreated) : 'NA'}
+                      {evalEntity.dateCreated
+                        ? formatDate(evalEntity.dateCreated)
+                        : 'NA'}
                     </div>
                     <div className="text-gray-900 px-2 flex-1">
-                      {evalEntity.dateCreated
-                        ? formatDate(evalEntity.date)
-                        : 'NA'}
+                      {evalEntity.date ? formatDate(evalEntity.date) : 'NA'}
                     </div>
                     <div className="text-gray-900 w-40">
                       {evalEntity?.surgeryConfiguration?.name}

@@ -15,6 +15,7 @@ import { useAppDispatch, useAppSelector } from '@root/store';
 import { fetchLoggedInUser } from '@root/store/reducers/auth';
 import { fetchFilteredCalendars } from '@root/store/reducers/calendar';
 import {
+  clearData,
   clearSuccessMessage as clearEvalSuccessMessage,
   deleteRecordAsync,
   fetchEvalInfo,
@@ -95,6 +96,9 @@ const EvalPage: React.FC = () => {
   const viewHistory = useUserPermission(userPermissions, [
     USER_PERMISSIONS.VIEW_HX,
   ]);
+  useEffect(() => {
+    dispatch(clearData());
+  }, [dispatch, practiceId]);
   const { selectedMonth, selectedValue } = useAppSelector(
     (state) => state.surgeries.surgeryFilters,
   );
@@ -111,18 +115,18 @@ const EvalPage: React.FC = () => {
       const loadData = async () => {
         await withLoader(async () => {
           await dispatch(fetchEvalsList({ practiceId }));
-          await dispatch(fetchInsuranceTypesList({ practiceId }));
-          await dispatch(fetchPracticeHomesListing({ practiceId }));
-          await dispatch(fetchSurgeryTypesListing({ practiceId }));
-          await dispatch(fetchReferrerList({ practiceId }));
-          await dispatch(fetchUsersList({ practiceId }));
-          await dispatch(fetchSurgeryConfigurationsListing({ practiceId }));
-          await dispatch(fetchPatients({ practiceId }));
-          await dispatch(fetchWaitlist({ practiceId }));
         });
       };
 
       loadData();
+      dispatch(fetchInsuranceTypesList({ practiceId }));
+      dispatch(fetchPracticeHomesListing({ practiceId }));
+      dispatch(fetchSurgeryTypesListing({ practiceId }));
+      dispatch(fetchReferrerList({ practiceId }));
+      dispatch(fetchUsersList({ practiceId }));
+      dispatch(fetchSurgeryConfigurationsListing({ practiceId }));
+      dispatch(fetchPatients({ practiceId }));
+      dispatch(fetchWaitlist({ practiceId }));
     }
   }, [practiceId, dispatch, withLoader]);
 
@@ -132,25 +136,25 @@ const EvalPage: React.FC = () => {
         const loadData = async () => {
           await withLoader(async () => {
             dispatch(fetchEvalsList({ practiceId }));
-            dispatch(clearEvalSuccessMessage());
-            dispatch(fetchSurgeryConfigurationsListing({ practiceId }));
-            dispatch(fetchPatients({ practiceId }));
-            dispatch(fetchWaitlist({ practiceId }));
-            if (userId && loggedInUserId !== null) {
-              dispatch(
-                fetchFilteredCalendars({
-                  practiceId,
-                  userId,
-                  month,
-                  option: selectedValueStr,
-                  loggedInUserId,
-                }),
-              );
-            }
           });
         };
 
         loadData();
+        dispatch(clearEvalSuccessMessage());
+        dispatch(fetchSurgeryConfigurationsListing({ practiceId }));
+        dispatch(fetchPatients({ practiceId }));
+        dispatch(fetchWaitlist({ practiceId }));
+        if (userId && loggedInUserId !== null) {
+          dispatch(
+            fetchFilteredCalendars({
+              practiceId,
+              userId,
+              month,
+              option: selectedValueStr,
+              loggedInUserId,
+            }),
+          );
+        }
       }
     }
   }, [addEvalSuccessMessage, calendarSuccessMessage, dispatch]);
@@ -311,163 +315,164 @@ const EvalPage: React.FC = () => {
           </div>
           <div className="font-bold text-white">Action</div>
         </div>
-        {modifyEvalList.map((data) =>
-          selectedRow === data.id && selectedAction == 'edit' && evalInfo ? (
-            <EditableRow
-              key={data.id}
-              handleCancelClick={handleCancelClick}
-              evalInfo={evalInfo}
-              setSelectedAction={setSelectedAction}
-              withLoader={withLoader}
-            />
-          ) : (
-            <React.Fragment key={data.id}>
-              <div className="flex flex-row gap-4 bg-gray-50 px-2 py-0.5 text-center border-b-2">
-                <div
-                  className={`text-black  py-0.5 px-1 w-28  flex justify-around items-center`}
-                >
-                  <div>
-                    {viewHistory ? (
-                      <div
-                        onClick={() => handleViewHistory(data.patientId)}
-                        className="cursor-pointer underline"
-                      >
-                        {data.date}
+        {!isLoading &&
+          modifyEvalList.map((data) =>
+            selectedRow === data.id && selectedAction == 'edit' && evalInfo ? (
+              <EditableRow
+                key={data.id}
+                handleCancelClick={handleCancelClick}
+                evalInfo={evalInfo}
+                setSelectedAction={setSelectedAction}
+                withLoader={withLoader}
+              />
+            ) : (
+              <React.Fragment key={data.id}>
+                <div className="flex flex-row gap-4 bg-gray-50 px-2 py-0.5 text-center border-b-2">
+                  <div
+                    className={`text-black  py-0.5 px-1 w-28  flex justify-around items-center`}
+                  >
+                    <div>
+                      {viewHistory ? (
+                        <div
+                          onClick={() => handleViewHistory(data.patientId)}
+                          className="cursor-pointer underline"
+                        >
+                          {data.date}
+                        </div>
+                      ) : (
+                        <div>{data.date}</div>
+                      )}
+                    </div>
+                  </div>
+                  <div className="text-black  py-0.5 px-1 w-28  flex justify-around items-center">
+                    <div>{data.actionDate}</div>
+                  </div>
+                  <div className="text-black py-0.5 px-1 w-10 flex items-center justify-around">
+                    <div> {data.home[0]}</div>
+                  </div>
+                  <div className="text-gray-900 py-0.5 px-0.5 text-center flex justify-around items-center w-40">
+                    <div className="rounded-md text-white text-center px-1 bg-indigo-500">
+                      {data.status}
+                    </div>
+                  </div>
+                  <div className="flex flex-col w-max gap-4">
+                    <div className="flex flex-row gap-4 text-center">
+                      <div className="text-black py-0.5 px-1 overflow-hidden whitespace-nowrap w-20">
+                        {data.lastName}
                       </div>
-                    ) : (
-                      <div>{data.date}</div>
-                    )}
+                      <div className="text-black py-0.5 px-1 overflow-hidden whitespace-nowrap w-20">
+                        {data.firstName}
+                      </div>
+                      <div className="text-black py-0.5 px-1 overflow-hidden whitespace-nowrap w-20 pl-5">
+                        {data.mrn}
+                      </div>
+                      <div
+                        className="text-black py-0.5 px-1 w-40 overflow-hidden whitespace-nowrap"
+                        style={{ textOverflow: 'ellipsis' }}
+                      >
+                        {data.email}
+                      </div>
+                      <div className="text-black py-0.5 px-1 overflow-hidden whitespace-nowrap w-20">
+                        {data.surgeryConfigName}
+                      </div>
+                      <div className="text-black py-0.5 px-1 w-20">
+                        {data.bodyPart}
+                      </div>
+                      <div className="text-black py-0.5 px-1 w-40">
+                        {data.insuranceTypeName}
+                      </div>
+                    </div>
+                    <div className="flex flex-center gap-4 pl-5">
+                      <div className="text-black text-center font-semibold">
+                        Waitlist:{' '}
+                      </div>
+                      <div className="text-black">{data.waitlist}</div>
+                      <div className="text-black text-center font-semibold pl-12">
+                        Notes:{' '}
+                      </div>
+                      <div className="text-black">{data.notes}</div>
+                    </div>
                   </div>
-                </div>
-                <div className="text-black  py-0.5 px-1 w-28  flex justify-around items-center">
-                  <div>{data.actionDate}</div>
-                </div>
-                <div className="text-black py-0.5 px-1 w-10 flex items-center justify-around">
-                  <div> {data.home[0]}</div>
-                </div>
-                <div className="text-gray-900 py-0.5 px-0.5 text-center flex justify-around items-center w-40">
-                  <div className="rounded-md text-white text-center px-1 bg-indigo-500">
-                    {data.status}
-                  </div>
-                </div>
-                <div className="flex flex-col w-max gap-4">
-                  <div className="flex flex-row gap-4 text-center">
-                    <div className="text-black py-0.5 px-1 overflow-hidden whitespace-nowrap w-20">
-                      {data.lastName}
-                    </div>
-                    <div className="text-black py-0.5 px-1 overflow-hidden whitespace-nowrap w-20">
-                      {data.firstName}
-                    </div>
-                    <div className="text-black py-0.5 px-1 overflow-hidden whitespace-nowrap w-20 pl-5">
-                      {data.mrn}
-                    </div>
+                  <div className="flex flex-col text-black py-0.5 px-1 w-40 items-center">
                     <div
-                      className="text-black py-0.5 px-1 w-40 overflow-hidden whitespace-nowrap"
+                      className="text-black py-0.5 px-1 w-40 text-center overflow-hidden whitespace-nowrap"
                       style={{ textOverflow: 'ellipsis' }}
                     >
                       {data.email}
                     </div>
-                    <div className="text-black py-0.5 px-1 overflow-hidden whitespace-nowrap w-20">
-                      {data.surgeryConfigName}
+                    <div className="text-black py-0.5 px-1 w-20 text-center">
+                      {data.phoneNumber}
                     </div>
-                    <div className="text-black py-0.5 px-1 w-20">
-                      {data.bodyPart}
-                    </div>
-                    <div className="text-black py-0.5 px-1 w-40">
-                      {data.insuranceTypeName}
-                    </div>
-                  </div>
-                  <div className="flex flex-center gap-4 pl-5">
-                    <div className="text-black text-center font-semibold">
-                      Waitlist:{' '}
-                    </div>
-                    <div className="text-black">{data.waitlist}</div>
-                    <div className="text-black text-center font-semibold pl-12">
-                      Notes:{' '}
-                    </div>
-                    <div className="text-black">{data.notes}</div>
-                  </div>
-                </div>
-                <div className="flex flex-col text-black py-0.5 px-1 w-40 items-center">
-                  <div
-                    className="text-black py-0.5 px-1 w-40 text-center overflow-hidden whitespace-nowrap"
-                    style={{ textOverflow: 'ellipsis' }}
-                  >
-                    {data.email}
-                  </div>
-                  <div className="text-black py-0.5 px-1 w-20 text-center">
-                    {data.phoneNumber}
-                  </div>
-                  <div className="flex justify-center items-center  w-40 ">
-                    <div className="text-black py-0.5 px-1 text-center">
-                      referrer: {data.referrer}
-                    </div>
-                    <div>
-                      {data.referrerVerified && (
-                        <Checkbox
-                          checked={true}
-                          overrides={{
-                            Checkmark: {
-                              style: ({ $checked }) => ({
-                                backgroundColor: $checked
-                                  ? 'rgba(34, 197, 94, 1)'
-                                  : 'white',
-                                borderColor: $checked
-                                  ? 'rgba(34, 197, 94, 1)'
-                                  : 'rgba(113, 113, 122, 1)',
-                                width: '12px',
-                                height: '12px',
-                                borderRadius: '2px',
-                                borderWidth: '2px',
-                              }),
-                            },
-                          }}
-                        />
-                      )}
-                    </div>
-                  </div>
-                </div>
-                <div className="text-gray-900 flex flex-col gap-1">
-                  <div className="flex flex-row gap-1">
-                    {editCaseAllowed && (
-                      <div className="cursor-pointer ">
-                        <EditIcon
-                          style={{ cursor: 'pointer' }}
-                          onClick={() => handleEditClick(data.id)}
-                        ></EditIcon>
+                    <div className="flex justify-center items-center  w-40 ">
+                      <div className="text-black py-0.5 px-1 text-center">
+                        referrer: {data.referrer}
                       </div>
-                    )}
-                    <div className="cursor-pointer">
-                      {deleteCaseAllowed && (
-                        <DeleteIcon
-                          onClick={() => {
-                            setSelectedRow(data.id);
-                            handleOpenDeleteModal(data.id);
-                          }}
-                        />
-                      )}
+                      <div>
+                        {data.referrerVerified && (
+                          <Checkbox
+                            checked={true}
+                            overrides={{
+                              Checkmark: {
+                                style: ({ $checked }) => ({
+                                  backgroundColor: $checked
+                                    ? 'rgba(34, 197, 94, 1)'
+                                    : 'white',
+                                  borderColor: $checked
+                                    ? 'rgba(34, 197, 94, 1)'
+                                    : 'rgba(113, 113, 122, 1)',
+                                  width: '12px',
+                                  height: '12px',
+                                  borderRadius: '2px',
+                                  borderWidth: '2px',
+                                }),
+                              },
+                            }}
+                          />
+                        )}
+                      </div>
                     </div>
                   </div>
-                  {addCaseAllowed && (
-                    <Button
-                      disabled={data.status === EVAL_STATUS.Book}
-                      kind="secondary"
-                      title={
-                        data.status === EVAL_STATUS.Book
-                          ? 'Nurtured'
-                          : 'Nurture'
-                      }
-                      fontSize="10px"
-                      height={24}
-                      width={50}
-                      onClick={() => handleOpenBookSurgeryModal(data.id)}
-                    />
-                  )}
+                  <div className="text-gray-900 flex flex-col gap-1">
+                    <div className="flex flex-row gap-1">
+                      {editCaseAllowed && (
+                        <div className="cursor-pointer ">
+                          <EditIcon
+                            style={{ cursor: 'pointer' }}
+                            onClick={() => handleEditClick(data.id)}
+                          ></EditIcon>
+                        </div>
+                      )}
+                      <div className="cursor-pointer">
+                        {deleteCaseAllowed && (
+                          <DeleteIcon
+                            onClick={() => {
+                              setSelectedRow(data.id);
+                              handleOpenDeleteModal(data.id);
+                            }}
+                          />
+                        )}
+                      </div>
+                    </div>
+                    {addCaseAllowed && (
+                      <Button
+                        disabled={data.status === EVAL_STATUS.Book}
+                        kind="secondary"
+                        title={
+                          data.status === EVAL_STATUS.Book
+                            ? 'Nurtured'
+                            : 'Nurture'
+                        }
+                        fontSize="10px"
+                        height={24}
+                        width={50}
+                        onClick={() => handleOpenBookSurgeryModal(data.id)}
+                      />
+                    )}
+                  </div>
                 </div>
-              </div>
-            </React.Fragment>
-          ),
-        )}
+              </React.Fragment>
+            ),
+          )}
       </div>
       <AddEvalModal
         isSecondModalOpen={isAddModalOpen}

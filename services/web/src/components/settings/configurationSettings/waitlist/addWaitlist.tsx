@@ -11,10 +11,12 @@ const AddWaitlist: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const dispatch = useAppDispatch();
   const [waitlist, setWaitlist] = useState('');
   const practiceId = getPracticeId();
+  const [errorMessage, setErrorMessage] = useState('');
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (practiceId) {
+    const trimmedWaitlist = waitlist.trim();
+    if (practiceId && trimmedWaitlist !== '') {
       const waitlistPayload: CreateWaitlist = {
         practiceId,
         name: waitlist,
@@ -25,11 +27,18 @@ const AddWaitlist: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       } catch (error) {
         onClose();
       }
+    } else {
+      setErrorMessage('Waitlist is required.');
     }
   };
 
   return (
     <div>
+      {errorMessage && (
+        <div className="flex justify-center text-red-500 mt-2">
+          {errorMessage}
+        </div>
+      )}
       <form onSubmit={handleSubmit}>
         <div className="space-y-1 pt-4">
           <label htmlFor="firstName" className="text-black text-sm">
@@ -43,6 +52,7 @@ const AddWaitlist: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 value={waitlist}
                 onChange={(value) => {
                   setWaitlist(value);
+                  setErrorMessage('');
                 }}
                 required
               />
