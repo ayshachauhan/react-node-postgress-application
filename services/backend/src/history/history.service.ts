@@ -40,9 +40,6 @@ export class HistoryService {
         },
       },
       relations: ['practice', 'user'],
-      order: {
-        dateCreated: 'DESC',
-      },
     });
   }
 
