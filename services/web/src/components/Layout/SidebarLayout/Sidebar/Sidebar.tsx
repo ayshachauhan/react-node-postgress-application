@@ -124,7 +124,11 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapseChange }) => {
     >
       <div className="h-[168px] flex px-4 items-center justify-start">
         <Link href={is_super_admin ? '' : '/dashboard'}>
-          <img alt="Azentia" src="/images/azentia.svg" />
+          {!collapsed ? (
+            <img alt="Azentia" src="/images/azentia.svg" />
+          ) : (
+            <img alt="Azentia" src="/images/azentia_vertical.svg" />
+          )}
         </Link>
       </div>
 
