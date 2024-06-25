@@ -28,14 +28,14 @@ interface ChildProps {
   data: Data;
   onClose: () => void;
   withLoader: (func: () => Promise<void>) => Promise<void>;
-  showDateOffsetControl: () => boolean;
+  showDateOffsetControl: (v) => boolean;
 }
 
 const TemplateUpdatePage: React.FC<ChildProps> = ({
   data,
   onClose,
   withLoader,
-  //showDateOffsetControl,
+  showDateOffsetControl,
 }) => {
   const userInfo = useAppSelector((state) => state.auth.user);
   const userId = userInfo?.id;
@@ -81,7 +81,7 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({
   );
 
   const [showTooltip, setShowTooltip] = useState(false);
-  //const [showDateOffsetField, setShowDateOffsetField] = useState(false);
+  const [showDateOffsetField, setShowDateOffsetField] = useState(false);
   const [updatedTemplateInfo, setTemplateInfo] = useState<
     Partial<ITemplateUpdate>
   >({});
@@ -102,6 +102,7 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({
       };
 
       loadData();
+      setShowDateOffsetField(showDateOffsetControl(messageType));
     }
   }, [practiceId, userId, dispatch, withLoader]);
 
@@ -243,28 +244,31 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({
                 />
               </div>
             </div>
-            <div className="flex flex-row items-center gap-2">
-              <label
-                htmlFor="surgeryConfiguration"
-                className="text-black text-sm font-normal"
-              >
-                Date Offset:
-              </label>
-              <div className="w-56 text-sm text-gray-600">
-                <TextInput
-                  name="dateOffset"
-                  type="number"
-                  value={updatedTemplateInfo?.dateOffset}
-                  onChange={(value) => {
-                    setTemplateInfo({
-                      ...updatedTemplateInfo,
-                      dateOffset: Number(value),
-                    });
-                  }}
-                  required
-                />
+            {showDateOffsetField ? (
+              <div className="flex flex-row items-center gap-2">
+                <label
+                  htmlFor="surgeryConfiguration"
+                  className="text-black text-sm font-normal"
+                >
+                  Date Offset:
+                </label>
+                <div className="w-56 text-sm text-gray-600">
+                  <TextInput
+                    name="dateOffset"
+                    type="number"
+                    value={updatedTemplateInfo?.dateOffset}
+                    onChange={(value) => {
+                      setTemplateInfo({
+                        ...updatedTemplateInfo,
+                        dateOffset: Number(value),
+                      });
+                      setShowDateOffsetField(showDateOffsetControl(value));
+                    }}
+                    required
+                  />
+                </div>
               </div>
-            </div>
+            ) : null}
           </div>
         </div>
         <div className="flex gap-5 mt-2">
