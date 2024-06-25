@@ -206,6 +206,7 @@ export class PracticesService {
         name: practicePatchDto.name,
         status: practicePatchDto.status,
         code: practicePatchDto.code,
+        imgUrl: practicePatchDto.imgUrl,
       };
       const sanitizedUserPayload: Partial<UpdateUserDto> = {
         contactNumber: practicePatchDto.adminContactNumber,
