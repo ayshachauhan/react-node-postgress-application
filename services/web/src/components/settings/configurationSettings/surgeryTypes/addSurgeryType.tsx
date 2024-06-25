@@ -9,15 +9,17 @@ import React, { useState } from 'react';
 
 const AddSurgeryType: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const dispatch = useAppDispatch();
+  const [errorMessage, setErrorMessage] = useState('');
   const [surgeryType, setSurgeryType] = useState('');
   const practiceId = getPracticeId();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (practiceId) {
+    const trimmedSurgeryType = surgeryType.trim();
+    if (practiceId && trimmedSurgeryType !== '') {
       const surgeryTypePayload: SurgeryType = {
         practiceId,
-        name: surgeryType,
+        name: trimmedSurgeryType,
       };
       try {
         dispatch(addRecordAsync(surgeryTypePayload));
@@ -25,11 +27,18 @@ const AddSurgeryType: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       } catch (error) {
         onClose();
       }
+    } else {
+      setErrorMessage('Surgery Location is required.');
     }
   };
 
   return (
     <div>
+      {errorMessage && (
+        <div className="flex justify-center text-red-500 mt-2">
+          {errorMessage}
+        </div>
+      )}
       <form onSubmit={handleSubmit}>
         <div className="space-y-1 pt-4">
           <label htmlFor="firstName" className="text-black text-sm">
@@ -43,6 +52,7 @@ const AddSurgeryType: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 value={surgeryType}
                 onChange={(value) => {
                   setSurgeryType(value);
+                  setErrorMessage('');
                 }}
                 required
               />
