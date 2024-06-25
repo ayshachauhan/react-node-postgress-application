@@ -407,7 +407,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({ onClose, withLoader }) => {
                 &nbsp;Home
               </label>
               <Select
-                placeholder="Select Practice Home"
+                placeholder="Select patient home location"
                 backspaceClearsInputValue
                 size={SIZE.mini}
                 options={practiceHomesOptions}

@@ -5,7 +5,7 @@ import { CreatePracticeHomeInterface } from '.';
 const apiClient = new ApiService();
 
 /**
- * Get Practice homes by practice id
+ * Get Patient home locations by practice id
  * @param payloadData
  * @param param1
  * @returns IPracticeHomes[]
