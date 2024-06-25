@@ -13,7 +13,7 @@ import { useLoader } from '@root/hooks/useLoader';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { fetchLoggedInUser } from '@root/store/reducers/auth';
 import { fetchListings as fetchEvalsList } from '@root/store/reducers/evals';
-import { fetchHistory } from '@root/store/reducers/history';
+import { clearData, fetchHistory } from '@root/store/reducers/history';
 import { fetchListings as fetchSurgeryList } from '@root/store/reducers/surgery';
 import {
   formatColumnDate,
@@ -57,6 +57,10 @@ export default function HistoryTable() {
       surgeries: Object.values(state.surgeries.entities),
       surgerySuccessMessage: state.surgeries.successMessage,
     }));
+
+  useEffect(() => {
+    dispatch(clearData());
+  }, [dispatch, practiceId]);
 
   useEffect(() => {
     dispatch(fetchLoggedInUser());

@@ -28,6 +28,10 @@ const historySlice = createSlice({
     clearErrorMessage(state) {
       state.errorMessage = undefined;
     },
+    clearData(state) {
+      state.entities = {};
+      state.status = EntityLoadingState.IDLE;
+    },
   },
   extraReducers(builder) {
     builder.addCase(fetchHistory.pending, (state) => {
@@ -66,5 +70,6 @@ export const fetchHistory = createAsyncThunk(
   'calendar/fetchHistory',
   getHistory,
 );
+export const { clearData } = historySlice.actions;
 
 export default historySlice.reducer;

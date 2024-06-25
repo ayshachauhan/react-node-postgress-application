@@ -15,6 +15,7 @@ import { useAppDispatch, useAppSelector } from '@root/store';
 import { fetchLoggedInUser } from '@root/store/reducers/auth';
 import { fetchFilteredCalendars } from '@root/store/reducers/calendar';
 import {
+  clearData,
   clearSuccessMessage as clearEvalSuccessMessage,
   deleteRecordAsync,
   fetchEvalInfo,
@@ -95,6 +96,9 @@ const EvalPage: React.FC = () => {
   const viewHistory = useUserPermission(userPermissions, [
     USER_PERMISSIONS.VIEW_HX,
   ]);
+  useEffect(() => {
+    dispatch(clearData());
+  }, [dispatch, practiceId]);
   const { selectedMonth, selectedValue } = useAppSelector(
     (state) => state.surgeries.surgeryFilters,
   );
