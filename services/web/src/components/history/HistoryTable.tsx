@@ -171,7 +171,10 @@ export default function HistoryTable() {
     }
 
     return filteredHistoryLogs
-
+      .sort(
+        (a, b) =>
+          new Date(b.dateCreated).getTime() - new Date(a.dateCreated).getTime(),
+      )
       .map((history: IHistory) => {
         switch (history.entityType) {
           case HistoryType.SURGERY: {
@@ -197,11 +200,21 @@ export default function HistoryTable() {
       .flat();
   };
 
+  const sortHistoryDataByDate = (historyData: HistoryData[]): HistoryData[] => {
+    return historyData.sort((a, b) => {
+      return new Date(b.date).getTime() - new Date(a.date).getTime();
+    });
+  };
+  const getSortedHistoryData = (): HistoryData[] => {
+    const resolvedHistoryData = getResolvedHistoryData();
+    const sortedHistoryData = sortHistoryDataByDate(resolvedHistoryData);
+    return sortedHistoryData;
+  };
   return (
     <div className="my-4">
       {isLoading && <Loader />}
       <div className="flex justify-between border-gray-400">
-        <span className="text-xl font-bold">History</span>
+        <span className="text-xl font-bold">All History</span>
       </div>
       <hr className="h-px my-2.5 bg-gray-100 border-1 dark:bg-gray-700"></hr>
       {historyLogs && historyLogs.length > 0 && (
@@ -218,7 +231,7 @@ export default function HistoryTable() {
             <div className="font-bold text-white py-2 px-1 w-40">New</div>
             <div className="font-bold text-white py-2 px-1 w-40">IP</div>
           </div>
-          {getResolvedHistoryData().map((row, index) => (
+          {getSortedHistoryData().map((row, index) => (
             <div
               key={row.id}
               id={row.id}
