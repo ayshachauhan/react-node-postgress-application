@@ -102,6 +102,8 @@ export class PatientsService {
     await this.patientRepository.update(id, {
       firstName: data.firstName,
       lastName: data.lastName,
+      email: data.email,
+      phoneNumber: data.phoneNumber,
       mrn: data.mrn,
       details: data.details,
       referrer: data.referrer ? data.referrer : null,

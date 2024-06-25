@@ -44,6 +44,8 @@ function EditableRow({
         date: new Date(surgeryInfo.date),
         firstName: surgeryInfo.patient.firstName,
         lastName: surgeryInfo.patient.lastName,
+        email: surgeryInfo.patient.email,
+        phoneNumber: surgeryInfo.patient.phoneNumber,
         details: surgeryInfo.patient.details,
         bodyPart: surgeryInfo.bodyPart,
         mrn: surgeryInfo.patient.mrn,
@@ -134,6 +136,8 @@ function EditableRow({
         date: new Date(),
         firstName: '',
         lastName: '',
+        email: '',
+        phoneNumber: '',
         details: '',
         bodyPart: '',
         surgeryStatus: SurgeryStatus.PENDING,
@@ -551,18 +555,16 @@ function EditableRow({
             <div className="text-black py-0.5 px-1 w-40 text-center">
               <TextInput
                 name="hash"
-                value={surgeryInfo.patient.email}
-                disabled
-                onChange={() => ''}
+                value={obj.email}
+                onChange={(value) => handleObjChange('email', value)}
                 size={SIZE.mini}
               />
             </div>
             <div className="text-black py-0.5 px-1 w-40 text-center">
               <TextInput
                 name="hash"
-                value={surgeryInfo.patient.phoneNumber}
-                disabled
-                onChange={() => ''}
+                value={obj.phoneNumber}
+                onChange={(value) => handleObjChange('phoneNumber', value)}
                 size={SIZE.mini}
               />
             </div>
