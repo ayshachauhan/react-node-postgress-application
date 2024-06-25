@@ -28,12 +28,14 @@ interface ChildProps {
   data: Data;
   onClose: () => void;
   withLoader: (func: () => Promise<void>) => Promise<void>;
+  showDateOffsetControl: () => boolean;
 }
 
 const TemplateUpdatePage: React.FC<ChildProps> = ({
   data,
   onClose,
   withLoader,
+  //showDateOffsetControl,
 }) => {
   const userInfo = useAppSelector((state) => state.auth.user);
   const userId = userInfo?.id;
@@ -79,6 +81,7 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({
   );
 
   const [showTooltip, setShowTooltip] = useState(false);
+  //const [showDateOffsetField, setShowDateOffsetField] = useState(false);
   const [updatedTemplateInfo, setTemplateInfo] = useState<
     Partial<ITemplateUpdate>
   >({});

@@ -15,7 +15,8 @@ import RequiredIndicator from '../RequiredIndicator';
 const AddTemplateForm: React.FC<{
   onClose: () => void;
   withLoader: (func: () => Promise<void>) => Promise<void>;
-}> = ({ onClose, withLoader }) => {
+  showDateOffsetControl: (v: string) => boolean;
+}> = ({ onClose, withLoader, showDateOffsetControl }) => {
   const templateMessageTypeOptions = Object.keys(TemplateMessageType).map(
     (key) => ({
       label: key,
@@ -74,15 +75,7 @@ const AddTemplateForm: React.FC<{
   };
 
   const handleMsgTypeChange = ({ value }) => {
-    if (
-      value[0] &&
-      (value[0].label.toLowerCase().indexOf('preop') !== -1 ||
-        value[0].label.toLowerCase().indexOf('postop') !== -1)
-    ) {
-      setShowDateOffsetField(true);
-    } else {
-      setShowDateOffsetField(false);
-    }
+    setShowDateOffsetField(showDateOffsetControl(value[0].label));
     setMsgType(value[0] ? value[0].label : null);
   };
 

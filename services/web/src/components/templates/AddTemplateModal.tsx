@@ -6,6 +6,7 @@ const AddTemplateModal = ({
   isAddModalOpen,
   handleCloseAddModal,
   withLoader,
+  showDateOffsetControl,
 }) => {
   return (
     <BaseUIModal
@@ -13,7 +14,11 @@ const AddTemplateModal = ({
       onClose={handleCloseAddModal}
       title="Add New Template"
     >
-      <Form onClose={handleCloseAddModal} withLoader={withLoader} />
+      <Form
+        onClose={handleCloseAddModal}
+        withLoader={withLoader}
+        showDateOffsetControl={showDateOffsetControl}
+      />
     </BaseUIModal>
   );
 };
