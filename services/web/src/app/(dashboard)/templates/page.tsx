@@ -63,6 +63,16 @@ const Templates: React.FC = () => {
   const userInfo = useAppSelector((state) => state.auth.user);
   const userId = userInfo?.id;
 
+  const showDateOffsetControl = (value: string) => {
+    return (
+      value &&
+      (value.toLowerCase().indexOf('preop') !== -1 ||
+        value.toLowerCase().indexOf('preops') !== -1 ||
+        value.toLowerCase().indexOf('postops') !== -1 ||
+        value.toLowerCase().indexOf('postop') !== -1)
+    );
+  };
+
   useEffect(() => {
     dispatch(fetchLoggedInUser());
   }, [dispatch]);
@@ -288,6 +298,7 @@ const Templates: React.FC = () => {
         isAddModalOpen={isAddModalOpen}
         handleCloseAddModal={handleCloseAddModal}
         withLoader={withLoader}
+        showDateOffsetControl={showDateOffsetControl}
       />
       <UpdateTemplateModal
         isUpdateModalOpen={isUpdateModalOpen}
@@ -296,6 +307,7 @@ const Templates: React.FC = () => {
         messageType={messageType}
         versionOffset={versionOffset}
         withLoader={withLoader}
+        showDateOffsetControl={showDateOffsetControl}
       />
     </div>
   );
