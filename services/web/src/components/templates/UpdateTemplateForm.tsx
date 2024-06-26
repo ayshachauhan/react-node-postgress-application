@@ -90,11 +90,6 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({
     () => getRandomSurgeryData(filterUpcomingSurgeries(surgeries)),
     [],
   );
-  console.log({
-    surguriesData,
-    surgeries: filterUpcomingSurgeries(surgeries),
-    templateInfo,
-  });
 
   const surgeryConfigurationOptions = Object.values(surgeryConfigurations).map(
     (surgeryConfiguration) => ({
