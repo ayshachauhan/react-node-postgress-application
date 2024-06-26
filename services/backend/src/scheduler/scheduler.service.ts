@@ -37,12 +37,13 @@ export class SchedulerService {
     logger.info(`Found ${data.length} emails to send`);
 
     const promises = data.map(async (mailData: EmailLogEntity) => {
-      const { subject, pt_email_address, text, body, doc_email_address } =
+      const { subject, pt_email_address, text, body, doc_email_address, to } =
         mailData.data;
       const mailOptions: Mail.Options = {
         subject,
-        to:
-          doc_email_address && doc_email_address.trim() !== ''
+        to: to
+          ? to
+          : doc_email_address && doc_email_address.trim() !== ''
             ? doc_email_address
             : pt_email_address,
         text,

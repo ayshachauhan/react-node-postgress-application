@@ -73,6 +73,7 @@ export class EmailHandlerService {
           expectedDate: entity.date,
           status: 'pending',
           data: {
+            to: mailVariables.doc_email_address,
             subject: template.emailSubject
               ? this.mailVariableManipulator(template.emailSubject)
               : '',
@@ -136,6 +137,37 @@ export class EmailHandlerService {
       emailLogsEntries.push(entry);
     }
 
+    const { staffEmails } = practice.emailData;
+    if (staffEmails) {
+      const systemTemplateName = fromEval
+        ? SystemTemplates.NOTIFY_STAFF_EVAL_BOOKED
+        : SystemTemplates.NOTIFY_STAFF_SURGERY_BOOKED;
+
+      const subject: string = `A new ${
+        fromEval ? 'eval' : 'surgery'
+      } added to your practice ${practice.name}`;
+
+      const entry: Partial<IEmailLog> = {
+        practice: practice,
+        expectedDate: entity.date,
+        status: 'pending',
+        data: {
+          body: this.transporterService.readTemplates(systemTemplateName),
+          ...mailVariables,
+          subject,
+          text: '',
+        },
+      };
+
+      staffEmails.forEach((staffEmail: string) => {
+        const staffMailEntry: Partial<IEmailLog> = {
+          ...entry,
+          data: { ...entry.data, to: staffEmail },
+        };
+        emailLogsEntries.push(staffMailEntry);
+      });
+    }
+
     // creating entries for cron job
     const dbEmailLogEntries =
       await this.emailLogRepository.save(emailLogsEntries);
@@ -180,6 +212,7 @@ export class EmailHandlerService {
           expectedDate: entity.date,
           status: 'pending',
           data: {
+            to: mailVariables.pt_email_address,
             subject: template.emailSubject
               ? this.mailVariableManipulator(template.emailSubject)
               : '',
