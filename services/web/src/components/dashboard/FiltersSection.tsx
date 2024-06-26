@@ -3,6 +3,7 @@ import {
   ISurgeryConfiguration,
   MonthOption,
 } from '@packages/entities';
+import { ReviewStatus } from '@packages/entities/index.browser';
 import { USER_PERMISSIONS } from '@packages/entities/permission';
 import Button from '@root/components/Button';
 import {
@@ -18,6 +19,7 @@ import {
 import TextInput from '@root/components/TextInput';
 import { useUserPermission } from '@root/hooks/userHasPermission';
 import { useAppDispatch, useAppSelector } from '@root/store';
+import { sendReviewRequestAsyncThunk } from '@root/store/reducers/review';
 import {
   deleteRecordAsync,
   fetchListings,
@@ -50,6 +52,8 @@ const FiltersSection: React.FC<{
       successMessage: state.surgeries.successMessage,
     }),
   );
+  const [reviewErrorMessage, setReviewErrorMessage] = useState<string>('');
+  const [reviewSuccessMessage, setReviewSuccessMessage] = useState<string>('');
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [selectedAction, setSelectedAction] = useState<string | null>(null);
@@ -133,7 +137,10 @@ const FiltersSection: React.FC<{
 
   const actionIcons = (row) => (
     <div style={{ display: 'flex' }}>
-      <StarIcon style={{ marginRight: '4px', cursor: 'pointer' }} />
+      <StarIcon
+        style={{ marginRight: '4px', cursor: 'pointer' }}
+        onClick={() => handleSendReviewRequest(row)}
+      />
       <CopyIcon
         style={{ marginRight: '4px', cursor: 'pointer' }}
         onClick={() => handleCloneClick(row.id)}
@@ -261,6 +268,21 @@ const FiltersSection: React.FC<{
   const handleChangeMonth = ({ value }) => {
     dispatch(setSelectedMonth(value));
   };
+  const sendReqest = (id: string) => {
+    if (practiceId && id) {
+      try {
+        dispatch(
+          sendReviewRequestAsyncThunk({
+            practiceId,
+            id,
+          }),
+        );
+        setReviewSuccessMessage(`Request sent`);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  };
 
   const handleSearchMRNNameChange = (value: string) => {
     const mrn = value.toLowerCase();
@@ -271,6 +293,18 @@ const FiltersSection: React.FC<{
     if (practiceId) dispatch(fetchSurgeryInfo({ practiceId, id: rowId }));
     handleOpenAddModal();
     setSelectedRow(selectedRow === rowId ? null : rowId);
+  };
+
+  const handleSendReviewRequest = (row) => {
+    if (row.surgeryStatus === 'COMPLETED') {
+      if (row.review.id && row.review.reviewStatus === ReviewStatus.PENDING) {
+        sendReqest(row.review.id);
+      }
+    } else {
+      setReviewErrorMessage(
+        `This surgery is still in ${row.surgeryStatus}. So review request can’t be sent to the patient.`,
+      );
+    }
   };
 
   const handleOpenDeleteModal = (rowId: string): void => {
@@ -352,6 +386,30 @@ const FiltersSection: React.FC<{
   const isDisabled = selectedValue && selectedValue.toLowerCase() === 'past';
 
   useEffect(() => {
+    if (reviewErrorMessage) {
+      const timeout = setTimeout(() => {
+        setReviewErrorMessage('');
+      }, 1000);
+
+      return () => clearTimeout(timeout);
+    }
+
+    return undefined;
+  }, [reviewErrorMessage]);
+
+  useEffect(() => {
+    if (reviewSuccessMessage) {
+      const timeout2 = setTimeout(() => {
+        setReviewSuccessMessage('');
+      }, 1000);
+
+      return () => clearTimeout(timeout2);
+    }
+
+    return undefined;
+  }, [reviewSuccessMessage]);
+
+  useEffect(() => {
     if (
       addSurgerySuccessMessage &&
       addSurgerySuccessMessage === 'Surgery updated successfully.'
@@ -397,6 +455,30 @@ const FiltersSection: React.FC<{
     <div>
       {!isLoading && (
         <div>
+          {reviewErrorMessage && (
+            <div
+              style={{
+                backgroundColor: 'red',
+                color: 'white',
+                padding: '10px',
+                marginTop: '10px',
+              }}
+            >
+              {reviewErrorMessage}
+            </div>
+          )}
+          {reviewSuccessMessage && (
+            <div
+              style={{
+                backgroundColor: 'green',
+                color: 'white',
+                padding: '10px',
+                marginTop: '10px',
+              }}
+            >
+              {reviewSuccessMessage}
+            </div>
+          )}
           <div className="flex w-full bg-purple-50 px-2 border-t border-b border-gray-200 items-center">
             <div className="flex w-1/4 items-center">
               <div className="text-xl font-bold border-r border-gray-300 py-4 pr-4">
