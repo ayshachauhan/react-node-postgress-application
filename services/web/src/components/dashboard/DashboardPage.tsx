@@ -209,9 +209,7 @@ const DashboardPage: React.FC = () => {
                   width={75}
                   fontSize="12px"
                   onClick={handleOpenAddEvalModal}
-                  startEnhancer={() => (
-                    <AddIcon className="mt-2 " size={25}></AddIcon>
-                  )}
+                  startEnhancer={() => <AddIcon className=""></AddIcon>}
                 />
                 <Button
                   kind="secondary"
@@ -221,9 +219,7 @@ const DashboardPage: React.FC = () => {
                   fontSize="12px"
                   padding="2px"
                   onClick={handleOpenAddModal}
-                  startEnhancer={() => (
-                    <AddIcon className="mt-2" size={25}></AddIcon>
-                  )}
+                  startEnhancer={() => <AddIcon className=""></AddIcon>}
                 />
               </div>
             )}

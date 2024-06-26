@@ -377,13 +377,13 @@ const FiltersSection: React.FC<{
     <div>
       {!isLoading && (
         <div>
-          <div className="flex w-full bg-purple-50 px-2 border-t border-b border-gray-200 items-center">
+          <div className="flex w-full bg-purple-50 p-2 border-t border-b border-gray-200 items-center">
             <div className="flex w-1/4 items-center">
-              <div className="text-xl font-bold border-r border-gray-300 py-4 pr-4">
+              <div className="text-xl font-bold border-r border-gray-300 pr-4 mr-4">
                 Filters
               </div>
               {selectedMonth && selectedMonth.length > 0 && (
-                <div className="text-base font-bold p-4">
+                <div className="text-base font-bold">
                   {selectedMonth[0].label} 2024
                 </div>
               )}
@@ -398,8 +398,8 @@ const FiltersSection: React.FC<{
                     placeholder="Search MRN or Name"
                   />
                 </div>
-                <div className="bg-gradient-to-br from-teal-600 to-green-500 px-2 py-2 text-white flex items-center rounded-r-lg border-r border-gray-300">
-                  <SearchIcon size={20} />
+                <div className="bg-gradient-to-br from-teal-600 to-green-500 px-4 py-2 text-white flex items-center rounded-r-lg border-r border-gray-300">
+                  <SearchIcon />
                 </div>
               </div>
               <div>
@@ -465,6 +465,7 @@ const FiltersSection: React.FC<{
                   title="Reset"
                   onClick={resetFilters}
                   style={{
+                    padding: '10px',
                     backgroundColor: 'rgba(212, 212, 216, 1)',
                     color: 'black',
                   }}
@@ -507,7 +508,7 @@ const FiltersSection: React.FC<{
                                   backgroundColor: 'rgba(53, 165, 118, 1)',
                                 }}
                               ></div>
-                              <table>
+                              <table className="w-full">
                                 <thead>
                                   <tr>
                                     <th>Date</th>

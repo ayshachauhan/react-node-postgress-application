@@ -2,6 +2,37 @@
 @tailwind components;
 @tailwind utilities;
 
+/* width */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  box-shadow: inset 0 0 4px rgb(192, 192, 192);
+  border-radius: 10px;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background-image: linear-gradient(
+    to right,
+    rgb(53, 165, 118),
+    rgb(17, 113, 128)
+  );
+  border-radius: 10px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background-image: linear-gradient(
+    to right,
+    rgb(53, 165, 118),
+    rgb(17, 113, 128)
+  );
+}
+
 .btn-primary {
   @apply bg-gradient-to-r from-primary-light to-primary-dark;
 }
@@ -33,7 +64,7 @@
 }
 
 table {
-  @apply text-sm rounded-lg w-full;
+  @apply text-sm rounded-lg;
 }
 table thead {
   @apply bg-[#299479] font-normal;
