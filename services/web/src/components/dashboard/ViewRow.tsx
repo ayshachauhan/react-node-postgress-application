@@ -8,7 +8,7 @@ function ViewRow({ selectedSurgery, viewBillingColumn }) {
   return (
     <tr>
       <td colSpan={17}>
-        <div className="flex gap-2 p-2.5 text-xs border-b">
+        <div className="flex gap-4 p-2.5 text-xs border-b max-w-[1180px]">
           <div className="flex-1">
             <p>
               <span className="font-bold">Date: </span>

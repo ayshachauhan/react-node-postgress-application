@@ -233,188 +233,60 @@ function EditableRow({
             }
           />
         </td>
-        <td>
-          <div className="py-2 w-20">
-            <TextInput
-              size={SIZE.mini}
-              name="lastName"
-              value={obj.lastName}
-              onChange={(value) => handleObjChange('lastName', value)}
-            />
-          </div>
-          <div>
-            <div className="flex flex-center gap-4 items-center">
-              <div className="text-black text-center font-semibold w-20 pt-2">
-                Waitlist:{' '}
-              </div>
-            </div>
-          </div>
-        </td>
-        <td>
-          <div className="py-2 w-20">
-            <TextInput
-              size={SIZE.mini}
-              name="firstName"
-              value={obj.firstName}
-              onChange={(value) => handleObjChange('firstName', value)}
-            />
-          </div>
-          <div className=" w-20 pt-2">
-            <Select
-              options={waitlistOptions}
-              size={SIZE.mini}
-              onChange={handleWaitlistChange}
-              value={waitlistId ? [{ label: waitlistId, id: waitlistId }] : []}
-              overrides={{
-                ControlContainer: {
-                  style: {
-                    backgroundColor: 'rgba(250, 250, 250, 1)',
-                    border: 'none',
-                    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-                    color: '#52525B',
-                  },
-                },
-                ClearIcon: {
-                  component: () => null,
-                },
-              }}
-            />
-          </div>
-        </td>
-        <td className="w-20 py-2">
-          <TextInput
-            name="mrn"
-            type="number"
-            value={obj.mrn}
-            onChange={(value) => handleObjChange('mrn', value)}
-            size={SIZE.mini}
-          />
-        </td>
-        <td className="py-2 w-20">
-          <Select
-            backspaceRemoves={false}
-            escapeClearsValue={false}
-            disabled
-            options={surgeryConfigurationsOptions}
-            value={
-              surgeryInfo.surgeryConfiguration.id
-                ? [
-                    {
-                      id: surgeryInfo.surgeryConfiguration.id,
-                      label:
-                        surgeryConfigurationsList[
-                          surgeryInfo.surgeryConfiguration.id
-                        ].name,
-                    },
-                  ]
-                : []
-            }
-            onChange={({ value }) =>
-              handleObjChange('surgeryConfigurationId', value[0].id)
-            }
-            size={SIZE.mini}
-            overrides={{
-              ControlContainer: {
-                style: {
-                  backgroundColor: 'rgba(250, 250, 250, 1)',
-                  border: 'none',
-                  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-                  color: '#52525B',
-                },
-              },
-
-              ClearIcon: {
-                component: () => null,
-              },
-            }}
-          />
-        </td>
-        <td className="py-2 w-20">
-          <Select
-            backspaceRemoves={false}
-            options={surgeryConfiguration.bodyPart.map((ele) => ({
-              id: ele,
-              label: ele,
-            }))}
-            value={
-              obj.bodyPart
-                ? [{ id: obj.bodyPart, label: obj.bodyPart }]
-                : [{ id: 'd', label: 'r' }]
-            }
-            onChange={({ value }) => handleObjChange('bodyPart', value[0].id)}
-            size={SIZE.mini}
-            overrides={{
-              ControlContainer: {
-                style: {
-                  backgroundColor: 'rgba(250, 250, 250, 1)',
-                  border: 'none',
-                  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-                  color: '#52525B',
-                },
-              },
-
-              ClearIcon: {
-                component: () => null,
-              },
-            }}
-          />
-        </td>
-        <td>
-          {customOptionsHeaders.map((optionsHeader, optionsHeaderIndex) => {
-            const count = surgeryConfiguration.options[optionsHeader]?.count;
-
-            const optionCountSelect: JSX.Element[] = [];
-
-            for (let index = 0; index < count; index++) {
-              const selectOptionObj = obj.selectedSurgeryOptions
-                ? obj.selectedSurgeryOptions[`${optionsHeader}-${index}`]
-                : {
-                    id: '',
-                    value: '',
-                    hospitalPricing: 0,
-                    professionalPricing: 0,
-                  };
-
-              optionCountSelect.push(
-                <div key={index} className="">
+        <td className="p-0 w-[500px]">
+          <table className="w-full">
+            <tbody>
+              <tr>
+                <td className="w-3/12">
+                  <div className="">
+                    <TextInput
+                      size={SIZE.mini}
+                      name="lastName"
+                      value={obj.lastName}
+                      onChange={(value) => handleObjChange('lastName', value)}
+                    />
+                  </div>
+                </td>
+                <td className="w-3/12">
+                  <div className="">
+                    <TextInput
+                      size={SIZE.mini}
+                      name="firstName"
+                      value={obj.firstName}
+                      onChange={(value) => handleObjChange('firstName', value)}
+                    />
+                  </div>
+                </td>
+                <td className="w-2/12">
+                  <TextInput
+                    name="mrn"
+                    type="number"
+                    value={obj.mrn}
+                    onChange={(value) => handleObjChange('mrn', value)}
+                    size={SIZE.mini}
+                  />
+                </td>
+                <td className="w-2/12">
                   <Select
                     backspaceRemoves={false}
                     escapeClearsValue={false}
-                    key={optionsHeaderIndex}
-                    options={surgeryInfo.surgeryConfiguration.options[
-                      optionsHeader
-                    ]?.allowedValues?.map((ele) => {
-                      return {
-                        id: ele.name,
-                        label: ele.name,
-                        hospitalPricing: ele.hospitalPricing,
-                        professionalPricing: ele.professionalPricing,
-                      };
-                    })}
+                    disabled
+                    options={surgeryConfigurationsOptions}
                     value={
-                      selectOptionObj
+                      surgeryInfo.surgeryConfiguration.id
                         ? [
                             {
-                              id: selectOptionObj.value,
-                              value: selectOptionObj.value,
-                              hospitalPricing: selectOptionObj.hospitalPricing,
-                              professionalPricing:
-                                selectOptionObj.professionalPricing,
+                              id: surgeryInfo.surgeryConfiguration.id,
+                              label:
+                                surgeryConfigurationsList[
+                                  surgeryInfo.surgeryConfiguration.id
+                                ].name,
                             },
                           ]
                         : []
                     }
                     onChange={({ value }) =>
-                      handleObjChange('selectedSurgeryOptions', {
-                        ...obj.selectedSurgeryOptions,
-                        [`${optionsHeader}-${index}`]: {
-                          value: value[0].label,
-                        },
-                      })
-                    }
-                    disabled={
-                      !surgeryInfo.surgeryConfiguration.options[optionsHeader]
-                        ?.edit_admin_option
+                      handleObjChange('surgeryConfigurationId', value[0].id)
                     }
                     size={SIZE.mini}
                     overrides={{
@@ -432,27 +304,168 @@ function EditableRow({
                       },
                     }}
                   />
-                </div>,
-              );
-            }
-            return (
-              <div
-                className="py-2 w-20 flex flex-col gap-2 justify-center"
-                key={optionsHeaderIndex}
-              >
-                {optionCountSelect}
-              </div>
+                </td>
+                <td className="w-2/12">
+                  <Select
+                    backspaceRemoves={false}
+                    options={surgeryConfiguration.bodyPart.map((ele) => ({
+                      id: ele,
+                      label: ele,
+                    }))}
+                    value={
+                      obj.bodyPart
+                        ? [{ id: obj.bodyPart, label: obj.bodyPart }]
+                        : [{ id: 'd', label: 'r' }]
+                    }
+                    onChange={({ value }) =>
+                      handleObjChange('bodyPart', value[0].id)
+                    }
+                    size={SIZE.mini}
+                    overrides={{
+                      ControlContainer: {
+                        style: {
+                          backgroundColor: 'rgba(250, 250, 250, 1)',
+                          border: 'none',
+                          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                          color: '#52525B',
+                        },
+                      },
+
+                      ClearIcon: {
+                        component: () => null,
+                      },
+                    }}
+                  />
+                </td>
+              </tr>
+              <tr>
+                <td className="bg-white" colSpan={5}>
+                  <div className="">
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold">Waitlist: </span>
+                      <div className="">
+                        <Select
+                          options={waitlistOptions}
+                          size={SIZE.mini}
+                          onChange={handleWaitlistChange}
+                          value={
+                            waitlistId
+                              ? [{ label: waitlistId, id: waitlistId }]
+                              : []
+                          }
+                          overrides={{
+                            ControlContainer: {
+                              style: {
+                                backgroundColor: 'rgba(250, 250, 250, 1)',
+                                border: 'none',
+                                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                                color: '#52525B',
+                              },
+                            },
+                            ClearIcon: {
+                              component: () => null,
+                            },
+                          }}
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <span className="font-bold">Notes:</span>
+                      <TextInput
+                        size={SIZE.mini}
+                        name="details"
+                        value={obj.details}
+                        onChange={(value) => handleObjChange('details', value)}
+                      />
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </td>
+
+        {customOptionsHeaders.map((optionsHeader, optionsHeaderIndex) => {
+          const count = surgeryConfiguration.options[optionsHeader]?.count;
+
+          const optionCountSelect: JSX.Element[] = [];
+
+          for (let index = 0; index < count; index++) {
+            const selectOptionObj = obj.selectedSurgeryOptions
+              ? obj.selectedSurgeryOptions[`${optionsHeader}-${index}`]
+              : {
+                  id: '',
+                  value: '',
+                  hospitalPricing: 0,
+                  professionalPricing: 0,
+                };
+
+            optionCountSelect.push(
+              <div key={index} className="">
+                <Select
+                  backspaceRemoves={false}
+                  escapeClearsValue={false}
+                  key={optionsHeaderIndex}
+                  options={surgeryInfo.surgeryConfiguration.options[
+                    optionsHeader
+                  ]?.allowedValues?.map((ele) => {
+                    return {
+                      id: ele.name,
+                      label: ele.name,
+                      hospitalPricing: ele.hospitalPricing,
+                      professionalPricing: ele.professionalPricing,
+                    };
+                  })}
+                  value={
+                    selectOptionObj
+                      ? [
+                          {
+                            id: selectOptionObj.value,
+                            value: selectOptionObj.value,
+                            hospitalPricing: selectOptionObj.hospitalPricing,
+                            professionalPricing:
+                              selectOptionObj.professionalPricing,
+                          },
+                        ]
+                      : []
+                  }
+                  onChange={({ value }) =>
+                    handleObjChange('selectedSurgeryOptions', {
+                      ...obj.selectedSurgeryOptions,
+                      [`${optionsHeader}-${index}`]: {
+                        value: value[0].label,
+                      },
+                    })
+                  }
+                  disabled={
+                    !surgeryInfo.surgeryConfiguration.options[optionsHeader]
+                      ?.edit_admin_option
+                  }
+                  size={SIZE.mini}
+                  overrides={{
+                    ControlContainer: {
+                      style: {
+                        backgroundColor: 'rgba(250, 250, 250, 1)',
+                        border: 'none',
+                        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                        color: '#52525B',
+                      },
+                    },
+
+                    ClearIcon: {
+                      component: () => null,
+                    },
+                  }}
+                />
+              </div>,
             );
-          })}
-        </td>
-        <td className="py-2 w-20">
-          <TextInput
-            size={SIZE.mini}
-            name="details"
-            value={obj.details}
-            onChange={(value) => handleObjChange('details', value)}
-          />
-        </td>
+          }
+          return (
+            <td className="" key={optionsHeaderIndex}>
+              {optionCountSelect}
+            </td>
+          );
+        })}
         <td className="py-2 w-20">
           <TextInput
             type="number"

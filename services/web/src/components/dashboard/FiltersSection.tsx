@@ -26,7 +26,12 @@ import {
   setSelectedMonth,
   setSelectedValue,
 } from '@root/store/reducers/surgery';
-import { toFullName, toPascalCase, usDateFormatter } from '@root/utils';
+import {
+  getColorForSurgeryStatus,
+  toFullName,
+  toPascalCase,
+  usDateFormatter,
+} from '@root/utils';
 import { monthOptions } from '@root/utils/constants';
 import { Checkbox } from 'baseui/checkbox';
 import { Select } from 'baseui/select';
@@ -516,28 +521,30 @@ const FiltersSection: React.FC<{
                                       <HomeIcon></HomeIcon>
                                     </th>
                                     <th className="w-24">Status</th>
-                                    <th>Last Name</th>
-                                    <th>First Name</th>
-                                    <th>MRN</th>
-                                    <th>Surgery</th>
-                                    <th>Body Part</th>
-                                    <th>
-                                      {customOptionsHeaders &&
-                                        customOptionsHeaders.map(
-                                          (
-                                            optionsHeader,
-                                            optionsHeaderIndex,
-                                          ) => (
-                                            <span
-                                              className=""
-                                              key={optionsHeaderIndex}
-                                            >
-                                              {optionsHeader}
-                                            </span>
-                                          ),
-                                        )}
+                                    <th className="p-0 w-[500px]">
+                                      <table className="w-full">
+                                        <thead>
+                                          <th className="w-3/12">Last Name</th>
+                                          <th className="w-3/12">First Name</th>
+                                          <th className="w-2/12">MRN</th>
+                                          <th className="w-2/12">Surgery</th>
+                                          <th className="w-2/12">Body Part</th>
+                                        </thead>
+                                      </table>
                                     </th>
-                                    <th>Notes</th>
+
+                                    {customOptionsHeaders &&
+                                      customOptionsHeaders.map(
+                                        (optionsHeader, optionsHeaderIndex) => (
+                                          <th
+                                            className=""
+                                            key={optionsHeaderIndex}
+                                          >
+                                            {optionsHeader}
+                                          </th>
+                                        ),
+                                      )}
+
                                     <th>#</th>
                                     <th>
                                       {customCheckListHeaders &&
@@ -620,91 +627,120 @@ const FiltersSection: React.FC<{
                                           </td>
                                           <td className="">{row.home[0]}</td>
                                           <td className="">
-                                            <div className="rounded-md inline  text-center text-white p-1 bg-indigo-500 text-xs">
+                                            <div
+                                              className={`rounded-md inline-block text-white p-1 ${getColorForSurgeryStatus(
+                                                row.surgeryStatus.toUpperCase(),
+                                              )} text-xs`}
+                                            >
                                               {toPascalCase(row.surgeryStatus)}
                                             </div>
                                           </td>
-                                          <td>
-                                            <div className="">
-                                              {row.lastName}
-                                            </div>
-                                            <div className="font-semibold pt-4">
-                                              Waitlist:{' '}
-                                            </div>
-                                          </td>
-                                          <td>
-                                            <div className="">
-                                              {row.firstName}
-                                            </div>
-                                            <div className="pt-4">
-                                              {row.waitlist}
-                                            </div>
-                                          </td>
-                                          <td className="">
-                                            <div>
-                                              {viewHistory ? (
-                                                <div
-                                                  onClick={() =>
-                                                    handleViewHistory(
-                                                      row.patientId,
-                                                    )
-                                                  }
-                                                  className="cursor-pointer underline"
-                                                >
-                                                  {row.mrn}
-                                                </div>
-                                              ) : (
-                                                <div>{row.mrn}</div>
-                                              )}
-                                            </div>
-                                          </td>
-                                          <td className="">{row.surgery}</td>
-                                          <td className="">{row.bodyPart}</td>
-                                          <td>
-                                            {customOptionsHeaders.map(
-                                              (
-                                                optionsHeader,
-                                                optionsHeaderIndex,
-                                              ) => {
-                                                const elements: JSX.Element[] =
-                                                  [];
-                                                if (
-                                                  row[`${optionsHeader}-count`]
-                                                ) {
-                                                  for (
-                                                    let index = 0;
-                                                    index <
-                                                    row[
-                                                      `${optionsHeader}-count`
-                                                    ];
-                                                    index++
-                                                  ) {
-                                                    elements.push(
-                                                      <div
-                                                        className=""
-                                                        key={index}
-                                                      >
-                                                        {
-                                                          row[
-                                                            `${optionsHeader}-${index}`
-                                                          ]
-                                                        }
-                                                      </div>,
-                                                    );
-                                                  }
-                                                }
-                                                return (
-                                                  <div
-                                                    className="flex flex-col gap-1 justify-center"
-                                                    key={optionsHeaderIndex}
+                                          <td className="p-0 w-[500px]">
+                                            <table className="w-full">
+                                              <tbody>
+                                                <tr>
+                                                  <td className="w-3/12">
+                                                    <div className="">
+                                                      {row.lastName}
+                                                    </div>
+                                                  </td>
+                                                  <td className="w-3/12">
+                                                    <div className="">
+                                                      {row.firstName}
+                                                    </div>
+                                                  </td>
+                                                  <td className="w-2/12">
+                                                    <div>
+                                                      {viewHistory ? (
+                                                        <div
+                                                          onClick={() =>
+                                                            handleViewHistory(
+                                                              row.patientId,
+                                                            )
+                                                          }
+                                                          className="cursor-pointer underline"
+                                                        >
+                                                          {row.mrn}
+                                                        </div>
+                                                      ) : (
+                                                        <div>{row.mrn}</div>
+                                                      )}
+                                                    </div>
+                                                  </td>
+                                                  <td className="w-2/12">
+                                                    {row.surgery}
+                                                  </td>
+                                                  <td className="w-2/12">
+                                                    {row.bodyPart}
+                                                  </td>
+                                                </tr>
+                                                <tr>
+                                                  <td
+                                                    colSpan={5}
+                                                    className="bg-white"
                                                   >
-                                                    {elements}
-                                                  </div>
-                                                );
-                                              },
-                                            )}
+                                                    <div className="">
+                                                      <div>
+                                                        <span className="font-semibold">
+                                                          Waitlist:{' '}
+                                                        </span>
+                                                        {row.waitlist}
+                                                      </div>
+                                                      <div>
+                                                        <span className="font-semibold">
+                                                          Notes:{' '}
+                                                        </span>
+                                                        {row.details}
+                                                      </div>
+                                                    </div>
+                                                  </td>
+                                                </tr>
+                                              </tbody>
+                                            </table>
                                           </td>
-                                          <td className="">{row.details}</td>
+                                          {/* <td className=""> */}
+                                          {customOptionsHeaders.map(
+                                            (
+                                              optionsHeader,
+                                              optionsHeaderIndex,
+                                            ) => {
+                                              const elements: JSX.Element[] =
+                                                [];
+                                              if (
+                                                row[`${optionsHeader}-count`]
+                                              ) {
+                                                for (
+                                                  let index = 0;
+                                                  index <
+                                                  row[`${optionsHeader}-count`];
+                                                  index++
+                                                ) {
+                                                  elements.push(
+                                                    <div
+                                                      className=""
+                                                      key={index}
+                                                    >
+                                                      {
+                                                        row[
+                                                          `${optionsHeader}-${index}`
+                                                        ]
+                                                      }
+                                                    </div>,
+                                                  );
+                                                }
+                                              }
+                                              return (
+                                                <td
+                                                  className=""
+                                                  key={optionsHeaderIndex}
+                                                >
+                                                  {elements}
+                                                </td>
+                                              );
+                                            },
+                                          )}
+                                          {/* </td> */}
+
                                           <td className="">
                                             {row.surgeryOrder}
                                           </td>
