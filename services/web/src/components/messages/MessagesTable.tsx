@@ -168,6 +168,7 @@ export default function MessagesTable() {
 
   const resetFilters = (): void => {
     dispatch(setSearchMRNName(null));
+    setMrn('');
   };
 
   const handleSearchMRNNameChange = (value) => {
