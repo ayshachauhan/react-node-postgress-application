@@ -1,52 +1,105 @@
 'use client';
-import { EmailData, IEmailLog } from '@packages/entities';
+import {
+  EmailData,
+  IEmailLog,
+  IMediaConfig,
+  IPatient,
+  MediaType,
+} from '@packages/entities';
 import Button from '@root/components/Button';
 import { SearchIcon } from '@root/components/Icons';
-import TextInput from '@root/components/TextInput';
+import Loader from '@root/components/loader';
 import MessageWithReadMore from '@root/components/messages/MessageWithReadMore';
+import { useLoader } from '@root/hooks/useLoader';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { fetchLoggedInUser } from '@root/store/reducers/auth';
-import { fetchListings, setSearchMRNName } from '@root/store/reducers/messages';
+import {
+  fetchListings as fetchMedia,
+  sendMediaToPatientAsync,
+} from '@root/store/reducers/media';
+import {
+  clearData,
+  clearErrorMessage,
+  clearSuccessMessage,
+  fetchListings,
+  setSearchMRNName,
+} from '@root/store/reducers/messages';
+import { fetchListings as fetchPatients } from '@root/store/reducers/patient';
 import {
   formatColumnDate,
   formatHeaderDate,
   generateFullName,
+  getImageUrl,
   getPracticeId,
+  toFullName,
 } from '@utils/index';
+import { Checkbox } from 'baseui/checkbox';
+import { Select } from 'baseui/select';
+import Image from 'next/image';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+
+export interface customerMediaConfig extends IMediaConfig {
+  isChecked?: boolean;
+}
 
 export default function MessagesTable() {
   const [activeButton, setActiveButton] = useState<string | null>('All');
-  const toggleActive = (id: string) => {
+  const toggleActive = async (id: string) => {
     setActiveButton(id);
-    filterMessagesByType();
+    await withLoader(async () => {
+      const filteredData = await filterMessagesByType();
+      setFilteredData(filteredData);
+    });
   };
   const dispatch = useAppDispatch();
-  const messagesData: IEmailLog[] = useAppSelector((state) =>
-    Object.values(state.messages.entities),
+  const practiceId = getPracticeId();
+  const [mrn, setMrn] = useState<string>('');
+  const [patientInfo, setPatientInfo] = useState<IPatient>();
+  const [mediaConfigList, setMediaConfigList] = useState<customerMediaConfig[]>(
+    [],
   );
+
+  const [selectedPreviewMediaConfig, setSelectedPreviewMediaConfig] =
+    useState<IMediaConfig>();
+  const {
+    filteredMrn: { searchMRNName },
+    patientsList,
+    messagesData,
+    mediaList,
+  } = useAppSelector((state) => ({
+    filteredMrn: state.messages.messageFilters,
+    patientsList: Object.values(state.patients.entities),
+    messagesData: Object.values(state.messages.entities),
+    mediaList: Object.values(state.media.entities).filter(
+      (ele) => ele.mediaType == MediaType.PRACTICE && ele.mediaConfigs.length,
+    ),
+  }));
+  useEffect(() => {
+    dispatch(clearData());
+  }, [dispatch, practiceId]);
+
+  useEffect(() => {
+    if (practiceId !== null) {
+      dispatchFetchMessages(searchMRNNameStr);
+      dispatch(fetchPatients({ practiceId }));
+      dispatch(fetchMedia({ practiceId }));
+    }
+  }, [practiceId, dispatch]);
+
   const [filteredData, setFilteredData] = useState<IEmailLog[]>([]);
-  const filterMessagesByType = useCallback(() => {
+  const { isLoading, withLoader } = useLoader();
+  const filterMessagesByType = useCallback(async () => {
     if (!messagesData) return [];
 
     let filtered = [...messagesData];
 
     if (activeButton === 'Referrers') {
-      filtered = filtered.filter(
-        (row) =>
-          row.data?.body &&
-          row.data.body.trim() !== '' &&
-          row.data.body.toLowerCase().includes('referrer'),
-      );
-    }
-
-    if (activeButton === 'Emails') {
+      filtered = []; // Set filtered data to empty array for Referrers tab
+    } else if (activeButton === 'Emails') {
       filtered = filtered.filter(
         (row) => row.data?.body && row.data.body.trim() !== '',
       );
-    }
-
-    if (activeButton === 'Texts') {
+    } else if (activeButton === 'Texts') {
       filtered = filtered.filter(
         (row) => row.data?.text && row.data.text.trim() !== '',
       );
@@ -62,14 +115,18 @@ export default function MessagesTable() {
   }, [dispatch]);
 
   useEffect(() => {
-    const filteredData = filterMessagesByType();
-    if (
-      JSON.stringify(filteredData) !== JSON.stringify(filteredDataRef.current)
-    ) {
-      setFilteredData(filteredData);
-      filteredDataRef.current = filteredData;
-    }
-  }, [messagesData, filterMessagesByType]);
+    const updateFilteredData = async () => {
+      const filteredData = await filterMessagesByType();
+      if (
+        JSON.stringify(filteredData) !== JSON.stringify(filteredDataRef.current)
+      ) {
+        setFilteredData(filteredData);
+        filteredDataRef.current = filteredData;
+      }
+    };
+
+    updateFilteredData();
+  }, [messagesData, filterMessagesByType, filteredDataRef]);
 
   const [groupedMessagesByDate, setGroupedMessagesByDate] = useState<{
     [date: string]: IEmailLog[];
@@ -92,7 +149,7 @@ export default function MessagesTable() {
       {},
     );
   };
-
+  const [showErrorMessage, setShowErrorMessage] = useState(false);
   useEffect(() => {
     const newMessageDataByDate = generateMessageDataByDate(filteredData);
     setGroupedMessagesByDate(newMessageDataByDate);
@@ -111,15 +168,31 @@ export default function MessagesTable() {
 
   const resetFilters = (): void => {
     dispatch(setSearchMRNName(null));
+    setMrn('');
   };
-  const practiceId = getPracticeId();
-  const { searchMRNName } = useAppSelector(
-    (state) => state.messages.messageFilters,
-  );
 
-  const handleSearchMRNNameChange = (value: string) => {
-    const mrn = value.toLowerCase();
-    dispatch(setSearchMRNName(mrn));
+  const handleSearchMRNNameChange = (value) => {
+    if (value) {
+      const selectedMrn = value.id;
+      setMrn(selectedMrn);
+      const selectedPatient = patientsList.find(
+        (patient) => patient.mrn == selectedMrn,
+      );
+      if (selectedPatient) {
+        setPatientInfo(selectedPatient);
+      }
+      const updatedMediaConfigList: IMediaConfig[] = [];
+      mediaList.forEach((ele) => {
+        updatedMediaConfigList.push(...ele.mediaConfigs);
+      });
+      setMediaConfigList([...updatedMediaConfigList]);
+      setSelectedPreviewMediaConfig(updatedMediaConfigList[0]);
+
+      dispatch(setSearchMRNName(selectedMrn));
+    } else {
+      setMrn('');
+      resetFilters();
+    }
   };
 
   const convertVariables = (
@@ -130,7 +203,10 @@ export default function MessagesTable() {
     if (emailInfo) {
       // Replace each placeholder with the corresponding value from emailInfo
       Object.keys(emailInfo).forEach((key) => {
-        const value = emailInfo[key as keyof EmailData] ?? '';
+        let value = emailInfo[key as keyof EmailData] ?? '';
+        if (key === 'surgery_date') {
+          value = formatHeaderDate(value);
+        }
         const regex = new RegExp(`{{${key}}}`, 'g');
         convertedBody = convertedBody.replace(regex, value);
       });
@@ -139,13 +215,11 @@ export default function MessagesTable() {
   };
 
   const searchMRNNameStr = searchMRNName || '';
-
-  useEffect(() => {
-    if (practiceId !== null) {
-      dispatchFetchMessages(searchMRNNameStr);
-    }
-  }, [practiceId, dispatch]);
-
+  const { successMessage, errorMessage } = useAppSelector((state) => ({
+    successMessage: state.messages.successMessage,
+    errorMessage: state.messages.errorMessage,
+  }));
+  const [showModal, setShowModal] = useState(false);
   useEffect(() => {
     if (practiceId != null) {
       dispatchFetchMessages(searchMRNNameStr);
@@ -154,27 +228,109 @@ export default function MessagesTable() {
 
   const dispatchFetchMessages = (searchMRNName: string) => {
     if (practiceId != null) {
-      dispatch(
-        fetchListings({
-          practiceId,
-          searchMRNName,
-        }),
-      );
+      const loadData = async () => {
+        await withLoader(async () => {
+          await dispatch(
+            fetchListings({
+              practiceId,
+              searchMRNName,
+            }),
+          );
+        });
+      };
+      loadData();
     }
   };
 
+  const handleSelectedVideoCheckBox = (index: number) => {
+    mediaConfigList[index] = {
+      ...mediaConfigList[index],
+      isChecked: !mediaConfigList[index].isChecked,
+    };
+
+    setMediaConfigList([...mediaConfigList]);
+  };
+
+  const handleSendVideoButton = () => {
+    if (practiceId && mrn) {
+      const selectedMediaConfigList: string[] = mediaConfigList
+        .filter((ele) => ele.isChecked)
+        .map((ele) => ele.url);
+      dispatch(
+        sendMediaToPatientAsync({
+          practiceId,
+          data: {
+            mrn,
+            links: selectedMediaConfigList,
+          },
+        }),
+      );
+
+      resetFilters();
+      setMrn('');
+    }
+  };
+
+  const handlePreviewMediaConfig = (id: string) => {
+    const selectedConfig = mediaConfigList.find((ele) => ele.id === id);
+    if (selectedConfig) setSelectedPreviewMediaConfig(selectedConfig);
+  };
+  useEffect(() => {
+    let timer;
+    if (successMessage) {
+      setShowModal(true);
+      timer = setTimeout(() => {
+        setShowModal(false);
+        dispatch(clearSuccessMessage());
+      }, 2000);
+    }
+    if (errorMessage) {
+      setShowErrorMessage(true);
+      timer = setTimeout(() => {
+        setShowErrorMessage(false);
+        dispatch(clearErrorMessage());
+      }, 2000);
+    }
+    return () => {
+      if (timer) {
+        clearTimeout(timer);
+      }
+    };
+  }, [successMessage, errorMessage, dispatch]);
+
   return (
     <div className="mt-4 mb-8">
+      {isLoading && <Loader />}
       <div className="flex justify-between border-gray-400">
         <span className="text-xl font-bold">
           All Messages({messagesData.length})
         </span>
-        <div className="flex items-center">
-          <TextInput
-            name="search"
-            value={searchMRNName || ''}
-            onChange={handleSearchMRNNameChange}
+        {showModal && <div className="text-green-700">{successMessage}</div>}
+        {showErrorMessage && <div className="text-red-700">{errorMessage}</div>}
+        <div className="flex items-center w-2/4">
+          <Select
+            backspaceClearsInputValue
+            backspaceRemoves
+            value={mrn ? [{ id: mrn, label: mrn }] : [{ id: '', label: '' }]}
+            onChange={({ value }) => handleSearchMRNNameChange(value[0])}
+            options={patientsList.map((patient) => ({
+              id: patient.mrn,
+              label: `${patient.lastName}, ${patient.firstName} | ${patient.mrn}`,
+            }))}
             placeholder="Search MRN or Name"
+            overrides={{
+              ControlContainer: {
+                style: {
+                  backgroundColor: 'rgba(250, 250, 250, 1)',
+                  border: 'none',
+                  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                  color: '#52525B',
+                },
+              },
+              ClearIcon: {
+                component: () => null,
+              },
+            }}
           />
           <div className="bg-gradient-to-br from-teal-600 to-green-500 text-white px-2 py-2.5 items-center rounded-r-lg border-r border-gray-300">
             <SearchIcon size={20}></SearchIcon>
@@ -193,129 +349,219 @@ export default function MessagesTable() {
           />
         </div>
       </div>
-      <hr className="h-px my-2.5 bg-gray-100 border-1 dark:bg-gray-700"></hr>
-      <div className="flex w-full bg-green-50 pr-2 border-b border-green-200 items-center">
-        <div className="flex items-center">
-          {['All', 'Emails', 'Texts', 'Referrers'].map((item) => (
-            <div className="mr-1" key={item}>
-              <button
-                className="py-2 px-4 text-xs text-black text-normal border-b-2 border-transparent hover:text-white hover:bg-gradient-to-r from-primary-light to-primary-dark hover:rounded-t-lg"
-                style={{
-                  ...(activeButton === item && {
-                    backgroundImage:
-                      'linear-gradient(to right, rgba(53, 165, 118, 1), rgba(17, 113, 128, 1))',
-                    color: 'white',
-                    borderTopLeftRadius: '0.5rem',
-                    borderTopRightRadius: '0.5rem',
-                  }),
-                }}
-                onClick={() => toggleActive(item)}
-              >
-                {item}
-              </button>
-            </div>
-          ))}
-        </div>
-      </div>
-      {Object.keys(sortedMessagesByDate).length !== 0 ? (
-        <div className="w-full overflow-x-auto mt-2 border rounded-t-lg rounded-b-lg border-gray-200">
-          {Object.entries(sortedMessagesByDate).length > 0 ? (
-            Object.entries(sortedMessagesByDate).map(
-              ([date, records], index) => (
-                <div key={date}>
-                  <div
-                    className={`border-solid px-2.5 py-3 text-white text-base font-normal ${
-                      index == 0 ? 'rounded-t-lg' : ''
-                    }`}
-                    style={{ backgroundColor: 'rgba(53, 165, 118, 1)' }}
-                  >
-                    {formatHeaderDate(date)}
-                  </div>
-                  <div className="bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 flex justify-between py-2 px-2.5 text-sm">
-                    <div className="font-bold text-white py-2 px-1 min-w-[10rem]">
-                      Date | Time
-                    </div>
-                    <div className="font-bold text-white py-2 px-1 min-w-[10rem]">
-                      Surgery
-                    </div>
-                    <div className="font-bold text-white py-2 px-1 min-w-[10rem]">
-                      Patient
-                    </div>
-                    <div className="font-bold text-white py-2 px-1 min-w-[5rem]">
-                      MRN
-                    </div>
-                    <div className="font-bold text-white py-2 px-1 min-w-[10rem]">
-                      Contact Details
-                    </div>
-                    {activeButton !== 'Texts' && (
-                      <div className="font-bold text-white py-2 px-1 min-w-[20rem] max-w-[20rem]">
-                        Email
-                      </div>
-                    )}
-                    {activeButton !== 'Emails' && (
-                      <div className="font-bold text-white py-2 px-1 min-w-[20rem] max-w-[20rem]">
-                        Text
-                      </div>
-                    )}
-                  </div>
-                  {records.map((row, index) => (
-                    <div
-                      key={row.id}
-                      id={row.id}
-                      className={`div-clone flex justify-between px-2.5 text-xs ${
-                        index !== records.length - 1
-                          ? 'border-b border-gray-300'
-                          : ''
-                      }`}
-                    >
-                      <div className="text-black  pt-2 pb-2 px-1 min-w-[10rem]">
-                        {formatColumnDate(row.dateCreated)}
-                      </div>
-                      <div className="text-black  pt-2 pb-2 px-1 min-w-[10rem]">
-                        {row?.data?.Laterality} {row?.data?.surgery_type}
-                      </div>
-                      <div className="text-black  pt-2 pb-2 px-1 min-w-[10rem]">
-                        {row
-                          ? generateFullName(
-                              row?.data?.fname ?? '',
-                              row?.data?.lname ?? '',
-                            )
-                          : null}
-                      </div>
-                      <div className="text-black  pt-2 pb-2 px-1 min-w-[5rem]">
-                        {row?.data?.mrn}
-                      </div>
-                      <div className="text-black  pt-2 pb-2 px-1 overflow-hidden min-w-[10rem]">
-                        <p>Cell: {row?.data?.phoneNumber}</p>
-                        <p>Email: {row?.data?.pt_email_address}</p>
-                      </div>
-                      {activeButton !== 'Texts' && (
-                        <MessageWithReadMore
-                          message={convertVariables(
-                            row?.data?.body ?? '',
-                            row?.data,
-                          )}
-                        />
-                      )}
-                      {activeButton !== 'Emails' && (
-                        <MessageWithReadMore message={row?.data?.text ?? ''} />
-                      )}
-                    </div>
-                  ))}
+      {mrn && patientInfo ? (
+        <div>
+          <div className="bg-green-50 border-b border-green-200 ">
+            <hr className="h-px my-2.5 bg-gray-100 border-1 dark:bg-gray-700"></hr>
+            <div className="bg-green-50">
+              <div className="flex w-full bg-green-50 pr-2 items-center justify-around p-2 flex-col">
+                <div className="text-xl font-bold">
+                  {toFullName(patientInfo)}
                 </div>
-              ),
-            )
-          ) : (
-            <div className="p-2 text-center text-sm text-black">
-              {' '}
-              No records found.
+                <div className="text-lg">Cell: {patientInfo.phoneNumber}</div>
+                <div className="text-lg">Email: {patientInfo.email}</div>
+              </div>
+            </div>
+            <div className="p-2">
+              {mediaConfigList.map((ele, configIndex) => {
+                return (
+                  <div className="flex flex-col" key={configIndex}>
+                    <div className="flex flex-row items-center">
+                      <div>
+                        <Checkbox
+                          checked={ele.isChecked}
+                          onChange={() =>
+                            handleSelectedVideoCheckBox(configIndex)
+                          }
+                        />
+                      </div>
+                      <div className="p-2">{ele.title}</div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            <div className="pb-2 flex items-center justify-around">
+              <Button
+                onClick={handleSendVideoButton}
+                type="button"
+                kind="tertiary"
+                title="Send Video"
+                height={30}
+                style={{
+                  backgroundColor: 'rgba(212, 212, 216, 1)',
+                  color: 'black',
+                  marginLeft: '20px',
+                  padding: '10px 15px 10px 15px',
+                }}
+              />
+            </div>
+          </div>
+          <div className="mt-2 pl-3 bg-gray-100 border-1 flex flex-row ">
+            <div className="w-1/2 border-2 rounded-xl border-gray-700  mt-2 ">
+              {mediaConfigList.map((ele, i) => {
+                return (
+                  <div
+                    className="flex flex-col items-center justify-around border-b-2 border-gray-300 mx-2"
+                    key={i}
+                  >
+                    <div
+                      className="p-0.5 flex justify-around"
+                      onClick={() => handlePreviewMediaConfig(ele.id)}
+                    >
+                      {ele.title}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="pl-2 w-1/2 justify-around h-fit">
+              {selectedPreviewMediaConfig ? (
+                <div className="flex justify-around">
+                  <React.Fragment key={selectedPreviewMediaConfig.id}>
+                    <div className="rounded-lg shadow-sm p-1 h-190x` relative">
+                      <div style={{ cursor: 'pointer' }}>
+                        <Image
+                          src={getImageUrl(selectedPreviewMediaConfig?.url)}
+                          className="rounded-lg"
+                          alt="External image description"
+                          width={420}
+                          height={190}
+                        />
+                        <div className="text-gray-900 pt-2 flex justify-around">
+                          <div>{selectedPreviewMediaConfig.title}</div>
+                        </div>
+                      </div>
+                    </div>
+                  </React.Fragment>
+                </div>
+              ) : null}
+            </div>
+          </div>
+        </div>
+      ) : null}
+      <hr className="h-px my-1.5 bg-gray-100 border-1 dark:bg-gray-700"></hr>
+      {!isLoading && (
+        <div>
+          <div className="flex w-full bg-green-50 pr-2 border-b border-green-200 items-center">
+            <div className="flex items-center">
+              {['All', 'Emails', 'Texts', 'Referrers'].map((item) => (
+                <div className="mr-1" key={item}>
+                  <button
+                    className="py-2 px-4 text-xs text-black text-normal border-b-2 border-transparent hover:text-white hover:bg-gradient-to-r from-primary-light to-primary-dark hover:rounded-t-lg"
+                    style={{
+                      ...(activeButton === item && {
+                        backgroundImage:
+                          'linear-gradient(to right, rgba(53, 165, 118, 1), rgba(17, 113, 128, 1))',
+                        color: 'white',
+                        borderTopLeftRadius: '0.5rem',
+                        borderTopRightRadius: '0.5rem',
+                      }),
+                    }}
+                    onClick={() => toggleActive(item)}
+                  >
+                    {item}
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+          {Object.keys(sortedMessagesByDate).length !== 0 && (
+            <div className="w-full overflow-x-auto mt-2 border rounded-t-lg rounded-b-lg border-gray-200">
+              {Object.entries(sortedMessagesByDate).length > 0 &&
+                Object.entries(sortedMessagesByDate).map(
+                  ([date, records], index) => (
+                    <div key={date}>
+                      <div
+                        className={`border-solid px-2.5 py-3 text-white text-base font-normal ${
+                          index == 0 ? 'rounded-t-lg' : ''
+                        }`}
+                        style={{ backgroundColor: 'rgba(53, 165, 118, 1)' }}
+                      >
+                        {formatHeaderDate(date)}
+                      </div>
+                      <div className="bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 flex justify-between py-2 px-2.5 text-sm">
+                        <div className="font-bold text-white py-2 px-1 min-w-[10rem]">
+                          Date | Time
+                        </div>
+                        <div className="font-bold text-white py-2 px-1 min-w-[10rem]">
+                          Surgery
+                        </div>
+                        <div className="font-bold text-white py-2 px-1 min-w-[10rem]">
+                          Patient
+                        </div>
+                        <div className="font-bold text-white py-2 px-1 min-w-[5rem]">
+                          MRN
+                        </div>
+                        <div className="font-bold text-white py-2 px-1 min-w-[10rem]">
+                          Contact Details
+                        </div>
+                        {activeButton !== 'Texts' && (
+                          <div className="font-bold text-white py-2 px-1 min-w-[20rem] max-w-[20rem]">
+                            Email
+                          </div>
+                        )}
+                        {activeButton !== 'Emails' && (
+                          <div className="font-bold text-white py-2 px-1 min-w-[20rem] max-w-[20rem]">
+                            Text
+                          </div>
+                        )}
+                      </div>
+                      {records.map((row, index) => (
+                        <div
+                          key={row.id}
+                          id={row.id}
+                          className={`div-clone flex justify-between px-2.5 text-xs ${
+                            index !== records.length - 1
+                              ? 'border-b border-gray-300'
+                              : ''
+                          }`}
+                        >
+                          <div className="text-black  pt-2 pb-2 px-1 min-w-[10rem]">
+                            {formatColumnDate(row.dateCreated)}
+                          </div>
+                          <div className="text-black  pt-2 pb-2 px-1 min-w-[10rem]">
+                            {row?.data?.Laterality} {row?.data?.surgery_type}
+                          </div>
+                          <div className="text-black  pt-2 pb-2 px-1 min-w-[10rem]">
+                            {row
+                              ? generateFullName(
+                                  row?.data?.fname ?? '',
+                                  row?.data?.lname ?? '',
+                                )
+                              : null}
+                          </div>
+                          <div className="text-black  pt-2 pb-2 px-1 min-w-[5rem]">
+                            {row?.data?.mrn}
+                          </div>
+                          <div className="text-black  pt-2 pb-2 px-1 overflow-hidden min-w-[10rem]">
+                            <p>Cell: {row?.data?.phoneNumber}</p>
+                            <p>Email: {row?.data?.pt_email_address}</p>
+                          </div>
+                          {activeButton !== 'Texts' && (
+                            <MessageWithReadMore
+                              message={convertVariables(
+                                row?.data?.body ?? '',
+                                row?.data,
+                              )}
+                            />
+                          )}
+                          {activeButton !== 'Emails' && (
+                            <MessageWithReadMore
+                              message={convertVariables(
+                                row?.data?.text ?? '',
+                                row?.data,
+                              )}
+                            />
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  ),
+                )}
             </div>
           )}
-        </div>
-      ) : (
-        <div className="p-2 text-center text-sm text-black">
-          {' '}
-          No records found.
         </div>
       )}
     </div>

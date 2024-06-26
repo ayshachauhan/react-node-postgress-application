@@ -4,6 +4,7 @@ import { IPatient } from '../patient';
 import { IPracticeHomes } from '../practiceHomes';
 import { ISurgeryConfiguration } from '../surgeryConfiguration';
 import { ISanitizedUser } from '../user';
+import { IWaitlist } from '../waitlist';
 export interface IEval extends IBaseEntity {
   practiceHome: IPracticeHomes;
   surgeryConfiguration: ISurgeryConfiguration;
@@ -14,6 +15,7 @@ export interface IEval extends IBaseEntity {
   status: string;
   bodyPart: string;
   doctor: ISanitizedUser;
+  waitlist: IWaitlist;
 }
 
 export interface CreateEvalInterface {
@@ -34,6 +36,7 @@ export interface CreateEvalInterface {
   status: string;
   bodyPart: string;
   doctorId: string;
+  waitlistId?: string;
 }
 
 export interface UpdateEValInterface {
@@ -49,4 +52,7 @@ export interface UpdateEValInterface {
   email: string;
   phoneNumber: string;
   status: string;
+  referrerId?: string;
+  waitlistId?: string;
+  practiceHomeId: string;
 }

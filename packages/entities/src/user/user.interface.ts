@@ -11,6 +11,7 @@ export interface IUser extends IBaseEntity {
   lastName: string;
   fullName: string;
   url: string;
+  designation: string;
   status: UserStatus;
   type: UserType;
   contactNumber: string;
@@ -20,6 +21,7 @@ export interface IUser extends IBaseEntity {
   permissionIds?: string[];
   surgeries: ISurgery[];
   imgUrl?: string;
+  permissionsUpdated?: boolean;
 }
 
 export enum UserType {
@@ -33,6 +35,20 @@ export enum UserStatus {
   ACTIVE = 'active',
   INACTIVE = 'inactive',
   PENDING = 'pending',
+}
+
+export enum UserDesignation {
+  MANAGER = 'Manager',
+  ADMIN = 'Admin',
+  PHYSICIAN = 'Physician',
+  PHYSICIAN_ASSISTANT = 'Physician Assistant',
+  TECHNICIAN = 'Technician',
+  NURSE_PRACTITIONER = 'Nurse Practitioner',
+  OPTOMETRIST = 'Optometrist',
+  STAFF = 'Staff',
+  COUNSELOR = 'Counselor',
+  EMPLOYEE = 'Employee',
+  OTHER = 'Other',
 }
 
 export type ISanitizedUser = Omit<IUser, 'password'>;

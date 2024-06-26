@@ -2,13 +2,17 @@ import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
-  EmailVariables,
   HistoryAction,
   HistoryType,
   ICalendar,
+  IPractice,
+  ISurgery,
   PermissionEntity,
+  ReviewEntity,
+  ReviewStatus,
   SelectedSurgeryOption,
   SurgeryEntity,
+  SurgeryStatus,
 } from '@packages/entities';
 import { PatientEntity } from '@packages/entities/patient';
 import { USER_PERMISSIONS } from '@packages/entities/permission';
@@ -26,11 +30,13 @@ import { InsuranceTypesService } from 'src/insuranceTypes/insuranceTypes.service
 import { PatientsService } from 'src/patients/patients.service';
 import { PracticeHomesService } from 'src/practiceHomes/practiceHomes.service';
 import { PracticesService } from 'src/practices/practices.service';
+import { ReviewService } from 'src/review/review.service';
 import { SurgeryConfigurationsService } from 'src/surgeryConfiguration/surgeryConfiguration.service';
 import { SurgeryTypesService } from 'src/surgeryTypes/surgeryTypes.service';
 import { SystemTemplates } from 'src/transporter/transporter.types';
 import { UsersService } from 'src/users/users.service';
 import { getFullYearDateConditions, getStartEndDate } from 'src/utils';
+import { WaitlistService } from 'src/waitlist/waitlist.service';
 import {
   Equal,
   FindManyOptions,
@@ -38,7 +44,9 @@ import {
   FindOptionsWhere,
   ILike,
   In,
+  LessThan,
   LessThanOrEqual,
+  MoreThanOrEqual,
   Repository,
 } from 'typeorm';
 import { CalendarService } from '../calendar/calendar.service';
@@ -76,6 +84,8 @@ export class SurgeryService {
     private practiceHomesService: PracticeHomesService,
     @Inject(forwardRef(() => InsuranceTypesService))
     private insuranceTypesService: InsuranceTypesService,
+    @Inject(forwardRef(() => WaitlistService))
+    private waitlistService: WaitlistService,
     @Inject(forwardRef(() => SurgeryConfigurationsService))
     private surgeryConfigurationService: SurgeryConfigurationsService,
     @Inject(forwardRef(() => UsersService))
@@ -87,6 +97,8 @@ export class SurgeryService {
     private historyService: HistoryService,
     @Inject(forwardRef(() => EmailHandlerService))
     private emailHandlerService: EmailHandlerService,
+    @Inject(forwardRef(() => ReviewService))
+    private reviewService: ReviewService,
   ) {}
 
   getFrontEndBaseUrl() {
@@ -126,7 +138,11 @@ export class SurgeryService {
         'insuranceType',
         'patient.referrer',
         'doctor',
+        'waitlist',
       ],
+      order: {
+        dateCreated: 'DESC',
+      },
     };
 
     const searchConditionsWithoutPermissions = { ...searchConditions };
@@ -209,11 +225,13 @@ export class SurgeryService {
       where: { id },
       relations: [
         'practiceHome',
+        'practiceHome.practice',
         'surgeryConfiguration',
         'patient',
         'insuranceType',
         'patient.referrer',
         'doctor',
+        'waitlist',
       ],
     });
   }
@@ -241,6 +259,11 @@ export class SurgeryService {
         practiceId,
       );
 
+    const waitlistEntity = await this.waitlistService.getWaitlistById(
+      createSurgeryDto.waitlistId,
+      practiceId,
+    );
+
     const practiceHomeEntity =
       await this.practiceHomesService.getPracticeHomeById(
         createSurgeryDto.practiceHomeId,
@@ -259,8 +282,11 @@ export class SurgeryService {
       createSurgeryDto.selectedSurgeryOptions,
     );
     optionsArr.forEach((option) => {
-      createSurgeryDto.totalHospitalPricing += +option.hospitalPricing;
-      createSurgeryDto.totalProfessionalPricing += +option.professionalPricing;
+      createSurgeryDto.totalHospitalPricing =
+        +option.hospitalPricing + +createSurgeryDto.totalHospitalPricing;
+      createSurgeryDto.totalProfessionalPricing =
+        +option.professionalPricing +
+        +createSurgeryDto.totalProfessionalPricing;
     });
 
     const resultSurgery = await this.surgeryRepository.save({
@@ -273,6 +299,8 @@ export class SurgeryService {
       insuranceType: insuranceTypeEntity,
       doctor: doctorEntity,
       surgeryConfiguration: surgeryConfigurationEntity,
+      surgeryStatus: SurgeryStatus.BOOK,
+      waitlist: waitlistEntity,
     });
 
     // upsert calendar after creating surgery
@@ -285,7 +313,9 @@ export class SurgeryService {
       const selectedCalendar = calendars.find(
         (calendar: ICalendar) =>
           moment(calendar.date).format('YYYY-MM-DD') ===
-          moment(createSurgeryDto.date).format('YYYY-MM-DD'),
+            moment(createSurgeryDto.date).format('YYYY-MM-DD') &&
+          calendar.surgeryConfiguration.id ===
+            createSurgeryDto.surgeryConfigurationId,
       );
 
       if (selectedCalendar) {
@@ -319,43 +349,9 @@ export class SurgeryService {
       ipAddress: createSurgeryDto.ipAddress,
     });
 
-    const mailVariables: EmailVariables = {
-      surgery_type: surgeryConfigurationEntity
-        ? surgeryConfigurationEntity.name
-        : '',
-      fname: newPatient.firstName,
-      lname: newPatient.lastName,
-      mrn: String(newPatient.mrn),
-      pt_email_address: newPatient.email,
-      surgery_date: String(resultSurgery.date),
-      pt_email_notify: '',
-      laterality: createSurgeryDto.bodyPart,
-      Laterality: createSurgeryDto.bodyPart,
-      pod1_location: '',
-      cataract_variable: '',
-      all_cases: surgeryConfigurationEntity?.name + ' ' + createSurgeryDto.date,
-      all_cataract_dates:
-        surgeryConfigurationEntity?.name + ' ' + createSurgeryDto.date,
-      all_case_type:
-        surgeryConfigurationEntity?.name + ' ' + createSurgeryDto.date,
-      phoneNumber: createSurgeryDto.phoneNumber,
-    };
-
-    const systemGeneratedMailData = {
-      subject: 'Eval/ Surgery registered',
-      text: 'text message',
-      systemTemplate: SystemTemplates.NOTIFY_PATIENT,
-    };
-
-    if (practiceEntity) {
-      await this.emailHandlerService.checkAndMakeEmailContent(
-        practiceEntity,
-        createSurgeryDto.surgeryConfigurationId,
-        resultSurgery,
-        mailVariables,
-        systemGeneratedMailData,
-        false,
-      );
+    if (practiceEntity && surgeryConfigurationEntity) {
+      await this.initiateSendEmail(resultSurgery, practiceEntity);
+      await this.initiateDoctorSendEmail(resultSurgery, practiceEntity);
     }
 
     return resultSurgery;
@@ -378,6 +374,12 @@ export class SurgeryService {
       createSurgeryDto.insuranceType = insuranceTypeEntity;
     }
 
+    const practiceHomeEntity =
+      await this.practiceHomesService.getPracticeHomeById(
+        createSurgeryDto.practiceHomeId,
+        practiceId,
+      );
+
     if (surgeryToUpdate) {
       await this.patientService.update({
         id: surgeryToUpdate.patient.id,
@@ -385,6 +387,12 @@ export class SurgeryService {
         data: createSurgeryDto,
       });
     }
+
+    const waitlistEntity = await this.waitlistService.getWaitlistById(
+      createSurgeryDto.waitlistId,
+      practiceId,
+    );
+
     const dataToUpdate = {
       insuranceType: createSurgeryDto.insuranceType
         ? createSurgeryDto.insuranceType
@@ -395,12 +403,25 @@ export class SurgeryService {
       totalProfessionalPricing: createSurgeryDto.totalProfessionalPricing,
       selectedCheckListOptions: createSurgeryDto.selectedCheckListOptions,
       bodyPart: createSurgeryDto.bodyPart,
+      surgeryOrder: createSurgeryDto.surgeryOrder
+        ? createSurgeryDto.surgeryOrder
+        : surgeryToUpdate?.surgeryOrder,
+      surgeryStatus: createSurgeryDto.surgeryStatus
+        ? createSurgeryDto.surgeryStatus
+        : surgeryToUpdate?.surgeryStatus,
+      practiceHome: practiceHomeEntity
+        ? practiceHomeEntity
+        : surgeryToUpdate?.practiceHome,
+      waitlist: waitlistEntity ? waitlistEntity : surgeryToUpdate?.waitlist,
     };
 
     await this.surgeryRepository.update(id, {
       ...surgeryToUpdate,
       ...dataToUpdate,
     });
+    if (createSurgeryDto.surgeryStatus === SurgeryStatus.COMPLETED) {
+      await this.autoCompleteSurgeries(id);
+    }
 
     // depends on dto values, make sure to update the obj values if dot changes
     const transformedCurrentSurgeryValues: SurgeryChangesKeyValues =
@@ -427,6 +448,73 @@ export class SurgeryService {
     });
   }
 
+  async autoCompleteSurgeries(surgeryId: string = '') {
+    if (surgeryId) {
+      const surgeryResponse = await this.surgeryRepository.update(
+        {
+          id: surgeryId,
+        },
+        {
+          surgeryStatus: SurgeryStatus.COMPLETED,
+        },
+      );
+      if (surgeryResponse.affected) {
+        const surgeryData = await this.getSurgeryById(surgeryId);
+        if (surgeryData && surgeryData.practiceHome.practice) {
+          await this.createReviewEntity([
+            {
+              reviewStatus: ReviewStatus.PENDING,
+              practice: surgeryData.practiceHome.practice,
+              patient: surgeryData.patient,
+            },
+          ]);
+        }
+      }
+    } else {
+      const surgeryCompletedEntries = await this.surgeryRepository.find({
+        where: {
+          date: LessThan(new Date(Date.now())),
+          surgeryStatus: In([
+            SurgeryStatus.PENDING,
+            SurgeryStatus.BOOK,
+            SurgeryStatus.POSTPONE,
+            SurgeryStatus.DATE_CHANGE,
+          ]),
+        },
+        relations: ['practiceHome', 'practiceHome.practice', 'patient'],
+      });
+
+      const surgeryData = await this.surgeryRepository.update(
+        {
+          date: LessThan(new Date(Date.now())),
+          surgeryStatus: In([
+            SurgeryStatus.PENDING,
+            SurgeryStatus.BOOK,
+            SurgeryStatus.POSTPONE,
+            SurgeryStatus.DATE_CHANGE,
+          ]),
+        },
+        {
+          surgeryStatus: SurgeryStatus.COMPLETED,
+        },
+      );
+
+      if (surgeryData.affected && surgeryCompletedEntries.length) {
+        const reviewEntries = surgeryCompletedEntries.map((entry) => ({
+          reviewStatus: ReviewStatus.PENDING,
+          practice: entry.practiceHome.practice,
+          patient: entry.patient,
+        }));
+
+        await this.createReviewEntity(reviewEntries);
+      }
+    }
+  }
+
+  async createReviewEntity(reviewEntries: Partial<ReviewEntity>[]) {
+    await this.reviewService.createReview(reviewEntries);
+  }
+
   async remove(
     id: string,
     practiceId: string,
@@ -442,6 +530,56 @@ export class SurgeryService {
       entityType: HistoryType.SURGERY,
       action: HistoryAction.DELETE,
       ipAddress,
+    });
+  }
+
+  async initiateSendEmail(
+    surgery: ISurgery,
+    practice: IPractice,
+  ): Promise<void> {
+    const { name } = surgery.surgeryConfiguration;
+
+    const systemGeneratedMailData = {
+      subject: `New Surgery Scheduled: ${name}`,
+      text: 'text message',
+      systemTemplate: SystemTemplates.NOTIFY_PATIENT,
+    };
+
+    await this.emailHandlerService.checkAndMakeEmailContent(
+      practice,
+      surgery,
+      systemGeneratedMailData,
+      false,
+    );
+  }
+
+  async initiateDoctorSendEmail(
+    surgery: ISurgery,
+    practice: IPractice,
+  ): Promise<void> {
+    const name = practice.name;
+
+    const systemGeneratedMailData = {
+      subject: `A new surgery added to your practice ${name}`,
+      text: 'text message',
+      systemTemplate: SystemTemplates.NOTIFY_DOCTOR,
+    };
+
+    await this.emailHandlerService.checkAndMakeDoctorEmailContent(
+      practice,
+      surgery,
+      systemGeneratedMailData,
+      false,
+    );
+  }
+
+  async findSurgeryByPatient(
+    patientId: string,
+    date: Date,
+  ): Promise<ISurgery[]> {
+    return await this.surgeryRepository.find({
+      where: { patient: { id: patientId }, date: MoreThanOrEqual(date) },
+      relations: ['surgeryConfiguration'],
     });
   }
 }

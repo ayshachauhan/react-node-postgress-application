@@ -1,0 +1,156 @@
+name: test migration
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'qa'
+
+jobs:
+  create-shared-infra:
+    name: Create shared infrastructure
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18.17.1
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
+
+      - name: Store ENV from AWS SecretManager
+        uses: say8425/aws-secrets-manager-actions@v2
+        with:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+          SECRET_NAME: ${{ github.event.inputs.environment }}
+          OUTPUT_PATH: '.env'
+
+      - name: Load .env file
+        uses: aarcangeli/load-dotenv@v1.0.0
+        with:
+          path: './'
+          filenames: |
+            .env
+
+      - name: Generate provider
+        run: |
+          node ./scripts/start.js
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: '=1.6.6'
+          terraform_wrapper: false
+
+      - name: Terraform Workspace
+        id: workspace
+        run: |
+          terraform workspace new ${{ github.event.inputs.environment }} || terraform workspace select ${{ github.event.inputs.environment }}
+
+      - name: Terraform Init
+        id: init
+        run: terraform -chdir=./terraform init
+
+      - name: Terraform Apply
+        run: terraform -chdir=./terraform apply -auto-approve -target=module.shared
+
+  run-migrations:
+    name: Run migrations
+    runs-on: ubuntu-latest
+    needs:
+      - create-shared-infra
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18.17.1
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+
+      - name: pnpm install
+        run: pnpm install --frozen-lockfile
+
+      - name: Build packages
+        run: pnpm build
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
+
+      - name: Store ENV from AWS SecretManager
+        uses: say8425/aws-secrets-manager-actions@v2
+        with:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+          SECRET_NAME: ${{ github.event.inputs.environment }}
+          OUTPUT_PATH: '.env'
+
+      - name: Load .env file
+        uses: aarcangeli/load-dotenv@v1.0.0
+        with:
+          path: './'
+          filenames: |
+            .env
+
+      - name: Generate provider
+        run: |
+          node ./scripts/start.js
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: '=1.6.6'
+
+      - name: Terraform Workspace
+        id: workspace
+        run: |
+          terraform workspace new ${{ github.event.inputs.environment }} || terraform workspace select ${{ github.event.inputs.environment }}
+
+      - name: Terraform Init
+        id: init
+        run: terraform -chdir=./terraform init
+
+      - name: get runner ip addresses
+        id: ip
+        uses: haythem/public-ip@v1.2
+
+      - name: Get RDS Security Group ID
+        id: rds_sg
+        run: echo "rds_sg_id=${rds_sg_id}" >> $GITHUB_ENV      
+
+      - name: Allow DB Security group rule to connect Github Actions
+        run: |
+          aws ec2 authorize-security-group-ingress --group-id ${{ env.rds_sg_id }} --protocol tcp --port 5432 --cidr ${{ steps.ip.outputs.ipv4 }}/32       
+
+      - name: Show migrations
+        run: |
+          pnpm list-migrations
+
+      - name: Run migrations
+        run: |
+          pnpm migrate
+
+      - name: Deny Security group rule to connect Github Actions
+        run: |
+          aws ec2 revoke-security-group-ingress --group-id ${{ env.rds_sg_id }} --protocol tcp --port 5432 --cidr ${{ steps.ip.outputs.ipv4 }}/32
+        if: always()      

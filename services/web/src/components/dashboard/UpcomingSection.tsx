@@ -11,10 +11,11 @@ import { useAppDispatch, useAppSelector } from '@root/store';
 import { fetchFilteredCalendars } from '@root/store/reducers/calendar';
 import { fetchListings } from '@root/store/reducers/surgeryConfigurations';
 import { DEFAULT_SURGERYNAME_COLOR } from '@root/utils/constants';
-import { getPracticeId, getUserId } from '@root/utils/index';
+import { getPracticeId, getSelectedMonths, getUserId } from '@root/utils/index';
 import { Modal, ModalBody, ModalHeader, ROLE } from 'baseui/modal';
 import moment from 'moment';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { ModalCloseEvent } from '../BaseUiModal/BaseUiModal';
 import UpsertCalendar from '../calendar/UpsertCalendar';
 
 export type CalendarData = {
@@ -24,6 +25,7 @@ export type CalendarData = {
   bookedSlots: number;
   surgeryName: string;
   surgeryNameColor: string;
+  selectedSurgery: ISurgeryConfiguration;
 };
 
 export const DEFAULT_MAX_SLOTS: number = 14;
@@ -48,6 +50,7 @@ const UpcomingSection: React.FC = () => {
 
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isUpdating, setIsUpdating] = useState<boolean>(false);
+  const modalRef = useRef(null);
 
   const [selectedSurgery, setSelectedSurgery] =
     useState<ISurgeryConfiguration | null>(null);
@@ -56,8 +59,12 @@ const UpcomingSection: React.FC = () => {
    * @summary append + sign
    * @param cellValue number
    */
-  const appendAddSign = (cellValue: number): string => {
-    return cellValue > 0 ? '+' + cellValue : cellValue.toString();
+  const appendAddSign = (availableSlots: number): string => {
+    return availableSlots > 0
+      ? '+' + availableSlots
+      : availableSlots === 0
+        ? 'F'
+        : availableSlots.toString();
   };
 
   /**
@@ -66,8 +73,8 @@ const UpcomingSection: React.FC = () => {
    * @returns css for available slots view
    */
   const maxCellStyle = (availableSlots: number): Record<string, string> => {
-    const isMax = availableSlots === DEFAULT_MAX_SLOTS;
-    const isRed = availableSlots <= 0;
+    const isFull = availableSlots === 0;
+    const isRed = availableSlots < 0;
     const isGreen = availableSlots > 0;
 
     const cssObject = {
@@ -80,7 +87,7 @@ const UpcomingSection: React.FC = () => {
       justifyContent: 'center',
     };
 
-    if (isMax) {
+    if (isFull) {
       return {
         ...cssObject,
         backgroundColor: 'rgba(34, 197, 94, 1)',
@@ -102,11 +109,6 @@ const UpcomingSection: React.FC = () => {
     (state) => state.surgeries.surgeryFilters,
   );
   const selectedValueStr = selectedValue || '';
-  const getSelectedMonths = (selectedMonth: MonthOption[]) => {
-    const monthLabels = selectedMonth.map((month) => month.label);
-    const month = monthLabels.join(',');
-    return month;
-  };
 
   const dispatchFetchFilteredCalendars = (
     practiceId: string,
@@ -209,19 +211,25 @@ const UpcomingSection: React.FC = () => {
     return splitData;
   };
 
-  const upcomingDates: CalendarData[] = calendars
-    .filter(
-      (data: ICalendar) => data.surgeryConfiguration.id === selectedSurgery?.id,
-    )
-    .map((data: ICalendar) => ({
+  const selectedSurgeryCalData: ICalendar[] = calendars.filter(
+    (data: ICalendar) => data.surgeryConfiguration.id === selectedSurgery?.id,
+  );
+
+  const upcomingDates: CalendarData[] = selectedSurgeryCalData.map(
+    (data: ICalendar) => ({
       id: data.id,
       date: data.date,
       maxSlots: data.maxSlots,
       bookedSlots: data.bookedSlots,
-      surgeryName: data.surgeryConfiguration.name.charAt(0).toUpperCase(),
+      // using data from selectedsurgery here because calendar data doesn't contain surgerytype relation, for fallback using surgeryconfig name
+      surgeryName:
+        selectedSurgery?.surgeryType.name.charAt(0).toUpperCase() ??
+        data.surgeryConfiguration.name.charAt(0).toUpperCase(),
       surgeryNameColor:
         data.surgeryConfiguration.color ?? DEFAULT_SURGERYNAME_COLOR,
-    }));
+      selectedSurgery: selectedSurgery as ISurgeryConfiguration,
+    }),
+  );
 
   const filteredCalendars = filterCalendarByMonth(upcomingDates);
 
@@ -229,7 +237,10 @@ const UpcomingSection: React.FC = () => {
     setIsModalOpen(true);
     setIsUpdating(isUpdating);
   };
-  const handleCloseModal = (): void => {
+  const handleCloseModal = (event?: ModalCloseEvent): void => {
+    if (event?.closeSource === 'backdrop') {
+      return;
+    }
     setIsModalOpen(false);
   };
 
@@ -254,6 +265,40 @@ const UpcomingSection: React.FC = () => {
     displayErrorMessage = 'No records found';
   }
 
+  const getNextValidDate = (excludedDates: Date[]) => {
+    // Started from today, stripped time only checking day
+    const nextDate = moment().startOf('day');
+
+    while (excludedDates.some((date) => moment(date).isSame(nextDate, 'day'))) {
+      // Move to the next day
+      nextDate.add(1, 'days');
+    }
+
+    // Convert back to a Date object for DatePicker
+    return nextDate.toDate();
+  };
+
+  const resolvedCalendarData: CalendarData[] = calendars.map(
+    (data: ICalendar) => ({
+      id: data.id,
+      date: data.date,
+      maxSlots: data.maxSlots,
+      bookedSlots: data.bookedSlots,
+      // using data from selectedsurgery here because calendar data doesn't contain surgerytype relation, for fallback using surgeryconfig name
+      surgeryName:
+        selectedSurgery?.surgeryType.name.charAt(0).toUpperCase() ??
+        data.surgeryConfiguration.name.charAt(0).toUpperCase(),
+      surgeryNameColor:
+        data.surgeryConfiguration.color ?? DEFAULT_SURGERYNAME_COLOR,
+      selectedSurgery: selectedSurgery as ISurgeryConfiguration,
+    }),
+  );
+
+  const excludedDates: Date[] = resolvedCalendarData.map(
+    (calendar) => new Date(calendar.date),
+  );
+  const nextValidDate: Date = getNextValidDate(excludedDates);
+
   /**
    * @summary Upsert calendar modal to add or update the data
    * @param param0
@@ -269,6 +314,7 @@ const UpcomingSection: React.FC = () => {
         autoFocus
         size={'60vw'}
         role={ROLE.dialog}
+        ref={modalRef}
         overrides={{
           Root: {
             style: ({ $theme }) => ({
@@ -297,7 +343,6 @@ const UpcomingSection: React.FC = () => {
         <ModalBody>
           <UpsertCalendar
             onClose={handleCloseModal}
-            //@ts-expect-error sending date as null
             calendarData={
               isUpdating
                 ? filteredCalendars
@@ -306,17 +351,15 @@ const UpcomingSection: React.FC = () => {
                       id: '',
                       maxSlots: DEFAULT_MAX_SLOTS,
                       bookedSlots: 0,
-                      date: null,
-                      surgeryName: selectedSurgery?.name
-                        .charAt(0)
-                        .toUpperCase() as string,
+                      date: nextValidDate,
+                      surgeryName: selectedSurgery?.name ?? 'N/A',
                       surgeryNameColor:
                         selectedSurgery?.color ?? DEFAULT_SURGERYNAME_COLOR,
+                      selectedSurgery: selectedSurgery as ISurgeryConfiguration,
                     },
                   ]
             }
             isUpdating={isUpdating ?? false}
-            selectedSurgery={selectedSurgery as ISurgeryConfiguration}
             calendars={calendars}
           />
         </ModalBody>
@@ -329,20 +372,20 @@ const UpcomingSection: React.FC = () => {
       <div className="text-lg font-normal flex justify-between">
         <span>Calendar</span>
         {selectedSurgery && (
-          <div className="flex">
+          <div className="flex gap-1 items-center">
             <div
-              className="cursor-pointer px-2"
+              className="cursor-pointer"
               onClick={() => handleOpenModal(false)}
             >
-              <AddIcon className="mt-2" size={25}></AddIcon>
+              <AddIcon size={20}></AddIcon>
               {''}
             </div>
             {editCalendar && (
               <div
-                className="cursor-pointer px-2"
+                className="cursor-pointer"
                 onClick={() => handleOpenModal(true)}
               >
-                <EditIcon className="mt-2"></EditIcon>
+                <EditIcon></EditIcon>
               </div>
             )}
           </div>

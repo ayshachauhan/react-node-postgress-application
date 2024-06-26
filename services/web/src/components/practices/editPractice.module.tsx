@@ -7,20 +7,73 @@ import { updateRecordAsync } from '@root/store/reducers/practices';
 import { PracticesEditInterface } from '@store/requests/practices';
 import { FileUploader } from 'baseui/file-uploader';
 import { Select } from 'baseui/select';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 const PracticeEditModule: React.FC<{
   onClose: () => void;
   initialValues: PracticesEditInterface;
-}> = ({ onClose, initialValues }) => {
+  withLoader: (func: () => Promise<void>) => Promise<void>;
+}> = ({ onClose, initialValues, withLoader }) => {
   const dispatch = useAppDispatch();
   const [name, setName] = useState(initialValues.name);
+  const [adminFirstName, setAdminFirstName] = useState(
+    initialValues.adminFirstName,
+  );
+  const [adminLastName, setAdminLastName] = useState(
+    initialValues.adminLastName,
+  );
+  const [adminContactNumber, setAdminContactNumber] = useState(
+    initialValues.adminContactNumber,
+  );
   const [status, setStatus] = useState(initialValues.status);
   const practiceStatusOptions = Object.keys(PracticeStatus).map((key) => ({
     label: PracticeStatus[key as keyof typeof PracticeStatus],
     id: key,
   }));
   const [practiceImg, setPracticeImg] = useState<File | null>(null);
+
+  const [formChanged, setFormChanged] = useState(false);
+
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const validateForm = (): boolean => {
+    if (!name.trim()) {
+      setErrorMessage('Practice Name cannot be empty.');
+      return false;
+    }
+    if (!status.trim()) {
+      setErrorMessage('Status cannot be empty.');
+      return false;
+    }
+
+    if (practiceImg && !practiceImg.type.startsWith('image/')) {
+      setErrorMessage('Only Image type Files are allowed.');
+      return false;
+    }
+
+    setErrorMessage('');
+    return true;
+  };
+
+  useEffect(() => {
+    setFormChanged(
+      name !== initialValues.name ||
+        status !== initialValues.status ||
+        adminContactNumber !== initialValues.adminContactNumber ||
+        adminLastName !== initialValues.adminLastName ||
+        adminFirstName !== initialValues.adminFirstName ||
+        status !== initialValues.status ||
+        practiceImg !== null,
+    );
+  }, [
+    name,
+    status,
+    practiceImg,
+    adminContactNumber,
+    adminLastName,
+    adminFirstName,
+    initialValues,
+  ]);
 
   const handleStatusDropdown = (params) => {
     const { label } = params.option;
@@ -36,12 +89,21 @@ const PracticeEditModule: React.FC<{
       status,
       code: initialValues.code,
       practiceImg,
+      adminFirstName,
+      adminLastName,
+      adminContactNumber,
+      adminId: initialValues.adminId,
     };
     try {
-      dispatch(updateRecordAsync(data));
-      setName('');
-      setStatus('');
-      onClose();
+      if (validateForm()) {
+        await withLoader(async () => {
+          await dispatch(updateRecordAsync(data));
+        });
+        setName('');
+        setStatus('');
+        setPracticeImg(null);
+        onClose();
+      }
     } catch (error) {
       onClose();
     }
@@ -49,6 +111,11 @@ const PracticeEditModule: React.FC<{
 
   return (
     <div>
+      {errorMessage && (
+        <div className="flex justify-center text-red-500 mt-2">
+          {errorMessage}
+        </div>
+      )}
       <form onSubmit={handleSubmit}>
         <div className="flex flex-col">
           <div className="flex flex-row gap-7 pt-4">
@@ -93,16 +160,70 @@ const PracticeEditModule: React.FC<{
               />
             </div>
           </div>
-
+          <div className="flex flex-row gap-7 pt-4">
+            <div className="space-y-2">
+              <label
+                htmlFor="adminFirstName"
+                className="text-black text-sm font-normal"
+              >
+                First Name
+              </label>
+              <TextInput
+                name="adminFirstName"
+                value={adminFirstName}
+                onChange={(value) => {
+                  setAdminFirstName(value);
+                }}
+                required
+              />
+            </div>
+            <div className="flex flex-col space-y-2 w-1/2">
+              <label
+                htmlFor="adminLastName"
+                className="text-black text-sm font-normal"
+              >
+                Last Name
+              </label>
+              <TextInput
+                name="adminLastName"
+                value={adminLastName}
+                onChange={(value) => {
+                  setAdminLastName(value);
+                }}
+                required
+              />
+            </div>
+          </div>
+          <div className="flex flex-row gap-7 pt-4">
+            <div className="space-y-2">
+              <label
+                htmlFor="adminContactNumber"
+                className="text-black text-sm font-normal"
+              >
+                Admin Contact No.
+              </label>
+              <TextInput
+                name="adminContactNumber"
+                value={adminContactNumber}
+                onChange={(value) => {
+                  setAdminContactNumber(value);
+                }}
+                required
+              />
+            </div>
+          </div>
           <div className="flex flex-row justify-between pt-4">
             <div className="space-y-2">
               <label htmlFor="imgUrl" className="text-black text-sm">
                 Practice Photo
               </label>
               <FileUploader
-                errorMessage={''}
                 onDrop={(acceptedFiles: File[]) => {
                   setPracticeImg(acceptedFiles[0]);
+                }}
+                onDropRejected={(file: File[]) => {
+                  if (!file[0].type.startsWith('image'))
+                    setErrorMessage('Only Image type Files are allowed.');
                 }}
                 accept="image/*"
                 overrides={{
@@ -131,7 +252,12 @@ const PracticeEditModule: React.FC<{
             </div>
           </div>
           <div className="text-right text-base pt-4">
-            <Button kind="primary" title="Update Practice" width={189} />
+            <Button
+              kind="primary"
+              title="Update Practice"
+              width={189}
+              disabled={!formChanged}
+            />
           </div>
         </div>
       </form>

@@ -1,6 +1,23 @@
+import { ApiService } from '@root/services/apiclient';
+import { COOKIES } from '@root/services/cookies';
 import Cookies from 'js-cookie';
-import { publicRuntimeConfig } from 'next.config';
 import { User } from '.';
+
+export const setLoginCookie = (accessToken: string): void => {
+  Cookies.set(COOKIES.ACCESS_TOKEN, accessToken, {
+    expires: 1,
+  });
+};
+
+export const getLoginToken = (): string | undefined => {
+  return Cookies.get(COOKIES.ACCESS_TOKEN);
+};
+
+export const removeLoginToken = () => {
+  Cookies.remove(COOKIES.ACCESS_TOKEN);
+};
+
+const apiClient = new ApiService();
 
 export const login = async (
   payloadData: {
@@ -9,17 +26,12 @@ export const login = async (
   },
   { rejectWithValue },
 ) => {
-  const { API_BASE_URL } = publicRuntimeConfig;
   try {
-    const response = await fetch(`${API_BASE_URL}/auth/login`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payloadData),
-    });
+    const response = await apiClient.post('/auth/login', payloadData);
+
     if (!response.ok) {
-      throw new Error('Invalid username or password');
+      const data = await response.json();
+      throw new Error(data.message);
     }
     const result = await response.json();
     return result;
@@ -31,28 +43,29 @@ export const login = async (
   }
 };
 
-export const getMe = async (): Promise<User> => {
-  const { API_BASE_URL } = publicRuntimeConfig;
-  const accessToken = Cookies.get('access_token');
-  const response = await fetch(`${API_BASE_URL}/auth/me`, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${accessToken}`,
-    },
-  });
-  if (!response.ok) {
-    const errorResponse = await response.json();
+export const getMe = async (
+  requestFromResetPwd: boolean = false,
+): Promise<User> => {
+  try {
+    const response = await apiClient.get(
+      `/auth/me?reqFromReset=${requestFromResetPwd}`,
+    );
 
-    if (response.status === 403) {
-      throw new Error('Access Denied');
+    if (!response.ok) {
+      const errorResponse = await response.json();
+      if (response.status === 403) {
+        throw new Error('Access Denied');
+      }
+
+      throw new Error(errorResponse.message || 'Failed to fetch user data');
     }
 
-    throw new Error(errorResponse.message || 'Failed to fetch user data');
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.log(error);
+    throw error;
   }
-
-  const data = await response.json();
-  return data;
 };
 
 /**
@@ -60,32 +73,34 @@ export const getMe = async (): Promise<User> => {
  * @param param0 email
  * @returns string msg
  */
-export const sendResetMail = async ({
-  email,
-}: {
-  email: string;
-}): Promise<string> => {
-  const { API_BASE_URL } = publicRuntimeConfig;
+export const sendResetMail = async (
+  {
+    email,
+  }: {
+    email: string;
+  },
+  { rejectWithValue },
+): Promise<string> => {
+  try {
+    const response = await apiClient.get(`/auth/resetLink/${email}`);
 
-  const response = await fetch(`${API_BASE_URL}/auth/resetLink/${email}`, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
-  if (!response.ok) {
-    const errorResponse = await response.json();
+    if (!response.ok) {
+      const errorResponse = await response.json();
+      if (response.status === 403) {
+        throw new Error('Access Denied');
+      }
 
-    if (response.status === 403) {
-      throw new Error('Access Denied');
+      throw new Error(
+        errorResponse.message || 'Failed to send reset password mail',
+      );
     }
 
-    throw new Error(
-      errorResponse.message || 'Failed to send reset password mail',
-    );
+    const data: string = 'Email Sent!';
+    return data;
+  } catch (error) {
+    if (error instanceof Error) {
+      return rejectWithValue(error.message);
+    }
+    return rejectWithValue('An unknown error during sending review request');
   }
-
-  const data: string = 'Email Sent!';
-
-  return data;
 };

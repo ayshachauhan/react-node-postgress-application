@@ -1,19 +1,23 @@
+import { MediaConfigType } from '@packages/entities';
 import { MediaType } from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { addRecordAsync } from '@root/store/reducers/media';
 import { fetchListings as fetchsurgeryConfigurations } from '@root/store/reducers/surgeryConfigurations';
+import { AddMediaDTO } from '@root/store/requests/media/types';
 import { getPracticeId } from '@utils/index';
 import { Checkbox, LABEL_PLACEMENT } from 'baseui/checkbox';
 import { SIZE, Select } from 'baseui/select';
 import React, { useEffect, useState } from 'react';
 import { AddIcon, CloseIcon } from '../Icons';
+import RequiredIndicator from '../RequiredIndicator';
 
 const MediaPage: React.FC<{
   onClose: () => void;
   selectedMediaType: MediaType;
-}> = ({ onClose, selectedMediaType }) => {
+  withLoader: (func: () => Promise<void>) => Promise<void>;
+}> = ({ onClose, selectedMediaType, withLoader }) => {
   const { surgeryConfigurations, patient } = useAppSelector((state) => ({
     surgeryConfigurations: state.surgeryConfigurations.entities,
     patient: state.patients.entities,
@@ -42,6 +46,38 @@ const MediaPage: React.FC<{
     video: [{ title: '', url: '' }],
     image: [{ title: '', file: null }],
   });
+
+  const sanitizeStateValues = (data) => {
+    const sanitizeVideoArray = (arr: [{ title: string; url: string }]) =>
+      arr.filter((item) => item.title && item.url);
+
+    const sanitizeImageArray = (arr: [{ title: string; file: File }]) =>
+      arr.filter((item) => item.title && item.file);
+
+    return {
+      ...data,
+      video: sanitizeVideoArray(data.video),
+      ...(data.image ? { image: sanitizeImageArray(data.image) } : {}),
+    };
+  };
+
+  const isFormFilled = (): boolean => {
+    if (selectedMedia === MediaType.PATIENT) {
+      const { video, image } = patientForm;
+
+      const areVideosFilled = video.every(
+        (item) => item.title.trim() !== '' && item.url.trim() !== '',
+      );
+      const areImagesFilled = image.every(
+        (item) => item.title.trim() !== '' && item.file !== null,
+      );
+
+      return areVideosFilled || areImagesFilled;
+    } else {
+      return true;
+    }
+  };
+
   const [selectedMedia, setSelectedMedia] =
     useState<MediaType>(selectedMediaType);
 
@@ -82,30 +118,35 @@ const MediaPage: React.FC<{
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (practiceId) {
-      const data =
+      const sanitizedPatientForm = sanitizeStateValues(patientForm);
+
+      const data: AddMediaDTO =
         selectedMedia === MediaType.PRACTICE
           ? {
               practiceId,
               mediaType: selectedMedia,
-              mediaConfig: practiceForm,
+              mediaConfig: [
+                {
+                  title: practiceForm.video[0].title,
+                  url: practiceForm.video[0].url,
+                  configType: MediaConfigType.VIDEO,
+                },
+              ],
+              entityId: practiceForm.surgeryConfigurationId,
             }
           : {
               practiceId,
               mediaType: selectedMedia,
-              mediaConfig:
-                patientForm.image?.length && patientForm.image[0].title
-                  ? patientForm
-                  : {
-                      patientId: patientForm.patientId,
-                      video: patientForm.video,
-                    },
+              entityId: patientForm.patientId,
+              mediaConfig: sanitizedPatientForm,
             };
 
       console.log(data, 'finaldata');
 
       try {
-        //@ts-expect-error add types
-        dispatch(addRecordAsync(data));
+        await withLoader(async () => {
+          await dispatch(addRecordAsync(data));
+        });
         setPracticeForm({
           surgeryConfigurationId: '',
           video: [{ title: '', url: '' }],
@@ -191,7 +232,8 @@ const MediaPage: React.FC<{
           <div>
             <div className="space-y-2">
               <label htmlFor="title" className="text-black text-sm font-normal">
-                Title
+                <RequiredIndicator />
+                &nbsp;Title
               </label>
               <TextInput
                 name="name"
@@ -203,7 +245,8 @@ const MediaPage: React.FC<{
             </div>
             <div className="space-y-2  pt-4">
               <label htmlFor="url" className="text-black text-sm font-normal">
-                URL
+                <RequiredIndicator />
+                &nbsp;URL
               </label>
               <TextInput
                 name="url"
@@ -233,7 +276,6 @@ const MediaPage: React.FC<{
                       ]
                     : []
                 }
-                required
                 overrides={{
                   ControlContainer: {
                     style: {
@@ -255,7 +297,8 @@ const MediaPage: React.FC<{
           <div className="flex flex-col">
             <div className="space-y-2">
               <label htmlFor="mrn" className="text-black text-sm font-normal">
-                MRN
+                <RequiredIndicator />
+                &nbsp;MRN
               </label>
               <div className="space-y-2 pt-4">
                 <Select
@@ -358,7 +401,6 @@ const MediaPage: React.FC<{
                       <div className="flex flex-row gap-3">
                         <TextInput
                           size={SIZE.mini}
-                          required={true}
                           type="text"
                           value={inputField.title}
                           onChange={(value) =>
@@ -388,7 +430,6 @@ const MediaPage: React.FC<{
                         <TextInput
                           size={SIZE.mini}
                           type="text"
-                          required={true}
                           value={inputField.url}
                           onChange={(value) =>
                             handleVideoChangeInput(index, value, 'url')
@@ -497,7 +538,12 @@ const MediaPage: React.FC<{
           </div>
         )}
         <div className="text-right text-base pt-4">
-          <Button kind="primary" title="Add New Video" width={189} />
+          <Button
+            kind="primary"
+            title="Add New Media"
+            width={189}
+            disabled={!isFormFilled()}
+          />
         </div>
       </form>
     </div>

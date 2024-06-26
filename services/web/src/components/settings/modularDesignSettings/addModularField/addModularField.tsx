@@ -1,6 +1,7 @@
 import { CreateSurgeryConfigurationPayload } from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import { AddIcon, CloseIcon } from '@root/components/Icons';
+import RequiredIndicator from '@root/components/RequiredIndicator';
 import TextInput from '@root/components/TextInput';
 import { useAppDispatch } from '@root/store';
 import { addRecordAsync } from '@root/store/reducers/surgeryConfigurations';
@@ -11,10 +12,11 @@ import { Checkbox } from 'baseui/checkbox';
 import { SIZE, Select } from 'baseui/select';
 import React, { useState } from 'react';
 
-const AddModularField: React.FC<{ onClose: () => void; items }> = ({
-  onClose,
-  items,
-}) => {
+const AddModularField: React.FC<{
+  onClose: () => void;
+  items;
+  withLoader: (func: () => Promise<void>) => Promise<void>;
+}> = ({ onClose, items, withLoader }) => {
   const dispatch = useAppDispatch();
   const practiceId = getPracticeId();
 
@@ -43,9 +45,9 @@ const AddModularField: React.FC<{ onClose: () => void; items }> = ({
     setBodyPartInputFields(values);
   };
 
-  const [facilityInputFields, setFacilityInputFields] = useState([
-    { value: '' },
-  ]);
+  const [facilityInputFields] = useState([{ value: '' }]);
+
+  /* commenting it for future usage
   const handleFacilityChangeInput = (index: number, event: string) => {
     const values = [...facilityInputFields];
     values[index].value = event;
@@ -60,6 +62,7 @@ const AddModularField: React.FC<{ onClose: () => void; items }> = ({
     values.splice(index, 1);
     setFacilityInputFields(values);
   };
+  */
 
   const [optionsFields, setOptionsFields] = useState([
     {
@@ -135,7 +138,6 @@ const AddModularField: React.FC<{ onClose: () => void; items }> = ({
     values.splice(index, 1);
     setOptionsFields(values);
   };
-
   const [checkListInputFields, setCheckListInputFields] = useState([
     { value: '' },
   ]);
@@ -170,24 +172,28 @@ const AddModularField: React.FC<{ onClose: () => void; items }> = ({
     const checkListObj = {};
 
     optionsFields.forEach((optionField) => {
-      surgeryOptionObj[optionField.category] = {
-        type: 'string',
-        label: optionField.category,
-        default: '',
-        required: true,
-        allowedValues: optionField.options,
-        count: optionField.count,
-        edit_admin_option: optionField.edit_admin_option,
-      };
+      if (optionField.category) {
+        surgeryOptionObj[optionField.category] = {
+          type: 'string',
+          label: optionField.category,
+          default: '',
+          required: true,
+          allowedValues: optionField.options,
+          count: optionField.count,
+          edit_admin_option: optionField.edit_admin_option,
+        };
+      }
     });
 
     checkListInputFields.forEach((ele) => {
-      checkListObj[ele.value] = {
-        type: 'string',
-        label: ele.value,
-        default: '',
-        required: true,
-      };
+      if (ele.value) {
+        checkListObj[ele.value] = {
+          type: 'string',
+          label: ele.value,
+          default: '',
+          required: true,
+        };
+      }
     });
     if (practiceId) {
       const payloadData: CreateSurgeryConfigurationPayload = {
@@ -199,8 +205,9 @@ const AddModularField: React.FC<{ onClose: () => void; items }> = ({
         checkList: checkListObj,
         color: surgeryNameColor,
       };
-
-      dispatch(addRecordAsync({ payloadData, practiceId }));
+      await withLoader(async () => {
+        await dispatch(addRecordAsync({ payloadData, practiceId }));
+      });
     }
 
     try {
@@ -225,10 +232,12 @@ const AddModularField: React.FC<{ onClose: () => void; items }> = ({
           <div className="flex gap-5 mt-4">
             <div className="space-y-2 flex-1">
               <label htmlFor="surgeryName" className="text-black text-sm">
-                Surgery Type
+                <RequiredIndicator />
+                &nbsp;Surgery Location
               </label>
               <Select
                 size={SIZE.mini}
+                backspaceClearsInputValue
                 options={surgeryTypeOptions}
                 onChange={handleSurgeryTypeChange}
                 value={
@@ -254,7 +263,8 @@ const AddModularField: React.FC<{ onClose: () => void; items }> = ({
             </div>
             <div className="space-y-2 flex-2">
               <label htmlFor="surgeryName" className="text-black text-sm">
-                Surgery Name
+                <RequiredIndicator />
+                &nbsp;Surgery Name
               </label>
               <TextInput
                 size={SIZE.mini}
@@ -268,7 +278,8 @@ const AddModularField: React.FC<{ onClose: () => void; items }> = ({
             </div>
             <div className="space-y-2 flex-2">
               <label htmlFor="surgeryName" className="text-black text-sm">
-                Surgery Name Color
+                <RequiredIndicator />
+                &nbsp;Surgery Name Color
               </label>
               <div className="d-block">
                 <input
@@ -330,7 +341,7 @@ const AddModularField: React.FC<{ onClose: () => void; items }> = ({
               </div>
             </div>
 
-            <div className="space-y-2 flex-1">
+            {/* <div className="space-y-2 flex-1">
               <label htmlFor="facility" className="text-black text-sm">
                 Facility
               </label>
@@ -371,7 +382,7 @@ const AddModularField: React.FC<{ onClose: () => void; items }> = ({
                   />
                 </div>
               </div>
-            </div>
+            </div> */}
           </div>
           <div className="mt-4">
             <div className="flex">
@@ -521,7 +532,12 @@ const AddModularField: React.FC<{ onClose: () => void; items }> = ({
                               </label>
                               <TextInput
                                 size={SIZE.mini}
-                                required
+                                disabled={
+                                  optionsFields[index].category ? false : true
+                                }
+                                required={
+                                  optionsFields[index].category ? true : false
+                                }
                                 value={inputField.name}
                                 onChange={(event) =>
                                   handleOptionsFieldChangeInput(
@@ -542,6 +558,12 @@ const AddModularField: React.FC<{ onClose: () => void; items }> = ({
                                 Billing Type
                               </label>
                               <TextInput
+                                disabled={
+                                  optionsFields[index].category ? false : true
+                                }
+                                required={
+                                  optionsFields[index].category ? true : false
+                                }
                                 size={SIZE.mini}
                                 name="billingType"
                                 value={inputField.billingType}
@@ -564,6 +586,12 @@ const AddModularField: React.FC<{ onClose: () => void; items }> = ({
                                 Hospital Pricing
                               </label>
                               <TextInput
+                                disabled={
+                                  optionsFields[index].category ? false : true
+                                }
+                                required={
+                                  optionsFields[index].category ? true : false
+                                }
                                 type="number"
                                 size={SIZE.mini}
                                 name="hospitalPricing"
@@ -576,7 +604,6 @@ const AddModularField: React.FC<{ onClose: () => void; items }> = ({
                                     inputIndex,
                                   )
                                 }
-                                required
                               />
                               <div className="space-y-2"></div>
                             </div>
@@ -588,6 +615,12 @@ const AddModularField: React.FC<{ onClose: () => void; items }> = ({
                                 Professional Pricing
                               </label>
                               <TextInput
+                                disabled={
+                                  optionsFields[index].category ? false : true
+                                }
+                                required={
+                                  optionsFields[index].category ? true : false
+                                }
                                 size={SIZE.mini}
                                 type="number"
                                 name="professionalPricing"
@@ -600,7 +633,6 @@ const AddModularField: React.FC<{ onClose: () => void; items }> = ({
                                     inputIndex,
                                   )
                                 }
-                                required
                               />
                               <div className="space-y-2"></div>
                             </div>

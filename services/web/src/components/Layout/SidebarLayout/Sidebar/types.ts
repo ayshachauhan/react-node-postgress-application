@@ -6,12 +6,11 @@ import {
   MessageIcon,
   SettingIcon,
   StethoscopeIcon,
-  TemplateIcon,
-  UsersIcon,
 } from '@components/Icons';
 import { IPermission } from '@packages/entities/index.browser';
 import { USER_PERMISSIONS } from '@packages/entities/permission';
-import { useUserPermission } from '@root/hooks/userHasPermission';
+
+import ReviewIcon from '@root/components/Icons/Review';
 
 export type SideBarItem = {
   id: string;
@@ -47,21 +46,6 @@ export const sidebarItems: SideBarItem[] = [
     Icon: StethoscopeIcon,
   },
   {
-    id: 'users',
-    title: 'Users',
-    path: '/users',
-    permissions: ['admin'],
-    Icon: UsersIcon,
-  },
-  {
-    id: 'templates',
-    title: 'Templates',
-    path: '/templates',
-    permissions: ['admin'],
-    userPermissions: [USER_PERMISSIONS.VIEW_TEMPLATES],
-    Icon: TemplateIcon,
-  },
-  {
     id: 'messages',
     title: 'Messages',
     path: '/messages',
@@ -94,6 +78,13 @@ export const sidebarItems: SideBarItem[] = [
     Icon: AddReferrerIcon,
   },
   {
+    id: 'review',
+    title: 'Review',
+    path: '/review',
+    permissions: ['admin'],
+    Icon: ReviewIcon,
+  },
+  {
     id: 'setting',
     title: 'Settings',
     path: '#',
@@ -102,14 +93,27 @@ export const sidebarItems: SideBarItem[] = [
     child: [
       {
         id: 'configuration',
-        title: 'Configuration',
+        title: 'Practice settings',
         path: '/settings/configurations',
         permissions: ['admin'],
       },
       {
         id: 'modularDesign',
-        title: 'Modular Fields',
+        title: 'Surgeries',
         path: '/settings/modularFields',
+        permissions: ['admin'],
+      },
+      {
+        id: 'templates',
+        title: 'Templates',
+        path: '/templates',
+        permissions: ['admin'],
+        userPermissions: [USER_PERMISSIONS.VIEW_TEMPLATES],
+      },
+      {
+        id: 'users',
+        title: 'Users',
+        path: '/users',
         permissions: ['admin'],
       },
     ],
@@ -121,13 +125,52 @@ export function filterSidebarItems(
   userPermissions: IPermission[],
   sidebarItems: SideBarItem[],
 ): SideBarItem[] {
-  return sidebarItems.filter((item) => {
+  const hasPermission = (permissions: string[] | undefined): boolean => {
+    if (!permissions) return true;
+    return permissions.every((permission) =>
+      userPermissions.some(
+        (userPermission) => userPermission.name === permission,
+      ),
+    );
+  };
+
+  const filterItem = (item: SideBarItem): SideBarItem | null => {
     const userTypeAllowed = item.permissions.includes(userType);
+    const userPermissionsAllowed = hasPermission(item.userPermissions);
 
-    const userPermissionsAllowed = item.userPermissions
-      ? useUserPermission(userPermissions, item.userPermissions)
-      : true;
+    if (!userTypeAllowed || !userPermissionsAllowed) {
+      return null;
+    }
 
-    return userTypeAllowed && userPermissionsAllowed;
-  });
+    // Recursively filter child items if they exist
+    const filteredChildren = item.child
+      ? item.child.reduce<SideBarItem[]>((acc, childItem) => {
+          const filteredChild = filterItem(childItem as SideBarItem);
+          if (filteredChild) {
+            acc.push(filteredChild);
+          }
+          return acc;
+        }, [])
+      : undefined;
+
+    const newItem: SideBarItem = {
+      ...item,
+      child:
+        filteredChildren && filteredChildren.length > 0
+          ? filteredChildren
+          : undefined,
+    };
+
+    return newItem;
+  };
+
+  const filteredItems = sidebarItems.reduce<SideBarItem[]>((acc, item) => {
+    const filteredItem = filterItem(item);
+    if (filteredItem) {
+      acc.push(filteredItem);
+    }
+    return acc;
+  }, []);
+
+  return filteredItems;
 }

@@ -1,4 +1,5 @@
 'use client';
+import { ModalCloseEvent } from '@root/components/BaseUiModal/BaseUiModal';
 import Button from '@root/components/Button';
 import { AddIcon, DeleteIcon } from '@root/components/Icons';
 import AddSurgeryType from '@root/components/settings/configurationSettings/surgeryTypes/addSurgeryType';
@@ -21,7 +22,7 @@ import {
   ROLE,
   SIZE,
 } from 'baseui/modal';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 export default function SurgeryTypePage() {
   const [showModal, setShowModal] = useState(false);
@@ -30,9 +31,6 @@ export default function SurgeryTypePage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const practiceId = getPracticeId();
-  const practiceName = useAppSelector(
-    (state) => state.practices.practiceInfo?.name,
-  );
   const surgeryTypes = useAppSelector((state) =>
     Object.values(state.surgeryTypes.entities),
   );
@@ -40,6 +38,7 @@ export default function SurgeryTypePage() {
   const [showErrorMessage, setShowErrorMessage] = useState(false);
   const successMessage = useAppSelector(selectSuccessMessage);
   const errorMessage = useAppSelector(selectError);
+  const modalRef = useRef(null);
 
   useEffect(() => {
     if (practiceId !== null) {
@@ -91,11 +90,17 @@ export default function SurgeryTypePage() {
     setSurgeryTypeId(Id);
   };
 
-  const handleCloseModal = (): void => {
+  const handleCloseModal = (event?: ModalCloseEvent): void => {
+    if (event?.closeSource === 'backdrop') {
+      return;
+    }
     setIsModalOpen(false);
   };
 
-  const handleCloseDeleteModal = (): void => {
+  const handleCloseDeleteModal = (event?: ModalCloseEvent): void => {
+    if (event?.closeSource === 'backdrop') {
+      return;
+    }
     setIsDeleteModalOpen(false);
   };
 
@@ -109,6 +114,7 @@ export default function SurgeryTypePage() {
         autoFocus
         size={SIZE.default}
         role={ROLE.dialog}
+        ref={modalRef}
         overrides={{
           Root: {
             style: ({ $theme }) => ({
@@ -126,7 +132,7 @@ export default function SurgeryTypePage() {
             paddingBottom: '8px',
           }}
         >
-          Add New Surgery Type
+          Add New Surgery Location
         </ModalHeader>
         <ModalBody>
           <AddSurgeryType onClose={handleCloseModal} />
@@ -145,6 +151,7 @@ export default function SurgeryTypePage() {
         autoFocus
         size={SIZE.default}
         role={ROLE.dialog}
+        ref={modalRef}
         overrides={{
           Root: {
             style: ({ $theme }) => ({
@@ -158,7 +165,7 @@ export default function SurgeryTypePage() {
           Confirm Deletion
         </ModalHeader>
         <ModalBody>
-          Are you sure you want to delete this surgery type?
+          Are you sure you want to delete this surgery Location?
         </ModalBody>
         <ModalFooter>
           <Button kind="primary" title="Delete" onClick={onConfirmDelete}>
@@ -172,7 +179,7 @@ export default function SurgeryTypePage() {
   return (
     <div className="mt-4">
       <div className="flex justify-between border-gray-400">
-        <span className="text-xl font-bold align-middle">Surgery Type</span>
+        <span className="text-xl font-bold align-middle">Surgery Location</span>
         {showModal && <div className="text-green-700">{successMessage}</div>}
         {showErrorMessage && <div className="text-red-700">{errorMessage}</div>}
         <Button
@@ -184,10 +191,9 @@ export default function SurgeryTypePage() {
       </div>
       <hr className="h-px my-2.5 bg-gray-100 border-1 border-gray-100"></hr>
       <div className="text-gray-50 w-full  items-center  bg-gray-50 py-4 rounded-lg">
-        <div className="bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 grid grid-cols-4 rounded-lg">
+        <div className="bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 grid grid-cols-3 rounded-lg">
           <div className="font-bold text-white p-4">S. No.</div>
-          <div className="font-bold text-white p-4">Practice Name</div>
-          <div className="font-bold text-white p-4">Surgery Type</div>
+          <div className="font-bold text-white p-4">Surgery Location</div>
           <div className="font-bold text-white p-4">Action</div>
           {surgeryTypes.map((data, index) => (
             <React.Fragment key={data.id}>
@@ -195,12 +201,9 @@ export default function SurgeryTypePage() {
                 {index + 1}
               </div>
               <div className="text-gray-900 bg-gray-50 pt-2 px-4">
-                {practiceName}
-              </div>
-              <div className="text-gray-900 bg-gray-50 pt-2 px-4">
                 {data.name}
               </div>
-              <div className="text-gray-900 bg-gray-50 pt-2 px-4 flex gap-4">
+              <div className="text-gray-900 bg-gray-50 pt-2 px-4">
                 <div
                   onClick={() => data.id && handleOpenDeleteModal(data.id)}
                   className="cursor-pointer"

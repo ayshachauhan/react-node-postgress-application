@@ -1,23 +1,23 @@
 'use client';
-
-import { UserType } from '@packages/entities/index.browser';
+import { USER_PERMISSIONS } from '@packages/entities/permission';
 import Button from '@root/components/Button';
 import { AddIcon } from '@root/components/Icons';
-import Form from '@root/components/dashboard/AddSurgery';
 import FiltersSection from '@root/components/dashboard/FiltersSection';
 import SurgeryPercentage from '@root/components/dashboard/SurgeryPercentage';
 import UpcomingSection from '@root/components/dashboard/UpcomingSection';
 import UsersListing from '@root/components/dashboard/UsersListing';
+import AddSurgeryModal from '@root/components/dashboard/addSurgeryModal';
+import AddEvalModal from '@root/components/eval/addEval/addEvalModal';
+import Loader from '@root/components/loader';
+import { useLoader } from '@root/hooks/useLoader';
+import { useUserPermission } from '@root/hooks/userHasPermission';
 import { useAppDispatch, useAppSelector } from '@root/store';
-import { fetchCalendars } from '@root/store/reducers/calendar';
+import { fetchLoggedInUser } from '@root/store/reducers/auth';
+import { fetchFilteredCalendars } from '@root/store/reducers/calendar';
 import {
   clearSuccessMessage as clearEvalSuccessMessage,
   fetchListings as fetchEvalsList,
 } from '@root/store/reducers/evals';
-
-import { USER_PERMISSIONS } from '@packages/entities/permission';
-import { useUserPermission } from '@root/hooks/userHasPermission';
-import { fetchLoggedInUser } from '@root/store/reducers/auth';
 import { fetchListings as fetchInsuranceTypesList } from '@root/store/reducers/insuranceTypes';
 import { fetchListings as fetchPatients } from '@root/store/reducers/patient';
 import { fetchListings as fetchPracticeHomesListing } from '@root/store/reducers/practiceHomes';
@@ -29,8 +29,8 @@ import {
 import { fetchListings as fetchSurgeryConfigurationsListing } from '@root/store/reducers/surgeryConfigurations';
 import { fetchListings as fetchSurgeryTypesListing } from '@root/store/reducers/surgeryTypes';
 import { fetchListings as fetchUsersList } from '@root/store/reducers/users';
+import { fetchListings as fetchWaitlist } from '@root/store/reducers/waitlist';
 import { getPracticeId, getUserId } from '@root/utils';
-import { Modal, ModalBody, ROLE, SIZE } from 'baseui/modal';
 import React, { useEffect, useState } from 'react';
 
 const DashboardPage: React.FC = () => {
@@ -43,6 +43,8 @@ const DashboardPage: React.FC = () => {
   const { selectedMonth, searchMRNName, selectedValue } = useAppSelector(
     (state) => state.surgeries.surgeryFilters,
   );
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isAddEvalModalOpen, setIsAddEvalModalOpen] = useState(false);
 
   const addCaseAllowed = useUserPermission(userPermissions, [
     USER_PERMISSIONS.ADD_CASE,
@@ -67,6 +69,7 @@ const DashboardPage: React.FC = () => {
   const monthLabels = selectedMonth.map((month) => month.label);
   const month = monthLabels.join(',');
   const searchMRNNameStr = searchMRNName || '';
+  const { isLoading, withLoader } = useLoader();
 
   useEffect(() => {
     dispatch(fetchLoggedInUser());
@@ -74,18 +77,23 @@ const DashboardPage: React.FC = () => {
 
   useEffect(() => {
     if (practiceId) {
+      const loadData = async () => {
+        await withLoader(async () => {
+          if (loggedInUserId !== null) {
+            await dispatch(
+              fetchSurgeryList({
+                loggedInUserId,
+                practiceId,
+                month: month,
+                searchMRNName: searchMRNNameStr,
+                option: selectedValueStr,
+              }),
+            );
+          }
+        });
+      };
+      loadData();
       dispatch(fetchEvalsList({ practiceId }));
-      if (loggedInUserId !== null) {
-        dispatch(
-          fetchSurgeryList({
-            loggedInUserId,
-            practiceId,
-            month: month,
-            searchMRNName: searchMRNNameStr,
-            option: selectedValueStr,
-          }),
-        );
-      }
       dispatch(fetchInsuranceTypesList({ practiceId }));
       dispatch(fetchPracticeHomesListing({ practiceId }));
       dispatch(fetchSurgeryTypesListing({ practiceId }));
@@ -93,30 +101,48 @@ const DashboardPage: React.FC = () => {
       dispatch(fetchUsersList({ practiceId }));
       dispatch(fetchSurgeryConfigurationsListing({ practiceId }));
       dispatch(fetchPatients({ practiceId }));
+      dispatch(fetchWaitlist({ practiceId }));
     }
-  }, [practiceId, dispatch]);
+  }, [practiceId, dispatch, withLoader]);
 
   useEffect(() => {
-    if (addSurgerySuccessMessage || addEvalSuccessMessage) {
+    if (
+      (addSurgerySuccessMessage || addEvalSuccessMessage) &&
+      addSurgerySuccessMessage !== 'Surgery updated successfully.'
+    ) {
       if (practiceId) {
+        const loadData = async () => {
+          await withLoader(async () => {
+            if (loggedInUserId !== null) {
+              await dispatch(
+                fetchSurgeryList({
+                  loggedInUserId,
+                  practiceId,
+                  month: month,
+                  searchMRNName: searchMRNNameStr,
+                  option: selectedValueStr,
+                }),
+              );
+            }
+          });
+        };
+        loadData();
         dispatch(fetchEvalsList({ practiceId }));
-        if (loggedInUserId !== null) {
-          dispatch(
-            fetchSurgeryList({
-              loggedInUserId,
-              practiceId,
-              month: month,
-              searchMRNName: searchMRNNameStr,
-              option: selectedValueStr,
-            }),
-          );
-        }
         dispatch(clearSurgerySuccessMessage());
         dispatch(clearEvalSuccessMessage());
         dispatch(fetchSurgeryConfigurationsListing({ practiceId }));
+        dispatch(fetchWaitlist({ practiceId }));
         dispatch(fetchPatients({ practiceId }));
-        if (userId) {
-          dispatch(fetchCalendars({ practiceId, userId }));
+        if (userId && loggedInUserId !== null) {
+          dispatch(
+            fetchFilteredCalendars({
+              practiceId,
+              userId,
+              month,
+              option: selectedValueStr,
+              loggedInUserId,
+            }),
+          );
         }
       }
     }
@@ -127,6 +153,7 @@ const DashboardPage: React.FC = () => {
     dispatch,
     practiceId,
     userId,
+    withLoader,
   ]);
 
   useEffect(() => {
@@ -146,68 +173,6 @@ const DashboardPage: React.FC = () => {
     };
   }, [addSurgerySuccessMessage, addEvalSuccessMessage, dispatch]);
 
-  const {
-    practiceHomesList,
-    surgeryTypesList,
-    insuranceTypesList,
-    referrersList,
-    usersList,
-    calendars,
-  } = useAppSelector((state) => ({
-    practiceHomesList: Object.values(state.practiceHomes.entities),
-    surgeryTypesList: Object.values(state.surgeryTypes.entities),
-    insuranceTypesList: Object.values(state.insuranceTypes.entities),
-    referrersList: Object.values(state.referrers.entities),
-    usersList: Object.values(state.users.entities).filter(
-      (user) => user.type == UserType.DOCTOR,
-    ),
-    calendars: Object.values(state.calendars.entities),
-  }));
-
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const FormModal = () => {
-    return (
-      <Modal
-        isOpen={isAddModalOpen}
-        onClose={handleCloseAddModal}
-        closeable
-        animate
-        autoFocus
-        size={SIZE.default}
-        role={ROLE.dialog}
-        overrides={{
-          Dialog: {
-            style: () => ({
-              width: '900px',
-              maxWidth: '90%',
-              maxHeight: '90vh',
-              overflowY: 'auto',
-            }),
-          },
-          Root: {
-            style: ({ $theme }) => ({
-              outline: `${$theme.colors.warning200} solid`,
-              backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            }),
-          },
-        }}
-      >
-        <ModalBody>
-          <Form
-            onClose={handleCloseAddModal}
-            items={{
-              practiceHomesList,
-              surgeryTypesList,
-              insuranceTypesList,
-              referrersList,
-              usersList,
-              calendars,
-            }}
-          />
-        </ModalBody>
-      </Modal>
-    );
-  };
   const handleCloseAddModal = (): void => {
     setIsAddModalOpen(false);
   };
@@ -216,30 +181,54 @@ const DashboardPage: React.FC = () => {
     setIsAddModalOpen(true);
   };
 
+  const handleCloseAddEvalModal = (): void => {
+    setIsAddEvalModalOpen(false);
+  };
+
+  const handleOpenAddEvalModal = (): void => {
+    setIsAddEvalModalOpen(true);
+  };
+
   return (
     <div id="__next" className="">
+      {isLoading && <Loader />}
       <div className="flex justify-between border-gray-400 items-center">
         <span className="text-xl font-bold">Dashboard </span>
+        {showModal && (
+          <div className="text-green-700">
+            {addSurgerySuccessMessage
+              ? addSurgerySuccessMessage
+              : addEvalSuccessMessage}
+          </div>
+        )}
         <div className="flex  justify-between">
-          {showModal && (
-            <div className="text-green-700">
-              {addSurgerySuccessMessage
-                ? addSurgerySuccessMessage
-                : addEvalSuccessMessage}
-            </div>
-          )}
           <div className="flex">
             {addCaseAllowed && (
-              <Button
-                kind="secondary"
-                title="Add"
-                height={40}
-                width={80}
-                onClick={handleOpenAddModal}
-                startEnhancer={() => (
-                  <AddIcon className="mt-2" size={25}></AddIcon>
-                )}
-              />
+              <div className="flex gap-2">
+                <Button
+                  kind="secondary"
+                  title="Eval"
+                  height={32}
+                  width={75}
+                  fontSize="12px"
+                  onClick={handleOpenAddEvalModal}
+                  startEnhancer={() => (
+                    <AddIcon className="mt-2 " size={25}></AddIcon>
+                  )}
+                />
+                <Button
+                  kind="secondary"
+                  title="Surgery"
+                  height={32}
+                  width={85}
+                  fontSize="12px"
+                  padding="2px"
+                  onClick={handleOpenAddModal}
+                  startEnhancer={() => (
+                    <AddIcon className="mt-2" size={25}></AddIcon>
+                  )}
+                />
+              </div>
             )}
           </div>
         </div>
@@ -261,9 +250,26 @@ const DashboardPage: React.FC = () => {
         </div>
       </div>
       <div className="mt-2 mb-12">
-        {practiceId && <FiltersSection practiceId={practiceId} />}
+        {practiceId && (
+          <FiltersSection
+            practiceId={practiceId}
+            withLoader={withLoader}
+            isLoading={isLoading}
+          />
+        )}
       </div>
-      <FormModal />
+      <AddSurgeryModal
+        isModalOpen={isAddModalOpen}
+        handleCloseModal={handleCloseAddModal}
+        withLoader={withLoader}
+      />
+      <div className="w-400">
+        <AddEvalModal
+          isSecondModalOpen={isAddEvalModalOpen}
+          handleCloseSecondModal={handleCloseAddEvalModal}
+          withLoader={withLoader}
+        />
+      </div>
     </div>
   );
 };

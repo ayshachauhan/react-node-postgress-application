@@ -1,3 +1,4 @@
+import { ITemplate } from '@packages/entities';
 import { ITemplateUpdate } from '@packages/entities/index.browser';
 import { USER_PERMISSIONS } from '@packages/entities/permission';
 import Button from '@root/components/Button';
@@ -16,6 +17,7 @@ import { Checkbox, STYLE_TYPE } from 'baseui/checkbox';
 import { SIZE, Select } from 'baseui/select';
 import { Textarea } from 'baseui/textarea';
 import React, { useEffect, useState } from 'react';
+import RequiredIndicator from '../RequiredIndicator';
 
 interface Data {
   id: string;
@@ -25,9 +27,16 @@ interface Data {
 interface ChildProps {
   data: Data;
   onClose: () => void;
+  withLoader: (func: () => Promise<void>) => Promise<void>;
+  showDateOffsetControl: (v) => boolean;
 }
 
-const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
+const TemplateUpdatePage: React.FC<ChildProps> = ({
+  data,
+  onClose,
+  withLoader,
+  showDateOffsetControl,
+}) => {
   const userInfo = useAppSelector((state) => state.auth.user);
   const userId = userInfo?.id;
   const userPermissions = userInfo?.permissions;
@@ -40,7 +49,9 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
   const messageType = data.messageType;
   const versionOffset = data.versionOffset;
 
-  const templateInfo = useAppSelector((state) => {
+  const [attachment, setAttachment] = useState<File | null>(null);
+
+  const templateInfo: ITemplate = useAppSelector((state) => {
     const templates = Object.values(state.templates.entities);
     if (templateId && templates) {
       for (const template of templates) {
@@ -70,6 +81,7 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
   );
 
   const [showTooltip, setShowTooltip] = useState(false);
+  const [showDateOffsetField, setShowDateOffsetField] = useState(false);
   const [updatedTemplateInfo, setTemplateInfo] = useState<
     Partial<ITemplateUpdate>
   >({});
@@ -78,14 +90,21 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
     if (practiceId && userId) {
       const formattedPracticeId = practiceId ?? '';
       const formattedUserId = userId ?? '';
-      dispatch(
-        fetchListings({
-          practiceId: formattedPracticeId,
-          userId: formattedUserId,
-        }),
-      );
+      const loadData = async () => {
+        await withLoader(async () => {
+          await dispatch(
+            fetchListings({
+              practiceId: formattedPracticeId,
+              userId: formattedUserId,
+            }),
+          );
+        });
+      };
+
+      loadData();
+      setShowDateOffsetField(showDateOffsetControl(messageType));
     }
-  }, [practiceId, userId, dispatch]);
+  }, [practiceId, userId, dispatch, withLoader]);
 
   useEffect(() => {
     if (practiceId !== null) {
@@ -103,10 +122,7 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
     const file = event.target.files?.[0];
 
     if (file) {
-      setTemplateInfo((prevTemplateInfo) => ({
-        ...prevTemplateInfo,
-        emailAttachment: file.name,
-      }));
+      setAttachment(file);
     }
   };
 
@@ -150,7 +166,8 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
         ...updatedTemplateInfo,
         active: updatedTemplateInfo.active ?? false,
         emailSubject: updatedTemplateInfo.emailSubject ?? '',
-        emailAttachment: updatedTemplateInfo.emailAttachment ?? '',
+        dateOffset: updatedTemplateInfo.dateOffset ?? 0,
+        emailAttachment: updatedTemplateInfo.emailAttachment,
         emailBody: updatedTemplateInfo.emailBody ?? '',
         messageText: updatedTemplateInfo.messageText ?? '',
         surgeryConfigurationId: updatedTemplateInfo.surgeryConfiguration
@@ -161,7 +178,11 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
         id: templateId,
       };
       try {
-        dispatch(updateRecordAsync(userPayloadData));
+        await withLoader(async () => {
+          await dispatch(
+            updateRecordAsync({ ...userPayloadData, file: attachment }),
+          );
+        });
         onClose();
       } catch (error) {
         onClose();
@@ -223,13 +244,38 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
                 />
               </div>
             </div>
+            {showDateOffsetField ? (
+              <div className="flex flex-row items-center gap-2">
+                <label
+                  htmlFor="surgeryConfiguration"
+                  className="text-black text-sm font-normal"
+                >
+                  Date Offset:
+                </label>
+                <div className="w-56 text-sm text-gray-600">
+                  <TextInput
+                    name="dateOffset"
+                    type="number"
+                    value={updatedTemplateInfo?.dateOffset}
+                    onChange={(value) => {
+                      setTemplateInfo({
+                        ...updatedTemplateInfo,
+                        dateOffset: Number(value),
+                      });
+                      setShowDateOffsetField(showDateOffsetControl(value));
+                    }}
+                    required
+                  />
+                </div>
+              </div>
+            ) : null}
           </div>
         </div>
         <div className="flex gap-5 mt-2">
           <div className="w-1/2 pr-3 border-r border-dotted border-gray-300 text-xs">
             <div className="h-4/6 overflow-auto">
-              <div className="flex justify-between">
-                <div className="border-b border-gray-100 text-base font-bold pb-2 text-black">
+              <div className="flex justify-between border-b border-gray-100">
+                <div className="text-base font-bold pb-2 text-black">
                   Email Message
                 </div>
                 <div>
@@ -278,7 +324,8 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
                       htmlFor="title"
                       className="text-black text-sm font-normal"
                     >
-                      Subject
+                      <RequiredIndicator />
+                      &nbsp;Subject
                     </label>
                     <TextInput
                       size={SIZE.mini}
@@ -340,12 +387,6 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
                 </div>
               </div>
             </div>
-            <div className="mt-3 flex flex-row">
-              <label className="space-y-2 font-bold w-36"> Email Body:</label>
-              <div>
-                {Object.keys(TEMPLATE_VARIABLES).map((ele) => `[${ele}], `)}
-              </div>
-            </div>
             <div>
               <div className=" border-b border-gray-100 mt-3 text-black font-bold text-base pb-1">
                 Text Message
@@ -375,6 +416,12 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
                 />
               </div>
             </div>
+            <div className="mt-5 flex flex-row">
+              <label className="space-y-2 font-bold w-36"> Email Body:</label>
+              <div className="text-sm">
+                {Object.keys(TEMPLATE_VARIABLES).map((ele) => `[${ele}], `)}
+              </div>
+            </div>
           </div>
           <div className="w-1/2">
             <div className="h-4/6 overflow-auto">
@@ -392,7 +439,7 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
                       <a
                         target="_blank"
                         // href={URL.createObjectURL(updatedTemplateInfo?.emailAttachment)}
-                        href={updatedTemplateInfo?.emailAttachment}
+                        href={templateInfo.emailAttachment}
                         className="text-blue-700"
                       >
                         File
@@ -408,12 +455,12 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
                 />
               </div>
             </div>
-            <div className="space-y-4 border-b border-gray-100 mt-5 text-black font-bold text-xl pb-2">
+            <div className="space-y-4 border-b border-gray-100 text-black font-bold text-xl pb-2">
               Text Message Preview
             </div>
             <div className="text-black text-sm">
               <div
-                className="mt-2.5 py-1.5 pr-1.5 overflow-hidden break-all"
+                className="mt-2.5 py-1.5 pr-1.5 max-h-20 overflow-auto break-all"
                 dangerouslySetInnerHTML={{
                   __html: updatedTemplateInfo?.messageText || '',
                 }}
@@ -421,12 +468,12 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({ data, onClose }) => {
             </div>
           </div>
         </div>
-        <div className="flex justify-end gap-3 mt-1">
+        <div className="flex justify-end gap-3 mt-10">
           <Button
             type="button"
             kind="tertiary"
             title="Delete"
-            width={80}
+            width={136}
             height={40}
             onClick={onConfirmDelete}
             style={{

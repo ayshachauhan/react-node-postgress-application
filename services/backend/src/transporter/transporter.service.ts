@@ -8,6 +8,7 @@ import { compile } from 'handlebars';
 import type { Transporter } from 'nodemailer';
 import Mail from 'nodemailer/lib/mailer';
 import SMTPTransport from 'nodemailer/lib/smtp-transport';
+import { formatHeaderDate } from 'src/utils';
 import { Twilio } from 'twilio';
 import { ENVIRONMENT_VARIABLES } from '../enums/environment.enums';
 import { EMAIL_CONNECTION_TOKEN, SystemTemplates } from './transporter.types';
@@ -52,6 +53,10 @@ export class TransporterService {
       : '';
 
     await this.sendText(data.phoneNumber, text);
+
+    if (data.link && typeof data.links == 'string') {
+      data.links = data.links.split(',');
+    }
 
     const result = await this.emailTransporter.sendMail({
       ...options,
@@ -115,7 +120,9 @@ export class TransporterService {
 
   compileTemplate(text: string, data: Record<string, unknown>): string {
     const template = compile(text);
-
+    if (data.surgery_date) {
+      data.surgery_date = formatHeaderDate(String(data.surgery_date));
+    }
     return template(data);
   }
 }

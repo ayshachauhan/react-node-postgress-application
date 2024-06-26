@@ -1,3 +1,5 @@
+import { MonthOption } from '@packages/entities/index.browser';
+
 export function indexBy<K extends keyof T, T>(
   key: K,
   array: T[],
@@ -127,4 +129,77 @@ export const getIpAddress = async (): Promise<string> => {
 
   const data = await response.json();
   return data.ip;
+};
+
+export const getDifferenceInDays = (date1: Date, date2: Date): number => {
+  // Convert both dates to UTC to avoid timezone issues
+  console.log(date1, date2);
+
+  const utc1 = Date.UTC(date1.getFullYear(), date1.getMonth(), date1.getDate());
+  const utc2 = Date.UTC(date2.getFullYear(), date2.getMonth(), date2.getDate());
+
+  // Calculate the difference in milliseconds
+  const diffInMilliseconds = utc1 - utc2;
+
+  // Convert milliseconds to days
+  const millisecondsPerDay = 24 * 60 * 60 * 1000;
+  const diffInDays = diffInMilliseconds / millisecondsPerDay;
+
+  return diffInDays;
+};
+
+export const toPascalCase = (str: string): string => {
+  if (str) {
+    return str
+      .split(' ') // Split the string by spaces, underscores, or hyphens
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()) // Capitalize the first letter and make the rest lowercase
+      .join(' ');
+  } else return str;
+};
+
+export const jsonResponseFromStream = async (response: Response) => {
+  if (response && response.body) {
+    // Access the response body as a ReadableStream
+    const reader = await response.body?.getReader();
+    const decoder = new TextDecoder();
+    let responseBody = '';
+
+    // Read the response body stream
+    const readStream = async () => {
+      const { done, value } = await reader.read();
+      if (done) {
+        return responseBody;
+      }
+      responseBody += decoder.decode(value, { stream: true });
+      return readStream();
+    };
+
+    const responsedata = await readStream();
+    console.log('JSON response from body: ', JSON.parse(responsedata));
+    return JSON.parse(responsedata);
+  }
+  return response;
+};
+
+export const validateEmail = (email?: string) => {
+  const validObj = { isValid: true, error: '' };
+  if (!email) {
+    validObj.isValid = false;
+    validObj.error = 'Please enter the email address.';
+    return validObj;
+  }
+  const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  const isValid = regex.test(String(email).toLowerCase());
+  if (!isValid) {
+    validObj.isValid = false;
+    validObj.error = 'Invalid Email address';
+    return validObj;
+  }
+  return validObj;
+};
+
+export const getSelectedMonths = (selectedMonth: MonthOption[]) => {
+  const monthLabels = selectedMonth.map((month) => month.label);
+  const month = monthLabels.join(',');
+  return month;
 };

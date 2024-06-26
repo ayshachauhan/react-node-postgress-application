@@ -28,6 +28,10 @@ const messageSlice = createSlice({
     setSearchMRNName: (state, action) => {
       state.messageFilters.searchMRNName = action.payload;
     },
+    clearData(state) {
+      state.entities = {};
+      state.status = EntityLoadingState.IDLE;
+    },
   },
   extraReducers(builder) {
     builder.addCase(fetchListings.pending, (state) => {
@@ -43,15 +47,16 @@ const messageSlice = createSlice({
     builder.addCase(fetchListings.rejected, (state, action) => {
       state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
-        state.errorMessage = action.payload ?? 'Failed to fetch messages';
+        state.errorMessage = action.payload ?? 'Failed to fetch messages.';
       } else {
-        state.errorMessage = 'Failed to fetch messages';
+        state.errorMessage = 'Failed to fetch messages.';
       }
       state.processing = false;
     });
   },
 });
-export const { clearSuccessMessage, clearErrorMessage } = messageSlice.actions;
+export const { clearSuccessMessage, clearErrorMessage, clearData } =
+  messageSlice.actions;
 
 export const fetchListings = createAsyncThunk(
   'messages/fetchListings',

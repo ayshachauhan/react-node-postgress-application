@@ -8,16 +8,20 @@ import {
   IEval,
   IHistory,
 } from '@packages/entities/index.browser';
+import Loader from '@root/components/loader';
+import { useLoader } from '@root/hooks/useLoader';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { fetchLoggedInUser } from '@root/store/reducers/auth';
 import { fetchListings as fetchEvalsList } from '@root/store/reducers/evals';
-import { fetchHistory } from '@root/store/reducers/history';
+import { clearData, fetchHistory } from '@root/store/reducers/history';
 import { fetchListings as fetchSurgeryList } from '@root/store/reducers/surgery';
 import {
   formatColumnDate,
   generateFullName,
   getPracticeId,
+  toPascalCase,
 } from '@utils/index';
+import { useSearchParams } from 'next/navigation';
 import React, { useEffect } from 'react';
 import { SurgeryFields } from './constants';
 
@@ -27,6 +31,7 @@ export type HistoryData = {
   surgery: string;
   firstName: string;
   lastName: string;
+  patientId: string;
   mrn: number;
   field: string;
   user: string;
@@ -34,10 +39,14 @@ export type HistoryData = {
   new?: string;
   ip: string;
   action: HistoryAction;
+  type: string;
 };
 
 export default function HistoryTable() {
   const dispatch = useAppDispatch();
+  const searchParams = useSearchParams();
+  const patientId = searchParams.get('id');
+  const { isLoading, withLoader } = useLoader();
 
   const practiceId = getPracticeId();
 
@@ -50,12 +59,21 @@ export default function HistoryTable() {
     }));
 
   useEffect(() => {
+    dispatch(clearData());
+  }, [dispatch, practiceId]);
+
+  useEffect(() => {
     dispatch(fetchLoggedInUser());
   }, [dispatch]);
 
   useEffect(() => {
     if (practiceId) {
-      dispatch(fetchHistory({ practiceId }));
+      const loadData = async () => {
+        await withLoader(async () => {
+          await dispatch(fetchHistory({ practiceId }));
+        });
+      };
+      loadData();
       dispatch(fetchEvalsList({ practiceId }));
       dispatch(fetchSurgeryList({ practiceId }));
     }
@@ -63,7 +81,12 @@ export default function HistoryTable() {
 
   useEffect(() => {
     if (practiceId) {
-      dispatch(fetchHistory({ practiceId }));
+      const loadData = async () => {
+        await withLoader(async () => {
+          await dispatch(fetchHistory({ practiceId }));
+        });
+      };
+      loadData();
     }
   }, [surgerySuccessMessage, dispatch, practiceId]);
 
@@ -105,11 +128,13 @@ export default function HistoryTable() {
         surgery: entityData.surgeryConfiguration.name,
         firstName: entityData.patient.firstName,
         lastName: entityData.patient.lastName,
+        patientId: entityData.patient.id,
         mrn: entityData.patient.mrn,
         user: history.user.fullName,
         ip: history.ipAddress ?? '',
         field: history.action === HistoryAction.CREATE ? 'Initial' : 'Delete',
         action: history.action,
+        type: toPascalCase(history.entityType),
       };
 
       resolvedData = history.changes
@@ -126,7 +151,30 @@ export default function HistoryTable() {
    * @returns resolved history data for surgery and eval
    */
   const getResolvedHistoryData = (): HistoryData[] => {
-    return historyLogs
+    let filteredHistoryLogs = historyLogs;
+
+    if (patientId) {
+      filteredHistoryLogs = historyLogs.filter((history) => {
+        if (history.entityType === HistoryType.SURGERY) {
+          const surgeryData = surgeries.find(
+            (surgery) => surgery.id === history.entityId,
+          );
+          if (surgeryData && surgeryData.patient.id === patientId) {
+            return true;
+          }
+        } else if (history.entityType === HistoryType.EVAL) {
+          const evalData = evals.find(
+            (evaluation) => evaluation.id === history.entityId,
+          );
+          if (evalData && evalData.patient.id === patientId) {
+            return true;
+          }
+        }
+        return false;
+      });
+    }
+
+    return filteredHistoryLogs
       .sort(
         (a, b) =>
           new Date(b.dateCreated).getTime() - new Date(a.dateCreated).getTime(),
@@ -156,18 +204,30 @@ export default function HistoryTable() {
       .flat();
   };
 
+  const sortHistoryDataByDate = (historyData: HistoryData[]): HistoryData[] => {
+    return historyData.sort((a, b) => {
+      return new Date(b.date).getTime() - new Date(a.date).getTime();
+    });
+  };
+  const getSortedHistoryData = (): HistoryData[] => {
+    const resolvedHistoryData = getResolvedHistoryData();
+    const sortedHistoryData = sortHistoryDataByDate(resolvedHistoryData);
+    return sortedHistoryData;
+  };
   return (
     <div className="my-4">
+      {isLoading && <Loader />}
       <div className="flex justify-between border-gray-400">
-        <span className="text-xl font-bold">History</span>
+        <span className="text-xl font-bold">All History</span>
       </div>
       <hr className="h-px my-2.5 bg-gray-100 border-1 dark:bg-gray-700"></hr>
-      {historyLogs && historyLogs.length > 0 && (
+      {!isLoading && historyLogs && historyLogs.length > 0 && (
         <div className="w-full overflow-x-auto mt-2 border border-gray-200 rounded-t-lg rounded-b-lg">
           <div className="bg-gradient-to-br from-teal-600 to-green-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 flex gap-2 py-2 px-2.5 text-sm">
             <div className="font-bold text-white py-2 px-1 w-40">Date</div>
             <div className="font-bold text-white py-2 px-1 w-40">Name</div>
             <div className="font-bold text-white py-2 px-1 w-40">MRN</div>
+            <div className="font-bold text-white py-2 px-1 w-40">Type</div>
             <div className="font-bold text-white py-2 px-1 w-40">Surgery</div>
             <div className="font-bold text-white py-2 px-1 w-40">Field</div>
             <div className="font-bold text-white py-2 px-1 w-40">User</div>
@@ -175,7 +235,7 @@ export default function HistoryTable() {
             <div className="font-bold text-white py-2 px-1 w-40">New</div>
             <div className="font-bold text-white py-2 px-1 w-40">IP</div>
           </div>
-          {getResolvedHistoryData().map((row, index) => (
+          {getSortedHistoryData().map((row, index) => (
             <div
               key={row.id}
               id={row.id}
@@ -192,6 +252,7 @@ export default function HistoryTable() {
                 {row ? generateFullName(row.firstName, row.lastName) : null}
               </div>
               <div className="text-black pt-2 pb-2 px-1 w-40">{row.mrn}</div>
+              <div className="text-black pt-2 pb-2 px-1 w-40">{row.type}</div>
               <div className="text-black pt-2 pb-2 px-1 w-40">
                 {row.surgery}
               </div>

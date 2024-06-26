@@ -6,7 +6,7 @@ export class CreateEvalDto {
   @ApiProperty()
   surgeryConfigurationId: string;
 
-  @IsNotEmpty({ message: 'practice home id is required' })
+  @IsNotEmpty({ message: 'patient home location is required' })
   @ApiProperty()
   practiceHomeId: string;
 
@@ -53,6 +53,10 @@ export class CreateEvalDto {
   @IsOptional()
   @ApiProperty()
   referrer: string;
+
+  @IsOptional()
+  @ApiProperty()
+  waitlistId: string;
 
   @IsNotEmpty()
   @ApiProperty()

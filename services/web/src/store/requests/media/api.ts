@@ -1,14 +1,13 @@
-import {
-  IMedia,
-  Image,
-  MediaType,
-  PatientMediaConfig,
-} from '@packages/entities/index.browser';
+import { MediaConfigType } from '@packages/entities';
+import { IMedia, MediaType } from '@packages/entities/index.browser';
 import { ApiService } from '@root/services/apiclient';
-import Cookies from 'js-cookie';
-import { publicRuntimeConfig } from 'next.config';
-import { AddMediaDTO, UploadImgPayload } from './types';
-const { API_BASE_URL } = publicRuntimeConfig;
+import {
+  AddMediaDTO,
+  DeleteMediaPayload,
+  DeleteMediaType,
+  PatientMediaConfig,
+  UploadImgPayload,
+} from './types';
 
 const apiClient = new ApiService();
 
@@ -55,19 +54,22 @@ export const addMedia = async (
   try {
     let response: Response;
 
-    const mediaConfig = payloadData.mediaConfig as PatientMediaConfig;
+    if (payloadData.mediaType === MediaType.PATIENT) {
+      const mediaConfig = payloadData.mediaConfig as PatientMediaConfig;
 
-    if (payloadData.mediaType === MediaType.PATIENT && mediaConfig?.image) {
-      const preImageData = mediaConfig.image.map((data: Image) => ({
-        title: data.title,
-        url: '',
-      }));
+      const videoData =
+        mediaConfig?.video?.map((data) => ({
+          title: data.title,
+          url: data.url,
+          configType: MediaConfigType.VIDEO,
+        })) ?? [];
 
       response = await apiClient.post(
         `/practices/${payloadData.practiceId}/media`,
         {
           mediaType: payloadData.mediaType,
-          mediaConfig: { ...payloadData.mediaConfig, image: preImageData },
+          entityId: payloadData.entityId,
+          mediaConfig: videoData,
         },
       );
       const data: IMedia = await response.json();
@@ -76,8 +78,8 @@ export const addMedia = async (
         return await uploadImg({
           practiceId: payloadData.practiceId,
           mediaId: data.id,
-          //@ts-expect-error add types
-          files: mediaConfig.image,
+          // @ts-expect-error fix type error
+          files: mediaConfig?.image,
         });
       }
       return data;
@@ -88,6 +90,7 @@ export const addMedia = async (
       {
         mediaType: payloadData.mediaType,
         mediaConfig: payloadData.mediaConfig,
+        entityId: payloadData.entityId,
       },
     );
     if (!response.ok) {
@@ -113,20 +116,21 @@ export const uploadImg = async (
     const { practiceId, mediaId, files } = payloadData;
     const formData = new FormData();
     files.forEach((file) => {
-      if (file.file) formData.append('files', file.file);
+      if (file.file) {
+        const sanitizedTitle = file.title.replace(/ /g, '_');
+        const newFile = new File([file.file], sanitizedTitle, {
+          type: file.file.type,
+        });
+
+        console.log(newFile, 'newfile');
+
+        formData.append('files', newFile);
+      }
     });
 
-    const accessToken = Cookies.get('access_token');
-
-    const response = await fetch(
-      `${API_BASE_URL}/practices/${practiceId}/media/${mediaId}/upload`,
-      {
-        method: 'PATCH',
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: formData,
-      },
+    const response = await apiClient.upload(
+      `/practices/${practiceId}/media/${mediaId}/upload`,
+      formData,
     );
 
     if (!response.ok) {
@@ -136,5 +140,52 @@ export const uploadImg = async (
     return data;
   } catch (error) {
     throw new Error();
+  }
+};
+
+export const deleteMedia = async (
+  payloadData: DeleteMediaPayload,
+  { rejectWithValue },
+): Promise<IMedia[]> => {
+  try {
+    const response: Response = await apiClient.delete(
+      payloadData.type === DeleteMediaType.Media
+        ? `/practices/${payloadData.practiceId}/media/${payloadData.mediaId}`
+        : `/practices/${payloadData.practiceId}/media/mediaconfig/${payloadData.mediaConfigId}`,
+    );
+
+    if (!response.ok) {
+      throw new Error('Failed to delete media');
+    }
+
+    const data: IMedia[] = await response.json();
+
+    return data;
+  } catch (error) {
+    if (error instanceof Error) {
+      return rejectWithValue(error.message);
+    }
+    return rejectWithValue('An unknown error occurred');
+  }
+};
+
+export const sendMediaToPatient = async (payloadData: {
+  practiceId: string;
+  data: {
+    mrn: string;
+    links: string[];
+  };
+}) => {
+  try {
+    const response: Response = await apiClient.post(
+      `/practices/${payloadData.practiceId}/media/send-video-to-patient`,
+      payloadData.data,
+    );
+
+    const data = await response.json();
+
+    return data;
+  } catch (error) {
+    return error;
   }
 };

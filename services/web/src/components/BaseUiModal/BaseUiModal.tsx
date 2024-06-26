@@ -1,5 +1,9 @@
 import { Modal, ModalBody, ModalHeader } from 'baseui/modal';
-import React from 'react';
+import React, { useRef } from 'react';
+
+export type ModalCloseEvent = {
+  closeSource?: 'closeButton' | 'backdrop' | 'escape';
+};
 
 const BaseUIModal = ({
   isOpen,
@@ -7,7 +11,10 @@ const BaseUIModal = ({
   title,
   children,
   additionalOverrides = {},
+  closeOnBackdrop = false,
 }) => {
+  const modalRef = useRef(null);
+
   const defaultOverrides = {
     Root: {
       style: ({ $theme }) => ({
@@ -22,8 +29,20 @@ const BaseUIModal = ({
     ...additionalOverrides,
   };
 
+  const handleCloseModal = (event) => {
+    if (event.closeSource === 'backdrop' && !closeOnBackdrop) {
+      return;
+    }
+    onClose();
+  };
+
   return (
-    <Modal onClose={onClose} isOpen={isOpen} overrides={combinedOverrides}>
+    <Modal
+      onClose={handleCloseModal}
+      isOpen={isOpen}
+      overrides={combinedOverrides}
+      ref={modalRef}
+    >
       {title && (
         <ModalHeader
           $style={{

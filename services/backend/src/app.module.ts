@@ -15,11 +15,13 @@ import { PermissionsModule } from './permissions/permissions.module';
 import { PracticeHomesModule } from './practiceHomes/practiceHomes.module';
 import { PracticesModule } from './practices/practices.module';
 import { ReferrersModule } from './referrers/referrers.module';
+import { ReviewsModule } from './review/review.module';
 import { SurgeryModule } from './surgery/surgery.module';
 import { SurgeryConfigurationsModule } from './surgeryConfiguration/surgeryConfiguration.module';
 import { SurgeryTypesModule } from './surgeryTypes/surgeryTypes.module';
 import { TemplatesModule } from './templates/templates.module';
 import { UsersModule } from './users/users.module';
+import { WaitlistModule } from './waitlist/waitlist.module';
 
 /**
  * All the application related to app logic should be added here
@@ -35,6 +37,7 @@ import { UsersModule } from './users/users.module';
     MediaModule,
     PermissionsModule,
     ReferrersModule,
+    ReviewsModule,
     TemplatesModule,
     SurgeryTypesModule,
     InsuranceTypesModule,
@@ -47,6 +50,7 @@ import { UsersModule } from './users/users.module';
     EmailHandlerModule,
     SchedulerModule,
     MessagesModule,
+    WaitlistModule,
   ],
 })
 export class AppModule {}

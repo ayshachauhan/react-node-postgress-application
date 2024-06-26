@@ -1,27 +1,34 @@
 'use client';
-import { MediaType } from '@packages/entities';
+import { IMedia, MediaType } from '@packages/entities';
 import {
+  IMediaConfig,
   IPatient,
   ISurgeryConfiguration,
-  PatientMediaConfig,
-  PracticeMediaConfig,
+  MediaConfigType,
 } from '@packages/entities/index.browser';
+import { ModalCloseEvent } from '@root/components/BaseUiModal/BaseUiModal';
 import Button from '@root/components/Button';
-import { AddIcon, PlayIcon } from '@root/components/Icons';
+import { AddIcon, DeleteIcon, PlayIcon } from '@root/components/Icons';
+import Loader from '@root/components/loader';
 import AddMediaModal from '@root/components/media/AddMediaModal';
 import ImageModal from '@root/components/media/ImageModal';
 import PlayVideoModal from '@root/components/media/PlayVideoModal';
+import { useLoader } from '@root/hooks/useLoader';
 import { useAppDispatch, useAppSelector } from '@root/store';
-import { fetchLoggedInUser } from '@root/store/reducers/auth';
 import {
   clearErrorMessage,
   clearSuccessMessage,
+  deleteRecordAsync,
   fetchListings,
 } from '@root/store/reducers/media';
 import { fetchListings as fetchPatients } from '@root/store/reducers/patient';
+import { fetchListings as fetchSurggeryConfigs } from '@root/store/reducers/surgeryConfigurations';
+import { DeleteMedia, DeleteMediaType } from '@root/store/requests/media/types';
 import { extractVideoId, getImageUrl, getPracticeId } from '@utils/index';
+import { SIZE } from 'baseui/input';
+import { Modal, ModalBody, ModalFooter, ModalHeader, ROLE } from 'baseui/modal';
 import Image from 'next/image';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 export type SelectedMedia = {
   name: string;
@@ -30,6 +37,7 @@ export type SelectedMedia = {
 
 const Media: React.FC = () => {
   const dispatch = useAppDispatch();
+  const { isLoading, withLoader } = useLoader();
   const { media, surgeryConfigurations, patients } = useAppSelector(
     (state) => ({
       media: Object.values(state.media.entities).reverse(),
@@ -58,6 +66,7 @@ const Media: React.FC = () => {
   const [selectedPatientId, setSelectedPatientId] = useState<string | null>(
     null,
   );
+  const modalRef = useRef(null);
 
   const mediaTab: SelectedMedia[] = [
     {
@@ -105,14 +114,17 @@ const Media: React.FC = () => {
 
   useEffect(() => {
     if (practiceId !== null) {
-      dispatch(fetchListings({ practiceId: practiceId }));
-      dispatch(fetchPatients({ practiceId: practiceId }));
-    }
-  }, [practiceId, dispatch]);
+      const loadData = async () => {
+        await withLoader(async () => {
+          await dispatch(fetchListings({ practiceId: practiceId }));
+        });
+      };
 
-  useEffect(() => {
-    dispatch(fetchLoggedInUser());
-  }, [dispatch]);
+      loadData();
+      dispatch(fetchPatients({ practiceId: practiceId }));
+      dispatch(fetchSurggeryConfigs({ practiceId: practiceId }));
+    }
+  }, [practiceId, dispatch, withLoader]);
 
   useEffect(() => {
     let timer;
@@ -137,8 +149,10 @@ const Media: React.FC = () => {
     };
   }, [successMessage, errorMessage, dispatch]);
 
-  const toggleActive = (mediaType: MediaType) => {
-    setSelectedMediaType(mediaType);
+  const toggleActive = async (mediaType: MediaType) => {
+    await withLoader(async () => {
+      setSelectedMediaType(mediaType);
+    });
   };
 
   const handlePatientMediaClick = (patientId: string) => {
@@ -153,17 +167,75 @@ const Media: React.FC = () => {
   const getPatientById = (id: string): IPatient | undefined =>
     patients.find((data) => data.id === id);
 
-  console.log(
-    selectedPatientId,
-    media,
-    getPatientById(selectedPatientId!),
-    'pat',
-  );
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deleteMedia, setDeleteMedia] = useState<DeleteMedia | null>({
+    mediaId: '',
+    mediaConfigId: '',
+    type: DeleteMediaType.Media,
+  });
+
+  const handleOpenDeleteModal = (data: DeleteMedia): void => {
+    setIsDeleteModalOpen(true);
+    setDeleteMedia(data);
+  };
+
+  const handleCloseDeleteModal = (event?: ModalCloseEvent): void => {
+    if (event?.closeSource === 'backdrop') {
+      return;
+    }
+    setIsDeleteModalOpen(false);
+    setDeleteMedia(null);
+  };
+
+  const onConfirmDelete = (): void => {
+    if (practiceId && deleteMedia) {
+      dispatch(deleteRecordAsync({ practiceId, ...deleteMedia }));
+      setIsDeleteModalOpen(false);
+      setDeleteMedia(null);
+    }
+    setDeleteMedia(null);
+  };
+
+  const DeleteModal = () => {
+    return (
+      <Modal
+        isOpen={isDeleteModalOpen}
+        onClose={handleCloseDeleteModal}
+        closeable
+        animate
+        autoFocus
+        size={SIZE.default}
+        role={ROLE.dialog}
+        ref={modalRef}
+        overrides={{
+          Root: {
+            style: ({ $theme }) => ({
+              outline: `${$theme.colors.warning200} solid`,
+              backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            }),
+          },
+        }}
+      >
+        <ModalHeader $style={{ fontSize: '1.25rem', fontWeight: 700 }}>
+          Confirm Deletion
+        </ModalHeader>
+        <ModalBody>Are you sure you want to delete this Media?</ModalBody>
+        <ModalFooter>
+          <Button kind="primary" title="Delete" onClick={onConfirmDelete}>
+            Delete
+          </Button>
+        </ModalFooter>
+      </Modal>
+    );
+  };
 
   return (
     <div className="mt-4">
-      {showModal && <div className="text-green-700">{successMessage}</div>}
-      {showErrorMessage && <div className="text-red-700">{errorMessage}</div>}
+      {isLoading && <Loader />}
+      <div className="flex flex-col items-center justify-center">
+        {showModal && <div className="text-green-700">{successMessage}</div>}
+        {showErrorMessage && <div className="text-red-700">{errorMessage}</div>}
+      </div>
       <div className="flex justify-between border-gray-400 items-center">
         <div className="flex bg-green-50 pr-2 border-b border-green-200 items-center">
           <div className="flex items-center">
@@ -198,159 +270,219 @@ const Media: React.FC = () => {
         />
       </div>
       <hr className="h-px my-2.5 bg-gray-100 border-1 border-gray-100" />
-      <div className="flex flex-wrap gap-6">
-        {selectedMediaType === MediaType.PRACTICE &&
-          media
-            .filter((data) => data.mediaType === MediaType.PRACTICE)
-            .map((data) => (
-              <React.Fragment key={data.id}>
-                <div className="rounded-lg shadow-md p-6 w-[298px] h-298 relative">
-                  <div>
-                    <Image
-                      src={getImageUrl(data.mediaConfig.video[0].url)}
-                      className="rounded-lg"
-                      alt="External image description"
-                      width={265}
-                      height={208}
-                      style={{ width: '265px', height: '208px' }}
-                    />
-                    <div
-                      className="bg-black absolute text-center transform -translate-x-1/2 -translate-y-1/2 border top-32 left-1/2 text-white rounded-full flex justify-center items-center p-2 border-black w-14 h-14 pointer"
-                      onClick={() =>
-                        handleOpenFirstModal(
-                          extractVideoId(data.mediaConfig.video[0].url),
-                        )
-                      }
-                    >
-                      <PlayIcon />
-                    </div>
-                    <div className="bg-black text-white rounded text-xs leading-[18px] absolute text-center border top-14 right-9 border-black py-1 px-1.5">
-                      {
-                        getSurgeryConfigById(
-                          (data.mediaConfig as PracticeMediaConfig)
-                            .surgeryConfigurationId,
-                        )?.name
-                      }
-                    </div>
-                    <div className="text-gray-900 pt-2 text-left">
-                      {data.mediaConfig.video[0].title}
-                    </div>
-                  </div>
-                </div>
-              </React.Fragment>
-            ))}
-        {selectedMediaType === MediaType.PATIENT &&
-          !selectedPatientId &&
-          media
-            .filter((data) => data.mediaType === MediaType.PATIENT)
-            .map((data) => (
-              <React.Fragment key={data.id}>
-                <div
-                  className="rounded-lg shadow-md p-6 w-[298px] h-298 relative cursor-pointer"
-                  onClick={() =>
-                    handlePatientMediaClick(
-                      (data.mediaConfig as PatientMediaConfig).patientId,
-                    )
-                  }
-                >
-                  <div>
-                    <Image
-                      src={getImageUrl(data.mediaConfig.video[0].url)}
-                      className="rounded-lg"
-                      alt="External image description"
-                      width={265}
-                      height={208}
-                      style={{ width: '265px', height: '208px' }}
-                    />
-                    <div className="text-gray-900 pt-2 text-left">
-                      {`Patient Name: ${getPatientById(
-                        (data.mediaConfig as PatientMediaConfig).patientId,
-                      )?.firstName}`}
-                    </div>
-                  </div>
-                </div>
-              </React.Fragment>
-            ))}
-        {selectedMediaType === MediaType.PATIENT && selectedPatientId && (
-          <div style={{ width: '100vw' }}>
-            <div className="flex justify-between items-center mb-4">
-              <div className="flex">
-                Patient Name: {getPatientById(selectedPatientId!)?.firstName}
-              </div>
-              <Button
-                title="Back"
-                height={40}
-                width={80}
-                onClick={() => setSelectedPatientId(null)}
-              ></Button>
-            </div>
-            <div className="flex flex-wrap gap-4">
-              {media
-                .filter(
-                  (data) =>
-                    (data.mediaConfig as PatientMediaConfig).patientId ===
-                    selectedPatientId,
-                )
-                .map((data) => data.mediaConfig)
-                .flatMap((data, index) => {
-                  // Combine video and image arrays with appropriate identifiers
-                  const videoElements = data.video.map((video, vidIndex) => (
-                    <React.Fragment key={`video-${index}-${vidIndex}`}>
-                      <div className="rounded-lg shadow-md p-6 w-[298px] h-[298px] relative">
+      {!isLoading && (
+        <div className="flex flex-wrap gap-6">
+          {selectedMediaType === MediaType.PRACTICE &&
+            media
+              .filter(
+                (data: IMedia) =>
+                  data.mediaType === MediaType.PRACTICE &&
+                  data.mediaConfigs.length,
+              )
+              .map((data: IMedia) => {
+                const mediaConfigs: IMediaConfig[] = data.mediaConfigs;
+                const surgeryName: string | undefined = data.entityId
+                  ? getSurgeryConfigById(data.entityId)?.name
+                  : '';
+                return (
+                  <React.Fragment key={data.id}>
+                    <div className="rounded-lg shadow-md p-6 w-[298px] h-298 relative">
+                      <div style={{ cursor: 'pointer' }}>
                         <Image
-                          src={getImageUrl(video.url)}
+                          src={getImageUrl(mediaConfigs[0]?.url)}
                           className="rounded-lg"
-                          alt="Video thumbnail"
+                          alt="External image description"
                           width={265}
                           height={208}
-                          style={{ width: '265px', height: '208px' }}
+                          style={{
+                            width: '265px',
+                            height: '208px',
+                          }}
                         />
                         <div
                           className="bg-black absolute text-center transform -translate-x-1/2 -translate-y-1/2 border top-32 left-1/2 text-white rounded-full flex justify-center items-center p-2 border-black w-14 h-14 pointer"
                           onClick={() =>
-                            handleOpenFirstModal(extractVideoId(video.url))
+                            handleOpenFirstModal(
+                              extractVideoId(mediaConfigs[0]?.url),
+                            )
                           }
                         >
                           <PlayIcon />
                         </div>
-                        <div className="text-gray-900 pt-2 text-left">
-                          {video.title}
+                        {surgeryName ? (
+                          <div className="bg-black text-white rounded text-xs leading-[18px] absolute text-center border top-14 right-9 border-black py-1 px-1.5">
+                            {surgeryName}
+                          </div>
+                        ) : (
+                          ''
+                        )}
+                        <div className="text-gray-900 pt-2 flex justify-between">
+                          <div>{mediaConfigs[0].title}</div>
+
+                          <DeleteIcon
+                            style={{ cursor: 'pointer' }}
+                            onClick={() =>
+                              handleOpenDeleteModal({
+                                mediaId: data.id,
+                                type: DeleteMediaType.Media,
+                              })
+                            }
+                          />
                         </div>
                       </div>
-                    </React.Fragment>
-                  ));
+                    </div>
+                  </React.Fragment>
+                );
+              })}
+          {selectedMediaType === MediaType.PATIENT &&
+            !selectedPatientId &&
+            media
+              .filter(
+                (data) =>
+                  data.mediaType === MediaType.PATIENT &&
+                  data.mediaConfigs.length,
+              )
+              .map((data) => (
+                <React.Fragment key={data.id}>
+                  <div className="rounded-lg shadow-md p-6 w-[298px] h-298 relative cursor-pointer">
+                    <div>
+                      <Image
+                        src={
+                          data.mediaConfigs[0].configType ===
+                          MediaConfigType.VIDEO
+                            ? getImageUrl(data.mediaConfigs[0].url)
+                            : data.mediaConfigs[0].url
+                        }
+                        className="rounded-lg"
+                        alt="External image description"
+                        width={265}
+                        height={208}
+                        style={{ width: '265px', height: '208px' }}
+                        onClick={() => handlePatientMediaClick(data.entityId!)}
+                      />
+                      <div className="text-gray-900 pt-2 flex justify-between">
+                        {`Patient Name: ${getPatientById(data.entityId!)
+                          ?.firstName}`}
 
-                  const imageElements = (data as PatientMediaConfig)?.image
-                    ? (data as PatientMediaConfig)?.image.map(
-                        (image, imgIndex) => (
-                          <React.Fragment key={`image-${index}-${imgIndex}`}>
-                            <div
-                              className="rounded-lg shadow-md p-6 w-[298px] h-[298px] relative"
-                              onClick={() => handleOpenImageModal(image.url)}
-                            >
-                              <Image
-                                src={image.url}
-                                className="rounded-lg"
-                                alt="Image description"
-                                width={265}
-                                height={208}
-                                style={{ width: '265px', height: '208px' }}
-                              />
-                              <div className="text-gray-900 pt-2 text-left">
-                                {image.title}
-                              </div>
-                            </div>
-                          </React.Fragment>
-                        ),
+                        <DeleteIcon
+                          style={{ cursor: 'pointer' }}
+                          onClick={() =>
+                            handleOpenDeleteModal({
+                              mediaId: data.id,
+                              type: DeleteMediaType.Media,
+                            })
+                          }
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </React.Fragment>
+              ))}
+          {selectedMediaType === MediaType.PATIENT && selectedPatientId && (
+            <div style={{ width: '100vw' }}>
+              <div className="flex justify-between items-center mb-4">
+                <div className="flex">
+                  Patient Name: {getPatientById(selectedPatientId!)?.firstName}
+                </div>
+                <Button
+                  title="Back"
+                  height={40}
+                  width={80}
+                  onClick={() => setSelectedPatientId(null)}
+                ></Button>
+              </div>
+              <div className="flex flex-wrap gap-4">
+                {media
+                  .filter((data: IMedia) => data.entityId === selectedPatientId)
+                  .map((data: IMedia) => data.mediaConfigs)
+                  .flatMap((mediaConfigs: IMediaConfig[], index) => {
+                    // Combine video and image arrays with appropriate identifiers
+
+                    const videoElements = mediaConfigs
+                      .filter(
+                        (config) => config.configType === MediaConfigType.VIDEO,
                       )
-                    : [];
+                      .map((config: IMediaConfig, vidIndex) => (
+                        <React.Fragment key={`video-${index}-${vidIndex}`}>
+                          <div
+                            className="rounded-lg shadow-md p-6 w-[298px] h-[298px] relative"
+                            style={{ cursor: 'pointer' }}
+                          >
+                            <Image
+                              src={getImageUrl(config.url)}
+                              className="rounded-lg"
+                              alt="Video thumbnail"
+                              width={265}
+                              height={208}
+                              style={{ width: '265px', height: '208px' }}
+                            />
+                            <div
+                              className="bg-black absolute text-center transform -translate-x-1/2 -translate-y-1/2 border top-32 left-1/2 text-white rounded-full flex justify-center items-center p-2 border-black w-14 h-14 pointer"
+                              onClick={() =>
+                                handleOpenFirstModal(extractVideoId(config.url))
+                              }
+                            >
+                              <PlayIcon />
+                            </div>
+                            <div className="text-gray-900 pt-2 flex justify-between">
+                              {config.title}
+                              <DeleteIcon
+                                style={{ cursor: 'pointer' }}
+                                onClick={() =>
+                                  handleOpenDeleteModal({
+                                    type: DeleteMediaType.MediaConfig,
+                                    mediaConfigId: config.id,
+                                  })
+                                }
+                              />
+                            </div>
+                          </div>
+                        </React.Fragment>
+                      ));
 
-                  return [...videoElements, ...imageElements];
-                })}
+                    const imageElements = mediaConfigs
+                      ?.filter(
+                        (config: IMediaConfig) =>
+                          config.configType === MediaConfigType.IMAGE,
+                      )
+                      .map((data, imgIndex) => (
+                        <React.Fragment key={`image-${index}-${imgIndex}`}>
+                          <div
+                            className="rounded-lg shadow-md p-6 w-[298px] h-[298px] relative"
+                            style={{ cursor: 'pointer' }}
+                          >
+                            <Image
+                              src={data.url}
+                              className="rounded-lg"
+                              alt="Image description"
+                              width={265}
+                              height={208}
+                              style={{ width: '265px', height: '208px' }}
+                              onClick={() => handleOpenImageModal(data.url)}
+                            />
+                            <div className="text-gray-900 pt-2 flex justify-between">
+                              {data.title}
+                              <DeleteIcon
+                                style={{ cursor: 'pointer' }}
+                                onClick={() =>
+                                  handleOpenDeleteModal({
+                                    type: DeleteMediaType.MediaConfig,
+                                    mediaConfigId: data.id,
+                                  })
+                                }
+                              />
+                            </div>
+                          </div>
+                        </React.Fragment>
+                      ));
+
+                    return [...videoElements, ...imageElements];
+                  })}
+              </div>
             </div>
-          </div>
-        )}
-      </div>
+          )}
+        </div>
+      )}
       <div>
         {videoId && isVideoLoaded && (
           <PlayVideoModal
@@ -373,7 +505,9 @@ const Media: React.FC = () => {
         isSecondModalOpen={isSecondModalOpen}
         handleCloseSecondModal={handleCloseSecondModal}
         selectedMediaType={selectedMediaType}
+        withLoader={withLoader}
       />
+      <DeleteModal />
     </div>
   );
 };

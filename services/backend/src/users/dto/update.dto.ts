@@ -19,6 +19,10 @@ export class UpdateUserDto {
   @ApiProperty()
   userName: string;
 
+  @IsOptional()
+  @ApiProperty()
+  designation: string;
+
   @IsEmpty()
   @ApiProperty()
   password: string;
@@ -42,4 +46,8 @@ export class UpdateUserDto {
   @IsOptional()
   @ApiProperty()
   imgUrl: string;
+
+  @IsOptional()
+  @ApiProperty()
+  contactNumber: string;
 }

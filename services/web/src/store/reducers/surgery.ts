@@ -17,7 +17,7 @@ const getCurrentMonthOption = (): MonthOption => {
   const monthValue = currentDate.toLocaleString('default', {
     month: 'numeric',
   });
-  const id = `${currentDate.getFullYear()}-${monthValue}`;
+  const id = monthValue;
 
   return {
     label: monthLabel,
@@ -78,7 +78,7 @@ const surgeriesSlicer = createSlice({
         state.errorMessage =
           "You don't have required permissions to see some records.";
       } else if (action.payload.surgeries.length === 0) {
-        state.errorMessage = 'No records found.';
+        state.errorMessage = 'No surgeries found.';
       } else {
         state.errorMessage = '';
       }
@@ -87,9 +87,9 @@ const surgeriesSlicer = createSlice({
     builder.addCase(fetchListings.rejected, (state, action) => {
       state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
-        state.errorMessage = action.payload ?? 'Failed to fetch records';
+        state.errorMessage = action.payload ?? 'Failed to fetch surgeries.';
       } else {
-        state.errorMessage = 'Failed to fetch records';
+        state.errorMessage = 'Failed to fetch surgeries.';
       }
     });
 
@@ -106,9 +106,9 @@ const surgeriesSlicer = createSlice({
     builder.addCase(fetchSurgeryInfo.rejected, (state, action) => {
       state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
-        state.errorMessage = action.payload ?? 'Failed to fetch record info';
+        state.errorMessage = action.payload ?? 'Failed to fetch surgery info.';
       } else {
-        state.errorMessage = 'Failed to fetch record info';
+        state.errorMessage = 'Failed to fetch surgery info.';
       }
     });
 
@@ -122,15 +122,15 @@ const surgeriesSlicer = createSlice({
       state.entities = {
         ...state.entities,
       };
-      state.successMessage = 'Record added successfully';
+      state.successMessage = 'Surgery added successfully.';
     });
 
     builder.addCase(addRecordAsync.rejected, (state, action) => {
       state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
-        state.errorMessage = action.payload ?? 'Failed to add  record';
+        state.errorMessage = action.payload ?? 'Failed to add surgery.';
       } else {
-        state.errorMessage = 'Failed to add record';
+        state.errorMessage = 'Failed to add surgery.';
       }
     });
 
@@ -142,7 +142,7 @@ const surgeriesSlicer = createSlice({
     builder.addCase(updateRecordAsync.fulfilled, (state) => {
       state.status = EntityLoadingState.SUCCEEDED;
 
-      state.successMessage = 'Record updated successfully';
+      state.successMessage = 'Surgery updated successfully.';
     });
 
     builder.addCase(updateRecordAsync.rejected, (state, action) => {
@@ -168,15 +168,15 @@ const surgeriesSlicer = createSlice({
         ...remainingRecord
       } = state.entities;
       state.entities = remainingRecord;
-      state.successMessage = 'Record deleted successfully';
+      state.successMessage = 'Surgery deleted successfully.';
     });
 
     builder.addCase(deleteRecordAsync.rejected, (state, action) => {
       state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
-        state.errorMessage = action.payload ?? 'Failed to delete surgery';
+        state.errorMessage = action.payload ?? 'Failed to delete surgery.';
       } else {
-        state.errorMessage = 'Failed to delete surgery';
+        state.errorMessage = 'Failed to delete surgery.';
       }
     });
   },

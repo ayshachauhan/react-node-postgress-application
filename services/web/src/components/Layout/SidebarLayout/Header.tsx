@@ -10,22 +10,41 @@ import {
   selectedPracticeName,
   userPractices,
 } from '@root/store/reducers/auth';
-import { fetchCalendars } from '@root/store/reducers/calendar';
+import { fetchFilteredCalendars } from '@root/store/reducers/calendar';
 import { getPracticeInfo } from '@root/store/reducers/practices';
 import { fetchListings } from '@root/store/reducers/users';
 import { SanitizedUser } from '@root/store/types';
-import { SELECTED_DOCTOR_KEY, getPracticeId } from '@utils/index';
+import {
+  SELECTED_DOCTOR_KEY,
+  getPracticeId,
+  getSelectedMonths,
+} from '@utils/index';
 import { ChevronDown } from 'baseui/icon';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 
-const Header: React.FC = () => {
+interface Data {
+  collapsed: boolean;
+}
+
+interface ChildProps {
+  data: Data;
+}
+
+const Header: React.FC<ChildProps> = ({ data }) => {
   const dispatch = useAppDispatch();
   const getSelectedUserId: string | null =
     localStorage.getItem(SELECTED_DOCTOR_KEY);
 
   const userInfo = useAppSelector((state) => state.auth.user);
+  const loggedInUserId = userInfo?.id;
+  const { selectedMonth, selectedValue } = useAppSelector(
+    (state) => state.surgeries.surgeryFilters,
+  );
+  const selectedValueStr = selectedValue || '';
+
+  const month = getSelectedMonths(selectedMonth);
   const { entities } = useAppSelector((state: State) => state.users);
   const practiceId = getPracticeId();
 
@@ -44,7 +63,7 @@ const Header: React.FC = () => {
   const is_super_admin = userInfo ? userInfo.isSuperAdmin : false;
   const selectedUserBox = (
     <span className="inline-flex items-center gap-2">
-      <AvatarIcon size={40}></AvatarIcon>
+      &nbsp;&nbsp;&nbsp;
       {selectedUser?.fullName}
       <ChevronDown />
     </span>
@@ -90,8 +109,16 @@ const Header: React.FC = () => {
       const userId = user.id;
       setSelectedUser(user);
       localStorage.setItem(SELECTED_DOCTOR_KEY, user.id);
-      if (practiceId !== null && userId !== null) {
-        dispatch(fetchCalendars({ practiceId, userId }));
+      if (practiceId !== null && userId !== null && loggedInUserId !== null) {
+        dispatch(
+          fetchFilteredCalendars({
+            practiceId,
+            userId,
+            month,
+            option: selectedValueStr,
+            loggedInUserId,
+          }),
+        );
       }
     }
   };
@@ -99,12 +126,9 @@ const Header: React.FC = () => {
   const goToProfile = () => {
     router.push('/profile');
   };
-  const goToSettings = () => {
-    router.push('/settings');
-  };
 
   useEffect(() => {
-    if (practiceId !== null) {
+    if (practiceId !== null && practiceId) {
       dispatch(fetchListings({ practiceId: practiceId }));
     }
   }, [dispatch, practiceId]);
@@ -122,22 +146,33 @@ const Header: React.FC = () => {
   };
 
   return (
-    <nav className="fixed top-0 left-40 z-9 bg-white shadow-md w-[calc(100%-10rem)] h-[60px]">
+    <nav
+      className={`fixed top-0 z-9 bg-white shadow-md h-[60px] ${
+        data.collapsed ? 'w-[calc(100%-4rem)] ' : 'left-40 w-[calc(100%-10rem)]'
+      }`}
+    >
       <div className="px-5 py-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
             {!is_super_admin && isDashboardPage && (
-              <Dropdown
-                position="bottomLeft"
-                trigger={selectedUserBox}
-                onSelect={handleUserSelect}
-              >
-                {users.map((user: SanitizedUser, index: number) => (
-                  <Dropdown.Item id={user.id} key={index}>
-                    {user.fullName}
-                  </Dropdown.Item>
-                ))}
-              </Dropdown>
+              <>
+                <div>Doctor:</div>
+                {users && users.length > 1 ? (
+                  <Dropdown
+                    position="bottomLeft"
+                    trigger={selectedUserBox}
+                    onSelect={handleUserSelect}
+                  >
+                    {users.map((user: SanitizedUser, index: number) => (
+                      <Dropdown.Item id={user.id} key={index}>
+                        {user.fullName}
+                      </Dropdown.Item>
+                    ))}
+                  </Dropdown>
+                ) : (
+                  <div>&nbsp;&nbsp;&nbsp;{users && users[0]?.fullName}</div>
+                )}
+              </>
             )}
           </div>
 
@@ -145,7 +180,7 @@ const Header: React.FC = () => {
             <div className="flex items-center">
               {!is_super_admin && (
                 <>
-                  <div>Practice Name:</div>
+                  <div>Practice:</div>
                   <Dropdown
                     position="bottomLeft"
                     trigger={
@@ -158,16 +193,11 @@ const Header: React.FC = () => {
                   >
                     {userPracticesList.map((item) => (
                       <Dropdown.Item
-                        key={item.practice.id}
-                        id={item.practice.id}
-                        onClick={() =>
-                          handlePracticeChange(
-                            item.practice.id,
-                            item.practice.name,
-                          )
-                        }
+                        key={item.id}
+                        id={item.id}
+                        onClick={() => handlePracticeChange(item.id, item.name)}
                       >
-                        {item.practice.name}
+                        {item.name}
                       </Dropdown.Item>
                     ))}
                   </Dropdown>
@@ -198,11 +228,6 @@ const Header: React.FC = () => {
               {!is_super_admin && (
                 <Dropdown.Item id="profile" onClick={goToProfile}>
                   Profile
-                </Dropdown.Item>
-              )}
-              {!is_super_admin && (
-                <Dropdown.Item id="setting" onClick={goToSettings}>
-                  Settings
                 </Dropdown.Item>
               )}
               {!is_super_admin && (

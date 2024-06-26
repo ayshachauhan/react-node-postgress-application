@@ -37,19 +37,15 @@ const templateSlice = createSlice({
       state.status = EntityLoadingState.SUCCEEDED;
       state.entities = {};
       if (action.payload.length === 0) {
-        state.errorMessage = 'No records found';
+        state.errorMessage = 'No templates found';
       } else {
         state.errorMessage = undefined;
       }
       if (action.payload) {
         const indexedEntities = action.payload.reduce((acc, obj) => {
           const surgeryConfigurationName = obj.surgeryConfigurationName;
-          delete obj.surgeryConfigurationName;
           if (surgeryConfigurationName) {
-            acc[surgeryConfigurationName] = {
-              ...obj,
-              surgeryConfigurationName: surgeryConfigurationName,
-            };
+            acc[surgeryConfigurationName] = obj;
           }
           return acc;
         }, {});
@@ -65,9 +61,9 @@ const templateSlice = createSlice({
       state.status = EntityLoadingState.FAILED;
       state.processing = false;
       if (typeof action.payload === 'string') {
-        state.errorMessage = action.payload ?? 'Failed to fetch templates';
+        state.errorMessage = action.payload ?? 'Failed to fetch templates.';
       } else {
-        state.errorMessage = 'Failed to fetch templates';
+        state.errorMessage = 'Failed to fetch templates.';
       }
     });
 
@@ -78,19 +74,33 @@ const templateSlice = createSlice({
 
     builder.addCase(addRecordAsync.fulfilled, (state, action) => {
       state.status = EntityLoadingState.SUCCEEDED;
+      if (
+        !action.payload.surgeryConfigurationName ||
+        !action.payload.messageType
+      ) {
+        state.successMessage = 'Template added successfully.';
+        return;
+      }
+      const messageTypeData =
+        state.entities[action.payload.surgeryConfigurationName][
+          action.payload.messageType
+        ] ?? [];
       state.entities = {
         ...state.entities,
-        ...{ [action.payload.id]: action.payload },
+        [action.payload.surgeryConfigurationName]: {
+          ...state.entities[action.payload.surgeryConfigurationName],
+          [action.payload.messageType]: [...messageTypeData, action.payload],
+        },
       };
-      state.successMessage = 'Record added successfully';
+      state.successMessage = 'Template added successfully.';
     });
 
     builder.addCase(addRecordAsync.rejected, (state, action) => {
       state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
-        state.errorMessage = action.payload ?? 'Failed to add template';
+        state.errorMessage = action.payload ?? 'Failed to add template.';
       } else {
-        state.errorMessage = 'Failed to add template';
+        state.errorMessage = 'Failed to add template.';
       }
       state.processing = false;
     });
@@ -102,19 +112,33 @@ const templateSlice = createSlice({
 
     builder.addCase(updateRecordAsync.fulfilled, (state, action) => {
       state.status = EntityLoadingState.SUCCEEDED;
+      if (
+        !action.payload.surgeryConfigurationName ||
+        !action.payload.messageType
+      ) {
+        state.successMessage = 'Template updated successfully.';
+        return;
+      }
+      const messageTypeData =
+        state.entities[action.payload.surgeryConfigurationName][
+          action.payload.messageType
+        ] ?? [];
       state.entities = {
         ...state.entities,
-        ...{ [action.payload.id]: action.payload },
+        [action.payload.surgeryConfigurationName]: {
+          ...state.entities[action.payload.surgeryConfigurationName],
+          [action.payload.messageType]: [...messageTypeData, action.payload],
+        },
       };
-      state.successMessage = 'Record updated successfully';
+      state.successMessage = 'Template updated successfully.';
     });
 
     builder.addCase(updateRecordAsync.rejected, (state, action) => {
       state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
-        state.errorMessage = action.payload ?? 'Failed to update template';
+        state.errorMessage = action.payload ?? 'Failed to update template.';
       } else {
-        state.errorMessage = 'Failed to update template';
+        state.errorMessage = 'Failed to update template.';
       }
     });
 
@@ -132,15 +156,15 @@ const templateSlice = createSlice({
         ...remainingTemplates
       } = state.entities;
       state.entities = remainingTemplates;
-      state.successMessage = 'Record deleted successfully';
+      state.successMessage = 'Template deleted successfully.';
     });
 
     builder.addCase(deleteRecordAsync.rejected, (state, action) => {
       state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
-        state.errorMessage = action.payload ?? 'Failed to delete template';
+        state.errorMessage = action.payload ?? 'Failed to delete template.';
       } else {
-        state.errorMessage = 'Failed to delete template';
+        state.errorMessage = 'Failed to delete template.';
       }
     });
   },

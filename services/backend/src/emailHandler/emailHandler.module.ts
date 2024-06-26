@@ -6,11 +6,13 @@ import {
   SurgeryEmailEntity,
 } from '@packages/entities';
 import { EmailHandlerService } from 'src/emailHandler/emailHandler.service';
+import { EvalsModule } from 'src/evals/evals.module';
 import { InsuranceTypesModule } from 'src/insuranceTypes/insuranceTypes.module';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
 import { PatientsModule } from 'src/patients/patients.module';
 import { PracticeHomesModule } from 'src/practiceHomes/practiceHomes.module';
 import { PracticesModule } from 'src/practices/practices.module';
+import { SurgeryModule } from 'src/surgery/surgery.module';
 import { SurgeryConfigurationsModule } from 'src/surgeryConfiguration/surgeryConfiguration.module';
 import { TemplatesModule } from 'src/templates/templates.module';
 import { TransporterModule } from 'src/transporter';
@@ -31,6 +33,8 @@ import { UsersModule } from 'src/users/users.module';
     forwardRef(() => UsersModule),
     forwardRef(() => TemplatesModule),
     forwardRef(() => TransporterModule),
+    forwardRef(() => SurgeryModule),
+    forwardRef(() => EvalsModule),
   ],
   providers: [
     practiceNotFoundInterceptor,

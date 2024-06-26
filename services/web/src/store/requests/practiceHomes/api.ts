@@ -5,7 +5,7 @@ import { CreatePracticeHomeInterface } from '.';
 const apiClient = new ApiService();
 
 /**
- * Get Practice homes by practice id
+ * Get Patient home locations by practice id
  * @param payloadData
  * @param param1
  * @returns IPracticeHomes[]
@@ -67,6 +67,7 @@ export const deletePracticeHome = async (
   try {
     const response = await apiClient.delete(
       `/practices/${payloadData.practiceId}/homes/${payloadData.id}`,
+      null,
     );
     if (!response.ok) {
       throw new Error('Failed to delete template');

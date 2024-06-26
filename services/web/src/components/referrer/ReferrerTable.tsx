@@ -1,9 +1,11 @@
 'use client';
 import Button from '@root/components/Button';
 import { AddIcon, DeleteIcon, EditIcon } from '@root/components/Icons';
+import Loader from '@root/components/loader';
 import AddReferrerModal from '@root/components/referrer/AddReferrerModal';
 import EditReferrerModal from '@root/components/referrer/EditReferrerModal';
 import ReferredListModal from '@root/components/referrer/ReferredListModal';
+import { useLoader } from '@root/hooks/useLoader';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { fetchLoggedInUser } from '@root/store/reducers/auth';
 import {
@@ -19,6 +21,7 @@ import DeleteReferrerModal from './DeleteReferrerModal';
 
 export default function ReferrerTable() {
   const practiceId = getPracticeId();
+  const { isLoading, withLoader } = useLoader();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const handleCloseModal = (): void => {
     setIsModalOpen(false);
@@ -87,9 +90,15 @@ export default function ReferrerTable() {
 
   useEffect(() => {
     if (practiceId !== null) {
-      dispatch(fetchListings({ practiceId: practiceId }));
+      const loadData = async () => {
+        await withLoader(async () => {
+          await dispatch(fetchListings({ practiceId: practiceId }));
+        });
+      };
+
+      loadData();
     }
-  }, [practiceId, dispatch]);
+  }, [practiceId, dispatch, withLoader]);
   useEffect(() => {
     let timer;
     if (successMessage) {
@@ -114,6 +123,7 @@ export default function ReferrerTable() {
   }, [successMessage, errorMessage, dispatch]);
   return (
     <div className="mt-4 mb-8">
+      {isLoading && <Loader />}
       <div className="flex justify-between border-gray-400">
         <span className="text-xl font-bold">Referrer</span>
         {showModal && <div className="text-green-700">{successMessage}</div>}
@@ -134,77 +144,93 @@ export default function ReferrerTable() {
           <div className="font-bold text-white p-4 flex-1">Email</div>
           <div className="font-bold text-white p-4 flex-1">Action</div>
         </div>
-        {referrers.map((data, index) => (
-          <React.Fragment key={data.id}>
-            <div
-              className={`flex pb-2 ${
-                index !== referrers.length - 1 ? 'border-b border-gray-300' : ''
-              }`}
-            >
-              <div
-                className="text-blue-600 hover:text-blue-800 visited:text-purple-600 decoration-solid cursor-pointer bg-gray-50 pt-2 px-4 flex-1"
-                onClick={() => data.id && handleOpenListModal(data.id)}
-              >
-                <div className="flex">
-                  {data
-                    ? generateFullName(data.firstName, data.lastName)
-                    : null}
-                  {data && data.verified && (
-                    <Checkbox
-                      key={index}
-                      checked={true}
-                      overrides={{
-                        Checkmark: {
-                          style: ({ $checked }) => ({
-                            backgroundColor: $checked
-                              ? 'rgba(34, 197, 94, 1)'
-                              : 'white',
-                            borderColor: $checked
-                              ? 'rgba(34, 197, 94, 1)'
-                              : 'rgba(113, 113, 122, 1)',
-                            width: '15px',
-                            height: '15px',
-                            marginTop: '7px',
-                            marginRight: '0px',
-                            borderRadius: '2px',
-                            borderWidth: '2px',
-                          }),
-                        },
-                      }}
-                    ></Checkbox>
-                  )}
-                </div>
-              </div>
-              <div className="text-gray-900 bg-gray-50 pt-2 px-4 flex-1">
-                {data?.referrerType}
-              </div>
-              <div className="text-gray-900 bg-gray-50 pt-2 px-4 flex-1">
-                {data?.patients?.length}
-              </div>
-              <div className="text-gray-900 bg-gray-50 pt-2 px-4 flex-1">
-                {data?.email}
-              </div>
-              <div className="text-gray-900 bg-gray-50 pt-2 px-4 flex-1 flex gap-4">
+        {!isLoading &&
+          referrers.map((data, index) => {
+            const totalSurgeries = data.patients?.reduce(
+              (sum, patient) => sum + (patient.surgeries?.length || 0),
+              0,
+            );
+            const totalEvals = data.patients?.reduce(
+              (sum, patient) => sum + (patient.evals?.length || 0),
+              0,
+            );
+            const total = totalSurgeries + totalEvals;
+
+            return (
+              <React.Fragment key={data.id}>
                 <div
-                  onClick={() => data.id && handleOpenEditModal(data.id)}
-                  className="cursor-pointer"
+                  className={`flex pb-2 ${
+                    index !== referrers.length - 1
+                      ? 'border-b border-gray-300'
+                      : ''
+                  }`}
                 >
-                  <EditIcon className="mt-2"></EditIcon>
+                  <div
+                    className="text-blue-600 hover:text-blue-800 visited:text-purple-600 decoration-solid cursor-pointer bg-gray-50 pt-2 px-4 flex-1"
+                    onClick={() => data.id && handleOpenListModal(data.id)}
+                  >
+                    <div className="flex">
+                      {data
+                        ? generateFullName(data.firstName, data.lastName)
+                        : null}
+                      {data && data.verified && (
+                        <Checkbox
+                          key={index}
+                          checked={true}
+                          overrides={{
+                            Checkmark: {
+                              style: ({ $checked }) => ({
+                                backgroundColor: $checked
+                                  ? 'rgba(34, 197, 94, 1)'
+                                  : 'white',
+                                borderColor: $checked
+                                  ? 'rgba(34, 197, 94, 1)'
+                                  : 'rgba(113, 113, 122, 1)',
+                                width: '15px',
+                                height: '15px',
+                                marginTop: '7px',
+                                marginRight: '0px',
+                                borderRadius: '2px',
+                                borderWidth: '2px',
+                              }),
+                            },
+                          }}
+                        ></Checkbox>
+                      )}
+                    </div>
+                  </div>
+                  <div className="text-gray-900 bg-gray-50 pt-2 px-4 flex-1">
+                    {data?.referrerType}
+                  </div>
+                  <div className="text-gray-900 bg-gray-50 pt-2 px-4 flex-1">
+                    {total ? total : 0}
+                  </div>
+                  <div className="text-gray-900 bg-gray-50 pt-2 px-4 flex-1">
+                    {data?.email}
+                  </div>
+                  <div className="text-gray-900 bg-gray-50 pt-2 px-4 flex-1 flex gap-1">
+                    <div
+                      onClick={() => data.id && handleOpenEditModal(data.id)}
+                      className="cursor-pointer"
+                    >
+                      <EditIcon></EditIcon>
+                    </div>
+                    <div
+                      onClick={() => data.id && handleOpenDeleteModal(data.id)}
+                      className="cursor-pointer"
+                    >
+                      <DeleteIcon></DeleteIcon>
+                    </div>
+                  </div>
                 </div>
-                <div
-                  onClick={() => data.id && handleOpenDeleteModal(data.id)}
-                  className="cursor-pointer"
-                >
-                  <DeleteIcon className="mt-2"></DeleteIcon>
-                </div>
-              </div>
-            </div>
-          </React.Fragment>
-        ))}
+              </React.Fragment>
+            );
+          })}
       </div>
       <AddReferrerModal
         isModalOpen={isModalOpen}
         handleCloseModal={handleCloseModal}
+        withLoader={withLoader}
       />
       <DeleteReferrerModal
         onConfirmDelete={onConfirmDelete}
@@ -215,11 +241,13 @@ export default function ReferrerTable() {
         isListModalOpen={isListModalOpen}
         referrerId={referrerId}
         handleCloseListModal={handleCloseListModal}
+        withLoader={withLoader}
       />
       <EditReferrerModal
         isEditModalOpen={isEditModalOpen}
         handleCloseEditModal={handleCloseEditModal}
         referrerId={referrerId}
+        withLoader={withLoader}
       />
     </div>
   );

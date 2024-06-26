@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PracticeEntity } from '@packages/entities/practice';
 import { ReferrersEntity } from '@packages/entities/referrer';
@@ -13,7 +13,7 @@ import { ReferrersService } from './referrers.service';
   imports: [
     TypeOrmModule.forFeature([ReferrersEntity, PracticeEntity]),
     PracticesModule,
-    SurgeryModule,
+    forwardRef(() => SurgeryModule),
     UsersModule,
   ],
   controllers: [ReferrersController],

@@ -10,8 +10,13 @@ import { addRecordAsync } from '@root/store/reducers/templates';
 import { getPracticeId } from '@utils/index';
 import { Select } from 'baseui/select';
 import React, { useEffect, useState } from 'react';
+import RequiredIndicator from '../RequiredIndicator';
 
-const AddTemplateForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
+const AddTemplateForm: React.FC<{
+  onClose: () => void;
+  withLoader: (func: () => Promise<void>) => Promise<void>;
+  showDateOffsetControl: (v: string) => boolean;
+}> = ({ onClose, withLoader, showDateOffsetControl }) => {
   const templateMessageTypeOptions = Object.keys(TemplateMessageType).map(
     (key) => ({
       label: key,
@@ -34,6 +39,7 @@ const AddTemplateForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const [surgeryConfigurationId, setSurgeryConfigurationId] = useState('');
   const [messageType, setMsgType] = useState('');
   const [dateOffset, setDateOffset] = useState<number>(0);
+  const [showDateOffsetField, setShowDateOffsetField] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -47,7 +53,9 @@ const AddTemplateForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         surgeryConfigurationId,
       };
       try {
-        dispatch(addRecordAsync(data));
+        await withLoader(async () => {
+          await dispatch(addRecordAsync(data));
+        });
         setDateOffset(0);
         setMsgType('');
         setSurgeryConfigurationId('');
@@ -67,6 +75,7 @@ const AddTemplateForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   };
 
   const handleMsgTypeChange = ({ value }) => {
+    setShowDateOffsetField(showDateOffsetControl(value[0].label));
     setMsgType(value[0] ? value[0].label : null);
   };
 
@@ -81,7 +90,8 @@ const AddTemplateForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       <form onSubmit={handleSubmit}>
         <div className="space-y-4">
           <label htmlFor="title" className="text-black text-sm font-normal">
-            Surgery
+            <RequiredIndicator />
+            &nbsp;Surgery
           </label>
           <Select
             options={surgeryConfigurationOptions}
@@ -118,7 +128,8 @@ const AddTemplateForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             htmlFor="messageType"
             className="text-black text-sm font-normal"
           >
-            Message Type
+            <RequiredIndicator />
+            &nbsp;Message Type
           </label>
           <Select
             options={templateMessageTypeOptions}
@@ -141,21 +152,23 @@ const AddTemplateForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           />
           <div className="space-y-4"></div>
         </div>
-        <div className="space-y-4">
-          <label
-            htmlFor="dateOffset"
-            className="text-black text-sm font-normal"
-          >
-            Date Offset
-          </label>
-          <TextInput
-            name="dateOffset"
-            type="number"
-            value={dateOffset.toString()}
-            onChange={handleInputChange}
-            required
-          />
-        </div>
+        {showDateOffsetField ? (
+          <div className="space-y-4">
+            <label
+              htmlFor="dateOffset"
+              className="text-black text-sm font-normal"
+            >
+              Date Offset
+            </label>
+            <TextInput
+              name="dateOffset"
+              type="number"
+              value={dateOffset.toString()}
+              onChange={handleInputChange}
+              required
+            />
+          </div>
+        ) : null}
         <div className="text-right text-base mt-4">
           <Button kind="primary" title="Add New Template" width={189} />
         </div>

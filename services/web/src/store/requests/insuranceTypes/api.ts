@@ -1,6 +1,8 @@
-import { IInsuranceType } from '@packages/entities/index.browser';
+import {
+  CreateInsuranceTypeInterface,
+  IInsuranceType,
+} from '@packages/entities';
 import { ApiService } from '@root/services/apiclient';
-import { CreateInsuranceTypeInterface } from '.';
 
 const apiClient = new ApiService();
 
@@ -67,6 +69,7 @@ export const deleteInsuranceType = async (
   try {
     const response = await apiClient.delete(
       `/practices/${payloadData.practiceId}/insurance-types/${payloadData.id}`,
+      null,
     );
     if (!response.ok) {
       throw new Error('Failed to delete template');

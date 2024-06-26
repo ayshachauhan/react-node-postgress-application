@@ -6,9 +6,7 @@ import {
   PracticesGetInterface,
   UploadImgPayload,
 } from '@store/requests/practices';
-import Cookies from 'js-cookie';
-import { publicRuntimeConfig } from 'next.config';
-const { API_BASE_URL } = publicRuntimeConfig;
+
 const apiClient = new ApiService();
 
 /**
@@ -77,6 +75,12 @@ export const addPractice = async (
     const { practiceImg, ...restPayload } = payloadData;
 
     const response = await apiClient.post(`/practices`, restPayload);
+
+    if (!response.ok) {
+      const body = await response.json();
+      throw new Error(body.message ?? 'Failed to upload img.');
+    }
+
     const data: IPractice = await response.json();
 
     if (practiceImg && data.id) {
@@ -87,7 +91,9 @@ export const addPractice = async (
     }
     return data;
   } catch (error) {
-    return rejectWithValue(error);
+    const msg = (error as Record<string, unknown>).message;
+
+    return rejectWithValue(msg ?? 'An unexpected error occurred.');
   }
 };
 
@@ -104,17 +110,9 @@ export const uploadImg = async (
     const formdata = new FormData();
     formdata.append('file', file);
 
-    const accessToken = Cookies.get('access_token');
-
-    const response = await fetch(
-      `${API_BASE_URL}/practices/${practiceId}/upload`,
-      {
-        method: 'PATCH',
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: formdata,
-      },
+    const response = await apiClient.upload(
+      `/practices/${practiceId}/upload`,
+      formdata,
     );
 
     if (!response.ok) {
@@ -169,7 +167,10 @@ export const deletePractice = async (
   { rejectWithValue },
 ) => {
   try {
-    const response = await apiClient.delete(`/practices/${payloadData.id}`);
+    const response = await apiClient.delete(
+      `/practices/${payloadData.id}`,
+      null,
+    );
     if (!response.ok) {
       throw new Error('Failed to delete practice');
     }

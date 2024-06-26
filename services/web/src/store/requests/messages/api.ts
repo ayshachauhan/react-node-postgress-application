@@ -21,11 +21,14 @@ export const getMessages = async (
       `/practices/${payloadData.practiceId}/messages/search?searchMRNName=${payloadData.searchMRNName}`,
     );
     if (!response.ok) {
-      throw new Error('Failed to get templates');
+      throw new Error('Failed to get messages');
     }
     const data: IEmailLog[] = await response.json();
     return data;
   } catch (error) {
-    return rejectWithValue(error);
+    if (error instanceof Error) {
+      return rejectWithValue(error.message);
+    }
+    return rejectWithValue('An unknown error occurred');
   }
 };

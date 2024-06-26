@@ -1,3 +1,4 @@
+import { IWaitlist } from '@packages/entities';
 import {
   GetTemplatesResponse,
   IEmailLog,
@@ -7,6 +8,7 @@ import {
   IPermission,
   IPracticeHomes,
   IReferrer,
+  IReview,
   ISurgery,
   ISurgeryConfiguration,
   ISurgeryType,
@@ -94,6 +96,9 @@ export type PermissionState = EntitiesState<IPermission> & {
   permissionInfo: IPermission | null;
 };
 
+export type ReviewState = EntitiesState<IReview> & {
+  reviewInfo: IReview | null;
+};
 export type PatientState = EntitiesState<IPatient> & {
   patientInfo: IPatient | null;
 };
@@ -101,4 +106,8 @@ export type PatientState = EntitiesState<IPatient> & {
 export type MessageState = EntitiesState<IEmailLog> & {
   messageInfo: IEmailLog | null;
   messageFilters: MessageFilters;
+};
+
+export type WaitlistState = EntitiesState<IWaitlist> & {
+  waitlistInfo: IWaitlist | null;
 };

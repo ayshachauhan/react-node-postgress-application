@@ -1,8 +1,11 @@
 'use client';
-import { AddIcon, DeleteIcon, EditIcon } from '@components/Icons';
+import { AddIcon, AvatarIcon, DeleteIcon, EditIcon } from '@components/Icons';
 import AddPracticeForm from '@components/practices/practices.module';
+import { ModalCloseEvent } from '@root/components/BaseUiModal/BaseUiModal';
 import Button from '@root/components/Button';
+import Loader from '@root/components/loader';
 import PracticeEditModule from '@root/components/practices/editPractice.module';
+import { useLoader } from '@root/hooks/useLoader';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import {
   clearErrorMessage,
@@ -20,13 +23,14 @@ import {
   SIZE,
 } from 'baseui/modal';
 import Image from 'next/image';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 const Practice: React.FC = () => {
   const dispatch = useAppDispatch();
   const practices = useAppSelector((state) =>
     Object.values(state.practices.entities),
   );
+  const { isLoading, withLoader } = useLoader();
   const [practiceId, setPracticeId] = useState<string | null>(null);
   const [editExistingValues, setEditExistingValue] =
     useState<PracticesEditInterface>({
@@ -34,6 +38,10 @@ const Practice: React.FC = () => {
       status: '',
       code: '',
       id: '',
+      adminFirstName: '',
+      adminLastName: '',
+      adminContactNumber: '',
+      adminId: '',
     });
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -43,24 +51,38 @@ const Practice: React.FC = () => {
     successMessage: state.practices.successMessage,
     errorMessage: state.practices.errorMessage,
   }));
+  const modalRef = useRef(null);
 
   const [showErrorMessage, setShowErrorMessage] = useState(false);
 
   useEffect(() => {
-    dispatch(fetchListings(undefined));
-  }, []);
+    const loadData = async () => {
+      await withLoader(async () => {
+        await dispatch(fetchListings(undefined));
+      });
+    };
+    loadData();
+  }, [withLoader]);
 
   useEffect(() => {
     if (successMessage) {
-      dispatch(fetchListings(undefined));
+      const loadData = async () => {
+        await withLoader(async () => {
+          await dispatch(fetchListings(undefined));
+        });
+      };
+      loadData();
     }
-  }, [successMessage, dispatch]);
+  }, [successMessage, dispatch, withLoader]);
 
   const handleOpenCreateModal = (): void => {
     setIsCreateModalOpen(true);
   };
 
-  const handleCloseCreateModal = (): void => {
+  const handleCloseCreateModal = (event?: ModalCloseEvent): void => {
+    if (event?.closeSource === 'backdrop') {
+      return;
+    }
     setIsCreateModalOpen(false);
   };
 
@@ -71,7 +93,10 @@ const Practice: React.FC = () => {
     setIsEditModalOpen(true);
   };
 
-  const handleCloseEditModal = (): void => {
+  const handleCloseEditModal = (event?: ModalCloseEvent): void => {
+    if (event?.closeSource === 'backdrop') {
+      return;
+    }
     setIsEditModalOpen(false);
   };
 
@@ -80,7 +105,10 @@ const Practice: React.FC = () => {
     setPracticeId(Id);
   };
 
-  const handleCloseDeleteModal = (): void => {
+  const handleCloseDeleteModal = (event?: ModalCloseEvent): void => {
+    if (event?.closeSource === 'backdrop') {
+      return;
+    }
     setIsDeleteModalOpen(false);
     setPracticeId(null);
   };
@@ -127,7 +155,10 @@ const Practice: React.FC = () => {
           Add New Practice
         </ModalHeader>
         <ModalBody>
-          <AddPracticeForm onClose={handleCloseCreateModal} />
+          <AddPracticeForm
+            onClose={handleCloseCreateModal}
+            withLoader={withLoader}
+          />
         </ModalBody>
       </Modal>
     );
@@ -143,6 +174,7 @@ const Practice: React.FC = () => {
         autoFocus
         size={SIZE.default}
         role={ROLE.dialog}
+        ref={modalRef}
         overrides={{
           Root: {
             style: ({ $theme }) => ({
@@ -159,6 +191,7 @@ const Practice: React.FC = () => {
           <PracticeEditModule
             onClose={handleCloseEditModal}
             initialValues={editExistingValues}
+            withLoader={withLoader}
           />
         </ModalBody>
       </Modal>
@@ -175,6 +208,7 @@ const Practice: React.FC = () => {
         autoFocus
         size={SIZE.default}
         role={ROLE.dialog}
+        ref={modalRef}
         overrides={{
           Root: {
             style: ({ $theme }) => ({
@@ -222,6 +256,7 @@ const Practice: React.FC = () => {
 
   return (
     <div className="my-4">
+      {isLoading && <Loader />}
       <div className="flex justify-between border-gray-400">
         <span className="text-xl font-bold">All Practices</span>
         {showModal && <div className="text-green-700">{successMessage}</div>}
@@ -235,7 +270,7 @@ const Practice: React.FC = () => {
       </div>
       <hr className="h-px my-2.5 bg-gray-100 border-1 border-gray-100"></hr>
       <div className="text-gray-50 w-full  items-center  bg-gray-50 py-4 rounded-lg">
-        <div className="bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2   focus:ring-indigo-500 grid grid-cols-8 rounded-lg w-auto">
+        <div className="bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2   focus:ring-indigo-500 grid grid-cols-[0.5fr_1fr_0.5fr_0.5fr_1fr_0.5fr_0.5fr_1fr] rounded-lg w-auto">
           <div className="font-bold text-white p-4 w-auto  text-center">
             Practice Photo
           </div>
@@ -263,42 +298,41 @@ const Practice: React.FC = () => {
 
           {practices.map((data) => (
             <React.Fragment key={data.id}>
-              <div className="text-gray-900 bg-gray-50 pt-2 px-4 text-center">
+              <div className="text-gray-900 bg-gray-50 pt-2 px-4 flex text-center items-center justify-center">
                 {data.imgUrl ? (
                   <Image
                     src={data.imgUrl}
                     alt={data.id ?? ''}
                     width={50}
                     height={50}
-                    className="inline-block mr-2 rounded-[10px]"
+                    className="inline-block rounded-[10px]"
                     style={{
                       width: '50px',
                       height: '50px',
                       objectFit: 'cover',
+                      borderRadius: '100px',
                     }}
                   />
                 ) : (
-                  <div className="bg-gray-300 flex justify-center items-center">
-                    <span>No Image</span>
-                  </div>
+                  <AvatarIcon size={50}></AvatarIcon>
                 )}
               </div>
-              <div className="text-gray-900 bg-gray-50 pt-2 px-4 text-center">
+              <div className="text-gray-900 bg-gray-50 pt-2 px-4 flex text-center items-center justify-center">
                 {data.name}
               </div>
-              <div className="text-gray-900 bg-gray-50 pt-2 px-4 text-center">
+              <div className="text-gray-900 bg-gray-50 pt-2 px-4 flex text-center items-center justify-center">
                 {data.adminFirstName}
               </div>
-              <div className="text-gray-900 bg-gray-50 pt-2 px-4 text-center">
+              <div className="text-gray-900 bg-gray-50 pt-2 px-4 flex text-center items-center justify-center">
                 {data.adminLastName}
               </div>
-              <div className="text-gray-900 bg-gray-50 pt-2 px-4 text-center">
+              <div className="text-gray-900 bg-gray-50 pt-2 px-4 flex text-center items-center justify-center">
                 {data.adminEmail}
               </div>
-              <div className="text-gray-900 bg-gray-50 pt-2 px-4 text-center">
+              <div className="text-gray-900 bg-gray-50 pt-2 px-4 flex text-center items-center justify-center">
                 {data.adminContactNumber}
               </div>
-              <div className="text-gray-900 bg-gray-50  pt-2 px-4 flex text-center items-center justify-center ">
+              <div className="text-gray-900 bg-gray-50  pt-2 px-4 flex text-center items-center justify-center">
                 <div
                   className={`flex justify-center items-center rounded-lg px-4 text-white w-20 ${
                     data.status?.toString() === 'pending'
@@ -311,31 +345,33 @@ const Practice: React.FC = () => {
                   {data.status?.toString()}
                 </div>
               </div>
-              <div className="flex flex-row bg-gray-50 pt-2 px-6 text-center item-center justify-evenly">
+              <div className="flex flex-row bg-gray-50 pt-2 px-6 text-center items-center gap-1 justify-center">
                 <div className="text-center">
-                  <Button
-                    kind="tertiary"
-                    title=""
-                    colors={{ backgroundColor: 'Transparent', color: 'black' }}
+                  <div
+                    className="rounded-lg bg-black text-white border-2 p-2 flex items-center justify-center"
                     onClick={() =>
                       handleOpenEditModal({
                         name: data.name,
                         code: data.code,
                         status: data.status,
                         id: data.id,
+                        adminFirstName: data.adminFirstName,
+                        adminLastName: data.adminLastName,
+                        adminContactNumber: data.adminContactNumber,
+                        adminId: data.adminId,
                       })
                     }
-                    startEnhancer={() => <EditIcon />}
-                  />
+                  >
+                    <EditIcon />
+                  </div>
                 </div>
                 <div className="text-center">
-                  <Button
-                    kind="tertiary"
-                    title=""
-                    colors={{ backgroundColor: 'Transparent', color: 'black' }}
+                  <div
+                    className="rounded-lg bg-black text-white border-2 p-2 flex items-center justify-center"
                     onClick={() => data.id && handleOpenDeleteModal(data.id)}
-                    startEnhancer={() => <DeleteIcon />}
-                  />
+                  >
+                    <DeleteIcon />
+                  </div>
                 </div>
               </div>
             </React.Fragment>

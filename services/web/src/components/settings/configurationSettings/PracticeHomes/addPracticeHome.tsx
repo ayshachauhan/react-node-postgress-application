@@ -1,4 +1,5 @@
 import Button from '@root/components/Button';
+import RequiredIndicator from '@root/components/RequiredIndicator';
 import TextInput from '@root/components/TextInput';
 import { useAppDispatch } from '@root/store';
 import { addRecordAsync } from '@root/store/reducers/practiceHomes';
@@ -8,15 +9,17 @@ import React, { useState } from 'react';
 
 const AddPracticeHome: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const dispatch = useAppDispatch();
+  const [errorMessage, setErrorMessage] = useState('');
   const [practiceHome, setPracticeHome] = useState('');
   const practiceId = getPracticeId();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (practiceId) {
+    const trimmedPracticeHome = practiceHome.trim();
+    if (practiceId && trimmedPracticeHome !== '') {
       const practiceHomePayload: CreatePracticeHomeInterface = {
         practiceId,
-        name: practiceHome,
+        name: trimmedPracticeHome,
       };
       try {
         dispatch(addRecordAsync(practiceHomePayload));
@@ -24,15 +27,23 @@ const AddPracticeHome: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       } catch (error) {
         onClose();
       }
+    } else {
+      setErrorMessage('Practice home is required.');
     }
   };
 
   return (
     <div>
+      {errorMessage && (
+        <div className="flex justify-center text-red-500 mt-2">
+          {errorMessage}
+        </div>
+      )}
       <form onSubmit={handleSubmit}>
-        <div className="space-y-2 pt-4">
+        <div className="space-y-1 pt-4">
           <label htmlFor="firstName" className="text-black text-sm">
-            Practice Home
+            <RequiredIndicator />
+            &nbsp;Patient Home Location
           </label>
           <div>
             <div>
@@ -41,6 +52,7 @@ const AddPracticeHome: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 value={practiceHome}
                 onChange={(value) => {
                   setPracticeHome(value);
+                  setErrorMessage('');
                 }}
                 required
               />
@@ -48,7 +60,7 @@ const AddPracticeHome: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             <div className="text-right align-bottom pt-4">
               <Button
                 kind="primary"
-                title="Add New Practice Home"
+                title="Add New Patient Home Location"
                 type="submit"
                 width={189}
               />

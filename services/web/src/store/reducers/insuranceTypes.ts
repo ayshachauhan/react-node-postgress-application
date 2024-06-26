@@ -36,6 +36,7 @@ const insuranceTypesSlice = createSlice({
 
     builder.addCase(fetchListings.fulfilled, (state, action) => {
       state.status = EntityLoadingState.SUCCEEDED;
+      state.entities = {};
       state.entities = {
         ...state.entities,
         ...indexBy('id', action.payload),
@@ -46,9 +47,9 @@ const insuranceTypesSlice = createSlice({
       state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
         state.errorMessage =
-          action.payload ?? 'Failed to fetch insurance types';
+          action.payload ?? 'Failed to fetch insurance types.';
       } else {
-        state.errorMessage = 'Failed to fetch insurance types';
+        state.errorMessage = 'Failed to fetch insurance types.';
       }
       state.processing = false;
     });
@@ -65,9 +66,10 @@ const insuranceTypesSlice = createSlice({
     builder.addCase(fetchInsuranceTypeInfo.rejected, (state, action) => {
       state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
-        state.errorMessage = action.payload ?? 'Failed to fetch user info';
+        state.errorMessage =
+          action.payload ?? 'Failed to fetch insurance type info.';
       } else {
-        state.errorMessage = 'Failed to fetch surgery type info';
+        state.errorMessage = 'Failed to fetch insurance type info.';
       }
     });
 
@@ -82,15 +84,15 @@ const insuranceTypesSlice = createSlice({
         ...state.entities,
         ...{ [action.payload.id]: action.payload },
       };
-      state.successMessage = 'Record added successfully';
+      state.successMessage = 'Insurance type added successfully.';
     });
 
     builder.addCase(addRecordAsync.rejected, (state, action) => {
       state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
-        state.errorMessage = action.payload ?? 'Failed to add insurance type';
+        state.errorMessage = action.payload ?? 'Failed to add insurance type.';
       } else {
-        state.errorMessage = 'Failed to add insurance type';
+        state.errorMessage = 'Failed to add insurance type.';
       }
     });
 
@@ -108,16 +110,16 @@ const insuranceTypesSlice = createSlice({
         ...remainingRecord
       } = state.entities;
       state.entities = remainingRecord;
-      state.successMessage = 'Record deleted successfully';
+      state.successMessage = 'Insurance type deleted successfully.';
     });
 
     builder.addCase(deleteRecordAsync.rejected, (state, action) => {
       state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
         state.errorMessage =
-          action.payload ?? 'Failed to delete insurance type';
+          action.payload ?? 'Failed to delete insurance type.';
       } else {
-        state.errorMessage = 'Failed to delete insurance type';
+        state.errorMessage = 'Failed to delete insurance type.';
       }
     });
   },

@@ -2,11 +2,11 @@ import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
-  EmailVariables,
   EvalEntity,
   HistoryAction,
   HistoryType,
-  InsuranceTypeEntity,
+  IEval,
+  IPractice,
   PatientEntity,
 } from '@packages/entities';
 import { EmailHandlerService } from 'src/emailHandler/emailHandler.service';
@@ -20,13 +20,14 @@ import { PracticesService } from 'src/practices/practices.service';
 import { SurgeryConfigurationsService } from 'src/surgeryConfiguration/surgeryConfiguration.service';
 import { SystemTemplates } from 'src/transporter/transporter.types';
 import { UsersService } from 'src/users/users.service';
-import { In, Repository } from 'typeorm';
+import { In, MoreThanOrEqual, Repository } from 'typeorm';
 import {
   EvalChangesKeyValues,
   findChangedValues,
   transformEvalObject,
   transformUpdateEvalDTO,
 } from '../history/utils';
+import { WaitlistService } from '../waitlist/waitlist.service';
 
 @Injectable()
 export class EvalsService {
@@ -41,6 +42,8 @@ export class EvalsService {
     private practiceHomesService: PracticeHomesService,
     @Inject(forwardRef(() => InsuranceTypesService))
     private insuranceTypesService: InsuranceTypesService,
+    @Inject(forwardRef(() => WaitlistService))
+    private waitlistService: WaitlistService,
     @Inject(forwardRef(() => UsersService))
     private userService: UsersService,
     @Inject(forwardRef(() => SurgeryConfigurationsService))
@@ -77,6 +80,7 @@ export class EvalsService {
         'insuranceType',
         'patient.referrer',
         'doctor',
+        'waitlist',
       ],
     });
     dbEvalsByPractice.forEach((ele) => (ele.doctor.password = ''));
@@ -94,6 +98,7 @@ export class EvalsService {
         'insuranceType',
         'patient.referrer',
         'doctor',
+        'waitlist',
       ],
     });
   }
@@ -112,15 +117,11 @@ export class EvalsService {
         createEvalDto.surgeryConfigurationId,
       );
 
-    let insuranceTypeEntity: InsuranceTypeEntity | null =
-      new InsuranceTypeEntity();
-    if (createEvalDto.insuranceTypeId) {
-      insuranceTypeEntity =
-        await this.insuranceTypesService.getInsuranceTypeById(
-          createEvalDto.insuranceTypeId,
-          practiceId,
-        );
-    }
+    const insuranceTypeEntity =
+      await this.insuranceTypesService.getInsuranceTypeById(
+        createEvalDto.insuranceTypeId,
+        practiceId,
+      );
 
     const practiceHomeEntity =
       await this.practiceHomesService.getPracticeHomeById(
@@ -132,6 +133,11 @@ export class EvalsService {
       createEvalDto.doctorId,
     );
 
+    const waitlistEntity = await this.waitlistService.getWaitlistById(
+      createEvalDto.waitlistId,
+      practiceId,
+    );
+
     const resultEval = await this.evalRepository.save({
       ...newEval,
       ...createEvalDto,
@@ -141,6 +147,7 @@ export class EvalsService {
       practiceHome: practiceHomeEntity,
       insuranceType: insuranceTypeEntity,
       doctor: doctorEntity,
+      waitlist: waitlistEntity,
     });
 
     // create history entry after creating eval
@@ -153,43 +160,9 @@ export class EvalsService {
       ipAddress: createEvalDto.ipAddress,
     });
 
-    const mailVariables: EmailVariables = {
-      surgery_type: surgeryConfigurationEntity
-        ? surgeryConfigurationEntity.name
-        : '',
-      fname: newPatient.firstName,
-      lname: newPatient.lastName,
-      mrn: String(newPatient.mrn),
-      pt_email_address: newPatient.email,
-      surgery_date: String(resultEval.date),
-      pt_email_notify: '',
-      laterality: createEvalDto.bodyPart,
-      Laterality: createEvalDto.bodyPart,
-      pod1_location: '',
-      cataract_variable: '',
-      all_cases: surgeryConfigurationEntity?.name + ' ' + createEvalDto.date,
-      all_cataract_dates:
-        surgeryConfigurationEntity?.name + ' ' + createEvalDto.date,
-      all_case_type:
-        surgeryConfigurationEntity?.name + ' ' + createEvalDto.date,
-      phoneNumber: createEvalDto.phoneNumber,
-    };
-
-    const systemGeneratedMailData = {
-      subject: 'Eval/ Surgery registered',
-      text: 'text message',
-      systemTemplate: SystemTemplates.NOTIFY_PATIENT,
-    };
-
-    if (practiceEntity) {
-      await this.emailHandlerService.checkAndMakeEmailContent(
-        practiceEntity,
-        createEvalDto.surgeryConfigurationId,
-        resultEval,
-        mailVariables,
-        systemGeneratedMailData,
-        true,
-      );
+    if (practiceEntity && surgeryConfigurationEntity) {
+      await this.initiateSendEmail(resultEval, practiceEntity);
+      await this.initiateDoctorSendEmail(resultEval, practiceEntity);
     }
     return resultEval;
   }
@@ -202,11 +175,8 @@ export class EvalsService {
   }): Promise<EvalEntity | null> {
     const evalToUpdate = await this.getEvalById(id);
 
-    let insuranceTypeEntity: InsuranceTypeEntity | null =
-      new InsuranceTypeEntity();
-
     if (createEvalDto.insuranceTypeId) {
-      insuranceTypeEntity =
+      createEvalDto.insuranceType =
         await this.insuranceTypesService.getInsuranceTypeById(
           createEvalDto.insuranceTypeId,
           createEvalDto.practiceId,
@@ -219,17 +189,34 @@ export class EvalsService {
       data: createEvalDto,
     });
 
+    const practiceHomeEntity =
+      await this.practiceHomesService.getPracticeHomeById(
+        createEvalDto.practiceHomeId,
+        practiceId,
+      );
+
+    const waitlistEntity = await this.waitlistService.getWaitlistById(
+      createEvalDto.waitlistId,
+      practiceId,
+    );
+
     delete createEvalDto.practiceId;
     delete createEvalDto.insuranceTypeId;
 
     await this.evalRepository.update(id, {
       ...evalToUpdate,
-      insuranceType: insuranceTypeEntity ? insuranceTypeEntity : undefined,
+      insuranceType: createEvalDto.insuranceType
+        ? createEvalDto.insuranceType
+        : evalToUpdate?.insuranceType,
       patient: newPatient ? newPatient : evalToUpdate?.patient,
       status: createEvalDto.status,
       bodyPart: createEvalDto.bodyPart,
       date: createEvalDto.date,
       insuranceDetails: createEvalDto.insuranceDetails,
+      waitlist: waitlistEntity ? waitlistEntity : evalToUpdate?.waitlist,
+      practiceHome: practiceHomeEntity
+        ? practiceHomeEntity
+        : evalToUpdate?.practiceHome,
     });
 
     if (evalToUpdate) {
@@ -239,7 +226,7 @@ export class EvalsService {
       const transformedUpdatedDTOValues: EvalChangesKeyValues =
         transformUpdateEvalDTO({
           ...createEvalDto,
-          insuranceName: insuranceTypeEntity?.name,
+          insuranceName: createEvalDto?.insuranceType?.name,
         });
 
       // create history logs for updated values in evals
@@ -277,6 +264,53 @@ export class EvalsService {
       entityType: HistoryType.EVAL,
       action: HistoryAction.DELETE,
       ipAddress,
+    });
+  }
+
+  async initiateSendEmail(
+    evalEntity: IEval,
+    practice: IPractice,
+  ): Promise<void> {
+    const { name } = evalEntity.surgeryConfiguration;
+
+    const systemGeneratedMailData = {
+      subject: `Eval Scheduled: ${name}`,
+      text: 'text message',
+      systemTemplate: SystemTemplates.NOTIFY_PATIENT,
+    };
+
+    await this.emailHandlerService.checkAndMakeEmailContent(
+      practice,
+      evalEntity,
+      systemGeneratedMailData,
+      true,
+    );
+  }
+
+  async initiateDoctorSendEmail(
+    evalEntity: IEval,
+    practice: IPractice,
+  ): Promise<void> {
+    const name = practice.name;
+
+    const systemGeneratedMailData = {
+      subject: `A new surgery added to your practice ${name}`,
+      text: 'text message',
+      systemTemplate: SystemTemplates.NOTIFY_DOCTOR,
+    };
+
+    await this.emailHandlerService.checkAndMakeDoctorEmailContent(
+      practice,
+      evalEntity,
+      systemGeneratedMailData,
+      true,
+    );
+  }
+
+  async findEvalByPatient(patientId: string, date: Date): Promise<IEval[]> {
+    return await this.evalRepository.find({
+      where: { patient: { id: patientId }, date: MoreThanOrEqual(date) },
+      relations: ['surgeryConfiguration'],
     });
   }
 }

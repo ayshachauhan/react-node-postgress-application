@@ -28,6 +28,10 @@ const historySlice = createSlice({
     clearErrorMessage(state) {
       state.errorMessage = undefined;
     },
+    clearData(state) {
+      state.entities = {};
+      state.status = EntityLoadingState.IDLE;
+    },
   },
   extraReducers(builder) {
     builder.addCase(fetchHistory.pending, (state) => {
@@ -38,7 +42,7 @@ const historySlice = createSlice({
     builder.addCase(fetchHistory.fulfilled, (state, action) => {
       state.status = EntityLoadingState.SUCCEEDED;
       if (action.payload.length === 0) {
-        state.errorMessage = 'No records found';
+        state.errorMessage = 'No history found.';
       }
 
       state.entities = {
@@ -51,9 +55,9 @@ const historySlice = createSlice({
       state.status = EntityLoadingState.FAILED;
       state.processing = false;
       if (typeof action.payload === 'string') {
-        state.errorMessage = action.payload ?? 'Failed to fetch history';
+        state.errorMessage = action.payload ?? 'Failed to fetch history.';
       } else {
-        state.errorMessage = 'Failed to fetch history';
+        state.errorMessage = 'Failed to fetch history.';
       }
     });
   },
@@ -66,5 +70,6 @@ export const fetchHistory = createAsyncThunk(
   'calendar/fetchHistory',
   getHistory,
 );
+export const { clearData } = historySlice.actions;
 
 export default historySlice.reducer;

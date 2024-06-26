@@ -9,6 +9,7 @@
     "lint:fix": "next lint --fix",
     "start:dev": "node server.js",
     "build": "NODE_ENV=production next build",
+    "start": "next start",
     "start:prod": "NODE_ENV=production node server.js"
   },
   "dependencies": {
@@ -27,6 +28,7 @@
     "styletron-engine-monolithic": "^1.0.0",
     "styletron-react": "^6.1.1",
     "@packages/entities": "workspace:entities",
+    "sharp": "^0.33.4",
     "typeorm": "^0.3.20"
   },
   "devDependencies": {

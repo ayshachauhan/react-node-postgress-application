@@ -6,23 +6,24 @@ import {
   forwardRef,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { JwtService } from '@nestjs/jwt';
+// import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PracticeEntity } from '@packages/entities/practice';
 import { UserEntity, UserType } from '@packages/entities/user';
-import Mail from 'nodemailer/lib/mailer';
-import { SystemTemplates } from 'src/transporter/transporter.types';
+// import Mail from 'nodemailer/lib/mailer';
+// import { SystemTemplates } from 'src/transporter/transporter.types';
 import { UploadType } from 'src/users/types';
 import { getUploadFileKey } from 'src/users/utils';
 import { DataSource, Repository, UpdateResult } from 'typeorm';
 import { ENVIRONMENT_VARIABLES } from '../enums/environment.enums';
-import { TransporterService } from '../transporter';
+// import { TransporterService } from '../transporter';
+import { UpdateUserDto } from 'src/users/dto/update.dto';
 import { S3Service } from '../users/s3.service';
 import { UsersService } from '../users/users.service';
 import { PracticeCreateDto } from './dto/create.dto';
 import { PracticePatchDto } from './dto/patch.dto';
 import {
-  CreatePracticeInviteMailData,
+  // CreatePracticeInviteMailData,
   PracticesGetInterface,
   UploadPracticeImgData,
 } from './types';
@@ -34,9 +35,9 @@ export class PracticesService {
     private practicesRepository: Repository<PracticeEntity>,
     @Inject(forwardRef(() => UsersService))
     private readonly userService: UsersService,
-    private readonly transporterService: TransporterService,
+    // private readonly transporterService: TransporterService,
     private dataSource: DataSource,
-    private jwtService: JwtService,
+    // private jwtService: JwtService,
     private configService: ConfigService,
     private readonly s3Service: S3Service,
   ) {}
@@ -84,6 +85,7 @@ export class PracticesService {
         finalPractice.adminLastName = adminUser.lastName;
         finalPractice.adminEmail = adminUser.email;
         finalPractice.adminContactNumber = adminUser.contactNumber;
+        finalPractice.adminId = adminUser.id;
       }
       resultArray.push(finalPractice);
     });
@@ -116,6 +118,20 @@ export class PracticesService {
     await queryRunner.startTransaction();
 
     try {
+      const existingUser = await this.userService.getUserByEmail(adminEmail);
+
+      const existingPractice: PracticeEntity | undefined =
+        existingUser?.practices.find(
+          (practice: PracticeEntity) => practice.name === name,
+        );
+
+      if (existingPractice) {
+        throw new HttpException(
+          `Practice with name ${name} already exists.`,
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
       const newPractice: PracticeEntity = this.practicesRepository.create({
         name,
         code,
@@ -125,7 +141,8 @@ export class PracticesService {
         await this.practicesRepository.save(newPractice);
 
       // creating admin user
-      const newAdmin = await this.userService.create(
+      const sendUserCreationEmail: boolean = true;
+      await this.userService.create(
         {
           firstName: adminFirstName,
           lastName: adminLastName,
@@ -133,39 +150,41 @@ export class PracticesService {
           userName: `${adminEmail}`,
           type: UserType.ADMIN,
           url: '',
+          designation: '',
           contactNumber: adminContactNumber,
           permissionIds: [],
         },
         practice.id,
+        sendUserCreationEmail,
       );
 
-      const token: string = this.jwtService.sign({
-        ...newAdmin,
-        practiceId: practice.id,
-      });
+      // const token: string = this.jwtService.sign({
+      //   ...newAdmin,
+      //   practiceId: practice.id,
+      // });
 
-      const mailOptions: Mail.Options = {
-        to: newAdmin.email,
-        subject:
-          'Subject: Welcome to Practice Optimizer Dashboard - Complete Your Sign-up Process',
-      };
+      // const mailOptions: Mail.Options = {
+      //   to: newAdmin.email,
+      //   subject:
+      //     'Welcome to Practice Optimizer Dashboard - Complete Your Sign-up Process',
+      // };
 
-      const frontendBaseUrl: string | undefined = this.getFrontEndBaseUrl();
+      // const frontendBaseUrl: string | undefined = this.getFrontEndBaseUrl();
 
-      const mailData: CreatePracticeInviteMailData = {
-        signUpLink: frontendBaseUrl + `/onboarding/practice?token=${token}`,
-        practiceName: practice.name,
-        userFirstName: adminFirstName,
-        userLastName: adminLastName,
-        contactEmail: adminEmail,
-        contactPhone: adminContactNumber,
-      };
+      // const mailData: CreatePracticeInviteMailData = {
+      //   signUpLink: frontendBaseUrl + `/onboarding/practice?token=${token}`,
+      //   practiceName: practice.name,
+      //   userFirstName: adminFirstName,
+      //   userLastName: adminLastName,
+      //   contactEmail: adminEmail,
+      //   contactPhone: adminContactNumber,
+      // };
 
-      await this.transporterService.sendSystemEmails(
-        mailOptions,
-        mailData,
-        SystemTemplates.ADMIN_INVITE,
-      );
+      // await this.transporterService.sendSystemEmails(
+      //   mailOptions,
+      //   mailData,
+      //   SystemTemplates.ADMIN_INVITE,
+      // );
       await queryRunner.commitTransaction();
 
       return practice;
@@ -177,23 +196,64 @@ export class PracticesService {
     }
   }
 
-  async update(
-    id: string,
-    practicePatchDto: Partial<PracticePatchDto>,
-  ): Promise<PracticeEntity | null> {
-    const updateResult: UpdateResult = await this.practicesRepository.update(
-      id,
-      practicePatchDto,
-    );
+  async update(id: string, practicePatchDto): Promise<PracticeEntity | null> {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
 
-    if (updateResult.affected === 0) {
-      throw new HttpException(
-        `Practice with id ${id} not found`,
-        HttpStatus.NOT_FOUND,
+    try {
+      const sanitizedPracticePayload: Partial<PracticePatchDto> = {
+        name: practicePatchDto.name,
+        status: practicePatchDto.status,
+        code: practicePatchDto.code,
+        imgUrl: practicePatchDto.imgUrl,
+      };
+      const sanitizedUserPayload: Partial<UpdateUserDto> = {
+        contactNumber: practicePatchDto.adminContactNumber,
+        lastName: practicePatchDto.adminLastName,
+        firstName: practicePatchDto.adminFirstName,
+      };
+
+      const practiceUpdateResult: UpdateResult =
+        await this.practicesRepository.update(id, sanitizedPracticePayload);
+
+      if (practiceUpdateResult.affected === 0) {
+        throw new HttpException(
+          `Practice with id ${id} not found`,
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      const adminUser = practicePatchDto.adminId;
+      const userToUpdate = await this.userService.getUserById(adminUser);
+      if (!userToUpdate) {
+        throw new HttpException(
+          `User with id ${adminUser} not found`,
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      const adminUpdateResult = await this.userService.updateUser(
+        practicePatchDto.adminId,
+        sanitizedUserPayload as UpdateUserDto, // Type assertion here
       );
-    }
 
-    return await this.practicesRepository.findOne({ where: { id } });
+      if (adminUpdateResult === null) {
+        throw new HttpException(
+          `User with id ${adminUser} not found`,
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      await queryRunner.commitTransaction();
+
+      return await this.practicesRepository.findOne({ where: { id } });
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
   }
 
   async uploadPracticeImg({

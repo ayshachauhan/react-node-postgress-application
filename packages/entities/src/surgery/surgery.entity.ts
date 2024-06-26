@@ -5,10 +5,12 @@ import { PatientEntity } from '../patient';
 import { PracticeHomesEntity } from '../practiceHomes';
 import { SurgeryConfigurationEntity } from '../surgeryConfiguration';
 import { UserEntity } from '../user';
+import { WaitlistEntity } from '../waitlist';
 import {
   CheckListOptions,
   ISurgery,
   SelectedSurgeryOption,
+  SurgeryStatus,
 } from './surgery.interface';
 
 @Entity('surgeries')
@@ -33,6 +35,10 @@ export class SurgeryEntity extends BaseEntity implements ISurgery {
   @JoinColumn({ name: 'doctorId' })
   doctor: UserEntity;
 
+  @ManyToOne(() => WaitlistEntity)
+  @JoinColumn({ name: 'waitlistId' })
+  waitlist: WaitlistEntity;
+
   @Column({ type: 'varchar' })
   insuranceDetails: string;
 
@@ -48,12 +54,18 @@ export class SurgeryEntity extends BaseEntity implements ISurgery {
   @Column({ type: 'jsonb' })
   selectedSurgeryOptions: SelectedSurgeryOption;
 
-  @Column()
-  totalHospitalPricing: number;
+  @Column({ type: 'enum', enum: SurgeryStatus })
+  surgeryStatus: SurgeryStatus;
 
   @Column()
-  totalProfessionalPricing: number;
+  totalHospitalPricing: string;
+
+  @Column()
+  totalProfessionalPricing: string;
 
   @Column({ type: 'jsonb', nullable: true })
   selectedCheckListOptions: CheckListOptions;
+
+  @Column()
+  surgeryOrder: number;
 }

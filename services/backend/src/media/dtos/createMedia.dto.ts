@@ -1,13 +1,27 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { MediaConfig, MediaType } from '@packages/entities/media';
-import { IsNotEmpty } from 'class-validator';
+import { MediaType } from '@packages/entities/media';
+import { IsNotEmpty, IsOptional } from 'class-validator';
+import { MediaConfigDTO } from '../types';
 
 export class CreateMediaDto {
   @IsNotEmpty({ message: 'Media Type is required' })
   @ApiProperty()
   mediaType: MediaType;
 
-  @IsNotEmpty({ message: 'Media Config is required' })
+  @IsNotEmpty({ message: 'Media Config type is required' })
   @ApiProperty()
-  mediaConfig: MediaConfig;
+  mediaConfig: MediaConfigDTO[];
+
+  @IsOptional()
+  entityId: string | null;
+}
+
+export class SendVideoDto {
+  @IsNotEmpty({ message: 'Media Type is required' })
+  @ApiProperty()
+  mrn: string;
+
+  @IsNotEmpty({ message: 'Media Config type is required' })
+  @ApiProperty()
+  links: string[];
 }

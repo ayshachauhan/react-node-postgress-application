@@ -1,8 +1,14 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { State } from '@root/store';
-import Cookies from 'js-cookie';
 import { getPracticeId } from '../../utils/index';
-import { getMe, login, sendResetMail } from '../requests/login';
+import {
+  getMe,
+  login,
+  removeLoginToken,
+  sendResetMail,
+  setLoginCookie,
+} from '../requests/login';
+import { uploadImg } from '../requests/users';
 import { AuthState, EntityLoadingState } from '../types';
 
 const initialState: AuthState = {
@@ -30,7 +36,7 @@ const authSlice = createSlice({
       state.isAuthenticated = false;
       state.user = null;
       state.isSuperAdmin = false;
-      Cookies.remove('access_token');
+      removeLoginToken();
       localStorage.removeItem('practiceId');
     },
   },
@@ -43,11 +49,9 @@ const authSlice = createSlice({
     builder.addCase(loginUser.fulfilled, (state, action) => {
       state.status = EntityLoadingState.IDLE;
       state.isAuthenticated = true;
-      state.successMessage = 'User logged in successfully';
+      state.successMessage = 'User logged in successfully.';
       if (action.payload) {
-        Cookies.set('access_token', action.payload.access_token, {
-          expires: 1,
-        });
+        setLoginCookie(action.payload.access_token);
         state.isSuperAdmin = action.payload.is_super_admin;
       }
       state.errorMessage = undefined;
@@ -69,15 +73,19 @@ const authSlice = createSlice({
       state.isAuthenticated = true;
       state.user = action.payload;
       state.errorMessage = undefined;
-      localStorage.removeItem('practiceId');
-      const practiceId = getPracticeId();
-      if (state.user && state.user.practices && state.user.practices.length) {
-        localStorage.setItem('practiceId', state.user.practices[0].id);
-        state.azentiaSelectedPractice = state.user.practices[0].name;
-      } else {
-        if (!practiceId) {
+      const currentPracticeId = getPracticeId();
+      const practiceIdFromState = state.user?.practices?.[0]?.id || '';
+
+      if (!currentPracticeId || currentPracticeId === '') {
+        if (practiceIdFromState) {
+          localStorage.setItem('practiceId', practiceIdFromState);
+        } else {
           localStorage.setItem('practiceId', '');
         }
+      }
+      if (state.user && state.user.practices && state.user.practices.length) {
+        state.azentiaSelectedPractice = state.user.practices[0].name;
+      } else {
         state.azentiaSelectedPractice = '';
       }
     });
@@ -87,6 +95,23 @@ const authSlice = createSlice({
       state.isAuthenticated = false;
       state.errorMessage = action.payload as string;
       state.isSuperAdmin = false;
+    });
+
+    builder.addCase(uploadImage.pending, (state) => {
+      state.processing = true;
+      state.status = EntityLoadingState.PENDING;
+      state.errorMessage = undefined;
+    });
+    builder.addCase(uploadImage.fulfilled, (state, action) => {
+      state.status = EntityLoadingState.IDLE;
+      //@ts-expect-error type error due to sanitizeuser
+      state.user = action.payload;
+      state.errorMessage = undefined;
+    });
+
+    builder.addCase(uploadImage.rejected, (state, action) => {
+      state.status = EntityLoadingState.FAILED;
+      state.errorMessage = action.payload as string;
     });
 
     builder.addCase(forgotPassword.pending, (state) => {
@@ -126,6 +151,8 @@ export const forgotPassword = createAsyncThunk(
   sendResetMail,
 );
 
+export const uploadImage = createAsyncThunk('users/uploadImage', uploadImg);
+
 export const { logoutUser } = authSlice.actions;
 
 export const selectRecords = (state: State) => state.auth.user;
@@ -139,10 +166,10 @@ export const selectedPracticeName = (state: State) =>
 export const userPractices = (state: State) => {
   if (
     state.auth.user &&
-    state.auth.user.userPractices &&
-    state.auth.user.userPractices.length
+    state.auth.user.practices &&
+    state.auth.user.practices.length
   ) {
-    return state.auth.user.userPractices;
+    return state.auth.user.practices;
   }
   return [];
 };

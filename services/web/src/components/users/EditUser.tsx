@@ -1,6 +1,13 @@
-import { IUser, UserStatus, UserType } from '@packages/entities/index.browser';
+import {
+  IPermission,
+  IUser,
+  UserDesignation,
+  UserStatus,
+  UserType,
+} from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
+import { useUserPermissions } from '@root/context/UserPermissionsContext';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { updateRecordAsync } from '@root/store/reducers/users';
 import { SanitizedUser } from '@root/store/types';
@@ -9,20 +16,32 @@ import { Checkbox } from 'baseui/checkbox';
 import { FileUploader } from 'baseui/file-uploader';
 import { Select } from 'baseui/select';
 import React, { useEffect, useState } from 'react';
+import RequiredIndicator from '../RequiredIndicator';
 interface Data {
   id: string;
 }
 interface ChildProps {
   data: Data;
   onClose: () => void;
+  withLoader: (func: () => Promise<void>) => Promise<void>;
 }
-const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
+interface SelectedItems {
+  permissions: IPermission[];
+  checkboxIds: string[];
+}
+
+const EditUserPage: React.FC<ChildProps> = ({ data, onClose, withLoader }) => {
   const userTypeOptions = Object.keys(UserType).map((key) => ({
     label: UserType[key as keyof typeof UserType],
     id: key,
   }));
   const userStatusOptions = Object.keys(UserStatus).map((key) => ({
     label: UserStatus[key as keyof typeof UserStatus],
+    id: key,
+  }));
+
+  const userDesignations = Object.keys(UserDesignation).map((key) => ({
+    label: UserDesignation[key as keyof typeof UserDesignation],
     id: key,
   }));
 
@@ -35,20 +54,19 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
   );
 
   const [userImg, setUserImg] = useState<File | null>(null);
-
-  const getSelectedCheckboxIds = (): string[] => {
-    const selectedIds = permissions.reduce(
-      (selectedIds: string[], _, index) => {
+  const getSelectedItems = (): SelectedItems => {
+    const selectedItems = permissions.reduce(
+      (acc: SelectedItems, permission, index) => {
         if (checkboxes[index]) {
-          selectedIds.push(permissions[index].id);
+          acc.permissions.push(permission);
+          acc.checkboxIds.push(permission.id);
         }
-        return selectedIds;
+        return acc;
       },
-      [],
+      { permissions: [], checkboxIds: [] },
     );
-    return selectedIds;
+    return selectedItems;
   };
-
   const practiceId = getPracticeId(); // Select user practice id
   const userInfo = useAppSelector((state) =>
     data.id
@@ -60,6 +78,12 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
   const userId = data.id;
 
   const [updatedUserInfo, setUserInfo] = useState<Partial<IUser>>({});
+  const loggedInUserInfo = useAppSelector((state) => state.auth.user);
+  const loggedInUserId = loggedInUserInfo?.id;
+  const isDisabled = loggedInUserId === userId;
+  const [errorMessage, setErrorMessage] = useState('');
+  const [permissionsUpdated, setPermissionsUpdated] = useState(false);
+  const [designation, setDesignation] = useState('');
 
   useEffect(() => {
     if (updatedUserInfo?.permissions) {
@@ -73,6 +97,8 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
     }
   }, [updatedUserInfo?.permissions]);
 
+  const { updateUserPermissions } = useUserPermissions();
+
   const handleStatusChange = (params) => {
     const { label } = params.option;
     setUserInfo({ ...updatedUserInfo, status: label });
@@ -83,21 +109,36 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
     setUserInfo({ ...updatedUserInfo, type: label });
   };
 
+  const handleDesignationChange = ({ value }) => {
+    setDesignation(value[0] ? value[0].label : null);
+  };
+
+  const handleDesignationBlur = ({ target }) => {
+    if (target.value) {
+      const newValue: string = target.value;
+      setDesignation(newValue);
+    }
+  };
+
   const handleCheckboxChange = (index: number) => {
     const updatedCheckboxes = [...checkboxes];
     updatedCheckboxes[index] = !updatedCheckboxes[index];
     setCheckboxes(updatedCheckboxes);
+    setPermissionsUpdated(true);
   };
 
   useEffect(() => {
     if (data.id && userInfo) {
       setUserInfo(userInfo);
+      setDesignation(userInfo?.designation);
     }
   }, [data.id, userInfo]);
+  const selectedItems = getSelectedItems();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const selectedUserPermissions = getSelectedCheckboxIds();
+    const selectedUserPermissions = selectedItems.checkboxIds;
+    const newPermissions = selectedItems.permissions;
     let updatedPayloadData = { ...updatedUserInfo };
     if (updatedPayloadData.firstName && updatedPayloadData.lastName) {
       const fullName = generateFullName(
@@ -116,18 +157,27 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
         fullName: updatedPayloadData.fullName ?? '',
         email: updatedUserInfo.email ?? '',
         url: updatedUserInfo.url ?? '',
+        designation: designation
+          ? designation
+          : updatedUserInfo.designation || '',
         status: updatedUserInfo.status ?? UserStatus.INACTIVE,
         type: updatedUserInfo.type ?? UserType.EMPLOYEE,
         practiceId: practiceId,
         id: userId,
         permissionIds: selectedUserPermissions,
         file: userImg,
+        permissionsUpdated,
       };
       if ('password' in userPayloadData) {
         delete userPayloadData.password;
       }
       try {
-        dispatch(updateRecordAsync(userPayloadData));
+        await withLoader(async () => {
+          await dispatch(updateRecordAsync(userPayloadData));
+          if (loggedInUserId === userId) {
+            updateUserPermissions(newPermissions);
+          }
+        });
         onClose();
       } catch (error) {
         onClose();
@@ -137,6 +187,11 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
 
   return (
     <div>
+      {errorMessage && (
+        <div className="flex justify-center text-red-500 mt-2">
+          {errorMessage}
+        </div>
+      )}
       <form onSubmit={handleSubmit}>
         <div className="flex flex-col">
           <div className="flex flex-row justify-between pt-4 gap-7">
@@ -145,7 +200,8 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
                 htmlFor="userName"
                 className="text-black text-sm font-normal"
               >
-                Username
+                <RequiredIndicator />
+                &nbsp;Username
               </label>
               <TextInput
                 name="userName"
@@ -159,7 +215,8 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
             </div>
             <div className="w-1/2 space-y-2">
               <label htmlFor="email" className="text-black text-sm font-normal">
-                Email
+                <RequiredIndicator />
+                &nbsp;Email
               </label>
               <TextInput
                 name="email"
@@ -178,7 +235,8 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
                 htmlFor="firstName"
                 className="text-black text-sm font-normal"
               >
-                First Name
+                <RequiredIndicator />
+                &nbsp;First Name
               </label>
               <TextInput
                 name="firstName"
@@ -195,7 +253,8 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
                 htmlFor="lastName"
                 className="text-black text-sm font-normal"
               >
-                Last Name
+                <RequiredIndicator />
+                &nbsp;Last Name
               </label>
               <TextInput
                 name="lastName"
@@ -214,7 +273,8 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
                 htmlFor="contactNumber"
                 className="text-black text-sm font-normal"
               >
-                Contact No.
+                <RequiredIndicator />
+                &nbsp;Contact No.
               </label>
               <TextInput
                 name="contactNumber"
@@ -236,7 +296,6 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
                 onChange={(value) => {
                   setUserInfo({ ...updatedUserInfo, url: value });
                 }}
-                required
               />
               <div className="w-1/2 space-y-2"></div>
             </div>
@@ -244,7 +303,8 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
           <div className="flex flex-row gap-6 pt-4">
             <div className="w-1/2 space-y-2">
               <label htmlFor="type" className="text-black text-sm font-normal">
-                Designation
+                <RequiredIndicator />
+                &nbsp;User Type
               </label>
               <Select
                 options={userTypeOptions}
@@ -285,6 +345,7 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
               <Select
                 options={userStatusOptions}
                 onChange={handleStatusChange}
+                disabled={isDisabled || false}
                 overrides={{
                   ControlContainer: {
                     style: {
@@ -312,6 +373,44 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
               <div className="w-1/2 space-y-2"></div>
             </div>
           </div>
+          <div className="flex flex-row gap-6 pt-4">
+            <div className="w-1/2 space-y-2">
+              <label
+                htmlFor="designation"
+                className="text-black text-sm font-normal"
+              >
+                Designation
+              </label>
+              <Select
+                options={userDesignations}
+                onChange={handleDesignationChange}
+                onBlur={handleDesignationBlur}
+                overrides={{
+                  ControlContainer: {
+                    style: {
+                      backgroundColor: 'rgba(250, 250, 250, 1)',
+                      border: 'none',
+                      color: 'rgba(82, 82, 91, 1)',
+                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)', // Add shadow CSS here
+                    },
+                  },
+                  ClearIcon: {
+                    component: () => null,
+                  },
+                }}
+                value={
+                  designation
+                    ? [
+                        {
+                          id: String(designation),
+                          label: String(String(designation)),
+                        },
+                      ]
+                    : []
+                }
+              />
+            </div>
+          </div>
           <div className="flex flex-row gap-6 pt-4 gap-7">
             <div className="w-1/2 space-y-2">
               <label htmlFor="type" className="text-black text-sm font-normal">
@@ -321,6 +420,10 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose }) => {
                 errorMessage={''}
                 onDrop={(acceptedFiles: File[]) => {
                   setUserImg(acceptedFiles[0]);
+                }}
+                onDropRejected={(file: File[]) => {
+                  if (!file[0].type.startsWith('image'))
+                    setErrorMessage('Only Image type Files are allowed.');
                 }}
                 accept="image/*"
                 overrides={{

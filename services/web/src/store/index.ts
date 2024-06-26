@@ -12,12 +12,14 @@ import patientReducer from './reducers/patient';
 import practiceHomesReducer from './reducers/practiceHomes';
 import practicesReducer from './reducers/practices';
 import referrersReducer from './reducers/referrer';
+import reviewReducer from './reducers/review';
 import surgeryReducer from './reducers/surgery';
 import surgeryConfigurationReducer from './reducers/surgeryConfigurations';
 import surgeryTypeReducer from './reducers/surgeryTypes';
 import templatesReducer from './reducers/templates';
 import permissionsReducer from './reducers/userPermissions';
 import usersReducer from './reducers/users';
+import waitlistReducer from './reducers/waitlist';
 
 export const store = configureStore({
   reducer: {
@@ -35,9 +37,11 @@ export const store = configureStore({
     calendars: calendarReducer,
     surgeryConfigurations: surgeryConfigurationReducer,
     permissions: permissionsReducer,
+    reviews: reviewReducer,
     history: historyReducer,
     patients: patientReducer,
     messages: messagesReducer,
+    waitlist: waitlistReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(apiMiddleware),

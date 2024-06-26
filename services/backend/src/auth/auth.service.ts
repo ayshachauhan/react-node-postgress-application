@@ -1,4 +1,9 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { UserEntity } from '@packages/entities/*';
@@ -28,6 +33,11 @@ export class AuthService {
     if (superAdmin) return superAdmin;
     else {
       const user = await this.usersService.findUserByEmail(email);
+      if (user && user.status !== 'active') {
+        throw new UnauthorizedException(
+          'Please accept the invitation and reset your password using the link in email.',
+        );
+      }
 
       if (user) {
         const isPasswordMatched = await bcrypt.compare(password, user.password);
@@ -41,10 +51,6 @@ export class AuthService {
         } else return null;
       } else return null;
     }
-  }
-
-  async getUserById(id: string): Promise<UserEntity | null> {
-    return await this.usersService.getUserById(id);
   }
 
   async login(user: SanitizedUser | SuperAdminUser) {
@@ -77,32 +83,46 @@ export class AuthService {
     return null;
   }
 
-  async setUserDetails(payloadUser: SanitizedUser): Promise<void> {
+  async setUserDetails(payloadUser: SanitizedUser): Promise<UserEntity | null> {
     const userData = await this.usersService.getUserById(payloadUser.id);
 
     if (userData) {
       payloadUser['practices'] = userData?.practices;
       payloadUser['permissions'] = userData?.permissions;
     }
+    return userData;
   }
 
   async sendPasswordResetEmail(email: string): Promise<void> {
-    const user = await this.usersService.findUserByEmail(email);
-    if (!user) {
-      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    if (!email) {
+      throw new HttpException(
+        'Email cannot be empty',
+        HttpStatus.PRECONDITION_FAILED,
+      );
     }
 
-    const token: string = this.jwtService.sign({
-      id: user.id,
-      email: user.email,
-      type: user.type,
-      status: user.status,
-      fullName: user.fullName,
-    });
+    const user = await this.usersService.findUserByEmail(email);
+    if (!user) {
+      throw new HttpException(
+        'User email is not registered with us! Please enter registered email.',
+        HttpStatus.PRECONDITION_FAILED,
+      );
+    }
+
+    const token: string = this.jwtService.sign(
+      {
+        id: user.id,
+        email: user.email,
+        type: user.type,
+        status: user.status,
+        fullName: user.fullName,
+      },
+      { expiresIn: '15m' },
+    );
 
     const mailOptions: Mail.Options = {
       to: user.email,
-      subject: 'Reset Your Password - POD',
+      subject: 'POD: Reset Your Password',
     };
 
     const frontendBaseUrl: string | undefined = this.configService.get(

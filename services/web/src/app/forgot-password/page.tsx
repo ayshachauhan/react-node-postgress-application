@@ -3,11 +3,12 @@ import Button from '@root/components/Button';
 import { LogoWrapper } from '@root/components/LogoWrapper/logoWrapper';
 import TextInput from '@root/components/TextInput';
 import { useAppDispatch, useAppSelector } from '@root/store';
-import { forgotPassword } from '@root/store/reducers/auth';
 import {
   clearErrorMessage,
   clearSuccessMessage,
-} from '@root/store/reducers/users';
+  forgotPassword,
+} from '@root/store/reducers/auth';
+import { validateEmail } from '@root/utils';
 import { useEffect, useState } from 'react';
 
 const ForgotPassword: React.FC = () => {
@@ -15,15 +16,20 @@ const ForgotPassword: React.FC = () => {
   const [email, setEmail] = useState('');
   const [isEmailSent, setIsEmailSent] = useState<boolean>(false);
   const { successMessage, errorMessage } = useAppSelector((state) => ({
-    successMessage: state.users.successMessage,
-    errorMessage: state.users.errorMessage,
+    successMessage: state.auth.successMessage,
+    errorMessage: state.auth.errorMessage,
   }));
   const [showErrorMessage, setShowErrorMessage] = useState(false);
+  const [fieldError, setFieldError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     try {
+      const { isValid, error } = validateEmail(email);
+      if (!isValid) {
+        setFieldError(error);
+      }
       const response = await dispatch(forgotPassword({ email }));
 
       if (response?.type == 'users/forgotPassword/fulfilled') {
@@ -41,10 +47,11 @@ const ForgotPassword: React.FC = () => {
         dispatch(clearSuccessMessage());
       }, 2000);
     }
-    if (errorMessage) {
+    if (errorMessage || fieldError) {
       setShowErrorMessage(true);
       timer = setTimeout(() => {
         setShowErrorMessage(false);
+        setFieldError('');
         dispatch(clearErrorMessage());
       }, 2000);
     }
@@ -53,7 +60,7 @@ const ForgotPassword: React.FC = () => {
         clearTimeout(timer);
       }
     };
-  }, [successMessage, errorMessage, dispatch]);
+  }, [successMessage, errorMessage, dispatch, fieldError]);
 
   return (
     <LogoWrapper>
@@ -88,8 +95,6 @@ const ForgotPassword: React.FC = () => {
                   name="email"
                   value={email}
                   onChange={(value) => setEmail(value)}
-                  required
-                  type="email"
                 />
                 <div className="space-y-4"></div>
               </div>
@@ -105,9 +110,8 @@ const ForgotPassword: React.FC = () => {
               </div>
             </form>
           )}
-          {errorMessage && <div className="text-red-700">{errorMessage}</div>}{' '}
           {showErrorMessage && (
-            <div className="text-red-700">{errorMessage}</div>
+            <div className="text-red-700">{fieldError || errorMessage}</div>
           )}
         </div>
       </>

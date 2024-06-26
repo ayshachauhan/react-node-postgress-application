@@ -23,6 +23,8 @@ export function getStartEndDate(
     'November',
     'December',
   ];
+  const currentMonth = currentDate.getMonth();
+  const currentDay = currentDate.getDate();
 
   const monthMap: Record<string, number> = monthNames.reduce(
     (acc, month, index) => {
@@ -50,14 +52,33 @@ export function getStartEndDate(
     const monthIndex = monthMap[month];
     let startDate = new Date(currentYear, monthIndex, 1);
     let endDate = new Date(currentYear, monthIndex + 1, 0, 23, 59, 59, 999);
+
     if (monthIndex === currentDate.getMonth() && userPermissions.length) {
-      if (!hasViewPastCasesPermission) {
-        startDate = currentDate;
-      }
-      if (!hasViewFutureCasesPermission) {
-        endDate = currentDate;
+      const startOfDay = new Date(currentDate).setHours(0, 0, 0, 0);
+      const endOfDay = new Date(currentDate).setHours(23, 59, 59, 999);
+
+      if (!hasViewPastCasesPermission && !hasViewFutureCasesPermission) {
+        // User cannot view past or future cases, show only today’s records
+        startDate = new Date(currentYear, currentMonth, currentDay, 0, 0, 0, 0);
+        endDate = new Date(
+          currentYear,
+          currentMonth,
+          currentDay,
+          23,
+          59,
+          59,
+          999,
+        );
+      } else if (!hasViewPastCasesPermission) {
+        // User cannot view past cases, start from tomorrow
+        startDate = new Date(endOfDay);
+        startDate.setDate(startDate.getDate() + 1);
+      } else if (!hasViewFutureCasesPermission) {
+        // User cannot view future cases, end at the end of today
+        endDate = new Date(startOfDay);
       }
     }
+
     return { date: Between(startDate, endDate) };
   });
 
@@ -65,6 +86,8 @@ export function getStartEndDate(
 }
 
 export function getFullYearDateConditions(userPermissions: PermissionEntity[]) {
+  const currentMonth = currentDate.getMonth();
+  const currentDay = currentDate.getDate();
   const hasViewPastCasesPermission = userPermissions.some(
     (permission) => permission.name === USER_PERMISSIONS.VIEW_PAST_CASES,
   );
@@ -76,14 +99,51 @@ export function getFullYearDateConditions(userPermissions: PermissionEntity[]) {
 
   let endDate = new Date(currentYear, 11, 31, 23, 59, 59, 999);
   if (userPermissions.length) {
-    if (!hasViewPastCasesPermission) {
+    if (!hasViewPastCasesPermission && !hasViewFutureCasesPermission) {
+      // User cannot view past or future cases, show only today’s records
+      startDate = new Date(currentYear, currentMonth, currentDay, 0, 0, 0, 0);
+      endDate = new Date(
+        currentYear,
+        currentMonth,
+        currentDay,
+        23,
+        59,
+        59,
+        999,
+      );
+    } else if (!hasViewPastCasesPermission) {
       startDate = currentDate;
-    }
-
-    if (!hasViewFutureCasesPermission) {
+    } else if (!hasViewFutureCasesPermission) {
       endDate = currentDate;
     }
   }
 
   return [{ date: Between(startDate, endDate) }];
 }
+
+export function formatHeaderDate(dateString: string) {
+  const date = new Date(dateString);
+  const formattedDate = new Intl.DateTimeFormat('en-US', {
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+  }).format(date);
+  const finalDate = formattedDate.replace(/(?<=^\w+),/, '');
+  return finalDate;
+}
+
+export const toLowerCase = (str: string): string => {
+  if (str) {
+    return String(str).toLowerCase();
+  } else return str;
+};
+
+export const toPascalCase = (str: string): string => {
+  if (str) {
+    return str
+      .split(' ') // Split the string by spaces, underscores, or hyphens
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()) // Capitalize the first letter and make the rest lowercase
+      .join('');
+  } else return str;
+};

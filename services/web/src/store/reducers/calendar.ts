@@ -51,7 +51,7 @@ const calendarSlice = createSlice({
     builder.addCase(fetchCalendars.fulfilled, (state, action) => {
       state.status = EntityLoadingState.SUCCEEDED;
       if (action.payload.length === 0) {
-        state.errorMessage = 'No records found';
+        state.errorMessage = 'No records found.';
       }
       state.entities = {
         ...state.entities,
@@ -63,9 +63,9 @@ const calendarSlice = createSlice({
       state.status = EntityLoadingState.FAILED;
       state.processing = false;
       if (typeof action.payload === 'string') {
-        state.errorMessage = action.payload ?? 'Failed to fetch calendars';
+        state.errorMessage = action.payload ?? 'Failed to fetch calendars.';
       } else {
-        state.errorMessage = 'Failed to fetch calndars';
+        state.errorMessage = 'Failed to fetch calendars.';
       }
     });
 
@@ -94,9 +94,9 @@ const calendarSlice = createSlice({
       state.status = EntityLoadingState.FAILED;
       state.processing = false;
       if (typeof action.payload === 'string') {
-        state.errorMessage = action.payload ?? 'Failed to fetch calendars';
+        state.errorMessage = action.payload ?? 'Failed to fetch calendars.';
       } else {
-        state.errorMessage = 'Failed to fetch calndars';
+        state.errorMessage = 'Failed to fetch calendars';
       }
     });
 
@@ -111,15 +111,15 @@ const calendarSlice = createSlice({
         ...state.entities,
         ...{ [action.payload.id]: action.payload },
       };
-      state.successMessage = 'Calendar added successfully';
+      state.successMessage = 'Calendar added successfully.';
     });
 
     builder.addCase(createCalendarEntry.rejected, (state, action) => {
       state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
-        state.errorMessage = action.payload ?? 'Failed to add Calendar';
+        state.errorMessage = action.payload ?? 'Failed to add Calendar.';
       } else {
-        state.errorMessage = 'Failed to add calendar';
+        state.errorMessage = 'Failed to add calendar.';
       }
       state.processing = false;
     });
@@ -135,15 +135,15 @@ const calendarSlice = createSlice({
         ...state.entities,
         ...indexBy('id', action.payload),
       };
-      state.successMessage = 'Calendars updated successfully';
+      state.successMessage = 'Calendar updated successfully.';
     });
 
     builder.addCase(updateBulkCalendars.rejected, (state, action) => {
       state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
-        state.errorMessage = action.payload ?? 'Failed to update Calendars';
+        state.errorMessage = action.payload ?? 'Failed to update Calendar.';
       } else {
-        state.errorMessage = 'Failed to update calendars';
+        state.errorMessage = 'Failed to update calendar.';
       }
       state.processing = false;
     });

@@ -35,6 +35,7 @@ const practiceHomeSlice = createSlice({
 
     builder.addCase(fetchListings.fulfilled, (state, action) => {
       state.status = EntityLoadingState.SUCCEEDED;
+      state.entities = {};
       state.entities = {
         ...state.entities,
         ...indexBy('id', action.payload),
@@ -45,9 +46,10 @@ const practiceHomeSlice = createSlice({
     builder.addCase(fetchListings.rejected, (state, action) => {
       state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
-        state.errorMessage = action.payload ?? 'Failed to fetch users';
+        state.errorMessage =
+          action.payload ?? 'Failed to fetch patient home location';
       } else {
-        state.errorMessage = 'Failed to fetch users';
+        state.errorMessage = 'Failed to fetch patient home location';
       }
       state.processing = false;
     });
@@ -63,16 +65,17 @@ const practiceHomeSlice = createSlice({
         ...state.entities,
         ...{ [action.payload.id]: action.payload },
       };
-      state.successMessage = 'Record added successfully';
+      state.successMessage = 'Patient home location added successfully.';
       state.processing = false;
     });
 
     builder.addCase(addRecordAsync.rejected, (state, action) => {
       state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
-        state.errorMessage = action.payload ?? 'Failed to add practice home';
+        state.errorMessage =
+          action.payload ?? 'Failed to add patient home location';
       } else {
-        state.errorMessage = 'Failed to add practice home';
+        state.errorMessage = 'Failed to add patient home location';
       }
       state.processing = false;
     });
@@ -91,16 +94,17 @@ const practiceHomeSlice = createSlice({
         ...remainingPracticeHomes
       } = state.entities;
       state.entities = remainingPracticeHomes;
-      state.successMessage = 'Record deleted successfully';
+      state.successMessage = 'Patient home location deleted successfully.';
       state.processing = false;
     });
 
     builder.addCase(deleteRecordAsync.rejected, (state, action) => {
       state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
-        state.errorMessage = action.payload ?? 'Failed to delete practice home';
+        state.errorMessage =
+          action.payload ?? 'Failed to delete patient home location';
       } else {
-        state.errorMessage = 'Failed to delete practice home';
+        state.errorMessage = 'Failed to delete patient home location';
       }
       state.processing = false;
     });

@@ -1,7 +1,7 @@
 resource "aws_alb_target_group" "microservice" {
   name        = "azentia-${var.environment}-${var.service}"
   port        = var.port
-  vpc_id      = aws_default_vpc.default_vpc.id
+  vpc_id      = data.aws_vpc.azentia_aws_vpc.id
   protocol    = "HTTP"
   target_type = "ip"
 

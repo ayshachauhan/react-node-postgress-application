@@ -1,3 +1,4 @@
+import { UserPermissionsProvider } from '@root/context/UserPermissionsContext';
 import ReduxProvider from '@root/provider/Redux';
 import dynamic from 'next/dynamic';
 import { Lato } from 'next/font/google';
@@ -18,7 +19,9 @@ const RootLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       </head>
       <body className={lato.className}>
         <StyleProvider font={lato}>
-          <ReduxProvider>{children}</ReduxProvider>
+          <ReduxProvider>
+            <UserPermissionsProvider>{children}</UserPermissionsProvider>
+          </ReduxProvider>
         </StyleProvider>
       </body>
     </html>

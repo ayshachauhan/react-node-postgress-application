@@ -1,43 +1,76 @@
 import {
   ICalendar,
   SelectedSurgeryOption,
+  UserType,
 } from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
+import { EVAL_STATUS } from '@root/enums/evalStatus.enum';
 import { useAppDispatch, useAppSelector } from '@root/store';
-import { fetchCalendars } from '@root/store/reducers/calendar';
+import { fetchFilteredCalendars } from '@root/store/reducers/calendar';
+import { updateRecordAsync as updateEval } from '@root/store/reducers/evals';
 import { addRecordAsync as addSurgeryRecord } from '@root/store/reducers/surgery';
-import { getPracticeId, toFullName } from '@utils/index';
+import { getPracticeId, getSelectedMonths, toFullName } from '@utils/index';
 import { Checkbox } from 'baseui/checkbox';
 import { DatePicker } from 'baseui/datepicker';
 import { SIZE, Select } from 'baseui/select';
 import moment from 'moment';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
+import RequiredIndicator from '../RequiredIndicator';
 
-const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
+interface SurgeryPageProps {
+  onClose: () => void;
+  autoFillFromEval?: boolean;
+  autoFillFromSurgery?: boolean;
+  withLoader: (func: () => Promise<void>) => Promise<void>;
+}
+
+const SurgeryPage: React.FC<SurgeryPageProps> = ({
   onClose,
-  items,
+  autoFillFromEval = false,
+  autoFillFromSurgery = false,
+  withLoader,
 }) => {
+  const dispatch = useAppDispatch();
   const {
     practiceHomesList,
     insuranceTypesList,
     referrersList,
     usersList,
     calendars,
-  } = items;
+    waitlist,
+    surgeryConfigurationsList,
+    patientsList,
+    evalAutoFillInfo,
+    surgeryAutoFillInfo,
+  } = useAppSelector((state) => ({
+    practiceHomesList: Object.values(state.practiceHomes.entities),
+    surgeryTypesList: Object.values(state.surgeryTypes.entities),
+    insuranceTypesList: Object.values(state.insuranceTypes.entities),
+    referrersList: Object.values(state.referrers.entities),
+    usersList: Object.values(state.users.entities).filter(
+      (user) => user.type == UserType.DOCTOR,
+    ),
+    calendars: Object.values(state.calendars.entities),
+    waitlist: Object.values(state.waitlist.entities),
+    surgeryConfigurationsList: state.surgeryConfigurations.entities,
+    patientsList: Object.values(state.patients.entities),
+    surgeryAutoFillInfo: state.surgeries.surgeryInfo,
+    evalAutoFillInfo: state.evals.evalInfo,
+  }));
 
   const SELECTED_DOCTOR_KEY: string = 'SELECTED_DOCTOR';
+  const userInfo = useAppSelector((state) => state.auth.user);
+  const loggedInUserId = userInfo?.id;
+  const { selectedMonth, selectedValue } = useAppSelector(
+    (state) => state.surgeries.surgeryFilters,
+  );
+  const selectedValueStr = selectedValue || '';
+
+  const month = getSelectedMonths(selectedMonth);
   const getSelectedUserId: string | null =
     localStorage.getItem(SELECTED_DOCTOR_KEY);
-
-  const dispatch = useAppDispatch();
-  const surgeryConfigurationsList = useAppSelector(
-    (state) => state.surgeryConfigurations.entities,
-  );
-  const patientsList = Object.values(
-    useAppSelector((state) => state.patients.entities),
-  );
 
   const surgeryConfigurations = Object.values(surgeryConfigurationsList);
   const practiceId = getPracticeId();
@@ -53,6 +86,7 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
   const [mrn, setMrn] = useState('');
   const [insuranceDetails, setInsuranceDetails] = useState('');
   const [insuranceTypeId, setInsuranceTypeId] = useState<string>('');
+  const [waitlistId, setWaitlistId] = useState<string>('');
   const [practiceHomeId, setPracticeHomeId] = useState<string>('');
   const [bodyPart, setBodyPart] = useState<string>('');
   const [referrerId, setReferrerId] = useState<string>('');
@@ -60,9 +94,9 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
   const [surgeryDate, SetSurgeryDate] = useState<Date | null>(new Date());
   const [pcp, setPcp] = useState('');
   const [notes, setNotes] = useState('');
-  const [checkboxes, setCheckboxes] = React.useState([true, false]);
   const [surgeryNameId, setSurgeryNameId] = useState<string>('');
   const [isMrnExists, setIsMrnExists] = useState<boolean>(false);
+  const [isNewReferrer, setIsNewReferrer] = useState<boolean>(false);
   const [surgeryDropdownOptions, setSurgeryDropdownOptions] = useState([
     {
       id: 0,
@@ -98,6 +132,32 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
 
     setSurgeryDropdownOptions([...surgeryDropdownOptions]);
   };
+
+  useEffect(() => {
+    if (autoFillFromEval || autoFillFromSurgery) {
+      const row = autoFillFromEval ? evalAutoFillInfo : surgeryAutoFillInfo;
+
+      if (row) {
+        setFirstName(row.patient.firstName);
+        setLastName(row.patient.lastName);
+        setEmail(row.patient.email);
+        setPhoneNumber(row.patient.phoneNumber);
+        setMrn(String(row.patient.mrn));
+        setPracticeHomeId(row.practiceHome.id);
+        setBodyPart(row.bodyPart);
+        setSurgeryNameId(row.surgeryConfiguration.id);
+        if (row.waitlist) setWaitlistId(row.waitlist.id);
+        if (row.patient.referrer) setReferrerId(row.patient.referrer.id);
+        if (row.insuranceType) setInsuranceTypeId(row.insuranceType.id);
+        if (row.insuranceDetails) setInsuranceDetails(row.insuranceDetails);
+      }
+    }
+  }, [
+    autoFillFromEval,
+    autoFillFromSurgery,
+    evalAutoFillInfo,
+    surgeryAutoFillInfo,
+  ]);
 
   useEffect(() => {
     if (mrn) {
@@ -170,6 +230,11 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
     id: referrersList[key].id,
   }));
 
+  const waitlistOptions = Object.keys(waitlist).map((key) => ({
+    label: waitlist[key].name,
+    id: waitlist[key].id,
+  }));
+
   const usersOptions = usersList
     .filter((ele) => ele.type === 'doctor')
     .map((key) => ({
@@ -193,6 +258,10 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
     setReferrerId(value[0] ? value[0].id : null);
   };
 
+  const handleWaitlistChange = ({ value }) => {
+    setWaitlistId(value[0] ? value[0].id : null);
+  };
+
   const handleBodyPartTypeChange = ({ value }) => {
     setBodyPart(value[0] ? value[0].id : null);
   };
@@ -205,6 +274,21 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
 
   const handleMrnChange = ({ value }) => {
     setMrn(value[0] ? value[0].id : null);
+  };
+
+  const handleMrnBlur = ({ target }) => {
+    if (target.value) {
+      const newValue: string = target.value;
+      setMrn(newValue);
+    }
+  };
+
+  const handleReferrerBlur = ({ target }) => {
+    if (target.value) {
+      const newValue: string = target.value;
+      setReferrerId(newValue);
+      setIsNewReferrer(true);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -220,52 +304,87 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
         };
       }
     });
+    await withLoader(async () => {
+      if (practiceId && doctorId) {
+        await dispatch(
+          addSurgeryRecord({
+            firstName,
+            lastName,
+            email,
+            date: surgeryDate ?? new Date(),
+            phoneNumber,
+            mrn: mrn ? Number(mrn) : 0,
+            practiceHomeId,
+            surgeryConfigurationId: surgeryNameId,
+            insuranceDetails,
+            insuranceTypeId,
+            practiceId,
+            doctorId,
+            pcp,
+            referrerId,
+            details: notes,
+            selectedSurgeryOptions: surgeryOptionObj,
+            bodyPart,
+            totalHospitalPricing: '0',
+            totalProfessionalPricing: '0',
+            waitlistId,
+          }),
+        );
 
-    if (practiceId && doctorId) {
-      dispatch(
-        addSurgeryRecord({
-          firstName,
-          lastName,
-          email,
-          date: surgeryDate ?? new Date(),
-          phoneNumber,
-          mrn: mrn ? Number(mrn) : 0,
-          practiceHomeId,
-          surgeryConfigurationId: surgeryNameId,
-          insuranceDetails,
-          insuranceTypeId,
-          practiceId,
-          doctorId,
-          pcp,
-          referrerId,
-          details: notes,
-          selectedSurgeryOptions: surgeryOptionObj,
-          bodyPart,
-          totalHospitalPricing: 0,
-          totalProfessionalPricing: 0,
-        }),
-      );
+        if (autoFillFromEval && evalAutoFillInfo) {
+          const {
+            id,
+            date,
+            patient: { firstName, mrn, phoneNumber, email },
+            bodyPart,
+          } = evalAutoFillInfo;
+          await dispatch(
+            updateEval({
+              payloadData: {
+                status: EVAL_STATUS.Book,
+                practiceId,
+                date,
+                email,
+                bodyPart,
+                phoneNumber,
+                firstName,
+                mrn,
+              },
+              id,
+            }),
+          );
+        }
 
-      dispatch(fetchCalendars({ practiceId, userId: doctorId }));
+        await dispatch(
+          fetchFilteredCalendars({
+            practiceId,
+            userId: doctorId,
+            month,
+            option: selectedValueStr,
+            loggedInUserId,
+          }),
+        );
 
-      try {
-        setFirstName('');
-        setLastName('');
-        setMrn('');
-        setPhoneNumber('');
-        setEmail('');
-        setPracticeHomeId('');
-        setInsuranceDetails('');
-        setInsuranceTypeId('');
-        setPcp('');
-        setReferrerId('');
-        setNotes('');
-        setBodyPart('');
-        onClose();
-      } catch (error) {
-        onClose();
+        try {
+          setFirstName('');
+          setLastName('');
+          setMrn('');
+          setPhoneNumber('');
+          setEmail('');
+          setPracticeHomeId('');
+          setInsuranceDetails('');
+          setInsuranceTypeId('');
+          setPcp('');
+          setReferrerId('');
+          setNotes('');
+          setBodyPart('');
+          setWaitlistId('');
+          onClose();
+        } catch (error) {
+          onClose();
+        }
       }
-    }
+    });
 
     router.refresh();
     onClose();
@@ -318,7 +437,7 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
   };
 
   const getBackGroundColorCss = (date: Date): Record<string, unknown> => {
-    // checking selected month here because sometimes bgcolors are refelcring in next month
+    // checking selected month here because sometimes bg colors are reflecting in next month
     return date.getMonth() + 1 == currentMonth
       ? isCalendarDates(date)
         ? isSlotsAvailable(date)
@@ -362,7 +481,8 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
           <div className="flex gap-5 mt-4">
             <div className="space-y-1 flex-1">
               <label htmlFor="mrn" className="text-black text-xs">
-                MRN
+                <RequiredIndicator />
+                &nbsp;MRN
               </label>
               <Select
                 size={SIZE.mini}
@@ -373,7 +493,9 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
                 value={
                   mrn ? [{ id: String(mrn), label: String(String(mrn)) }] : []
                 }
-                creatable
+                placeholder="Enter MRN"
+                onBlurResetsInput={false}
+                onBlur={handleMrnBlur}
                 onChange={(value) => {
                   handleMrnChange(value);
                 }}
@@ -396,7 +518,8 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
             </div>
             <div className="space-y-1 flex-1">
               <label htmlFor="firstName" className="text-black text-xs">
-                First Name
+                <RequiredIndicator />
+                &nbsp;First Name
               </label>
               <TextInput
                 size={SIZE.mini}
@@ -412,7 +535,8 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
             </div>
             <div className="space-y-1 flex-1">
               <label htmlFor="lastName" className="text-black text-xs">
-                Last Name
+                <RequiredIndicator />
+                &nbsp;Last Name
               </label>
               <TextInput
                 size={SIZE.mini}
@@ -430,7 +554,8 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
           <div className="flex gap-5 mt-2">
             <div className="space-y-1 flex-1">
               <label htmlFor="email" className="text-black text-xs">
-                Email
+                <RequiredIndicator />
+                &nbsp;Email
               </label>
               <TextInput
                 size={SIZE.mini}
@@ -446,7 +571,8 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
             </div>
             <div className="space-y-1 flex-1">
               <label htmlFor="phoneNumber" className="text-black text-xs">
-                Phone Number
+                <RequiredIndicator />
+                &nbsp;Phone Number
               </label>
               <TextInput
                 size={SIZE.mini}
@@ -461,46 +587,12 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
               <div className="space-y-4"></div>
             </div>
             <div className="space-y-1 flex-1">
-              <label htmlFor="urlEmbed" className="text-black text-xs">
-                No Wait list
-              </label>
-              <Select size={SIZE.mini} />
-              <div className="space-y-4"></div>
-            </div>
-          </div>
-          <div className="flex gap-5 mt-2">
-            <div className="space-y-1 flex-1">
-              <label htmlFor="referrer" className="text-black text-xs">
-                Referrer
-              </label>
-              <Select
-                size={SIZE.mini}
-                creatable
-                onChange={handleReferrerChange}
-                value={
-                  referrerId ? [{ label: referrerId, id: referrerId }] : []
-                }
-                options={referrersOptions}
-                overrides={{
-                  ControlContainer: {
-                    style: {
-                      backgroundColor: 'rgba(250, 250, 250, 1)',
-                      border: 'none',
-                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-                      color: '#52525B',
-                    },
-                  },
-                  ClearIcon: {
-                    component: () => null,
-                  },
-                }}
-              />
-            </div>
-            <div className="space-y-1 flex-1">
               <label htmlFor="practiceHome" className="text-black text-xs">
-                Home
+                <RequiredIndicator />
+                &nbsp;Home
               </label>
               <Select
+                placeholder="Select patient home location"
                 backspaceClearsInputValue
                 size={SIZE.mini}
                 options={practiceHomesOptions}
@@ -526,9 +618,69 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
                 }}
               />
             </div>
+          </div>
+          <div className="flex gap-5 mt-2">
+            <div className="space-y-1 flex-1">
+              <label htmlFor="referrer" className="text-black text-xs">
+                Referrer
+              </label>
+              <Select
+                placeholder="Select Referrer"
+                backspaceClearsInputValue={true}
+                size={SIZE.mini}
+                onBlurResetsInput={false}
+                onBlur={handleReferrerBlur}
+                onChange={handleReferrerChange}
+                value={
+                  referrerId ? [{ label: referrerId, id: referrerId }] : []
+                }
+                options={referrersOptions}
+                overrides={{
+                  ControlContainer: {
+                    style: {
+                      backgroundColor: 'rgba(250, 250, 250, 1)',
+                      border: 'none',
+                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                      color: '#52525B',
+                    },
+                  },
+                  ClearIcon: {
+                    component: () => null,
+                  },
+                }}
+              />
+            </div>
+            <div className="space-y-1 flex-1">
+              <label htmlFor="urlEmbed" className="text-black text-xs">
+                No Wait list
+              </label>
+              <Select
+                placeholder="Select Waitlist"
+                backspaceClearsInputValue
+                size={SIZE.mini}
+                options={waitlistOptions}
+                overrides={{
+                  ControlContainer: {
+                    style: {
+                      backgroundColor: 'rgba(250, 250, 250, 1)',
+                      border: 'none',
+                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                      color: '#52525B',
+                    },
+                  },
+                  ClearIcon: {
+                    component: () => null,
+                  },
+                }}
+                onChange={handleWaitlistChange}
+                value={
+                  waitlistId ? [{ label: waitlistId, id: waitlistId }] : []
+                }
+              />
+              <div className="space-y-4"></div>
+            </div>
             <div className="space-y-1 flex-1">
               <Checkbox
-                //  size={SIZE.mini}
                 overrides={{
                   Checkmark: {
                     style: ({ $checked }) => ({
@@ -542,18 +694,14 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
                     }),
                   },
                 }}
-                checked={checkboxes[0]}
-                onChange={(e) => {
-                  const target = e.target as HTMLInputElement;
-                  setCheckboxes([target.checked, checkboxes[1]]);
-                }}
+                checked={false}
               >
                 <label htmlFor="pcp" className="text-black text-xs">
                   PCP (Check box if same)
                 </label>
               </Checkbox>
-
               <TextInput
+                disabled
                 size={SIZE.mini}
                 name="pcp"
                 value={pcp}
@@ -563,7 +711,7 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
               />
             </div>
           </div>
-          <div className="flex gap-5">
+          <div className="flex gap-5 pt-2">
             <div className="space-y-1 flex-1 text-xs">
               <Checkbox
                 overrides={{
@@ -579,11 +727,7 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
                     }),
                   },
                 }}
-                checked={checkboxes[0]}
-                onChange={(e) => {
-                  const target = e.target as HTMLInputElement;
-                  setCheckboxes([target.checked, checkboxes[1]]);
-                }}
+                checked={email ? true : false}
               >
                 Notify patient
               </Checkbox>
@@ -601,7 +745,7 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
                     }),
                   },
                 }}
-                checked={referrerId ? true : false}
+                checked={referrerId && !isNewReferrer ? true : false}
               >
                 Notify referrer
               </Checkbox>
@@ -611,6 +755,7 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
                 Insurance Type
               </label>
               <Select
+                placeholder="Select Insurance Type"
                 backspaceClearsInputValue
                 size={SIZE.mini}
                 options={insuranceTypesOptions}
@@ -668,8 +813,13 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
                 Add Surgery
               </div>
               <div className="flex gap-5 mt-2">
-                <div className="space-y-4 flex-1">
+                <div className="space-y-1 flex-1">
+                  <label htmlFor="surgeryType" className="text-black text-xs">
+                    <RequiredIndicator />
+                    &nbsp;Surgery
+                  </label>
                   <Select
+                    placeholder="Select Surgery"
                     backspaceClearsInputValue
                     required
                     size={SIZE.mini}
@@ -695,8 +845,13 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
                     }}
                   />
                 </div>
-                <div className="space-y-4 flex-1 w-1/3">
+                <div className="space-y-1 flex-1 w-1/3">
+                  <label htmlFor="bodypart" className="text-black text-xs">
+                    <RequiredIndicator />
+                    &nbsp;Body Part
+                  </label>
                   <Select
+                    placeholder="Select Body Part"
                     backspaceClearsInputValue
                     size={SIZE.mini}
                     required
@@ -725,7 +880,11 @@ const SurgeryPage: React.FC<{ onClose: () => void; items }> = ({
                     }}
                   />
                 </div>
-                <div className="space-y-4 flex-1 w-1/3">
+                <div className="space-y-1 flex-1 w-1/3">
+                  <label htmlFor="surgeryDate" className="text-black text-xs">
+                    <RequiredIndicator />
+                    &nbsp;Surgery Date
+                  </label>
                   <DatePicker
                     size={SIZE.mini}
                     value={surgeryDate}
