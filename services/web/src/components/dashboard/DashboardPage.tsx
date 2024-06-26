@@ -106,7 +106,10 @@ const DashboardPage: React.FC = () => {
   }, [practiceId, dispatch, withLoader]);
 
   useEffect(() => {
-    if (addSurgerySuccessMessage || addEvalSuccessMessage) {
+    if (
+      (addSurgerySuccessMessage || addEvalSuccessMessage) &&
+      addSurgerySuccessMessage !== 'Surgery updated successfully.'
+    ) {
       if (practiceId) {
         const loadData = async () => {
           await withLoader(async () => {

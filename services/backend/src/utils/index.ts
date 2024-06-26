@@ -86,6 +86,8 @@ export function getStartEndDate(
 }
 
 export function getFullYearDateConditions(userPermissions: PermissionEntity[]) {
+  const currentMonth = currentDate.getMonth();
+  const currentDay = currentDate.getDate();
   const hasViewPastCasesPermission = userPermissions.some(
     (permission) => permission.name === USER_PERMISSIONS.VIEW_PAST_CASES,
   );
@@ -97,11 +99,21 @@ export function getFullYearDateConditions(userPermissions: PermissionEntity[]) {
 
   let endDate = new Date(currentYear, 11, 31, 23, 59, 59, 999);
   if (userPermissions.length) {
-    if (!hasViewPastCasesPermission) {
+    if (!hasViewPastCasesPermission && !hasViewFutureCasesPermission) {
+      // User cannot view past or future cases, show only today’s records
+      startDate = new Date(currentYear, currentMonth, currentDay, 0, 0, 0, 0);
+      endDate = new Date(
+        currentYear,
+        currentMonth,
+        currentDay,
+        23,
+        59,
+        59,
+        999,
+      );
+    } else if (!hasViewPastCasesPermission) {
       startDate = currentDate;
-    }
-
-    if (!hasViewFutureCasesPermission) {
+    } else if (!hasViewFutureCasesPermission) {
       endDate = currentDate;
     }
   }

@@ -50,6 +50,11 @@ const FiltersSection: React.FC<{
   const { selectedMonth, searchMRNName, selectedValue } = useAppSelector(
     (state) => state.surgeries.surgeryFilters,
   );
+  const { successMessage: addSurgerySuccessMessage } = useAppSelector(
+    (state) => ({
+      successMessage: state.surgeries.successMessage,
+    }),
+  );
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [selectedAction, setSelectedAction] = useState<string | null>(null);
@@ -350,6 +355,21 @@ const FiltersSection: React.FC<{
     }
   };
   const isDisabled = selectedValue && selectedValue.toLowerCase() === 'past';
+
+  useEffect(() => {
+    if (
+      addSurgerySuccessMessage &&
+      addSurgerySuccessMessage === 'Surgery updated successfully.'
+    ) {
+      if (practiceId && loggedInUserId !== null) {
+        dispatchFetchFilteredSurgeryList(
+          selectedMonth,
+          searchMRNNameStr,
+          selectedValueStr,
+        );
+      }
+    }
+  }, [addSurgerySuccessMessage, dispatch, practiceId]);
 
   useEffect(() => {
     if (practiceId && loggedInUserId !== null) {

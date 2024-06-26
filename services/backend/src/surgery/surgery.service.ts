@@ -140,6 +140,9 @@ export class SurgeryService {
         'doctor',
         'waitlist',
       ],
+      order: {
+        dateCreated: 'DESC',
+      },
     };
 
     const searchConditionsWithoutPermissions = { ...searchConditions };
