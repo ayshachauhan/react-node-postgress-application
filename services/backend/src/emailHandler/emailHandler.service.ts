@@ -371,6 +371,31 @@ export class EmailHandlerService {
     };
     await this.emailLogRepository.save(entry);
   }
+
+  async updateEmailLogsByPatientMrn(oldPatientMrn: number, newPayload) {
+    if (oldPatientMrn) {
+      const query = `
+          SELECT * FROM email_logs 
+          WHERE data->>'mrn' = $1 
+          AND status = $2
+        `;
+      const emailLogsByPatientEmail = await this.emailLogRepository.query(
+        query,
+        [oldPatientMrn, 'pending'],
+      );
+      if (emailLogsByPatientEmail.length > 0) {
+        await Promise.all(
+          emailLogsByPatientEmail.map(async (log) => {
+            log.data.pt_email_address = newPayload.email;
+            log.data.phoneNumber = newPayload.phoneNumber;
+            log.data.firstName = newPayload.firstName;
+            log.data.lastName = newPayload.lastName;
+            await this.emailLogRepository.save(log);
+          }),
+        );
+      }
+    }
+  }
 }
 
 const makeAllCaseArray = (dataArray: IEval[] | ISurgery[]) => {
