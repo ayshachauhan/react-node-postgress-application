@@ -203,3 +203,22 @@ export const getSelectedMonths = (selectedMonth: MonthOption[]) => {
   const month = monthLabels.join(',');
   return month;
 };
+
+export const getCurrentMonthName = () => {
+  const date = new Date();
+  const monthNames = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+  ];
+  return monthNames[date.getMonth()];
+};
