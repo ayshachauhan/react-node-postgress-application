@@ -292,12 +292,12 @@ const Dashboard: React.FC = () => {
       </div>
       <hr className="h-px my-2.5 px-0 mx-0 bg-gray-100 border-1 dark:bg-gray-700"></hr>
       <div className="text-gray-50 w-full  items-center  bg-gray-50 py-4 rounded-lg">
-        <div className="bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 grid grid-cols-6 rounded-lg">
+        <div className="bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 grid grid-cols-5 rounded-lg">
           <div className="font-bold text-white p-4">S. No.</div>
           <div className="font-bold text-white p-4">Surgery Location</div>
           <div className="font-bold text-white p-4">Surgery Name</div>
           <div className="font-bold text-white p-4">Body Part</div>
-          <div className="font-bold text-white p-4">Facility</div>
+          {/* <div className="font-bold text-white p-4">Facility</div> */}
           <div className="font-bold text-white p-4">Action</div>
           {!isLoading &&
             modifySurgeryConfigList.map((data, index) => (
@@ -314,9 +314,9 @@ const Dashboard: React.FC = () => {
                 <div className="text-gray-900 bg-gray-50 pt-2 px-4">
                   {data.bodyPart}
                 </div>
-                <div className="text-gray-900 bg-gray-50 pt-2 px-4">
+                {/* <div className="text-gray-900 bg-gray-50 pt-2 px-4">
                   {data.facility}
-                </div>
+                </div> */}
                 <div className="text-gray-900 bg-gray-50 pt-2 px-4 flex gap-1">
                   <div
                     onClick={() => {

@@ -118,6 +118,7 @@ const EditModularField: React.FC<{
     setBodyPartInputFields(values);
   };
 
+  /* commenting it for future usage
   const handleFacilityChangeInput = (index: number, event: string) => {
     const values = [...facilityInputFields];
     values[index].value = event;
@@ -132,6 +133,7 @@ const EditModularField: React.FC<{
     values.splice(index, 1);
     setFacilityInputFields(values);
   };
+  */
 
   const handleOptionsFieldChangeInput = (
     index: number,
@@ -290,6 +292,7 @@ const EditModularField: React.FC<{
               </label>
               <Select
                 size={SIZE.mini}
+                backspaceClearsInputValue
                 options={surgeryTypeOptions}
                 onChange={handleSurgeryTypeChange}
                 value={
@@ -393,7 +396,7 @@ const EditModularField: React.FC<{
               </div>
             </div>
 
-            <div className="space-y-2 flex-1">
+            {/* <div className="space-y-2 flex-1">
               <label htmlFor="facility" className="text-black text-sm">
                 Facility
               </label>
@@ -434,7 +437,7 @@ const EditModularField: React.FC<{
                   />
                 </div>
               </div>
-            </div>
+            </div> */}
           </div>
           <div className="mt-4">
             <div className="flex">

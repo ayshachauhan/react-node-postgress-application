@@ -13,7 +13,7 @@ import { useLoader } from '@root/hooks/useLoader';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { fetchLoggedInUser } from '@root/store/reducers/auth';
 import { fetchListings as fetchEvalsList } from '@root/store/reducers/evals';
-import { fetchHistory } from '@root/store/reducers/history';
+import { clearData, fetchHistory } from '@root/store/reducers/history';
 import { fetchListings as fetchSurgeryList } from '@root/store/reducers/surgery';
 import {
   formatColumnDate,
@@ -57,6 +57,10 @@ export default function HistoryTable() {
       surgeries: Object.values(state.surgeries.entities),
       surgerySuccessMessage: state.surgeries.successMessage,
     }));
+
+  useEffect(() => {
+    dispatch(clearData());
+  }, [dispatch, practiceId]);
 
   useEffect(() => {
     dispatch(fetchLoggedInUser());
@@ -200,11 +204,21 @@ export default function HistoryTable() {
       .flat();
   };
 
+  const sortHistoryDataByDate = (historyData: HistoryData[]): HistoryData[] => {
+    return historyData.sort((a, b) => {
+      return new Date(b.date).getTime() - new Date(a.date).getTime();
+    });
+  };
+  const getSortedHistoryData = (): HistoryData[] => {
+    const resolvedHistoryData = getResolvedHistoryData();
+    const sortedHistoryData = sortHistoryDataByDate(resolvedHistoryData);
+    return sortedHistoryData;
+  };
   return (
     <div className="my-4">
       {isLoading && <Loader />}
       <div className="flex justify-between border-gray-400">
-        <span className="text-xl font-bold">History</span>
+        <span className="text-xl font-bold">All History</span>
       </div>
       <hr className="h-px my-2.5 bg-gray-100 border-1 dark:bg-gray-700"></hr>
       {!isLoading && historyLogs && historyLogs.length > 0 && (
@@ -221,7 +235,7 @@ export default function HistoryTable() {
             <div className="font-bold text-white py-2 px-1 w-40">New</div>
             <div className="font-bold text-white py-2 px-1 w-40">IP</div>
           </div>
-          {getResolvedHistoryData().map((row, index) => (
+          {getSortedHistoryData().map((row, index) => (
             <div
               key={row.id}
               id={row.id}

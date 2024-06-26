@@ -9,6 +9,7 @@ const UpdateTemplateModal = ({
   messageType,
   versionOffset,
   withLoader,
+  showDateOffsetControl,
 }) => {
   return (
     <BaseUIModal
@@ -34,6 +35,7 @@ const UpdateTemplateModal = ({
             }}
             onClose={handleCloseUpdateModal}
             withLoader={withLoader}
+            showDateOffsetControl={showDateOffsetControl}
           />
         )}
     </BaseUIModal>

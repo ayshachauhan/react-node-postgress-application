@@ -47,9 +47,9 @@ const practiceHomeSlice = createSlice({
       state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
         state.errorMessage =
-          action.payload ?? 'Failed to fetch practice homes.';
+          action.payload ?? 'Failed to fetch patient home location';
       } else {
-        state.errorMessage = 'Failed to fetch practice homes.';
+        state.errorMessage = 'Failed to fetch patient home location';
       }
       state.processing = false;
     });
@@ -65,16 +65,17 @@ const practiceHomeSlice = createSlice({
         ...state.entities,
         ...{ [action.payload.id]: action.payload },
       };
-      state.successMessage = 'Practice home added successfully.';
+      state.successMessage = 'Patient home location added successfully.';
       state.processing = false;
     });
 
     builder.addCase(addRecordAsync.rejected, (state, action) => {
       state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
-        state.errorMessage = action.payload ?? 'Failed to add practice home.';
+        state.errorMessage =
+          action.payload ?? 'Failed to add patient home location';
       } else {
-        state.errorMessage = 'Failed to add practice home.';
+        state.errorMessage = 'Failed to add patient home location';
       }
       state.processing = false;
     });
@@ -93,7 +94,7 @@ const practiceHomeSlice = createSlice({
         ...remainingPracticeHomes
       } = state.entities;
       state.entities = remainingPracticeHomes;
-      state.successMessage = 'Practice home deleted successfully.';
+      state.successMessage = 'Patient home location deleted successfully.';
       state.processing = false;
     });
 
@@ -101,9 +102,9 @@ const practiceHomeSlice = createSlice({
       state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
         state.errorMessage =
-          action.payload ?? 'Failed to delete practice home.';
+          action.payload ?? 'Failed to delete patient home location';
       } else {
-        state.errorMessage = 'Failed to delete practice home.';
+        state.errorMessage = 'Failed to delete patient home location';
       }
       state.processing = false;
     });

@@ -18,6 +18,7 @@ import {
   sendMediaToPatientAsync,
 } from '@root/store/reducers/media';
 import {
+  clearData,
   clearErrorMessage,
   clearSuccessMessage,
   fetchListings,
@@ -43,12 +44,9 @@ export interface customerMediaConfig extends IMediaConfig {
 
 export default function MessagesTable() {
   const [activeButton, setActiveButton] = useState<string | null>('All');
-  const delay = (ms: number): Promise<void> =>
-    new Promise((resolve) => setTimeout(resolve, ms));
   const toggleActive = async (id: string) => {
     setActiveButton(id);
     await withLoader(async () => {
-      await delay(500);
       const filteredData = await filterMessagesByType();
       setFilteredData(filteredData);
     });
@@ -76,6 +74,9 @@ export default function MessagesTable() {
       (ele) => ele.mediaType == MediaType.PRACTICE && ele.mediaConfigs.length,
     ),
   }));
+  useEffect(() => {
+    dispatch(clearData());
+  }, [dispatch, practiceId]);
 
   useEffect(() => {
     if (practiceId !== null) {
@@ -93,21 +94,12 @@ export default function MessagesTable() {
     let filtered = [...messagesData];
 
     if (activeButton === 'Referrers') {
-      filtered = filtered.filter(
-        (row) =>
-          row.data?.body &&
-          row.data.body.trim() !== '' &&
-          row.data.body.toLowerCase().includes('referrer'),
-      );
-    }
-
-    if (activeButton === 'Emails') {
+      filtered = []; // Set filtered data to empty array for Referrers tab
+    } else if (activeButton === 'Emails') {
       filtered = filtered.filter(
         (row) => row.data?.body && row.data.body.trim() !== '',
       );
-    }
-
-    if (activeButton === 'Texts') {
+    } else if (activeButton === 'Texts') {
       filtered = filtered.filter(
         (row) => row.data?.text && row.data.text.trim() !== '',
       );
@@ -176,6 +168,7 @@ export default function MessagesTable() {
 
   const resetFilters = (): void => {
     dispatch(setSearchMRNName(null));
+    setMrn('');
   };
 
   const handleSearchMRNNameChange = (value) => {

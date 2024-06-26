@@ -114,8 +114,7 @@ const MediaPage: React.FC<{
       setPatientForm({ ...patientForm, video: newFields });
     }
   };
-  const delay = (ms: number): Promise<void> =>
-    new Promise((resolve) => setTimeout(resolve, ms));
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (practiceId) {
@@ -146,7 +145,6 @@ const MediaPage: React.FC<{
 
       try {
         await withLoader(async () => {
-          await delay(2000); // Add a delay of 1 second
           await dispatch(addRecordAsync(data));
         });
         setPracticeForm({
