@@ -34,4 +34,5 @@ export enum SystemTemplates {
   SEND_VIDEO_TO_PATIENT = 'sendVideoToPatient',
   NOTIFY_STAFF_EVAL_BOOKED = 'notifyStaffEvalBooked',
   NOTIFY_STAFF_SURGERY_BOOKED = 'notifyStaffSurgeryBooked',
+  NOTIFY_STAFF_SURGERY_UPDATED = 'notifyStaffSurgeryUpdated',
 }

@@ -404,6 +404,53 @@ export class EmailHandlerService {
     };
     await this.emailLogRepository.save(entry);
   }
+
+  async checkAndMakeSurgeryUpdateEmailContent(
+    practice: IPractice,
+    entity: ISurgery,
+  ) {
+    const emailLogsEntries: Partial<IEmailLog>[] = [];
+    const mailVariables = await this.makeEmailVariable(entity, practice);
+
+    const { staffEmails, operatingRoomEmails } = practice.emailData;
+    if (staffEmails || operatingRoomEmails) {
+      const sendEmailArray: string[] = [...staffEmails, ...operatingRoomEmails];
+      const systemTemplateName = SystemTemplates.NOTIFY_STAFF_SURGERY_UPDATED;
+
+      const subject: string = `A surgery is updated
+      in your practice: ${practice.name}`;
+
+      const entry: Partial<IEmailLog> = {
+        practice: practice,
+        expectedDate: entity.date,
+        status: 'pending',
+        data: {
+          body: this.transporterService.readTemplates(systemTemplateName),
+          ...mailVariables,
+          subject,
+          text: '',
+        },
+      };
+
+      sendEmailArray.forEach((email: string) => {
+        const staffMailEntry: Partial<IEmailLog> = {
+          ...entry,
+          data: { ...entry.data, to: email },
+        };
+        emailLogsEntries.push(staffMailEntry);
+      });
+
+      // creating entries for cron job
+      const dbEmailLogEntries =
+        await this.emailLogRepository.save(emailLogsEntries);
+
+      const surgeryEmailEntries = dbEmailLogEntries.map((ele) => ({
+        surgery: entity,
+        emailLog: ele,
+      }));
+      await this.surgeryEmailRepository.save(surgeryEmailEntries);
+    }
+  }
 }
 
 const makeAllCaseArray = (dataArray: IEval[] | ISurgery[]) => {

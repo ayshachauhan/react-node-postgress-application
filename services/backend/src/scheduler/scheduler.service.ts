@@ -60,9 +60,7 @@ export class SchedulerService {
       //updating status in the parent table
       await this.emailLogRepository.update(mailData.id, {
         response,
-        status: response.message.includes('250 2.0.0 OK')
-          ? 'completed'
-          : 'rejected',
+        status: response.message.includes('250') ? 'completed' : 'rejected',
       });
     });
 
