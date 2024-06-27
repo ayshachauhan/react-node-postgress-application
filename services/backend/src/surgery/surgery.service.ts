@@ -447,7 +447,7 @@ export class SurgeryService {
 
     // initiating emails for updating surgeries
     if (updatedSurgery)
-      await this.initiateUpdateEvalMail(updatedSurgery, practiceId);
+      await this.initiateUpdateSurgeryMail(updatedSurgery, practiceId);
 
     return updatedSurgery;
   }
@@ -587,7 +587,7 @@ export class SurgeryService {
     });
   }
 
-  async initiateUpdateEvalMail(
+  async initiateUpdateSurgeryMail(
     surgeryEntity: ISurgery,
     practiceId: string,
   ): Promise<void> {
