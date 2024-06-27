@@ -1,3 +1,5 @@
+import { PracticeEmailData } from '@packages/entities';
+
 export interface PracticesGetInterface {
   id?: string;
   name: string;
@@ -11,6 +13,7 @@ export interface PracticesGetInterface {
   dateCreated?: string;
   dateUpdated?: string;
   imgUrl?: string;
+  emailData: PracticeEmailData;
 }
 
 export type CreatePracticeInviteMailData = {
