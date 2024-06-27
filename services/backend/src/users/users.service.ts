@@ -127,6 +127,9 @@ export class UsersService {
             fullName,
             practiceEntity,
           });
+          await this.practicesService.update(practiceId, {
+            status: PracticeStatus.ACTIVE,
+          });
         }
       }
 
