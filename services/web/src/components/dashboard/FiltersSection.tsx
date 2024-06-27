@@ -544,7 +544,7 @@ const FiltersSection: React.FC<{
                                       ),
                                     )}
 
-                                  <th>#</th>
+                                  <th className="min-w-20">#</th>
 
                                   {customCheckListHeaders &&
                                     customCheckListHeaders.map(
@@ -553,7 +553,7 @@ const FiltersSection: React.FC<{
                                         checkListHeaderIndex,
                                       ) => (
                                         <th
-                                          className=""
+                                          className="min-w-20"
                                           key={checkListHeaderIndex}
                                         >
                                           {checkListHeader}
@@ -562,7 +562,7 @@ const FiltersSection: React.FC<{
                                     )}
 
                                   {viewBillingColumn && viewBillingColumn && (
-                                    <th className="">Prof</th>
+                                    <th className="min-w-20">Prof</th>
                                   )}
 
                                   {viewBillingColumn && (
