@@ -507,6 +507,11 @@ export default function MessagesTable() {
                             Text
                           </div>
                         )}
+                        {activeButton !== 'Texts' && (
+                          <div className="font-bold text-white py-2 px-1 min-w-[10rem]">
+                            Email Status
+                          </div>
+                        )}
                       </div>
                       {records.map((row, index) => (
                         <div
@@ -554,6 +559,20 @@ export default function MessagesTable() {
                                 row?.data,
                               )}
                             />
+                          )}
+                          {activeButton !== 'Texts' && (
+                            <div className="text-black  pt-2 pb-2 px-1 overflow-hidden min-w-[10rem]">
+                              {row?.status.toLowerCase() === 'rejected' ? (
+                                <span>Error; message not sent</span>
+                              ) : row?.status.toLowerCase() === 'completed' ? (
+                                <span>Message sent</span>
+                              ) : (
+                                <span>
+                                  {row?.status.charAt(0).toUpperCase() +
+                                    row?.status.slice(1).toLowerCase()}
+                                </span>
+                              )}
+                            </div>
                           )}
                         </div>
                       ))}
