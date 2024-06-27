@@ -64,13 +64,13 @@
 }
 
 table {
+  border-collapse: collapse;
+  width: 100%;
   @apply text-sm rounded-lg;
 }
-table thead {
-  @apply bg-[#299479] font-normal;
-}
-table thead th {
-  @apply font-normal text-white p-2 text-left;
+
+table th {
+  @apply bg-[#299479]  font-normal text-white p-2 text-left;
 }
 table tbody tr td {
   @apply text-gray-900 bg-gray-50 p-2;

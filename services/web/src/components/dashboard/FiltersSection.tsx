@@ -511,352 +511,302 @@ const FiltersSection: React.FC<{
                     surgeryOptionsHeadersObj[key].checkListHeaders;
 
                   return (
-                    <div key={index} className="w-full">
-                      <div
-                        className={`border-solid px-2.5 py-0.5 text-white text-base font-normal   ${
-                          index == 0 ? 'rounded-t-lg' : ''
-                        }`}
-                        style={{ backgroundColor: 'rgba(53, 165, 118, 1)' }}
-                      >
-                        {key}
-                      </div>
+                    <table key={index} className="w-full">
+                      <tbody>
+                        <tr>
+                          <td
+                            className={`border-solid px-2.5 py-0.5 text-white text-base font-normal   ${
+                              index == 0 ? 'rounded-t-lg' : ''
+                            }`}
+                            style={{ backgroundColor: 'rgba(53, 165, 118, 1)' }}
+                          >
+                            {key}
+                          </td>
+                        </tr>
 
-                      {Object.keys(ele).map((date, dateIndex) => {
-                        return (
-                          <>
-                            <div key={dateIndex}>
-                              <div
-                                className={`border-solid px-2.5 py-0 text-white text-sm font-normal ${
-                                  index == 0 ? 'rounded-t-lg' : ''
-                                }`}
-                                style={{
-                                  backgroundColor: 'rgba(53, 165, 118, 1)',
-                                }}
-                              ></div>
-                              <table className="w-full">
-                                <thead>
-                                  <tr>
-                                    <th>Date</th>
-                                    <th>
-                                      <HomeIcon></HomeIcon>
-                                    </th>
-                                    <th className="w-24">Status</th>
-                                    <th className="p-0 w-[500px]">
-                                      <table className="w-full">
-                                        <thead>
-                                          <th className="w-3/12">Last Name</th>
-                                          <th className="w-3/12">First Name</th>
-                                          <th className="w-2/12">MRN</th>
-                                          <th className="w-2/12">Surgery</th>
-                                          <th className="w-2/12">Body Part</th>
-                                        </thead>
-                                      </table>
-                                    </th>
+                        {Object.keys(ele).map((date, dateIndex) => {
+                          return (
+                            <>
+                              <React.Fragment key={dateIndex}>
+                                <tr>
+                                  <th>Date</th>
+                                  <th>
+                                    <HomeIcon></HomeIcon>
+                                  </th>
+                                  <th className="w-24">Status</th>
+                                  <th className="w-24">Last Name</th>
+                                  <th className="w-24">First Name</th>
+                                  <th className="w-24">MRN</th>
+                                  <th className="w-20">Surgery</th>
+                                  <th className="w-20">Body Part</th>
 
-                                    {customOptionsHeaders &&
-                                      customOptionsHeaders.map(
-                                        (optionsHeader, optionsHeaderIndex) => (
-                                          <th
+                                  {customOptionsHeaders &&
+                                    customOptionsHeaders.map(
+                                      (optionsHeader, optionsHeaderIndex) => (
+                                        <th
+                                          className="w-12"
+                                          key={optionsHeaderIndex}
+                                        >
+                                          {optionsHeader}
+                                        </th>
+                                      ),
+                                    )}
+
+                                  <th>#</th>
+                                  <th>
+                                    {customCheckListHeaders &&
+                                      customCheckListHeaders.map(
+                                        (
+                                          checkListHeader,
+                                          checkListHeaderIndex,
+                                        ) => (
+                                          <span
                                             className=""
-                                            key={optionsHeaderIndex}
+                                            key={checkListHeaderIndex}
                                           >
-                                            {optionsHeader}
-                                          </th>
+                                            {checkListHeader}
+                                          </span>
                                         ),
                                       )}
+                                  </th>
 
-                                    <th>#</th>
-                                    <th>
-                                      {customCheckListHeaders &&
-                                        customCheckListHeaders.map(
-                                          (
-                                            checkListHeader,
-                                            checkListHeaderIndex,
-                                          ) => (
-                                            <span
-                                              className=""
-                                              key={checkListHeaderIndex}
-                                            >
-                                              {checkListHeader}
-                                            </span>
-                                          ),
-                                        )}
-                                    </th>
+                                  {viewBillingColumn && viewBillingColumn && (
+                                    <th className="">Prof</th>
+                                  )}
 
-                                    {viewBillingColumn && viewBillingColumn && (
-                                      <th className="">Prof</th>
-                                    )}
+                                  {viewBillingColumn && (
+                                    <th className="">Hospital</th>
+                                  )}
 
-                                    {viewBillingColumn && (
-                                      <th className="">Hospital</th>
-                                    )}
-
-                                    <th>Insurance</th>
-                                    <th>Contact Info</th>
-                                    <th>Action</th>
-                                  </tr>
-                                </thead>
-                                <tbody>
-                                  {ele[date].map((row, index) => {
-                                    const isEditable =
-                                      editableRows.includes(row.id) &&
-                                      selectedAction === 'edit';
-                                    const surgeryInfo = surgeryList.find(
-                                      (ele) => ele.id === row.id,
-                                    );
-                                    return isEditable && surgeryInfo ? (
-                                      <EditableRow
+                                  <th className="w-20">Insurance</th>
+                                  <th className="w-40">Contact Info</th>
+                                  <th>Action</th>
+                                </tr>
+                                {ele[date].map((row, index) => {
+                                  const isEditable =
+                                    editableRows.includes(row.id) &&
+                                    selectedAction === 'edit';
+                                  const surgeryInfo = surgeryList.find(
+                                    (ele) => ele.id === row.id,
+                                  );
+                                  return isEditable && surgeryInfo ? (
+                                    <EditableRow
+                                      key={row.id}
+                                      rowId={row.id} // Pass the rowId
+                                      handleCancelClick={() =>
+                                        handleCancelClick(row.id)
+                                      }
+                                      customHeaders={surgeryOptionsHeadersObj}
+                                      surgeryInfo={surgeryInfo}
+                                      handleUpdateClick={handleUpdateClick}
+                                      withLoader={withLoader}
+                                    />
+                                  ) : (
+                                    <>
+                                      <tr
                                         key={row.id}
-                                        rowId={row.id} // Pass the rowId
-                                        handleCancelClick={() =>
-                                          handleCancelClick(row.id)
-                                        }
-                                        customHeaders={surgeryOptionsHeadersObj}
-                                        surgeryInfo={surgeryInfo}
-                                        handleUpdateClick={handleUpdateClick}
-                                        withLoader={withLoader}
-                                      />
-                                    ) : (
-                                      <>
-                                        <tr
-                                          key={row.id}
-                                          id={row.id}
-                                          className={`${
-                                            index !== ele.length - 1
-                                              ? 'border-b border-gray-300'
-                                              : ''
-                                          }`}
-                                        >
-                                          <td className="">
-                                            <div>
-                                              {viewHistory ? (
-                                                <div
-                                                  onClick={() =>
-                                                    handleViewHistory(
-                                                      row.patientId,
-                                                    )
-                                                  }
-                                                  className="cursor-pointer underline"
-                                                >
-                                                  {row.date}
-                                                </div>
-                                              ) : (
-                                                <div>{row.date}</div>
-                                              )}
-                                            </div>
-                                          </td>
-                                          <td className="">{row.home[0]}</td>
-                                          <td className="">
+                                        id={row.id}
+                                        className={`${
+                                          index !== ele.length - 1
+                                            ? 'border-t border-gray-300'
+                                            : ''
+                                        }`}
+                                      >
+                                        <td rowSpan={2} className="">
+                                          {viewHistory ? (
                                             <div
-                                              className={`rounded-md inline-block text-white p-1 ${getColorForSurgeryStatus(
-                                                row.surgeryStatus.toUpperCase(),
-                                              )} text-xs`}
+                                              onClick={() =>
+                                                handleViewHistory(row.patientId)
+                                              }
+                                              className="cursor-pointer underline"
                                             >
-                                              {toPascalCase(row.surgeryStatus)}
+                                              {row.date}
                                             </div>
-                                          </td>
-                                          <td className="p-0 w-[500px]">
-                                            <table className="w-full">
-                                              <tbody>
-                                                <tr>
-                                                  <td className="w-3/12">
-                                                    <div className="">
-                                                      {row.lastName}
-                                                    </div>
-                                                  </td>
-                                                  <td className="w-3/12">
-                                                    <div className="">
-                                                      {row.firstName}
-                                                    </div>
-                                                  </td>
-                                                  <td className="w-2/12">
-                                                    <div>
-                                                      {viewHistory ? (
-                                                        <div
-                                                          onClick={() =>
-                                                            handleViewHistory(
-                                                              row.patientId,
-                                                            )
-                                                          }
-                                                          className="cursor-pointer underline"
-                                                        >
-                                                          {row.mrn}
-                                                        </div>
-                                                      ) : (
-                                                        <div>{row.mrn}</div>
-                                                      )}
-                                                    </div>
-                                                  </td>
-                                                  <td className="w-2/12">
-                                                    {row.surgery}
-                                                  </td>
-                                                  <td className="w-2/12">
-                                                    {row.bodyPart}
-                                                  </td>
-                                                </tr>
-                                                <tr>
-                                                  <td
-                                                    colSpan={5}
-                                                    className="bg-white"
-                                                  >
-                                                    <div className="">
-                                                      <div>
-                                                        <span className="font-semibold">
-                                                          Waitlist:{' '}
-                                                        </span>
-                                                        {row.waitlist}
-                                                      </div>
-                                                      <div>
-                                                        <span className="font-semibold">
-                                                          Notes:{' '}
-                                                        </span>
-                                                        {row.details}
-                                                      </div>
-                                                    </div>
-                                                  </td>
-                                                </tr>
-                                              </tbody>
-                                            </table>
-                                          </td>
-                                          {/* <td className=""> */}
-                                          {customOptionsHeaders.map(
-                                            (
-                                              optionsHeader,
-                                              optionsHeaderIndex,
-                                            ) => {
-                                              const elements: JSX.Element[] =
-                                                [];
-                                              if (
-                                                row[`${optionsHeader}-count`]
-                                              ) {
-                                                for (
-                                                  let index = 0;
-                                                  index <
-                                                  row[`${optionsHeader}-count`];
-                                                  index++
-                                                ) {
-                                                  elements.push(
-                                                    <div
-                                                      className=""
-                                                      key={index}
-                                                    >
-                                                      {
-                                                        row[
-                                                          `${optionsHeader}-${index}`
-                                                        ]
-                                                      }
-                                                    </div>,
-                                                  );
+                                          ) : (
+                                            <div>{row.date}</div>
+                                          )}
+                                        </td>
+                                        <td rowSpan={2} className="">
+                                          {row.home[0]}
+                                        </td>
+                                        <td rowSpan={2} className="">
+                                          <div
+                                            className={`rounded-md inline-block text-white p-1 ${getColorForSurgeryStatus(
+                                              row.surgeryStatus.toUpperCase(),
+                                            )} text-xs`}
+                                          >
+                                            {toPascalCase(row.surgeryStatus)}
+                                          </div>
+                                        </td>
+                                        <td rowSpan={1} className="">
+                                          {row.lastName}
+                                        </td>
+                                        <td rowSpan={1} className="">
+                                          {row.firstName}
+                                        </td>
+                                        <td rowSpan={1} className="">
+                                          <div>
+                                            {viewHistory ? (
+                                              <div
+                                                onClick={() =>
+                                                  handleViewHistory(
+                                                    row.patientId,
+                                                  )
                                                 }
-                                              }
-                                              return (
-                                                <td
-                                                  className=""
-                                                  key={optionsHeaderIndex}
-                                                >
-                                                  {elements}
-                                                </td>
-                                              );
-                                            },
-                                          )}
-                                          {/* </td> */}
-
-                                          <td className="">
-                                            {row.surgeryOrder}
-                                          </td>
-                                          <td>
-                                            {customCheckListHeaders.map(
-                                              (
-                                                checkListHeader,
-                                                checkListHeaderIndex,
-                                              ) => (
-                                                <div
-                                                  className=""
-                                                  key={checkListHeaderIndex}
-                                                >
-                                                  {row[checkListHeader]}
-                                                </div>
-                                              ),
+                                                className="cursor-pointer underline"
+                                              >
+                                                {row.mrn}
+                                              </div>
+                                            ) : (
+                                              <div>{row.mrn}</div>
                                             )}
-                                          </td>
-
-                                          {viewBillingColumn && (
-                                            <td className="">{row.prof}</td>
-                                          )}
-
-                                          {viewBillingColumn && (
-                                            <td className="">{row.hospital}</td>
-                                          )}
-
-                                          <td className="">{row.insurance}</td>
-                                          <td className="">
-                                            <div
-                                              className="whitespace-nowrap"
-                                              style={{
-                                                textOverflow: 'ellipsis',
-                                              }}
-                                            >
-                                              {row.email}
-                                            </div>
-                                            <div className="">
-                                              {row.phoneNumber}
-                                            </div>
-                                            <div className="">
-                                              <div className="">
-                                                referrer: {row.referrer}
-                                              </div>
-                                              <div>
-                                                {row.referrerVerified && (
-                                                  <Checkbox
-                                                    checked={true}
-                                                    overrides={{
-                                                      Checkmark: {
-                                                        style: ({
-                                                          $checked,
-                                                        }) => ({
-                                                          backgroundColor:
-                                                            $checked
-                                                              ? 'rgba(34, 197, 94, 1)'
-                                                              : 'white',
-                                                          borderColor: $checked
-                                                            ? 'rgba(34, 197, 94, 1)'
-                                                            : 'rgba(113, 113, 122, 1)',
-                                                          width: '12px',
-                                                          height: '12px',
-                                                          borderRadius: '2px',
-                                                          borderWidth: '2px',
-                                                        }),
-                                                      },
-                                                    }}
-                                                  />
-                                                )}
-                                              </div>
-                                            </div>
-                                          </td>
-                                          <td className="">
-                                            {actionIcons(row)}
-                                          </td>
-                                        </tr>
-                                        {selectedRow === row.id &&
-                                          selectedSurgery &&
-                                          selectedAction == 'view' && (
-                                            <ViewRow
-                                              selectedSurgery={row}
-                                              viewBillingColumn={
-                                                viewBillingColumn
+                                          </div>
+                                        </td>
+                                        <td rowSpan={1} className="">
+                                          {row.surgery}
+                                        </td>
+                                        <td rowSpan={1} className="">
+                                          {row.bodyPart}
+                                        </td>
+                                        {customOptionsHeaders.map(
+                                          (
+                                            optionsHeader,
+                                            optionsHeaderIndex,
+                                          ) => {
+                                            const elements: JSX.Element[] = [];
+                                            if (row[`${optionsHeader}-count`]) {
+                                              for (
+                                                let index = 0;
+                                                index <
+                                                row[`${optionsHeader}-count`];
+                                                index++
+                                              ) {
+                                                elements.push(
+                                                  <div className="" key={index}>
+                                                    {
+                                                      row[
+                                                        `${optionsHeader}-${index}`
+                                                      ]
+                                                    }
+                                                  </div>,
+                                                );
                                               }
+                                            }
+                                            return (
+                                              <td
+                                                rowSpan={2}
+                                                className=""
+                                                key={optionsHeaderIndex}
+                                              >
+                                                {elements}
+                                              </td>
+                                            );
+                                          },
+                                        )}
+
+                                        <td rowSpan={2} className="">
+                                          {row.surgeryOrder}
+                                        </td>
+                                        <td className="" rowSpan={2}>
+                                          {customCheckListHeaders.map(
+                                            (
+                                              checkListHeader,
+                                              checkListHeaderIndex,
+                                            ) => (
+                                              <div
+                                                className=""
+                                                key={checkListHeaderIndex}
+                                              >
+                                                {row[checkListHeader]}
+                                              </div>
+                                            ),
+                                          )}
+                                        </td>
+
+                                        {viewBillingColumn && (
+                                          <td rowSpan={2} className="">
+                                            {row.prof}
+                                          </td>
+                                        )}
+
+                                        {viewBillingColumn && (
+                                          <td rowSpan={2} className="">
+                                            {row.hospital}
+                                          </td>
+                                        )}
+
+                                        <td rowSpan={2} className="">
+                                          {row.insurance}
+                                        </td>
+                                        <td rowSpan={2} className="">
+                                          {row.email}
+                                          <br />
+                                          {row.phoneNumber}
+                                          <br />
+                                          referrer: {row.referrer}
+                                          {row.referrerVerified && (
+                                            <Checkbox
+                                              checked={true}
+                                              overrides={{
+                                                Checkmark: {
+                                                  style: ({ $checked }) => ({
+                                                    backgroundColor: $checked
+                                                      ? 'rgba(34, 197, 94, 1)'
+                                                      : 'white',
+                                                    borderColor: $checked
+                                                      ? 'rgba(34, 197, 94, 1)'
+                                                      : 'rgba(113, 113, 122, 1)',
+                                                    width: '12px',
+                                                    height: '12px',
+                                                    borderRadius: '2px',
+                                                    borderWidth: '2px',
+                                                  }),
+                                                },
+                                              }}
                                             />
                                           )}
-                                      </>
-                                    );
-                                  })}
-                                </tbody>
-                              </table>
-                            </div>
-                          </>
-                        );
-                      })}
-                    </div>
+                                        </td>
+                                        <td rowSpan={2} className="">
+                                          {actionIcons(row)}
+                                        </td>
+                                      </tr>
+                                      <tr>
+                                        <td colSpan={5} className="bg-white">
+                                          <div className="">
+                                            <div>
+                                              <span className="font-semibold">
+                                                Waitlist:{' '}
+                                              </span>
+                                              {row.waitlist}
+                                            </div>
+                                            <div>
+                                              <span className="font-semibold">
+                                                Notes:{' '}
+                                              </span>
+                                              {row.details}
+                                            </div>
+                                          </div>
+                                        </td>
+                                      </tr>
+                                      {selectedRow === row.id &&
+                                        selectedSurgery &&
+                                        selectedAction == 'view' && (
+                                          <ViewRow
+                                            selectedSurgery={row}
+                                            viewBillingColumn={
+                                              viewBillingColumn
+                                            }
+                                          />
+                                        )}
+                                    </>
+                                  );
+                                })}
+                              </React.Fragment>
+                            </>
+                          );
+                        })}
+                      </tbody>
+                    </table>
                   );
                 })}
                 <DeleteFilterModal
