@@ -69,7 +69,9 @@ export default function MessagesTable() {
   } = useAppSelector((state) => ({
     filteredMrn: state.messages.messageFilters,
     patientsList: Object.values(state.patients.entities),
-    messagesData: Object.values(state.messages.entities),
+    messagesData: Object.values(state.messages.entities).filter(
+      (ele) => ele.status === 'completed',
+    ),
     mediaList: Object.values(state.media.entities).filter(
       (ele) => ele.mediaType == MediaType.PRACTICE && ele.mediaConfigs.length,
     ),

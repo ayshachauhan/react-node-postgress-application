@@ -8,10 +8,16 @@ import { compile } from 'handlebars';
 import type { Transporter } from 'nodemailer';
 import Mail from 'nodemailer/lib/mailer';
 import SMTPTransport from 'nodemailer/lib/smtp-transport';
+import logger from 'src/logger';
 import { formatHeaderDate } from 'src/utils';
 import { Twilio } from 'twilio';
 import { ENVIRONMENT_VARIABLES } from '../enums/environment.enums';
 import { EMAIL_CONNECTION_TOKEN, SystemTemplates } from './transporter.types';
+
+export type CustomError = {
+  status: string;
+  message: string;
+};
 
 @Injectable()
 export class TransporterService {
@@ -45,28 +51,26 @@ export class TransporterService {
   async sendEmail(
     options: Mail.Options,
     data: Record<string, unknown>,
-  ): Promise<EmailResponse> {
+  ): Promise<EmailResponse | CustomError> {
     const { smtpEmail } = this.getEnvVariables();
 
     const text: string = options.text
       ? this.compileTemplate(options.text.toString(), data)
       : '';
-
     await this.sendText(data.phoneNumber, text);
 
-    if (data.link && typeof data.links == 'string') {
+    if (data.links && typeof data.links == 'string') {
       data.links = data.links.split(',');
     }
 
+    // compile check
+    const error = this.compileCheck(options, data);
+    if (error) return error;
     const result = await this.emailTransporter.sendMail({
       ...options,
       from: typeof smtpEmail == 'string' ? smtpEmail : '',
-      html: options.html
-        ? this.compileTemplate(options.html.toString(), data)
-        : undefined,
-      subject: options.subject
-        ? this.compileTemplate(options.subject, data)
-        : undefined,
+      html: options.html ?? undefined,
+      subject: options.subject ?? undefined,
     });
 
     return {
@@ -119,10 +123,37 @@ export class TransporterService {
   }
 
   compileTemplate(text: string, data: Record<string, unknown>): string {
-    const template = compile(text);
-    if (data.surgery_date) {
-      data.surgery_date = formatHeaderDate(String(data.surgery_date));
+    try {
+      const template = compile(text);
+      if (data.surgery_date) {
+        data.surgery_date = formatHeaderDate(String(data.surgery_date));
+      }
+      return template(data);
+    } catch (error) {
+      logger.info('@compileTemplate', { error, text, data });
+      return 'This is a failed html template';
     }
-    return template(data);
+  }
+
+  compileCheck(
+    options: Mail.Options,
+    data: Record<string, unknown>,
+  ): void | CustomError {
+    const errorString: string = 'This is a failed html template';
+    let errorExists: boolean = false;
+
+    if (options.html) {
+      options.html = this.compileTemplate(options.html.toString(), data);
+      if (options.html === errorString) errorExists = true;
+    }
+
+    if (options.subject) {
+      options.subject = this.compileTemplate(options.subject.toString(), data);
+      if (options.subject === errorString) errorExists = true;
+    }
+
+    if (errorExists) {
+      return { message: errorString, status: 'rejected' };
+    }
   }
 }
