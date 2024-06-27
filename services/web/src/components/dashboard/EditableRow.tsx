@@ -158,8 +158,8 @@ function EditableRow({
 
     return (
       <>
-        <tr>
-          <td rowSpan={2} className="py-2 w-20">
+        <tr className="border-t">
+          <td rowSpan={2} className="w-32">
             <DatePicker
               value={obj.date}
               onChange={({ date }) => handleObjChange('date', date)}
@@ -173,7 +173,7 @@ function EditableRow({
               }}
             />
           </td>
-          <td rowSpan={2} className="w-14 py-1">
+          <td rowSpan={2} className="">
             <Select
               size={SIZE.mini}
               required
@@ -202,7 +202,7 @@ function EditableRow({
               }}
             />
           </td>
-          <td rowSpan={2} className="py-2 w-40">
+          <td rowSpan={2} className="">
             <Select
               options={surgeryStatusOptions}
               overrides={{
@@ -414,7 +414,7 @@ function EditableRow({
               </td>
             );
           })}
-          <td rowSpan={2} className="py-2 w-20">
+          <td rowSpan={2} className="w-20">
             <TextInput
               type="number"
               name="hash"
@@ -423,7 +423,7 @@ function EditableRow({
               size={SIZE.mini}
             />
           </td>
-          <td rowSpan={2}>
+          <td className="w-20" rowSpan={2}>
             {customCheckListHeaders.map(
               (checkListHeader, checkListHeaderIndex) => {
                 const selectedChecklistOption = obj.selectedCheckListOptions
@@ -431,7 +431,7 @@ function EditableRow({
                   : '';
 
                 return (
-                  <div className="py-2 px-1.5 w-20" key={checkListHeaderIndex}>
+                  <div className="py-2 px-1.5" key={checkListHeaderIndex}>
                     <TextInput
                       size={SIZE.mini}
                       value={
@@ -452,7 +452,7 @@ function EditableRow({
             )}
           </td>
           {viewBillingColumn && (
-            <td rowSpan={2} className="py-2 w-20">
+            <td rowSpan={2} className="w-36">
               <TextInput
                 size={SIZE.mini}
                 name="prof"
@@ -465,7 +465,7 @@ function EditableRow({
             </td>
           )}
           {viewBillingColumn && (
-            <td rowSpan={2} className="py-2 w-20">
+            <td rowSpan={2} className="w-36">
               <TextInput
                 size={SIZE.mini}
                 name="hospital"
@@ -477,7 +477,7 @@ function EditableRow({
               />
             </td>
           )}
-          <td rowSpan={2} className="py-2 w-20">
+          <td rowSpan={2} className="">
             <Select
               backspaceRemoves={false}
               escapeClearsValue={false}
