@@ -2,7 +2,7 @@
 import { AddIcon, EditIcon } from '@components/Icons';
 import {
   ICalendar,
-  ISurgeryConfiguration,
+  ISurgeryType,
   MonthOption,
   USER_PERMISSIONS,
 } from '@packages/entities/index.browser';
@@ -25,7 +25,7 @@ export type CalendarData = {
   bookedSlots: number;
   surgeryName: string;
   surgeryNameColor: string;
-  selectedSurgery: ISurgeryConfiguration;
+  selectedSurgery: ISurgeryType;
 };
 
 export const DEFAULT_MAX_SLOTS: number = 14;
@@ -36,11 +36,11 @@ const UpcomingSection: React.FC = () => {
   const userInfo = useAppSelector((state) => state.auth.user);
   const userPermissions = userInfo?.permissions;
   const loggedInUserId = userInfo?.id;
-  const { calendars, surgeryConfigurations } = useAppSelector((state) => ({
+  const { calendars, surgeryTypes } = useAppSelector((state) => ({
     calendars: Object.values(state.calendars.entities).filter(
       (calendar) => calendar.user.id === userId,
     ),
-    surgeryConfigurations: Object.values(state.surgeryConfigurations.entities),
+    surgeryTypes: Object.values(state.surgeryTypes.entities),
   }));
 
   const { errorMessage, calendarsWithoutPermission, restricted } =
@@ -52,8 +52,9 @@ const UpcomingSection: React.FC = () => {
   const [isUpdating, setIsUpdating] = useState<boolean>(false);
   const modalRef = useRef(null);
 
-  const [selectedSurgery, setSelectedSurgery] =
-    useState<ISurgeryConfiguration | null>(null);
+  const [selectedSurgery, setSelectedSurgery] = useState<ISurgeryType | null>(
+    null,
+  );
 
   /**
    * @summary append + sign
@@ -163,12 +164,12 @@ const UpcomingSection: React.FC = () => {
   }, [practiceId, userId, selectedMonth, selectedValue, loggedInUserId]);
 
   useEffect(() => {
-    if (surgeryConfigurations.length > 0 && selectedSurgery === null) {
-      setSelectedSurgery(surgeryConfigurations[0]);
+    if (surgeryTypes.length > 0 && selectedSurgery === null) {
+      setSelectedSurgery(surgeryTypes[0]);
     }
-  }, [surgeryConfigurations]);
+  }, [surgeryTypes]);
 
-  const toggleActive = (surgeryType: ISurgeryConfiguration) => {
+  const toggleActive = (surgeryType: ISurgeryType) => {
     setSelectedSurgery(surgeryType);
   };
 
@@ -212,7 +213,7 @@ const UpcomingSection: React.FC = () => {
   };
 
   const selectedSurgeryCalData: ICalendar[] = calendars.filter(
-    (data: ICalendar) => data.surgeryConfiguration.id === selectedSurgery?.id,
+    (data: ICalendar) => data.surgeryType.id === selectedSurgery?.id,
   );
 
   const upcomingDates: CalendarData[] = selectedSurgeryCalData.map(
@@ -223,11 +224,10 @@ const UpcomingSection: React.FC = () => {
       bookedSlots: data.bookedSlots,
       // using data from selectedsurgery here because calendar data doesn't contain surgerytype relation, for fallback using surgeryconfig name
       surgeryName:
-        selectedSurgery?.surgeryType.name.charAt(0).toUpperCase() ??
-        data.surgeryConfiguration.name.charAt(0).toUpperCase(),
-      surgeryNameColor:
-        data.surgeryConfiguration.color ?? DEFAULT_SURGERYNAME_COLOR,
-      selectedSurgery: selectedSurgery as ISurgeryConfiguration,
+        selectedSurgery?.name.charAt(0).toUpperCase() ??
+        data.surgeryType.name.charAt(0).toUpperCase(),
+      surgeryNameColor: data.surgeryType.color ?? DEFAULT_SURGERYNAME_COLOR,
+      selectedSurgery: selectedSurgery as ISurgeryType,
     }),
   );
 
@@ -252,7 +252,7 @@ const UpcomingSection: React.FC = () => {
 
   const recordExists = calendarsWithoutPermission.some(
     (calendar: ICalendar) => {
-      return calendar.surgeryConfiguration.name === selectedSurgery?.name;
+      return calendar.surgeryType.name === selectedSurgery?.name;
     },
   );
 
@@ -286,11 +286,10 @@ const UpcomingSection: React.FC = () => {
       bookedSlots: data.bookedSlots,
       // using data from selectedsurgery here because calendar data doesn't contain surgerytype relation, for fallback using surgeryconfig name
       surgeryName:
-        selectedSurgery?.surgeryType.name.charAt(0).toUpperCase() ??
-        data.surgeryConfiguration.name.charAt(0).toUpperCase(),
-      surgeryNameColor:
-        data.surgeryConfiguration.color ?? DEFAULT_SURGERYNAME_COLOR,
-      selectedSurgery: selectedSurgery as ISurgeryConfiguration,
+        selectedSurgery?.name.charAt(0).toUpperCase() ??
+        data.surgeryType.name.charAt(0).toUpperCase(),
+      surgeryNameColor: data.surgeryType.color ?? DEFAULT_SURGERYNAME_COLOR,
+      selectedSurgery: selectedSurgery as ISurgeryType,
     }),
   );
 
@@ -355,7 +354,7 @@ const UpcomingSection: React.FC = () => {
                       surgeryName: selectedSurgery?.name ?? 'N/A',
                       surgeryNameColor:
                         selectedSurgery?.color ?? DEFAULT_SURGERYNAME_COLOR,
-                      selectedSurgery: selectedSurgery as ISurgeryConfiguration,
+                      selectedSurgery: selectedSurgery as ISurgeryType,
                     },
                   ]
             }
@@ -394,7 +393,7 @@ const UpcomingSection: React.FC = () => {
       <hr className="h-px my-2.5 bg-gray-100 border-1 border-gray-100"></hr>
       <div className="flex w-full bg-green-50 pr-2 border-b border-green-200 items-center">
         <div className="flex items-center">
-          {surgeryConfigurations.map((item: ISurgeryConfiguration, index) => (
+          {surgeryTypes.map((item: ISurgeryType, index) => (
             <div className="mr-1" key={index}>
               <button
                 className="py-2 px-4 text-xs text-black text-normal border-b-2 border-transparent hover:text-white hover:bg-gradient-to-r from-primary-light to-primary-dark hover:rounded-t-lg"

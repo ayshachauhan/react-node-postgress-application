@@ -54,8 +54,7 @@ const SurgeryPercentage: React.FC = () => {
       if (rangeInMonths === 'all') {
         matchingDates = calendars
           .filter(
-            (data: ICalendar) =>
-              data.surgeryConfiguration.id === selectedSurgeryId,
+            (data: ICalendar) => data.surgeryType.id === selectedSurgeryId,
           )
           .map((data: ICalendar) => ({
             maxSlots: data.maxSlots,
@@ -71,7 +70,7 @@ const SurgeryPercentage: React.FC = () => {
           .filter((data: ICalendar) => {
             const calendarDate = new Date(data.date);
             return (
-              data.surgeryConfiguration.id === selectedSurgeryId &&
+              data.surgeryType.id === selectedSurgeryId &&
               calendarDate >= today &&
               calendarDate <= endDate
             );

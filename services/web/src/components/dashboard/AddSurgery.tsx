@@ -420,19 +420,19 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
 
     return calendar.maxSlots > calendar.bookedSlots
       ? {
-          backgroundColor: calendar.surgeryConfiguration.color,
-          borderTopColor: calendar.surgeryConfiguration.color,
-          borderBottomColor: calendar.surgeryConfiguration.color,
-          borderRightColor: calendar.surgeryConfiguration.color,
-          borderLeftColor: calendar.surgeryConfiguration.color,
+          backgroundColor: calendar.surgeryType.color,
+          borderTopColor: calendar.surgeryType.color,
+          borderBottomColor: calendar.surgeryType.color,
+          borderRightColor: calendar.surgeryType.color,
+          borderLeftColor: calendar.surgeryType.color,
         }
       : {
           backgroundColor: 'transparent',
-          border: `${calendar.surgeryConfiguration.color} solid 3px`,
-          borderTopColor: calendar.surgeryConfiguration.color,
-          borderBottomColor: calendar.surgeryConfiguration.color,
-          borderRightColor: calendar.surgeryConfiguration.color,
-          borderLeftColor: calendar.surgeryConfiguration.color,
+          border: `${calendar.surgeryType.color} solid 3px`,
+          borderTopColor: calendar.surgeryType.color,
+          borderBottomColor: calendar.surgeryType.color,
+          borderRightColor: calendar.surgeryType.color,
+          borderLeftColor: calendar.surgeryType.color,
         };
   };
 

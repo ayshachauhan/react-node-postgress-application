@@ -1,7 +1,4 @@
-import {
-  ICalendar,
-  ISurgeryConfiguration,
-} from '@packages/entities/index.browser';
+import { ICalendar, ISurgeryType } from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
 import { useAppDispatch, useAppSelector } from '@root/store';
@@ -29,8 +26,8 @@ const UpsertCalendar: React.FC<{
 }> = ({ onClose, calendarData, isUpdating, calendars }) => {
   const maxSlotsOptions = Array.from({ length: 14 }, (_, index) => index + 1);
   const dispatch = useAppDispatch();
-  const { surgeryConfigurations } = useAppSelector((state) => ({
-    surgeryConfigurations: Object.values(state.surgeryConfigurations.entities),
+  const { surgeryTypes } = useAppSelector((state) => ({
+    surgeryTypes: Object.values(state.surgeryTypes.entities),
   }));
 
   const [upsertCalendarData, setUpsertCalendarData] =
@@ -67,7 +64,7 @@ const UpsertCalendar: React.FC<{
             id: data.id,
             bookedSlots: data.bookedSlots,
             maxSlots: data.maxSlots,
-            surgeryConfigurationId: data?.selectedSurgery?.id,
+            surgeryTypeId: data?.selectedSurgery?.id,
           })),
         };
         if (updatedData.length) {
@@ -85,7 +82,7 @@ const UpsertCalendar: React.FC<{
         > = {
           practiceId,
           userId,
-          surgeryConfigurationId: upsertCalendarData[0]?.selectedSurgery?.id,
+          surgeryTypeId: upsertCalendarData[0]?.selectedSurgery?.id,
           maxSlots: upsertCalendarData[0].maxSlots,
           bookedSlots: upsertCalendarData[0].bookedSlots,
           date: upsertCalendarData[0].date,
@@ -111,13 +108,11 @@ const UpsertCalendar: React.FC<{
               </label>
 
               <Select
-                options={surgeryConfigurations.map(
-                  (config: ISurgeryConfiguration) => ({
-                    label: config.name,
-                    id: config.id,
-                    calendarId: calendar.id,
-                  }),
-                )}
+                options={surgeryTypes.map((config: ISurgeryType) => ({
+                  label: config.name,
+                  id: config.id,
+                  calendarId: calendar.id,
+                }))}
                 onChange={({ value }) => {
                   if (!value.length) {
                     return;
@@ -129,8 +124,8 @@ const UpsertCalendar: React.FC<{
                         ? {
                             ...cal,
                             selectedSurgery:
-                              surgeryConfigurations.find(
-                                (data) => data.id === value[0].id,
+                              surgeryTypes.find(
+                                (data: ISurgeryType) => data.id === value[0].id,
                               ) ?? calendar.selectedSurgery,
                           }
                         : cal,
