@@ -452,18 +452,16 @@ function EditableRow({
             <div className="text-black py-0.5 px-1 w-40 text-center">
               <TextInput
                 name="hash"
-                value={evalInfo.patient.email}
-                disabled
-                onChange={() => ''}
+                value={obj.email}
+                onChange={(value) => handleObjChange('email', value)}
                 size={SIZE.mini}
               />
             </div>
             <div className="text-black py-0.5 px-1 w-40 text-center">
               <TextInput
                 name="hash"
-                value={evalInfo.patient.phoneNumber}
-                disabled
-                onChange={() => ''}
+                value={obj.phoneNumber}
+                onChange={(value) => handleObjChange('phoneNumber', value)}
                 size={SIZE.mini}
               />
             </div>
