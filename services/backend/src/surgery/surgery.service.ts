@@ -360,7 +360,7 @@ export class SurgeryService {
   async update(
     { createSurgeryDto, id, practiceId },
     request: Request & { user: SanitizedUser },
-  ): Promise<SurgeryEntity | null> {
+  ): Promise<ISurgery | null> {
     const surgeryToUpdate = await this.getSurgeryById(id);
 
     if (createSurgeryDto.insuranceTypeId) {
@@ -443,9 +443,13 @@ export class SurgeryService {
       ipAddress: createSurgeryDto.ipAddress,
     });
 
-    return await this.surgeryRepository.findOne({
-      where: { id },
-    });
+    const updatedSurgery: ISurgery | null = await this.getSurgeryById(id);
+
+    // initiating emails for updating surgeries
+    if (updatedSurgery)
+      await this.initiateUpdateSurgeryMail(updatedSurgery, practiceId);
+
+    return updatedSurgery;
   }
 
   async autoCompleteSurgeries(surgeryId: string = '') {
@@ -581,6 +585,21 @@ export class SurgeryService {
       where: { patient: { id: patientId }, date: MoreThanOrEqual(date) },
       relations: ['surgeryConfiguration'],
     });
+  }
+
+  async initiateUpdateSurgeryMail(
+    surgeryEntity: ISurgery,
+    practiceId: string,
+  ): Promise<void> {
+    const practiceEntity: IPractice | null =
+      await this.practiceService.findOne(practiceId);
+
+    if (practiceEntity) {
+      await this.emailHandlerService.checkAndMakeSurgeryUpdateEmailContent(
+        practiceEntity,
+        surgeryEntity,
+      );
+    }
   }
 }
 

@@ -13,7 +13,7 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { SurgeryEntity } from '@packages/entities';
+import { ISurgery, SurgeryEntity } from '@packages/entities';
 import { USER_PERMISSIONS } from '@packages/entities/permission';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { PermissionGuard } from 'src/auth/userPermissions.guard';
@@ -91,7 +91,7 @@ export class SurgeryController {
     @Param()
     { id, practiceId }: { id: string; practiceId: string },
     @Req() request: Request & { user: SanitizedUser },
-  ): Promise<SurgeryEntity | null> {
+  ): Promise<ISurgery | null> {
     return this.surgeryService.update(
       {
         createSurgeryDto,
