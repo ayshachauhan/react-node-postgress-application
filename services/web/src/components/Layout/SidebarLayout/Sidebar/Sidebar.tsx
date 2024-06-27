@@ -122,7 +122,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapseChange }) => {
       ref={sidebarRef}
       className={`${customWidth} fixed top-0 left-0 h-screen translate-x-0 bg-gradient-to-b from-primary-dark to-primary-light ease-in-out duration-400`}
     >
-      <div className="h-[168px] flex px-4 items-center justify-start">
+      <div className="flex p-4 items-center justify-start">
         <Link href={is_super_admin ? '' : '/dashboard'}>
           {!collapsed ? (
             <img alt="Azentia" src="/images/azentia.svg" />
@@ -133,7 +133,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapseChange }) => {
       </div>
 
       <div
-        className={`h-full px-3 py-4 overflow-y-auto ${
+        className={`h-full py-4 overflow-y-auto ${
           collapsed ? 'flex flex-col items-center' : ''
         }`}
       >
@@ -141,14 +141,14 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapseChange }) => {
           {filteredSidebarItems.map(({ Icon, ...item }) => (
             <li
               key={item.id}
-              className={`${collapsed && item.child ? 'flex flex-row' : ''}`}
+              className={`${collapsed && item.child ? '' : ''}`}
             >
               <Link
                 href={item.path}
                 onClick={() => handleSidebarItemClick({ ...item, Icon })}
                 className={clsx(
-                  'flex items-center p-2 text-white rounded-lg ease-linear duration-200 hover:bg-secondary',
-                  { 'bg-secondary': item.id === activeMenuItemId },
+                  'flex items-center px-4 py-3 text-white ease-linear duration-200 hover:bg-[#ffffff33]',
+                  { 'bg-[#ffffff33]': item.id === activeMenuItemId },
                 )}
               >
                 <Icon size={18} />

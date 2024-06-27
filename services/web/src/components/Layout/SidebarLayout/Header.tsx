@@ -176,8 +176,8 @@ const Header: React.FC<ChildProps> = ({ data }) => {
             )}
           </div>
 
-          <div className="flex items-center gap-7 justify-end">
-            <div className="flex items-center">
+          <div className="flex items-center justify-end">
+            <div className="flex items-center border-r-2 pr-4 mr-4">
               {!is_super_admin && (
                 <>
                   <div>Practice:</div>

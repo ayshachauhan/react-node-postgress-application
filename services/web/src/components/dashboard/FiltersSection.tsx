@@ -515,6 +515,7 @@ const FiltersSection: React.FC<{
                       <tbody>
                         <tr>
                           <td
+                            colSpan={20}
                             className={`border-solid px-2.5 py-0.5 text-white text-base font-normal   ${
                               index == 0 ? 'rounded-t-lg' : ''
                             }`}

@@ -34,11 +34,11 @@
 }
 
 .btn-primary {
-  @apply bg-gradient-to-r from-primary-light to-primary-dark;
+  @apply bg-gradient-to-r from-primary-light to-primary-dark text-sm;
 }
 
 .btn-secondary {
-  @apply bg-secondary !important;
+  @apply !bg-secondary !text-sm;
 }
 
 .data-table {
