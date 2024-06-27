@@ -51,6 +51,7 @@ const FiltersSection: React.FC<{
     }),
   );
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isUpdateCase, setIsUpdateCase] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [selectedAction, setSelectedAction] = useState<string | null>(null);
   const [selectedSurgery, setSelectedSurgery] = useState({});
@@ -356,6 +357,7 @@ const FiltersSection: React.FC<{
       addSurgerySuccessMessage &&
       addSurgerySuccessMessage === 'Surgery updated successfully.'
     ) {
+      setIsUpdateCase(true);
       if (practiceId && loggedInUserId !== null) {
         dispatchFetchFilteredSurgeryList(
           selectedMonth,
@@ -382,20 +384,9 @@ const FiltersSection: React.FC<{
     searchMRNNameStr,
     selectedValueStr,
   ]);
-
-  useEffect(() => {
-    if (practiceId && loggedInUserId !== null) {
-      dispatchFetchFilteredSurgeryList(
-        selectedMonth,
-        searchMRNNameStr,
-        selectedValueStr,
-      );
-    }
-  }, [dispatch, practiceId, loggedInUserId]);
-
   return (
     <div>
-      {!isLoading && (
+      {(isUpdateCase || (!isLoading && !isUpdateCase)) && (
         <div>
           <div className="flex w-full bg-purple-50 px-2 border-t border-b border-gray-200 items-center">
             <div className="flex w-1/4 items-center">
