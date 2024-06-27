@@ -427,34 +427,34 @@ function EditableRow({
               size={SIZE.mini}
             />
           </td>
-          <td className="w-20" rowSpan={2}>
-            {customCheckListHeaders.map(
-              (checkListHeader, checkListHeaderIndex) => {
-                const selectedChecklistOption = obj.selectedCheckListOptions
-                  ? obj.selectedCheckListOptions[checkListHeader]
-                  : '';
 
-                return (
-                  <div className="py-2 px-1.5" key={checkListHeaderIndex}>
-                    <TextInput
-                      size={SIZE.mini}
-                      value={
-                        selectedChecklistOption
-                          ? selectedChecklistOption.value
-                          : ''
-                      }
-                      onChange={(value) =>
-                        handleObjChange('selectedCheckListOptions', {
-                          ...obj.selectedCheckListOptions,
-                          [checkListHeader]: { value },
-                        })
-                      }
-                    />
-                  </div>
-                );
-              },
-            )}
-          </td>
+          {customCheckListHeaders.map(
+            (checkListHeader, checkListHeaderIndex) => {
+              const selectedChecklistOption = obj.selectedCheckListOptions
+                ? obj.selectedCheckListOptions[checkListHeader]
+                : '';
+
+              return (
+                <td rowSpan={2} className="w-20" key={checkListHeaderIndex}>
+                  <TextInput
+                    size={SIZE.mini}
+                    value={
+                      selectedChecklistOption
+                        ? selectedChecklistOption.value
+                        : ''
+                    }
+                    onChange={(value) =>
+                      handleObjChange('selectedCheckListOptions', {
+                        ...obj.selectedCheckListOptions,
+                        [checkListHeader]: { value },
+                      })
+                    }
+                  />
+                </td>
+              );
+            },
+          )}
+
           {viewBillingColumn && (
             <td rowSpan={2} className="w-36">
               <TextInput
