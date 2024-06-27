@@ -205,6 +205,25 @@ export const getSelectedMonths = (selectedMonth: MonthOption[]) => {
   return month;
 };
 
+export const getCurrentMonthName = () => {
+  const date = new Date();
+  const monthNames = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+  ];
+  return monthNames[date.getMonth()];
+};
+
 export const getColorForSurgeryStatus = (status) => {
   switch (status) {
     case SurgeryStatus.BOOK:

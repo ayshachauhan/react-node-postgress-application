@@ -16,8 +16,13 @@ import { getPracticeId } from '@utils/index';
 import { Checkbox, STYLE_TYPE } from 'baseui/checkbox';
 import { SIZE, Select } from 'baseui/select';
 import { Textarea } from 'baseui/textarea';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import RequiredIndicator from '../RequiredIndicator';
+import {
+  filterUpcomingSurgeries,
+  getRandomSurgeryData,
+  replacePlaceholders,
+} from './utils';
 
 interface Data {
   id: string;
@@ -50,6 +55,9 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({
   const versionOffset = data.versionOffset;
 
   const [attachment, setAttachment] = useState<File | null>(null);
+  const [emailPreview, setEmailPreview] = useState<Partial<ITemplateUpdate>>(
+    {},
+  );
 
   const templateInfo: ITemplate = useAppSelector((state) => {
     const templates = Object.values(state.templates.entities);
@@ -73,6 +81,16 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({
   const surgeryConfigurations = useAppSelector(
     (state) => state.surgeryConfigurations.entities,
   );
+
+  const surgeries = useAppSelector((state) =>
+    Object.values(state.surgeries.entities),
+  );
+
+  const surguriesData = useMemo(
+    () => getRandomSurgeryData(filterUpcomingSurgeries(surgeries)),
+    [],
+  );
+
   const surgeryConfigurationOptions = Object.values(surgeryConfigurations).map(
     (surgeryConfiguration) => ({
       label: surgeryConfiguration.name,
@@ -114,6 +132,11 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({
 
   useEffect(() => {
     if (templateId && templateInfo) {
+      const updatedEmailBody = replacePlaceholders(
+        templateInfo.emailBody,
+        surguriesData,
+      );
+      setEmailPreview({ ...templateInfo, emailBody: updatedEmailBody });
       setTemplateInfo(templateInfo);
     }
   }, [templateId, templateInfo]);
@@ -127,7 +150,10 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({
   };
 
   const handleHtmlChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setTemplateInfo({ ...updatedTemplateInfo, emailBody: event.target.value });
+    const value = event.target.value;
+    const updatedEmailBody = replacePlaceholders(value, surguriesData);
+    setEmailPreview({ ...updatedTemplateInfo, emailBody: updatedEmailBody });
+    setTemplateInfo({ ...updatedTemplateInfo, emailBody: value });
   };
 
   const handleMessageTextChange = (
@@ -450,7 +476,7 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({
                 <div
                   className="mt-2.5 py-1.5 pr-1.5 overflow-hidden break-all"
                   dangerouslySetInnerHTML={{
-                    __html: updatedTemplateInfo?.emailBody || '',
+                    __html: emailPreview?.emailBody || '',
                   }}
                 />
               </div>
