@@ -493,7 +493,7 @@ const FiltersSection: React.FC<{
           <div className="overflow-x-auto">
             {surgeryConfigList.length > 0 &&
             Object.keys(modifiedObj).length > 0 ? (
-              <div className="w-max overflow-x-auto mt-2 border rounded-t-lg rounded-b-lg border-gray-200">
+              <div className="w-full overflow-x-auto mt-2 border rounded-t-lg rounded-b-lg border-gray-200">
                 {Object.keys(modifiedObj).map((key, index) => {
                   const ele = modifiedObj[key];
                   const customOptionsHeaders: string[] =
@@ -506,6 +506,7 @@ const FiltersSection: React.FC<{
                       <tbody>
                         <tr>
                           <td
+                            colSpan={20}
                             className={`border-solid px-2.5 py-0.5 text-white text-base font-normal   ${
                               index == 0 ? 'rounded-t-lg' : ''
                             }`}
