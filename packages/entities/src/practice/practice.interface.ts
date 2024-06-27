@@ -7,7 +7,12 @@ export interface IPractice extends IBaseEntity {
   status: PracticeStatus;
   imgUrl?: string;
   users: IUser[];
+  emailData: PracticeEmailData;
 }
+
+export type PracticeEmailData = {
+  [key: string]: string[];
+};
 
 export enum PracticeStatus {
   ACTIVE = 'active',

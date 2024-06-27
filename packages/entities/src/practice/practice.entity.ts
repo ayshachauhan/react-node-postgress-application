@@ -1,7 +1,11 @@
 import { Column, Entity, JoinTable, ManyToMany } from 'typeorm';
 import { BaseEntity } from '../base.entity';
 import { UserEntity } from '../user/user.entity';
-import { IPractice, PracticeStatus } from './practice.interface';
+import {
+  IPractice,
+  PracticeEmailData,
+  PracticeStatus,
+} from './practice.interface';
 
 @Entity('practices')
 export class PracticeEntity extends BaseEntity implements IPractice {
@@ -29,4 +33,7 @@ export class PracticeEntity extends BaseEntity implements IPractice {
     inverseJoinColumn: { name: 'userId', referencedColumnName: 'id' },
   })
   users: UserEntity[];
+
+  @Column({ type: 'jsonb', nullable: true })
+  emailData: PracticeEmailData;
 }
