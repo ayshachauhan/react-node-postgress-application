@@ -62,6 +62,11 @@ export class EmailHandlerService {
     const templates = await this.templateService.getFilteredTemplates({
       surgeryConfigId,
     });
+    console.log(
+      templates.length,
+      JSON.stringify(templates),
+      'templates--------------------------------------------',
+    );
 
     const emailLogsEntries: Partial<IEmailLog>[] = [];
 
