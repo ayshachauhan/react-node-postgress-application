@@ -545,22 +545,21 @@ const FiltersSection: React.FC<{
                                     )}
 
                                   <th>#</th>
-                                  <th>
-                                    {customCheckListHeaders &&
-                                      customCheckListHeaders.map(
-                                        (
-                                          checkListHeader,
-                                          checkListHeaderIndex,
-                                        ) => (
-                                          <span
-                                            className=""
-                                            key={checkListHeaderIndex}
-                                          >
-                                            {checkListHeader}
-                                          </span>
-                                        ),
-                                      )}
-                                  </th>
+
+                                  {customCheckListHeaders &&
+                                    customCheckListHeaders.map(
+                                      (
+                                        checkListHeader,
+                                        checkListHeaderIndex,
+                                      ) => (
+                                        <th
+                                          className=""
+                                          key={checkListHeaderIndex}
+                                        >
+                                          {checkListHeader}
+                                        </th>
+                                      ),
+                                    )}
 
                                   {viewBillingColumn && viewBillingColumn && (
                                     <th className="">Prof</th>
@@ -699,21 +698,21 @@ const FiltersSection: React.FC<{
                                         <td rowSpan={2} className="">
                                           {row.surgeryOrder}
                                         </td>
-                                        <td className="" rowSpan={2}>
-                                          {customCheckListHeaders.map(
-                                            (
-                                              checkListHeader,
-                                              checkListHeaderIndex,
-                                            ) => (
-                                              <div
-                                                className=""
-                                                key={checkListHeaderIndex}
-                                              >
-                                                {row[checkListHeader]}
-                                              </div>
-                                            ),
-                                          )}
-                                        </td>
+
+                                        {customCheckListHeaders.map(
+                                          (
+                                            checkListHeader,
+                                            checkListHeaderIndex,
+                                          ) => (
+                                            <td
+                                              className=""
+                                              rowSpan={2}
+                                              key={checkListHeaderIndex}
+                                            >
+                                              {row[checkListHeader]}
+                                            </td>
+                                          ),
+                                        )}
 
                                         {viewBillingColumn && (
                                           <td rowSpan={2} className="">
