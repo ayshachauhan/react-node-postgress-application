@@ -45,9 +45,9 @@ const AddModularField: React.FC<{
     setBodyPartInputFields(values);
   };
 
-  const [facilityInputFields, setFacilityInputFields] = useState([
-    { value: '' },
-  ]);
+  const [facilityInputFields] = useState([{ value: '' }]);
+
+  /* commenting it for future usage
   const handleFacilityChangeInput = (index: number, event: string) => {
     const values = [...facilityInputFields];
     values[index].value = event;
@@ -62,6 +62,7 @@ const AddModularField: React.FC<{
     values.splice(index, 1);
     setFacilityInputFields(values);
   };
+  */
 
   const [optionsFields, setOptionsFields] = useState([
     {
@@ -340,7 +341,7 @@ const AddModularField: React.FC<{
               </div>
             </div>
 
-            <div className="space-y-2 flex-1">
+            {/* <div className="space-y-2 flex-1">
               <label htmlFor="facility" className="text-black text-sm">
                 Facility
               </label>
@@ -381,7 +382,7 @@ const AddModularField: React.FC<{
                   />
                 </div>
               </div>
-            </div>
+            </div> */}
           </div>
           <div className="mt-4">
             <div className="flex">
