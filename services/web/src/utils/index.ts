@@ -248,9 +248,8 @@ export const getColorForSurgeryStatus = (status) => {
 export function createTierOrder(apiResponse) {
   const tierOrder = {};
 
-  // Iterate through each tier object and assign it to tierOrder
   apiResponse.forEach((tier, index) => {
-    tierOrder[tier.name] = index + 1; // Assigning tier positions starting from 1
+    tierOrder[tier.name] = index + 1;
   });
 
   return tierOrder;
@@ -265,12 +264,10 @@ export function createTierOrder(apiResponse) {
 export function sortSurgeryData(data, tierOrder) {
   let sortedData = [];
 
-  // Function to get the tier value or default to a high number if not found in tierOrder
   const getTierValue = (waitlist) => {
     if (waitlist && Object.prototype.hasOwnProperty.call(tierOrder, waitlist)) {
       return tierOrder[waitlist];
     } else {
-      // Return a high number to sort entries with undefined or unknown waitlist values to the bottom
       return Object.keys(tierOrder).length + 1;
     }
   };
