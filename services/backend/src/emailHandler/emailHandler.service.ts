@@ -332,6 +332,7 @@ export class EmailHandlerService {
       expectedDate: new Date(),
       status: 'pending',
       data: {
+        to: data.email,
         body: this.transporterService.readTemplates(
           SystemTemplates.SEND_VIDEO_TO_PATIENT,
         ),
