@@ -299,8 +299,8 @@ const FiltersSection: React.FC<{
     dispatch(setSelectedValue(null));
   };
 
-  const handleViewHistory = (id: string): void => {
-    const query = { id };
+  const handleViewHistory = (id: string, surgery: string): void => {
+    const query = { id, surgery };
     const queryString = new URLSearchParams(query).toString();
     const url = `/history/?${queryString}`;
     window.location.href = url;
@@ -607,7 +607,10 @@ const FiltersSection: React.FC<{
                                           {viewHistory ? (
                                             <div
                                               onClick={() =>
-                                                handleViewHistory(row.patientId)
+                                                handleViewHistory(
+                                                  row.patientId,
+                                                  row.surgery,
+                                                )
                                               }
                                               className="cursor-pointer underline"
                                             >
@@ -642,6 +645,7 @@ const FiltersSection: React.FC<{
                                                 onClick={() =>
                                                   handleViewHistory(
                                                     row.patientId,
+                                                    row.surgery,
                                                   )
                                                 }
                                                 className="cursor-pointer underline"
