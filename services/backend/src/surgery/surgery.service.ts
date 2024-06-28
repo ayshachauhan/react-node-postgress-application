@@ -45,7 +45,6 @@ import {
   ILike,
   In,
   LessThan,
-  LessThanOrEqual,
   MoreThanOrEqual,
   Repository,
 } from 'typeorm';
@@ -141,15 +140,22 @@ export class SurgeryService {
         'waitlist',
       ],
       order: {
-        dateCreated: 'DESC',
+        date: option?.toLowerCase() === 'past view' ? 'DESC' : 'ASC',
       },
     };
 
     const searchConditionsWithoutPermissions = { ...searchConditions };
 
-    if (option?.toLowerCase() === 'past') {
+    if (
+      option?.toLowerCase() === 'upcoming view' ||
+      option?.toLowerCase() === 'past view'
+    ) {
       const today = new Date();
-      whereClause.date = LessThanOrEqual(today);
+      today.setUTCHours(0, 0, 0, 0); // Set to beginning of today
+      const yesterday = new Date(today);
+      yesterday.setUTCDate(today.getUTCDate() - 1); // Set to yesterday
+
+      whereClause.date = MoreThanOrEqual(yesterday);
     }
 
     const dateConditionsWithPermissions = getConditions(
@@ -161,7 +167,8 @@ export class SurgeryService {
     if (
       months.length === 0 &&
       searchMRNName &&
-      option?.toLowerCase() !== 'past'
+      option?.toLowerCase() !== 'past view' &&
+      option?.toLowerCase() !== 'upcoming view'
     ) {
       updateWhereClauseWithSearchName(whereClause, searchMRNName);
       searchConditions.where = mapDateConditions(
@@ -179,7 +186,9 @@ export class SurgeryService {
 
       if (
         months.length > 0 ||
-        (months.length === 0 && option?.toLowerCase() !== 'past')
+        (months.length === 0 &&
+          option?.toLowerCase() !== 'past view' &&
+          option?.toLowerCase() !== 'upcoming view')
       ) {
         searchConditions.where = mapDateConditions(
           dateConditionsWithPermissions,

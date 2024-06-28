@@ -244,3 +244,10 @@ export const getColorForSurgeryStatus = (status) => {
       return 'bg-indigo-400';
   }
 };
+
+export const tierOrder: Record<string, number> = {
+  'Tier 1': 1,
+  'Tier 2': 2,
+  'Tier 3': 3,
+  // Add more tiers as needed
+};

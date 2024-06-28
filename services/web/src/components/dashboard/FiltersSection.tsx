@@ -56,6 +56,8 @@ const FiltersSection: React.FC<{
     }),
   );
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isWailistViewActive, setIsWailistViewActive] = useState(false);
+  const [isIolViewActive, setIsIolViewActive] = useState(false);
   const [isUpdateCase, setIsUpdateCase] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [selectedAction, setSelectedAction] = useState<string | null>(null);
@@ -89,7 +91,7 @@ const FiltersSection: React.FC<{
   const viewHistory = useUserPermission(userPermissions, [
     USER_PERMISSIONS.VIEW_HX,
   ]);
-
+  console.log(isWailistViewActive);
   const getMonthOptions = (
     viewPastCases: boolean,
     viewFutureCases: boolean,
@@ -167,15 +169,19 @@ const FiltersSection: React.FC<{
     </div>
   );
 
-  const getUpdatedOptions = (viewPastCases: boolean) => [
-    { label: 'Waitlist', value: 'waitlist' },
-    { label: 'IOL', value: 'iol' },
-    { label: 'Past', value: 'past', disabled: !viewPastCases },
+  const getUpdatedOptions = (
+    viewPastCases: boolean,
+    viewFutureCases: boolean,
+  ) => [
+    { label: 'Upcoming View', value: 'upcoming', disabled: !viewFutureCases },
+    { label: 'Waitlist View', value: 'waitlist' },
+    { label: 'IOL View', value: 'iol' },
+    { label: 'Past View', value: 'past', disabled: !viewPastCases },
   ];
 
   const updatedOptions = useMemo(
-    () => getUpdatedOptions(viewPastCases),
-    [viewPastCases],
+    () => getUpdatedOptions(viewPastCases, viewFutureCases),
+    [viewPastCases, viewFutureCases],
   );
 
   const modifiedObj = {};
@@ -259,8 +265,15 @@ const FiltersSection: React.FC<{
   const handleChangeValue = ({ value }) => {
     dispatch(setSelectedValue(value[0] ? value[0].label : null));
     const selectedLabel = value.length > 0 ? value[0].label.toLowerCase() : '';
-    if (selectedLabel === 'past') {
+
+    if (selectedLabel === 'past view' || selectedLabel === 'upcoming view') {
       dispatch(setSelectedMonth([]));
+    }
+    if (selectedLabel === 'waitlist view') {
+      setIsWailistViewActive(true);
+    }
+    if (selectedLabel === 'iol view') {
+      setIsIolViewActive(true);
     }
   };
 
@@ -297,6 +310,8 @@ const FiltersSection: React.FC<{
     dispatch(setSelectedMonth([]));
     dispatch(setSearchMRNName(null));
     dispatch(setSelectedValue(null));
+    setIsWailistViewActive(false);
+    setIsIolViewActive(false);
   };
 
   const handleViewHistory = (id: string): void => {
@@ -355,7 +370,10 @@ const FiltersSection: React.FC<{
       );
     }
   };
-  const isDisabled = selectedValue && selectedValue.toLowerCase() === 'past';
+  const isDisabled =
+    selectedValue &&
+    (selectedValue.toLowerCase() === 'past' ||
+      selectedValue.toLowerCase() === 'upcoming');
 
   useEffect(() => {
     if (
@@ -569,10 +587,11 @@ const FiltersSection: React.FC<{
                                   {viewBillingColumn && (
                                     <th className="">Hospital</th>
                                   )}
-
-                                  <th className="w-20">Insurance</th>
+                                  {!isIolViewActive && (
+                                    <th className="w-20">Insurance</th>
+                                  )}
                                   <th className="w-40">Contact Info</th>
-                                  <th>Action</th>
+                                  {!isIolViewActive && <th>Action</th>}
                                 </tr>
                                 {ele[date].map((row, index) => {
                                   const isEditable =
@@ -726,10 +745,11 @@ const FiltersSection: React.FC<{
                                             {row.hospital}
                                           </td>
                                         )}
-
-                                        <td rowSpan={2} className="">
-                                          {row.insurance}
-                                        </td>
+                                        {!isIolViewActive && (
+                                          <td rowSpan={2} className="">
+                                            {row.insurance}
+                                          </td>
+                                        )}
                                         <td rowSpan={2} className="">
                                           {row.email}
                                           <br />
@@ -758,28 +778,33 @@ const FiltersSection: React.FC<{
                                             />
                                           )}
                                         </td>
-                                        <td rowSpan={2} className="">
-                                          {actionIcons(row)}
-                                        </td>
+                                        {!isIolViewActive && (
+                                          <td rowSpan={2} className="">
+                                            {actionIcons(row)}
+                                          </td>
+                                        )}
                                       </tr>
                                       <tr>
-                                        <td colSpan={5} className="bg-white">
-                                          <div className="">
-                                            <div>
-                                              <span className="font-semibold">
-                                                Waitlist:{' '}
-                                              </span>
-                                              {row.waitlist}
+                                        {!isIolViewActive && (
+                                          <td colSpan={5} className="bg-white">
+                                            <div className="">
+                                              <div>
+                                                <span className="font-semibold">
+                                                  Waitlist:{' '}
+                                                </span>
+                                                {row.waitlist}
+                                              </div>
+                                              <div>
+                                                <span className="font-semibold">
+                                                  Notes:{' '}
+                                                </span>
+                                                {row.details}
+                                              </div>
                                             </div>
-                                            <div>
-                                              <span className="font-semibold">
-                                                Notes:{' '}
-                                              </span>
-                                              {row.details}
-                                            </div>
-                                          </div>
-                                        </td>
+                                          </td>
+                                        )}
                                       </tr>
+
                                       {selectedRow === row.id &&
                                         selectedSurgery &&
                                         selectedAction == 'view' && (
