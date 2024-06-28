@@ -139,10 +139,22 @@ export class SurgeryService {
         'doctor',
         'waitlist',
       ],
-      order: {
-        date: option?.toLowerCase() === 'past view' ? 'DESC' : 'ASC',
-      },
+      order: {},
     };
+
+    if (option?.toLowerCase() === 'past view') {
+      searchConditions.order = {
+        date: 'ASC',
+      };
+    } else if (option?.toLowerCase() === 'upcoming view') {
+      searchConditions.order = {
+        date: 'DESC',
+      };
+    } else {
+      searchConditions.order = {
+        dateCreated: 'DESC',
+      };
+    }
 
     const searchConditionsWithoutPermissions = { ...searchConditions };
 

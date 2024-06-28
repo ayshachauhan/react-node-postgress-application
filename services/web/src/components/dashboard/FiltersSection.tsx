@@ -3,6 +3,7 @@ import {
   ISurgeryConfiguration,
   MonthOption,
 } from '@packages/entities';
+import { IWaitlist } from '@packages/entities/index.browser';
 import { USER_PERMISSIONS } from '@packages/entities/permission';
 import Button from '@root/components/Button';
 import {
@@ -27,7 +28,9 @@ import {
   setSelectedValue,
 } from '@root/store/reducers/surgery';
 import {
+  createTierOrder,
   getColorForSurgeryStatus,
+  sortSurgeryData,
   toFullName,
   toPascalCase,
   usDateFormatter,
@@ -91,7 +94,7 @@ const FiltersSection: React.FC<{
   const viewHistory = useUserPermission(userPermissions, [
     USER_PERMISSIONS.VIEW_HX,
   ]);
-  console.log(isWailistViewActive);
+
   const getMonthOptions = (
     viewPastCases: boolean,
     viewFutureCases: boolean,
@@ -407,6 +410,17 @@ const FiltersSection: React.FC<{
     searchMRNNameStr,
     selectedValueStr,
   ]);
+  const waitlist: IWaitlist[] = useAppSelector((state) =>
+    Object.values(state.waitlist.entities),
+  );
+
+  const tierOrder = createTierOrder(waitlist);
+  const waitlistShowFlag =
+    isWailistViewActive ||
+    selectedValueStr.trim().toLowerCase() === 'waitlist view';
+  const iolListShowFlag =
+    isIolViewActive || selectedValueStr.trim().toLowerCase() === 'iol view';
+
   return (
     <div>
       {(isUpdateCase || (!isLoading && !isUpdateCase)) && (
@@ -535,6 +549,13 @@ const FiltersSection: React.FC<{
                         </tr>
 
                         {Object.keys(ele).map((date, dateIndex) => {
+                          if (waitlistShowFlag) {
+                            const sortedData = sortSurgeryData(
+                              ele[date],
+                              tierOrder,
+                            );
+                            ele[date] = sortedData;
+                          }
                           return (
                             <>
                               <React.Fragment key={dateIndex}>
@@ -587,11 +608,11 @@ const FiltersSection: React.FC<{
                                   {viewBillingColumn && (
                                     <th className="">Hospital</th>
                                   )}
-                                  {!isIolViewActive && (
+                                  {!iolListShowFlag && (
                                     <th className="w-20">Insurance</th>
                                   )}
                                   <th className="w-40">Contact Info</th>
-                                  {!isIolViewActive && <th>Action</th>}
+                                  {!iolListShowFlag && <th>Action</th>}
                                 </tr>
                                 {ele[date].map((row, index) => {
                                   const isEditable =
@@ -745,7 +766,7 @@ const FiltersSection: React.FC<{
                                             {row.hospital}
                                           </td>
                                         )}
-                                        {!isIolViewActive && (
+                                        {!iolListShowFlag && (
                                           <td rowSpan={2} className="">
                                             {row.insurance}
                                           </td>
@@ -778,14 +799,14 @@ const FiltersSection: React.FC<{
                                             />
                                           )}
                                         </td>
-                                        {!isIolViewActive && (
+                                        {!iolListShowFlag && (
                                           <td rowSpan={2} className="">
                                             {actionIcons(row)}
                                           </td>
                                         )}
                                       </tr>
                                       <tr>
-                                        {!isIolViewActive && (
+                                        {!iolListShowFlag && (
                                           <td colSpan={5} className="bg-white">
                                             <div className="">
                                               <div>
