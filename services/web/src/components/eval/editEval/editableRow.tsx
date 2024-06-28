@@ -116,7 +116,7 @@ function EditableRow({
       setWaitlistId(value[0] ? value[0].id : null);
     };
 
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e) => {
       e.preventDefault();
 
       if (practiceId) {
@@ -152,70 +152,67 @@ function EditableRow({
     };
 
     return (
-      <form onSubmit={handleSubmit}>
-        <div className="flex flex-row gap-4 px-2 items-start text-xs overflow-auto">
-          <div className="py-1 px-1 w-32">
-            <div>
-              <DatePicker
-                value={obj.date}
-                onChange={({ date }) => handleObjChange('date', date)}
+      <>
+        <tr className="border-t border-gray-300">
+          <td rowSpan={2}>
+            <DatePicker
+              value={obj.date}
+              onChange={({ date }) => handleObjChange('date', date)}
+              size={SIZE.mini}
+              overrides={{
+                Root: {
+                  style: {
+                    heightOverride: '40px',
+                  },
+                },
+                InputContainer: {
+                  style: {
+                    backgroundColor: '#00000',
+                  },
+                },
+              }}
+            />
+
+            <div className="flex gap-2 mt-4">
+              <Button
+                kind="secondary"
+                type="button"
                 size={SIZE.mini}
-                overrides={{
-                  Root: {
-                    style: {
-                      heightOverride: '40px',
-                    },
-                  },
-                  InputContainer: {
-                    style: {
-                      backgroundColor: '#00000',
-                    },
-                  },
-                }}
+                onClick={() => handleQuickDateChange(1)}
+                title="+1"
+                height={25}
+                width={25}
+              />
+              <Button
+                kind="secondary"
+                type="button"
+                size={SIZE.mini}
+                onClick={() => handleQuickDateChange(3)}
+                title="+3"
+                height={25}
+                width={25}
+              />
+              <Button
+                kind="secondary"
+                type="button"
+                size={SIZE.mini}
+                onClick={() => handleQuickDateChange(6)}
+                title="+6"
+                height={25}
+                width={25}
+              />
+              <Button
+                kind="secondary"
+                type="button"
+                size={SIZE.mini}
+                onClick={() => handleQuickDateChange(12)}
+                title="+12"
+                height={25}
+                width={25}
               />
             </div>
-            <div>
-              <div className="flex gap-2 mt-4 justify-end">
-                <Button
-                  kind="secondary"
-                  type="button"
-                  size={SIZE.mini}
-                  onClick={() => handleQuickDateChange(1)}
-                  title="+1"
-                  height={25}
-                  width={25}
-                />
-                <Button
-                  kind="secondary"
-                  type="button"
-                  size={SIZE.mini}
-                  onClick={() => handleQuickDateChange(3)}
-                  title="+3"
-                  height={25}
-                  width={25}
-                />
-                <Button
-                  kind="secondary"
-                  type="button"
-                  size={SIZE.mini}
-                  onClick={() => handleQuickDateChange(6)}
-                  title="+6"
-                  height={25}
-                  width={25}
-                />
-                <Button
-                  kind="secondary"
-                  type="button"
-                  size={SIZE.mini}
-                  onClick={() => handleQuickDateChange(12)}
-                  title="+12"
-                  height={25}
-                  width={25}
-                />
-              </div>
-            </div>
-          </div>
-          <div className="py-1 w-20">
+          </td>
+          <td rowSpan={2} className="">
             <TextInput
               disabled
               size={SIZE.mini}
@@ -226,8 +223,8 @@ function EditableRow({
               }
               onChange={(value) => handleObjChange('lastName', value)}
             />
-          </div>
-          <div className="w-14 py-1">
+          </td>
+          <td rowSpan={2} className="">
             <Select
               size={SIZE.mini}
               required
@@ -256,8 +253,8 @@ function EditableRow({
                 },
               }}
             />
-          </div>
-          <div className="px-1 w-40 py-1">
+          </td>
+          <td rowSpan={2} className="">
             <Select
               size={SIZE.mini}
               options={evalStatusOption}
@@ -279,177 +276,138 @@ function EditableRow({
                 },
               }}
             />
-          </div>
-          <div className="flex flex-col w-max gap-4">
-            <div className="flex flex-row gap-4 text-center">
-              <div className="py-1 w-20">
-                <TextInput
-                  size={SIZE.mini}
-                  name="lastName"
-                  value={obj.lastName}
-                  onChange={(value) => handleObjChange('lastName', value)}
-                />
-              </div>
-              <div className="py-1 px-1 w-20">
-                <TextInput
-                  size={SIZE.mini}
-                  name="firstName"
-                  value={obj.firstName}
-                  onChange={(value) => handleObjChange('firstName', value)}
-                />
-              </div>
-              <div className="w-20 py-1">
-                <TextInput
-                  name="mrn"
-                  type="number"
-                  value={obj.mrn}
-                  onChange={(value) => handleObjChange('mrn', value)}
-                  size={SIZE.mini}
-                />
-              </div>
-              <div className="py-1 w-40">
-                <TextInput
-                  size={SIZE.mini}
-                  name="email"
-                  value={obj.email}
-                  onChange={(value) => handleObjChange('email', value)}
-                />
-              </div>
-              <div className="py-1 px-1 w-20">
-                <Select
-                  backspaceRemoves={false}
-                  escapeClearsValue={false}
-                  disabled
-                  options={surgeryConfigurationsOptions}
-                  value={[
-                    {
-                      id: evalInfo.surgeryConfiguration.name,
-                      label: evalInfo.surgeryConfiguration.name,
-                    },
-                  ]}
-                  onChange={({ value }) =>
-                    handleObjChange('surgeryConfigurationId', value[0].id)
-                  }
-                  size={SIZE.mini}
-                  overrides={{
-                    ControlContainer: {
-                      style: {
-                        backgroundColor: 'rgba(250, 250, 250, 1)',
-                        border: 'none',
-                        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-                        color: '#52525B',
-                      },
-                    },
-
-                    ClearIcon: {
-                      component: () => null,
-                    },
-                  }}
-                />
-              </div>
-              <div className="py-1 w-20">
-                <Select
-                  backspaceRemoves={false}
-                  options={evalInfo.surgeryConfiguration.bodyPart.map(
-                    (ele) => ({
-                      id: ele,
-                      label: ele,
-                    }),
-                  )}
-                  value={
-                    obj.bodyPart
-                      ? [{ id: obj.bodyPart, label: obj.bodyPart }]
-                      : [{ id: 'd', label: 'r' }]
-                  }
-                  onChange={({ value }) =>
-                    handleObjChange('bodyPart', value[0].id)
-                  }
-                  size={SIZE.mini}
-                  overrides={{
-                    ControlContainer: {
-                      style: {
-                        backgroundColor: 'rgba(250, 250, 250, 1)',
-                        border: 'none',
-                        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-                        color: '#52525B',
-                      },
-                    },
-
-                    ClearIcon: {
-                      component: () => null,
-                    },
-                  }}
-                />
-              </div>
-              <div className="w-40 py-1">
-                <Select
-                  size={SIZE.mini}
-                  options={insuranceTypesOptions}
-                  onChange={handleInsuranceTypeChange}
-                  value={
-                    insuranceTypeId
-                      ? [{ label: insuranceTypeId, id: insuranceTypeId }]
-                      : []
-                  }
-                  overrides={{
-                    ControlContainer: {
-                      style: {
-                        backgroundColor: 'rgba(250, 250, 250, 1)',
-                        border: 'none',
-                        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-                        color: '#52525B',
-                      },
-                    },
-                    ClearIcon: {
-                      component: () => null,
-                    },
-                  }}
-                />
-              </div>
+          </td>
+          <td rowSpan={1}>
+            <div className="w-28">
+              <TextInput
+                size={SIZE.mini}
+                name="lastName"
+                value={obj.lastName}
+                onChange={(value) => handleObjChange('lastName', value)}
+              />
             </div>
-            <div className="flex flex-center gap-4 items-center">
-              <div className="text-black text-center font-semibold w-20">
-                Waitlist:{' '}
-              </div>
-              <div className=" w-20">
-                <Select
-                  options={waitlistOptions}
-                  size={SIZE.mini}
-                  onChange={handleWaitlistChange}
-                  value={
-                    waitlistId ? [{ label: waitlistId, id: waitlistId }] : []
-                  }
-                  overrides={{
-                    ControlContainer: {
-                      style: {
-                        backgroundColor: 'rgba(250, 250, 250, 1)',
-                        border: 'none',
-                        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-                        color: '#52525B',
-                      },
-                    },
-
-                    ClearIcon: {
-                      component: () => null,
-                    },
-                  }}
-                />
-              </div>
-              <div className="text-black text-center font-semibold w-20">
-                Notes:{' '}
-              </div>
-              <div className=" w-20">
-                <TextInput
-                  size={SIZE.mini}
-                  onChange={(value) => handleObjChange('details', value)}
-                  value={obj.details}
-                />
-              </div>
+          </td>
+          <td rowSpan={1} className="">
+            <div className="w-28">
+              <TextInput
+                size={SIZE.mini}
+                name="firstName"
+                value={obj.firstName}
+                onChange={(value) => handleObjChange('firstName', value)}
+              />
             </div>
-          </div>
+          </td>
+          <td rowSpan={1} className="">
+            <div className="w-28">
+              <TextInput
+                name="mrn"
+                type="number"
+                value={obj.mrn}
+                onChange={(value) => handleObjChange('mrn', value)}
+                size={SIZE.mini}
+              />
+            </div>
+          </td>
+          <td rowSpan={1} className="">
+            <div className="w-28">
+              <TextInput
+                size={SIZE.mini}
+                name="email"
+                value={obj.email}
+                onChange={(value) => handleObjChange('email', value)}
+              />
+            </div>
+          </td>
+          <td rowSpan={1} className="">
+            <Select
+              backspaceRemoves={false}
+              escapeClearsValue={false}
+              disabled
+              options={surgeryConfigurationsOptions}
+              value={[
+                {
+                  id: evalInfo.surgeryConfiguration.name,
+                  label: evalInfo.surgeryConfiguration.name,
+                },
+              ]}
+              onChange={({ value }) =>
+                handleObjChange('surgeryConfigurationId', value[0].id)
+              }
+              size={SIZE.mini}
+              overrides={{
+                ControlContainer: {
+                  style: {
+                    backgroundColor: 'rgba(250, 250, 250, 1)',
+                    border: 'none',
+                    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                    color: '#52525B',
+                  },
+                },
 
-          <div className="flex flex-col text-black py-0.5 px-1 w-40 items-center">
-            <div className="text-black py-0.5 px-1 w-40 text-center">
+                ClearIcon: {
+                  component: () => null,
+                },
+              }}
+            />
+          </td>
+          <td rowSpan={1} className="">
+            <Select
+              backspaceRemoves={false}
+              options={evalInfo.surgeryConfiguration.bodyPart.map((ele) => ({
+                id: ele,
+                label: ele,
+              }))}
+              value={
+                obj.bodyPart
+                  ? [{ id: obj.bodyPart, label: obj.bodyPart }]
+                  : [{ id: 'd', label: 'r' }]
+              }
+              onChange={({ value }) => handleObjChange('bodyPart', value[0].id)}
+              size={SIZE.mini}
+              overrides={{
+                ControlContainer: {
+                  style: {
+                    backgroundColor: 'rgba(250, 250, 250, 1)',
+                    border: 'none',
+                    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                    color: '#52525B',
+                  },
+                },
+
+                ClearIcon: {
+                  component: () => null,
+                },
+              }}
+            />
+          </td>
+          <td rowSpan={2} className="">
+            <Select
+              size={SIZE.mini}
+              options={insuranceTypesOptions}
+              onChange={handleInsuranceTypeChange}
+              value={
+                insuranceTypeId
+                  ? [{ label: insuranceTypeId, id: insuranceTypeId }]
+                  : []
+              }
+              overrides={{
+                ControlContainer: {
+                  style: {
+                    backgroundColor: 'rgba(250, 250, 250, 1)',
+                    border: 'none',
+                    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                    color: '#52525B',
+                  },
+                },
+                ClearIcon: {
+                  component: () => null,
+                },
+              }}
+            />
+          </td>
+
+          <td rowSpan={2} className="">
+            <div className="mb-1">
               <TextInput
                 name="hash"
                 value={obj.email}
@@ -457,7 +415,7 @@ function EditableRow({
                 size={SIZE.mini}
               />
             </div>
-            <div className="text-black py-0.5 px-1 w-40 text-center">
+            <div className="mb-1">
               <TextInput
                 name="hash"
                 value={obj.phoneNumber}
@@ -465,7 +423,7 @@ function EditableRow({
                 size={SIZE.mini}
               />
             </div>
-            <div className="text-black py-0.5 px-1 w-40 text-center">
+            <div className="">
               <Select
                 backspaceClearsInputValue={true}
                 escapeClearsValue={false}
@@ -494,24 +452,68 @@ function EditableRow({
                 }}
               />
             </div>
-          </div>
-          <div className="flex items-center gap-2 py-2 w-40">
-            <Button kind="primary" title="Update" width={50} height={10} />
-            <Button
-              onClick={handleCancelClick}
-              type="button"
-              kind="tertiary"
-              title="Cancel"
-              width={50}
-              height={10}
-              style={{
-                backgroundColor: 'rgba(212, 212, 216, 1)',
-                color: 'black',
-              }}
+          </td>
+          <td rowSpan={2} className="">
+            <div className="flex gap-2">
+              <Button
+                onClick={handleSubmit}
+                kind="primary"
+                title="Update"
+                width={60}
+                height={28}
+              />
+              <Button
+                onClick={handleCancelClick}
+                type="button"
+                kind="tertiary"
+                title="Cancel"
+                width={60}
+                height={28}
+                style={{
+                  backgroundColor: 'rgba(212, 212, 216, 1)',
+                  color: 'black',
+                }}
+              />
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td colSpan={6} className="bg-white">
+            <div className="flex items-center">
+              <span className="font-semibold mr-2">Waitlist: </span>
+              <Select
+                options={waitlistOptions}
+                size={SIZE.mini}
+                onChange={handleWaitlistChange}
+                value={
+                  waitlistId ? [{ label: waitlistId, id: waitlistId }] : []
+                }
+                overrides={{
+                  ControlContainer: {
+                    style: {
+                      backgroundColor: 'rgba(250, 250, 250, 1)',
+                      border: 'none',
+                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                      color: '#52525B',
+                    },
+                  },
+
+                  ClearIcon: {
+                    component: () => null,
+                  },
+                }}
+              />
+            </div>
+            <span className="font-semibold">Notes: </span>
+            <br />
+            <TextInput
+              size={SIZE.mini}
+              onChange={(value) => handleObjChange('details', value)}
+              value={obj.details}
             />
-          </div>
-        </div>
-      </form>
+          </td>
+        </tr>
+      </>
     );
   } else return null;
 }

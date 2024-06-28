@@ -222,49 +222,47 @@ export default function HistoryTable() {
       </div>
       <hr className="h-px my-2.5 bg-gray-100 border-1 dark:bg-gray-700"></hr>
       {!isLoading && historyLogs && historyLogs.length > 0 && (
-        <div className="w-full overflow-x-auto mt-2 border border-gray-200 rounded-t-lg rounded-b-lg">
-          <div className="bg-gradient-to-br from-teal-600 to-green-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 flex gap-2 py-2 px-2.5 text-sm">
-            <div className="font-bold text-white py-2 px-1 w-40">Date</div>
-            <div className="font-bold text-white py-2 px-1 w-40">Name</div>
-            <div className="font-bold text-white py-2 px-1 w-40">MRN</div>
-            <div className="font-bold text-white py-2 px-1 w-40">Type</div>
-            <div className="font-bold text-white py-2 px-1 w-40">Surgery</div>
-            <div className="font-bold text-white py-2 px-1 w-40">Field</div>
-            <div className="font-bold text-white py-2 px-1 w-40">User</div>
-            <div className="font-bold text-white py-2 px-1 w-40">Prior</div>
-            <div className="font-bold text-white py-2 px-1 w-40">New</div>
-            <div className="font-bold text-white py-2 px-1 w-40">IP</div>
-          </div>
-          {getSortedHistoryData().map((row, index) => (
-            <div
-              key={row.id}
-              id={row.id}
-              className={`div-clone flex gap-2 px-2.5 text-xs ${
-                index !== historyLogs.length - 1
-                  ? 'border-b border-gray-300'
-                  : ''
-              }`}
-            >
-              <div className="text-black pt-2 pb-2 px-1 w-40">
-                {formatColumnDate(new Date(row.date))}
-              </div>
-              <div className="text-black pt-2 pb-2 px-1 w-40">
-                {row ? generateFullName(row.firstName, row.lastName) : null}
-              </div>
-              <div className="text-black pt-2 pb-2 px-1 w-40">{row.mrn}</div>
-              <div className="text-black pt-2 pb-2 px-1 w-40">{row.type}</div>
-              <div className="text-black pt-2 pb-2 px-1 w-40">
-                {row.surgery}
-              </div>
-              <div className="text-black pt-2 pb-2 px-1 w-40">{row.field}</div>
-              <div className="text-black pt-2 pb-2 px-1 w-40">{row.user}</div>
-              <div className="text-black pt-2 pb-2 px-1 w-40">{row.prior}</div>
-              <div className="text-black pt-2 pb-2 px-1 w-40">{row.new}</div>
-              <div className="text-black pt-2 pb-2 px-1 w-40">
-                {row.ip ?? '58.84.62.123'}
-              </div>
-            </div>
-          ))}
+        <div className="table-responsive overflow-x-auto rounded-lg">
+          <table className="">
+            <tbody>
+              <tr className="">
+                <th className="">Date</th>
+                <th className="">Name</th>
+                <th className="">MRN</th>
+                <th className="">Type</th>
+                <th className="">Surgery</th>
+                <th className="">Field</th>
+                <th className="">User</th>
+                <th className="">Prior</th>
+                <th className="">New</th>
+                <th className="">IP</th>
+              </tr>
+              {getSortedHistoryData().map((row, index) => (
+                <tr
+                  key={row.id}
+                  id={row.id}
+                  className={`${
+                    index !== historyLogs.length - 1
+                      ? 'border-b border-gray-300'
+                      : ''
+                  }`}
+                >
+                  <td className="">{formatColumnDate(new Date(row.date))}</td>
+                  <td className="">
+                    {row ? generateFullName(row.firstName, row.lastName) : null}
+                  </td>
+                  <td className="">{row.mrn}</td>
+                  <td className="">{row.type}</td>
+                  <td className="">{row.surgery}</td>
+                  <td className="">{row.field}</td>
+                  <td className="">{row.user}</td>
+                  <td className="">{row.prior}</td>
+                  <td className="">{row.new}</td>
+                  <td className="">{row.ip ?? '58.84.62.123'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
     </div>

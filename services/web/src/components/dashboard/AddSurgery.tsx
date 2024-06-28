@@ -447,7 +447,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
 
   return (
     <div>
-      <div className="">
+      <div className="px-4">
         <form onSubmit={handleSubmit} className="flex flex-col flex-wrap">
           <div className="flex mt-4 pb-2 border-b border-gray-100 items-center">
             <div className="text-xl font-bold text-black w-full">
@@ -989,13 +989,14 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
             </div>
             <div className="">
               <Button
-                padding="12px 16px"
                 type="button"
                 kind="tertiary"
                 title="Cancel"
                 style={{
                   backgroundColor: 'rgba(212, 212, 216, 1)',
                   color: 'black',
+                  padding: '12px 16px',
+                  fontSize: '14px',
                 }}
                 onClick={onClose}
               />

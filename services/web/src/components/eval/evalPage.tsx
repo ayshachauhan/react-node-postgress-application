@@ -268,7 +268,7 @@ const EvalPage: React.FC = () => {
   };
 
   return (
-    <div id="__next" className="text-center">
+    <div id="__next" className="">
       {isLoading && <Loader />}
       <div className="flex justify-between border-gray-400 items-center ">
         <span className="text-xl font-bold">Evals</span>
@@ -284,195 +284,188 @@ const EvalPage: React.FC = () => {
                 height={40}
                 width={80}
                 onClick={handleOpenAddModal}
-                startEnhancer={() => (
-                  <AddIcon className="mt-2" size={25}></AddIcon>
-                )}
+                startEnhancer={() => <AddIcon className=""></AddIcon>}
               />
             )}
           </div>
         </div>
       </div>
-      <hr className="h-px my-1 px-0 mx-0 bg-gray-100 border-1 border-gray-100"></hr>
-      <div className="text-gray-50  items-center bg-gray-50 border-l border rounded-t-lg rounded-b-lg border-gray-200 text-sm overflow-x-auto w-max mt-2">
-        <div className="bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 flex flex-row gap-4 p-2">
-          <div className="font-bold text-white py-1 px-1 w-28">Date</div>
-          <div className="font-bold text-white py-1 px-1 w-28">Action Date</div>
-          <div className="font-bold text-white py-1 px-1 w-10">
-            <HomeIcon></HomeIcon>
-          </div>
-          <div className="font-bold text-white text-center py-1 px-1 w-40">
-            Status
-          </div>
-          <div className="font-bold text-white py-1 px-1 w-20">Last Name</div>
-          <div className="font-bold text-white py-1 px-1 w-20">First Name</div>
-          <div className="font-bold text-white py-1 px-1 w-20">MRN</div>
-          <div className="font-bold text-white py-1 px-1 w-40">Email</div>
-          <div className="font-bold text-white py-1 px-1 w-20">Surgery</div>
-          <div className="font-bold text-white py-1 px-1 w-20">Body Part</div>
-          <div className="font-bold text-white py-1 px-1 w-40">Insurance</div>
-          <div className="font-bold text-white py-1 px-1 w-40">
-            Contact Info.
-          </div>
-          <div className="font-bold text-white">Action</div>
-        </div>
-        {!isLoading &&
-          modifyEvalList.map((data) =>
-            selectedRow === data.id && selectedAction == 'edit' && evalInfo ? (
-              <EditableRow
-                key={data.id}
-                handleCancelClick={handleCancelClick}
-                evalInfo={evalInfo}
-                setSelectedAction={setSelectedAction}
-                withLoader={withLoader}
-              />
-            ) : (
-              <React.Fragment key={data.id}>
-                <div className="flex flex-row gap-4 bg-gray-50 px-2 py-0.5 text-center border-b-2">
-                  <div
-                    className={`text-black  py-0.5 px-1 w-28  flex justify-around items-center`}
-                  >
-                    <div>
-                      {viewHistory ? (
-                        <div
-                          onClick={() => handleViewHistory(data.patientId)}
-                          className="cursor-pointer underline"
-                        >
-                          {data.date}
+      <hr className="h-px my-1 px-0 mx-0 bg-gray-100 border-1 border-gray-100" />
+      <div className="table-responsive overflow-x-auto rounded-lg">
+        <table className=" rounded-lg">
+          <tbody>
+            <tr className="">
+              <th className="">Date</th>
+              <th className="">Action Date</th>
+              <th className="">
+                <HomeIcon></HomeIcon>
+              </th>
+              <th className="">Status</th>
+              <th className="">Last Name</th>
+              <th className="">First Name</th>
+              <th className="">MRN</th>
+              <th className="">Email</th>
+              <th className="">Surgery</th>
+              <th className="">Body Part</th>
+              <th className="">Insurance</th>
+              <th className="">Contact Info.</th>
+              <th className="">Action</th>
+            </tr>
+            {!isLoading &&
+              modifyEvalList.map((data) =>
+                selectedRow === data.id &&
+                selectedAction == 'edit' &&
+                evalInfo ? (
+                  <EditableRow
+                    key={data.id}
+                    handleCancelClick={handleCancelClick}
+                    evalInfo={evalInfo}
+                    setSelectedAction={setSelectedAction}
+                    withLoader={withLoader}
+                  />
+                ) : (
+                  <React.Fragment key={data.id}>
+                    <tr className="border-t border-gray-300">
+                      <td rowSpan={2}>
+                        {viewHistory ? (
+                          <div
+                            onClick={() => handleViewHistory(data.patientId)}
+                            className="cursor-pointer underline"
+                          >
+                            {data.date}
+                          </div>
+                        ) : (
+                          <div>{data.date}</div>
+                        )}
+                      </td>
+
+                      <td rowSpan={2} className="">
+                        <div>{data.actionDate}</div>
+                      </td>
+                      <td rowSpan={2} className="">
+                        <div> {data.home[0]}</div>
+                      </td>
+                      <td rowSpan={2} className="">
+                        <div className="rounded-md text-white text-center py-1 px-2 bg-indigo-500">
+                          {data.status}
                         </div>
-                      ) : (
-                        <div>{data.date}</div>
-                      )}
-                    </div>
-                  </div>
-                  <div className="text-black  py-0.5 px-1 w-28  flex justify-around items-center">
-                    <div>{data.actionDate}</div>
-                  </div>
-                  <div className="text-black py-0.5 px-1 w-10 flex items-center justify-around">
-                    <div> {data.home[0]}</div>
-                  </div>
-                  <div className="text-gray-900 py-0.5 px-0.5 text-center flex justify-around items-center w-40">
-                    <div className="rounded-md text-white text-center px-1 bg-indigo-500">
-                      {data.status}
-                    </div>
-                  </div>
-                  <div className="flex flex-col w-max gap-4">
-                    <div className="flex flex-row gap-4 text-center">
-                      <div className="text-black py-0.5 px-1 overflow-hidden whitespace-nowrap w-20">
+                      </td>
+                      <td rowSpan={1} className="">
                         {data.lastName}
-                      </div>
-                      <div className="text-black py-0.5 px-1 overflow-hidden whitespace-nowrap w-20">
+                      </td>
+                      <td rowSpan={1} className="">
                         {data.firstName}
-                      </div>
-                      <div className="text-black py-0.5 px-1 overflow-hidden whitespace-nowrap w-20 pl-5">
+                      </td>
+                      <td rowSpan={1} className="">
                         {data.mrn}
-                      </div>
-                      <div
-                        className="text-black py-0.5 px-1 w-40 overflow-hidden whitespace-nowrap"
+                      </td>
+                      <td
+                        rowSpan={1}
+                        className=""
                         style={{ textOverflow: 'ellipsis' }}
                       >
                         {data.email}
-                      </div>
-                      <div className="text-black py-0.5 px-1 overflow-hidden whitespace-nowrap w-20">
+                      </td>
+                      <td rowSpan={1} className="">
                         {data.surgeryConfigName}
-                      </div>
-                      <div className="text-black py-0.5 px-1 w-20">
+                      </td>
+                      <td rowSpan={1} className="">
                         {data.bodyPart}
-                      </div>
-                      <div className="text-black py-0.5 px-1 w-40">
+                      </td>
+                      <td rowSpan={2} className="">
                         {data.insuranceTypeName}
-                      </div>
-                    </div>
-                    <div className="flex flex-center gap-4 pl-5">
-                      <div className="text-black text-center font-semibold">
-                        Waitlist:{' '}
-                      </div>
-                      <div className="text-black">{data.waitlist}</div>
-                      <div className="text-black text-center font-semibold pl-12">
-                        Notes:{' '}
-                      </div>
-                      <div className="text-black">{data.notes}</div>
-                    </div>
-                  </div>
-                  <div className="flex flex-col text-black py-0.5 px-1 w-40 items-center">
-                    <div
-                      className="text-black py-0.5 px-1 w-40 text-center overflow-hidden whitespace-nowrap"
-                      style={{ textOverflow: 'ellipsis' }}
-                    >
-                      {data.email}
-                    </div>
-                    <div className="text-black py-0.5 px-1 w-20 text-center">
-                      {data.phoneNumber}
-                    </div>
-                    <div className="flex justify-center items-center  w-40 ">
-                      <div className="text-black py-0.5 px-1 text-center">
-                        referrer: {data.referrer}
-                      </div>
-                      <div>
-                        {data.referrerVerified && (
-                          <Checkbox
-                            checked={true}
-                            overrides={{
-                              Checkmark: {
-                                style: ({ $checked }) => ({
-                                  backgroundColor: $checked
-                                    ? 'rgba(34, 197, 94, 1)'
-                                    : 'white',
-                                  borderColor: $checked
-                                    ? 'rgba(34, 197, 94, 1)'
-                                    : 'rgba(113, 113, 122, 1)',
-                                  width: '12px',
-                                  height: '12px',
-                                  borderRadius: '2px',
-                                  borderWidth: '2px',
-                                }),
-                              },
-                            }}
-                          />
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="text-gray-900 flex flex-col gap-1">
-                    <div className="flex flex-row gap-1">
-                      {editCaseAllowed && (
-                        <div className="cursor-pointer ">
-                          <EditIcon
-                            style={{ cursor: 'pointer' }}
-                            onClick={() => handleEditClick(data.id)}
-                          ></EditIcon>
+                      </td>
+
+                      <td rowSpan={2} className="">
+                        <div
+                          className="whitespace-nowrap"
+                          style={{ textOverflow: 'ellipsis' }}
+                        >
+                          {data.email}
                         </div>
-                      )}
-                      <div className="cursor-pointer">
-                        {deleteCaseAllowed && (
-                          <DeleteIcon
-                            onClick={() => {
-                              setSelectedRow(data.id);
-                              handleOpenDeleteModal(data.id);
-                            }}
-                          />
-                        )}
-                      </div>
-                    </div>
-                    {addCaseAllowed && (
-                      <Button
-                        disabled={data.status === EVAL_STATUS.Book}
-                        kind="secondary"
-                        title={
-                          data.status === EVAL_STATUS.Book
-                            ? 'Nurtured'
-                            : 'Nurture'
-                        }
-                        fontSize="10px"
-                        height={24}
-                        width={50}
-                        onClick={() => handleOpenBookSurgeryModal(data.id)}
-                      />
-                    )}
-                  </div>
-                </div>
-              </React.Fragment>
-            ),
-          )}
+                        <div className="">{data.phoneNumber}</div>
+                        <div className=" ">
+                          <div className="">referrer: {data.referrer}</div>
+                          <div>
+                            {data.referrerVerified && (
+                              <Checkbox
+                                checked={true}
+                                overrides={{
+                                  Checkmark: {
+                                    style: ({ $checked }) => ({
+                                      backgroundColor: $checked
+                                        ? 'rgba(34, 197, 94, 1)'
+                                        : 'white',
+                                      borderColor: $checked
+                                        ? 'rgba(34, 197, 94, 1)'
+                                        : 'rgba(113, 113, 122, 1)',
+                                      width: '12px',
+                                      height: '12px',
+                                      borderRadius: '2px',
+                                      borderWidth: '2px',
+                                    }),
+                                  },
+                                }}
+                              />
+                            )}
+                          </div>
+                        </div>
+                      </td>
+                      <td rowSpan={2} className="">
+                        <div className="flex items-center gap-1">
+                          {editCaseAllowed && (
+                            <div className="cursor-pointer ">
+                              <EditIcon
+                                style={{ cursor: 'pointer' }}
+                                onClick={() => handleEditClick(data.id)}
+                              ></EditIcon>
+                            </div>
+                          )}
+                          <div className="cursor-pointer">
+                            {deleteCaseAllowed && (
+                              <DeleteIcon
+                                onClick={() => {
+                                  setSelectedRow(data.id);
+                                  handleOpenDeleteModal(data.id);
+                                }}
+                              />
+                            )}
+                          </div>
+                          {addCaseAllowed && (
+                            <Button
+                              disabled={data.status === EVAL_STATUS.Book}
+                              kind="secondary"
+                              title={
+                                data.status === EVAL_STATUS.Book
+                                  ? 'Nurtured'
+                                  : 'Nurture'
+                              }
+                              fontSize="10px"
+                              padding="3px 8px"
+                              onClick={() =>
+                                handleOpenBookSurgeryModal(data.id)
+                              }
+                            />
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td colSpan={6} className="bg-white">
+                        <span className="font-semibold">Waitlist: </span>
+
+                        {data.waitlist}
+                        <br />
+                        <span className="font-semibold">Notes: </span>
+                        <br />
+                        {data.notes}
+                      </td>
+                    </tr>
+                  </React.Fragment>
+                ),
+              )}
+          </tbody>
+        </table>
       </div>
       <AddEvalModal
         isSecondModalOpen={isAddModalOpen}

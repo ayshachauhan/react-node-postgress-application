@@ -262,7 +262,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({ onClose, withLoader }) => {
 
   return (
     <div>
-      <div className="border-border-l border-b border-gray-100">
+      <div className="px-4">
         <form onSubmit={handleSubmit} className="flex flex-col flex-wrap">
           <div className="flex mt-4 pb-2 border-b border-gray-100 items-center">
             <div className="text-xl font-bold text-black w-full">Add Eval</div>
@@ -798,20 +798,21 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({ onClose, withLoader }) => {
               </div>
             </div>
           </div>
+          <hr className="my-4" />
           <div className="flex flex-row gap-3 justify-end">
-            {' '}
-            <div className="text-left text-xs mt-2">
-              <Button kind="primary" title="Add Eval" width={90} />
+            <div className="text-sm">
+              <Button padding="12px 16px" kind="primary" title="Add Eval" />
             </div>
-            <div className="text-right text-xs mt-2">
+            <div className="text-sm">
               <Button
                 type="button"
                 kind="tertiary"
                 title="Cancel"
-                width={90}
                 style={{
                   backgroundColor: 'rgba(212, 212, 216, 1)',
                   color: 'black',
+                  padding: '12px 16px',
+                  fontSize: '14px',
                 }}
                 onClick={onClose}
               />
