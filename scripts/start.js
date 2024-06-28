@@ -27,6 +27,10 @@ const ENV_KEYS = [
   'NEXT_PUBLIC_API_BASE_URL',
   'WEB_PORT',
   'SMTP_USER',
+  'TWILIO_ACCOUNT_SID',
+  'TWILIO_AUTH_TOKEN',
+  'TWILIO_PHONE_NUMBER',
+  'ENABLE_TWILIO_MSGS',
 ];
 
 const start = async () => {
