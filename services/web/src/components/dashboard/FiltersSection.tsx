@@ -56,6 +56,7 @@ const FiltersSection: React.FC<{
     }),
   );
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isUpdateCase, setIsUpdateCase] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [selectedAction, setSelectedAction] = useState<string | null>(null);
   const [selectedSurgery, setSelectedSurgery] = useState({});
@@ -361,6 +362,7 @@ const FiltersSection: React.FC<{
       addSurgerySuccessMessage &&
       addSurgerySuccessMessage === 'Surgery updated successfully.'
     ) {
+      setIsUpdateCase(true);
       if (practiceId && loggedInUserId !== null) {
         dispatchFetchFilteredSurgeryList(
           selectedMonth,
@@ -387,20 +389,9 @@ const FiltersSection: React.FC<{
     searchMRNNameStr,
     selectedValueStr,
   ]);
-
-  useEffect(() => {
-    if (practiceId && loggedInUserId !== null) {
-      dispatchFetchFilteredSurgeryList(
-        selectedMonth,
-        searchMRNNameStr,
-        selectedValueStr,
-      );
-    }
-  }, [dispatch, practiceId, loggedInUserId]);
-
   return (
     <div>
-      {!isLoading && (
+      {(isUpdateCase || (!isLoading && !isUpdateCase)) && (
         <div>
           <div className="flex w-full bg-purple-50 p-2 border-t border-b border-gray-200 items-center">
             <div className="flex w-1/4 items-center">
@@ -502,7 +493,7 @@ const FiltersSection: React.FC<{
           <div className="overflow-x-auto">
             {surgeryConfigList.length > 0 &&
             Object.keys(modifiedObj).length > 0 ? (
-              <div className="w-max overflow-x-auto mt-2 border rounded-t-lg rounded-b-lg border-gray-200">
+              <div className="w-full overflow-x-auto mt-2 border rounded-t-lg rounded-b-lg border-gray-200">
                 {Object.keys(modifiedObj).map((key, index) => {
                   const ele = modifiedObj[key];
                   const customOptionsHeaders: string[] =
@@ -553,26 +544,25 @@ const FiltersSection: React.FC<{
                                       ),
                                     )}
 
-                                  <th>#</th>
-                                  <th>
-                                    {customCheckListHeaders &&
-                                      customCheckListHeaders.map(
-                                        (
-                                          checkListHeader,
-                                          checkListHeaderIndex,
-                                        ) => (
-                                          <span
-                                            className=""
-                                            key={checkListHeaderIndex}
-                                          >
-                                            {checkListHeader}
-                                          </span>
-                                        ),
-                                      )}
-                                  </th>
+                                  <th className="min-w-20">#</th>
+
+                                  {customCheckListHeaders &&
+                                    customCheckListHeaders.map(
+                                      (
+                                        checkListHeader,
+                                        checkListHeaderIndex,
+                                      ) => (
+                                        <th
+                                          className="min-w-20"
+                                          key={checkListHeaderIndex}
+                                        >
+                                          {checkListHeader}
+                                        </th>
+                                      ),
+                                    )}
 
                                   {viewBillingColumn && viewBillingColumn && (
-                                    <th className="">Prof</th>
+                                    <th className="min-w-20">Prof</th>
                                   )}
 
                                   {viewBillingColumn && (
@@ -708,21 +698,21 @@ const FiltersSection: React.FC<{
                                         <td rowSpan={2} className="">
                                           {row.surgeryOrder}
                                         </td>
-                                        <td className="" rowSpan={2}>
-                                          {customCheckListHeaders.map(
-                                            (
-                                              checkListHeader,
-                                              checkListHeaderIndex,
-                                            ) => (
-                                              <div
-                                                className=""
-                                                key={checkListHeaderIndex}
-                                              >
-                                                {row[checkListHeader]}
-                                              </div>
-                                            ),
-                                          )}
-                                        </td>
+
+                                        {customCheckListHeaders.map(
+                                          (
+                                            checkListHeader,
+                                            checkListHeaderIndex,
+                                          ) => (
+                                            <td
+                                              className=""
+                                              rowSpan={2}
+                                              key={checkListHeaderIndex}
+                                            >
+                                              {row[checkListHeader]}
+                                            </td>
+                                          ),
+                                        )}
 
                                         {viewBillingColumn && (
                                           <td rowSpan={2} className="">

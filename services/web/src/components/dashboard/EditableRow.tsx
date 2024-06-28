@@ -44,6 +44,8 @@ function EditableRow({
         date: new Date(surgeryInfo.date),
         firstName: surgeryInfo.patient.firstName,
         lastName: surgeryInfo.patient.lastName,
+        email: surgeryInfo.patient.email,
+        phoneNumber: surgeryInfo.patient.phoneNumber,
         details: surgeryInfo.patient.details,
         bodyPart: surgeryInfo.bodyPart,
         mrn: surgeryInfo.patient.mrn,
@@ -134,6 +136,8 @@ function EditableRow({
         date: new Date(),
         firstName: '',
         lastName: '',
+        email: '',
+        phoneNumber: '',
         details: '',
         bodyPart: '',
         surgeryStatus: SurgeryStatus.PENDING,
@@ -423,34 +427,34 @@ function EditableRow({
               size={SIZE.mini}
             />
           </td>
-          <td className="w-20" rowSpan={2}>
-            {customCheckListHeaders.map(
-              (checkListHeader, checkListHeaderIndex) => {
-                const selectedChecklistOption = obj.selectedCheckListOptions
-                  ? obj.selectedCheckListOptions[checkListHeader]
-                  : '';
 
-                return (
-                  <div className="py-2 px-1.5" key={checkListHeaderIndex}>
-                    <TextInput
-                      size={SIZE.mini}
-                      value={
-                        selectedChecklistOption
-                          ? selectedChecklistOption.value
-                          : ''
-                      }
-                      onChange={(value) =>
-                        handleObjChange('selectedCheckListOptions', {
-                          ...obj.selectedCheckListOptions,
-                          [checkListHeader]: { value },
-                        })
-                      }
-                    />
-                  </div>
-                );
-              },
-            )}
-          </td>
+          {customCheckListHeaders.map(
+            (checkListHeader, checkListHeaderIndex) => {
+              const selectedChecklistOption = obj.selectedCheckListOptions
+                ? obj.selectedCheckListOptions[checkListHeader]
+                : '';
+
+              return (
+                <td rowSpan={2} className="w-20" key={checkListHeaderIndex}>
+                  <TextInput
+                    size={SIZE.mini}
+                    value={
+                      selectedChecklistOption
+                        ? selectedChecklistOption.value
+                        : ''
+                    }
+                    onChange={(value) =>
+                      handleObjChange('selectedCheckListOptions', {
+                        ...obj.selectedCheckListOptions,
+                        [checkListHeader]: { value },
+                      })
+                    }
+                  />
+                </td>
+              );
+            },
+          )}
+
           {viewBillingColumn && (
             <td rowSpan={2} className="w-36">
               <TextInput
@@ -512,18 +516,16 @@ function EditableRow({
             <div className="text-black py-0.5 px-1 w-40 text-center">
               <TextInput
                 name="hash"
-                value={surgeryInfo.patient.email}
-                disabled
-                onChange={() => ''}
+                value={obj.email}
+                onChange={(value) => handleObjChange('email', value)}
                 size={SIZE.mini}
               />
             </div>
             <div className="text-black py-0.5 px-1 w-40 text-center">
               <TextInput
                 name="hash"
-                value={surgeryInfo.patient.phoneNumber}
-                disabled
-                onChange={() => ''}
+                value={obj.phoneNumber}
+                onChange={(value) => handleObjChange('phoneNumber', value)}
                 size={SIZE.mini}
               />
             </div>

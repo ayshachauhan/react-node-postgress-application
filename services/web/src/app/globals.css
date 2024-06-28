@@ -70,7 +70,7 @@ table {
 }
 
 table th {
-  @apply bg-[#299479]  font-normal text-white p-2 text-left;
+  @apply bg-[#299479]  font-normal text-white p-2 text-left whitespace-nowrap;
 }
 table tbody tr td {
   @apply text-gray-900 bg-gray-50 p-2;

@@ -71,7 +71,7 @@ export class PracticesService {
         }
       });
 
-      const adminUser = dbUsersByPractice.find((ele) => ele.type === 'admin');
+      const adminUser = dbUsersByPractice[0];
       const finalPractice: PracticesGetInterface = {
         id,
         name,

@@ -9,9 +9,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { ReferrerType, ReferrersEntity } from '@packages/entities';
 import { PatientEntity } from '@packages/entities/patient';
 import { PracticeEntity } from '@packages/entities/practice';
+import { EmailHandlerService } from 'src/emailHandler/emailHandler.service';
 import { CreatePatientDto } from 'src/patients/dto/createPatient.dto';
 import { ReferrersService } from 'src/referrers/referrers.service';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
@@ -21,6 +22,9 @@ export class PatientsService {
     private patientRepository: Repository<PatientEntity>,
     @Inject(forwardRef(() => ReferrersService))
     private referrerService: ReferrersService,
+    @Inject(forwardRef(() => EmailHandlerService))
+    private emailHandlerService: EmailHandlerService,
+    private dataSource: DataSource,
   ) {}
 
   async remove(patientId: string): Promise<void> {
@@ -89,27 +93,50 @@ export class PatientsService {
   }
 
   async update({ id, practiceId, data }): Promise<PatientEntity | null> {
-    if (data.referrerId) {
-      const refererEntity = await this.referrerService.getReferrerById(
-        practiceId,
-        data.referrerId,
-      );
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      if (data.referrerId) {
+        const refererEntity = await this.referrerService.getReferrerById(
+          practiceId,
+          data.referrerId,
+        );
 
-      delete data.referrerId;
-      data.referrer = refererEntity;
+        delete data.referrerId;
+        data.referrer = refererEntity;
+      }
+
+      const patientEntity = await this.patientRepository.findOne({
+        where: { id, practice: { id: practiceId } },
+      });
+
+      if (patientEntity) {
+        await this.patientRepository.update(id, {
+          firstName: data.firstName,
+          lastName: data.lastName,
+          email: data.email,
+          phoneNumber: data.phoneNumber,
+          mrn: data.mrn,
+          details: data.details,
+          referrer: data.referrer ? data.referrer : null,
+        });
+
+        await this.emailHandlerService.updateEmailLogsByPatientMrn(
+          patientEntity?.mrn,
+          data,
+        );
+      }
+      await queryRunner.commitTransaction();
+      return await this.patientRepository.findOne({
+        where: { id, practice: { id: practiceId } },
+      });
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
     }
-
-    await this.patientRepository.update(id, {
-      firstName: data.firstName,
-      lastName: data.lastName,
-      mrn: data.mrn,
-      details: data.details,
-      referrer: data.referrer ? data.referrer : null,
-    });
-
-    return await this.patientRepository.findOne({
-      where: { id, practice: { id: practiceId } },
-    });
   }
 
   async getPatientsByPractice(practiceId: string): Promise<PatientEntity[]> {

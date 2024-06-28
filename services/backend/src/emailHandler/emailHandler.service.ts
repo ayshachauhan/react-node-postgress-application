@@ -56,77 +56,10 @@ export class EmailHandlerService {
     systemGeneratedMailData?: SystemGeneratedMailData,
     fromEval?: boolean,
   ): Promise<void> {
-    let bookingTemplateFound: boolean = false;
     const mailVariables = await this.makeEmailVariable(entity, practice);
-    const surgeryConfigId = entity.surgeryConfiguration.id;
-    const templates = await this.templateService.getFilteredTemplates({
-      surgeryConfigId,
-    });
-    console.log(
-      templates.length,
-      JSON.stringify(templates),
-      'templates--------------------------------------------',
-    );
 
     const emailLogsEntries: Partial<IEmailLog>[] = [];
-
-    if (templates.length) {
-      templates.forEach((template) => {
-        const today = new Date();
-        const entry: Partial<IEmailLog> = {
-          practice: practice,
-          expectedDate: entity.date,
-          status: 'pending',
-          data: {
-            to: mailVariables.doc_email_address,
-            subject: template.emailSubject
-              ? this.mailVariableManipulator(template.emailSubject)
-              : '',
-            body: template.emailBody
-              ? this.mailVariableManipulator(template.emailBody)
-              : '',
-            attachment: template.emailAttachment
-              ? template.emailAttachment
-              : '',
-            text: template.messageText
-              ? this.mailVariableManipulator(template.messageText)
-              : '',
-            ...mailVariables,
-            '1stCataract': template.email1stCataract
-              ? this.mailVariableManipulator(template.email1stCataract)
-              : '',
-            '2ndCataract': template.email2ndCataract
-              ? this.mailVariableManipulator(template.email2ndCataract)
-              : '',
-          },
-          attachment: template.emailAttachment,
-        };
-
-        const surgeryDate = new Date(entity.date);
-        if (template.messageType === 'preop') {
-          surgeryDate.setDate(surgeryDate.getDate() - template.dateOffset);
-          entry.expectedDate = surgeryDate;
-          entry.status = surgeryDate < today ? 'completed' : 'pending';
-          emailLogsEntries.push(entry);
-        } else if (template.messageType === 'postop') {
-          surgeryDate.setDate(surgeryDate.getDate() + template.dateOffset);
-          entry.expectedDate = surgeryDate;
-          entry.status = surgeryDate < today ? 'completed' : 'pending';
-          emailLogsEntries.push(entry);
-        } else if (template.messageType === 'booking') {
-          bookingTemplateFound = true;
-          surgeryDate.setDate(surgeryDate.getDate() + template.dateOffset);
-          entry.expectedDate = surgeryDate;
-          emailLogsEntries.push(entry);
-        } else if (template.messageType === 'referrer') {
-          //
-        } else if (template.messageType === 'pcp') {
-          //
-        }
-      });
-    }
-
-    if (!bookingTemplateFound && systemGeneratedMailData) {
+    if (systemGeneratedMailData) {
       const systemTemplateName = systemGeneratedMailData.systemTemplate;
       const entry: Partial<IEmailLog> = {
         practice: practice,
@@ -137,6 +70,7 @@ export class EmailHandlerService {
           ...mailVariables,
           subject: systemGeneratedMailData.subject,
           text: systemGeneratedMailData.text,
+          to: mailVariables.doc_email_address,
         },
       };
       emailLogsEntries.push(entry);
@@ -276,6 +210,7 @@ export class EmailHandlerService {
           ...mailVariables,
           subject: systemGeneratedMailData.subject,
           text: systemGeneratedMailData.text,
+          to: mailVariables.pt_email_address,
         },
       };
       emailLogsEntries.push(entry);
@@ -408,6 +343,31 @@ export class EmailHandlerService {
       },
     };
     await this.emailLogRepository.save(entry);
+  }
+
+  async updateEmailLogsByPatientMrn(oldPatientMrn: number, newPayload) {
+    if (oldPatientMrn) {
+      const query = `
+          SELECT * FROM email_logs 
+          WHERE data->>'mrn' = $1 
+          AND status = $2
+        `;
+      const emailLogsByPatientEmail = await this.emailLogRepository.query(
+        query,
+        [oldPatientMrn, 'pending'],
+      );
+      if (emailLogsByPatientEmail.length > 0) {
+        await Promise.all(
+          emailLogsByPatientEmail.map(async (log) => {
+            log.data.pt_email_address = newPayload.email;
+            log.data.phoneNumber = newPayload.phoneNumber;
+            log.data.firstName = newPayload.firstName;
+            log.data.lastName = newPayload.lastName;
+            await this.emailLogRepository.save(log);
+          }),
+        );
+      }
+    }
   }
 
   async checkAndMakeSurgeryUpdateEmailContent(
