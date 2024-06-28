@@ -127,11 +127,10 @@ export class UsersService {
             fullName,
             practiceEntity,
           });
-          console.log('@practiceStatus', { practiceId });
+
           await this.practicesService.update(practiceId, {
             status: PracticeStatus.ACTIVE,
           });
-          console.log('@practiceStatus1', { practiceId });
         }
       }
 
