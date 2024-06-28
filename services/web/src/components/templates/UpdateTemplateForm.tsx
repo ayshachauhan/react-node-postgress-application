@@ -136,7 +136,15 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({
         templateInfo.emailBody,
         surguriesData,
       );
-      setEmailPreview({ ...templateInfo, emailBody: updatedEmailBody });
+      const updatedMsgText = replacePlaceholders(
+        templateInfo.messageText,
+        surguriesData,
+      );
+      setEmailPreview({
+        ...templateInfo,
+        emailBody: updatedEmailBody,
+        messageText: updatedMsgText,
+      });
       setTemplateInfo(templateInfo);
     }
   }, [templateId, templateInfo]);
@@ -159,9 +167,12 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({
   const handleMessageTextChange = (
     event: React.ChangeEvent<HTMLTextAreaElement>,
   ) => {
+    const value = event.target.value;
+    const updatedMsgText = replacePlaceholders(value, surguriesData);
+    setEmailPreview({ ...updatedTemplateInfo, messageText: updatedMsgText });
     setTemplateInfo({
       ...updatedTemplateInfo,
-      messageText: event.target.value,
+      messageText: value,
     });
   };
 
@@ -288,7 +299,6 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({
                         ...updatedTemplateInfo,
                         dateOffset: Number(value),
                       });
-                      setShowDateOffsetField(showDateOffsetControl(value));
                     }}
                     required
                   />
@@ -488,7 +498,7 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({
               <div
                 className="mt-2.5 py-1.5 pr-1.5 max-h-20 overflow-auto break-all"
                 dangerouslySetInnerHTML={{
-                  __html: updatedTemplateInfo?.messageText || '',
+                  __html: emailPreview?.messageText || '',
                 }}
               />
             </div>
