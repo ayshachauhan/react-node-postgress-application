@@ -68,7 +68,7 @@ export const formatSurgeryData = (surgery, allSurgeries) => {
     doctorFirstname: surgery?.doctor?.firstName,
     doctorLastname: surgery?.doctor?.lastName,
     surgery_date: formatHeaderDate(surgery?.date),
-    pt_email_notify: surgery?.patient?.email,
+    pt_email_notify: `You have received an email at ${surgery?.patient?.email} with more details`,
     laterality: surgery?.bodyPart.toLowerCase(),
     Laterality: surgery?.bodyPart,
     surgery_type: surgery?.surgeryConfiguration?.name,

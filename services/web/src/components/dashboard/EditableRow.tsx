@@ -216,6 +216,7 @@ function EditableRow({
                     border: 'none',
                     color: 'rgba(82, 82, 91, 1)',
                     boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                    width: '150px',
                   },
                 },
                 ClearIcon: {
