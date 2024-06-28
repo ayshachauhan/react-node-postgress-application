@@ -288,7 +288,6 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({
                         ...updatedTemplateInfo,
                         dateOffset: Number(value),
                       });
-                      setShowDateOffsetField(showDateOffsetControl(value));
                     }}
                     required
                   />
