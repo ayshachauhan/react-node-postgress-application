@@ -183,6 +183,7 @@ const Header: React.FC<ChildProps> = ({ data }) => {
                   <div>Practice:</div>
                   <Dropdown
                     position="bottomLeft"
+                    width={220}
                     trigger={
                       <span className="inline-flex items-center gap-2 font-bold">
                         &nbsp;&nbsp;&nbsp;
@@ -197,6 +198,17 @@ const Header: React.FC<ChildProps> = ({ data }) => {
                         id={item.id}
                         onClick={() => handlePracticeChange(item.id, item.name)}
                       >
+                        {item?.imgUrl ? (
+                          <Image
+                            src={item.imgUrl}
+                            alt={item.id!}
+                            className="inline-block rounded-full mr-2 h-10 w-10"
+                            width={40}
+                            height={40}
+                          />
+                        ) : (
+                          <AvatarIcon className="mr-2" size={40} />
+                        )}
                         {item.name}
                       </Dropdown.Item>
                     ))}

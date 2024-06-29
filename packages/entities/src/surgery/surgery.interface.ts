@@ -67,6 +67,8 @@ export interface UpdateSurgeryPayload {
   date: Date;
   firstName: string;
   lastName: string;
+  email: string;
+  phoneNumber: string;
   mrn: number;
   bodyPart: string;
   surgeryStatus: SurgeryStatus;

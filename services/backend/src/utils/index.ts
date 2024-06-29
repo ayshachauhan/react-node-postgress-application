@@ -2,13 +2,14 @@ import { PermissionEntity } from '@packages/entities/*';
 import { USER_PERMISSIONS } from '@packages/entities/permission';
 import { Between } from 'typeorm';
 
-const currentYear = new Date().getFullYear();
-const currentDate = new Date();
-
 export function getStartEndDate(
   months: string[] = [],
   userPermissions: PermissionEntity[],
 ) {
+  const currentDate = new Date();
+  const currentYear = currentDate.getUTCFullYear();
+  const currentMonth = currentDate.getUTCMonth();
+  const currentDay = currentDate.getUTCDate();
   const monthNames = [
     'January',
     'February',
@@ -23,8 +24,6 @@ export function getStartEndDate(
     'November',
     'December',
   ];
-  const currentMonth = currentDate.getMonth();
-  const currentDay = currentDate.getDate();
 
   const monthMap: Record<string, number> = monthNames.reduce(
     (acc, month, index) => {
@@ -50,32 +49,29 @@ export function getStartEndDate(
 
   const dateConditions = months.map((month) => {
     const monthIndex = monthMap[month];
-    let startDate = new Date(currentYear, monthIndex, 1);
-    let endDate = new Date(currentYear, monthIndex + 1, 0, 23, 59, 59, 999);
-
+    let startDate = new Date(Date.UTC(currentYear, monthIndex, 1));
+    let endDate = new Date(
+      Date.UTC(currentYear, monthIndex + 1, 0, 23, 59, 59, 999),
+    );
     if (monthIndex === currentDate.getMonth() && userPermissions.length) {
-      const startOfDay = new Date(currentDate).setHours(0, 0, 0, 0);
-      const endOfDay = new Date(currentDate).setHours(23, 59, 59, 999);
-
       if (!hasViewPastCasesPermission && !hasViewFutureCasesPermission) {
         // User cannot view past or future cases, show only today’s records
-        startDate = new Date(currentYear, currentMonth, currentDay, 0, 0, 0, 0);
+        startDate = new Date(
+          Date.UTC(currentYear, currentMonth, currentDay, 0, 0, 0, 0),
+        );
         endDate = new Date(
-          currentYear,
-          currentMonth,
-          currentDay,
-          23,
-          59,
-          59,
-          999,
+          Date.UTC(currentYear, currentMonth, currentDay, 23, 59, 59, 999),
         );
       } else if (!hasViewPastCasesPermission) {
         // User cannot view past cases, start from tomorrow
-        startDate = new Date(endOfDay);
-        startDate.setDate(startDate.getDate() + 1);
+        startDate = new Date(
+          Date.UTC(currentYear, currentMonth, currentDay + 1),
+        );
       } else if (!hasViewFutureCasesPermission) {
         // User cannot view future cases, end at the end of today
-        endDate = new Date(startOfDay);
+        endDate = new Date(
+          Date.UTC(currentYear, monthIndex, currentDay - 1, 23, 59, 59, 999),
+        );
       }
     }
 
@@ -86,8 +82,11 @@ export function getStartEndDate(
 }
 
 export function getFullYearDateConditions(userPermissions: PermissionEntity[]) {
-  const currentMonth = currentDate.getMonth();
-  const currentDay = currentDate.getDate();
+  const currentDate = new Date();
+  const currentYear = currentDate.getUTCFullYear();
+  const currentMonth = currentDate.getUTCMonth();
+  const currentDay = currentDate.getUTCDate();
+
   const hasViewPastCasesPermission = userPermissions.some(
     (permission) => permission.name === USER_PERMISSIONS.VIEW_PAST_CASES,
   );
@@ -95,26 +94,24 @@ export function getFullYearDateConditions(userPermissions: PermissionEntity[]) {
     (permission) => permission.name === USER_PERMISSIONS.VIEW_FUTURE_CASES,
   );
 
-  let startDate = new Date(currentYear, 0, 1);
+  let startDate = new Date(Date.UTC(currentYear, 0, 1));
+  let endDate = new Date(Date.UTC(currentYear, 11, 31, 23, 59, 59, 999));
 
-  let endDate = new Date(currentYear, 11, 31, 23, 59, 59, 999);
   if (userPermissions.length) {
     if (!hasViewPastCasesPermission && !hasViewFutureCasesPermission) {
       // User cannot view past or future cases, show only today’s records
-      startDate = new Date(currentYear, currentMonth, currentDay, 0, 0, 0, 0);
+      startDate = new Date(
+        Date.UTC(currentYear, currentMonth, currentDay, 0, 0, 0, 0),
+      );
       endDate = new Date(
-        currentYear,
-        currentMonth,
-        currentDay,
-        23,
-        59,
-        59,
-        999,
+        Date.UTC(currentYear, currentMonth, currentDay, 23, 59, 59, 999),
       );
     } else if (!hasViewPastCasesPermission) {
-      startDate = currentDate;
+      startDate = new Date(Date.UTC(currentYear, currentMonth, currentDay + 1));
     } else if (!hasViewFutureCasesPermission) {
-      endDate = currentDate;
+      endDate = new Date(
+        Date.UTC(currentYear, currentMonth, currentDay - 1, 23, 59, 59, 999),
+      );
     }
   }
 

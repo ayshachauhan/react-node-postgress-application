@@ -1,3 +1,4 @@
+import { SurgeryStatus } from '@packages/entities';
 import { MonthOption } from '@packages/entities/index.browser';
 
 export function indexBy<K extends keyof T, T>(
@@ -63,7 +64,7 @@ export function usDateFormatter(date: Date): string {
   const formattedDateSplit: string[] = [];
   formattedDateSplit[0] = splitDate[1];
   formattedDateSplit[1] = splitDate[2];
-  // formattedDateSplit[2] = splitDate[0];
+  formattedDateSplit[2] = splitDate[0];
 
   return formattedDateSplit.join('/');
 }
@@ -202,4 +203,44 @@ export const getSelectedMonths = (selectedMonth: MonthOption[]) => {
   const monthLabels = selectedMonth.map((month) => month.label);
   const month = monthLabels.join(',');
   return month;
+};
+
+export const getCurrentMonthName = () => {
+  const date = new Date();
+  const monthNames = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+  ];
+  return monthNames[date.getMonth()];
+};
+
+export const getColorForSurgeryStatus = (status) => {
+  switch (status) {
+    case SurgeryStatus.BOOK:
+      return 'bg-purple-400';
+    case SurgeryStatus.PENDING:
+      return 'bg-yellow-400';
+    case SurgeryStatus.DATE_CHANGE:
+      return 'bg-orange-400';
+    case SurgeryStatus.POSTPONE:
+      return 'bg-blue-400';
+    case SurgeryStatus.CANCELLED:
+      return 'bg-red-400';
+    case SurgeryStatus.COMPLETED:
+      return 'bg-green-400';
+    case SurgeryStatus.CONFIRMED:
+      return 'bg-gray-400';
+    default:
+      return 'bg-indigo-400';
+  }
 };

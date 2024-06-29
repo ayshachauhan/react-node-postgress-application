@@ -7,12 +7,13 @@ import UpdateTemplateModal from '@root/components/templates/UpdateTemplateModal'
 import { useLoader } from '@root/hooks/useLoader';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { fetchLoggedInUser } from '@root/store/reducers/auth';
+import { fetchListings as fetchSurgeryList } from '@root/store/reducers/surgery';
 import {
   clearErrorMessage,
   clearSuccessMessage,
   fetchListings,
 } from '@root/store/reducers/templates';
-import { getPracticeId } from '@utils/index';
+import { getCurrentMonthName, getPracticeId } from '@utils/index';
 import React, { useEffect, useState } from 'react';
 
 const Templates: React.FC = () => {
@@ -95,6 +96,20 @@ const Templates: React.FC = () => {
       loadData();
     }
   }, [practiceId, userId, dispatch, withLoader]);
+
+  useEffect(() => {
+    (async () => {
+      if (practiceId) {
+        await dispatch(
+          fetchSurgeryList({
+            loggedInUserId: userId,
+            practiceId,
+            month: getCurrentMonthName(),
+          }),
+        );
+      }
+    })();
+  }, []);
 
   useEffect(() => {
     let timeoutId: NodeJS.Timeout | null = null;
