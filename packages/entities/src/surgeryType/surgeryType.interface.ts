@@ -10,4 +10,5 @@ export interface ISurgeryType extends IBaseEntity {
 export type SurgeryType = {
   practiceId: string;
   name: string;
+  color: string;
 };
