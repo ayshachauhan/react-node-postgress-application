@@ -1,5 +1,6 @@
 import { IBaseEntity } from '../base.interface';
 import { IPractice } from '../practice/practice.interface';
+import { SurgeryConfigurationEntity } from '../surgeryConfiguration';
 import { ISurgeryType } from '../surgeryType';
 import { ISanitizedUser } from '../user';
 
@@ -10,4 +11,5 @@ export interface ICalendar extends IBaseEntity {
   date: Date;
   bookedSlots: number;
   maxSlots: number;
+  surgeryConfiguration: SurgeryConfigurationEntity;
 }

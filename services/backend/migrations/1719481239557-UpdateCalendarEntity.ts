@@ -7,14 +7,15 @@ import {
 
 export class UpdateCalendarEntity1719481239557 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
-    // Drop the foreign key for surgeryConfigurationId
-    await queryRunner.dropForeignKey(
+    await queryRunner.changeColumn(
       'calendars',
-      'FK_7921d3a503299cefc92084b51bb',
+      'surgeryConfigurationId',
+      new TableColumn({
+        name: 'surgeryConfigurationId',
+        type: 'uuid',
+        isNullable: true,
+      }),
     );
-
-    // Drop the surgeryConfigurationId column
-    await queryRunner.dropColumn('calendars', 'surgeryConfigurationId');
 
     // Add the surgeryTypeId column
     await queryRunner.addColumn(
@@ -22,7 +23,7 @@ export class UpdateCalendarEntity1719481239557 implements MigrationInterface {
       new TableColumn({
         name: 'surgeryTypeId',
         type: 'uuid',
-        isNullable: false,
+        isNullable: true,
       }),
     );
 
@@ -50,25 +51,16 @@ export class UpdateCalendarEntity1719481239557 implements MigrationInterface {
   public async down(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.dropColumn('calendars', 'surgeryTypeId');
 
-    await queryRunner.addColumn(
+    await queryRunner.dropColumn('surgery_types', 'color');
+
+    await queryRunner.changeColumn(
       'calendars',
+      'surgeryConfigurationId',
       new TableColumn({
         name: 'surgeryConfigurationId',
         type: 'uuid',
         isNullable: false,
       }),
     );
-
-    await queryRunner.createForeignKey(
-      'calendars',
-      new TableForeignKey({
-        columnNames: ['surgeryConfigurationId'],
-        referencedTableName: 'surgery_configurations',
-        referencedColumnNames: ['id'],
-        onDelete: 'CASCADE',
-      }),
-    );
-
-    await queryRunner.dropColumn('surgery_types', 'color');
   }
 }

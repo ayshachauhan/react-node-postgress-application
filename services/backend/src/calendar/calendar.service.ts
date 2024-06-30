@@ -152,12 +152,16 @@ export class CalendarService {
       practiceId,
     );
 
+    if (!surgeryTypeEntity) {
+      throw new HttpException('Surgery Type Not found', HttpStatus.NOT_FOUND);
+    }
+
     //TODO: need to check why we need to add the ! operator here, giving typeerror whithout them about DeepPartialEntity
     const calendar = this.calendarRepo.create({
       ...dto,
       bookedSlots: dto.bookedSlots ?? 0,
       practice: practiceEntity!,
-      surgeryType: surgeryTypeEntity!,
+      surgeryType: surgeryTypeEntity,
       user: userEntity!,
     });
 
