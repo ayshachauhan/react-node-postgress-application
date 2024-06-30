@@ -1,4 +1,5 @@
 import {
+  ForbiddenException,
   HttpException,
   HttpStatus,
   Injectable,
@@ -58,6 +59,27 @@ export class AuthService {
       access_token: this.jwtService.sign(user),
       is_super_admin: user.isSuperAdmin,
     };
+  }
+
+  async loginUsingEmail(email: string): Promise<SanitizedUser> {
+    const user = await this.usersService.findUserByEmail(email);
+
+    if (user && user.status !== 'active') {
+      throw new UnauthorizedException(
+        'Please accept the invitation and reset your password using the link in email.',
+      );
+    }
+
+    if (user) {
+      const { password, ...result } = user;
+      password && password;
+      return {
+        ...result,
+        isSuperAdmin: false,
+      };
+    }
+
+    throw new ForbiddenException();
   }
 
   async checkSuperAdmin(

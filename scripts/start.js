@@ -31,6 +31,10 @@ const ENV_KEYS = [
   'TWILIO_AUTH_TOKEN',
   'TWILIO_PHONE_NUMBER',
   'ENABLE_TWILIO_MSGS',
+  'SSO_ENABLED',
+  'SAML_ISSUER',
+  'SAML_CERT',
+  'SAML_ENTRYPOINT'
 ];
 
 const start = async () => {
