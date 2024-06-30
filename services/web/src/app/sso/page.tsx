@@ -1,7 +1,7 @@
 'use client';
+import { ExtraLargeSpinner } from '@root/components/Spinner';
 import { COOKIES, setCookie } from '@root/services/cookies';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { ExtraLargeSpinner } from '../(dashboard)/layout';
 
 export default function SsoCallback() {
   const searchParams = useSearchParams();
