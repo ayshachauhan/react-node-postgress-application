@@ -266,13 +266,15 @@ const UpcomingSection: React.FC = () => {
   }
 
   const getNextValidDate = (excludedDates: Date[]) => {
-    // Started from today, stripped time only checking day
-    const nextDate = moment().startOf('day');
+    // Start from now with the current time
+    let nextDate = moment();
 
     while (excludedDates.some((date) => moment(date).isSame(nextDate, 'day'))) {
-      // Move to the next day
-      nextDate.add(1, 'days');
+      // Move to the next day while keeping the current time
+      nextDate = moment(nextDate).add(1, 'days');
     }
+
+    console.log(nextDate.toDate(), 'nextdate');
 
     // Convert back to a Date object for DatePicker
     return nextDate.toDate();

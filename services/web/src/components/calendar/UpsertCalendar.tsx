@@ -180,7 +180,6 @@ const UpsertCalendar: React.FC<{
                   }}
                   placeholder="Surgery Date"
                   required
-                  minDate={new Date()}
                   excludeDates={calendars.map(
                     (calendar) => new Date(calendar.date),
                   )}

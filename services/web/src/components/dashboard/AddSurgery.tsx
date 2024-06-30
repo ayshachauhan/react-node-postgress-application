@@ -10,6 +10,7 @@ import { useAppDispatch, useAppSelector } from '@root/store';
 import { fetchFilteredCalendars } from '@root/store/reducers/calendar';
 import { updateRecordAsync as updateEval } from '@root/store/reducers/evals';
 import { addRecordAsync as addSurgeryRecord } from '@root/store/reducers/surgery';
+import { DEFAULT_SURGERYLOCATION_COLOR } from '@root/utils/constants';
 import { getPracticeId, getSelectedMonths, toFullName } from '@utils/index';
 import { Checkbox } from 'baseui/checkbox';
 import { DatePicker } from 'baseui/datepicker';
@@ -400,10 +401,8 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
     const formattedDate = moment(date).format('YYYY-MM-DD'); // Get date part only
 
     const dates = (calendars as ICalendar[])
-      .filter(
-        (calendar: ICalendar) =>
-          moment(calendar.date).format('YYYY-MM-DD') >=
-          moment(new Date()).format('YYYY-MM-DD'),
+      .filter((calendar: ICalendar) =>
+        moment(calendar.date).format('YYYY-MM-DD'),
       )
       .map((calendar) => moment(calendar.date).format('YYYY-MM-DD'));
 
@@ -418,26 +417,32 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
         moment(calendar.date).format('YYYY-MM-DD') === formattedDate,
     ) as ICalendar;
 
+    const surgeryTypeColor =
+      calendar.surgeryType.color ?? DEFAULT_SURGERYLOCATION_COLOR;
+
     return calendar.maxSlots > calendar.bookedSlots
       ? {
-          backgroundColor: calendar.surgeryType.color,
-          borderTopColor: calendar.surgeryType.color,
-          borderBottomColor: calendar.surgeryType.color,
-          borderRightColor: calendar.surgeryType.color,
-          borderLeftColor: calendar.surgeryType.color,
+          backgroundColor: surgeryTypeColor,
+          borderTopColor: surgeryTypeColor,
+          borderBottomColor: surgeryTypeColor,
+          borderRightColor: surgeryTypeColor,
+          borderLeftColor: surgeryTypeColor,
         }
       : {
           backgroundColor: 'transparent',
-          border: `${calendar.surgeryType.color} solid 3px`,
-          borderTopColor: calendar.surgeryType.color,
-          borderBottomColor: calendar.surgeryType.color,
-          borderRightColor: calendar.surgeryType.color,
-          borderLeftColor: calendar.surgeryType.color,
+          border: `${surgeryTypeColor} solid 3px`,
+          borderTopColor: surgeryTypeColor,
+          borderBottomColor: surgeryTypeColor,
+          borderRightColor: surgeryTypeColor,
+          borderLeftColor: surgeryTypeColor,
         };
   };
 
   const getBackGroundColorCss = (date: Date): Record<string, unknown> => {
     // checking selected month here because sometimes bg colors are reflecting in next month
+
+    // console.log(date, date.getMonth() + 1, 'datebg', currentMonth);
+
     return date.getMonth() + 1 == currentMonth
       ? isCalendarDates(date)
         ? isSlotsAvailable(date)
@@ -892,6 +897,9 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
                     placeholder="Surgery Date"
                     required
                     onMonthChange={handleMonthChange}
+                    onOpen={() => {
+                      handleMonthChange({ date: surgeryDate });
+                    }}
                     overrides={{
                       Day: {
                         style: ({ $date, $selected }) => {
@@ -917,7 +925,6 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
                         },
                       },
                     }}
-                    minDate={new Date()}
                   />
                 </div>
               </div>
