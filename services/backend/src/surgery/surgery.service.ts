@@ -195,7 +195,11 @@ export class SurgeryService {
     const [dbSurgeryByPractice, dbSurgeryByPracticeWithoutPermission] =
       await Promise.all([
         this.surgeryRepository.find(searchConditions),
-        this.surgeryRepository.find(searchConditionsWithoutPermissions),
+        this.surgeryRepository.find({
+          ...searchConditionsWithoutPermissions,
+          select: ['id', 'date'],
+          relations: []
+        }),
       ]);
 
     dbSurgeryByPractice.forEach((ele) => {
