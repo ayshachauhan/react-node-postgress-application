@@ -198,7 +198,7 @@ export class SurgeryService {
         this.surgeryRepository.find({
           ...searchConditionsWithoutPermissions,
           select: ['id', 'date'],
-          relations: []
+          relations: [],
         }),
       ]);
 
