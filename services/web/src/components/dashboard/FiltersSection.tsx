@@ -373,22 +373,22 @@ const FiltersSection: React.FC<{
     }
   }, [addSurgerySuccessMessage, dispatch, practiceId]);
 
-  // useEffect(() => {
-  //   if (practiceId && loggedInUserId !== null) {
-  //     dispatchFetchFilteredSurgeryList(
-  //       selectedMonth,
-  //       searchMRNNameStr,
-  //       selectedValueStr,
-  //     );
-  //   }
-  // }, [
-  //   dispatch,
-  //   practiceId,
-  //   loggedInUserId,
-  //   selectedMonth,
-  //   searchMRNNameStr,
-  //   selectedValueStr,
-  // ]);
+  useEffect(() => {
+    if (practiceId && loggedInUserId !== null) {
+      dispatchFetchFilteredSurgeryList(
+        selectedMonth,
+        searchMRNNameStr,
+        selectedValueStr,
+      );
+    }
+  }, [
+    dispatch,
+    practiceId,
+    loggedInUserId,
+    selectedMonth,
+    searchMRNNameStr,
+    selectedValueStr,
+  ]);
   return (
     <div>
       {(isUpdateCase || (!isLoading && !isUpdateCase)) && (
