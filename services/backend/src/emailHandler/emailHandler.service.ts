@@ -308,11 +308,13 @@ export class EmailHandlerService {
     );
 
     allCaseType.push(...makeAllCaseArray(upcomingEvals));
-
+    const currentDate: Date = new Date();
+    currentDate.setHours(0, 0, 0, 0);
     const upcomingSurgeries = await this.surgeryService.findSurgeryByPatient(
       patientId,
-      new Date(),
+      currentDate,
     );
+
     allCaseType.push(...makeAllCaseArray(upcomingSurgeries));
 
     return {
