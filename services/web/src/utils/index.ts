@@ -244,3 +244,42 @@ export const getColorForSurgeryStatus = (status) => {
       return 'bg-indigo-400';
   }
 };
+
+export function createTierOrder(apiResponse) {
+  const tierOrder = {};
+
+  apiResponse.forEach((tier, index) => {
+    tierOrder[tier.name] = index + 1;
+  });
+
+  return tierOrder;
+}
+
+/**
+ * Function to sort surgery data by waitlist tier, shifting entries with blank waitlist to the bottom.
+ * @param {Array} data - Array of surgery data entries to be sorted.
+ * @param {Object} tierOrder - Object specifying the order of waitlist tiers.
+ * @returns {Array} - Sorted array of surgery data entries.
+ */
+export function sortSurgeryData(data, tierOrder) {
+  let sortedData = [];
+
+  const getTierValue = (waitlist) => {
+    if (waitlist && Object.prototype.hasOwnProperty.call(tierOrder, waitlist)) {
+      return tierOrder[waitlist];
+    } else {
+      return Object.keys(tierOrder).length + 1;
+    }
+  };
+
+  // Sort entries by waitlist tier
+  data.sort((a, b) => {
+    const tierA = getTierValue(a.waitlist);
+    const tierB = getTierValue(b.waitlist);
+    return tierA - tierB;
+  });
+
+  sortedData = sortedData.concat(data);
+
+  return sortedData;
+}
