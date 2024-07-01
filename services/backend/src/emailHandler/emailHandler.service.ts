@@ -332,12 +332,12 @@ export class EmailHandlerService {
       expectedDate: new Date(),
       status: 'pending',
       data: {
+        ...data,
         to: data.email,
         body: this.transporterService.readTemplates(
           SystemTemplates.SEND_VIDEO_TO_PATIENT,
         ),
-        patientName: `${data.firstName} ${data.lastName}`,
-        links: data.links,
+        patientName: `${data.fname} ${data.lname}`,
         subject: 'Surgery Videos.',
         text: '',
         pt_email_address: data.email,
