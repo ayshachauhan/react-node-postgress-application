@@ -152,7 +152,12 @@ export class PatientsService {
   ): Promise<PatientEntity | null> {
     return this.patientRepository.findOne({
       where: { practice: { id: practiceId }, mrn },
-      relations: ['referrer'],
+      relations: [
+        'referrer',
+        'surgeries',
+        'evals',
+        'surgeries.surgeryConfiguration',
+      ],
     });
   }
 }

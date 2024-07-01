@@ -308,11 +308,13 @@ export class EmailHandlerService {
     );
 
     allCaseType.push(...makeAllCaseArray(upcomingEvals));
-
+    const currentDate: Date = new Date();
+    currentDate.setHours(0, 0, 0, 0);
     const upcomingSurgeries = await this.surgeryService.findSurgeryByPatient(
       patientId,
-      new Date(),
+      currentDate,
     );
+
     allCaseType.push(...makeAllCaseArray(upcomingSurgeries));
 
     return {
@@ -332,12 +334,12 @@ export class EmailHandlerService {
       expectedDate: new Date(),
       status: 'pending',
       data: {
+        ...data,
         to: data.email,
         body: this.transporterService.readTemplates(
           SystemTemplates.SEND_VIDEO_TO_PATIENT,
         ),
-        patientName: `${data.firstName} ${data.lastName}`,
-        links: data.links,
+        patientName: `${data.fname} ${data.lname}`,
         subject: 'Surgery Videos.',
         text: '',
         pt_email_address: data.email,
