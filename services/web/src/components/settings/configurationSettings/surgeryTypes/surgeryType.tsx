@@ -13,6 +13,7 @@ import {
   selectError,
   selectSuccessMessage,
 } from '@root/store/reducers/surgeryTypes';
+import { DEFAULT_SURGERYLOCATION_COLOR } from '@root/utils/constants';
 import { getPracticeId } from '@utils/index';
 import {
   Modal,
@@ -191,9 +192,10 @@ export default function SurgeryTypePage() {
       </div>
       <hr className="h-px my-2.5 bg-gray-100 border-1 border-gray-100"></hr>
       <div className="text-gray-50 w-full  items-center  bg-gray-50 py-4 rounded-lg">
-        <div className="bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 grid grid-cols-3 rounded-lg">
+        <div className="bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 grid grid-cols-4 rounded-lg">
           <div className="font-bold text-white p-4">S. No.</div>
           <div className="font-bold text-white p-4">Surgery Location</div>
+          <div className="font-bold text-white p-4">Color</div>
           <div className="font-bold text-white p-4">Action</div>
           {surgeryTypes.map((data, index) => (
             <React.Fragment key={data.id}>
@@ -202,6 +204,20 @@ export default function SurgeryTypePage() {
               </div>
               <div className="text-gray-900 bg-gray-50 pt-2 px-4">
                 {data.name}
+              </div>
+              <div className="text-gray-900 bg-gray-50 pt-2 px-4">
+                <input
+                  type="color"
+                  required={true}
+                  id="primary_color"
+                  value={data.color ?? DEFAULT_SURGERYLOCATION_COLOR}
+                  style={{
+                    height: '30px',
+                    width: '30px',
+                    border: 'none',
+                    outline: 'none',
+                  }}
+                />
               </div>
               <div className="text-gray-900 bg-gray-50 pt-2 px-4">
                 <div
