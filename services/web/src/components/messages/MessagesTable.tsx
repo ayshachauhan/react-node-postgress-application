@@ -55,6 +55,7 @@ export default function MessagesTable() {
   const practiceId = getPracticeId();
   const [mrn, setMrn] = useState<string>('');
   const [patientInfo, setPatientInfo] = useState<IPatient>();
+  const [sendVideoDisable, setSendVideoDisable] = useState<boolean>(true);
   const [mediaConfigList, setMediaConfigList] = useState<customerMediaConfig[]>(
     [],
   );
@@ -250,6 +251,10 @@ export default function MessagesTable() {
       isChecked: !mediaConfigList[index].isChecked,
     };
 
+    const selectedVideo = mediaConfigList.find((ele) => ele.isChecked);
+    if (selectedVideo) setSendVideoDisable(false);
+    else setSendVideoDisable(true);
+
     setMediaConfigList([...mediaConfigList]);
   };
 
@@ -386,6 +391,7 @@ export default function MessagesTable() {
             <div className="pb-2 flex items-center justify-around">
               <Button
                 onClick={handleSendVideoButton}
+                disabled={sendVideoDisable}
                 type="button"
                 kind="tertiary"
                 title="Send Video"
