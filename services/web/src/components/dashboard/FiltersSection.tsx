@@ -378,10 +378,12 @@ const FiltersSection: React.FC<{
     (selectedValue.toLowerCase() === 'past' ||
       selectedValue.toLowerCase() === 'upcoming');
 
+  const updateSuccessCase = 'Surgery updated successfully.';
+
   useEffect(() => {
     if (
       addSurgerySuccessMessage &&
-      addSurgerySuccessMessage === 'Surgery updated successfully.'
+      addSurgerySuccessMessage === updateSuccessCase
     ) {
       setIsUpdateCase(true);
       if (practiceId && loggedInUserId !== null) {

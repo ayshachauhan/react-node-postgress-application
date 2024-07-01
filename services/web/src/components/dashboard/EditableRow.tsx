@@ -127,9 +127,13 @@ function EditableRow({
         referrerId,
         waitlistId,
       };
-      await withLoader(async () => {
-        await dispatch(updateRecordAsync({ payload, id: surgeryInfo.id }));
-      });
+      try {
+        await withLoader(async () => {
+          await dispatch(updateRecordAsync({ payload, id: surgeryInfo.id }));
+        });
+      } catch (error) {
+        console.log(error);
+      }
 
       setInsuranceTypeId('');
       setReferrerId('');
