@@ -213,7 +213,7 @@ const UpcomingSection: React.FC = () => {
   };
 
   const selectedSurgeryCalData: ICalendar[] = calendars.filter(
-    (data: ICalendar) => data.surgeryType.id === selectedSurgery?.id,
+    (data: ICalendar) => data?.surgeryType?.id === selectedSurgery?.id,
   );
 
   const upcomingDates: CalendarData[] = selectedSurgeryCalData.map(
@@ -226,7 +226,7 @@ const UpcomingSection: React.FC = () => {
       surgeryName:
         selectedSurgery?.name.charAt(0).toUpperCase() ??
         data.surgeryType.name.charAt(0).toUpperCase(),
-      surgeryNameColor: data.surgeryType.color ?? DEFAULT_SURGERYNAME_COLOR,
+      surgeryNameColor: data?.surgeryType?.color ?? DEFAULT_SURGERYNAME_COLOR,
       selectedSurgery: selectedSurgery as ISurgeryType,
     }),
   );
@@ -252,7 +252,7 @@ const UpcomingSection: React.FC = () => {
 
   const recordExists = calendarsWithoutPermission.some(
     (calendar: ICalendar) => {
-      return calendar.surgeryType.name === selectedSurgery?.name;
+      return calendar?.surgeryType?.name === selectedSurgery?.name;
     },
   );
 
@@ -290,7 +290,7 @@ const UpcomingSection: React.FC = () => {
       surgeryName:
         selectedSurgery?.name.charAt(0).toUpperCase() ??
         data.surgeryType.name.charAt(0).toUpperCase(),
-      surgeryNameColor: data.surgeryType.color ?? DEFAULT_SURGERYNAME_COLOR,
+      surgeryNameColor: data?.surgeryType?.color ?? DEFAULT_SURGERYNAME_COLOR,
       selectedSurgery: selectedSurgery as ISurgeryType,
     }),
   );
