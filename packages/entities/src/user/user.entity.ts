@@ -69,4 +69,7 @@ export class UserEntity extends BaseEntity implements IUser {
 
   @Column({ type: 'varchar', nullable: true })
   imgUrl?: string;
+
+  @Column({ type: 'varchar', default: false })
+  token?: string;
 }

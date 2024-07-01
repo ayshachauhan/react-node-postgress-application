@@ -22,6 +22,7 @@ export interface IUser extends IBaseEntity {
   surgeries: ISurgery[];
   imgUrl?: string;
   permissionsUpdated?: boolean;
+  token?: string;
 }
 
 export enum UserType {

@@ -10,6 +10,7 @@ import { JwtService } from '@nestjs/jwt';
 import { UserEntity } from '@packages/entities/*';
 import * as bcrypt from 'bcrypt';
 import Mail from 'nodemailer/lib/mailer';
+import { UpdateUserDto } from 'src/users/dto/update.dto';
 import { ENVIRONMENT_VARIABLES } from '../enums/environment.enums';
 import { TransporterService } from '../transporter/transporter.service';
 import { SystemTemplates } from '../transporter/transporter.types';
@@ -162,5 +163,8 @@ export class AuthService {
       mailData,
       SystemTemplates.RESET_PASSWORD,
     );
+    await this.usersService.updateUser(user.id, {
+      token: token,
+    } as UpdateUserDto);
   }
 }
