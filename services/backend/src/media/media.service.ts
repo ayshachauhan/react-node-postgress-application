@@ -8,8 +8,10 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
+  IEval,
   IPatient,
   IPractice,
+  ISurgery,
   MediaConfigEntity,
   MediaConfigType,
 } from '@packages/entities';
@@ -206,12 +208,22 @@ export class MediaService {
         Number(payload.mrn),
       );
     if (patientData) {
+      const surgery: IEval | ISurgery | null = patientData.surgeries?.length
+        ? patientData.surgeries[0]
+        : patientData.evals?.length
+          ? patientData.evals[0]
+          : null;
+
       const data = {
         systemTemplate: SystemTemplates.SEND_VIDEO_TO_PATIENT,
-        firstName: patientData.firstName,
-        lastName: patientData.lastName,
         email: patientData.email,
+        fname: patientData.firstName,
+        lname: patientData.lastName,
+        phoneNumber: patientData.phoneNumber,
+        mrn: String(patientData.mrn),
         links: payload.links.join(','),
+        Laterality: surgery ? surgery.bodyPart : '',
+        surgery_type: surgery ? surgery.surgeryConfiguration.name : '',
       };
       await this.emailHandlerService.sendVideoToPatient(data, practice);
     }

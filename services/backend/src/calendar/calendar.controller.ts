@@ -78,11 +78,11 @@ export class CalendarController {
     return this.calendarService.getCalendarById(params);
   }
 
-  @Get('/surgery/:surgeryConfigurationId')
+  @Get('/surgery/:surgeryTypeId')
   getCalendarBySurgeryType(
     @Param() params: GetCalendarBySurgeryTypeIdParams,
   ): Promise<CalendarEntity[]> {
-    return this.calendarService.getCalendarBySurgeryConfiguration(params);
+    return this.calendarService.getCalendarBySurgeryTypes(params);
   }
 
   @Post()
@@ -104,7 +104,11 @@ export class CalendarController {
   @Patch('')
   updateCalendars(
     @Body(new ValidationPipe()) updateDTO: UpdateCalendarsDto,
+    @Param() params: UpdateCalendarParams,
   ): Promise<CalendarEntity[] | null> {
-    return this.calendarService.updateCalendars(updateDTO);
+    return this.calendarService.updateCalendars({
+      ...updateDTO,
+      practiceId: params.practiceId,
+    });
   }
 }

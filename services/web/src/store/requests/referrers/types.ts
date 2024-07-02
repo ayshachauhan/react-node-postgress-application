@@ -13,7 +13,7 @@ export interface AddReferrer {
   firstName: string;
   lastName: string;
   email: string;
-  referrerType: ReferrerType;
+  referrerType: ReferrerType | undefined;
   practiceId: string;
 }
 
@@ -22,6 +22,6 @@ export interface EditReferrer {
   firstName: string;
   lastName: string;
   email?: string;
-  referrerType: ReferrerType;
+  referrerType: ReferrerType | undefined;
   practiceId: string;
 }

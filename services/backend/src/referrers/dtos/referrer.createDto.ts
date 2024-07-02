@@ -15,7 +15,8 @@ export class CreateReferrerDto {
   @ApiProperty()
   email: string;
 
-  @IsNotEmpty({ message: 'Referrer type is required' })
+  // @IsNotEmpty({ message: 'Referrer type is required' })
+  @IsOptional()
   @ApiProperty()
   @IsEnum(ReferrerType)
   referrerType: ReferrerType;

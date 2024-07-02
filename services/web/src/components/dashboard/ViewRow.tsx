@@ -1,3 +1,4 @@
+import { toPascalCase } from '@root/utils';
 import { Checkbox } from 'baseui/checkbox';
 import React from 'react';
 
@@ -20,7 +21,7 @@ function ViewRow({ selectedSurgery, viewBillingColumn }) {
             </p>
             <p>
               <span className="font-bold">Appointment Status: </span>
-              <span>{selectedSurgery.status}</span>
+              <span>{toPascalCase(selectedSurgery.surgeryStatus)}</span>
             </p>
             <p>
               <span className="font-bold">Waitlist: </span>

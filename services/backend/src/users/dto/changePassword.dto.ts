@@ -17,4 +17,8 @@ export class ChangePasswordDto {
   @IsNotEmpty()
   @ApiProperty()
   email: string;
+
+  @IsOptional()
+  @ApiProperty()
+  token?: string | null;
 }

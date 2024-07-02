@@ -1,4 +1,4 @@
-import { formatHeaderDate } from '@root/utils';
+import { formatHeaderDate, toPascalCase } from '@root/utils';
 
 export const makeAllCaseString = (bodyPart, surgery, date) => {
   return `${
@@ -70,7 +70,7 @@ export const formatSurgeryData = (surgery, allSurgeries) => {
     surgery_date: formatHeaderDate(surgery?.date),
     pt_email_notify: `You have received an email at ${surgery?.patient?.email} with more details`,
     laterality: surgery?.bodyPart.toLowerCase(),
-    Laterality: surgery?.bodyPart,
+    Laterality: toPascalCase(surgery?.bodyPart),
     surgery_type: surgery?.surgeryConfiguration?.name,
     pod1_location: surgery?.practiceHome?.name,
     cataract_variable: '',

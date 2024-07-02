@@ -335,8 +335,7 @@ export class SurgeryService {
         (calendar: ICalendar) =>
           moment(calendar.date).format('YYYY-MM-DD') ===
             moment(createSurgeryDto.date).format('YYYY-MM-DD') &&
-          calendar.surgeryConfiguration.id ===
-            createSurgeryDto.surgeryConfigurationId,
+          calendar.surgeryType.id === surgeryConfigurationEntity.surgeryType.id,
       );
 
       if (selectedCalendar) {
@@ -354,7 +353,7 @@ export class SurgeryService {
             date: createSurgeryDto.date,
             bookedSlots: 1,
             maxSlots: 14,
-            surgeryConfigurationId: surgeryConfigurationEntity.id,
+            surgeryTypeId: surgeryConfigurationEntity.surgeryType.id,
           },
         );
       }

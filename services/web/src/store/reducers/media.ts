@@ -1,12 +1,7 @@
 import { IMedia } from '@packages/entities/index.browser';
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { indexBy } from '@root/utils/index';
-import {
-  addMedia,
-  deleteMedia,
-  getMedia,
-  sendMediaToPatient,
-} from '../requests/media';
+import { addMedia, deleteMedia, getMedia } from '../requests/media';
 import { EntitiesState, EntityLoadingState } from '../types';
 
 const initialState: EntitiesState<IMedia> = {
@@ -88,20 +83,6 @@ const mediaSlice = createSlice({
       state.processing = false;
     });
 
-    builder.addCase(sendMediaToPatientAsync.pending, (state) => {
-      state.processing = true;
-      state.status = EntityLoadingState.PENDING;
-    });
-
-    builder.addCase(sendMediaToPatientAsync.fulfilled, (state) => {
-      state.status = EntityLoadingState.SUCCEEDED;
-    });
-
-    builder.addCase(sendMediaToPatientAsync.rejected, (state) => {
-      state.status = EntityLoadingState.FAILED;
-      state.processing = false;
-    });
-
     builder.addCase(deleteRecordAsync.pending, (state) => {
       state.processing = true;
       state.status = EntityLoadingState.PENDING;
@@ -132,11 +113,6 @@ export const fetchListings = createAsyncThunk('media/fetchListings', getMedia);
 export const addRecordAsync = createAsyncThunk(
   'media/addRecordAsync',
   addMedia,
-);
-
-export const sendMediaToPatientAsync = createAsyncThunk(
-  'media/sendMediaPatientAsync',
-  sendMediaToPatient,
 );
 
 export const deleteRecordAsync = createAsyncThunk(
