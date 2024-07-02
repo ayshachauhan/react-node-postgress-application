@@ -272,6 +272,7 @@ export default function MessagesTable() {
       );
       dispatchFetchMessages('');
       dispatch(fetchPatients({ practiceId }));
+      setSendVideoDisable(true);
       resetFilters();
       setMrn('');
     }
