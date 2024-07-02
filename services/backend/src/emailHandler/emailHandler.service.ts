@@ -371,7 +371,6 @@ export class EmailHandlerService {
       practiceHome: { name: practiceHomeName },
       insuranceType,
     } = entity;
-    console.log('@entityReferrer', entity);
 
     const { allCataractDates, allCaseType } =
       await this.findValueOfMailVariable(entity);
