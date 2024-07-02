@@ -22,9 +22,7 @@ const AddReferrerForm: React.FC<{
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
-  const [referrerType, setReferrerType] = useState<ReferrerType>(
-    ReferrerType.PCP,
-  );
+  const [referrerType, setReferrerType] = useState<ReferrerType>();
   const handlereferrerTypeChange = ({ value }) => {
     setReferrerType(value[0] ? value[0].label : null);
   };
@@ -99,18 +97,17 @@ const AddReferrerForm: React.FC<{
                 htmlFor="referrerType"
                 className="text-black text-sm font-normal"
               >
-                <RequiredIndicator />
                 &nbsp;Referrer Type
               </label>
               <Select
                 options={referrerTypeOptions}
+                backspaceClearsInputValue
                 onChange={handlereferrerTypeChange}
                 value={
                   referrerType
                     ? [{ label: referrerType, id: referrerType }]
                     : []
                 }
-                required
                 overrides={{
                   ControlContainer: {
                     style: {
