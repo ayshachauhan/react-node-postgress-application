@@ -68,19 +68,30 @@ export class ReviewService {
           patientName: reviewPatient?.firstName || '',
           practiceName: '',
         };
+        const review = await this.getReviewById(reviewId);
+        if (review?.reviewStatus === ReviewStatus.PENDING) {
+          await this.transporterService.sendSystemEmails(
+            mailOptions,
+            mailData,
+            SystemTemplates.REVIEW_REQUEST,
+          );
 
-        await this.transporterService.sendSystemEmails(
-          mailOptions,
-          mailData,
-          SystemTemplates.REVIEW_REQUEST,
-        );
+          const reviewResponse = await this.updateReview(reviewId, {
+            reviewStatus: ReviewStatus.SENT,
+            reviewRequestDate: new Date(),
+          });
 
-        const reviewResponse = await this.updateReview(reviewId, {
-          reviewStatus: ReviewStatus.SENT,
-          reviewRequestDate: new Date(),
-        });
-
-        return reviewResponse;
+          return reviewResponse;
+        } else {
+          logger.info(
+            `Review status is ${review?.reviewStatus}. So review request can’t be sent to the patient.`,
+            [practiceId, reviewId, review?.reviewStatus],
+          );
+          throw new HttpException(
+            'Invalid review request',
+            HttpStatus.PRECONDITION_FAILED,
+          );
+        }
       } else {
         logger.info(`Practice Id or Review id is missing`, [
           practiceId,

@@ -316,10 +316,17 @@ const FiltersSection: React.FC<{
       try {
         setIsReviewRequestLoading(true);
         await reviewSenderWithLoader(async () => {
-          await dispatch(sendReviewRequestAsyncThunk({ practiceId, id }));
+          const response = await dispatch(
+            sendReviewRequestAsyncThunk({ practiceId, id }),
+          );
+          if (response?.meta?.requestStatus === 'fulfilled') {
+            setReviewSuccessMessage(`Review request sent to ${patientEmail}`);
+            onReviewClickSuccess(`Review request sent to ${patientEmail}`);
+          } else if (response?.meta?.requestStatus === 'rejected') {
+            setReviewErrorMessage(response.payload);
+            onReviewClickError(response.payload);
+          }
         });
-        setReviewSuccessMessage(`Review request sent to ${patientEmail}`);
-        onReviewClickSuccess(reviewSuccessMessage);
       } catch (error) {
         console.log(error);
       } finally {
