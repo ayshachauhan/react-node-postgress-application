@@ -27,7 +27,6 @@ export class SchedulerService {
 
   @Interval(5000) // This runs the task every 5 seconds
   async handleCron() {
-    const logger = console; // Use the appropriate logger in your code
     const lockKey = 123456; // Unique key for the advisory lock
 
     logger.info('starting to send emails');
