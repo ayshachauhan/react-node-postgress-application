@@ -17,6 +17,7 @@ import {
   ViewIcon,
 } from '@root/components/Icons';
 import TextInput from '@root/components/TextInput';
+import Loader from '@root/components/loader';
 import { useUserPermission } from '@root/hooks/userHasPermission';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import {
@@ -53,15 +54,10 @@ const FiltersSection: React.FC<{
   const { selectedMonth, searchMRNName, selectedValue } = useAppSelector(
     (state) => state.surgeries.surgeryFilters,
   );
-  const { successMessage: addSurgerySuccessMessage } = useAppSelector(
-    (state) => ({
-      successMessage: state.surgeries.successMessage,
-    }),
-  );
+
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isWailistViewActive, setIsWailistViewActive] = useState(false);
   const [isIolViewActive, setIsIolViewActive] = useState(false);
-  const [isUpdateCase, setIsUpdateCase] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [selectedAction, setSelectedAction] = useState<string | null>(null);
   const [selectedSurgery, setSelectedSurgery] = useState({});
@@ -378,24 +374,6 @@ const FiltersSection: React.FC<{
     (selectedValue.toLowerCase() === 'past' ||
       selectedValue.toLowerCase() === 'upcoming');
 
-  const updateSuccessCase = 'Surgery updated successfully.';
-
-  useEffect(() => {
-    if (
-      addSurgerySuccessMessage &&
-      addSurgerySuccessMessage === updateSuccessCase
-    ) {
-      setIsUpdateCase(true);
-      if (practiceId && loggedInUserId !== null) {
-        dispatchFetchFilteredSurgeryList(
-          selectedMonth,
-          searchMRNNameStr,
-          selectedValueStr,
-        );
-      }
-    }
-  }, [addSurgerySuccessMessage, dispatch, practiceId]);
-
   useEffect(() => {
     if (practiceId && loggedInUserId !== null) {
       dispatchFetchFilteredSurgeryList(
@@ -415,6 +393,10 @@ const FiltersSection: React.FC<{
   const waitlist: IWaitlist[] = useAppSelector((state) =>
     Object.values(state.waitlist.entities),
   );
+  const [isUpdateLoading, setIsUpdateLoading] = useState(false);
+  const handleSetIsUpdateLoading = (loadingState: boolean) => {
+    setIsUpdateLoading(loadingState);
+  };
 
   const tierOrder = createTierOrder(waitlist);
   const waitlistShowFlag =
@@ -425,7 +407,8 @@ const FiltersSection: React.FC<{
 
   return (
     <div>
-      {(isUpdateCase || (!isLoading && !isUpdateCase)) && (
+      {isUpdateLoading && <Loader />}
+      {!isLoading && (
         <div>
           <div className="flex w-full bg-purple-50 p-2 border-t border-b border-gray-200 items-center">
             <div className="flex w-1/4 items-center">
@@ -632,7 +615,9 @@ const FiltersSection: React.FC<{
                                       customHeaders={surgeryOptionsHeadersObj}
                                       surgeryInfo={surgeryInfo}
                                       handleUpdateClick={handleUpdateClick}
-                                      withLoader={withLoader}
+                                      setIsUpdateLoading={
+                                        handleSetIsUpdateLoading
+                                      }
                                     />
                                   ) : (
                                     <>
