@@ -237,6 +237,113 @@ export class EmailHandlerService {
     }
   }
 
+  async checkAndMakeReferrerEmailContent(
+    practice: IPractice,
+    entity: IEval | ISurgery,
+    systemGeneratedMailData?: SystemGeneratedMailData,
+    fromEval?: boolean,
+  ) {
+    let referrerTemplateFound: boolean = false;
+    const mailVariables = await this.makeEmailVariable(entity, practice);
+    const surgeryConfigId = entity.surgeryConfiguration.id;
+    const referrerTemplates = await this.templateService.getFilteredTemplates({
+      surgeryConfigId,
+      messageType: 'referrer',
+    });
+
+    const emailLogsEntries: Partial<IEmailLog>[] = [];
+
+    const randomIndex = Math.floor(Math.random() * referrerTemplates.length);
+    const referrerTemplate = referrerTemplates[randomIndex];
+    if (
+      referrerTemplate &&
+      Object.keys(referrerTemplate).length &&
+      mailVariables?.referrerEmail
+    ) {
+      referrerTemplateFound = true;
+      const entry: Partial<IEmailLog> = {
+        practice: practice,
+        expectedDate: entity.date,
+        status: 'pending',
+        data: {
+          to: mailVariables?.referrerEmail,
+          subject: referrerTemplate.emailSubject
+            ? this.mailVariableManipulator(referrerTemplate.emailSubject)
+            : '',
+          body: referrerTemplate.emailBody
+            ? this.mailVariableManipulator(referrerTemplate.emailBody)
+            : this.transporterService.readTemplates(
+                SystemTemplates.NOTIFY_REFERRER,
+              ),
+          attachment: referrerTemplate.emailAttachment
+            ? referrerTemplate.emailAttachment
+            : '',
+          text: referrerTemplate.messageText
+            ? this.mailVariableManipulator(referrerTemplate.messageText)
+            : '',
+          ...mailVariables,
+          '1stCataract': referrerTemplate.email1stCataract
+            ? this.mailVariableManipulator(referrerTemplate.email1stCataract)
+            : '',
+          '2ndCataract': referrerTemplate.email2ndCataract
+            ? this.mailVariableManipulator(referrerTemplate.email2ndCataract)
+            : '',
+        },
+        attachment: referrerTemplate.emailAttachment,
+      };
+      emailLogsEntries.push(entry);
+    }
+
+    if (
+      !referrerTemplateFound &&
+      mailVariables?.referrerEmail &&
+      systemGeneratedMailData
+    ) {
+      const systemTemplateName = systemGeneratedMailData.systemTemplate;
+      const entry: Partial<IEmailLog> = {
+        practice: practice,
+        expectedDate: entity.date,
+        status: 'pending',
+        data: {
+          body: this.transporterService.readTemplates(systemTemplateName),
+          ...mailVariables,
+          subject: systemGeneratedMailData.subject,
+          text: systemGeneratedMailData.text,
+          to: mailVariables?.referrerEmail,
+        },
+      };
+      emailLogsEntries.push(entry);
+    }
+
+    // Use the generic function to save email logs
+    await this.saveEmailLogs(emailLogsEntries, entity, fromEval);
+  }
+
+  async saveEmailLogs(
+    emailLogsEntries: Partial<IEmailLog>[],
+    entity: IEval | ISurgery,
+    fromEval?: boolean,
+  ) {
+    // Save email log entries to the email log repository to send the email.
+    const dbEmailLogEntries =
+      await this.emailLogRepository.save(emailLogsEntries);
+
+    // Save entries to the appropriate repository based on the entity type
+    if (fromEval) {
+      const evalEmailEntries = dbEmailLogEntries.map((ele) => ({
+        eval: entity,
+        emailLog: ele,
+      }));
+      await this.evalEmailRepository.save(evalEmailEntries);
+    } else {
+      const surgeryEmailEntries = dbEmailLogEntries.map((ele) => ({
+        surgery: entity,
+        emailLog: ele,
+      }));
+      await this.surgeryEmailRepository.save(surgeryEmailEntries);
+    }
+  }
+
   mailVariableManipulator(str: string): string {
     return str.replaceAll('[', '{{').replaceAll(']', '}}');
   }
@@ -264,6 +371,7 @@ export class EmailHandlerService {
       practiceHome: { name: practiceHomeName },
       insuranceType,
     } = entity;
+    console.log('@entityReferrer', entity);
 
     const { allCataractDates, allCaseType } =
       await this.findValueOfMailVariable(entity);
@@ -289,6 +397,9 @@ export class EmailHandlerService {
       phoneNumber: phoneNumber,
       practiceName: practice.name,
       insuranceType: insuranceType ? insuranceType.name : '',
+      referrerFname: entity?.patient?.referrer?.firstName,
+      referrerLname: entity?.patient?.referrer?.lastName,
+      referrerEmail: entity?.patient?.referrer?.email,
     };
 
     return mailVariables;
