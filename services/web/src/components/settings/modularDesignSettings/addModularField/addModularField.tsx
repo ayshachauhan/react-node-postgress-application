@@ -11,6 +11,8 @@ import { SHAPE } from 'baseui/button';
 import { Checkbox } from 'baseui/checkbox';
 import { SIZE, Select } from 'baseui/select';
 import React, { useState } from 'react';
+import Checklist from './checkList/checklist';
+import ConditionalOptions from './conditionalOptions/conditionalOptions';
 
 const AddModularField: React.FC<{
   onClose: () => void;
@@ -47,7 +49,8 @@ const AddModularField: React.FC<{
 
   const [facilityInputFields] = useState([{ value: '' }]);
 
-  /* commenting it for future usage
+  /* 
+  * commenting it for future usage
   const handleFacilityChangeInput = (index: number, event: string) => {
     const values = [...facilityInputFields];
     values[index].value = event;
@@ -693,6 +696,7 @@ const AddModularField: React.FC<{
               </div>
             ))}
           </div>
+          <ConditionalOptions />
           <div className="pt-6">
             <div className="flex">
               <div>
@@ -749,6 +753,9 @@ const AddModularField: React.FC<{
               </div>
             </div>
           </div>
+          <Checklist
+            props={{ checkListInputFields, setCheckListInputFields }}
+          />
           <div className="text-right text-base mt-6 flex justify-end pr-5">
             <div>
               <Button
