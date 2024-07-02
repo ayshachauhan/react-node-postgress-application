@@ -43,7 +43,7 @@ export class ReviewService {
     try {
       const reviewData = await this.getReviewById(reviewId);
 
-      if (practiceId && reviewId) {
+      if (practiceId && reviewData) {
         const patientList: PatientEntity[] =
           await this.patientService.getPatientsByPractice(practiceId);
         const reviewPatient: PatientEntity | undefined = patientList.find(

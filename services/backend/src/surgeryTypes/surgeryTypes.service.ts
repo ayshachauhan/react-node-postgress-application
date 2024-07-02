@@ -36,7 +36,7 @@ export class SurgeryTypesService {
   }
 
   async create(
-    { name }: CreateSurgeryTypeDto,
+    { name, color }: CreateSurgeryTypeDto,
     practice: PracticeEntity,
   ): Promise<SurgeryTypeEntity> {
     const newPracticeHome: SurgeryTypeEntity = new SurgeryTypeEntity();
@@ -45,6 +45,7 @@ export class SurgeryTypesService {
       ...newPracticeHome,
       practice,
       name,
+      color,
     });
   }
 }

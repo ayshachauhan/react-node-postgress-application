@@ -6,7 +6,7 @@ export type GetCalendarsParams = {
 export type GetCalendarByIdParams = GetCalendarsParams & { id: string };
 
 export type GetCalendarBySurgeryTypeIdParams = GetCalendarsParams & {
-  surgeryConfigurationId: string;
+  surgeryTypeId: string;
 };
 
 export type CreateCalendarParams = Required<GetCalendarsParams>;

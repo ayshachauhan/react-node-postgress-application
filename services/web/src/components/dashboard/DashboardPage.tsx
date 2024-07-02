@@ -53,7 +53,8 @@ const DashboardPage: React.FC = () => {
   const viewUserMetrics = useUserPermission(userPermissions, [
     USER_PERMISSIONS.LEADERBOARD_DISPLAY,
   ]);
-
+  const [reviewErrorMessage, setReviewErrorMessage] = useState('');
+  const [reviewSuccessMessage, setReviewSuccessMessage] = useState('');
   const { successMessage: addSurgerySuccessMessage, calendarSuccessMessage } =
     useAppSelector((state) => ({
       successMessage: state.surgeries.successMessage,
@@ -70,6 +71,38 @@ const DashboardPage: React.FC = () => {
   const month = monthLabels.join(',');
   const searchMRNNameStr = searchMRNName || '';
   const { isLoading, withLoader } = useLoader();
+
+  const handleReviewErrorMessage = (message: string) => {
+    setReviewErrorMessage(message);
+  };
+
+  const handleReviewSuccessMessage = (message: string) => {
+    setReviewSuccessMessage(message);
+  };
+
+  useEffect(() => {
+    if (reviewErrorMessage) {
+      const timeout = setTimeout(() => {
+        setReviewErrorMessage('');
+      }, 1000);
+
+      return () => clearTimeout(timeout);
+    }
+
+    return undefined;
+  }, [reviewErrorMessage]);
+
+  useEffect(() => {
+    if (reviewSuccessMessage) {
+      const timeout2 = setTimeout(() => {
+        setReviewSuccessMessage('');
+      }, 1000);
+
+      return () => clearTimeout(timeout2);
+    }
+
+    return undefined;
+  }, [reviewSuccessMessage]);
 
   useEffect(() => {
     dispatch(fetchLoggedInUser());
@@ -201,6 +234,16 @@ const DashboardPage: React.FC = () => {
               : addEvalSuccessMessage}
           </div>
         )}
+        {reviewErrorMessage && (
+          <div className="text-red-700 fixed top-0 left-1/2 mt-20 transform -translate-x-1/2">
+            {reviewErrorMessage}
+          </div>
+        )}
+        {reviewSuccessMessage && (
+          <div className="text-green-700 fixed top-0 left-1/2 mt-20 transform -translate-x-1/2">
+            {reviewSuccessMessage}
+          </div>
+        )}
         <div className="flex  justify-between">
           <div className="flex">
             {addCaseAllowed && (
@@ -212,9 +255,7 @@ const DashboardPage: React.FC = () => {
                   width={75}
                   fontSize="12px"
                   onClick={handleOpenAddEvalModal}
-                  startEnhancer={() => (
-                    <AddIcon className="mt-2 " size={25}></AddIcon>
-                  )}
+                  startEnhancer={() => <AddIcon className=""></AddIcon>}
                 />
                 <Button
                   kind="secondary"
@@ -224,9 +265,7 @@ const DashboardPage: React.FC = () => {
                   fontSize="12px"
                   padding="2px"
                   onClick={handleOpenAddModal}
-                  startEnhancer={() => (
-                    <AddIcon className="mt-2" size={25}></AddIcon>
-                  )}
+                  startEnhancer={() => <AddIcon className=""></AddIcon>}
                 />
               </div>
             )}
@@ -255,6 +294,8 @@ const DashboardPage: React.FC = () => {
             practiceId={practiceId}
             withLoader={withLoader}
             isLoading={isLoading}
+            onReviewClickError={handleReviewErrorMessage}
+            onReviewClickSuccess={handleReviewSuccessMessage}
           />
         )}
       </div>

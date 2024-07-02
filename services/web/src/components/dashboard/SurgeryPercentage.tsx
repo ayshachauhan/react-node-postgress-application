@@ -54,8 +54,7 @@ const SurgeryPercentage: React.FC = () => {
       if (rangeInMonths === 'all') {
         matchingDates = calendars
           .filter(
-            (data: ICalendar) =>
-              data.surgeryConfiguration.id === selectedSurgeryId,
+            (data: ICalendar) => data?.surgeryType?.id === selectedSurgeryId,
           )
           .map((data: ICalendar) => ({
             maxSlots: data.maxSlots,
@@ -71,7 +70,7 @@ const SurgeryPercentage: React.FC = () => {
           .filter((data: ICalendar) => {
             const calendarDate = new Date(data.date);
             return (
-              data.surgeryConfiguration.id === selectedSurgeryId &&
+              data?.surgeryType?.id === selectedSurgeryId &&
               calendarDate >= today &&
               calendarDate <= endDate
             );
@@ -123,41 +122,41 @@ const SurgeryPercentage: React.FC = () => {
         <hr className="h-px my-2.5 bg-gray-100 border-1 border-gray-100"></hr>
       </div>
       <div className="mt-2 text-xs overflow-x-auto">
-        <div className="text-gray-50 w-full items-center rounded-lg">
-          <div className="bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 flex">
-            <div className="font-bold text-white p-4 w-20">Surgery</div>
-            <div className="font-bold text-white p-4 w-10">1</div>
-            <div className="font-bold text-white p-4 w-10">2</div>
-            <div className="font-bold text-white p-4 w-10">3</div>
-            <div className="font-bold text-white p-4 w-10">6</div>
-            <div className="font-bold text-white p-4 w-10">12</div>
-            <div className="font-bold text-white p-4 w-10">All</div>
-          </div>
-          {surgeryPercentageData.map((surgery, index) => (
-            <React.Fragment key={surgery.id}>
-              <div
-                className={`flex ${
-                  index !== surgeryPercentageData.length - 1
-                    ? 'border-b border-gray-300'
-                    : ''
-                }`}
-              >
-                <div className="text-black pt-2 pb-2 px-4 w-20">
-                  {surgery.name}
-                </div>
-                {surgery?.percentages.map((percentageObj, index) => (
-                  <div
-                    key={index}
-                    className="text-black pt-2 pb-2 px-4 w-10"
-                    style={maxCellStyle(percentageObj.percentage.toFixed(0))}
-                  >
-                    {percentageObj.percentage.toFixed(0)}%
-                  </div>
-                ))}
-              </div>
-            </React.Fragment>
-          ))}
-        </div>
+        <table className="w-full">
+          <thead className="">
+            <th className="">Surgery</th>
+            <th className="text-center">1</th>
+            <th className="text-center">2</th>
+            <th className="text-center">3</th>
+            <th className="text-center">6</th>
+            <th className="text-center">12</th>
+            <th className="text-center">All</th>
+          </thead>
+          <tbody>
+            {surgeryPercentageData.map((surgery, index) => (
+              <React.Fragment key={surgery.id}>
+                <tr
+                  className={`${
+                    index !== surgeryPercentageData.length - 1
+                      ? 'border-b border-gray-300'
+                      : ''
+                  }`}
+                >
+                  <td className="">{surgery.name}</td>
+                  {surgery?.percentages.map((percentageObj, index) => (
+                    <td
+                      key={index}
+                      className="text-center"
+                      style={maxCellStyle(percentageObj.percentage.toFixed(0))}
+                    >
+                      {percentageObj.percentage.toFixed(0)}%
+                    </td>
+                  ))}
+                </tr>
+              </React.Fragment>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );

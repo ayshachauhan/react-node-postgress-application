@@ -45,7 +45,6 @@ import {
   ILike,
   In,
   LessThan,
-  LessThanOrEqual,
   MoreThanOrEqual,
   Repository,
 } from 'typeorm';
@@ -140,16 +139,35 @@ export class SurgeryService {
         'doctor',
         'waitlist',
       ],
-      order: {
-        dateCreated: 'DESC',
-      },
+      order: {},
     };
+
+    if (option?.toLowerCase() === 'past view') {
+      searchConditions.order = {
+        date: 'ASC',
+      };
+    } else if (option?.toLowerCase() === 'upcoming view') {
+      searchConditions.order = {
+        date: 'DESC',
+      };
+    } else {
+      searchConditions.order = {
+        dateCreated: 'DESC',
+      };
+    }
 
     const searchConditionsWithoutPermissions = { ...searchConditions };
 
-    if (option?.toLowerCase() === 'past') {
+    if (
+      option?.toLowerCase() === 'upcoming view' ||
+      option?.toLowerCase() === 'past view'
+    ) {
       const today = new Date();
-      whereClause.date = LessThanOrEqual(today);
+      today.setUTCHours(0, 0, 0, 0); // Set to beginning of today
+      const yesterday = new Date(today);
+      yesterday.setUTCDate(today.getUTCDate() - 1); // Set to yesterday
+
+      whereClause.date = MoreThanOrEqual(yesterday);
     }
 
     const dateConditionsWithPermissions = getConditions(
@@ -161,7 +179,8 @@ export class SurgeryService {
     if (
       months.length === 0 &&
       searchMRNName &&
-      option?.toLowerCase() !== 'past'
+      option?.toLowerCase() !== 'past view' &&
+      option?.toLowerCase() !== 'upcoming view'
     ) {
       updateWhereClauseWithSearchName(whereClause, searchMRNName);
       searchConditions.where = mapDateConditions(
@@ -179,7 +198,9 @@ export class SurgeryService {
 
       if (
         months.length > 0 ||
-        (months.length === 0 && option?.toLowerCase() !== 'past')
+        (months.length === 0 &&
+          option?.toLowerCase() !== 'past view' &&
+          option?.toLowerCase() !== 'upcoming view')
       ) {
         searchConditions.where = mapDateConditions(
           dateConditionsWithPermissions,
@@ -314,8 +335,7 @@ export class SurgeryService {
         (calendar: ICalendar) =>
           moment(calendar.date).format('YYYY-MM-DD') ===
             moment(createSurgeryDto.date).format('YYYY-MM-DD') &&
-          calendar.surgeryConfiguration.id ===
-            createSurgeryDto.surgeryConfigurationId,
+          calendar.surgeryType.id === surgeryConfigurationEntity.surgeryType.id,
       );
 
       if (selectedCalendar) {
@@ -333,7 +353,7 @@ export class SurgeryService {
             date: createSurgeryDto.date,
             bookedSlots: 1,
             maxSlots: 14,
-            surgeryConfigurationId: surgeryConfigurationEntity.id,
+            surgeryTypeId: surgeryConfigurationEntity.surgeryType.id,
           },
         );
       }
@@ -360,7 +380,7 @@ export class SurgeryService {
   async update(
     { createSurgeryDto, id, practiceId },
     request: Request & { user: SanitizedUser },
-  ): Promise<SurgeryEntity | null> {
+  ): Promise<ISurgery | null> {
     const surgeryToUpdate = await this.getSurgeryById(id);
 
     if (createSurgeryDto.insuranceTypeId) {
@@ -443,9 +463,13 @@ export class SurgeryService {
       ipAddress: createSurgeryDto.ipAddress,
     });
 
-    return await this.surgeryRepository.findOne({
-      where: { id },
-    });
+    const updatedSurgery: ISurgery | null = await this.getSurgeryById(id);
+
+    // initiating emails for updating surgeries
+    if (updatedSurgery)
+      await this.initiateUpdateSurgeryMail(updatedSurgery, practiceId);
+
+    return updatedSurgery;
   }
 
   async autoCompleteSurgeries(surgeryId: string = '') {
@@ -466,6 +490,7 @@ export class SurgeryService {
               reviewStatus: ReviewStatus.PENDING,
               practice: surgeryData.practiceHome.practice,
               patient: surgeryData.patient,
+              surgeryId: surgeryData.id,
             },
           ]);
         }
@@ -504,6 +529,7 @@ export class SurgeryService {
           reviewStatus: ReviewStatus.PENDING,
           practice: entry.practiceHome.practice,
           patient: entry.patient,
+          surgeryId: entry.id,
         }));
 
         await this.createReviewEntity(reviewEntries);
@@ -581,6 +607,21 @@ export class SurgeryService {
       where: { patient: { id: patientId }, date: MoreThanOrEqual(date) },
       relations: ['surgeryConfiguration'],
     });
+  }
+
+  async initiateUpdateSurgeryMail(
+    surgeryEntity: ISurgery,
+    practiceId: string,
+  ): Promise<void> {
+    const practiceEntity: IPractice | null =
+      await this.practiceService.findOne(practiceId);
+
+    if (practiceEntity) {
+      await this.emailHandlerService.checkAndMakeSurgeryUpdateEmailContent(
+        practiceEntity,
+        surgeryEntity,
+      );
+    }
   }
 }
 

@@ -138,8 +138,8 @@ export class TemplatesService {
   }): Promise<TemplateEntity[]> {
     const where = { active: true };
 
-    if (query.surgeryConfigurationId) {
-      where['surgeryConfiguration'] = { id: query.surgeryConfigurationId };
+    if (query.surgeryConfigId) {
+      where['surgeryConfiguration'] = { id: query.surgeryConfigId };
     }
 
     if (query.messageType) {

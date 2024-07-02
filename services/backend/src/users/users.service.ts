@@ -127,6 +127,10 @@ export class UsersService {
             fullName,
             practiceEntity,
           });
+
+          await this.practicesService.update(practiceId, {
+            status: PracticeStatus.ACTIVE,
+          });
         }
       }
 
@@ -351,7 +355,7 @@ export class UsersService {
     const mailOptions: Mail.Options = {
       to: newUser.email,
       subject: 'Welcome to Practice Optimization Dashboard',
-      text: 'text message',
+      text: '',
     };
 
     const mailData: NewUserMailData = {

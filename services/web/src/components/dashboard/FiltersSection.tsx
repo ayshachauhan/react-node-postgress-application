@@ -3,7 +3,7 @@ import {
   ISurgeryConfiguration,
   MonthOption,
 } from '@packages/entities';
-import { ReviewStatus } from '@packages/entities/index.browser';
+import { IWaitlist, ReviewStatus } from '@packages/entities/index.browser';
 import { USER_PERMISSIONS } from '@packages/entities/permission';
 import Button from '@root/components/Button';
 import {
@@ -17,9 +17,14 @@ import {
   ViewIcon,
 } from '@root/components/Icons';
 import TextInput from '@root/components/TextInput';
+import Loader from '@root/components/loader';
+import { useLoader } from '@root/hooks/useLoader';
 import { useUserPermission } from '@root/hooks/userHasPermission';
 import { useAppDispatch, useAppSelector } from '@root/store';
-import { sendReviewRequestAsyncThunk } from '@root/store/reducers/review';
+import {
+  fetchListings as fetchReviews,
+  sendReviewRequestAsyncThunk,
+} from '@root/store/reducers/review';
 import {
   deleteRecordAsync,
   fetchListings,
@@ -28,7 +33,14 @@ import {
   setSelectedMonth,
   setSelectedValue,
 } from '@root/store/reducers/surgery';
-import { toFullName, toPascalCase, usDateFormatter } from '@root/utils';
+import {
+  createTierOrder,
+  getColorForSurgeryStatus,
+  sortSurgeryData,
+  toFullName,
+  toPascalCase,
+  usDateFormatter,
+} from '@root/utils';
 import { monthOptions } from '@root/utils/constants';
 import { Checkbox } from 'baseui/checkbox';
 import { Select } from 'baseui/select';
@@ -42,7 +54,15 @@ const FiltersSection: React.FC<{
   practiceId: string;
   withLoader: (func: () => Promise<void>) => Promise<void>;
   isLoading: boolean;
-}> = ({ practiceId, withLoader, isLoading }) => {
+  onReviewClickError;
+  onReviewClickSuccess;
+}> = ({
+  practiceId,
+  withLoader,
+  isLoading,
+  onReviewClickError,
+  onReviewClickSuccess,
+}) => {
   const dispatch = useAppDispatch();
   const { selectedMonth, searchMRNName, selectedValue } = useAppSelector(
     (state) => state.surgeries.surgeryFilters,
@@ -52,9 +72,20 @@ const FiltersSection: React.FC<{
       successMessage: state.surgeries.successMessage,
     }),
   );
+  const reviews = useAppSelector((state) =>
+    Object.values(state.reviews.entities),
+  );
+  const {
+    isLoading: reviewSendingIsLoading,
+    withLoader: reviewSenderWithLoader,
+  } = useLoader();
+
   const [reviewErrorMessage, setReviewErrorMessage] = useState<string>('');
   const [reviewSuccessMessage, setReviewSuccessMessage] = useState<string>('');
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isWailistViewActive, setIsWailistViewActive] = useState(false);
+  const [isIolViewActive, setIsIolViewActive] = useState(false);
+  const [isUpdateCase, setIsUpdateCase] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [selectedAction, setSelectedAction] = useState<string | null>(null);
   const [selectedSurgery, setSelectedSurgery] = useState({});
@@ -110,6 +141,7 @@ const FiltersSection: React.FC<{
     () => getMonthOptions(viewPastCases, viewFutureCases),
     [viewPastCases, viewFutureCases],
   );
+  const [isReviewRequestLoading, setIsReviewRequestLoading] = useState(false);
 
   const surgeryOptionsHeadersObj: {
     [key: string]: {
@@ -168,15 +200,19 @@ const FiltersSection: React.FC<{
     </div>
   );
 
-  const getUpdatedOptions = (viewPastCases: boolean) => [
-    { label: 'Waitlist', value: 'waitlist' },
-    { label: 'IOL', value: 'iol' },
-    { label: 'Past', value: 'past', disabled: !viewPastCases },
+  const getUpdatedOptions = (
+    viewPastCases: boolean,
+    viewFutureCases: boolean,
+  ) => [
+    { label: 'Upcoming View', value: 'upcoming', disabled: !viewFutureCases },
+    { label: 'Waitlist View', value: 'waitlist' },
+    { label: 'IOL View', value: 'iol' },
+    { label: 'Past View', value: 'past', disabled: !viewPastCases },
   ];
 
   const updatedOptions = useMemo(
-    () => getUpdatedOptions(viewPastCases),
-    [viewPastCases],
+    () => getUpdatedOptions(viewPastCases, viewFutureCases),
+    [viewPastCases, viewFutureCases],
   );
 
   const modifiedObj = {};
@@ -260,26 +296,34 @@ const FiltersSection: React.FC<{
   const handleChangeValue = ({ value }) => {
     dispatch(setSelectedValue(value[0] ? value[0].label : null));
     const selectedLabel = value.length > 0 ? value[0].label.toLowerCase() : '';
-    if (selectedLabel === 'past') {
+
+    if (selectedLabel === 'past view' || selectedLabel === 'upcoming view') {
       dispatch(setSelectedMonth([]));
+    }
+    if (selectedLabel === 'waitlist view') {
+      setIsWailistViewActive(true);
+    }
+    if (selectedLabel === 'iol view') {
+      setIsIolViewActive(true);
     }
   };
 
   const handleChangeMonth = ({ value }) => {
     dispatch(setSelectedMonth(value));
   };
-  const sendReqest = (id: string) => {
+  const sendReqest = async (id: string, patientEmail: string) => {
     if (practiceId && id) {
       try {
-        dispatch(
-          sendReviewRequestAsyncThunk({
-            practiceId,
-            id,
-          }),
-        );
-        setReviewSuccessMessage(`Request sent`);
+        setIsReviewRequestLoading(true);
+        await reviewSenderWithLoader(async () => {
+          await dispatch(sendReviewRequestAsyncThunk({ practiceId, id }));
+        });
+        setReviewSuccessMessage(`Review request sent to ${patientEmail}`);
+        onReviewClickSuccess(reviewSuccessMessage);
       } catch (error) {
         console.log(error);
+      } finally {
+        setIsReviewRequestLoading(false);
       }
     }
   };
@@ -296,15 +340,31 @@ const FiltersSection: React.FC<{
   };
 
   const handleSendReviewRequest = (row) => {
+    let errorMessage = '';
     if (row.surgeryStatus === 'COMPLETED') {
-      if (row.review.id && row.review.reviewStatus === ReviewStatus.PENDING) {
-        sendReqest(row.review.id);
+      if (row.id) {
+        const reviewsBySurgeryId = reviews.find(
+          (ele) => ele.surgeryId === row.id,
+        );
+        if (reviewsBySurgeryId && reviewsBySurgeryId.id) {
+          if (reviewsBySurgeryId.reviewStatus === ReviewStatus.PENDING) {
+            if (!isReviewRequestLoading) {
+              sendReqest(reviewsBySurgeryId.id, row?.email);
+            }
+          } else if (reviewsBySurgeryId.reviewStatus === ReviewStatus.SENT) {
+            errorMessage = 'Request already sent';
+          } else if (
+            reviewsBySurgeryId.reviewStatus === ReviewStatus.RECEIVED
+          ) {
+            errorMessage = 'Review received';
+          }
+        }
       }
     } else {
-      setReviewErrorMessage(
-        `This surgery is still in ${row.surgeryStatus}. So review request can’t be sent to the patient.`,
-      );
+      errorMessage = `This surgery is still in ${row.surgeryStatus}. So review request can’t be sent to the patient.`;
     }
+    setReviewErrorMessage(errorMessage);
+    onReviewClickError(reviewErrorMessage);
   };
 
   const handleOpenDeleteModal = (rowId: string): void => {
@@ -325,10 +385,12 @@ const FiltersSection: React.FC<{
     dispatch(setSelectedMonth([]));
     dispatch(setSearchMRNName(null));
     dispatch(setSelectedValue(null));
+    setIsWailistViewActive(false);
+    setIsIolViewActive(false);
   };
 
-  const handleViewHistory = (id: string): void => {
-    const query = { id };
+  const handleViewHistory = (id: string, surgery: string): void => {
+    const query = { id, surgery };
     const queryString = new URLSearchParams(query).toString();
     const url = `/history/?${queryString}`;
     window.location.href = url;
@@ -383,37 +445,37 @@ const FiltersSection: React.FC<{
       );
     }
   };
-  const isDisabled = selectedValue && selectedValue.toLowerCase() === 'past';
+  const isDisabled =
+    selectedValue &&
+    (selectedValue.toLowerCase() === 'past' ||
+      selectedValue.toLowerCase() === 'upcoming');
 
   useEffect(() => {
-    if (reviewErrorMessage) {
-      const timeout = setTimeout(() => {
-        setReviewErrorMessage('');
-      }, 1000);
-
-      return () => clearTimeout(timeout);
-    }
-
-    return undefined;
+    onReviewClickError(reviewErrorMessage);
   }, [reviewErrorMessage]);
 
   useEffect(() => {
-    if (reviewSuccessMessage) {
-      const timeout2 = setTimeout(() => {
-        setReviewSuccessMessage('');
-      }, 1000);
-
-      return () => clearTimeout(timeout2);
-    }
-
-    return undefined;
+    onReviewClickSuccess(reviewSuccessMessage);
   }, [reviewSuccessMessage]);
+
+  useEffect(() => {
+    if (practiceId !== null) {
+      const loadData = async () => {
+        await withLoader(async () => {
+          await dispatch(fetchReviews({ practiceId: practiceId }));
+        });
+      };
+
+      loadData();
+    }
+  }, [practiceId, dispatch, withLoader]);
 
   useEffect(() => {
     if (
       addSurgerySuccessMessage &&
       addSurgerySuccessMessage === 'Surgery updated successfully.'
     ) {
+      setIsUpdateCase(true);
       if (practiceId && loggedInUserId !== null) {
         dispatchFetchFilteredSurgeryList(
           selectedMonth,
@@ -440,52 +502,29 @@ const FiltersSection: React.FC<{
     searchMRNNameStr,
     selectedValueStr,
   ]);
+  const waitlist: IWaitlist[] = useAppSelector((state) =>
+    Object.values(state.waitlist.entities),
+  );
 
-  useEffect(() => {
-    if (practiceId && loggedInUserId !== null) {
-      dispatchFetchFilteredSurgeryList(
-        selectedMonth,
-        searchMRNNameStr,
-        selectedValueStr,
-      );
-    }
-  }, [dispatch, practiceId, loggedInUserId]);
+  const tierOrder = createTierOrder(waitlist);
+  const waitlistShowFlag =
+    isWailistViewActive ||
+    selectedValueStr.trim().toLowerCase() === 'waitlist view';
+  const iolListShowFlag =
+    isIolViewActive || selectedValueStr.trim().toLowerCase() === 'iol view';
 
   return (
     <div>
-      {!isLoading && (
+      {reviewSendingIsLoading && <Loader />}
+      {(isUpdateCase || (!isLoading && !isUpdateCase)) && (
         <div>
-          {reviewErrorMessage && (
-            <div
-              style={{
-                backgroundColor: 'red',
-                color: 'white',
-                padding: '10px',
-                marginTop: '10px',
-              }}
-            >
-              {reviewErrorMessage}
-            </div>
-          )}
-          {reviewSuccessMessage && (
-            <div
-              style={{
-                backgroundColor: 'green',
-                color: 'white',
-                padding: '10px',
-                marginTop: '10px',
-              }}
-            >
-              {reviewSuccessMessage}
-            </div>
-          )}
-          <div className="flex w-full bg-purple-50 px-2 border-t border-b border-gray-200 items-center">
+          <div className="flex w-full bg-purple-50 p-2 border-t border-b border-gray-200 items-center">
             <div className="flex w-1/4 items-center">
-              <div className="text-xl font-bold border-r border-gray-300 py-4 pr-4">
+              <div className="text-xl font-bold border-r border-gray-300 pr-4 mr-4">
                 Filters
               </div>
               {selectedMonth && selectedMonth.length > 0 && (
-                <div className="text-base font-bold p-4">
+                <div className="text-base font-bold">
                   {selectedMonth[0].label} 2024
                 </div>
               )}
@@ -500,8 +539,8 @@ const FiltersSection: React.FC<{
                     placeholder="Search MRN or Name"
                   />
                 </div>
-                <div className="bg-gradient-to-br from-teal-600 to-green-500 px-2 py-2 text-white flex items-center rounded-r-lg border-r border-gray-300">
-                  <SearchIcon size={20} />
+                <div className="bg-gradient-to-br from-teal-600 to-green-500 px-4 py-2 text-white flex items-center rounded-r-lg border-r border-gray-300">
+                  <SearchIcon />
                 </div>
               </div>
               <div>
@@ -567,6 +606,7 @@ const FiltersSection: React.FC<{
                   title="Reset"
                   onClick={resetFilters}
                   style={{
+                    padding: '10px',
                     backgroundColor: 'rgba(212, 212, 216, 1)',
                     color: 'black',
                   }}
@@ -574,10 +614,11 @@ const FiltersSection: React.FC<{
               </div>
             </div>
           </div>
+
           <div className="overflow-x-auto">
             {surgeryConfigList.length > 0 &&
             Object.keys(modifiedObj).length > 0 ? (
-              <div className="w-max overflow-x-auto mt-2 border rounded-t-lg rounded-b-lg border-gray-200">
+              <div className="w-full overflow-x-auto mt-2 border rounded-t-lg rounded-b-lg border-gray-200">
                 {Object.keys(modifiedObj).map((key, index) => {
                   const ele = modifiedObj[key];
                   const customOptionsHeaders: string[] =
@@ -586,270 +627,252 @@ const FiltersSection: React.FC<{
                     surgeryOptionsHeadersObj[key].checkListHeaders;
 
                   return (
-                    <div key={index} className="w-full">
-                      <div
-                        className={`border-solid px-2.5 py-0.5 text-white text-base font-normal   ${
-                          index == 0 ? 'rounded-t-lg' : ''
-                        }`}
-                        style={{ backgroundColor: 'rgba(53, 165, 118, 1)' }}
-                      >
-                        {key}
-                      </div>
-                      {Object.keys(ele).map((date, dateIndex) => {
-                        return (
-                          <div key={dateIndex}>
-                            <div
-                              className={`border-solid px-2.5 py-0 text-white text-sm font-normal ${
-                                index == 0 ? 'rounded-t-lg' : ''
-                              }`}
-                              style={{
-                                backgroundColor: 'rgba(53, 165, 118, 1)',
-                              }}
-                            ></div>
-                            <div className="bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 flex gap-2  px-2.5 text-xs">
-                              <div className="font-bold text-white py-1 px-1 w-20">
-                                Date
-                              </div>
-                              <div className="font-bold text-white py-1 px-1 w-10">
-                                <HomeIcon></HomeIcon>
-                              </div>
-                              <div className="font-bold text-white py-1 px-1 w-20">
-                                Status
-                              </div>
-                              <div className="font-bold text-white py-1 px-1 w-20">
-                                Last Name
-                              </div>
-                              <div className="font-bold text-white py-1 px-1 w-20">
-                                First Name
-                              </div>
-                              <div className="font-bold text-white py-1 px-1 w-20">
-                                MRN
-                              </div>
+                    <table key={index} className="w-full">
+                      <tbody>
+                        <tr>
+                          <td
+                            colSpan={20}
+                            className={`border-solid px-2.5 py-0.5 text-white text-base font-normal   ${
+                              index == 0 ? 'rounded-t-lg' : ''
+                            }`}
+                            style={{ backgroundColor: 'rgba(53, 165, 118, 1)' }}
+                          >
+                            {key}
+                          </td>
+                        </tr>
 
-                              <div className="font-bold text-white py-1 px-1 w-20">
-                                Surgery
-                              </div>
-                              <div className="font-bold text-white py-1 px-1 w-20">
-                                Body Part
-                              </div>
-                              {customOptionsHeaders.map(
-                                (optionsHeader, optionsHeaderIndex) => (
-                                  <div
-                                    className="font-bold text-white py-1 px-1 w-20"
-                                    key={optionsHeaderIndex}
-                                  >
-                                    {optionsHeader}
-                                  </div>
-                                ),
-                              )}
-                              <div className="font-bold text-white py-1 px-1 w-20">
-                                Notes
-                              </div>
-                              <div className="font-bold text-white py-1 px-1 w-20">
-                                #
-                              </div>
-                              {customCheckListHeaders.map(
-                                (checkListHeader, checkListHeaderIndex) => (
-                                  <div
-                                    className="font-bold text-white py-1 px-1 w-20"
-                                    key={checkListHeaderIndex}
-                                  >
-                                    {checkListHeader}
-                                  </div>
-                                ),
-                              )}
-                              {viewBillingColumn && (
-                                <div className="font-bold text-white py-1 px-1 w-20">
-                                  Prof
-                                </div>
-                              )}
-                              {viewBillingColumn && (
-                                <div className="font-bold text-white py-1 px-1 w-20">
-                                  Hospital
-                                </div>
-                              )}
-                              <div className="font-bold text-white py-1 px-1 w-20">
-                                Insurance
-                              </div>
-                              <div className="font-bold text-white py-1 px-1 w-40 text-center">
-                                Contact Info
-                              </div>
-                              <div className="font-bold text-white py-1 px-1 w-40">
-                                Action
-                              </div>
-                            </div>
-                            {ele[date].map((row, index) => {
-                              const isEditable =
-                                editableRows.includes(row.id) &&
-                                selectedAction === 'edit';
-                              const surgeryInfo = surgeryList.find(
-                                (ele) => ele.id === row.id,
-                              );
-                              return isEditable && surgeryInfo ? (
-                                <EditableRow
-                                  key={row.id}
-                                  rowId={row.id} // Pass the rowId
-                                  handleCancelClick={() =>
-                                    handleCancelClick(row.id)
-                                  }
-                                  customHeaders={surgeryOptionsHeadersObj}
-                                  surgeryInfo={surgeryInfo}
-                                  handleUpdateClick={handleUpdateClick}
-                                  withLoader={withLoader}
-                                />
-                              ) : (
-                                <>
-                                  <div
-                                    key={row.id}
-                                    id={row.id}
-                                    className={`div-clone flex gap-2 px-2.5 text-xs items-start ${
-                                      index !== ele.length - 1
-                                        ? 'border-b border-gray-300'
-                                        : ''
-                                    }`}
-                                  >
-                                    <div className="text-black  py-0.5 px-1 w-20 flex">
-                                      <div>
-                                        {viewHistory ? (
-                                          <div
-                                            onClick={() =>
-                                              handleViewHistory(row.patientId)
-                                            }
-                                            className="cursor-pointer underline"
-                                          >
-                                            {row.date}
-                                          </div>
-                                        ) : (
-                                          <div>{row.date}</div>
-                                        )}
-                                      </div>
-                                    </div>
-                                    <div className="text-black py-0.5 px-1 w-10">
-                                      {row.home[0]}
-                                    </div>
-                                    <div className="text-gray-900 py-0.5 px-0.5 flex text-center items-center w-40">
-                                      <div className="rounded-md text-white p-1 bg-indigo-500 text-xs">
-                                        {toPascalCase(row.surgeryStatus)}
-                                      </div>
-                                    </div>
-                                    <div>
-                                      <div className="text-black py-0.5 px-1 overflow-hidden whitespace-nowrap w-20">
-                                        {row.lastName}
-                                      </div>
-                                      <div className="font-semibold pt-4">
-                                        Waitlist:{' '}
-                                      </div>
-                                    </div>
-                                    <div>
-                                      <div className="text-black py-0.5 px-1 overflow-hidden whitespace-nowrap w-20">
-                                        {row.firstName}
-                                      </div>
-                                      <div className="pt-4">{row.waitlist}</div>
-                                    </div>
-                                    <div className="text-black py-0.5 px-1 overflow-hidden whitespace-nowrap w-20">
-                                      <div>
-                                        {viewHistory ? (
-                                          <div
-                                            onClick={() =>
-                                              handleViewHistory(row.patientId)
-                                            }
-                                            className="cursor-pointer underline"
-                                          >
-                                            {row.mrn}
-                                          </div>
-                                        ) : (
-                                          <div>{row.mrn}</div>
-                                        )}
-                                      </div>
-                                    </div>
-                                    <div className="text-black py-0.5 px-1 overflow-hidden whitespace-nowrap w-20">
-                                      {row.surgery}
-                                    </div>
-                                    <div className="text-black py-0.5 px-1 w-20">
-                                      {row.bodyPart}
-                                    </div>
+                        {Object.keys(ele).map((date, dateIndex) => {
+                          if (waitlistShowFlag) {
+                            const sortedData = sortSurgeryData(
+                              ele[date],
+                              tierOrder,
+                            );
+                            ele[date] = sortedData;
+                          }
+                          return (
+                            <>
+                              <React.Fragment key={dateIndex}>
+                                <tr>
+                                  <th>Date</th>
+                                  <th>
+                                    <HomeIcon></HomeIcon>
+                                  </th>
+                                  <th className="w-24">Status</th>
+                                  <th className="w-24">Last Name</th>
+                                  <th className="w-24">First Name</th>
+                                  <th className="w-24">MRN</th>
+                                  <th className="w-20">Surgery</th>
+                                  <th className="w-20">Body Part</th>
 
-                                    {customOptionsHeaders.map(
-                                      (optionsHeader, optionsHeaderIndex) => {
-                                        const elements: JSX.Element[] = [];
-                                        if (row[`${optionsHeader}-count`]) {
-                                          for (
-                                            let index = 0;
-                                            index <
-                                            row[`${optionsHeader}-count`];
-                                            index++
-                                          ) {
-                                            elements.push(
-                                              <div
-                                                className="text-black py-0.5 px-1 w-20"
-                                                key={index}
-                                              >
-                                                {
-                                                  row[
-                                                    `${optionsHeader}-${index}`
-                                                  ]
-                                                }
-                                              </div>,
-                                            );
-                                          }
-                                        }
-                                        return (
-                                          <div
-                                            className="flex flex-col gap-1 justify-center"
-                                            key={optionsHeaderIndex}
-                                          >
-                                            {elements}
-                                          </div>
-                                        );
-                                      },
+                                  {customOptionsHeaders &&
+                                    customOptionsHeaders.map(
+                                      (optionsHeader, optionsHeaderIndex) => (
+                                        <th
+                                          className="w-12"
+                                          key={optionsHeaderIndex}
+                                        >
+                                          {optionsHeader}
+                                        </th>
+                                      ),
                                     )}
-                                    <div className="text-black py-0.5 px-1 w-20">
-                                      {row.details}
-                                    </div>
-                                    <div className="text-black py-0.5 px-1 w-20">
-                                      {row.surgeryOrder}
-                                    </div>
-                                    {customCheckListHeaders.map(
+
+                                  <th className="min-w-20">#</th>
+
+                                  {customCheckListHeaders &&
+                                    customCheckListHeaders.map(
                                       (
                                         checkListHeader,
                                         checkListHeaderIndex,
                                       ) => (
-                                        <div
-                                          className=" text-black py-0.5px-1 w-20"
+                                        <th
+                                          className="min-w-20"
                                           key={checkListHeaderIndex}
                                         >
-                                          {row[checkListHeader]}
-                                        </div>
+                                          {checkListHeader}
+                                        </th>
                                       ),
                                     )}
-                                    {viewBillingColumn && (
-                                      <div className="text-black py-0.5 px-1 w-20">
-                                        {row.prof}
-                                      </div>
-                                    )}
-                                    {viewBillingColumn && (
-                                      <div className="text-black py-0.5 px-1 w-20">
-                                        {row.hospital}
-                                      </div>
-                                    )}
-                                    <div className="text-black py-0.5 px-1 w-20">
-                                      {row.insurance}
-                                    </div>
-                                    <div className="flex flex-col text-black py-0.5 px-1 w-40 items-center">
-                                      <div
-                                        className="text-black py-0.5 px-1 w-full text-center overflow-hidden whitespace-nowrap"
-                                        style={{ textOverflow: 'ellipsis' }}
+
+                                  {viewBillingColumn && viewBillingColumn && (
+                                    <th className="min-w-20">Prof</th>
+                                  )}
+
+                                  {viewBillingColumn && (
+                                    <th className="">Hospital</th>
+                                  )}
+                                  {!iolListShowFlag && (
+                                    <th className="w-20">Insurance</th>
+                                  )}
+                                  <th className="w-40">Contact Info</th>
+                                  {!iolListShowFlag && <th>Action</th>}
+                                </tr>
+                                {ele[date].map((row, index) => {
+                                  const isEditable =
+                                    editableRows.includes(row.id) &&
+                                    selectedAction === 'edit';
+                                  const surgeryInfo = surgeryList.find(
+                                    (ele) => ele.id === row.id,
+                                  );
+                                  return isEditable && surgeryInfo ? (
+                                    <EditableRow
+                                      key={row.id}
+                                      rowId={row.id}
+                                      handleCancelClick={() =>
+                                        handleCancelClick(row.id)
+                                      }
+                                      customHeaders={surgeryOptionsHeadersObj}
+                                      surgeryInfo={surgeryInfo}
+                                      handleUpdateClick={handleUpdateClick}
+                                      withLoader={withLoader}
+                                    />
+                                  ) : (
+                                    <>
+                                      <tr
+                                        key={row.id}
+                                        id={row.id}
+                                        className={`${
+                                          index !== ele.length - 1
+                                            ? 'border-t border-gray-300'
+                                            : ''
+                                        }`}
                                       >
-                                        {row.email}
-                                      </div>
-                                      <div className="text-black py-0.5 px-1 w-20 text-center">
-                                        {row.phoneNumber}
-                                      </div>
-                                      <div className="text-black py-0.5 px-1 w-40 text-center flex items-center justify-center">
-                                        <div className="text-black py-0.5 px-1 text-center">
+                                        <td rowSpan={2} className="">
+                                          {viewHistory ? (
+                                            <div
+                                              onClick={() =>
+                                                handleViewHistory(
+                                                  row.patientId,
+                                                  row.surgery,
+                                                )
+                                              }
+                                              className="cursor-pointer underline"
+                                            >
+                                              {row.date}
+                                            </div>
+                                          ) : (
+                                            <div>{row.date}</div>
+                                          )}
+                                        </td>
+                                        <td rowSpan={2} className="">
+                                          {row.home[0]}
+                                        </td>
+                                        <td rowSpan={2} className="">
+                                          <div
+                                            className={`rounded-md inline-block text-white p-1 ${getColorForSurgeryStatus(
+                                              row.surgeryStatus.toUpperCase(),
+                                            )} text-xs`}
+                                          >
+                                            {toPascalCase(row.surgeryStatus)}
+                                          </div>
+                                        </td>
+                                        <td rowSpan={1} className="">
+                                          {row.lastName}
+                                        </td>
+                                        <td rowSpan={1} className="">
+                                          {row.firstName}
+                                        </td>
+                                        <td rowSpan={1} className="">
+                                          <div>
+                                            {viewHistory ? (
+                                              <div
+                                                onClick={() =>
+                                                  handleViewHistory(
+                                                    row.patientId,
+                                                    row.surgery,
+                                                  )
+                                                }
+                                                className="cursor-pointer underline"
+                                              >
+                                                {row.mrn}
+                                              </div>
+                                            ) : (
+                                              <div>{row.mrn}</div>
+                                            )}
+                                          </div>
+                                        </td>
+                                        <td rowSpan={1} className="">
+                                          {row.surgery}
+                                        </td>
+                                        <td rowSpan={1} className="">
+                                          {row.bodyPart}
+                                        </td>
+                                        {customOptionsHeaders.map(
+                                          (
+                                            optionsHeader,
+                                            optionsHeaderIndex,
+                                          ) => {
+                                            const elements: JSX.Element[] = [];
+                                            if (row[`${optionsHeader}-count`]) {
+                                              for (
+                                                let index = 0;
+                                                index <
+                                                row[`${optionsHeader}-count`];
+                                                index++
+                                              ) {
+                                                elements.push(
+                                                  <div className="" key={index}>
+                                                    {
+                                                      row[
+                                                        `${optionsHeader}-${index}`
+                                                      ]
+                                                    }
+                                                  </div>,
+                                                );
+                                              }
+                                            }
+                                            return (
+                                              <td
+                                                rowSpan={2}
+                                                className=""
+                                                key={optionsHeaderIndex}
+                                              >
+                                                {elements}
+                                              </td>
+                                            );
+                                          },
+                                        )}
+
+                                        <td rowSpan={2} className="">
+                                          {row.surgeryOrder}
+                                        </td>
+
+                                        {customCheckListHeaders.map(
+                                          (
+                                            checkListHeader,
+                                            checkListHeaderIndex,
+                                          ) => (
+                                            <td
+                                              className=""
+                                              rowSpan={2}
+                                              key={checkListHeaderIndex}
+                                            >
+                                              {row[checkListHeader]}
+                                            </td>
+                                          ),
+                                        )}
+
+                                        {viewBillingColumn && (
+                                          <td rowSpan={2} className="">
+                                            {row.prof}
+                                          </td>
+                                        )}
+
+                                        {viewBillingColumn && (
+                                          <td rowSpan={2} className="">
+                                            {row.hospital}
+                                          </td>
+                                        )}
+                                        {!iolListShowFlag && (
+                                          <td rowSpan={2} className="">
+                                            {row.insurance}
+                                          </td>
+                                        )}
+                                        <td rowSpan={2} className="">
+                                          {row.email}
+                                          <br />
+                                          {row.phoneNumber}
+                                          <br />
                                           referrer: {row.referrer}
-                                        </div>
-                                        <div>
                                           {row.referrerVerified && (
                                             <Checkbox
                                               checked={true}
@@ -871,28 +894,53 @@ const FiltersSection: React.FC<{
                                               }}
                                             />
                                           )}
-                                        </div>
-                                      </div>
-                                    </div>
-                                    <div className="text-black py-0.5 px-1 w-40 text-center">
-                                      {actionIcons(row)}
-                                    </div>
-                                  </div>
-                                  {selectedRow === row.id &&
-                                    selectedSurgery &&
-                                    selectedAction == 'view' && (
-                                      <ViewRow
-                                        selectedSurgery={row}
-                                        viewBillingColumn={viewBillingColumn}
-                                      />
-                                    )}
-                                </>
-                              );
-                            })}
-                          </div>
-                        );
-                      })}
-                    </div>
+                                        </td>
+                                        {!iolListShowFlag && (
+                                          <td rowSpan={2} className="">
+                                            {actionIcons(row)}
+                                          </td>
+                                        )}
+                                      </tr>
+                                      <tr>
+                                        {!iolListShowFlag && (
+                                          <td colSpan={5} className="bg-white">
+                                            <div className="">
+                                              <div>
+                                                <span className="font-semibold">
+                                                  Waitlist:{' '}
+                                                </span>
+                                                {row.waitlist}
+                                              </div>
+                                              <div>
+                                                <span className="font-semibold">
+                                                  Notes:{' '}
+                                                </span>
+                                                {row.details}
+                                              </div>
+                                            </div>
+                                          </td>
+                                        )}
+                                      </tr>
+
+                                      {selectedRow === row.id &&
+                                        selectedSurgery &&
+                                        selectedAction == 'view' && (
+                                          <ViewRow
+                                            selectedSurgery={row}
+                                            viewBillingColumn={
+                                              viewBillingColumn
+                                            }
+                                          />
+                                        )}
+                                    </>
+                                  );
+                                })}
+                              </React.Fragment>
+                            </>
+                          );
+                        })}
+                      </tbody>
+                    </table>
                   );
                 })}
                 <DeleteFilterModal

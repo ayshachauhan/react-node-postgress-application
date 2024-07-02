@@ -44,4 +44,7 @@ export class ReviewEntity extends BaseEntity implements IReview {
   @ManyToOne(() => PatientEntity)
   @JoinColumn({ name: 'patientId' })
   patient: PatientEntity;
+
+  @Column({ type: 'uuid', default: null })
+  surgeryId: string;
 }

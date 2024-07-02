@@ -20,7 +20,7 @@ export class CreateCalendarDto {
 
   @IsNotEmpty()
   @ApiProperty()
-  surgeryConfigurationId: string;
+  surgeryTypeId: string;
 }
 
 export class UpdateCalendarDto {
@@ -40,6 +40,6 @@ export class UpdateCalendarsDto {
     id: string;
     bookedSlots?: number;
     maxSlots?: number;
-    surgeryConfigurationId?: string;
+    surgeryTypeId?: string;
   }[];
 }

@@ -45,3 +45,5 @@ export const monthOptions: MonthOption[] = [
 ];
 
 export const DEFAULT_SURGERYNAME_COLOR = '#299479';
+
+export const DEFAULT_SURGERYLOCATION_COLOR = '#299479';

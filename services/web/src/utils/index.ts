@@ -1,3 +1,4 @@
+import { SurgeryStatus } from '@packages/entities';
 import { MonthOption } from '@packages/entities/index.browser';
 
 export function indexBy<K extends keyof T, T>(
@@ -63,7 +64,7 @@ export function usDateFormatter(date: Date): string {
   const formattedDateSplit: string[] = [];
   formattedDateSplit[0] = splitDate[1];
   formattedDateSplit[1] = splitDate[2];
-  // formattedDateSplit[2] = splitDate[0];
+  formattedDateSplit[2] = splitDate[0];
 
   return formattedDateSplit.join('/');
 }
@@ -203,3 +204,82 @@ export const getSelectedMonths = (selectedMonth: MonthOption[]) => {
   const month = monthLabels.join(',');
   return month;
 };
+
+export const getCurrentMonthName = () => {
+  const date = new Date();
+  const monthNames = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+  ];
+  return monthNames[date.getMonth()];
+};
+
+export const getColorForSurgeryStatus = (status) => {
+  switch (status) {
+    case SurgeryStatus.BOOK:
+      return 'bg-purple-400';
+    case SurgeryStatus.PENDING:
+      return 'bg-yellow-400';
+    case SurgeryStatus.DATE_CHANGE:
+      return 'bg-orange-400';
+    case SurgeryStatus.POSTPONE:
+      return 'bg-blue-400';
+    case SurgeryStatus.CANCELLED:
+      return 'bg-red-400';
+    case SurgeryStatus.COMPLETED:
+      return 'bg-green-400';
+    case SurgeryStatus.CONFIRMED:
+      return 'bg-gray-400';
+    default:
+      return 'bg-indigo-400';
+  }
+};
+
+export function createTierOrder(apiResponse) {
+  const tierOrder = {};
+
+  apiResponse.forEach((tier, index) => {
+    tierOrder[tier.name] = index + 1;
+  });
+
+  return tierOrder;
+}
+
+/**
+ * Function to sort surgery data by waitlist tier, shifting entries with blank waitlist to the bottom.
+ * @param {Array} data - Array of surgery data entries to be sorted.
+ * @param {Object} tierOrder - Object specifying the order of waitlist tiers.
+ * @returns {Array} - Sorted array of surgery data entries.
+ */
+export function sortSurgeryData(data, tierOrder) {
+  let sortedData = [];
+
+  const getTierValue = (waitlist) => {
+    if (waitlist && Object.prototype.hasOwnProperty.call(tierOrder, waitlist)) {
+      return tierOrder[waitlist];
+    } else {
+      return Object.keys(tierOrder).length + 1;
+    }
+  };
+
+  // Sort entries by waitlist tier
+  data.sort((a, b) => {
+    const tierA = getTierValue(a.waitlist);
+    const tierB = getTierValue(b.waitlist);
+    return tierA - tierB;
+  });
+
+  sortedData = sortedData.concat(data);
+
+  return sortedData;
+}

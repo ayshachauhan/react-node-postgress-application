@@ -10,12 +10,14 @@ import {
   selectSuccessMessage,
 } from '@root/store/reducers/auth';
 import { AzentiaLogo } from '@utils/constants';
+import { publicRuntimeConfig } from 'next.config';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import RequiredIndicator from '../RequiredIndicator';
 
 export default function LoginPage() {
   const dispatch = useAppDispatch();
+  const { API_BASE_URL } = publicRuntimeConfig;
   const [email, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const router = useRouter();
@@ -104,6 +106,9 @@ export default function LoginPage() {
             </div>
             <div className="mt-6 flex flex-col sm:flex-row sm:justify-between items-center">
               <Button kind="primary" title="Login" type="submit" width={164} />
+              <div className="text-sm">
+                <a href={`${API_BASE_URL}/auth/login/sso`}>Login With SSO</a>
+              </div>
               <div className="text-sm">
                 <a
                   href="/forgot-password"

@@ -2,7 +2,7 @@
 import { AddIcon, EditIcon } from '@components/Icons';
 import {
   ICalendar,
-  ISurgeryConfiguration,
+  ISurgeryType,
   MonthOption,
   USER_PERMISSIONS,
 } from '@packages/entities/index.browser';
@@ -25,7 +25,7 @@ export type CalendarData = {
   bookedSlots: number;
   surgeryName: string;
   surgeryNameColor: string;
-  selectedSurgery: ISurgeryConfiguration;
+  selectedSurgery: ISurgeryType;
 };
 
 export const DEFAULT_MAX_SLOTS: number = 14;
@@ -36,11 +36,11 @@ const UpcomingSection: React.FC = () => {
   const userInfo = useAppSelector((state) => state.auth.user);
   const userPermissions = userInfo?.permissions;
   const loggedInUserId = userInfo?.id;
-  const { calendars, surgeryConfigurations } = useAppSelector((state) => ({
+  const { calendars, surgeryTypes } = useAppSelector((state) => ({
     calendars: Object.values(state.calendars.entities).filter(
       (calendar) => calendar.user.id === userId,
     ),
-    surgeryConfigurations: Object.values(state.surgeryConfigurations.entities),
+    surgeryTypes: Object.values(state.surgeryTypes.entities),
   }));
 
   const { errorMessage, calendarsWithoutPermission, restricted } =
@@ -52,8 +52,9 @@ const UpcomingSection: React.FC = () => {
   const [isUpdating, setIsUpdating] = useState<boolean>(false);
   const modalRef = useRef(null);
 
-  const [selectedSurgery, setSelectedSurgery] =
-    useState<ISurgeryConfiguration | null>(null);
+  const [selectedSurgery, setSelectedSurgery] = useState<ISurgeryType | null>(
+    null,
+  );
 
   /**
    * @summary append + sign
@@ -163,12 +164,12 @@ const UpcomingSection: React.FC = () => {
   }, [practiceId, userId, selectedMonth, selectedValue, loggedInUserId]);
 
   useEffect(() => {
-    if (surgeryConfigurations.length > 0 && selectedSurgery === null) {
-      setSelectedSurgery(surgeryConfigurations[0]);
+    if (surgeryTypes.length > 0 && selectedSurgery === null) {
+      setSelectedSurgery(surgeryTypes[0]);
     }
-  }, [surgeryConfigurations]);
+  }, [surgeryTypes]);
 
-  const toggleActive = (surgeryType: ISurgeryConfiguration) => {
+  const toggleActive = (surgeryType: ISurgeryType) => {
     setSelectedSurgery(surgeryType);
   };
 
@@ -212,7 +213,7 @@ const UpcomingSection: React.FC = () => {
   };
 
   const selectedSurgeryCalData: ICalendar[] = calendars.filter(
-    (data: ICalendar) => data.surgeryConfiguration.id === selectedSurgery?.id,
+    (data: ICalendar) => data?.surgeryType?.id === selectedSurgery?.id,
   );
 
   const upcomingDates: CalendarData[] = selectedSurgeryCalData.map(
@@ -223,11 +224,10 @@ const UpcomingSection: React.FC = () => {
       bookedSlots: data.bookedSlots,
       // using data from selectedsurgery here because calendar data doesn't contain surgerytype relation, for fallback using surgeryconfig name
       surgeryName:
-        selectedSurgery?.surgeryType.name.charAt(0).toUpperCase() ??
-        data.surgeryConfiguration.name.charAt(0).toUpperCase(),
-      surgeryNameColor:
-        data.surgeryConfiguration.color ?? DEFAULT_SURGERYNAME_COLOR,
-      selectedSurgery: selectedSurgery as ISurgeryConfiguration,
+        selectedSurgery?.name.charAt(0).toUpperCase() ??
+        data.surgeryType.name.charAt(0).toUpperCase(),
+      surgeryNameColor: data?.surgeryType?.color ?? DEFAULT_SURGERYNAME_COLOR,
+      selectedSurgery: selectedSurgery as ISurgeryType,
     }),
   );
 
@@ -252,7 +252,7 @@ const UpcomingSection: React.FC = () => {
 
   const recordExists = calendarsWithoutPermission.some(
     (calendar: ICalendar) => {
-      return calendar.surgeryConfiguration.name === selectedSurgery?.name;
+      return calendar?.surgeryType?.name === selectedSurgery?.name;
     },
   );
 
@@ -266,13 +266,15 @@ const UpcomingSection: React.FC = () => {
   }
 
   const getNextValidDate = (excludedDates: Date[]) => {
-    // Started from today, stripped time only checking day
-    const nextDate = moment().startOf('day');
+    // Start from now with the current time
+    let nextDate = moment();
 
     while (excludedDates.some((date) => moment(date).isSame(nextDate, 'day'))) {
-      // Move to the next day
-      nextDate.add(1, 'days');
+      // Move to the next day while keeping the current time
+      nextDate = moment(nextDate).add(1, 'days');
     }
+
+    console.log(nextDate.toDate(), 'nextdate');
 
     // Convert back to a Date object for DatePicker
     return nextDate.toDate();
@@ -286,11 +288,10 @@ const UpcomingSection: React.FC = () => {
       bookedSlots: data.bookedSlots,
       // using data from selectedsurgery here because calendar data doesn't contain surgerytype relation, for fallback using surgeryconfig name
       surgeryName:
-        selectedSurgery?.surgeryType.name.charAt(0).toUpperCase() ??
-        data.surgeryConfiguration.name.charAt(0).toUpperCase(),
-      surgeryNameColor:
-        data.surgeryConfiguration.color ?? DEFAULT_SURGERYNAME_COLOR,
-      selectedSurgery: selectedSurgery as ISurgeryConfiguration,
+        selectedSurgery?.name.charAt(0).toUpperCase() ??
+        data.surgeryType.name.charAt(0).toUpperCase(),
+      surgeryNameColor: data?.surgeryType?.color ?? DEFAULT_SURGERYNAME_COLOR,
+      selectedSurgery: selectedSurgery as ISurgeryType,
     }),
   );
 
@@ -355,7 +356,7 @@ const UpcomingSection: React.FC = () => {
                       surgeryName: selectedSurgery?.name ?? 'N/A',
                       surgeryNameColor:
                         selectedSurgery?.color ?? DEFAULT_SURGERYNAME_COLOR,
-                      selectedSurgery: selectedSurgery as ISurgeryConfiguration,
+                      selectedSurgery: selectedSurgery as ISurgeryType,
                     },
                   ]
             }
@@ -372,17 +373,17 @@ const UpcomingSection: React.FC = () => {
       <div className="text-lg font-normal flex justify-between">
         <span>Calendar</span>
         {selectedSurgery && (
-          <div className="flex gap-1 items-center">
+          <div className="flex gap-3 items-center">
             <div
-              className="cursor-pointer"
+              className="cursor-pointer flex items-center"
               onClick={() => handleOpenModal(false)}
             >
-              <AddIcon size={20}></AddIcon>
+              <AddIcon></AddIcon>
               {''}
             </div>
             {editCalendar && (
               <div
-                className="cursor-pointer"
+                className="cursor-pointer flex items-center"
                 onClick={() => handleOpenModal(true)}
               >
                 <EditIcon></EditIcon>
@@ -394,7 +395,7 @@ const UpcomingSection: React.FC = () => {
       <hr className="h-px my-2.5 bg-gray-100 border-1 border-gray-100"></hr>
       <div className="flex w-full bg-green-50 pr-2 border-b border-green-200 items-center">
         <div className="flex items-center">
-          {surgeryConfigurations.map((item: ISurgeryConfiguration, index) => (
+          {surgeryTypes.map((item: ISurgeryType, index) => (
             <div className="mr-1" key={index}>
               <button
                 className="py-2 px-4 text-xs text-black text-normal border-b-2 border-transparent hover:text-white hover:bg-gradient-to-r from-primary-light to-primary-dark hover:rounded-t-lg"
@@ -415,60 +416,56 @@ const UpcomingSection: React.FC = () => {
           ))}
         </div>
       </div>
-      <div className="mt-2 flex gap-5 overflow-x-auto text-xs">
+      <div className="flex items-start mt-2 overflow-x-auto text-xs">
         {calendarData.length > 0 ? (
           calendarData.map((calendar: CalendarData[], index: number) => (
-            <div className="border-r-4 border-gray-200 pr-4 flex" key={index}>
-              <div className="mt-2 text-xs">
-                <div className="text-gray-50 w-full items-center bg-gray-50 rounded-lg">
-                  <>
-                    <div className="bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 flex">
-                      <div className="font-bold text-white p-4 w-10">T</div>
-                      <div className="font-bold text-white p-4 w-40">Date</div>
-                      <div className="font-bold text-white p-4 w-10">Now</div>
-                      <div className="font-bold text-white p-4 w-10">Max</div>
-                      <div className="font-bold text-white p-4 w-10"></div>
-                    </div>
-                    {calendar.map((data: CalendarData, index) => {
-                      const availableSlots: number =
-                        data.maxSlots - data.bookedSlots;
-                      return (
-                        <React.Fragment key={data.id}>
-                          <div
-                            className={`flex items-center ${
-                              index !== calendar.length - 1
-                                ? 'border-b border-gray-300'
-                                : ''
-                            }`}
+            <div
+              className="inline-flex border-r-4 border-gray-200 pr-3 mr-3"
+              key={index}
+            >
+              <table>
+                <thead>
+                  <tr className="">
+                    <th className="">T</th>
+                    <th className="">Date</th>
+                    <th className="">Now</th>
+                    <th className="">Max</th>
+                    <th className=""></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {calendar.map((data: CalendarData, index) => {
+                    const availableSlots: number =
+                      data.maxSlots - data.bookedSlots;
+                    return (
+                      <React.Fragment key={data.id}>
+                        <tr
+                          className={`${
+                            index !== calendar.length - 1
+                              ? 'border-b border-gray-300'
+                              : ''
+                          }`}
+                        >
+                          <td
+                            className="text-white"
+                            style={{ background: data.surgeryNameColor }}
                           >
-                            <div
-                              className="text-black bg-gray-50 pt-2 pb-2 px-4 w-10"
-                              style={{ background: data.surgeryNameColor }}
-                            >
-                              {data.surgeryName}
-                            </div>
-                            <div className="text-black bg-gray-50 pt-2 pb-2 px-4 w-40">
-                              {moment(data.date).format('YYYY-MM-DD')}
-                            </div>
-                            <div className="text-black bg-gray-50 pt-2 pb-2 px-4 w-10">
-                              {data.bookedSlots}
-                            </div>
-                            <div className="text-black bg-gray-50 pt-2 pb-2 px-4 w-10">
-                              {data.maxSlots}
-                            </div>
-                            <div
-                              className="text-black bg-gray-50 pt-2 pb-2 px-4 w-10 text-center"
-                              style={maxCellStyle(availableSlots)}
-                            >
-                              {appendAddSign(availableSlots)}
-                            </div>
-                          </div>
-                        </React.Fragment>
-                      );
-                    })}
-                  </>
-                </div>
-              </div>
+                            {data.surgeryName}
+                          </td>
+                          <td className="whitespace-nowrap">
+                            {moment(data.date).format('YYYY-MM-DD')}
+                          </td>
+                          <td className="">{data.bookedSlots}</td>
+                          <td className="">{data.maxSlots}</td>
+                          <td className="" style={maxCellStyle(availableSlots)}>
+                            {appendAddSign(availableSlots)}
+                          </td>
+                        </tr>
+                      </React.Fragment>
+                    );
+                  })}
+                </tbody>
+              </table>
             </div>
           ))
         ) : (
