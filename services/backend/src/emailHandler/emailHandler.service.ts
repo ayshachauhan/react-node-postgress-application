@@ -63,7 +63,7 @@ export class EmailHandlerService {
       const systemTemplateName = systemGeneratedMailData.systemTemplate;
       const entry: Partial<IEmailLog> = {
         practice: practice,
-        expectedDate: entity.date,
+        expectedDate: new Date(),
         status: 'pending',
         data: {
           body: this.transporterService.readTemplates(systemTemplateName),
@@ -88,7 +88,7 @@ export class EmailHandlerService {
 
       const entry: Partial<IEmailLog> = {
         practice: practice,
-        expectedDate: entity.date,
+        expectedDate: new Date(),
         status: 'pending',
         data: {
           body: this.transporterService.readTemplates(systemTemplateName),
@@ -263,7 +263,7 @@ export class EmailHandlerService {
       referrerTemplateFound = true;
       const entry: Partial<IEmailLog> = {
         practice: practice,
-        expectedDate: entity.date,
+        expectedDate: new Date(),
         status: 'pending',
         data: {
           to: mailVariables?.referrerEmail,
@@ -500,7 +500,7 @@ export class EmailHandlerService {
 
       const entry: Partial<IEmailLog> = {
         practice: practice,
-        expectedDate: entity.date,
+        expectedDate: new Date(),
         status: 'pending',
         data: {
           body: this.transporterService.readTemplates(systemTemplateName),
