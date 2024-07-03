@@ -137,11 +137,12 @@ const DashboardPage: React.FC = () => {
       dispatch(fetchWaitlist({ practiceId }));
     }
   }, [practiceId, dispatch, withLoader]);
+  const updateSuccessCase = 'Surgery updated successfully.';
 
   useEffect(() => {
     if (
       (addSurgerySuccessMessage || addEvalSuccessMessage) &&
-      addSurgerySuccessMessage !== 'Surgery updated successfully.'
+      addSurgerySuccessMessage !== updateSuccessCase
     ) {
       if (practiceId) {
         const loadData = async () => {

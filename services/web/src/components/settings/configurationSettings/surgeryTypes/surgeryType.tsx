@@ -187,7 +187,7 @@ export default function SurgeryTypePage() {
           kind="primary"
           title="Add New"
           onClick={handleOpenModal}
-          startEnhancer={() => <AddIcon className="mt-2" size={25}></AddIcon>}
+          startEnhancer={() => <AddIcon></AddIcon>}
         />
       </div>
       <hr className="h-px my-2.5 bg-gray-100 border-1 border-gray-100"></hr>

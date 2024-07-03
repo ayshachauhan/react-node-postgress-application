@@ -387,9 +387,7 @@ const EditModularField: React.FC<{
                     title=""
                     width={30}
                     height={30}
-                    startEnhancer={() => (
-                      <AddIcon className="mt-[0.1rem] ml-2" size={25}></AddIcon>
-                    )}
+                    startEnhancer={() => <AddIcon></AddIcon>}
                     onClick={handleAddFields}
                   />
                 </div>
@@ -431,7 +429,7 @@ const EditModularField: React.FC<{
                     width={30}
                     height={30}
                     startEnhancer={() => (
-                      <AddIcon className="mt-2 ml-2" size={25}></AddIcon>
+                      <AddIcon></AddIcon>
                     )}
                     onClick={handleFacilityAddFields}
                   />
@@ -454,9 +452,7 @@ const EditModularField: React.FC<{
                     title=""
                     width={25}
                     height={25}
-                    startEnhancer={() => (
-                      <AddIcon className="mt-[0.1rem] ml-2" size={25}></AddIcon>
-                    )}
+                    startEnhancer={() => <AddIcon></AddIcon>}
                     onClick={handleAddOptionCategory}
                   />
                 </div>
@@ -703,12 +699,7 @@ const EditModularField: React.FC<{
                                   title=""
                                   width={30}
                                   height={30}
-                                  startEnhancer={() => (
-                                    <AddIcon
-                                      className="mt-[0.1rem] ml-2"
-                                      size={25}
-                                    ></AddIcon>
-                                  )}
+                                  startEnhancer={() => <AddIcon></AddIcon>}
                                   onClick={() => handleOptionsAddField(index)}
                                 />
                               </div>
@@ -765,9 +756,7 @@ const EditModularField: React.FC<{
                     title=""
                     width={25}
                     height={25}
-                    startEnhancer={() => (
-                      <AddIcon className="mt-[0.1rem] ml-2" size={25}></AddIcon>
-                    )}
+                    startEnhancer={() => <AddIcon></AddIcon>}
                     onClick={handleChecklistAddFields}
                   />
                 </div>

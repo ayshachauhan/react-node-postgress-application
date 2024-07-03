@@ -25,7 +25,7 @@ export class SchedulerService {
     return this.configService.get(ENVIRONMENT_VARIABLES.CRON_EMAIL_SENT_LIMIT);
   }
 
-  @Interval(5000) // This runs the task every 5 seconds
+  @Interval(15000) // This runs the task every 10 seconds
   async handleCron() {
     const lockKey = 123456; // Unique key for the advisory lock
 

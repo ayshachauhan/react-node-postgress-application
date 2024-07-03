@@ -266,7 +266,7 @@ const Media: React.FC = () => {
           height={40}
           width={80}
           onClick={handleOpenSecondModal}
-          startEnhancer={() => <AddIcon className="mt-2" size={25} />}
+          startEnhancer={() => <AddIcon />}
         />
       </div>
       <hr className="h-px my-2.5 bg-gray-100 border-1 border-gray-100" />

@@ -177,7 +177,7 @@ const Templates: React.FC = () => {
           kind="secondary"
           title="Add New"
           onClick={handleOpenAddModal}
-          startEnhancer={() => <AddIcon className="mt-2" size={25}></AddIcon>}
+          startEnhancer={() => <AddIcon></AddIcon>}
         />
       </div>
       <hr className="h-px my-2.5 px-0 mx-0 bg-gray-100 border-1 border-gray-100"></hr>
