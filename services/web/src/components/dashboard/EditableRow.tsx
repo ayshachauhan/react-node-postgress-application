@@ -166,7 +166,7 @@ function EditableRow({
     return (
       <>
         <tr className="border-t">
-          <td rowSpan={2} className="w-32">
+          <td rowSpan={2} className="min-w-32">
             <DatePicker
               value={obj.date}
               onChange={({ date }) => handleObjChange('date', date)}
