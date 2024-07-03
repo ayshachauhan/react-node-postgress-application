@@ -13,7 +13,9 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { USER_PERMISSIONS } from '@packages/entities/permission';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { PermissionGuard } from 'src/auth/userPermissions.guard';
 import { practiceNotFoundInterceptor } from '../interceptors/practiceNotFoundInterceptor';
 import { reviewRequestDto } from './dtos/review.sendrequest';
 import { updateReviewDto } from './dtos/review.updateDto';
@@ -50,11 +52,13 @@ export class ReviewController {
   }
 
   @Get()
+  @UseGuards(PermissionGuard(USER_PERMISSIONS.VIEW_REP))
   getReviews(@Param('practiceId') practiceId: string) {
     return this.reviewService.getReviews(practiceId);
   }
 
   @Get('search')
+  @UseGuards(PermissionGuard(USER_PERMISSIONS.VIEW_REP))
   async searchReviews(
     @Param('practiceId') practiceId: string,
     @Query('keyword') keyword: string,
