@@ -3,40 +3,12 @@ import Button from '@root/components/Button';
 import { AddIcon, CloseIcon } from '@root/components/Icons';
 // import RequiredIndicator from '@root/components/RequiredIndicator';
 import TextInput from '@root/components/TextInput';
-// import { SHAPE } from 'baseui/button';
-// import { Checkbox } from 'baseui/checkbox';
 import { SIZE } from 'baseui/input';
-// import { Select } from 'baseui/select';
-// import { useAppDispatch } from '@root/store';
-// import { addRecordAsync } from '@root/store/reducers/insuranceTypes';
-// import { getPracticeId } from '@utils/index';
 import React, { useState } from 'react';
 
 const Checklist: React.FC<{ props }> = ({ props }) => {
   const { checkListInputFields, setCheckListInputFields } = props;
-  //   const dispatch = useAppDispatch();
   const [errorMessage] = useState('');
-  // const [insuranceType, setInsuranceType] = useState('');
-  //   const practiceId = getPracticeId();
-
-  //   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-  //     e.preventDefault();
-  //     const trimmedInsuranceType = insuranceType.trim();
-  //     if (practiceId && trimmedInsuranceType !== '') {
-  //       const insuranceTypePayload: CreateInsuranceTypeInterface = {
-  //         practiceId,
-  //         name: trimmedInsuranceType,
-  //       };
-  //       try {
-  //         dispatch(addRecordAsync(insuranceTypePayload));
-  //         onClose();
-  //       } catch (error) {
-  //         onClose();
-  //       }
-  //     } else {
-  //       setErrorMessage('Insurance type is required.');
-  //     }
-  //   };
 
   const handleChecklistChangeInput = (index: number, event: string) => {
     const values = [...checkListInputFields];
@@ -74,9 +46,7 @@ const Checklist: React.FC<{ props }> = ({ props }) => {
                 title=""
                 width={25}
                 height={25}
-                startEnhancer={() => (
-                  <AddIcon className="mt-[0.1rem] ml-2" size={25}></AddIcon>
-                )}
+                startEnhancer={() => <AddIcon className="mr-0"></AddIcon>}
                 onClick={handleChecklistAddFields}
               />
             </div>

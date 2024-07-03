@@ -24,6 +24,17 @@ const AddModularField: React.FC<{
 
   const { surgeryTypesList } = items;
 
+  const [conditionalOptions, setConditionalOptions] = useState([
+    {
+      label: '',
+      dependsUpon: null,
+      dependencies: [],
+      count: 1,
+      values: [],
+      edit_admin_option: false,
+    },
+  ]);
+
   const surgeryTypeOptions = Object.keys(surgeryTypesList).map((key) => ({
     label: surgeryTypesList[key].name,
     id: surgeryTypesList[key].id,
@@ -144,19 +155,19 @@ const AddModularField: React.FC<{
   const [checkListInputFields, setCheckListInputFields] = useState([
     { value: '' },
   ]);
-  const handleChecklistChangeInput = (index: number, event: string) => {
-    const values = [...checkListInputFields];
-    values[index].value = event;
-    setCheckListInputFields(values);
-  };
-  const handleChecklistAddFields = () => {
-    setCheckListInputFields([...checkListInputFields, { value: '' }]);
-  };
-  const handleChecklistRemoveFields = (index: number) => {
-    const values = [...checkListInputFields];
-    values.splice(index, 1);
-    setCheckListInputFields(values);
-  };
+  // const handleChecklistChangeInput = (index: number, event: string) => {
+  //   const values = [...checkListInputFields];
+  //   values[index].value = event;
+  //   setCheckListInputFields(values);
+  // };
+  // const handleChecklistAddFields = () => {
+  //   setCheckListInputFields([...checkListInputFields, { value: '' }]);
+  // };
+  // const handleChecklistRemoveFields = (index: number) => {
+  //   const values = [...checkListInputFields];
+  //   values.splice(index, 1);
+  //   setCheckListInputFields(values);
+  // };
 
   const [surgeryName, setSurgeryName] = useState<string>('');
   const [surgeryTypeId, setSurgeryTypeId] = useState('');
@@ -687,61 +698,9 @@ const AddModularField: React.FC<{
               </div>
             ))}
           </div>
-          <ConditionalOptions />
-          <div className="pt-6">
-            <div className="flex">
-              <div>
-                <label htmlFor="lastName" className="text-black text-lg">
-                  Checklist
-                </label>
-              </div>
-              <div>
-                <div className="pl-3">
-                  <Button
-                    type="button"
-                    kind="primary"
-                    title=""
-                    width={25}
-                    height={25}
-                    startEnhancer={() => <AddIcon></AddIcon>}
-                    onClick={handleChecklistAddFields}
-                  />
-                </div>
-              </div>
-            </div>
-            <hr className="h-px bg-gray-100 border-1 dark:bg-gray-800"></hr>
-            <div className="flex gap-5">
-              <div className="space-y-2 flex-1">
-                <label htmlFor="email" className="text-black text-sm mt-2">
-                  Name
-                </label>
-                <div className="flex flex-row gap-3">
-                  {checkListInputFields.map((inputField, index, arr) => (
-                    <div key={index}>
-                      <TextInput
-                        size={SIZE.mini}
-                        type="text"
-                        value={inputField.value}
-                        onChange={(event) =>
-                          handleChecklistChangeInput(index, event)
-                        }
-                        endEnhancer={
-                          arr.length > 1 ? (
-                            <div
-                              className="rounded-md cursor-pointer items-center pl-3"
-                              onClick={() => handleChecklistRemoveFields(index)}
-                            >
-                              <CloseIcon className="" size={10} />
-                            </div>
-                          ) : null
-                        }
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
+          <ConditionalOptions
+            props={{ conditionalOptions, setConditionalOptions }}
+          />
           <Checklist
             props={{ checkListInputFields, setCheckListInputFields }}
           />

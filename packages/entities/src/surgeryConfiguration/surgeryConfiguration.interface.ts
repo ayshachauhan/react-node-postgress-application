@@ -54,14 +54,12 @@ export type SurgeryOptions = {
 
 export type SurgeryConditionalOptions = {
   [key: string]: {
-    type: string;
     label: string;
-    default: string;
-    required: string;
     dependsUpon: string | null;
     dependencies?: DependantOption[];
     count: number;
     edit_admin_option: boolean;
+    values: string[];
   };
 };
 
