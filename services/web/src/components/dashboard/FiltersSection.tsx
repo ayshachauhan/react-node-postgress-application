@@ -293,12 +293,16 @@ const FiltersSection: React.FC<{
 
     if (selectedLabel === 'past view' || selectedLabel === 'upcoming view') {
       dispatch(setSelectedMonth([]));
+      setIsIolViewActive(false);
+      setIsWailistViewActive(false);
     }
     if (selectedLabel === 'waitlist view') {
       setIsWailistViewActive(true);
+      setIsIolViewActive(false);
     }
     if (selectedLabel === 'iol view') {
       setIsIolViewActive(true);
+      setIsWailistViewActive(false);
     }
   };
 
