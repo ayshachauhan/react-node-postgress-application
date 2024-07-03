@@ -3,7 +3,7 @@ import {
   ISurgeryConfiguration,
   MonthOption,
 } from '@packages/entities';
-import { IWaitlist } from '@packages/entities/index.browser';
+import { IWaitlist, ReviewStatus } from '@packages/entities/index.browser';
 import { USER_PERMISSIONS } from '@packages/entities/permission';
 import Button from '@root/components/Button';
 import {
@@ -18,8 +18,13 @@ import {
 } from '@root/components/Icons';
 import TextInput from '@root/components/TextInput';
 import Loader from '@root/components/loader';
+import { useLoader } from '@root/hooks/useLoader';
 import { useUserPermission } from '@root/hooks/userHasPermission';
 import { useAppDispatch, useAppSelector } from '@root/store';
+import {
+  fetchListings as fetchReviews,
+  sendReviewRequestAsyncThunk,
+} from '@root/store/reducers/review';
 import {
   deleteRecordAsync,
   fetchListings,
@@ -49,12 +54,29 @@ const FiltersSection: React.FC<{
   practiceId: string;
   withLoader: (func: () => Promise<void>) => Promise<void>;
   isLoading: boolean;
-}> = ({ practiceId, withLoader, isLoading }) => {
+  onReviewClickError;
+  onReviewClickSuccess;
+}> = ({
+  practiceId,
+  withLoader,
+  isLoading,
+  onReviewClickError,
+  onReviewClickSuccess,
+}) => {
   const dispatch = useAppDispatch();
   const { selectedMonth, searchMRNName, selectedValue } = useAppSelector(
     (state) => state.surgeries.surgeryFilters,
   );
+  const reviews = useAppSelector((state) =>
+    Object.values(state.reviews.entities),
+  );
+  const {
+    isLoading: reviewSendingIsLoading,
+    withLoader: reviewSenderWithLoader,
+  } = useLoader();
 
+  const [reviewErrorMessage, setReviewErrorMessage] = useState<string>('');
+  const [reviewSuccessMessage, setReviewSuccessMessage] = useState<string>('');
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isWailistViewActive, setIsWailistViewActive] = useState(false);
   const [isIolViewActive, setIsIolViewActive] = useState(false);
@@ -113,6 +135,7 @@ const FiltersSection: React.FC<{
     () => getMonthOptions(viewPastCases, viewFutureCases),
     [viewPastCases, viewFutureCases],
   );
+  const [isReviewRequestLoading, setIsReviewRequestLoading] = useState(false);
 
   const surgeryOptionsHeadersObj: {
     [key: string]: {
@@ -140,7 +163,10 @@ const FiltersSection: React.FC<{
 
   const actionIcons = (row) => (
     <div style={{ display: 'flex' }}>
-      <StarIcon style={{ marginRight: '4px', cursor: 'pointer' }} />
+      <StarIcon
+        style={{ marginRight: '4px', cursor: 'pointer' }}
+        onClick={() => handleSendReviewRequest(row)}
+      />
       <CopyIcon
         style={{ marginRight: '4px', cursor: 'pointer' }}
         onClick={() => handleCloneClick(row.id)}
@@ -279,6 +305,29 @@ const FiltersSection: React.FC<{
   const handleChangeMonth = ({ value }) => {
     dispatch(setSelectedMonth(value));
   };
+  const sendReqest = async (id: string, patientEmail: string) => {
+    if (practiceId && id) {
+      try {
+        setIsReviewRequestLoading(true);
+        await reviewSenderWithLoader(async () => {
+          const response = await dispatch(
+            sendReviewRequestAsyncThunk({ practiceId, id }),
+          );
+          if (response?.meta?.requestStatus === 'fulfilled') {
+            setReviewSuccessMessage(`Review request sent to ${patientEmail}`);
+            onReviewClickSuccess(`Review request sent to ${patientEmail}`);
+          } else if (response?.meta?.requestStatus === 'rejected') {
+            setReviewErrorMessage(response.payload);
+            onReviewClickError(response.payload);
+          }
+        });
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setIsReviewRequestLoading(false);
+      }
+    }
+  };
 
   const handleSearchMRNNameChange = (value: string) => {
     const mrn = value.toLowerCase();
@@ -289,6 +338,34 @@ const FiltersSection: React.FC<{
     if (practiceId) dispatch(fetchSurgeryInfo({ practiceId, id: rowId }));
     handleOpenAddModal();
     setSelectedRow(selectedRow === rowId ? null : rowId);
+  };
+
+  const handleSendReviewRequest = (row) => {
+    let errorMessage = '';
+    if (row.surgeryStatus === 'COMPLETED') {
+      if (row.id) {
+        const reviewsBySurgeryId = reviews.find(
+          (ele) => ele.surgeryId === row.id,
+        );
+        if (reviewsBySurgeryId && reviewsBySurgeryId.id) {
+          if (reviewsBySurgeryId.reviewStatus === ReviewStatus.PENDING) {
+            if (!isReviewRequestLoading) {
+              sendReqest(reviewsBySurgeryId.id, row?.email);
+            }
+          } else if (reviewsBySurgeryId.reviewStatus === ReviewStatus.SENT) {
+            errorMessage = 'Request already sent';
+          } else if (
+            reviewsBySurgeryId.reviewStatus === ReviewStatus.RECEIVED
+          ) {
+            errorMessage = 'Review received';
+          }
+        }
+      }
+    } else {
+      errorMessage = `This surgery is still in ${row.surgeryStatus}. So review request can’t be sent to the patient.`;
+    }
+    setReviewErrorMessage(errorMessage);
+    onReviewClickError(reviewErrorMessage);
   };
 
   const handleOpenDeleteModal = (rowId: string): void => {
@@ -375,6 +452,26 @@ const FiltersSection: React.FC<{
       selectedValue.toLowerCase() === 'upcoming');
 
   useEffect(() => {
+    onReviewClickError(reviewErrorMessage);
+  }, [reviewErrorMessage]);
+
+  useEffect(() => {
+    onReviewClickSuccess(reviewSuccessMessage);
+  }, [reviewSuccessMessage]);
+
+  useEffect(() => {
+    if (practiceId !== null) {
+      const loadData = async () => {
+        await withLoader(async () => {
+          await dispatch(fetchReviews({ practiceId: practiceId }));
+        });
+      };
+
+      loadData();
+    }
+  }, [practiceId, dispatch, withLoader]);
+
+  useEffect(() => {
     if (practiceId && loggedInUserId !== null) {
       dispatchFetchFilteredSurgeryList(
         selectedMonth,
@@ -394,6 +491,7 @@ const FiltersSection: React.FC<{
     Object.values(state.waitlist.entities),
   );
   const [isUpdateLoading, setIsUpdateLoading] = useState(false);
+
   const handleSetIsUpdateLoading = (loadingState: boolean) => {
     setIsUpdateLoading(loadingState);
   };
@@ -407,6 +505,7 @@ const FiltersSection: React.FC<{
 
   return (
     <div>
+      {reviewSendingIsLoading && <Loader />}
       {isUpdateLoading && <Loader />}
       {!isLoading && (
         <div>
@@ -608,7 +707,7 @@ const FiltersSection: React.FC<{
                                   return isEditable && surgeryInfo ? (
                                     <EditableRow
                                       key={row.id}
-                                      rowId={row.id} // Pass the rowId
+                                      rowId={row.id}
                                       handleCancelClick={() =>
                                         handleCancelClick(row.id)
                                       }

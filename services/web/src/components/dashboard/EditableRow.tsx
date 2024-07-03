@@ -276,6 +276,7 @@ function EditableRow({
                     ]
                   : []
               }
+              disabled={obj?.surgeryStatus === SurgeryStatus.COMPLETED}
               size={SIZE.mini}
               onChange={({ value }) =>
                 handleObjChange('surgeryStatus', value[0].label)
