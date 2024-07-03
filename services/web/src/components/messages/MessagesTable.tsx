@@ -95,7 +95,9 @@ export default function MessagesTable() {
     let filtered = [...messagesData];
 
     if (activeButton === 'Referrers') {
-      filtered = []; // Set filtered data to empty array for Referrers tab
+      filtered = filtered.filter(
+        (row) => row.data?.to === row.data?.referrerEmail,
+      );
     } else if (activeButton === 'Emails') {
       filtered = filtered.filter(
         (row) => row.data?.body && row.data.body.trim() !== '',
