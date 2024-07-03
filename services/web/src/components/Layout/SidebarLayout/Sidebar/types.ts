@@ -82,6 +82,7 @@ export const sidebarItems: SideBarItem[] = [
     title: 'Review',
     path: '/review',
     permissions: ['admin'],
+    userPermissions: [USER_PERMISSIONS.VIEW_REP],
     Icon: ReviewIcon,
   },
   {
