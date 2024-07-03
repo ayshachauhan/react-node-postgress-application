@@ -53,7 +53,8 @@ const DashboardPage: React.FC = () => {
   const viewUserMetrics = useUserPermission(userPermissions, [
     USER_PERMISSIONS.LEADERBOARD_DISPLAY,
   ]);
-
+  const [reviewErrorMessage, setReviewErrorMessage] = useState('');
+  const [reviewSuccessMessage, setReviewSuccessMessage] = useState('');
   const { successMessage: addSurgerySuccessMessage, calendarSuccessMessage } =
     useAppSelector((state) => ({
       successMessage: state.surgeries.successMessage,
@@ -70,6 +71,38 @@ const DashboardPage: React.FC = () => {
   const month = monthLabels.join(',');
   const searchMRNNameStr = searchMRNName || '';
   const { isLoading, withLoader } = useLoader();
+
+  const handleReviewErrorMessage = (message: string) => {
+    setReviewErrorMessage(message);
+  };
+
+  const handleReviewSuccessMessage = (message: string) => {
+    setReviewSuccessMessage(message);
+  };
+
+  useEffect(() => {
+    if (reviewErrorMessage) {
+      const timeout = setTimeout(() => {
+        setReviewErrorMessage('');
+      }, 1000);
+
+      return () => clearTimeout(timeout);
+    }
+
+    return undefined;
+  }, [reviewErrorMessage]);
+
+  useEffect(() => {
+    if (reviewSuccessMessage) {
+      const timeout2 = setTimeout(() => {
+        setReviewSuccessMessage('');
+      }, 1000);
+
+      return () => clearTimeout(timeout2);
+    }
+
+    return undefined;
+  }, [reviewSuccessMessage]);
 
   useEffect(() => {
     dispatch(fetchLoggedInUser());
@@ -104,11 +137,12 @@ const DashboardPage: React.FC = () => {
       dispatch(fetchWaitlist({ practiceId }));
     }
   }, [practiceId, dispatch, withLoader]);
+  const updateSuccessCase = 'Surgery updated successfully.';
 
   useEffect(() => {
     if (
       (addSurgerySuccessMessage || addEvalSuccessMessage) &&
-      addSurgerySuccessMessage !== 'Surgery updated successfully.'
+      addSurgerySuccessMessage !== updateSuccessCase
     ) {
       if (practiceId) {
         const loadData = async () => {
@@ -201,6 +235,16 @@ const DashboardPage: React.FC = () => {
               : addEvalSuccessMessage}
           </div>
         )}
+        {reviewErrorMessage && (
+          <div className="text-red-700 fixed top-0 left-1/2 mt-20 transform -translate-x-1/2">
+            {reviewErrorMessage}
+          </div>
+        )}
+        {reviewSuccessMessage && (
+          <div className="text-green-700 fixed top-0 left-1/2 mt-20 transform -translate-x-1/2">
+            {reviewSuccessMessage}
+          </div>
+        )}
         <div className="flex  justify-between">
           <div className="flex">
             {addCaseAllowed && (
@@ -251,6 +295,8 @@ const DashboardPage: React.FC = () => {
             practiceId={practiceId}
             withLoader={withLoader}
             isLoading={isLoading}
+            onReviewClickError={handleReviewErrorMessage}
+            onReviewClickSuccess={handleReviewSuccessMessage}
           />
         )}
       </div>

@@ -95,7 +95,9 @@ export default function MessagesTable() {
     let filtered = [...messagesData];
 
     if (activeButton === 'Referrers') {
-      filtered = []; // Set filtered data to empty array for Referrers tab
+      filtered = filtered.filter(
+        (row) => row.data?.to === row.data?.referrerEmail,
+      );
     } else if (activeButton === 'Emails') {
       filtered = filtered.filter(
         (row) => row.data?.body && row.data.body.trim() !== '',
@@ -503,7 +505,7 @@ export default function MessagesTable() {
                         <div className="font-bold text-white py-2 px-1 min-w-[5rem]">
                           MRN
                         </div>
-                        <div className="font-bold text-white py-2 px-1 min-w-[10rem]">
+                        <div className="font-bold text-white py-2 px-1 min-w-[20rem]">
                           Contact Details
                         </div>
                         {activeButton !== 'Texts' && (
@@ -517,7 +519,7 @@ export default function MessagesTable() {
                           </div>
                         )}
                         {activeButton !== 'Texts' && (
-                          <div className="font-bold text-white py-2 px-1 min-w-[10rem]">
+                          <div className="font-bold text-white py-2 px-1 min-w-[5rem]">
                             Email Status
                           </div>
                         )}
@@ -549,9 +551,18 @@ export default function MessagesTable() {
                           <div className="text-black  pt-2 pb-2 px-1 min-w-[5rem]">
                             {row?.data?.mrn}
                           </div>
-                          <div className="text-black  pt-2 pb-2 px-1 overflow-hidden min-w-[10rem]">
-                            <p>Cell: {row?.data?.phoneNumber}</p>
-                            <p>Email: {row?.data?.pt_email_address}</p>
+                          <div className="text-black  pt-2 pb-2 px-1 overflow-hidden min-w-[20rem]">
+                            <p>Email: {row?.data?.to}</p>
+                            {row?.data?.to === row?.data?.pt_email_address && (
+                              <p>Cell: {row?.data?.phoneNumber}</p>
+                            )}
+                            {row?.data?.to === row?.data?.doc_email_address && (
+                              <p>Cell: {row?.data?.doctorPhoneNumber}</p>
+                            )}
+                            {!(
+                              row?.data?.to === row?.data?.pt_email_address ||
+                              row?.data?.to === row?.data?.doc_email_address
+                            ) && <p>Cell: </p>}
                           </div>
                           {activeButton !== 'Texts' && (
                             <MessageWithReadMore
@@ -570,7 +581,7 @@ export default function MessagesTable() {
                             />
                           )}
                           {activeButton !== 'Texts' && (
-                            <div className="text-black  pt-2 pb-2 px-1 overflow-hidden min-w-[10rem]">
+                            <div className="text-black  pt-2 pb-2 px-1 overflow-hidden min-w-[5rem]">
                               {row?.status.toLowerCase() === 'rejected' ? (
                                 <span>Error; message not sent</span>
                               ) : row?.status.toLowerCase() === 'completed' ? (

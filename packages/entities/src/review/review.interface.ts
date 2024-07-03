@@ -15,6 +15,7 @@ export interface IReview extends IBaseEntity {
   practiceResponseDate: Date;
   practiceResponse: string;
   tags: string;
+  surgeryId: string;
 }
 
 export interface ValidateReviewRequest {

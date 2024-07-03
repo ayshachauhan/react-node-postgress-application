@@ -1,11 +1,11 @@
-import { UpdateSurgeryPayload } from '@packages/entities';
+import { MonthOption, UpdateSurgeryPayload } from '@packages/entities';
 import { SurgeryStatus } from '@packages/entities/index.browser';
 import { USER_PERMISSIONS } from '@packages/entities/permission';
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
 import { useUserPermission } from '@root/hooks/userHasPermission';
 import { useAppDispatch, useAppSelector } from '@root/store';
-import { updateRecordAsync } from '@root/store/reducers/surgery';
+import { fetchListings, updateRecordAsync } from '@root/store/reducers/surgery';
 import { getPracticeId, toFullName } from '@root/utils';
 import { DatePicker } from 'baseui/datepicker';
 import { SIZE, Select } from 'baseui/select';
@@ -17,7 +17,7 @@ function EditableRow({
   customHeaders,
   surgeryInfo,
   handleUpdateClick,
-  withLoader,
+  setIsUpdateLoading,
 }) {
   const practiceId = getPracticeId();
   const surgeryStatusOptions = Object.keys(SurgeryStatus).map((key) => ({
@@ -28,6 +28,7 @@ function EditableRow({
   const dispatch = useAppDispatch();
   const userInfo = useAppSelector((state) => state.auth.user);
   const userPermissions = userInfo?.permissions;
+  const loggedInUserId = userInfo?.id ?? null;
   const viewBillingColumn = useUserPermission(userPermissions, [
     USER_PERMISSIONS.VIEW_BILLING,
   ]);
@@ -116,6 +117,33 @@ function EditableRow({
     setWaitlistId(value[0] ? value[0].id : null);
   };
 
+  const dispatchFetchFilteredSurgeryList = async (
+    selectedMonth: MonthOption[],
+    searchMRNName: string,
+    selectedValue: string,
+  ) => {
+    const monthLabels = selectedMonth.map((month) => month.label);
+    const month = monthLabels.join(',');
+    const selectedOption = selectedValue;
+
+    if (practiceId && loggedInUserId !== null) {
+      await dispatch(
+        fetchListings({
+          loggedInUserId,
+          practiceId,
+          month: month,
+          searchMRNName,
+          option: selectedOption,
+        }),
+      );
+    }
+  };
+  const { selectedMonth, searchMRNName, selectedValue } = useAppSelector(
+    (state) => state.surgeries.surgeryFilters,
+  );
+  const searchMRNNameStr = searchMRNName || '';
+  const selectedValueStr = selectedValue || '';
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -127,9 +155,21 @@ function EditableRow({
         referrerId,
         waitlistId,
       };
-      await withLoader(async () => {
+      try {
+        setIsUpdateLoading(true);
+
         await dispatch(updateRecordAsync({ payload, id: surgeryInfo.id }));
-      });
+
+        await dispatchFetchFilteredSurgeryList(
+          selectedMonth,
+          searchMRNNameStr,
+          selectedValueStr,
+        );
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setIsUpdateLoading(false);
+      }
 
       setInsuranceTypeId('');
       setReferrerId('');
@@ -166,7 +206,7 @@ function EditableRow({
     return (
       <>
         <tr className="border-t border-gray-300">
-          <td rowSpan={2} className="w-32">
+          <td rowSpan={2} className="min-w-32">
             <DatePicker
               value={obj.date}
               onChange={({ date }) => handleObjChange('date', date)}
@@ -236,6 +276,7 @@ function EditableRow({
                     ]
                   : []
               }
+              disabled={obj?.surgeryStatus === SurgeryStatus.COMPLETED}
               size={SIZE.mini}
               onChange={({ value }) =>
                 handleObjChange('surgeryStatus', value[0].label)
@@ -394,10 +435,8 @@ function EditableRow({
                       })
                     }
                     disabled={
-                      !!(
-                        surgeryInfo.surgeryConfiguration.options[optionsHeader]
-                          ?.edit_admin_option === false && adminPermission
-                      )
+                      surgeryInfo.surgeryConfiguration.options[optionsHeader]
+                        ?.edit_admin_option === true && !adminPermission
                     }
                     size={SIZE.mini}
                     overrides={{

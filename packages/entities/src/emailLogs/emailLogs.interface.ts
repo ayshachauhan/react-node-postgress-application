@@ -43,4 +43,5 @@ export interface EmailVariables {
   referrerFname?: string;
   referrerLname?: string;
   referrerEmail?: string;
+  doctorPhoneNumber?: string;
 }

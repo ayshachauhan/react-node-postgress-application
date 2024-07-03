@@ -364,6 +364,7 @@ export class EmailHandlerService {
         firstName: doctorFirstName,
         lastName: doctorLastName,
         email: doctorEmail,
+        contactNumber: doctorPhoneNumber,
       },
       surgeryConfiguration: { name },
       date,
@@ -399,6 +400,7 @@ export class EmailHandlerService {
       referrerFname: entity?.patient?.referrer?.firstName,
       referrerLname: entity?.patient?.referrer?.lastName,
       referrerEmail: entity?.patient?.referrer?.email,
+      doctorPhoneNumber: doctorPhoneNumber,
     };
 
     return mailVariables;

@@ -114,6 +114,7 @@ const ReferedPatients = ({ referrerId, withLoader }) => {
                       {surgery.date ? formatDate(surgery.date) : 'NA'}
                     </div>
                     <div className="text-gray-900 w-40">
+                      {surgery?.bodyPart}{' '}
                       {surgery?.surgeryConfiguration?.name || ''}
                     </div>
                     {viewBillingColumn && (

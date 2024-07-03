@@ -34,7 +34,7 @@ const ENV_KEYS = [
   'SSO_ENABLED',
   'SAML_ISSUER',
   'SAML_CERT',
-  'SAML_ENTRYPOINT'
+  'SAML_ENTRYPOINT',
 ];
 
 const start = async () => {

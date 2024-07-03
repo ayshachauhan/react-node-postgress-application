@@ -372,7 +372,7 @@ const MediaPage: React.FC<{
                       title=""
                       width={25}
                       height={25}
-                      startEnhancer={() => <AddIcon className="ml-2"></AddIcon>}
+                      startEnhancer={() => <AddIcon></AddIcon>}
                       onClick={handleAddVideoField}
                     />
                   </div>
@@ -449,7 +449,7 @@ const MediaPage: React.FC<{
                       kind="primary"
                       width={25}
                       height={25}
-                      startEnhancer={() => <AddIcon className="ml-2"></AddIcon>}
+                      startEnhancer={() => <AddIcon></AddIcon>}
                       onClick={handleAddImageField}
                     />
                   </div>

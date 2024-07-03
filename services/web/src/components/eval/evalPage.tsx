@@ -284,7 +284,7 @@ const EvalPage: React.FC = () => {
                 height={40}
                 width={80}
                 onClick={handleOpenAddModal}
-                startEnhancer={() => <AddIcon className=""></AddIcon>}
+                startEnhancer={() => <AddIcon></AddIcon>}
               />
             )}
           </div>
