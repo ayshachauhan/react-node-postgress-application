@@ -372,6 +372,7 @@ export class SurgeryService {
     if (practiceEntity && surgeryConfigurationEntity) {
       await this.initiateSendEmail(resultSurgery, practiceEntity);
       await this.initiateDoctorSendEmail(resultSurgery, practiceEntity);
+      await this.initiateReferrerSendEmail(resultSurgery, practiceEntity);
     }
 
     return resultSurgery;
@@ -592,6 +593,26 @@ export class SurgeryService {
     };
 
     await this.emailHandlerService.checkAndMakeDoctorEmailContent(
+      practice,
+      surgery,
+      systemGeneratedMailData,
+      false,
+    );
+  }
+
+  async initiateReferrerSendEmail(
+    surgery: ISurgery,
+    practice: IPractice,
+  ): Promise<void> {
+    const name = practice.name;
+
+    const systemGeneratedMailData = {
+      subject: `Thanks for sending your patient to me  ${name}`,
+      text: 'text message',
+      systemTemplate: SystemTemplates.NOTIFY_REFERRER,
+    };
+
+    await this.emailHandlerService.checkAndMakeReferrerEmailContent(
       practice,
       surgery,
       systemGeneratedMailData,

@@ -50,4 +50,8 @@ export class UpdateUserDto {
   @IsOptional()
   @ApiProperty()
   contactNumber: string;
+
+  @IsOptional()
+  @ApiProperty()
+  token: string;
 }

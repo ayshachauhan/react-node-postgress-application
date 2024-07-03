@@ -35,8 +35,11 @@ const EditReferrerForm: React.FC<ChildProps> = ({
   );
 
   const handlereferrerTypeChange = (params) => {
-    const { label } = params.option;
-    setReferrerInfo({ ...updatedReferrerInfo, referrerType: label });
+    const value = params.value;
+    setReferrerInfo({
+      ...updatedReferrerInfo,
+      referrerType: value[0] ? value[0].label : null,
+    });
   };
 
   const referrerInfo = useAppSelector((state) =>
@@ -55,7 +58,7 @@ const EditReferrerForm: React.FC<ChildProps> = ({
         firstName: updatedReferrerInfo.firstName ?? '',
         lastName: updatedReferrerInfo.lastName ?? '',
         email: updatedReferrerInfo.email ?? '',
-        referrerType: updatedReferrerInfo.referrerType ?? ReferrerType.PCP,
+        referrerType: updatedReferrerInfo?.referrerType,
         practiceId: practiceId,
         verified: true,
         id: referrerId,
@@ -125,11 +128,11 @@ const EditReferrerForm: React.FC<ChildProps> = ({
                 htmlFor="referrerType"
                 className="text-black text-sm font-normal"
               >
-                <RequiredIndicator />
                 &nbsp;Referrer Type
               </label>
               <Select
                 options={referrerTypeOptions}
+                backspaceClearsInputValue
                 onChange={handlereferrerTypeChange}
                 value={
                   updatedReferrerInfo?.referrerType
@@ -141,7 +144,6 @@ const EditReferrerForm: React.FC<ChildProps> = ({
                       ]
                     : []
                 }
-                required
                 overrides={{
                   ControlContainer: {
                     style: {

@@ -13,15 +13,13 @@ import MessageWithReadMore from '@root/components/messages/MessageWithReadMore';
 import { useLoader } from '@root/hooks/useLoader';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { fetchLoggedInUser } from '@root/store/reducers/auth';
-import {
-  fetchListings as fetchMedia,
-  sendMediaToPatientAsync,
-} from '@root/store/reducers/media';
+import { fetchListings as fetchMedia } from '@root/store/reducers/media';
 import {
   clearData,
   clearErrorMessage,
   clearSuccessMessage,
   fetchListings,
+  sendMediaToPatientAsync,
   setSearchMRNName,
 } from '@root/store/reducers/messages';
 import { fetchListings as fetchPatients } from '@root/store/reducers/patient';
@@ -55,6 +53,7 @@ export default function MessagesTable() {
   const practiceId = getPracticeId();
   const [mrn, setMrn] = useState<string>('');
   const [patientInfo, setPatientInfo] = useState<IPatient>();
+  const [sendVideoDisable, setSendVideoDisable] = useState<boolean>(true);
   const [mediaConfigList, setMediaConfigList] = useState<customerMediaConfig[]>(
     [],
   );
@@ -171,6 +170,7 @@ export default function MessagesTable() {
   const resetFilters = (): void => {
     dispatch(setSearchMRNName(null));
     setMrn('');
+    setSendVideoDisable(true);
   };
 
   const handleSearchMRNNameChange = (value) => {
@@ -250,6 +250,10 @@ export default function MessagesTable() {
       isChecked: !mediaConfigList[index].isChecked,
     };
 
+    const selectedVideo = mediaConfigList.find((ele) => ele.isChecked);
+    if (selectedVideo) setSendVideoDisable(false);
+    else setSendVideoDisable(true);
+
     setMediaConfigList([...mediaConfigList]);
   };
 
@@ -267,7 +271,9 @@ export default function MessagesTable() {
           },
         }),
       );
-
+      dispatchFetchMessages('');
+      dispatch(fetchPatients({ practiceId }));
+      setSendVideoDisable(true);
       resetFilters();
       setMrn('');
     }
@@ -284,7 +290,7 @@ export default function MessagesTable() {
       timer = setTimeout(() => {
         setShowModal(false);
         dispatch(clearSuccessMessage());
-      }, 2000);
+      }, 3500);
     }
     if (errorMessage) {
       setShowErrorMessage(true);
@@ -386,6 +392,7 @@ export default function MessagesTable() {
             <div className="pb-2 flex items-center justify-around">
               <Button
                 onClick={handleSendVideoButton}
+                disabled={sendVideoDisable}
                 type="button"
                 kind="tertiary"
                 title="Send Video"

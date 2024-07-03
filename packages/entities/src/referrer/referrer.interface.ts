@@ -6,7 +6,7 @@ export interface IReferrer extends IBaseEntity {
   lastName: string;
   email: string;
   practiceId: string;
-  referrerType: ReferrerType;
+  referrerType: ReferrerType | undefined;
   patients: IPatient[];
   verified: boolean;
 }
