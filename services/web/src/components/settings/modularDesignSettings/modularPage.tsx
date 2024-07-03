@@ -286,7 +286,7 @@ const Dashboard: React.FC = () => {
             kind="secondary"
             title="Add New"
             onClick={handleOpenAddModal}
-            startEnhancer={() => <AddIcon className="mt-2" size={25}></AddIcon>}
+            startEnhancer={() => <AddIcon></AddIcon>}
           />{' '}
         </div>
       </div>
