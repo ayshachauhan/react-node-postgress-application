@@ -170,6 +170,7 @@ export default function MessagesTable() {
   const resetFilters = (): void => {
     dispatch(setSearchMRNName(null));
     setMrn('');
+    setSendVideoDisable(true);
   };
 
   const handleSearchMRNNameChange = (value) => {
@@ -272,6 +273,7 @@ export default function MessagesTable() {
       );
       dispatchFetchMessages('');
       dispatch(fetchPatients({ practiceId }));
+      setSendVideoDisable(true);
       resetFilters();
       setMrn('');
     }

@@ -225,7 +225,7 @@ const UpcomingSection: React.FC = () => {
       // using data from selectedsurgery here because calendar data doesn't contain surgerytype relation, for fallback using surgeryconfig name
       surgeryName:
         selectedSurgery?.name.charAt(0).toUpperCase() ??
-        data.surgeryType.name.charAt(0).toUpperCase(),
+        data?.surgeryType?.name.charAt(0).toUpperCase(),
       surgeryNameColor: data?.surgeryType?.color ?? DEFAULT_SURGERYNAME_COLOR,
       selectedSurgery: selectedSurgery as ISurgeryType,
     }),
@@ -289,7 +289,7 @@ const UpcomingSection: React.FC = () => {
       // using data from selectedsurgery here because calendar data doesn't contain surgerytype relation, for fallback using surgeryconfig name
       surgeryName:
         selectedSurgery?.name.charAt(0).toUpperCase() ??
-        data.surgeryType.name.charAt(0).toUpperCase(),
+        data?.surgeryType?.name.charAt(0).toUpperCase(),
       surgeryNameColor: data?.surgeryType?.color ?? DEFAULT_SURGERYNAME_COLOR,
       selectedSurgery: selectedSurgery as ISurgeryType,
     }),

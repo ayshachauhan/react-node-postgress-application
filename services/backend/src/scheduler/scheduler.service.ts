@@ -8,7 +8,7 @@ import { ENVIRONMENT_VARIABLES } from 'src/enums/environment.enums';
 import logger from 'src/logger';
 import { SurgeryService } from 'src/surgery/surgery.service';
 import { TransporterService } from 'src/transporter';
-import { LessThanOrEqual, Repository } from 'typeorm';
+import { DataSource, LessThanOrEqual, Repository } from 'typeorm';
 
 @Injectable()
 export class SchedulerService {
@@ -18,52 +18,82 @@ export class SchedulerService {
     private configService: ConfigService,
     private transporterService: TransporterService,
     private readonly surgeryService: SurgeryService,
+    private dataSource: DataSource,
   ) {}
 
   getMailLimit() {
     return this.configService.get(ENVIRONMENT_VARIABLES.CRON_EMAIL_SENT_LIMIT);
   }
 
-  @Interval(5000) // This runs the task every 10 minutes
+  @Interval(15000) // This runs the task every 10 seconds
   async handleCron() {
+    const lockKey = 123456; // Unique key for the advisory lock
+
     logger.info('starting to send emails');
-    const today = this.getFormattedDate();
 
-    const data = await this.emailLogRepository.find({
-      where: { expectedDate: LessThanOrEqual(today), status: 'pending' },
-      take: this.getMailLimit(),
-    });
+    // Acquire advisory lock
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
 
-    logger.info(`Found ${data.length} emails to send`);
+    try {
+      await queryRunner.manager.query('SELECT pg_advisory_lock($1)', [lockKey]);
+      logger.info(`Advisory lock acquired with lockKey: ${lockKey}`);
 
-    const promises = data.map(async (mailData: EmailLogEntity) => {
-      const { subject, text, body, to } = mailData.data;
-      const mailOptions: Mail.Options = {
-        subject,
-        to,
-        text,
-        html: body,
-        attachments: mailData.attachment ? [{ path: mailData.attachment }] : [],
-      };
+      const today = this.getFormattedDate();
 
-      // sending mail here
-      const response = await this.transporterService.sendEmail(
-        mailOptions,
-        mailData.data,
-      );
-
-      //updating status in the parent table
-      await this.emailLogRepository.update(mailData.id, {
-        response,
-        status:
-          'status' in response && response.status == 'rejected'
-            ? 'rejected'
-            : 'completed',
+      const data = await this.emailLogRepository.find({
+        where: { expectedDate: LessThanOrEqual(today), status: 'pending' },
+        take: this.getMailLimit(),
       });
-    });
 
-    await Promise.allSettled(promises);
-    logger.info('Processed emails');
+      logger.info(`Found ${data.length} emails to send`);
+
+      const promises = data.map(async (mailData: EmailLogEntity) => {
+        const { subject, text, body, to } = mailData.data;
+        const mailOptions: Mail.Options = {
+          subject,
+          to,
+          text,
+          html: body,
+          attachments: mailData.attachment
+            ? [{ path: mailData.attachment }]
+            : [],
+        };
+
+        // sending mail here
+        const response = await this.transporterService.sendEmail(
+          mailOptions,
+          mailData.data,
+        );
+
+        // updating status in the parent table
+        await this.emailLogRepository.update(mailData.id, {
+          response,
+          status:
+            'status' in response && response.status == 'rejected'
+              ? 'rejected'
+              : 'completed',
+        });
+      });
+
+      await Promise.allSettled(promises);
+      logger.info('Processed emails');
+
+      // Commit the transaction
+      await queryRunner.commitTransaction();
+    } catch (error) {
+      logger.error('Error processing emails:', error);
+      // Rollback the transaction in case of error
+      await queryRunner.rollbackTransaction();
+    } finally {
+      // Release advisory lock
+      await queryRunner.manager.query('SELECT pg_advisory_unlock($1)', [
+        lockKey,
+      ]);
+      logger.info('Advisory lock released');
+      await queryRunner.release();
+    }
   }
 
   @Cron('0 0 * * *') // every 24 hours
