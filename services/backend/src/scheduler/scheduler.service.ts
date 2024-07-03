@@ -8,7 +8,7 @@ import { ENVIRONMENT_VARIABLES } from 'src/enums/environment.enums';
 import logger from 'src/logger';
 import { SurgeryService } from 'src/surgery/surgery.service';
 import { TransporterService } from 'src/transporter';
-import { DataSource, MoreThanOrEqual, Repository } from 'typeorm';
+import { DataSource, LessThanOrEqual, Repository } from 'typeorm';
 
 @Injectable()
 export class SchedulerService {
@@ -38,12 +38,12 @@ export class SchedulerService {
 
     try {
       await queryRunner.manager.query('SELECT pg_advisory_lock($1)', [lockKey]);
-      logger.info('Advisory lock acquired');
+      logger.info(`Advisory lock acquired with lockKey: ${lockKey}`);
 
       const today = this.getFormattedDate();
 
       const data = await this.emailLogRepository.find({
-        where: { expectedDate: MoreThanOrEqual(today), status: 'pending' },
+        where: { expectedDate: LessThanOrEqual(today), status: 'pending' },
         take: this.getMailLimit(),
       });
 

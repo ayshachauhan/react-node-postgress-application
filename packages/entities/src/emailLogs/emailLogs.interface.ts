@@ -40,4 +40,7 @@ export interface EmailVariables {
   phoneNumber: string;
   practiceName: string;
   insuranceType: string;
+  referrerFname?: string;
+  referrerLname?: string;
+  referrerEmail?: string;
 }

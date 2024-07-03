@@ -189,7 +189,7 @@ export class EmailHandlerService {
         } else if (template.messageType === 'booking') {
           bookingTemplateFound = true;
           surgeryDate.setDate(surgeryDate.getDate() + template.dateOffset);
-          entry.expectedDate = surgeryDate;
+          entry.expectedDate = new Date();
           emailLogsEntries.push(entry);
         } else if (template.messageType === 'referrer') {
           //
@@ -203,7 +203,7 @@ export class EmailHandlerService {
       const systemTemplateName = systemGeneratedMailData.systemTemplate;
       const entry: Partial<IEmailLog> = {
         practice: practice,
-        expectedDate: entity.date,
+        expectedDate: new Date(),
         status: 'pending',
         data: {
           body: this.transporterService.readTemplates(systemTemplateName),
@@ -302,7 +302,7 @@ export class EmailHandlerService {
       const systemTemplateName = systemGeneratedMailData.systemTemplate;
       const entry: Partial<IEmailLog> = {
         practice: practice,
-        expectedDate: entity.date,
+        expectedDate: new Date(),
         status: 'pending',
         data: {
           body: this.transporterService.readTemplates(systemTemplateName),
