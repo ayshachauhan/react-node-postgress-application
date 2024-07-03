@@ -127,6 +127,7 @@ export class UsersService {
             fullName,
             practiceEntity,
           });
+
           await this.practicesService.update(practiceId, {
             status: PracticeStatus.ACTIVE,
           });
@@ -233,9 +234,16 @@ export class UsersService {
       const newHashedPassword = await bcrypt.hash(newPassword, 10);
       if (!oldPassword) {
         // meaning that user is reseting own password only.
-        if (user.status == UserStatus.ACTIVE) {
+        if (!user?.token) {
+          throw new HttpException(
+            `This link has been already used. Please request a new one.`,
+            HttpStatus.PRECONDITION_FAILED,
+          );
+        }
+        if (user.status == UserStatus.ACTIVE && user?.token) {
           const updatedResult = await this.usersRepository.update(user.id, {
             password: newHashedPassword,
+            token: '',
           });
           if (updatedResult.affected === 0) {
             throw new HttpException(
@@ -354,7 +362,7 @@ export class UsersService {
     const mailOptions: Mail.Options = {
       to: newUser.email,
       subject: 'Welcome to Practice Optimization Dashboard',
-      text: 'text message',
+      text: '',
     };
 
     const mailData: NewUserMailData = {

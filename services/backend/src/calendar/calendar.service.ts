@@ -9,7 +9,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import {
   PermissionEntity,
-  SurgeryConfigurationEntity,
+  SurgeryTypeEntity,
   UserEntity,
 } from '@packages/entities';
 import { CalendarEntity } from '@packages/entities/calendar';
@@ -23,7 +23,7 @@ import {
   Repository,
 } from 'typeorm';
 import { PracticesService } from '../practices/practices.service';
-import { SurgeryConfigurationsService } from '../surgeryConfiguration/surgeryConfiguration.service';
+import { SurgeryTypesService } from '../surgeryTypes/surgeryTypes.service';
 import {
   CreateCalendarDto,
   UpdateCalendarDto,
@@ -63,8 +63,8 @@ export class CalendarService {
     private calendarRepo: Repository<CalendarEntity>,
     @Inject(forwardRef(() => PracticesService))
     private practiceService: PracticesService,
-    @Inject(forwardRef(() => SurgeryConfigurationsService))
-    private surgeryConfifurationService: SurgeryConfigurationsService,
+    @Inject(forwardRef(() => SurgeryTypesService))
+    private surgeryTypesService: SurgeryTypesService,
     @Inject(forwardRef(() => UsersService))
     private userService: UsersService,
   ) {}
@@ -85,7 +85,7 @@ export class CalendarService {
           id: userId,
         },
       },
-      relations: ['practice', 'surgeryConfiguration', 'user'],
+      relations: ['practice', 'surgeryType', 'user'],
     });
   }
 
@@ -99,7 +99,7 @@ export class CalendarService {
   ): Promise<CalendarEntity> {
     const response: CalendarEntity | null = await this.calendarRepo.findOne({
       where: { id: params.id },
-      relations: ['practice', 'surgeryConfiguration', 'user'],
+      relations: ['practice', 'surgeryType', 'user'],
     });
     if (!response) {
       throw new NotFoundException('Calendar does not exists');
@@ -112,16 +112,16 @@ export class CalendarService {
    * @param params
    * @returns CalendarEntity
    */
-  async getCalendarBySurgeryConfiguration(
+  async getCalendarBySurgeryTypes(
     params: GetCalendarBySurgeryTypeIdParams,
   ): Promise<CalendarEntity[]> {
     const response: CalendarEntity[] | null = await this.calendarRepo.find({
       where: {
-        surgeryConfiguration: {
-          id: params.surgeryConfigurationId,
+        surgeryType: {
+          id: params.surgeryTypeId,
         },
       },
-      relations: ['practice', 'surgeryConfiguration', 'user'],
+      relations: ['practice', 'surgeryType', 'user'],
     });
     if (!response) {
       throw new NotFoundException(
@@ -147,17 +147,21 @@ export class CalendarService {
       (user: UserEntity) => user.id === userId,
     );
 
-    const surgeryConfigurationEntity =
-      await this.surgeryConfifurationService.getSurgeryConfigurationById(
-        dto.surgeryConfigurationId,
-      );
+    const surgeryTypeEntity = await this.surgeryTypesService.getSurgeryTypeById(
+      dto.surgeryTypeId,
+      practiceId,
+    );
+
+    if (!surgeryTypeEntity) {
+      throw new HttpException('Surgery Type Not found', HttpStatus.NOT_FOUND);
+    }
 
     //TODO: need to check why we need to add the ! operator here, giving typeerror whithout them about DeepPartialEntity
     const calendar = this.calendarRepo.create({
       ...dto,
       bookedSlots: dto.bookedSlots ?? 0,
       practice: practiceEntity!,
-      surgeryConfiguration: surgeryConfigurationEntity!,
+      surgeryType: surgeryTypeEntity,
       user: userEntity!,
     });
 
@@ -190,7 +194,7 @@ export class CalendarService {
 
     return await this.calendarRepo.findOne({
       where: { id },
-      relations: ['practice', 'surgeryConfiguration', 'user'],
+      relations: ['practice', 'surgeryType', 'user'],
     });
   }
 
@@ -202,13 +206,16 @@ export class CalendarService {
    */
   async updateCalendars({
     data,
-  }: UpdateCalendarsDto): Promise<CalendarEntity[] | null> {
+    practiceId,
+  }: UpdateCalendarsDto & { practiceId: string }): Promise<
+    CalendarEntity[] | null
+  > {
     const updatedCalendars: CalendarEntity[] = [];
-    let surgeryConfigurationEntity: SurgeryConfigurationEntity | null;
+    let surgeryTypeEntity: SurgeryTypeEntity | null;
 
     await Promise.all(
       data.map(async (data) => {
-        const { id, maxSlots, bookedSlots, surgeryConfigurationId } = data;
+        const { id, maxSlots, bookedSlots, surgeryTypeId } = data;
 
         if (maxSlots && bookedSlots && maxSlots < bookedSlots) {
           throw new HttpException(
@@ -217,24 +224,22 @@ export class CalendarService {
           );
         }
 
-        if (surgeryConfigurationId) {
-          surgeryConfigurationEntity =
-            await this.surgeryConfifurationService.getSurgeryConfigurationById(
-              surgeryConfigurationId,
-            );
+        if (surgeryTypeId) {
+          surgeryTypeEntity = await this.surgeryTypesService.getSurgeryTypeById(
+            surgeryTypeId,
+            practiceId,
+          );
         }
 
         await this.calendarRepo.update(id, {
           maxSlots,
           bookedSlots,
-          ...(surgeryConfigurationEntity
-            ? { surgeryConfiguration: surgeryConfigurationEntity }
-            : {}),
+          ...(surgeryTypeEntity ? { surgeryType: surgeryTypeEntity } : {}),
         });
 
         const updatedCalendar = (await this.calendarRepo.findOne({
           where: { id },
-          relations: ['practice', 'surgeryConfiguration', 'user'],
+          relations: ['practice', 'surgeryType', 'user'],
         })) as CalendarEntity;
 
         updatedCalendars.push(updatedCalendar);
@@ -279,7 +284,7 @@ export class CalendarService {
 
     const searchConditions: FindManyOptions<CalendarEntity> = {
       where: whereClause,
-      relations: ['practice', 'surgeryConfiguration', 'user'],
+      relations: ['practice', 'surgeryType', 'user'],
     };
 
     const searchConditionsWithoutPermissions = { ...searchConditions };

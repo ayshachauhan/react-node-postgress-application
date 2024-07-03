@@ -11,4 +11,7 @@ export class SurgeryTypeEntity extends BaseEntity implements ISurgeryType {
 
   @Column({ type: 'varchar' })
   name: string;
+
+  @Column({ type: 'varchar', nullable: true })
+  color: string;
 }

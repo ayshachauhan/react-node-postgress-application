@@ -63,6 +63,7 @@ export interface ChangePasswordInterface {
   confirmPassword: string;
   newPassword: string;
   practiceId: string;
+  token?: string | null;
 }
 
 export type AddUserDto = Omit<

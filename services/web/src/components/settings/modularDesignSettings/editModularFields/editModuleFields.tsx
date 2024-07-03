@@ -388,7 +388,7 @@ const EditModularField: React.FC<{
                     width={30}
                     height={30}
                     startEnhancer={() => (
-                      <AddIcon className="mt-2 ml-2" size={25}></AddIcon>
+                      <AddIcon className="mt-[0.1rem] ml-2" size={25}></AddIcon>
                     )}
                     onClick={handleAddFields}
                   />
@@ -455,7 +455,7 @@ const EditModularField: React.FC<{
                     width={25}
                     height={25}
                     startEnhancer={() => (
-                      <AddIcon className="mt-2 ml-2" size={25}></AddIcon>
+                      <AddIcon className="mt-[0.1rem] ml-2" size={25}></AddIcon>
                     )}
                     onClick={handleAddOptionCategory}
                   />
@@ -538,7 +538,7 @@ const EditModularField: React.FC<{
                                 )
                               }
                             ></Checkbox>
-                            <label>Edit permission</label>
+                            <label>Admin permission</label>
                           </div>
                         </div>
                       </div>
@@ -705,7 +705,7 @@ const EditModularField: React.FC<{
                                   height={30}
                                   startEnhancer={() => (
                                     <AddIcon
-                                      className="mt-2 ml-2"
+                                      className="mt-[0.1rem] ml-2"
                                       size={25}
                                     ></AddIcon>
                                   )}
@@ -766,7 +766,7 @@ const EditModularField: React.FC<{
                     width={25}
                     height={25}
                     startEnhancer={() => (
-                      <AddIcon className="mt-2 ml-2" size={25}></AddIcon>
+                      <AddIcon className="mt-[0.1rem] ml-2" size={25}></AddIcon>
                     )}
                     onClick={handleChecklistAddFields}
                   />

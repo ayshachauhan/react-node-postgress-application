@@ -63,7 +63,7 @@ export class EmailHandlerService {
       const systemTemplateName = systemGeneratedMailData.systemTemplate;
       const entry: Partial<IEmailLog> = {
         practice: practice,
-        expectedDate: entity.date,
+        expectedDate: new Date(),
         status: 'pending',
         data: {
           body: this.transporterService.readTemplates(systemTemplateName),
@@ -88,7 +88,7 @@ export class EmailHandlerService {
 
       const entry: Partial<IEmailLog> = {
         practice: practice,
-        expectedDate: entity.date,
+        expectedDate: new Date(),
         status: 'pending',
         data: {
           body: this.transporterService.readTemplates(systemTemplateName),
@@ -189,7 +189,7 @@ export class EmailHandlerService {
         } else if (template.messageType === 'booking') {
           bookingTemplateFound = true;
           surgeryDate.setDate(surgeryDate.getDate() + template.dateOffset);
-          entry.expectedDate = surgeryDate;
+          entry.expectedDate = new Date();
           emailLogsEntries.push(entry);
         } else if (template.messageType === 'referrer') {
           //
@@ -203,7 +203,7 @@ export class EmailHandlerService {
       const systemTemplateName = systemGeneratedMailData.systemTemplate;
       const entry: Partial<IEmailLog> = {
         practice: practice,
-        expectedDate: entity.date,
+        expectedDate: new Date(),
         status: 'pending',
         data: {
           body: this.transporterService.readTemplates(systemTemplateName),
@@ -229,6 +229,113 @@ export class EmailHandlerService {
       await this.evalEmailRepository.save(evalEmailEntries);
     } else {
       // creating entries in surgery email log table
+      const surgeryEmailEntries = dbEmailLogEntries.map((ele) => ({
+        surgery: entity,
+        emailLog: ele,
+      }));
+      await this.surgeryEmailRepository.save(surgeryEmailEntries);
+    }
+  }
+
+  async checkAndMakeReferrerEmailContent(
+    practice: IPractice,
+    entity: IEval | ISurgery,
+    systemGeneratedMailData?: SystemGeneratedMailData,
+    fromEval?: boolean,
+  ) {
+    let referrerTemplateFound: boolean = false;
+    const mailVariables = await this.makeEmailVariable(entity, practice);
+    const surgeryConfigId = entity.surgeryConfiguration.id;
+    const referrerTemplates = await this.templateService.getFilteredTemplates({
+      surgeryConfigId,
+      messageType: 'referrer',
+    });
+
+    const emailLogsEntries: Partial<IEmailLog>[] = [];
+
+    const randomIndex = Math.floor(Math.random() * referrerTemplates.length);
+    const referrerTemplate = referrerTemplates[randomIndex];
+    if (
+      referrerTemplate &&
+      Object.keys(referrerTemplate).length &&
+      mailVariables?.referrerEmail
+    ) {
+      referrerTemplateFound = true;
+      const entry: Partial<IEmailLog> = {
+        practice: practice,
+        expectedDate: new Date(),
+        status: 'pending',
+        data: {
+          to: mailVariables?.referrerEmail,
+          subject: referrerTemplate.emailSubject
+            ? this.mailVariableManipulator(referrerTemplate.emailSubject)
+            : '',
+          body: referrerTemplate.emailBody
+            ? this.mailVariableManipulator(referrerTemplate.emailBody)
+            : this.transporterService.readTemplates(
+                SystemTemplates.NOTIFY_REFERRER,
+              ),
+          attachment: referrerTemplate.emailAttachment
+            ? referrerTemplate.emailAttachment
+            : '',
+          text: referrerTemplate.messageText
+            ? this.mailVariableManipulator(referrerTemplate.messageText)
+            : '',
+          ...mailVariables,
+          '1stCataract': referrerTemplate.email1stCataract
+            ? this.mailVariableManipulator(referrerTemplate.email1stCataract)
+            : '',
+          '2ndCataract': referrerTemplate.email2ndCataract
+            ? this.mailVariableManipulator(referrerTemplate.email2ndCataract)
+            : '',
+        },
+        attachment: referrerTemplate.emailAttachment,
+      };
+      emailLogsEntries.push(entry);
+    }
+
+    if (
+      !referrerTemplateFound &&
+      mailVariables?.referrerEmail &&
+      systemGeneratedMailData
+    ) {
+      const systemTemplateName = systemGeneratedMailData.systemTemplate;
+      const entry: Partial<IEmailLog> = {
+        practice: practice,
+        expectedDate: new Date(),
+        status: 'pending',
+        data: {
+          body: this.transporterService.readTemplates(systemTemplateName),
+          ...mailVariables,
+          subject: systemGeneratedMailData.subject,
+          text: systemGeneratedMailData.text,
+          to: mailVariables?.referrerEmail,
+        },
+      };
+      emailLogsEntries.push(entry);
+    }
+
+    // Use the generic function to save email logs
+    await this.saveEmailLogs(emailLogsEntries, entity, fromEval);
+  }
+
+  async saveEmailLogs(
+    emailLogsEntries: Partial<IEmailLog>[],
+    entity: IEval | ISurgery,
+    fromEval?: boolean,
+  ) {
+    // Save email log entries to the email log repository to send the email.
+    const dbEmailLogEntries =
+      await this.emailLogRepository.save(emailLogsEntries);
+
+    // Save entries to the appropriate repository based on the entity type
+    if (fromEval) {
+      const evalEmailEntries = dbEmailLogEntries.map((ele) => ({
+        eval: entity,
+        emailLog: ele,
+      }));
+      await this.evalEmailRepository.save(evalEmailEntries);
+    } else {
       const surgeryEmailEntries = dbEmailLogEntries.map((ele) => ({
         surgery: entity,
         emailLog: ele,
@@ -289,6 +396,9 @@ export class EmailHandlerService {
       phoneNumber: phoneNumber,
       practiceName: practice.name,
       insuranceType: insuranceType ? insuranceType.name : '',
+      referrerFname: entity?.patient?.referrer?.firstName,
+      referrerLname: entity?.patient?.referrer?.lastName,
+      referrerEmail: entity?.patient?.referrer?.email,
     };
 
     return mailVariables;
@@ -308,11 +418,13 @@ export class EmailHandlerService {
     );
 
     allCaseType.push(...makeAllCaseArray(upcomingEvals));
-
+    const currentDate: Date = new Date();
+    currentDate.setHours(0, 0, 0, 0);
     const upcomingSurgeries = await this.surgeryService.findSurgeryByPatient(
       patientId,
-      new Date(),
+      currentDate,
     );
+
     allCaseType.push(...makeAllCaseArray(upcomingSurgeries));
 
     return {
@@ -332,11 +444,12 @@ export class EmailHandlerService {
       expectedDate: new Date(),
       status: 'pending',
       data: {
+        ...data,
+        to: data.email,
         body: this.transporterService.readTemplates(
           SystemTemplates.SEND_VIDEO_TO_PATIENT,
         ),
-        patientName: `${data.firstName} ${data.lastName}`,
-        links: data.links,
+        patientName: `${data.fname} ${data.lname}`,
         subject: 'Surgery Videos.',
         text: '',
         pt_email_address: data.email,
@@ -387,7 +500,7 @@ export class EmailHandlerService {
 
       const entry: Partial<IEmailLog> = {
         practice: practice,
-        expectedDate: entity.date,
+        expectedDate: new Date(),
         status: 'pending',
         data: {
           body: this.transporterService.readTemplates(systemTemplateName),

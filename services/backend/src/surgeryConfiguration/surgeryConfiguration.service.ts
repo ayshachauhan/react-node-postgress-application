@@ -31,6 +31,7 @@ export class SurgeryConfigurationsService {
   ): Promise<SurgeryConfigurationEntity | null> {
     return this.surgeryConfigurationRepository.findOne({
       where: { id },
+      relations: ['surgeryType'],
     });
   }
 

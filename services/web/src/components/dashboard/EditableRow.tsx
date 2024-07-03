@@ -31,6 +31,9 @@ function EditableRow({
   const viewBillingColumn = useUserPermission(userPermissions, [
     USER_PERMISSIONS.VIEW_BILLING,
   ]);
+  const adminPermission = useUserPermission(userPermissions, [
+    USER_PERMISSIONS.ADMIN_PERMISSION,
+  ]);
   const [obj, setObj] = useState<Partial<UpdateSurgeryPayload>>({});
   const [insuranceTypeId, setInsuranceTypeId] = useState<string>('');
   const [referrerId, setReferrerId] = useState<string>('');
@@ -216,6 +219,7 @@ function EditableRow({
                     border: 'none',
                     color: 'rgba(82, 82, 91, 1)',
                     boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                    width: '150px',
                   },
                 },
                 ClearIcon: {
@@ -390,8 +394,10 @@ function EditableRow({
                       })
                     }
                     disabled={
-                      !surgeryInfo.surgeryConfiguration.options[optionsHeader]
-                        ?.edit_admin_option
+                      !!(
+                        surgeryInfo.surgeryConfiguration.options[optionsHeader]
+                          ?.edit_admin_option === false && adminPermission
+                      )
                     }
                     size={SIZE.mini}
                     overrides={{

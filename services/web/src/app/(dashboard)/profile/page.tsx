@@ -2,6 +2,7 @@
 import Button from '@root/components/Button';
 import { AvatarIcon } from '@root/components/Icons';
 import { useAppDispatch, useAppSelector } from '@root/store';
+import { fetchLoggedInUser } from '@root/store/reducers/auth';
 import { getPracticeInfo } from '@root/store/reducers/practices';
 import { fetchListings as fetchPermissions } from '@root/store/reducers/userPermissions';
 import { getPracticeId } from '@utils/index';
@@ -27,6 +28,10 @@ const Profile: React.FC = () => {
   const isChecked = (permissionsArray: Permission[], id: string): boolean => {
     return permissionsArray.some((permission) => permission.id === id);
   };
+  useEffect(() => {
+    dispatch(fetchLoggedInUser());
+  }, [dispatch]);
+
   useEffect(() => {
     if (userPracticeId) {
       dispatch(getPracticeInfo({ id: userPracticeId }));

@@ -45,7 +45,6 @@ import {
   ILike,
   In,
   LessThan,
-  LessThanOrEqual,
   MoreThanOrEqual,
   Repository,
 } from 'typeorm';
@@ -140,16 +139,35 @@ export class SurgeryService {
         'doctor',
         'waitlist',
       ],
-      order: {
-        dateCreated: 'DESC',
-      },
+      order: {},
     };
+
+    if (option?.toLowerCase() === 'past view') {
+      searchConditions.order = {
+        date: 'ASC',
+      };
+    } else if (option?.toLowerCase() === 'upcoming view') {
+      searchConditions.order = {
+        date: 'DESC',
+      };
+    } else {
+      searchConditions.order = {
+        dateCreated: 'DESC',
+      };
+    }
 
     const searchConditionsWithoutPermissions = { ...searchConditions };
 
-    if (option?.toLowerCase() === 'past') {
+    if (
+      option?.toLowerCase() === 'upcoming view' ||
+      option?.toLowerCase() === 'past view'
+    ) {
       const today = new Date();
-      whereClause.date = LessThanOrEqual(today);
+      today.setUTCHours(0, 0, 0, 0); // Set to beginning of today
+      const yesterday = new Date(today);
+      yesterday.setUTCDate(today.getUTCDate() - 1); // Set to yesterday
+
+      whereClause.date = MoreThanOrEqual(yesterday);
     }
 
     const dateConditionsWithPermissions = getConditions(
@@ -161,7 +179,8 @@ export class SurgeryService {
     if (
       months.length === 0 &&
       searchMRNName &&
-      option?.toLowerCase() !== 'past'
+      option?.toLowerCase() !== 'past view' &&
+      option?.toLowerCase() !== 'upcoming view'
     ) {
       updateWhereClauseWithSearchName(whereClause, searchMRNName);
       searchConditions.where = mapDateConditions(
@@ -179,7 +198,9 @@ export class SurgeryService {
 
       if (
         months.length > 0 ||
-        (months.length === 0 && option?.toLowerCase() !== 'past')
+        (months.length === 0 &&
+          option?.toLowerCase() !== 'past view' &&
+          option?.toLowerCase() !== 'upcoming view')
       ) {
         searchConditions.where = mapDateConditions(
           dateConditionsWithPermissions,
@@ -314,8 +335,7 @@ export class SurgeryService {
         (calendar: ICalendar) =>
           moment(calendar.date).format('YYYY-MM-DD') ===
             moment(createSurgeryDto.date).format('YYYY-MM-DD') &&
-          calendar.surgeryConfiguration.id ===
-            createSurgeryDto.surgeryConfigurationId,
+          calendar.surgeryType.id === surgeryConfigurationEntity.surgeryType.id,
       );
 
       if (selectedCalendar) {
@@ -333,7 +353,7 @@ export class SurgeryService {
             date: createSurgeryDto.date,
             bookedSlots: 1,
             maxSlots: 14,
-            surgeryConfigurationId: surgeryConfigurationEntity.id,
+            surgeryTypeId: surgeryConfigurationEntity.surgeryType.id,
           },
         );
       }
@@ -352,6 +372,7 @@ export class SurgeryService {
     if (practiceEntity && surgeryConfigurationEntity) {
       await this.initiateSendEmail(resultSurgery, practiceEntity);
       await this.initiateDoctorSendEmail(resultSurgery, practiceEntity);
+      await this.initiateReferrerSendEmail(resultSurgery, practiceEntity);
     }
 
     return resultSurgery;
@@ -570,6 +591,26 @@ export class SurgeryService {
     };
 
     await this.emailHandlerService.checkAndMakeDoctorEmailContent(
+      practice,
+      surgery,
+      systemGeneratedMailData,
+      false,
+    );
+  }
+
+  async initiateReferrerSendEmail(
+    surgery: ISurgery,
+    practice: IPractice,
+  ): Promise<void> {
+    const name = practice.name;
+
+    const systemGeneratedMailData = {
+      subject: `Thanks for sending your patient to me  ${name}`,
+      text: 'text message',
+      systemTemplate: SystemTemplates.NOTIFY_REFERRER,
+    };
+
+    await this.emailHandlerService.checkAndMakeReferrerEmailContent(
       practice,
       surgery,
       systemGeneratedMailData,

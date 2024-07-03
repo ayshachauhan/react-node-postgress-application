@@ -46,6 +46,8 @@ export default function HistoryTable() {
   const dispatch = useAppDispatch();
   const searchParams = useSearchParams();
   const patientId = searchParams.get('id');
+  const surgery = searchParams.get('surgery');
+  const showCaseHistory = !!patientId;
   const { isLoading, withLoader } = useLoader();
 
   const practiceId = getPracticeId();
@@ -211,14 +213,23 @@ export default function HistoryTable() {
   };
   const getSortedHistoryData = (): HistoryData[] => {
     const resolvedHistoryData = getResolvedHistoryData();
-    const sortedHistoryData = sortHistoryDataByDate(resolvedHistoryData);
+    let sortedHistoryData = sortHistoryDataByDate(resolvedHistoryData);
+    if (surgery) {
+      sortedHistoryData = sortedHistoryData.filter(
+        (ele) => ele.surgery === surgery,
+      );
+    }
     return sortedHistoryData;
   };
   return (
     <div className="my-4">
       {isLoading && <Loader />}
       <div className="flex justify-between border-gray-400">
-        <span className="text-xl font-bold">All History</span>
+        {showCaseHistory ? (
+          <span className="text-xl font-bold">Case History</span>
+        ) : (
+          <span className="text-xl font-bold">All History</span>
+        )}
       </div>
       <hr className="h-px my-2.5 bg-gray-100 border-1 dark:bg-gray-700"></hr>
       {!isLoading && historyLogs && historyLogs.length > 0 && (

@@ -1,4 +1,5 @@
 import {
+  ForbiddenException,
   HttpException,
   HttpStatus,
   Injectable,
@@ -9,6 +10,7 @@ import { JwtService } from '@nestjs/jwt';
 import { UserEntity } from '@packages/entities/*';
 import * as bcrypt from 'bcrypt';
 import Mail from 'nodemailer/lib/mailer';
+import { UpdateUserDto } from 'src/users/dto/update.dto';
 import { ENVIRONMENT_VARIABLES } from '../enums/environment.enums';
 import { TransporterService } from '../transporter/transporter.service';
 import { SystemTemplates } from '../transporter/transporter.types';
@@ -58,6 +60,27 @@ export class AuthService {
       access_token: this.jwtService.sign(user),
       is_super_admin: user.isSuperAdmin,
     };
+  }
+
+  async loginUsingEmail(email: string): Promise<SanitizedUser> {
+    const user = await this.usersService.findUserByEmail(email);
+
+    if (user && user.status !== 'active') {
+      throw new UnauthorizedException(
+        'Please accept the invitation and reset your password using the link in email.',
+      );
+    }
+
+    if (user) {
+      const { password, ...result } = user;
+      password && password;
+      return {
+        ...result,
+        isSuperAdmin: false,
+      };
+    }
+
+    throw new ForbiddenException();
   }
 
   async checkSuperAdmin(
@@ -140,5 +163,8 @@ export class AuthService {
       mailData,
       SystemTemplates.RESET_PASSWORD,
     );
+    await this.usersService.updateUser(user.id, {
+      token: token,
+    } as UpdateUserDto);
   }
 }
