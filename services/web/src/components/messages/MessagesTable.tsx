@@ -307,7 +307,7 @@ export default function MessagesTable() {
       }
     };
   }, [successMessage, errorMessage, dispatch]);
-  console.log(sortedMessagesByDate);
+
   return (
     <div className="mt-4 mb-8">
       {isLoading && <Loader />}
