@@ -144,3 +144,20 @@ export const toPascalCase = (str: string): string => {
       .join(' ');
   } else return str;
 };
+
+export function formatTime(dateString: string) {
+  // Create a Date object from the ISO 8601 formatted string
+  const dateObject = new Date(dateString);
+
+  // Get hours, minutes, and seconds from the date object
+  const hours = dateObject.getHours();
+  const minutes = dateObject.getMinutes();
+  const seconds = dateObject.getSeconds();
+
+  // Format the time as HH:mm:ss
+  const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes
+    .toString()
+    .padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+  return formattedTime;
+}

@@ -20,7 +20,7 @@ import { PracticesService } from 'src/practices/practices.service';
 import { SurgeryConfigurationsService } from 'src/surgeryConfiguration/surgeryConfiguration.service';
 import { SystemTemplates } from 'src/transporter/transporter.types';
 import { UsersService } from 'src/users/users.service';
-import { formatHeaderDate } from 'src/utils';
+import { formatHeaderDate, formatTime } from 'src/utils';
 import { In, MoreThanOrEqual, Repository } from 'typeorm';
 import {
   EvalChangesKeyValues,
@@ -277,7 +277,15 @@ export class EvalsService {
 
     const systemGeneratedMailData = {
       subject: `Eval Scheduled: ${name}`,
-      text: 'text message',
+      text: `<p>Dear ${evalEntity?.patient.firstName},<p>
+        <p>Your eval has been scheduled for ${formatHeaderDate(
+          String(evalEntity?.date),
+        )} at ${formatTime(
+          String(evalEntity?.date),
+        )}. Please make sure to arrive 30 minutes before your scheduled time. If you have any questions or need to reschedule, please contact us at support@pod111.com.<p>
+        <p>Thank you,</p>
+        <p>${practice?.name}</p>
+      `,
       systemTemplate: SystemTemplates.NOTIFY_PATIENT,
     };
 
@@ -297,7 +305,7 @@ export class EvalsService {
 
     const systemGeneratedMailData = {
       subject: `A new surgery added to your practice ${name}`,
-      text: `<p>A surgery scheduled for you. Here is the summary:</p><p>${evalEntity
+      text: `<p>An eval has been scheduled for you. Here is the summary:</p><p>${evalEntity
         ?.patient?.firstName} ${evalEntity?.patient
         ?.lastName} (${formatHeaderDate(
         String(evalEntity?.date),

@@ -37,6 +37,7 @@ import { SystemTemplates } from 'src/transporter/transporter.types';
 import { UsersService } from 'src/users/users.service';
 import {
   formatHeaderDate,
+  formatTime,
   getFullYearDateConditions,
   getStartEndDate,
 } from 'src/utils';
@@ -572,7 +573,15 @@ export class SurgeryService {
 
     const systemGeneratedMailData = {
       subject: `New Surgery Scheduled: ${name}`,
-      text: 'text message',
+      text: `<p>Dear ${surgery?.patient.firstName},<p>
+        <p>Your surgery has been scheduled for ${formatHeaderDate(
+          String(surgery?.date),
+        )} at ${formatTime(
+          String(surgery?.date),
+        )}. Please make sure to arrive 30 minutes before your scheduled time. If you have any questions or need to reschedule, please contact us at support@pod111.com.<p>
+        <p>Thank you,</p>
+        <p>${practice?.name}</p>
+      `,
       systemTemplate: SystemTemplates.NOTIFY_PATIENT,
     };
 
@@ -592,7 +601,7 @@ export class SurgeryService {
 
     const systemGeneratedMailData = {
       subject: `A new surgery added to your practice ${name}`,
-      text: `<p>A surgery has scheduled for you. Here is the summary:</p><p>${surgery
+      text: `<p>A surgery has been scheduled for you. Here is the summary:</p><p>${surgery
         ?.patient?.firstName} ${surgery?.patient?.lastName} (${formatHeaderDate(
         String(surgery?.date),
       )} | ${surgery?.surgeryConfiguration?.name})</p>`,
