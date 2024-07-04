@@ -617,9 +617,9 @@ const FiltersSection: React.FC<{
                 {Object.keys(modifiedObj).map((key, index) => {
                   const ele = modifiedObj[key];
                   const customOptionsHeaders: string[] =
-                    surgeryOptionsHeadersObj[key].surgeryOptionsHeaders;
+                    surgeryOptionsHeadersObj[key]?.surgeryOptionsHeaders;
                   const customCheckListHeaders: string[] =
-                    surgeryOptionsHeadersObj[key].checkListHeaders;
+                    surgeryOptionsHeadersObj[key]?.checkListHeaders;
 
                   return (
                     <table key={index} className="w-full">
@@ -793,60 +793,68 @@ const FiltersSection: React.FC<{
                                         <td rowSpan={1} className="">
                                           {row.bodyPart}
                                         </td>
-                                        {customOptionsHeaders.map(
-                                          (
-                                            optionsHeader,
-                                            optionsHeaderIndex,
-                                          ) => {
-                                            const elements: JSX.Element[] = [];
-                                            if (row[`${optionsHeader}-count`]) {
-                                              for (
-                                                let index = 0;
-                                                index <
-                                                row[`${optionsHeader}-count`];
-                                                index++
+                                        {customOptionsHeaders &&
+                                          customOptionsHeaders.map(
+                                            (
+                                              optionsHeader,
+                                              optionsHeaderIndex,
+                                            ) => {
+                                              const elements: JSX.Element[] =
+                                                [];
+                                              if (
+                                                row[`${optionsHeader}-count`]
                                               ) {
-                                                elements.push(
-                                                  <div className="" key={index}>
-                                                    {
-                                                      row[
-                                                        `${optionsHeader}-${index}`
-                                                      ]
-                                                    }
-                                                  </div>,
-                                                );
+                                                for (
+                                                  let index = 0;
+                                                  index <
+                                                  row[`${optionsHeader}-count`];
+                                                  index++
+                                                ) {
+                                                  elements.push(
+                                                    <div
+                                                      className=""
+                                                      key={index}
+                                                    >
+                                                      {
+                                                        row[
+                                                          `${optionsHeader}-${index}`
+                                                        ]
+                                                      }
+                                                    </div>,
+                                                  );
+                                                }
                                               }
-                                            }
-                                            return (
-                                              <td
-                                                rowSpan={2}
-                                                className=""
-                                                key={optionsHeaderIndex}
-                                              >
-                                                {elements}
-                                              </td>
-                                            );
-                                          },
-                                        )}
+                                              return (
+                                                <td
+                                                  rowSpan={2}
+                                                  className=""
+                                                  key={optionsHeaderIndex}
+                                                >
+                                                  {elements}
+                                                </td>
+                                              );
+                                            },
+                                          )}
 
                                         <td rowSpan={2} className="">
                                           {row.surgeryOrder}
                                         </td>
 
-                                        {customCheckListHeaders.map(
-                                          (
-                                            checkListHeader,
-                                            checkListHeaderIndex,
-                                          ) => (
-                                            <td
-                                              className=""
-                                              rowSpan={2}
-                                              key={checkListHeaderIndex}
-                                            >
-                                              {row[checkListHeader]}
-                                            </td>
-                                          ),
-                                        )}
+                                        {customCheckListHeaders &&
+                                          customCheckListHeaders.map(
+                                            (
+                                              checkListHeader,
+                                              checkListHeaderIndex,
+                                            ) => (
+                                              <td
+                                                className=""
+                                                rowSpan={2}
+                                                key={checkListHeaderIndex}
+                                              >
+                                                {row[checkListHeader]}
+                                              </td>
+                                            ),
+                                          )}
 
                                         {viewBillingColumn && (
                                           <td rowSpan={2} className="">

@@ -71,6 +71,7 @@ export class EvalsService {
         practiceHome: {
           id: In(dbPracticeHomesByPractice.map((ele) => ele.id)),
         },
+        practice: { id: practiceId },
       },
       withDeleted: includeDeleted,
       relations: [
@@ -81,6 +82,7 @@ export class EvalsService {
         'patient.referrer',
         'doctor',
         'waitlist',
+        'practice',
       ],
     });
     dbEvalsByPractice.forEach((ele) => (ele.doctor.password = ''));
@@ -99,6 +101,7 @@ export class EvalsService {
         'patient.referrer',
         'doctor',
         'waitlist',
+        'practice',
       ],
     });
   }

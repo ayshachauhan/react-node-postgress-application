@@ -2,6 +2,7 @@ import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { BaseEntity } from '../base.entity';
 import { InsuranceTypeEntity } from '../insuranceType';
 import { PatientEntity } from '../patient';
+import { PracticeEntity } from '../practice';
 import { PracticeHomesEntity } from '../practiceHomes';
 import { SurgeryConfigurationEntity } from '../surgeryConfiguration';
 import { UserEntity } from '../user';
@@ -68,4 +69,8 @@ export class SurgeryEntity extends BaseEntity implements ISurgery {
 
   @Column()
   surgeryOrder: number;
+
+  @ManyToOne(() => PracticeEntity)
+  @JoinColumn({ name: 'practiceId' })
+  practice: PracticeEntity;
 }
