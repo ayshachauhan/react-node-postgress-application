@@ -21,7 +21,7 @@ export interface ISurgery extends IBaseEntity {
   dateDeleted?: Date;
   surgeryOrder: number;
   surgeryStatus: SurgeryStatus;
-  practice: IPractice;
+  practice: IPractice; //TO DO: make practice id not null in future
 }
 
 export interface CreateSurgeryPayload {

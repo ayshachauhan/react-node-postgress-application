@@ -72,5 +72,5 @@ export class SurgeryEntity extends BaseEntity implements ISurgery {
 
   @ManyToOne(() => PracticeEntity)
   @JoinColumn({ name: 'practiceId' })
-  practice: PracticeEntity;
+  practice: PracticeEntity; //TO DO: make practice id not null in future
 }

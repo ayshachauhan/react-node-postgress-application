@@ -17,7 +17,7 @@ export interface IEval extends IBaseEntity {
   bodyPart: string;
   doctor: ISanitizedUser;
   waitlist: IWaitlist;
-  practice: IPractice;
+  practice: IPractice; //TO DO: make practice id not null in future
 }
 
 export interface CreateEvalInterface {
