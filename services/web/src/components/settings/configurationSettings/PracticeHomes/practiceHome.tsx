@@ -132,18 +132,14 @@ export default function PracticeHomesPage() {
             {practiceHomes.map((data, index) => (
               <React.Fragment key={data.id}>
                 <tr className="border-t border-gray-300">
-                  <td className="text-gray-900 bg-gray-50 pt-2 px-4">
-                    {index + 1}
-                  </td>
-                  <td className="text-gray-900 bg-gray-50 pt-2 px-4">
-                    {data.name}
-                  </td>
-                  <td className="text-gray-900 bg-gray-50 pt-2 px-4">
+                  <td className="">{index + 1}</td>
+                  <td className="">{data.name}</td>
+                  <td className="">
                     <div
                       onClick={() => data.id && handleOpenDeleteModal(data.id)}
                       className="cursor-pointer"
                     >
-                      <DeleteIcon className="mt-2" />
+                      <DeleteIcon />
                     </div>
                   </td>
                 </tr>

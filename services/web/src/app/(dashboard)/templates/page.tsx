@@ -190,119 +190,129 @@ const Templates: React.FC = () => {
                 <div className="text-white py-2.5 text-center bg-gradient-to-r from-primary-light to-primary-dark uppercase rounded-t-lg font-bold">
                   {data?.surgeryConfigurationName}
                 </div>
-                <div className="rounded-lg" style={{ height: '245px' }}>
-                  <div className="grid grid-rows-5 h-full p-2">
-                    <div className="row-start-1 row-span-1 flex items-center border-b border-gray-200">
-                      <p>
-                        <span className="font-bold text-sm">Booking: </span>{' '}
-                        {data.booking &&
-                          data.booking.map((ele, i) => (
-                            <span
-                              key={i}
-                              onClick={() =>
-                                ele.id &&
-                                handleOpenUpdateModal(
-                                  ele.id,
-                                  ele.messageType,
-                                  ele.version,
-                                )
-                              }
-                              className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1 cursor-pointer"
-                            >
-                              {ele.version}
-                            </span>
-                          ))}
-                      </p>
+                <div className="rounded-lg">
+                  <div className="h-full p-2">
+                    <div className="min-h-10 flex items-center border-b py-1 border-gray-200">
+                      <div className="flex items-center gap-2">
+                        <p className="font-bold">Booking: </p>{' '}
+                        <div className="flex flex-wrap gap-1">
+                          {data.booking &&
+                            data.booking.map((ele, i) => (
+                              <span
+                                key={i}
+                                onClick={() =>
+                                  ele.id &&
+                                  handleOpenUpdateModal(
+                                    ele.id,
+                                    ele.messageType,
+                                    ele.version,
+                                  )
+                                }
+                                className="rounded p-2 bg-green-500 text-white cursor-pointer"
+                              >
+                                {ele.version}
+                              </span>
+                            ))}
+                        </div>
+                      </div>
                     </div>
-                    <div className="row-start-2 row-span-1 flex items-center border-b border-gray-200">
-                      <p>
-                        <span className="font-bold text-sm">Referrer: </span>
-                        {data.referrer &&
-                          data.referrer.map((ele, i) => (
-                            <span
-                              key={i}
-                              onClick={() =>
-                                ele.id &&
-                                handleOpenUpdateModal(
-                                  ele.id,
-                                  ele.messageType,
-                                  ele.version,
-                                )
-                              }
-                              className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1 cursor-pointer"
-                            >
-                              {ele.version}
-                            </span>
-                          ))}
-                      </p>
+                    <div className="min-h-10 flex items-center border-b py-1 border-gray-200">
+                      <div className="flex items-center gap-2">
+                        <p className="font-bold">Referrer: </p>
+                        <div className="flex flex-wrap gap-1">
+                          {data.referrer &&
+                            data.referrer.map((ele, i) => (
+                              <span
+                                key={i}
+                                onClick={() =>
+                                  ele.id &&
+                                  handleOpenUpdateModal(
+                                    ele.id,
+                                    ele.messageType,
+                                    ele.version,
+                                  )
+                                }
+                                className="rounded p-2 bg-green-500 text-white cursor-pointer"
+                              >
+                                {ele.version}
+                              </span>
+                            ))}
+                        </div>
+                      </div>
                     </div>
-                    <div className="row-start-3 row-span-1 flex items-center border-b border-gray-200">
-                      <p>
-                        <span className="font-bold text-sm">PCP: </span>
-                        {data.pcp &&
-                          data.pcp.map((ele, i) => (
-                            <span
-                              key={i}
-                              onClick={() =>
-                                ele.id &&
-                                handleOpenUpdateModal(
-                                  ele.id,
-                                  ele.messageType,
-                                  ele.version,
-                                )
-                              }
-                              className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1 cursor-pointer"
-                            >
-                              {ele.version}
-                            </span>
-                          ))}
-                      </p>
+                    <div className="min-h-10 flex items-center border-b py-1 border-gray-200">
+                      <div className="flex items-center gap-2">
+                        <p className="font-bold">PCP: </p>
+                        <div className="flex flex-wrap gap-1">
+                          {data.pcp &&
+                            data.pcp.map((ele, i) => (
+                              <span
+                                key={i}
+                                onClick={() =>
+                                  ele.id &&
+                                  handleOpenUpdateModal(
+                                    ele.id,
+                                    ele.messageType,
+                                    ele.version,
+                                  )
+                                }
+                                className="rounded p-2 bg-green-500 text-white cursor-pointer"
+                              >
+                                {ele.version}
+                              </span>
+                            ))}
+                        </div>
+                      </div>
                     </div>
-                    <div className="row-start-4 row-span-1 flex items-center border-b border-gray-200">
-                      <p>
-                        <span className="font-bold text-sm">Preop: </span>
-                        {data.preop &&
-                          data.preop.map((ele, i) => (
-                            <span
-                              key={i}
-                              onClick={() =>
-                                ele.id &&
-                                ele.dateOffset !== undefined &&
-                                handleOpenUpdateModal(
-                                  ele.id,
-                                  ele.messageType,
-                                  ele.dateOffset,
-                                )
-                              }
-                              className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1 cursor-pointer"
-                            >
-                              {ele.dateOffset}
-                            </span>
-                          ))}
-                      </p>
+                    <div className="min-h-10 flex items-center border-b py-1 border-gray-200">
+                      <div className="flex items-center gap-2">
+                        <p className="font-bold">Preop: </p>
+                        <div className="flex flex-wrap gap-1">
+                          {data.preop &&
+                            data.preop.map((ele, i) => (
+                              <span
+                                key={i}
+                                onClick={() =>
+                                  ele.id &&
+                                  ele.dateOffset !== undefined &&
+                                  handleOpenUpdateModal(
+                                    ele.id,
+                                    ele.messageType,
+                                    ele.dateOffset,
+                                  )
+                                }
+                                className="rounded p-2 bg-green-500 text-white cursor-pointer"
+                              >
+                                {ele.dateOffset}
+                              </span>
+                            ))}
+                        </div>
+                      </div>
                     </div>
-                    <div className="row-start-5 row-span flex items-center  border-gray-200">
-                      <p>
-                        <span className="font-bold text-sm">Postop: </span>
-                        {data.postop &&
-                          data.postop.map((ele, i) => (
-                            <span
-                              key={i}
-                              onClick={() =>
-                                ele.id &&
-                                ele.dateOffset !== undefined &&
-                                handleOpenUpdateModal(
-                                  ele.id,
-                                  ele.messageType,
-                                  ele.dateOffset,
-                                )
-                              }
-                              className="ml-1 rounded pt-1.5 pb-1.5 pr-2 pl-1.5 bg-green-500 text-white mr-1 cursor-pointer"
-                            >
-                              {ele.dateOffset}
-                            </span>
-                          ))}
-                      </p>
+                    <div className="min-h-10 flex items-center py-1">
+                      <div className="flex items-center gap-2">
+                        <p className="font-bold">Postop: </p>
+                        <div className="flex flex-wrap gap-1">
+                          {data.postop &&
+                            data.postop.map((ele, i) => (
+                              <span
+                                key={i}
+                                onClick={() =>
+                                  ele.id &&
+                                  ele.dateOffset !== undefined &&
+                                  handleOpenUpdateModal(
+                                    ele.id,
+                                    ele.messageType,
+                                    ele.dateOffset,
+                                  )
+                                }
+                                className="rounded p-2 bg-green-500 text-white cursor-pointer"
+                              >
+                                {ele.dateOffset}
+                              </span>
+                            ))}
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>

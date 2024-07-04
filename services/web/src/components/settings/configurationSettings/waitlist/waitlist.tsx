@@ -200,18 +200,14 @@ export default function WaitlistPage() {
             {waitlist.map((data, index) => (
               <React.Fragment key={data.id}>
                 <tr>
-                  <td className="text-gray-900 bg-gray-50 pt-2 px-4">
-                    {index + 1}
-                  </td>
-                  <td className="text-gray-900 bg-gray-50 pt-2 px-4">
-                    {data.name}
-                  </td>
-                  <td className="text-gray-900 bg-gray-50 pt-2 px-4">
+                  <td className="">{index + 1}</td>
+                  <td className="">{data.name}</td>
+                  <td className="">
                     <div
                       onClick={() => handleOpenDeleteModal(data.id)}
                       className="cursor-pointer"
                     >
-                      <DeleteIcon className="mt-2" />
+                      <DeleteIcon />
                     </div>
                   </td>
                 </tr>

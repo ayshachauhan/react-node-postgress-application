@@ -337,7 +337,9 @@ export default function UserPage() {
                             }}
                           >
                             <label htmlFor={`checkbox-${index}`} className="">
-                              <span className="truncate">{label.name}</span>
+                              <span className="inline-block w-16 truncate">
+                                {label.name}
+                              </span>
                             </label>
                           </Checkbox>
                         ))}
