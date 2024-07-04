@@ -588,8 +588,6 @@ export class SurgeryService {
     surgery: ISurgery,
     practice: IPractice,
   ): Promise<void> {
-    console.log('testst');
-    console.log(surgery);
     const name = practice.name;
 
     const systemGeneratedMailData = {
