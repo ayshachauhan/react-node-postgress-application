@@ -35,7 +35,11 @@ import { SurgeryConfigurationsService } from 'src/surgeryConfiguration/surgeryCo
 import { SurgeryTypesService } from 'src/surgeryTypes/surgeryTypes.service';
 import { SystemTemplates } from 'src/transporter/transporter.types';
 import { UsersService } from 'src/users/users.service';
-import { getFullYearDateConditions, getStartEndDate } from 'src/utils';
+import {
+  formatHeaderDate,
+  getFullYearDateConditions,
+  getStartEndDate,
+} from 'src/utils';
 import { WaitlistService } from 'src/waitlist/waitlist.service';
 import {
   Equal,
@@ -584,11 +588,16 @@ export class SurgeryService {
     surgery: ISurgery,
     practice: IPractice,
   ): Promise<void> {
+    console.log('testst');
+    console.log(surgery);
     const name = practice.name;
 
     const systemGeneratedMailData = {
       subject: `A new surgery added to your practice ${name}`,
-      text: 'text message',
+      text: `<p>A surgery has scheduled for you. Here is the summary:</p><p>${surgery
+        ?.patient?.firstName} ${surgery?.patient?.lastName} (${formatHeaderDate(
+        String(surgery?.date),
+      )} | ${surgery?.surgeryConfiguration?.name})</p>`,
       systemTemplate: SystemTemplates.NOTIFY_DOCTOR,
     };
 
