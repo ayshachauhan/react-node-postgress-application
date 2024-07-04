@@ -317,7 +317,7 @@ export default function MessagesTable() {
         </span>
         {showModal && <div className="text-green-700">{successMessage}</div>}
         {showErrorMessage && <div className="text-red-700">{errorMessage}</div>}
-        <div className="flex items-center w-2/4">
+        <div className="flex items-center min-w-96">
           <Select
             backspaceClearsInputValue
             backspaceRemoves
@@ -335,6 +335,8 @@ export default function MessagesTable() {
                   border: 'none',
                   boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
                   color: '#52525B',
+                  borderTopRightRadius: '0',
+                  borderBottomRightRadius: '0',
                 },
               },
               ClearIcon: {
@@ -342,8 +344,8 @@ export default function MessagesTable() {
               },
             }}
           />
-          <div className="bg-gradient-to-br from-teal-600 to-green-500 text-white px-2 py-2.5 items-center rounded-r-lg border-r border-gray-300">
-            <SearchIcon size={20}></SearchIcon>
+          <div className="bg-gradient-to-br from-teal-600 to-green-500 text-white px-5 h-full items-center rounded-r-lg border-r border-gray-300 flex items-center">
+            <SearchIcon></SearchIcon>
           </div>
           <Button
             onClick={resetFilters}
@@ -479,126 +481,122 @@ export default function MessagesTable() {
             </div>
           </div>
           {Object.keys(sortedMessagesByDate).length !== 0 && (
-            <div className="w-full overflow-x-auto mt-2 border rounded-t-lg rounded-b-lg border-gray-200">
-              {Object.entries(sortedMessagesByDate).length > 0 &&
-                Object.entries(sortedMessagesByDate).map(
-                  ([date, records], index) => (
-                    <div key={date}>
-                      <div
-                        className={`border-solid px-2.5 py-3 text-white text-base font-normal ${
-                          index == 0 ? 'rounded-t-lg' : ''
-                        }`}
-                        style={{ backgroundColor: 'rgba(53, 165, 118, 1)' }}
-                      >
-                        {formatHeaderDate(date)}
-                      </div>
-                      <div className="bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 flex justify-between py-2 px-2.5 text-sm">
-                        <div className="font-bold text-white py-2 px-1 min-w-[10rem]">
-                          Date | Time
-                        </div>
-                        <div className="font-bold text-white py-2 px-1 min-w-[10rem]">
-                          Surgery
-                        </div>
-                        <div className="font-bold text-white py-2 px-1 min-w-[10rem]">
-                          Patient
-                        </div>
-                        <div className="font-bold text-white py-2 px-1 min-w-[5rem]">
-                          MRN
-                        </div>
-                        <div className="font-bold text-white py-2 px-1 min-w-[20rem]">
-                          Contact Details
-                        </div>
-                        {activeButton !== 'Texts' && (
-                          <div className="font-bold text-white py-2 px-1 min-w-[20rem] max-w-[20rem]">
-                            Email
-                          </div>
-                        )}
-                        {activeButton !== 'Emails' && (
-                          <div className="font-bold text-white py-2 px-1 min-w-[20rem] max-w-[20rem]">
-                            Text
-                          </div>
-                        )}
-                        {activeButton !== 'Texts' && (
-                          <div className="font-bold text-white py-2 px-1 min-w-[5rem]">
-                            Email Status
-                          </div>
-                        )}
-                      </div>
-                      {records.map((row, index) => (
-                        <div
-                          key={row.id}
-                          id={row.id}
-                          className={`div-clone flex justify-between px-2.5 text-xs ${
-                            index !== records.length - 1
-                              ? 'border-b border-gray-300'
-                              : ''
-                          }`}
-                        >
-                          <div className="text-black  pt-2 pb-2 px-1 min-w-[10rem]">
-                            {formatColumnDate(row.dateCreated)}
-                          </div>
-                          <div className="text-black  pt-2 pb-2 px-1 min-w-[10rem]">
-                            {row?.data?.Laterality} {row?.data?.surgery_type}
-                          </div>
-                          <div className="text-black  pt-2 pb-2 px-1 min-w-[10rem]">
-                            {row
-                              ? generateFullName(
-                                  row?.data?.fname ?? '',
-                                  row?.data?.lname ?? '',
-                                )
-                              : null}
-                          </div>
-                          <div className="text-black  pt-2 pb-2 px-1 min-w-[5rem]">
-                            {row?.data?.mrn}
-                          </div>
-                          <div className="text-black  pt-2 pb-2 px-1 overflow-hidden min-w-[20rem]">
-                            <p>Email: {row?.data?.to}</p>
-                            {row?.data?.to === row?.data?.pt_email_address && (
-                              <p>Cell: {row?.data?.phoneNumber}</p>
+            <div className="table-responsive overflow-x-auto rounded-lg">
+              <table className="w-full overflow-x-auto mt-2 border rounded-t-lg rounded-b-lg border-gray-200">
+                <tbody>
+                  {Object.entries(sortedMessagesByDate).length > 0 &&
+                    Object.entries(sortedMessagesByDate).map(
+                      ([date, records], index) => (
+                        <React.Fragment key={date}>
+                          <tr
+                            className={` ${index == 0 ? 'rounded-t-lg' : ''}`}
+                          >
+                            <td
+                              className="text-white"
+                              colSpan={10}
+                              style={{
+                                backgroundColor: 'rgba(53, 165, 118, 1)',
+                              }}
+                            >
+                              {formatHeaderDate(date)}
+                            </td>
+                          </tr>
+                          <tr className="">
+                            <th className="">Date | Time</th>
+                            <th className="">Surgery</th>
+                            <th className="">Patient</th>
+                            <th className="">MRN</th>
+                            <th className="">Contact Details</th>
+                            {activeButton !== 'Texts' && (
+                              <th className="">Email</th>
                             )}
-                            {row?.data?.to === row?.data?.doc_email_address && (
-                              <p>Cell: {row?.data?.doctorPhoneNumber}</p>
+                            {activeButton !== 'Emails' && (
+                              <th className="">Text</th>
                             )}
-                            {!(
-                              row?.data?.to === row?.data?.pt_email_address ||
-                              row?.data?.to === row?.data?.doc_email_address
-                            ) && <p>Cell: </p>}
-                          </div>
-                          {activeButton !== 'Texts' && (
-                            <MessageWithReadMore
-                              message={convertVariables(
-                                row?.data?.body ?? '',
-                                row?.data,
+                            {activeButton !== 'Texts' && (
+                              <th className="">Email Status</th>
+                            )}
+                          </tr>
+                          {records.map((row, index) => (
+                            <tr
+                              key={row.id}
+                              id={row.id}
+                              className={` ${
+                                index !== records.length - 1
+                                  ? 'border-b border-gray-300'
+                                  : ''
+                              }`}
+                            >
+                              <td className="">
+                                {formatColumnDate(row.dateCreated)}
+                              </td>
+                              <td className="">
+                                {row?.data?.Laterality}{' '}
+                                {row?.data?.surgery_type}
+                              </td>
+                              <td className="">
+                                {row
+                                  ? generateFullName(
+                                      row?.data?.fname ?? '',
+                                      row?.data?.lname ?? '',
+                                    )
+                                  : null}
+                              </td>
+                              <td className="">{row?.data?.mrn}</td>
+                              <td className="">
+                                <p>Email: {row?.data?.to}</p>
+                                {row?.data?.to ===
+                                  row?.data?.pt_email_address && (
+                                  <p>Cell: {row?.data?.phoneNumber}</p>
+                                )}
+                                {row?.data?.to ===
+                                  row?.data?.doc_email_address && (
+                                  <p>Cell: {row?.data?.doctorPhoneNumber}</p>
+                                )}
+                                {!(
+                                  row?.data?.to ===
+                                    row?.data?.pt_email_address ||
+                                  row?.data?.to === row?.data?.doc_email_address
+                                ) && <p>Cell: </p>}
+                              </td>
+                              {activeButton !== 'Texts' && (
+                                <MessageWithReadMore
+                                  message={convertVariables(
+                                    row?.data?.body ?? '',
+                                    row?.data,
+                                  )}
+                                />
                               )}
-                            />
-                          )}
-                          {activeButton !== 'Emails' && (
-                            <MessageWithReadMore
-                              message={convertVariables(
-                                row?.data?.text ?? '',
-                                row?.data,
+                              {activeButton !== 'Emails' && (
+                                <MessageWithReadMore
+                                  message={convertVariables(
+                                    row?.data?.text ?? '',
+                                    row?.data,
+                                  )}
+                                />
                               )}
-                            />
-                          )}
-                          {activeButton !== 'Texts' && (
-                            <div className="text-black  pt-2 pb-2 px-1 overflow-hidden min-w-[5rem]">
-                              {row?.status.toLowerCase() === 'rejected' ? (
-                                <span>Error; message not sent</span>
-                              ) : row?.status.toLowerCase() === 'completed' ? (
-                                <span>Message sent</span>
-                              ) : (
-                                <span>
-                                  {row?.status.charAt(0).toUpperCase() +
-                                    row?.status.slice(1).toLowerCase()}
-                                </span>
+                              {activeButton !== 'Texts' && (
+                                <td className="">
+                                  {row?.status.toLowerCase() === 'rejected' ? (
+                                    <span>Error; message not sent</span>
+                                  ) : row?.status.toLowerCase() ===
+                                    'completed' ? (
+                                    <span>Message sent</span>
+                                  ) : (
+                                    <span>
+                                      {row?.status.charAt(0).toUpperCase() +
+                                        row?.status.slice(1).toLowerCase()}
+                                    </span>
+                                  )}
+                                </td>
                               )}
-                            </div>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  ),
-                )}
+                            </tr>
+                          ))}
+                        </React.Fragment>
+                      ),
+                    )}
+                </tbody>
+              </table>
             </div>
           )}
         </div>

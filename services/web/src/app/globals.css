@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+body {
+  @apply text-xs;
+}
+
 /* width */
 ::-webkit-scrollbar {
   width: 7px;
@@ -34,11 +38,11 @@
 }
 
 .btn-primary {
-  @apply bg-gradient-to-r from-primary-light to-primary-dark text-sm;
+  @apply bg-gradient-to-r from-primary-light to-primary-dark;
 }
 
 .btn-secondary {
-  @apply !bg-secondary !text-sm;
+  @apply !bg-secondary;
 }
 
 .data-table {
@@ -66,14 +70,14 @@
 table {
   border-collapse: collapse;
   width: 100%;
-  @apply text-sm rounded-lg;
+  @apply text-xs rounded-lg;
 }
 
 table th {
-  @apply bg-[#299479]  font-normal text-white p-2 text-left whitespace-nowrap;
+  @apply bg-[#299479]  font-normal text-white p-1 text-left whitespace-nowrap;
 }
 table tbody tr td {
-  @apply text-gray-900 bg-gray-50 p-2;
+  @apply text-gray-900 bg-gray-50 p-1;
 }
 .bg-purple-400 {
   background-color: rgb(192 132 252);

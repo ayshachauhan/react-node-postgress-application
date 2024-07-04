@@ -175,6 +175,7 @@ const Templates: React.FC = () => {
         {showErrorMessage && <div className="text-red-700">{errorMessage}</div>}
         <Button
           kind="secondary"
+          padding="5px 8px"
           title="Add New"
           onClick={handleOpenAddModal}
           startEnhancer={() => <AddIcon></AddIcon>}

@@ -181,37 +181,44 @@ export default function WaitlistPage() {
         )}
         {showErrorMessage && <div className="text-red-700">{errorMessage}</div>}
         <Button
-          kind="primary"
+          kind="secondary"
+          padding="5px 8px"
           title="Add New"
           onClick={handleOpenModal}
           startEnhancer={() => <AddIcon />}
         />
       </div>
       <hr className="h-px my-2.5 bg-gray-100 border-1 border-gray-100" />
-      <div className="text-gray-50 w-full  items-center  bg-gray-50 py-4 rounded-lg">
-        <div className="bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 grid grid-cols-3 rounded-lg">
-          <div className="font-bold text-white p-4">S. No.</div>
-          <div className="font-bold text-white p-4">Waitlist</div>
-          <div className="font-bold text-white p-4">Action</div>
-          {waitlist.map((data, index) => (
-            <React.Fragment key={data.id}>
-              <div className="text-gray-900 bg-gray-50 pt-2 px-4">
-                {index + 1}
-              </div>
-              <div className="text-gray-900 bg-gray-50 pt-2 px-4">
-                {data.name}
-              </div>
-              <div className="text-gray-900 bg-gray-50 pt-2 px-4">
-                <div
-                  onClick={() => handleOpenDeleteModal(data.id)}
-                  className="cursor-pointer"
-                >
-                  <DeleteIcon className="mt-2" />
-                </div>
-              </div>
-            </React.Fragment>
-          ))}
-        </div>
+      <div className="table-responsive overflow-x-auto rounded-lg">
+        <table className="">
+          <tbody className="">
+            <tr>
+              <th className="">S. No.</th>
+              <th className="">Waitlist</th>
+              <th className="">Action</th>
+            </tr>
+            {waitlist.map((data, index) => (
+              <React.Fragment key={data.id}>
+                <tr>
+                  <td className="text-gray-900 bg-gray-50 pt-2 px-4">
+                    {index + 1}
+                  </td>
+                  <td className="text-gray-900 bg-gray-50 pt-2 px-4">
+                    {data.name}
+                  </td>
+                  <td className="text-gray-900 bg-gray-50 pt-2 px-4">
+                    <div
+                      onClick={() => handleOpenDeleteModal(data.id)}
+                      className="cursor-pointer"
+                    >
+                      <DeleteIcon className="mt-2" />
+                    </div>
+                  </td>
+                </tr>
+              </React.Fragment>
+            ))}
+          </tbody>
+        </table>
       </div>
 
       <AddWaitlistModal />

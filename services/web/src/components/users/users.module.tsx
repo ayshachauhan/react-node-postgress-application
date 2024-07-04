@@ -199,145 +199,155 @@ export default function UserPage() {
         {showErrorMessage && <div className="text-red-700">{errorMessage}</div>}
         <Button
           kind="secondary"
+          padding="5px 8px"
           title="Add New"
           onClick={handleOpenModal}
           startEnhancer={() => <AddIcon></AddIcon>}
         />
       </div>
       <hr className="h-px my-2.5 bg-gray-100 border-1 border-gray-100"></hr>
-      <div className="text-gray-50 w-full items-center border-l border rounded-t-lg rounded-b-lg border-gray-200 text-sm overflow-x-auto mt-2">
-        <div className="bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 grid grid-cols-[0.5fr_1fr_1fr_1fr_1fr_0.5fr_0.5fr_0.5fr_2fr_1fr_0.5fr_0.5fr] gap-4 p-4">
-          <div className="font-bold text-white">UserPhoto</div>
-          <div className="font-bold text-white">Username</div>
-          <div className="font-bold text-white">Email</div>
-          <div className="font-bold text-white">Practice Name</div>
-          <div className="font-bold text-white">Display Name</div>
-          <div className="font-bold text-white">Contact No.</div>
-          <div className="font-bold text-white">User Type</div>
-          <div className="font-bold text-white w-36">Designation</div>
-          <div className="font-bold text-white">Permissions</div>
-          <div className="font-bold text-white">Social Media URL</div>
-          <div className="font-bold text-white">Status</div>
-          <div className="font-bold text-white">Action</div>
-        </div>
-        {!isLoading &&
-          users.map((data) => (
-            <React.Fragment key={data.id}>
-              <div className="grid grid-cols-[0.5fr_1fr_1fr_1fr_1fr_0.5fr_0.5fr_0.5fr_2fr_1fr_0.5fr_0.5fr] gap-4 px-4 py-2 flex ">
-                <div className="text-gray-900 overflow-hidden whitespace-nowrap">
-                  {data.imgUrl ? (
-                    <Image
-                      src={data.imgUrl}
-                      alt={data.id}
-                      width={50}
-                      height={50}
-                      className="inline-block mr-2 rounded-[10px]"
-                      style={{
-                        width: '50px',
-                        height: '50px',
-                        objectFit: 'cover',
-                        borderRadius: '100px',
-                      }}
-                    />
-                  ) : (
-                    <AvatarIcon size={50}></AvatarIcon>
-                  )}
-                </div>
-                <div className="text-gray-900 overflow-hidden whitespace-nowrap">
-                  {data.userName}
-                </div>
-                <div className="text-gray-900 overflow-hidden whitespace-nowrap">
-                  {data.email}
-                </div>
-                <div className="text-gray-900 overflow-hidden whitespace-nowrap">
-                  {practiceName}
-                </div>
-                <div className="text-gray-900 overflow-hidden whitespace-nowrap">
-                  {data.fullName}
-                </div>
-                <div className="text-gray-900 overflow-hidden whitespace-nowrap">
-                  {data.contactNumber}
-                </div>
-                <div className="text-gray-900 overflow-hidden whitespace-nowrap">
-                  {data.type}
-                </div>
-                <div className="text-gray-900 overflow-hidden whitespace-nowrap ml-2 w-36">
-                  {data.designation}
-                </div>
-                <div className="text-gray-900">
-                  <div className="grid grid-cols-2 gap-1">
-                    {data?.permissions.map((label, index) => (
-                      <Checkbox
-                        key={index}
-                        checked={true}
-                        overrides={{
-                          Checkmark: {
-                            style: ({ $checked }) => ({
-                              backgroundColor: $checked
-                                ? 'rgba(34, 197, 94, 1)'
-                                : 'white',
-                              borderColor: $checked
-                                ? 'rgba(34, 197, 94, 1)'
-                                : 'rgba(113, 113, 122, 1)',
-                              width: '15px',
-                              height: '15px',
-                              marginTop: '7px',
-                              marginRight: '0px',
-                              borderRadius: '2px',
-                              borderWidth: '2px',
-                            }),
-                          },
-                        }}
+      <div className="table-responsive overflow-x-auto rounded-lg">
+        <table className="">
+          <tbody>
+            <tr className="">
+              <th className="">UserPhoto</th>
+              <th className="">Username</th>
+              <th className="">Email</th>
+              <th className="">Practice Name</th>
+              <th className="">Display Name</th>
+              <th className="">Contact No.</th>
+              <th className="">User Type</th>
+              <th className="">Designation</th>
+              <th className="">Social Media URL</th>
+              <th className="">Status</th>
+              <th className="">Action</th>
+            </tr>
+            {!isLoading &&
+              users.map((data) => (
+                <React.Fragment key={data.id}>
+                  <tr className="border-t border-gray-300">
+                    <td rowSpan={2} className="">
+                      {data.imgUrl ? (
+                        <Image
+                          src={data.imgUrl}
+                          alt={data.id}
+                          width={50}
+                          height={50}
+                          className="inline-block mr-2 rounded-[10px]"
+                          style={{
+                            width: '50px',
+                            height: '50px',
+                            objectFit: 'cover',
+                            borderRadius: '100px',
+                          }}
+                        />
+                      ) : (
+                        <AvatarIcon size={50}></AvatarIcon>
+                      )}
+                    </td>
+                    <td rowSpan={1} className="">
+                      {data.userName}
+                    </td>
+                    <td rowSpan={1} className="">
+                      {data.email}
+                    </td>
+                    <td rowSpan={1} className="">
+                      {practiceName}
+                    </td>
+                    <td rowSpan={1} className="">
+                      {data.fullName}
+                    </td>
+                    <td rowSpan={1} className="">
+                      {data.contactNumber}
+                    </td>
+                    <td rowSpan={1} className="">
+                      {data.type}
+                    </td>
+                    <td rowSpan={1} className="">
+                      {data.designation}
+                    </td>
+
+                    <td rowSpan={1} className="">
+                      {data.url}
+                    </td>
+                    <td rowSpan={2} className="">
+                      <div
+                        className={`rounded-md text-white px-1 text-center capitalize ${
+                          data.status?.toString() === 'pending'
+                            ? 'bg-yellow-500'
+                            : data.status?.toString() === 'inactive'
+                              ? 'bg-red-500'
+                              : 'bg-green-500'
+                        }`}
                       >
-                        <label
-                          htmlFor={`checkbox-${index}`}
-                          className="text-black text-sm font-normal"
+                        {data.status?.toString()}
+                      </div>
+                    </td>
+                    <td rowSpan={2} className="">
+                      <div className="flex gap-1">
+                        <div
+                          onClick={() => data.id && handleViewUser(data.id)}
+                          className="cursor-pointer"
                         >
-                          <span className="truncate">{label.name}</span>
-                        </label>
-                      </Checkbox>
-                    ))}
-                  </div>
-                </div>
-                <div className="text-gray-900 overflow-hidden whitespace-nowrap">
-                  {data.url}
-                </div>
-                <div className="text-gray-900 text-center overflow-hidden whitespace-nowrap">
-                  <div
-                    className={`rounded-md text-white px-1 ${
-                      data.status?.toString() === 'pending'
-                        ? 'bg-yellow-500'
-                        : data.status?.toString() === 'inactive'
-                          ? 'bg-red-500'
-                          : 'bg-green-500'
-                    }`}
-                  >
-                    {data.status?.toString()}
-                  </div>
-                </div>
-                <div className="text-gray-900 flex gap-1">
-                  <div
-                    onClick={() => data.id && handleViewUser(data.id)}
-                    className="cursor-pointer"
-                  >
-                    <ViewIcon></ViewIcon>
-                  </div>
-                  <div
-                    onClick={() => data.id && handleOpenEditModal(data.id)}
-                    className="cursor-pointer"
-                  >
-                    <EditIcon></EditIcon>
-                  </div>
-                  <div
-                    onClick={() => data.id && handleOpenDeleteModal(data.id)}
-                    className="cursor-pointer"
-                  >
-                    <DeleteIcon></DeleteIcon>
-                  </div>
-                </div>
-              </div>
-            </React.Fragment>
-          ))}
+                          <ViewIcon></ViewIcon>
+                        </div>
+                        <div
+                          onClick={() =>
+                            data.id && handleOpenEditModal(data.id)
+                          }
+                          className="cursor-pointer"
+                        >
+                          <EditIcon></EditIcon>
+                        </div>
+                        <div
+                          onClick={() =>
+                            data.id && handleOpenDeleteModal(data.id)
+                          }
+                          className="cursor-pointer"
+                        >
+                          <DeleteIcon></DeleteIcon>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td colSpan={8} className="">
+                      <div className="grid grid-cols-8 text-[10px] bg-white px-1">
+                        {data?.permissions.map((label, index) => (
+                          <Checkbox
+                            key={index}
+                            checked={true}
+                            overrides={{
+                              Checkmark: {
+                                style: ({ $checked }) => ({
+                                  backgroundColor: $checked
+                                    ? 'rgba(34, 197, 94, 1)'
+                                    : 'white',
+                                  borderColor: $checked
+                                    ? 'rgba(34, 197, 94, 1)'
+                                    : 'rgba(113, 113, 122, 1)',
+                                  width: '10px',
+                                  height: '10px',
+                                  marginTop: '7px',
+                                  marginRight: '0px',
+                                  borderRadius: '2px',
+                                  borderWidth: '2px',
+                                }),
+                              },
+                            }}
+                          >
+                            <label htmlFor={`checkbox-${index}`} className="">
+                              <span className="truncate">{label.name}</span>
+                            </label>
+                          </Checkbox>
+                        ))}
+                      </div>
+                    </td>
+                  </tr>
+                </React.Fragment>
+              ))}
+          </tbody>
+        </table>
       </div>
       <AddUserModal
         isModalOpen={isModalOpen}

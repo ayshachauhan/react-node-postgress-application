@@ -285,61 +285,59 @@ const Dashboard: React.FC = () => {
           <Button
             kind="secondary"
             title="Add New"
+            padding="5px 8px"
             onClick={handleOpenAddModal}
             startEnhancer={() => <AddIcon></AddIcon>}
           />{' '}
         </div>
       </div>
       <hr className="h-px my-2.5 px-0 mx-0 bg-gray-100 border-1 dark:bg-gray-700"></hr>
-      <div className="text-gray-50 w-full  items-center  bg-gray-50 py-4 rounded-lg">
-        <div className="bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 grid grid-cols-5 rounded-lg">
-          <div className="font-bold text-white p-4">S. No.</div>
-          <div className="font-bold text-white p-4">Surgery Location</div>
-          <div className="font-bold text-white p-4">Surgery Name</div>
-          <div className="font-bold text-white p-4">Body Part</div>
-          {/* <div className="font-bold text-white p-4">Facility</div> */}
-          <div className="font-bold text-white p-4">Action</div>
-          {!isLoading &&
-            modifySurgeryConfigList.map((data, index) => (
-              <React.Fragment key={data.id}>
-                <div className="text-gray-900 bg-gray-50 pt-2 px-4">
-                  {index + 1}
-                </div>
-                <div className="text-gray-900 bg-gray-50 pt-2 px-4">
-                  {data.surgeryType}
-                </div>
-                <div className="text-gray-900 bg-gray-50 pt-2 px-4">
-                  {data.surgeryName}
-                </div>
-                <div className="text-gray-900 bg-gray-50 pt-2 px-4">
-                  {data.bodyPart}
-                </div>
-                {/* <div className="text-gray-900 bg-gray-50 pt-2 px-4">
+      <div className="table-responsive overflow-x-auto rounded-lg">
+        <table className="text-gray-50 w-full  items-center  bg-gray-50 py-4 rounded-lg">
+          <tbody className="">
+            <tr>
+              <th className="">S. No.</th>
+              <th className="">Surgery Location</th>
+              <th className="">Surgery Name</th>
+              <th className="">Body Part</th>
+              <th className="">Action</th>
+            </tr>
+            {!isLoading &&
+              modifySurgeryConfigList.map((data, index) => (
+                <React.Fragment key={data.id}>
+                  <tr className="border-t border-gray-200">
+                    <td className="">{index + 1}</td>
+                    <td className="">{data.surgeryType}</td>
+                    <td className="">{data.surgeryName}</td>
+                    <td className="">{data.bodyPart}</td>
+                    {/* <td className="">
                   {data.facility}
-                </div> */}
-                <div className="text-gray-900 bg-gray-50 pt-2 px-4 flex gap-1">
-                  <div
-                    onClick={() => {
-                      setSurgeryTypeId(data.surgeryTypeId);
-                      data.id && handleOpenEditModal(data);
-                    }}
-                    className="cursor-pointer"
-                  >
-                    <EditIcon></EditIcon>
-                  </div>
-                  <div
-                    onClick={() => {
-                      setSurgeryTypeId(data.surgeryTypeId);
-                      data.id && handleOpenDeleteModal(data.id);
-                    }}
-                    className="cursor-pointer"
-                  >
-                    <DeleteIcon></DeleteIcon>
-                  </div>
-                </div>
-              </React.Fragment>
-            ))}
-        </div>
+                </td> */}
+                    <td className=" flex gap-1">
+                      <div
+                        onClick={() => {
+                          setSurgeryTypeId(data.surgeryTypeId);
+                          data.id && handleOpenEditModal(data);
+                        }}
+                        className="cursor-pointer"
+                      >
+                        <EditIcon></EditIcon>
+                      </div>
+                      <div
+                        onClick={() => {
+                          setSurgeryTypeId(data.surgeryTypeId);
+                          data.id && handleOpenDeleteModal(data.id);
+                        }}
+                        className="cursor-pointer"
+                      >
+                        <DeleteIcon></DeleteIcon>
+                      </div>
+                    </td>
+                  </tr>
+                </React.Fragment>
+              ))}
+          </tbody>
+        </table>
       </div>
       <ConfigurationAddModel />
       {isEditModalOpen && <ConfigurationEditModal />}

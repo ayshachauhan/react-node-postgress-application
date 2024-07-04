@@ -142,9 +142,9 @@ export default function ReferrerTable() {
           <tbody>
             <tr className="">
               <th className="">Name</th>
+              <th className="">Email</th>
               <th className="">Type</th>
               <th className="">Ref#</th>
-              <th className="">Email</th>
               <th className="">Action</th>
             </tr>
             {!isLoading &&
@@ -202,9 +202,10 @@ export default function ReferrerTable() {
                           )}
                         </div>
                       </td>
+                      <td className="">{data?.email}</td>
                       <td className="">{data?.referrerType}</td>
                       <td className="">{total ? total : 0}</td>
-                      <td className="">{data?.email}</td>
+
                       <td className="">
                         <div className="flex gap-2">
                           <div
