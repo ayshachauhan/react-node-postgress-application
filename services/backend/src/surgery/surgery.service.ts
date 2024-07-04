@@ -37,7 +37,6 @@ import { SystemTemplates } from 'src/transporter/transporter.types';
 import { UsersService } from 'src/users/users.service';
 import {
   formatHeaderDate,
-  formatTime,
   getFullYearDateConditions,
   getStartEndDate,
 } from 'src/utils';
@@ -576,9 +575,7 @@ export class SurgeryService {
       text: `<p>Dear ${surgery?.patient.firstName},<p>
         <p>Your surgery has been scheduled for ${formatHeaderDate(
           String(surgery?.date),
-        )} at ${formatTime(
-          String(surgery?.date),
-        )}. Please make sure to arrive 30 minutes before your scheduled time. If you have any questions or need to reschedule, please contact us at support@pod111.com.<p>
+        )}. If you have any questions or need to reschedule, please contact us at support@pod111.com.<p>
         <p>Thank you,</p>
         <p>${practice?.name}</p>
       `,
