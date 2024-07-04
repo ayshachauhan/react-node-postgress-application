@@ -1,5 +1,5 @@
 import { IBaseEntity } from '../base.interface';
-import { ISurgeryConfiguration, IWaitlist } from '../index.browser';
+import { IPractice, ISurgeryConfiguration, IWaitlist } from '../index.browser';
 import { IInsuranceType } from '../insuranceType';
 import { IPatient } from '../patient';
 import { IPracticeHomes } from '../practiceHomes';
@@ -21,6 +21,7 @@ export interface ISurgery extends IBaseEntity {
   dateDeleted?: Date;
   surgeryOrder: number;
   surgeryStatus: SurgeryStatus;
+  practice: IPractice; //TO DO: make practice id not null in future
 }
 
 export interface CreateSurgeryPayload {
