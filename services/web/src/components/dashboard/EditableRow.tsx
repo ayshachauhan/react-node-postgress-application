@@ -276,6 +276,7 @@ function EditableRow({
                     ]
                   : []
               }
+              disabled={obj?.surgeryStatus === SurgeryStatus.COMPLETED}
               size={SIZE.mini}
               onChange={({ value }) =>
                 handleObjChange('surgeryStatus', value[0].label)
@@ -434,10 +435,8 @@ function EditableRow({
                       })
                     }
                     disabled={
-                      !!(
-                        surgeryInfo.surgeryConfiguration.options[optionsHeader]
-                          ?.edit_admin_option === false && adminPermission
-                      )
+                      surgeryInfo.surgeryConfiguration.options[optionsHeader]
+                        ?.edit_admin_option === true && !adminPermission
                     }
                     size={SIZE.mini}
                     overrides={{

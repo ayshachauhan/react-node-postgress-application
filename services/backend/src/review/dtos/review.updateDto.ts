@@ -36,4 +36,8 @@ export class updateReviewDto {
   @ApiProperty()
   @IsEnum(ReviewStatus)
   reviewStatus?: ReviewStatus;
+
+  @IsOptional()
+  @ApiProperty()
+  surgeryId?: string;
 }

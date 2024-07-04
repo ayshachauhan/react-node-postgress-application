@@ -491,6 +491,7 @@ export class SurgeryService {
               reviewStatus: ReviewStatus.PENDING,
               practice: surgeryData.practiceHome.practice,
               patient: surgeryData.patient,
+              surgeryId: surgeryData.id,
             },
           ]);
         }
@@ -529,6 +530,7 @@ export class SurgeryService {
           reviewStatus: ReviewStatus.PENDING,
           practice: entry.practiceHome.practice,
           patient: entry.patient,
+          surgeryId: entry.id,
         }));
 
         await this.createReviewEntity(reviewEntries);
