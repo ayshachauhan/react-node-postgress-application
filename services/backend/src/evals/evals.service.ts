@@ -20,6 +20,7 @@ import { PracticesService } from 'src/practices/practices.service';
 import { SurgeryConfigurationsService } from 'src/surgeryConfiguration/surgeryConfiguration.service';
 import { SystemTemplates } from 'src/transporter/transporter.types';
 import { UsersService } from 'src/users/users.service';
+import { formatHeaderDate } from 'src/utils';
 import { In, MoreThanOrEqual, Repository } from 'typeorm';
 import {
   EvalChangesKeyValues,
@@ -296,7 +297,11 @@ export class EvalsService {
 
     const systemGeneratedMailData = {
       subject: `A new surgery added to your practice ${name}`,
-      text: 'text message',
+      text: `<p>A surgery scheduled for you. Here is the summary:</p><p>${evalEntity
+        ?.patient?.firstName} ${evalEntity?.patient
+        ?.lastName} (${formatHeaderDate(
+        String(evalEntity?.date),
+      )} | ${evalEntity?.surgeryConfiguration?.name})</p>`,
       systemTemplate: SystemTemplates.NOTIFY_DOCTOR,
     };
 
