@@ -58,13 +58,14 @@ export type SurgeryConditionalOptions = {
     dependsUpon: string | null;
     dependencies?: DependantOption[];
     count: number;
-    edit_admin_option: boolean;
+    editAdminOption: boolean;
     values: string[];
   };
 };
 
 export type DependantOption = {
-  [key: string]: string[];
+  key: string;
+  values: string[];
 };
 
 export type UpdateSurgeryConfigPayload = {
@@ -74,6 +75,7 @@ export type UpdateSurgeryConfigPayload = {
   options: SurgeryOptions;
   checkList: SurgeryChecklist;
   surgeryTypeId?: string;
+  conditionalOptions: SurgeryConditionalOptions;
 };
 
 export type CreateSurgeryConfigurationPayload = {
@@ -84,4 +86,5 @@ export type CreateSurgeryConfigurationPayload = {
   checkList: SurgeryChecklist;
   surgeryTypeId: string;
   color: string;
+  conditionalOptions: SurgeryConditionalOptions;
 };

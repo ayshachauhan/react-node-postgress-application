@@ -46,7 +46,7 @@ const Checklist: React.FC<{ props }> = ({ props }) => {
                 title=""
                 width={25}
                 height={25}
-                startEnhancer={() => <AddIcon className="mr-0"></AddIcon>}
+                startEnhancer={() => <AddIcon className="ml-[6px]"></AddIcon>}
                 onClick={handleChecklistAddFields}
               />
             </div>

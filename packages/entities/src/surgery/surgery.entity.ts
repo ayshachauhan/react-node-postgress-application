@@ -9,6 +9,7 @@ import { WaitlistEntity } from '../waitlist';
 import {
   CheckListOptions,
   ISurgery,
+  SelectedConditionalOption,
   SelectedSurgeryOption,
   SurgeryStatus,
 } from './surgery.interface';
@@ -65,6 +66,9 @@ export class SurgeryEntity extends BaseEntity implements ISurgery {
 
   @Column({ type: 'jsonb', nullable: true })
   selectedCheckListOptions: CheckListOptions;
+
+  @Column({ type: 'jsonb', nullable: true })
+  selectedConditionalOptions: SelectedConditionalOption;
 
   @Column()
   surgeryOrder: number;

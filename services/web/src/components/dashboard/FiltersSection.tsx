@@ -1,10 +1,8 @@
 import {
-  ISurgery,
-  ISurgeryConfiguration,
   MonthOption,
+  ReviewStatus,
+  USER_PERMISSIONS,
 } from '@packages/entities';
-import { IWaitlist, ReviewStatus } from '@packages/entities/index.browser';
-import { USER_PERMISSIONS } from '@packages/entities/permission';
 import Button from '@root/components/Button';
 import {
   CopyIcon,
@@ -64,12 +62,29 @@ const FiltersSection: React.FC<{
   onReviewClickSuccess,
 }) => {
   const dispatch = useAppDispatch();
-  const { selectedMonth, searchMRNName, selectedValue } = useAppSelector(
-    (state) => state.surgeries.surgeryFilters,
-  );
-  const reviews = useAppSelector((state) =>
-    Object.values(state.reviews.entities),
-  );
+
+  const {
+    selectedMonth,
+    searchMRNName,
+    selectedValue,
+    reviews,
+    errorMessage,
+    surgeryList,
+    surgeryConfigList,
+    waitlist,
+    userInfo,
+  } = useAppSelector((state) => ({
+    selectedMonth: state.surgeries.surgeryFilters.selectedMonth,
+    searchMRNName: state.surgeries.surgeryFilters.searchMRNName,
+    selectedValue: state.surgeries.surgeryFilters.selectedValue,
+    reviews: Object.values(state.reviews.entities),
+    errorMessage: state.surgeries.errorMessage,
+    surgeryList: Object.values(state.surgeries.entities),
+    surgeryConfigList: Object.values(state.surgeryConfigurations.entities),
+    waitlist: Object.values(state.waitlist.entities),
+    userInfo: state.auth.user,
+  }));
+
   const {
     isLoading: reviewSendingIsLoading,
     withLoader: reviewSenderWithLoader,
@@ -85,7 +100,6 @@ const FiltersSection: React.FC<{
   const [selectedSurgery, setSelectedSurgery] = useState({});
   const [selectedRow, setSelectedRow] = useState<string | null>(null);
   const [editableRows, setEditableRows] = useState<string[]>([]);
-  const userInfo = useAppSelector((state) => state.auth.user);
   const loggedInUserId = userInfo?.id ?? null;
   const userPermissions = userInfo?.permissions;
 
@@ -141,22 +155,24 @@ const FiltersSection: React.FC<{
     [key: string]: {
       surgeryOptionsHeaders: string[];
       checkListHeaders: string[];
+      conditionalHeaders: string[];
     };
   } = {};
-  const { errorMessage } = useAppSelector((state) => state.surgeries);
-  const surgeryList: ISurgery[] = useAppSelector((state) =>
-    Object.values(state.surgeries.entities),
-  );
-
-  const surgeryConfigList: ISurgeryConfiguration[] = useAppSelector((state) =>
-    Object.values(state.surgeryConfigurations.entities),
-  );
 
   if (surgeryConfigList.length) {
     surgeryConfigList.forEach((ele) => {
+      // logic to place parent condition always ahead of dependant condition
+      let conditionalHeaders = Object.keys(ele.conditionalOptions);
+      if (
+        conditionalHeaders.length &&
+        ele.conditionalOptions[conditionalHeaders[0]].dependsUpon
+      ) {
+        conditionalHeaders = conditionalHeaders.reverse();
+      }
       surgeryOptionsHeadersObj[ele.name] = {
         surgeryOptionsHeaders: Object.keys(ele.options),
         checkListHeaders: Object.keys(ele.checkList),
+        conditionalHeaders: conditionalHeaders,
       };
     });
   }
@@ -237,20 +253,33 @@ const FiltersSection: React.FC<{
       surgeryStatus: ele.surgeryStatus,
       selectedSurgeryOptions: ele.selectedSurgeryOptions,
       selectedChecklistOptions: ele.selectedCheckListOptions,
+      selectedConditionalOptions: ele.selectedConditionalOptions,
       waitlist: ele?.waitlist?.name,
       referrerVerified:
         ele.patient.referrer && ele.patient.referrer.verified ? true : false,
     };
 
     const optionArr = Object.keys(ele.surgeryConfiguration.options);
+    const conditionalOptionsArr = Object.keys(
+      ele.surgeryConfiguration.conditionalOptions,
+    );
 
     optionArr.forEach((option) => {
       viewData[`${option}-count`] =
         ele.surgeryConfiguration.options[option]?.count;
     });
 
+    conditionalOptionsArr.forEach((condition) => {
+      viewData[`${condition}-count`] =
+        ele.surgeryConfiguration.conditionalOptions[condition]?.count;
+    });
+
     Object.keys(ele.selectedSurgeryOptions).forEach((data) => {
       viewData[data] = ele.selectedSurgeryOptions[data].value;
+    });
+
+    Object.keys(ele.selectedConditionalOptions).forEach((data) => {
+      viewData[data] = ele.selectedConditionalOptions[data].value;
     });
 
     ele.selectedCheckListOptions &&
@@ -491,9 +520,6 @@ const FiltersSection: React.FC<{
     searchMRNNameStr,
     selectedValueStr,
   ]);
-  const waitlist: IWaitlist[] = useAppSelector((state) =>
-    Object.values(state.waitlist.entities),
-  );
   const [isUpdateLoading, setIsUpdateLoading] = useState(false);
 
   const handleSetIsUpdateLoading = (loadingState: boolean) => {
@@ -621,6 +647,9 @@ const FiltersSection: React.FC<{
                   const customCheckListHeaders: string[] =
                     surgeryOptionsHeadersObj[key].checkListHeaders;
 
+                  const customConditionalHeaders: string[] =
+                    surgeryOptionsHeadersObj[key].conditionalHeaders;
+
                   return (
                     <table key={index} className="w-full">
                       <tbody>
@@ -659,18 +688,29 @@ const FiltersSection: React.FC<{
                                   <th className="w-20">Surgery</th>
                                   <th className="w-20">Body Part</th>
 
-                                  {customOptionsHeaders &&
-                                    customOptionsHeaders.map(
-                                      (optionsHeader, optionsHeaderIndex) => (
-                                        <th
-                                          className="w-12"
-                                          key={optionsHeaderIndex}
-                                        >
-                                          {optionsHeader}
-                                        </th>
-                                      ),
-                                    )}
-
+                                  {customOptionsHeaders.map(
+                                    (optionsHeader, optionsHeaderIndex) => (
+                                      <th
+                                        className="w-12"
+                                        key={optionsHeaderIndex}
+                                      >
+                                        {optionsHeader}
+                                      </th>
+                                    ),
+                                  )}
+                                  {customConditionalHeaders.map(
+                                    (
+                                      customConditionalHeader,
+                                      customConditionalHeaderIndex,
+                                    ) => (
+                                      <th
+                                        className="w-12"
+                                        key={customConditionalHeaderIndex}
+                                      >
+                                        {customConditionalHeader}
+                                      </th>
+                                    ),
+                                  )}
                                   <th className="min-w-20">#</th>
 
                                   {customCheckListHeaders &&
@@ -822,6 +862,45 @@ const FiltersSection: React.FC<{
                                                 rowSpan={2}
                                                 className=""
                                                 key={optionsHeaderIndex}
+                                              >
+                                                {elements}
+                                              </td>
+                                            );
+                                          },
+                                        )}
+                                        {customConditionalHeaders.map(
+                                          (
+                                            conditionalHeader,
+                                            conditionalHeaderIndex,
+                                          ) => {
+                                            const elements: JSX.Element[] = [];
+                                            if (
+                                              row[`${conditionalHeader}-count`]
+                                            ) {
+                                              for (
+                                                let index = 0;
+                                                index <
+                                                row[
+                                                  `${conditionalHeader}-count`
+                                                ];
+                                                index++
+                                              ) {
+                                                elements.push(
+                                                  <div className="" key={index}>
+                                                    {
+                                                      row[
+                                                        `${conditionalHeader}-${index}`
+                                                      ]
+                                                    }
+                                                  </div>,
+                                                );
+                                              }
+                                            }
+                                            return (
+                                              <td
+                                                rowSpan={2}
+                                                className=""
+                                                key={conditionalHeaderIndex}
                                               >
                                                 {elements}
                                               </td>

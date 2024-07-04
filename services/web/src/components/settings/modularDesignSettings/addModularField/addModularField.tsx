@@ -28,10 +28,10 @@ const AddModularField: React.FC<{
     {
       label: '',
       dependsUpon: null,
-      dependencies: [],
+      dependencies: [{ key: '', values: [] }],
       count: 1,
       values: [],
-      edit_admin_option: false,
+      editAdminOption: false,
     },
   ]);
 
@@ -184,6 +184,7 @@ const AddModularField: React.FC<{
 
     const surgeryOptionObj = {};
     const checkListObj = {};
+    const conditionalOptionsObj = {};
 
     optionsFields.forEach((optionField) => {
       if (optionField.category) {
@@ -209,6 +210,25 @@ const AddModularField: React.FC<{
         };
       }
     });
+
+    conditionalOptions.forEach((ele) => {
+      if (ele.label) {
+        conditionalOptionsObj[ele.label] = {
+          label: ele.label,
+          count: ele.count,
+          editAdminOption: ele.editAdminOption,
+          dependsUpon: null,
+          dependencies: [],
+          values: ele.values,
+        };
+
+        if (ele.dependsUpon) {
+          conditionalOptionsObj[ele.label].dependsUpon = ele.dependsUpon;
+          conditionalOptionsObj[ele.label].dependencies = ele.dependencies;
+        }
+      }
+    });
+
     if (practiceId) {
       const payloadData: CreateSurgeryConfigurationPayload = {
         surgeryTypeId,
@@ -218,6 +238,7 @@ const AddModularField: React.FC<{
         options: surgeryOptionObj,
         checkList: checkListObj,
         color: surgeryNameColor,
+        conditionalOptions: conditionalOptionsObj,
       };
       await withLoader(async () => {
         await dispatch(addRecordAsync({ payloadData, practiceId }));
@@ -346,7 +367,9 @@ const AddModularField: React.FC<{
                     title=""
                     width={30}
                     height={30}
-                    startEnhancer={() => <AddIcon></AddIcon>}
+                    startEnhancer={() => (
+                      <AddIcon className="ml-[7.5px]"></AddIcon>
+                    )}
                     onClick={handleAddFields}
                   />
                 </div>
@@ -411,7 +434,9 @@ const AddModularField: React.FC<{
                     title=""
                     width={25}
                     height={25}
-                    startEnhancer={() => <AddIcon></AddIcon>}
+                    startEnhancer={() => (
+                      <AddIcon className="ml-[7.5px]"></AddIcon>
+                    )}
                     onClick={handleAddOptionCategory}
                   />
                 </div>
@@ -656,7 +681,9 @@ const AddModularField: React.FC<{
                                   title=""
                                   width={30}
                                   height={30}
-                                  startEnhancer={() => <AddIcon></AddIcon>}
+                                  startEnhancer={() => (
+                                    <AddIcon className="ml-[6px]"></AddIcon>
+                                  )}
                                   onClick={() => handleOptionsAddField(index)}
                                 />
                               </div>

@@ -218,6 +218,7 @@ const EditModularField: React.FC<{
     e.preventDefault();
     const surgeryOptionObj = {};
     const checkListObj = {};
+    const conditionalOptionsObj = {};
 
     optionsFields.forEach((optionField) => {
       if (optionField.category) {
@@ -252,6 +253,7 @@ const EditModularField: React.FC<{
         options: surgeryOptionObj,
         checkList: checkListObj,
         color: surgeryNameColor,
+        conditionalOptions: conditionalOptionsObj,
       };
       await withLoader(async () => {
         await dispatch(

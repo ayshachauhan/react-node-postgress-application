@@ -21,6 +21,7 @@ export interface ISurgery extends IBaseEntity {
   dateDeleted?: Date;
   surgeryOrder: number;
   surgeryStatus: SurgeryStatus;
+  selectedConditionalOptions: SelectedConditionalOption;
 }
 
 export interface CreateSurgeryPayload {
@@ -55,6 +56,12 @@ export interface SelectedSurgeryOption {
   };
 }
 
+export interface SelectedConditionalOption {
+  [key: string]: {
+    value: string;
+  };
+}
+
 export interface CheckListOptions {
   [ket: string]: {
     value: string;
@@ -81,6 +88,7 @@ export interface UpdateSurgeryPayload {
   surgeryOrder?: number;
   referrerId?: string;
   practiceHomeId: string;
+  selectedConditionalOptions?: SelectedConditionalOption;
 }
 
 export interface MonthOption {
