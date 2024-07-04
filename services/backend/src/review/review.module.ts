@@ -7,6 +7,7 @@ import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundIn
 import { PatientsModule } from 'src/patients/patients.module';
 import { PracticesModule } from 'src/practices/practices.module';
 import { TransporterModule } from 'src/transporter';
+import { UsersModule } from 'src/users/users.module';
 import { PublicReviewController } from './public.review.controller';
 import { ReviewController } from './review.controller';
 import { ReviewService } from './review.service';
@@ -17,6 +18,7 @@ import { ReviewService } from './review.service';
     forwardRef(() => PatientsModule),
     PracticesModule,
     TransporterModule,
+    UsersModule,
   ],
   controllers: [ReviewController, PublicReviewController],
   providers: [ReviewService, practiceNotFoundInterceptor],

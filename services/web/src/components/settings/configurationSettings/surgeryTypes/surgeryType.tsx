@@ -55,14 +55,14 @@ export default function SurgeryTypePage() {
       timer = setTimeout(() => {
         setShowModal(false);
         dispatch(clearSuccessMessage());
-      }, 2000);
+      }, 300);
     }
     if (errorMessage) {
       setShowErrorMessage(true);
       timer = setTimeout(() => {
         setShowErrorMessage(false);
         dispatch(clearErrorMessage());
-      }, 2000);
+      }, 300);
     }
     return () => {
       if (timer) {
