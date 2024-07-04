@@ -29,7 +29,7 @@ import { LoggerModule } from 'nestjs-pino';
 import { ENV_VALIDATIONS } from './enums/env-validation';
 import { ENVIRONMENT_VARIABLES } from './enums/environment.enums';
 import { TransporterModule } from './transporter';
-// import { TypeOrmLogger } from './typeorm.logger';
+import { TypeOrmLogger } from './typeorm.logger';
 
 /**
  * All the imports related to infrastructure should be added here
@@ -111,8 +111,8 @@ export const createInfraModuleProviders = (): Array<
           WaitlistEntity,
           MediaConfigEntity,
         ],
-        logging: false,
-        // logger: new TypeOrmLogger(),
+        logging: 'all',
+        logger: new TypeOrmLogger(),
         synchronize: false,
       }),
     }),
