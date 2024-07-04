@@ -144,3 +144,13 @@ export const toPascalCase = (str: string): string => {
       .join(' ');
   } else return str;
 };
+
+export function filterUpcomingSurgeries(data) {
+  const currentDate = new Date();
+  currentDate.setHours(0, 0, 0, 0);
+  return data.filter((item) => {
+    const itemDate = new Date(item.date);
+    itemDate.setHours(0, 0, 0, 0);
+    return itemDate >= currentDate;
+  });
+}
