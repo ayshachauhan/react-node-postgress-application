@@ -19,13 +19,13 @@ resource "aws_security_group" "postgres" {
     cidr_blocks = ["182.74.161.50/32"]
   }
 
-  # ingress {
-  #   description = "Allow all traffice"
-  #   protocol    = "-1"  # TCP protocol for PostgreSQL
-  #   from_port   = 0   # PostgreSQL default port
-  #   to_port     = 0   # PostgreSQL default port
-  #   cidr_blocks = ["0.0.0.0/0"]
-  # }
+  ingress {
+    description = "Allow all traffice"
+    protocol    = "-1"  # TCP protocol for PostgreSQL
+    from_port   = 0   # PostgreSQL default port
+    to_port     = 0   # PostgreSQL default port
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 
   ingress {
     description = "Allow incoming traffic ECS"
