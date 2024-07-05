@@ -282,7 +282,7 @@ export class EvalsService {
           String(evalEntity?.date),
         )}. If you have any questions or need to reschedule, please contact us at support@pod111.com.<p>
         <p>Thank you,</p>
-        <p>${practice?.name}</p>
+        <p>${practice.name}</p>
       `,
       systemTemplate: SystemTemplates.NOTIFY_PATIENT,
     };
