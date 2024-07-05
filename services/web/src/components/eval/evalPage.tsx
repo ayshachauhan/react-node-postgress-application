@@ -281,8 +281,7 @@ const EvalPage: React.FC = () => {
               <Button
                 kind="secondary"
                 title="Add"
-                height={40}
-                width={80}
+                padding="5px 8px"
                 onClick={handleOpenAddModal}
                 startEnhancer={() => <AddIcon></AddIcon>}
               />

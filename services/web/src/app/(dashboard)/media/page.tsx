@@ -263,8 +263,7 @@ const Media: React.FC = () => {
         <Button
           kind="secondary"
           title="Add"
-          height={40}
-          width={80}
+          padding="5px 8px"
           onClick={handleOpenSecondModal}
           startEnhancer={() => <AddIcon />}
         />
@@ -380,16 +379,16 @@ const Media: React.FC = () => {
               ))}
           {selectedMediaType === MediaType.PATIENT && selectedPatientId && (
             <div style={{ width: '100vw' }}>
-              <div className="flex justify-between items-center mb-4">
+              <div className="flex gap-4 items-center mb-4">
+                <Button
+                  title="Back"
+                  kind="tertiary"
+                  padding="5px 8px"
+                  onClick={() => setSelectedPatientId(null)}
+                ></Button>
                 <div className="flex">
                   Patient Name: {getPatientById(selectedPatientId!)?.firstName}
                 </div>
-                <Button
-                  title="Back"
-                  height={40}
-                  width={80}
-                  onClick={() => setSelectedPatientId(null)}
-                ></Button>
               </div>
               <div className="flex flex-wrap gap-4">
                 {media

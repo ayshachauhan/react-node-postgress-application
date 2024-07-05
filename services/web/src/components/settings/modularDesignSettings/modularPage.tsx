@@ -120,7 +120,7 @@ const Dashboard: React.FC = () => {
         overrides={{
           Dialog: {
             style: () => ({
-              width: '1300px',
+              width: '700px',
               maxWidth: '90%',
             }),
           },
@@ -221,7 +221,7 @@ const Dashboard: React.FC = () => {
         overrides={{
           Dialog: {
             style: () => ({
-              width: '1300px',
+              width: '700px',
               maxWidth: '90%',
             }),
           },

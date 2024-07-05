@@ -510,7 +510,7 @@ const MediaPage: React.FC<{
             </div>
           </div>
         )}
-        <div className="text-right text-base pt-4">
+        <div className="text-right mt-4">
           <Button
             kind="primary"
             title="Add New Media"

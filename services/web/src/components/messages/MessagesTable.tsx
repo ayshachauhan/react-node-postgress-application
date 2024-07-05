@@ -481,8 +481,8 @@ export default function MessagesTable() {
             </div>
           </div>
           {Object.keys(sortedMessagesByDate).length !== 0 && (
-            <div className="table-responsive overflow-x-auto rounded-lg">
-              <table className="w-full overflow-x-auto mt-2 border rounded-t-lg rounded-b-lg border-gray-200">
+            <div className="table-responsive overflow-x-auto rounded-lg mt-2">
+              <table className="">
                 <tbody>
                   {Object.entries(sortedMessagesByDate).length > 0 &&
                     Object.entries(sortedMessagesByDate).map(
@@ -523,7 +523,7 @@ export default function MessagesTable() {
                               id={row.id}
                               className={` ${
                                 index !== records.length - 1
-                                  ? 'border-b border-gray-300'
+                                  ? 'border-t border-gray-300'
                                   : ''
                               }`}
                             >

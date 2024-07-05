@@ -131,7 +131,7 @@ export default function ReferrerTable() {
         <Button
           kind="secondary"
           title="Add"
-          height={30}
+          padding="5px 8px"
           onClick={handleOpenModal}
           startEnhancer={() => <AddIcon></AddIcon>}
         />
@@ -169,10 +169,10 @@ export default function ReferrerTable() {
                       }`}
                     >
                       <td
-                        className="text-blue-600 hover:text-blue-800 visited:text-purple-600 decoration-solid cursor-pointer bg-gray-50 pt-2 px-4 flex-1"
+                        className="text-blue-600 hover:text-blue-800 visited:text-purple-600 decoration-solid cursor-pointer"
                         onClick={() => data.id && handleOpenListModal(data.id)}
                       >
-                        <div className="flex">
+                        <div className="flex gap-1 items-center">
                           {data
                             ? generateFullName(data.firstName, data.lastName)
                             : null}
@@ -191,7 +191,6 @@ export default function ReferrerTable() {
                                       : 'rgba(113, 113, 122, 1)',
                                     width: '15px',
                                     height: '15px',
-                                    marginTop: '7px',
                                     marginRight: '0px',
                                     borderRadius: '2px',
                                     borderWidth: '2px',

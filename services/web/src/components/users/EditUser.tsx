@@ -494,8 +494,8 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose, withLoader }) => {
             </div>
           </div>
         </div>
-        <div className="text-right text-base pt-4">
-          <Button kind="primary" title="Update" width={189} />
+        <div className="text-right mt-4">
+          <Button kind="primary" title="Update" />
         </div>
       </form>
     </div>

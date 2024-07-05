@@ -163,7 +163,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapseChange }) => {
               {item.child && !hideChildMenu && (
                 <ul
                   className={clsx(
-                    'ease-in-out duration-300 my-1 ml-5 py-2 space-y-2 rounded-lg',
+                    'ease-in-out duration-300 py-2 space-y-2 bg-[#ffffff33]',
                     {
                       hidden: item.id !== activeMenuItemId,
                       'bg-green-500 fixed ml-14 mt-0': collapsed,
@@ -176,9 +176,9 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapseChange }) => {
                         href={childItem.path}
                         onClick={() => handleSidebarChildItemClick(childItem)}
                         className={clsx(
-                          'flex items-center w-full p-1 rounded-lg group text-white text-xs font-normal',
+                          'flex items-center w-full pl-5 p-2  text-white ',
                           {
-                            'bg-secondary':
+                            'bg-[#ffffff33]':
                               childItem.id === activeChildMenuItemId,
                           },
                         )}
