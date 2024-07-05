@@ -16,7 +16,7 @@ const ReferredListModal = ({
       additionalOverrides={{
         Dialog: {
           style: () => ({
-            width: '1000px',
+            width: '700px',
           }),
         },
       }}

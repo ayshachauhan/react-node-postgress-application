@@ -52,13 +52,13 @@ const Checklist: React.FC<{ props }> = ({ props }) => {
             </div>
           </div>
         </div>
-        <hr className="h-px bg-gray-100 border-1 dark:bg-gray-800"></hr>
+        <hr className="h-px bg-gray-100 border-1 dark:bg-gray-800 my-2"></hr>
         <div className="flex gap-5">
           <div className="space-y-2 flex-1">
             <label htmlFor="email" className="text-black text-sm mt-2">
               Name
             </label>
-            <div className="flex flex-row gap-3">
+            <div className="grid grid-cols-3 gap-3">
               {checkListInputFields.map((inputField, index, arr) => (
                 <div key={index}>
                   <TextInput

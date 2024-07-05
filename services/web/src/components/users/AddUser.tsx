@@ -329,7 +329,7 @@ const AddUserPage: React.FC<{
               >
                 Permissions
               </label>
-              <div className="grid grid-cols-2 gap-1">
+              <div className="grid grid-cols-3 gap-1">
                 {permissions.map((label, index) => (
                   <Checkbox
                     key={index}
@@ -366,8 +366,8 @@ const AddUserPage: React.FC<{
             </div>
           </div>
         </div>
-        <div className="text-right text-base pt-4">
-          <Button kind="primary" title="Add New User" width={189} />
+        <div className="text-right pt-4">
+          <Button kind="primary" title="Add New User" />
         </div>
       </form>
     </div>

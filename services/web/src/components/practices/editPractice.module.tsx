@@ -117,10 +117,10 @@ const PracticeEditModule: React.FC<{
         </div>
       )}
       <form onSubmit={handleSubmit}>
-        <div className="flex flex-col">
-          <div className="flex flex-row gap-7 pt-4">
-            <div className="space-y-2">
-              <label htmlFor="name" className="text-black text-sm font-normal">
+        <div className="flex flex-col gap-4">
+          <div className="flex gap-4">
+            <div className="w-1/2 space-y-2">
+              <label htmlFor="name" className="">
                 Practice Name
               </label>
               <TextInput
@@ -132,11 +132,8 @@ const PracticeEditModule: React.FC<{
                 required
               />
             </div>
-            <div className="flex flex-col space-y-2 w-1/2">
-              <label
-                htmlFor="status"
-                className="text-black text-sm font-normal"
-              >
+            <div className="space-y-2 w-1/2">
+              <label htmlFor="status" className="">
                 Status
               </label>
               <Select
@@ -160,12 +157,9 @@ const PracticeEditModule: React.FC<{
               />
             </div>
           </div>
-          <div className="flex flex-row gap-7 pt-4">
-            <div className="space-y-2">
-              <label
-                htmlFor="adminFirstName"
-                className="text-black text-sm font-normal"
-              >
+          <div className="flex gap-4">
+            <div className="w-1/2 space-y-2">
+              <label htmlFor="adminFirstName" className="">
                 First Name
               </label>
               <TextInput
@@ -177,11 +171,8 @@ const PracticeEditModule: React.FC<{
                 required
               />
             </div>
-            <div className="flex flex-col space-y-2 w-1/2">
-              <label
-                htmlFor="adminLastName"
-                className="text-black text-sm font-normal"
-              >
+            <div className="space-y-2 w-1/2">
+              <label htmlFor="adminLastName" className="">
                 Last Name
               </label>
               <TextInput
@@ -194,12 +185,9 @@ const PracticeEditModule: React.FC<{
               />
             </div>
           </div>
-          <div className="flex flex-row gap-7 pt-4">
+          <div className="w-full">
             <div className="space-y-2">
-              <label
-                htmlFor="adminContactNumber"
-                className="text-black text-sm font-normal"
-              >
+              <label htmlFor="adminContactNumber" className="">
                 Admin Contact No.
               </label>
               <TextInput
@@ -212,9 +200,9 @@ const PracticeEditModule: React.FC<{
               />
             </div>
           </div>
-          <div className="flex flex-row justify-between pt-4">
+          <div className="w-full">
             <div className="space-y-2">
-              <label htmlFor="imgUrl" className="text-black text-sm">
+              <label htmlFor="imgUrl" className="">
                 Practice Photo
               </label>
               <FileUploader
@@ -251,11 +239,10 @@ const PracticeEditModule: React.FC<{
               />
             </div>
           </div>
-          <div className="text-right text-base pt-4">
+          <div className="text-right">
             <Button
               kind="primary"
               title="Update Practice"
-              width={189}
               disabled={!formChanged}
             />
           </div>

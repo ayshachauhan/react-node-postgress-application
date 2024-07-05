@@ -14,7 +14,7 @@ const MessageWithReadMore: React.FC<{ message: string }> = ({ message }) => {
   };
 
   return (
-    <div className="text-black pt-2 pb-2 px-1 min-w-[20rem] max-w-[20rem]">
+    <td className="">
       <div
         dangerouslySetInnerHTML={{
           __html: showFullMessage ? message : truncatedMessage,
@@ -25,7 +25,7 @@ const MessageWithReadMore: React.FC<{ message: string }> = ({ message }) => {
           Read More
         </a>
       )}
-    </div>
+    </td>
   );
 };
 
