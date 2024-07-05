@@ -113,6 +113,10 @@ const FiltersSection: React.FC<{
     USER_PERMISSIONS.VIEW_HX,
   ]);
 
+  const viewReviews = useUserPermission(userPermissions, [
+    USER_PERMISSIONS.VIEW_REP,
+  ]);
+
   const getMonthOptions = (
     viewPastCases: boolean,
     viewFutureCases: boolean,
@@ -163,10 +167,12 @@ const FiltersSection: React.FC<{
 
   const actionIcons = (row) => (
     <div style={{ display: 'flex' }}>
-      <StarIcon
-        style={{ marginRight: '4px', cursor: 'pointer' }}
-        onClick={() => handleSendReviewRequest(row)}
-      />
+      {viewReviews && (
+        <StarIcon
+          style={{ marginRight: '4px', cursor: 'pointer' }}
+          onClick={() => handleSendReviewRequest(row)}
+        />
+      )}
       <CopyIcon
         style={{ marginRight: '4px', cursor: 'pointer' }}
         onClick={() => handleCloneClick(row.id)}
