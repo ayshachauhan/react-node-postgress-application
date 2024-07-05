@@ -332,6 +332,7 @@ export class SurgeryService {
       surgeryConfiguration: surgeryConfigurationEntity,
       surgeryStatus: SurgeryStatus.BOOK,
       waitlist: waitlistEntity,
+      SelectedConditionsOptions: {},
     });
 
     // upsert calendar after creating surgery
@@ -444,6 +445,7 @@ export class SurgeryService {
         ? practiceHomeEntity
         : surgeryToUpdate?.practiceHome,
       waitlist: waitlistEntity ? waitlistEntity : surgeryToUpdate?.waitlist,
+      selectedConditionalOptions: createSurgeryDto.selectedConditionalOptions,
     };
 
     await this.surgeryRepository.update(id, {

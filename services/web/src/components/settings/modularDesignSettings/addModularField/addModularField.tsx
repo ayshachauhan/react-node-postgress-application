@@ -11,6 +11,8 @@ import { SHAPE } from 'baseui/button';
 import { Checkbox } from 'baseui/checkbox';
 import { SIZE, Select } from 'baseui/select';
 import React, { useState } from 'react';
+import Checklist from './checkList/checklist';
+import ConditionalOptions from './conditionalOptions/conditionalOptions';
 
 const AddModularField: React.FC<{
   onClose: () => void;
@@ -21,6 +23,17 @@ const AddModularField: React.FC<{
   const practiceId = getPracticeId();
 
   const { surgeryTypesList } = items;
+
+  const [conditionalOptions, setConditionalOptions] = useState([
+    {
+      label: '',
+      dependsUpon: null,
+      dependencies: [{ key: '', values: [] }],
+      count: 1,
+      values: [],
+      editAdminOption: false,
+    },
+  ]);
 
   const surgeryTypeOptions = Object.keys(surgeryTypesList).map((key) => ({
     label: surgeryTypesList[key].name,
@@ -47,7 +60,8 @@ const AddModularField: React.FC<{
 
   const [facilityInputFields] = useState([{ value: '' }]);
 
-  /* commenting it for future usage
+  /* 
+  * commenting it for future usage
   const handleFacilityChangeInput = (index: number, event: string) => {
     const values = [...facilityInputFields];
     values[index].value = event;
@@ -141,19 +155,6 @@ const AddModularField: React.FC<{
   const [checkListInputFields, setCheckListInputFields] = useState([
     { value: '' },
   ]);
-  const handleChecklistChangeInput = (index: number, event: string) => {
-    const values = [...checkListInputFields];
-    values[index].value = event;
-    setCheckListInputFields(values);
-  };
-  const handleChecklistAddFields = () => {
-    setCheckListInputFields([...checkListInputFields, { value: '' }]);
-  };
-  const handleChecklistRemoveFields = (index: number) => {
-    const values = [...checkListInputFields];
-    values.splice(index, 1);
-    setCheckListInputFields(values);
-  };
 
   const [surgeryName, setSurgeryName] = useState<string>('');
   const [surgeryTypeId, setSurgeryTypeId] = useState('');
@@ -170,6 +171,7 @@ const AddModularField: React.FC<{
 
     const surgeryOptionObj = {};
     const checkListObj = {};
+    const conditionalOptionsObj = {};
 
     optionsFields.forEach((optionField) => {
       if (optionField.category) {
@@ -195,6 +197,25 @@ const AddModularField: React.FC<{
         };
       }
     });
+
+    conditionalOptions.forEach((ele) => {
+      if (ele.label) {
+        conditionalOptionsObj[ele.label] = {
+          label: ele.label,
+          count: ele.count,
+          editAdminOption: ele.editAdminOption,
+          dependsUpon: null,
+          dependencies: [],
+          values: ele.values,
+        };
+
+        if (ele.dependsUpon) {
+          conditionalOptionsObj[ele.label].dependsUpon = ele.dependsUpon;
+          conditionalOptionsObj[ele.label].dependencies = ele.dependencies;
+        }
+      }
+    });
+
     if (practiceId) {
       const payloadData: CreateSurgeryConfigurationPayload = {
         surgeryTypeId,
@@ -204,6 +225,7 @@ const AddModularField: React.FC<{
         options: surgeryOptionObj,
         checkList: checkListObj,
         color: surgeryNameColor,
+        conditionalOptions: conditionalOptionsObj,
       };
       await withLoader(async () => {
         await dispatch(addRecordAsync({ payloadData, practiceId }));
@@ -332,7 +354,9 @@ const AddModularField: React.FC<{
                     title=""
                     width={30}
                     height={30}
-                    startEnhancer={() => <AddIcon></AddIcon>}
+                    startEnhancer={() => (
+                      <AddIcon className="ml-[7.5px]"></AddIcon>
+                    )}
                     onClick={handleAddFields}
                   />
                 </div>
@@ -397,7 +421,9 @@ const AddModularField: React.FC<{
                     title=""
                     width={25}
                     height={25}
-                    startEnhancer={() => <AddIcon></AddIcon>}
+                    startEnhancer={() => (
+                      <AddIcon className="ml-[7.5px]"></AddIcon>
+                    )}
                     onClick={handleAddOptionCategory}
                   />
                 </div>
@@ -642,7 +668,9 @@ const AddModularField: React.FC<{
                                   title=""
                                   width={30}
                                   height={30}
-                                  startEnhancer={() => <AddIcon></AddIcon>}
+                                  startEnhancer={() => (
+                                    <AddIcon className="ml-[6px]"></AddIcon>
+                                  )}
                                   onClick={() => handleOptionsAddField(index)}
                                 />
                               </div>
@@ -684,60 +712,12 @@ const AddModularField: React.FC<{
               </div>
             ))}
           </div>
-          <div className="pt-6">
-            <div className="flex">
-              <div>
-                <label htmlFor="lastName" className="text-black text-lg">
-                  Checklist
-                </label>
-              </div>
-              <div>
-                <div className="pl-3">
-                  <Button
-                    type="button"
-                    kind="primary"
-                    title=""
-                    width={25}
-                    height={25}
-                    startEnhancer={() => <AddIcon></AddIcon>}
-                    onClick={handleChecklistAddFields}
-                  />
-                </div>
-              </div>
-            </div>
-            <hr className="h-px bg-gray-100 border-1 dark:bg-gray-800"></hr>
-            <div className="flex gap-5">
-              <div className="space-y-2 flex-1">
-                <label htmlFor="email" className="text-black text-sm mt-2">
-                  Name
-                </label>
-                <div className="flex flex-row gap-3">
-                  {checkListInputFields.map((inputField, index, arr) => (
-                    <div key={index}>
-                      <TextInput
-                        size={SIZE.mini}
-                        type="text"
-                        value={inputField.value}
-                        onChange={(event) =>
-                          handleChecklistChangeInput(index, event)
-                        }
-                        endEnhancer={
-                          arr.length > 1 ? (
-                            <div
-                              className="rounded-md cursor-pointer items-center pl-3"
-                              onClick={() => handleChecklistRemoveFields(index)}
-                            >
-                              <CloseIcon className="" size={10} />
-                            </div>
-                          ) : null
-                        }
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
+          <ConditionalOptions
+            props={{ conditionalOptions, setConditionalOptions }}
+          />
+          <Checklist
+            props={{ checkListInputFields, setCheckListInputFields }}
+          />
           <div className="text-right text-base mt-6 flex justify-end pr-5">
             <div>
               <Button

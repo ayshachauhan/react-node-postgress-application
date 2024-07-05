@@ -15,6 +15,9 @@ import { Checkbox } from 'baseui/checkbox';
 import { SIZE, Select } from 'baseui/select';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
+import ConditionalOptions, {
+  CustomConditionalOption,
+} from '../addModularField/conditionalOptions/conditionalOptions';
 
 const EditModularField: React.FC<{
   onClose: () => void;
@@ -56,6 +59,20 @@ const EditModularField: React.FC<{
       ],
     },
   ]);
+
+  const [conditionalOptions, setConditionalOptions] = useState<
+    CustomConditionalOption[]
+  >([
+    {
+      label: '',
+      dependsUpon: null,
+      dependencies: [{ key: '', values: [''] }],
+      count: 1,
+      values: [],
+      editAdminOption: false,
+    },
+  ]);
+
   const [checkListInputFields, setCheckListInputFields] = useState([
     { value: '' },
   ]);
@@ -64,6 +81,9 @@ const EditModularField: React.FC<{
     if (surgeryConfigInfo) {
       const defaultChecklist = Object.values(surgeryConfigInfo?.checkList);
       const defaultOptions = Object.values(surgeryConfigInfo?.options);
+      const defaultConditions = Object.values(
+        surgeryConfigInfo?.conditionalOptions,
+      );
 
       setSurgeryName(surgeryConfigInfo.name);
       setSurgeryTypeId(surgeryConfigInfo.surgeryType.id);
@@ -92,6 +112,20 @@ const EditModularField: React.FC<{
           })),
         })),
       );
+
+      const defaultConditionalOptions = defaultConditions.map((ele) => ({
+        label: ele.label || '',
+        count: ele.count || 1,
+        dependsUpon: ele.dependsUpon || null,
+        editAdminOption: ele.editAdminOption || false,
+        dependencies: ele.dependencies || [{ key: '', values: [''] }],
+        values: ele.values || [''],
+        isDependant: ele.dependsUpon ? true : false,
+      }));
+
+      if (defaultConditionalOptions.length) {
+        setConditionalOptions(defaultConditionalOptions);
+      }
     }
   }, [surgeryConfigInfo]);
 
@@ -218,6 +252,7 @@ const EditModularField: React.FC<{
     e.preventDefault();
     const surgeryOptionObj = {};
     const checkListObj = {};
+    const conditionalOptionsObj = {};
 
     optionsFields.forEach((optionField) => {
       if (optionField.category) {
@@ -243,6 +278,25 @@ const EditModularField: React.FC<{
         };
       }
     });
+
+    conditionalOptions.forEach((ele) => {
+      if (ele.label) {
+        conditionalOptionsObj[ele.label] = {
+          label: ele.label,
+          count: ele.count,
+          editAdminOption: ele.editAdminOption,
+          dependsUpon: null,
+          dependencies: [],
+          values: ele.values,
+        };
+
+        if (ele.dependsUpon) {
+          conditionalOptionsObj[ele.label].dependsUpon = ele.dependsUpon;
+          conditionalOptionsObj[ele.label].dependencies = ele.dependencies;
+        }
+      }
+    });
+
     if (practiceId) {
       const payloadData: CreateSurgeryConfigurationPayload = {
         surgeryTypeId,
@@ -252,6 +306,7 @@ const EditModularField: React.FC<{
         options: surgeryOptionObj,
         checkList: checkListObj,
         color: surgeryNameColor,
+        conditionalOptions: conditionalOptionsObj,
       };
       await withLoader(async () => {
         await dispatch(
@@ -387,7 +442,9 @@ const EditModularField: React.FC<{
                     title=""
                     width={30}
                     height={30}
-                    startEnhancer={() => <AddIcon></AddIcon>}
+                    startEnhancer={() => (
+                      <AddIcon className="ml-[7.5px]"></AddIcon>
+                    )}
                     onClick={handleAddFields}
                   />
                 </div>
@@ -452,7 +509,9 @@ const EditModularField: React.FC<{
                     title=""
                     width={25}
                     height={25}
-                    startEnhancer={() => <AddIcon></AddIcon>}
+                    startEnhancer={() => (
+                      <AddIcon className="ml-[7.5px]"></AddIcon>
+                    )}
                     onClick={handleAddOptionCategory}
                   />
                 </div>
@@ -699,7 +758,9 @@ const EditModularField: React.FC<{
                                   title=""
                                   width={30}
                                   height={30}
-                                  startEnhancer={() => <AddIcon></AddIcon>}
+                                  startEnhancer={() => (
+                                    <AddIcon className="ml-[7.5px]"></AddIcon>
+                                  )}
                                   onClick={() => handleOptionsAddField(index)}
                                 />
                               </div>
@@ -741,6 +802,9 @@ const EditModularField: React.FC<{
               </div>
             ))}
           </div>
+          <ConditionalOptions
+            props={{ conditionalOptions, setConditionalOptions }}
+          />
           <div className="pt-6">
             <div className="flex">
               <div>
@@ -756,7 +820,9 @@ const EditModularField: React.FC<{
                     title=""
                     width={25}
                     height={25}
-                    startEnhancer={() => <AddIcon></AddIcon>}
+                    startEnhancer={() => (
+                      <AddIcon className="ml-[7.5px]"></AddIcon>
+                    )}
                     onClick={handleChecklistAddFields}
                   />
                 </div>

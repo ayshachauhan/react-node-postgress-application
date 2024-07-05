@@ -27,7 +27,30 @@ function EditableRow({
   }));
 
   const dispatch = useAppDispatch();
-  const userInfo = useAppSelector((state) => state.auth.user);
+  const {
+    selectedMonth,
+    searchMRNName,
+    selectedValue,
+    surgeryConfigurationsList,
+    waitlist,
+    userInfo,
+    insuranceTypesList,
+    referrersList,
+    practiceHomesList,
+  } = useAppSelector((state) => ({
+    selectedMonth: state.surgeries.surgeryFilters.selectedMonth,
+    searchMRNName: state.surgeries.surgeryFilters.searchMRNName,
+    selectedValue: state.surgeries.surgeryFilters.selectedValue,
+    surgeryConfigurationsList: Object.values(
+      state.surgeryConfigurations.entities,
+    ),
+    waitlist: Object.values(state.waitlist.entities),
+    userInfo: state.auth.user,
+    insuranceTypesList: Object.values(state.insuranceTypes.entities),
+    referrersList: Object.values(state.referrers.entities),
+    practiceHomesList: Object.values(state.practiceHomes.entities),
+  }));
+
   const userPermissions = userInfo?.permissions;
   const loggedInUserId = userInfo?.id ?? null;
   const viewBillingColumn = useUserPermission(userPermissions, [
@@ -63,20 +86,13 @@ function EditableRow({
           ? toFullName(surgeryInfo.patient.referrer)
           : '',
         practiceHomeId: surgeryInfo.practiceHome.id,
+        selectedConditionalOptions: surgeryInfo.selectedConditionalOptions,
       });
       setInsuranceTypeId(surgeryInfo?.insuranceType?.id);
       setReferrerId(surgeryInfo.patient?.referrer?.id);
       setWaitlistId(surgeryInfo?.waitlist?.id);
     }
   }, [surgeryInfo.id, surgeryInfo]);
-
-  const { insuranceTypesList, referrersList, practiceHomesList, waitlist } =
-    useAppSelector((state) => ({
-      insuranceTypesList: Object.values(state.insuranceTypes.entities),
-      referrersList: Object.values(state.referrers.entities),
-      practiceHomesList: Object.values(state.practiceHomes.entities),
-      waitlist: Object.values(state.waitlist.entities),
-    }));
 
   const waitlistOptions = Object.keys(waitlist).map((key) => ({
     label: waitlist[key].name,
@@ -87,10 +103,6 @@ function EditableRow({
     label: practiceHomesList[key].name[0],
     id: practiceHomesList[key].id,
   }));
-
-  const surgeryConfigurationsList = useAppSelector(
-    (state) => state.surgeryConfigurations.entities,
-  );
 
   const surgeryConfigurationsOptions = Object.values(
     surgeryConfigurationsList,
@@ -139,9 +151,6 @@ function EditableRow({
       );
     }
   };
-  const { selectedMonth, searchMRNName, selectedValue } = useAppSelector(
-    (state) => state.surgeries.surgeryFilters,
-  );
   const searchMRNNameStr = searchMRNName || '';
   const selectedValueStr = selectedValue || '';
 
@@ -206,6 +215,9 @@ function EditableRow({
       customHeaders[surgeryName].surgeryOptionsHeaders;
     const customCheckListHeaders: string[] =
       customHeaders[surgeryName].checkListHeaders;
+
+    const customConditionalHeaders: string[] =
+      customHeaders[surgeryName].conditionalHeaders;
 
     return (
       <>
@@ -323,14 +335,11 @@ function EditableRow({
               disabled
               options={surgeryConfigurationsOptions}
               value={
-                surgeryInfo.surgeryConfiguration.id
+                surgeryName
                   ? [
                       {
-                        id: surgeryInfo.surgeryConfiguration.id,
-                        label:
-                          surgeryConfigurationsList[
-                            surgeryInfo.surgeryConfiguration.id
-                          ].name,
+                        id: surgeryName,
+                        label: surgeryName,
                       },
                     ]
                   : []
@@ -407,7 +416,7 @@ function EditableRow({
                     backspaceRemoves={false}
                     escapeClearsValue={false}
                     key={optionsHeaderIndex}
-                    options={surgeryInfo.surgeryConfiguration.options[
+                    options={surgeryConfiguration.options[
                       optionsHeader
                     ]?.allowedValues?.map((ele) => {
                       return {
@@ -439,7 +448,7 @@ function EditableRow({
                       })
                     }
                     disabled={
-                      surgeryInfo.surgeryConfiguration.options[optionsHeader]
+                      surgeryConfiguration.options[optionsHeader]
                         ?.edit_admin_option === true && !adminPermission
                     }
                     size={SIZE.mini}
@@ -467,6 +476,119 @@ function EditableRow({
               </td>
             );
           })}
+
+          {customConditionalHeaders &&
+            customConditionalHeaders.length &&
+            customConditionalHeaders.map(
+              (conditionalHeader, conditionalHeaderIndex) => {
+                const currentConditionalOption =
+                  surgeryConfiguration.conditionalOptions[conditionalHeader];
+                const count: number = currentConditionalOption.count;
+
+                const isDependant: boolean =
+                  currentConditionalOption.dependsUpon;
+
+                const conditionalCountSelect: JSX.Element[] = [];
+
+                for (let index = 0; index < count; index++) {
+                  const selectOptionObj = obj.selectedConditionalOptions
+                    ? obj.selectedConditionalOptions[
+                        `${conditionalHeader}-${index}`
+                      ]
+                    : {
+                        id: '',
+                        value: '',
+                      };
+                  let options = currentConditionalOption.values;
+                  if (isDependant) {
+                    // creating same index address for fetching corresponding parent
+                    const parentAddress: string = `${
+                      customConditionalHeaders[0] + '-' + index
+                    }`;
+
+                    // null check to verify selected conditional options
+                    const selectedConditions =
+                      obj.selectedConditionalOptions ?? null;
+
+                    // key value of dependency fetched.
+                    const correspondingParent =
+                      selectedConditions && selectedConditions[parentAddress]
+                        ? selectedConditions[parentAddress].value
+                        : '';
+
+                    // checking if dependencies exists for the parent
+                    const searchDependency =
+                      currentConditionalOption.dependencies.find(
+                        (ele) => ele.key == correspondingParent,
+                      );
+
+                    // creating options for select
+                    options = searchDependency
+                      ? searchDependency.values
+                      : currentConditionalOption.values;
+                  }
+
+                  conditionalCountSelect.push(
+                    <div key={index} className="mb-2 w-40">
+                      <Select
+                        backspaceRemoves={false}
+                        escapeClearsValue={false}
+                        key={conditionalHeaderIndex}
+                        options={options.map((ele) => {
+                          return {
+                            id: ele,
+                            label: ele,
+                          };
+                        })}
+                        value={
+                          selectOptionObj
+                            ? [
+                                {
+                                  id: selectOptionObj.value,
+                                  value: selectOptionObj.value,
+                                },
+                              ]
+                            : []
+                        }
+                        onChange={({ value }) =>
+                          handleObjChange('selectedConditionalOptions', {
+                            ...obj.selectedConditionalOptions,
+                            [`${conditionalHeader}-${index}`]: {
+                              value: value[0].label,
+                            },
+                          })
+                        }
+                        disabled={
+                          surgeryConfiguration?.conditionalOptions[
+                            conditionalHeader
+                          ]?.editAdminOption === true && !adminPermission
+                        }
+                        size={SIZE.mini}
+                        overrides={{
+                          ControlContainer: {
+                            style: {
+                              backgroundColor: 'rgba(250, 250, 250, 1)',
+                              border: 'none',
+                              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                              color: '#52525B',
+                            },
+                          },
+
+                          ClearIcon: {
+                            component: () => null,
+                          },
+                        }}
+                      />
+                    </div>,
+                  );
+                }
+                return (
+                  <td rowSpan={2} className="" key={conditionalHeaderIndex}>
+                    {conditionalCountSelect}
+                  </td>
+                );
+              },
+            )}
           <td rowSpan={2} className="w-20">
             <TextInput
               type="number"
