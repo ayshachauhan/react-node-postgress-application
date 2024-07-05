@@ -36,9 +36,6 @@ export class PatientEntity extends BaseEntity {
   @Column({ type: 'varchar' })
   pcp: string;
 
-  @Column({ type: 'varchar' })
-  details: string;
-
   @OneToMany(() => SurgeryEntity, (surgery) => surgery.patient)
   surgeries: SurgeryEntity[];
 

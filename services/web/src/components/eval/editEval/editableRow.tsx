@@ -76,7 +76,7 @@ function EditableRow({
         lastName: evalInfo.patient.lastName,
         email: evalInfo.patient.email,
         phoneNumber: evalInfo.patient.phoneNumber,
-        details: evalInfo.patient.details,
+        notes: evalInfo.notes,
         bodyPart: evalInfo.bodyPart,
         mrn: evalInfo.patient.mrn,
         status: evalInfo.status,
@@ -143,7 +143,7 @@ function EditableRow({
           lastName: '',
           email: '',
           phoneNumber: '',
-          details: '',
+          notes: '',
           bodyPart: '',
           mrn: 0,
           status: '',
@@ -441,8 +441,8 @@ function EditableRow({
               <div className=" w-20">
                 <TextInput
                   size={SIZE.mini}
-                  onChange={(value) => handleObjChange('details', value)}
-                  value={obj.details}
+                  onChange={(value) => handleObjChange('notes', value)}
+                  value={obj.notes}
                 />
               </div>
             </div>

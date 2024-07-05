@@ -95,7 +95,7 @@ function ViewRow({ selectedSurgery, viewBillingColumn }) {
 
             <p>
               <span className="font-bold">Notes: </span>
-              <span>{selectedSurgery.details}</span>
+              <span>{selectedSurgery.notes}</span>
             </p>
             {selectedSurgery.selectedChecklistOptions
               ? Object.keys(selectedSurgery.selectedChecklistOptions).map(

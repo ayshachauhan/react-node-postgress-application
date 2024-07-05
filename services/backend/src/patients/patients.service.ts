@@ -118,7 +118,6 @@ export class PatientsService {
           email: data.email,
           phoneNumber: data.phoneNumber,
           mrn: data.mrn,
-          details: data.details,
           referrer: data.referrer ? data.referrer : null,
         });
 

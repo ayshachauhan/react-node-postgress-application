@@ -43,6 +43,9 @@ export class SurgeryEntity extends BaseEntity implements ISurgery {
   @Column({ type: 'varchar' })
   insuranceDetails: string;
 
+  @Column({ type: 'varchar' })
+  notes: string;
+
   @Column({
     default: null,
     nullable: true,

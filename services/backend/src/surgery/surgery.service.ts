@@ -434,6 +434,7 @@ export class SurgeryService {
       totalProfessionalPricing: createSurgeryDto.totalProfessionalPricing,
       selectedCheckListOptions: createSurgeryDto.selectedCheckListOptions,
       bodyPart: createSurgeryDto.bodyPart,
+      notes: createSurgeryDto.notes,
       surgeryOrder: createSurgeryDto.surgeryOrder
         ? createSurgeryDto.surgeryOrder
         : surgeryToUpdate?.surgeryOrder,

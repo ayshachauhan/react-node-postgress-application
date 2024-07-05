@@ -229,7 +229,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({ onClose, withLoader }) => {
             doctorId,
             pcp,
             referrerId,
-            details: notes,
+            notes,
             status: evalStatus,
             bodyPart,
             waitlistId,

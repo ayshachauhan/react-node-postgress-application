@@ -10,6 +10,7 @@ export interface ISurgery extends IBaseEntity {
   patient: IPatient;
   insuranceType: IInsuranceType;
   insuranceDetails: string;
+  notes: string;
   date: Date;
   doctor: ISanitizedUser;
   bodyPart: string;
@@ -30,6 +31,7 @@ export interface CreateSurgeryPayload {
   practiceHomeId: string;
   insuranceTypeId?: string;
   insuranceDetails?: string;
+  notes?: string;
   date: Date;
   mrn: number;
   firstName: string;
@@ -38,7 +40,6 @@ export interface CreateSurgeryPayload {
   phoneNumber: string;
   pcp?: string;
   referrerId?: string;
-  details?: string;
   bodyPart: string;
   doctorId: string;
   selectedSurgeryOptions: SelectedSurgeryOption;
@@ -72,12 +73,12 @@ export interface UpdateSurgeryPayload {
   phoneNumber: string;
   mrn: number;
   bodyPart: string;
+  notes?: string;
   surgeryStatus: SurgeryStatus;
   selectedSurgeryOptions: SelectedSurgeryOption;
   selectedCheckListOptions?: CheckListOptions;
   totalHospitalPricing: string;
   totalProfessionalPricing: string;
-  details?: string;
   waitlistId?: string;
   surgeryOrder?: number;
   referrerId?: string;

@@ -323,7 +323,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
             doctorId,
             pcp,
             referrerId,
-            details: notes,
+            notes: notes,
             selectedSurgeryOptions: surgeryOptionObj,
             bodyPart,
             totalHospitalPricing: '0',

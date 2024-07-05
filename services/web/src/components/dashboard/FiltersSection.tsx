@@ -233,7 +233,7 @@ const FiltersSection: React.FC<{
       insurance: ele.insuranceType ? ele.insuranceType?.name : '',
       pcp: '',
       referrer: ele.patient.referrer ? toFullName(ele.patient.referrer) : '',
-      details: ele.patient.details ? ele.patient.details : '',
+      notes: ele.notes ? ele.notes : '',
       bodyPart: ele.bodyPart,
       index: index + 1,
       hospital: ele.totalHospitalPricing,
@@ -926,7 +926,7 @@ const FiltersSection: React.FC<{
                                                 <span className="font-semibold">
                                                   Notes:{' '}
                                                 </span>
-                                                {row.details}
+                                                {row.notes}
                                               </div>
                                             </div>
                                           </td>
