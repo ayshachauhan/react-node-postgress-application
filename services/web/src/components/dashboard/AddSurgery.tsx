@@ -750,7 +750,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
                     }),
                   },
                 }}
-                checked={referrerId && !isNewReferrer ? true : false}
+                checked={referrerId || isNewReferrer ? true : false}
               >
                 Notify referrer
               </Checkbox>
