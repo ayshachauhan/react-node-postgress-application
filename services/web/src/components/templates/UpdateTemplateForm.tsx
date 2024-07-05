@@ -372,6 +372,15 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({
                           ...updatedTemplateInfo,
                           emailSubject: value,
                         });
+                        const subject = replacePlaceholders(
+                          value,
+                          surguriesData,
+                        );
+                        setEmailPreview({
+                          ...updatedTemplateInfo,
+                          ...emailPreview,
+                          emailSubject: subject,
+                        });
                       }}
                       required
                     />
@@ -465,9 +474,7 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({
                 Email Message Preview
               </div>
               <div className="text-black text-sm">
-                <p className="font-bold my-1">
-                  {updatedTemplateInfo?.emailSubject}{' '}
-                </p>
+                <p className="font-bold my-1">{emailPreview?.emailSubject} </p>
                 {updatedTemplateInfo?.emailAttachment && (
                   <div>
                     <p className="my-1">

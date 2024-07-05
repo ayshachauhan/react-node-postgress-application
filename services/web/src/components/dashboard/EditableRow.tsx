@@ -5,6 +5,7 @@ import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
 import { useUserPermission } from '@root/hooks/userHasPermission';
 import { useAppDispatch, useAppSelector } from '@root/store';
+import { fetchListings as fetchReviews } from '@root/store/reducers/review';
 import { fetchListings, updateRecordAsync } from '@root/store/reducers/surgery';
 import { getPracticeId, toFullName } from '@root/utils';
 import { DatePicker } from 'baseui/datepicker';
@@ -174,6 +175,9 @@ function EditableRow({
           searchMRNNameStr,
           selectedValueStr,
         );
+        if (payload?.surgeryStatus === SurgeryStatus.COMPLETED) {
+          await dispatch(fetchReviews({ practiceId: practiceId }));
+        }
       } catch (error) {
         console.log(error);
       } finally {

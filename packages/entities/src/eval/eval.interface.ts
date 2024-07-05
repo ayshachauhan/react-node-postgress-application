@@ -1,6 +1,7 @@
 import { IBaseEntity } from '../base.interface';
 import { IInsuranceType } from '../insuranceType';
 import { IPatient } from '../patient';
+import { IPractice } from '../practice';
 import { IPracticeHomes } from '../practiceHomes';
 import { ISurgeryConfiguration } from '../surgeryConfiguration';
 import { ISanitizedUser } from '../user';
@@ -16,6 +17,7 @@ export interface IEval extends IBaseEntity {
   bodyPart: string;
   doctor: ISanitizedUser;
   waitlist: IWaitlist;
+  practice: IPractice; //TO DO: make practice id not null in future
 }
 
 export interface CreateEvalInterface {

@@ -12,9 +12,9 @@ import { ReferrersService } from './referrers.service';
 @Module({
   imports: [
     TypeOrmModule.forFeature([ReferrersEntity, PracticeEntity]),
-    PracticesModule,
+    forwardRef(() => PracticesModule),
     forwardRef(() => SurgeryModule),
-    UsersModule,
+    forwardRef(() => UsersModule),
   ],
   controllers: [ReferrersController],
   providers: [ReferrersService, practiceNotFoundInterceptor],

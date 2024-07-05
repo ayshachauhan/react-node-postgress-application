@@ -155,19 +155,6 @@ const AddModularField: React.FC<{
   const [checkListInputFields, setCheckListInputFields] = useState([
     { value: '' },
   ]);
-  // const handleChecklistChangeInput = (index: number, event: string) => {
-  //   const values = [...checkListInputFields];
-  //   values[index].value = event;
-  //   setCheckListInputFields(values);
-  // };
-  // const handleChecklistAddFields = () => {
-  //   setCheckListInputFields([...checkListInputFields, { value: '' }]);
-  // };
-  // const handleChecklistRemoveFields = (index: number) => {
-  //   const values = [...checkListInputFields];
-  //   values.splice(index, 1);
-  //   setCheckListInputFields(values);
-  // };
 
   const [surgeryName, setSurgeryName] = useState<string>('');
   const [surgeryTypeId, setSurgeryTypeId] = useState('');
