@@ -108,9 +108,10 @@ export class TransporterService {
     const { twilioPhoneNumber, sendTextMessages } = this.getEnvVariables();
 
     if (sendTextMessages && message) {
+      const cleanMessage = message.replace(/<\/?p[^>]*>/g, '\n');
       try {
         await this.twilioClient.messages.create({
-          body: message,
+          body: cleanMessage,
           to,
           from: typeof twilioPhoneNumber == 'string' ? twilioPhoneNumber : '',
         });
