@@ -23,7 +23,7 @@ const SidebarLayout: React.FC<{ children: React.ReactNode }> = ({
           }}
         />
 
-        <div className="p-4 mt-14">{children}</div>
+        <div className="p-4 pb-12 mt-14">{children}</div>
         <Footer
           data={{
             collapsed: isSidebarCollapsed,

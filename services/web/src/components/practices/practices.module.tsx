@@ -96,10 +96,10 @@ const PracticePage: React.FC<{
       )}
 
       <form onSubmit={handleSubmit}>
-        <div className="flex flex-col">
-          <div className="justify-between pt-4">
+        <div className="flex gap-4 flex-col">
+          <div className="justify-between ">
             <div className="space-y-2">
-              <label htmlFor="name" className="text-black text-sm font-normal">
+              <label htmlFor="name" className=" ">
                 <RequiredIndicator />
                 &nbsp;Practice Name
               </label>
@@ -113,9 +113,9 @@ const PracticePage: React.FC<{
               />
             </div>
           </div>
-          <div className="flex flex-row justify-between pt-4">
-            <div className="">
-              <label htmlFor="adminFirstName" className="text-black text-sm">
+          <div className="grid grid-cols-2 gap-4 justify-between">
+            <div className="flex-1 space-y-2">
+              <label htmlFor="adminFirstName" className="">
                 <RequiredIndicator />
                 &nbsp;First Name
               </label>
@@ -128,8 +128,8 @@ const PracticePage: React.FC<{
                 required
               />
             </div>
-            <div className="">
-              <label htmlFor="adminLastName" className="text-black text-sm">
+            <div className="flex-1 space-y-2">
+              <label htmlFor="adminLastName" className="">
                 <RequiredIndicator />
                 &nbsp;Last Name
               </label>
@@ -143,9 +143,9 @@ const PracticePage: React.FC<{
               />
             </div>
           </div>
-          <div className="flex flex-row justify-between pt-4">
-            <div className="">
-              <label htmlFor="adminEmail" className="text-black text-sm">
+          <div className="grid grid-cols-2 gap-4 justify-between">
+            <div className="flex-1 space-y-2">
+              <label htmlFor="adminEmail" className="">
                 <RequiredIndicator />
                 &nbsp;Admin Email
               </label>
@@ -158,11 +158,8 @@ const PracticePage: React.FC<{
                 required
               />
             </div>
-            <div className="space-y-2">
-              <label
-                htmlFor="adminContactNumber"
-                className="text-black text-sm font-normal"
-              >
+            <div className="flex-1 space-y-2">
+              <label htmlFor="adminContactNumber" className=" ">
                 <RequiredIndicator />
                 &nbsp;Admin Contact No.
               </label>
@@ -177,9 +174,9 @@ const PracticePage: React.FC<{
               />
             </div>
           </div>
-          <div className="justify-between pt-4">
-            <div className="">
-              <label htmlFor="adminEmail" className="text-black text-sm">
+          <div className="justify-between">
+            <div className="space-y-2">
+              <label htmlFor="adminEmail" className="">
                 Practice Photo
               </label>
               <FileUploader
@@ -217,8 +214,8 @@ const PracticePage: React.FC<{
               />
             </div>
           </div>
-          <div className="text-right text-base pt-4">
-            <Button kind="primary" title="Add New Practice" width={189} />
+          <div className="text-right">
+            <Button kind="primary" title="Add New Practice" />
           </div>
         </div>
       </form>

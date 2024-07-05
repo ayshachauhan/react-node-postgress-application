@@ -5,6 +5,7 @@ import { SurgeryTypeEntity } from '../surgeryType';
 import {
   ISurgeryConfiguration,
   SurgeryChecklist,
+  SurgeryConditionalOptions,
   SurgeryOptions,
 } from './surgeryConfiguration.interface';
 
@@ -37,6 +38,9 @@ export class SurgeryConfigurationEntity
 
   @Column({ type: 'jsonb', nullable: true })
   checkList: SurgeryChecklist;
+
+  @Column({ type: 'jsonb', nullable: true })
+  conditionalOptions: SurgeryConditionalOptions;
 
   @Column({ type: 'varchar', nullable: true })
   color: string;

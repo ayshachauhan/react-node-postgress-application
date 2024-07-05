@@ -57,12 +57,11 @@ const AddPracticeHome: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 required
               />
             </div>
-            <div className="text-right align-bottom pt-4">
+            <div className="text-right align-bottom mt-4">
               <Button
                 kind="primary"
                 title="Add New Patient Home Location"
                 type="submit"
-                width={189}
               />
             </div>
           </div>

@@ -9,6 +9,7 @@ export interface ISurgeryConfiguration extends IBaseEntity {
   options: SurgeryOptions;
   checkList: SurgeryChecklist;
   color: string;
+  conditionalOptions: SurgeryConditionalOptions;
 }
 
 /**
@@ -51,6 +52,22 @@ export type SurgeryOptions = {
   };
 };
 
+export type SurgeryConditionalOptions = {
+  [key: string]: {
+    label: string;
+    dependsUpon: string | null;
+    dependencies?: DependantOption[];
+    count: number;
+    editAdminOption: boolean;
+    values: string[];
+  };
+};
+
+export type DependantOption = {
+  key: string;
+  values: string[];
+};
+
 export type UpdateSurgeryConfigPayload = {
   name: string;
   bodyPart: string[];
@@ -58,6 +75,7 @@ export type UpdateSurgeryConfigPayload = {
   options: SurgeryOptions;
   checkList: SurgeryChecklist;
   surgeryTypeId?: string;
+  conditionalOptions: SurgeryConditionalOptions;
 };
 
 export type CreateSurgeryConfigurationPayload = {
@@ -68,4 +86,5 @@ export type CreateSurgeryConfigurationPayload = {
   checkList: SurgeryChecklist;
   surgeryTypeId: string;
   color: string;
+  conditionalOptions: SurgeryConditionalOptions;
 };

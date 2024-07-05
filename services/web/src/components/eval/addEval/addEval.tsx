@@ -262,7 +262,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({ onClose, withLoader }) => {
 
   return (
     <div>
-      <div className="border-border-l border-b border-gray-100">
+      <div className="px-4">
         <form onSubmit={handleSubmit} className="flex flex-col flex-wrap">
           <div className="flex mt-4 pb-2 border-b border-gray-100 items-center">
             <div className="text-xl font-bold text-black w-full">Add Eval</div>
@@ -297,448 +297,359 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({ onClose, withLoader }) => {
               />
             </div>
           </div>
-          <div className="flex gap-5 mt-4">
-            <div className="space-y-1 flex-1">
-              <label htmlFor="mrn" className="text-black text-xs">
-                <RequiredIndicator />
-                &nbsp;MRN
-              </label>
-              <Select
-                size={SIZE.mini}
-                options={patientsList.map((ele) => ({
-                  id: String(ele.mrn),
-                  label: String(ele.mrn),
-                }))}
-                value={
-                  mrn ? [{ id: String(mrn), label: String(String(mrn)) }] : []
-                }
-                creatable
-                placeholder="Enter MRN"
-                onBlurResetsInput={false}
-                onBlur={handleMrnBlur}
-                onChange={(value) => {
-                  handleMrnChange(value);
-                }}
-                overrides={{
-                  ControlContainer: {
-                    style: {
-                      backgroundColor: 'rgba(250, 250, 250, 1)',
-                      border: 'none',
-                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-                      color: '#52525B',
-                    },
-                  },
-                  ClearIcon: {
-                    component: () => null,
-                  },
-                }}
-                required
-              />
-              <div className="space-y-4"></div>
-            </div>
-            <div className="space-y-1 flex-1">
-              <label htmlFor="firstName" className="text-black text-xs">
-                <RequiredIndicator />
-                &nbsp;First Name
-              </label>
-              <TextInput
-                name="name"
-                size={SIZE.mini}
-                value={firstName}
-                onChange={(value) => {
-                  setFirstName(value);
-                }}
-                required
-              />
-            </div>
-            <div className="space-y-1 flex-1">
-              <label htmlFor="lastName" className="text-black text-xs">
-                <RequiredIndicator />
-                &nbsp;Last Name
-              </label>
-              <TextInput
-                size={SIZE.mini}
-                name="lastName"
-                value={lastName}
-                onChange={(value) => {
-                  setLastName(value);
-                }}
-                required
-              />
-              <div className="space-y-1"></div>
-            </div>
-          </div>
-          <div className="flex gap-5">
-            <div className="space-y-1 flex-1">
-              <label htmlFor="email" className="text-black text-xs">
-                <RequiredIndicator />
-                &nbsp;Email
-              </label>
-              <TextInput
-                size={SIZE.mini}
-                name="email"
-                value={email}
-                onChange={(value) => {
-                  setEmail(value);
-                }}
-                required
-              />
-              <div className="space-y-1"></div>
-            </div>
-            <div className="space-y-1 flex-1">
-              <label htmlFor="phoneNumber" className="text-black text-xs">
-                <RequiredIndicator />
-                &nbsp;Phone Number
-              </label>
-              <TextInput
-                size={SIZE.mini}
-                name="phoneNumber"
-                value={phoneNumber}
-                onChange={(value) => {
-                  setPhoneNumber(value);
-                }}
-                required
-              />
-              <div className="space-y-1"></div>
-            </div>
-            <div className="space-y-1 flex-1">
-              <label htmlFor="practiceHome" className="text-black text-xs">
-                <RequiredIndicator />
-                &nbsp;Home
-              </label>
-              <Select
-                placeholder="Select patient home location"
-                backspaceClearsInputValue
-                size={SIZE.mini}
-                options={practiceHomesOptions}
-                onChange={handlePracticeHomeChange}
-                value={
-                  practiceHomeId
-                    ? [{ label: practiceHomeId, id: practiceHomeId }]
-                    : []
-                }
-                required
-                overrides={{
-                  ControlContainer: {
-                    style: {
-                      backgroundColor: 'rgba(250, 250, 250, 1)',
-                      border: 'none',
-                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-                      color: '#52525B',
-                    },
-                  },
-                  ClearIcon: {
-                    component: () => null,
-                  },
-                }}
-              />
-            </div>
-          </div>
-          <div className="flex gap-5">
-            <div className="space-y-1 flex-1">
-              <label htmlFor="referrer" className="text-black text-xs">
-                Referrer
-              </label>
-              <Select
-                size={SIZE.mini}
-                creatable
-                placeholder="Select Referrer"
-                backspaceClearsInputValue={true}
-                onBlurResetsInput={false}
-                onBlur={handleReferrerBlur}
-                onChange={handleReferrerChange}
-                value={
-                  referrerId ? [{ label: referrerId, id: referrerId }] : []
-                }
-                options={referrersOptions}
-                overrides={{
-                  ControlContainer: {
-                    style: {
-                      backgroundColor: 'rgba(250, 250, 250, 1)',
-                      border: 'none',
-                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-                      color: '#52525B',
-                    },
-                  },
-                  ClearIcon: {
-                    component: () => null,
-                  },
-                }}
-              />
-              <div className="space-y-1"></div>
-            </div>
-            <div className="space-y-1 flex-1">
-              <label htmlFor="urlEmbed" className="text-black text-xs">
-                No Wait list
-              </label>
-              <Select
-                backspaceClearsInputValue
-                size={SIZE.mini}
-                placeholder="Select Waitlist"
-                options={waitlistOptions}
-                overrides={{
-                  ControlContainer: {
-                    style: {
-                      backgroundColor: 'rgba(250, 250, 250, 1)',
-                      border: 'none',
-                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-                      color: '#52525B',
-                    },
-                  },
-                  ClearIcon: {
-                    component: () => null,
-                  },
-                }}
-                onChange={handleWaitlistChange}
-                value={
-                  waitlistId ? [{ label: waitlistId, id: waitlistId }] : []
-                }
-              />
-              <div className="space-y-1"></div>
-            </div>
-            <div className="space-y-1 flex-1">
-              <Checkbox
-                overrides={{
-                  Checkmark: {
-                    style: ({ $checked }) => ({
-                      backgroundColor: $checked
-                        ? 'rgba(59, 130, 246, 1)'
-                        : 'white',
-                      borderColor: $checked
-                        ? 'rgba(59, 130, 246, 1)'
-                        : 'rgba(161, 161, 170, 1)',
-                      borderRadius: '4px',
-                    }),
-                  },
-                }}
-                checked={false}
-                onChange={(e) => {
-                  const target = e.target as HTMLInputElement;
-                  setCheckboxes([target.checked, checkboxes[1]]);
-                }}
-              >
-                <label htmlFor="pcp" className="text-black text-xs">
-                  PCP (Check box if same)
+          <div className="flex flex-col gap-4 mt-4">
+            <div className="flex gap-4">
+              <div className="space-y-2 flex-1">
+                <label htmlFor="mrn" className="">
+                  <RequiredIndicator />
+                  &nbsp;MRN
                 </label>
-              </Checkbox>
-              <TextInput
-                size={SIZE.mini}
-                name="pcp"
-                disabled
-                value={pcp}
-                onChange={(value) => {
-                  setPcp(value);
-                }}
-              />
-            </div>
-          </div>
-          <div className="flex gap-5">
-            <div className="space-y-1 flex-1 text-xs">
-              <Checkbox
-                overrides={{
-                  Checkmark: {
-                    style: ({ $checked }) => ({
-                      backgroundColor: $checked
-                        ? 'rgba(59, 130, 246, 1)'
-                        : 'white',
-                      borderColor: $checked
-                        ? 'rgba(59, 130, 246, 1)'
-                        : 'rgba(161, 161, 170, 1)',
-                      borderRadius: '4px',
-                    }),
-                  },
-                }}
-                checked={email ? true : false}
-                onChange={(e) => {
-                  const target = e.target as HTMLInputElement;
-                  setCheckboxes([target.checked, checkboxes[1]]);
-                }}
-              >
-                Notify patient
-              </Checkbox>
-              <Checkbox
-                overrides={{
-                  Checkmark: {
-                    style: ({ $checked }) => ({
-                      backgroundColor: $checked
-                        ? 'rgba(59, 130, 246, 1)'
-                        : 'white',
-                      borderColor: $checked
-                        ? 'rgba(59, 130, 246, 1)'
-                        : 'rgba(161, 161, 170, 1)',
-                      borderRadius: '4px',
-                    }),
-                  },
-                }}
-                checked={referrerId && !isNewReferrer ? true : false}
-              >
-                Notify referrer
-              </Checkbox>
-              <div className="space-y-1"></div>
-            </div>
-            <div className="space-y-1 flex-1">
-              <label htmlFor="insuranceType" className="text-black text-xs">
-                Insurance Type
-              </label>
-              <Select
-                placeholder="Select Insurance Type"
-                backspaceClearsInputValue
-                size={SIZE.mini}
-                options={insuranceTypesOptions}
-                onChange={handleInsuranceTypeChange}
-                value={
-                  insuranceTypeId
-                    ? [{ label: insuranceTypeId, id: insuranceTypeId }]
-                    : []
-                }
-                // required
-                overrides={{
-                  ControlContainer: {
-                    style: {
-                      backgroundColor: 'rgba(250, 250, 250, 1)',
-                      border: 'none',
-                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-                      color: '#52525B',
+                <Select
+                  size={SIZE.mini}
+                  options={patientsList.map((ele) => ({
+                    id: String(ele.mrn),
+                    label: String(ele.mrn),
+                  }))}
+                  value={
+                    mrn ? [{ id: String(mrn), label: String(String(mrn)) }] : []
+                  }
+                  creatable
+                  placeholder="Enter MRN"
+                  onBlurResetsInput={false}
+                  onBlur={handleMrnBlur}
+                  onChange={(value) => {
+                    handleMrnChange(value);
+                  }}
+                  overrides={{
+                    ControlContainer: {
+                      style: {
+                        backgroundColor: 'rgba(250, 250, 250, 1)',
+                        border: 'none',
+                        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                        color: '#52525B',
+                      },
                     },
-                  },
-                  ClearIcon: {
-                    component: () => null,
-                  },
-                }}
-              />
-              <div className="space-y-1"></div>
+                    ClearIcon: {
+                      component: () => null,
+                    },
+                  }}
+                  required
+                />
+              </div>
+              <div className="space-y-2 flex-1">
+                <label htmlFor="firstName" className="">
+                  <RequiredIndicator />
+                  &nbsp;First Name
+                </label>
+                <TextInput
+                  name="name"
+                  size={SIZE.mini}
+                  value={firstName}
+                  onChange={(value) => {
+                    setFirstName(value);
+                  }}
+                  required
+                />
+              </div>
+              <div className="space-y-2 flex-1">
+                <label htmlFor="lastName" className="">
+                  <RequiredIndicator />
+                  &nbsp;Last Name
+                </label>
+                <TextInput
+                  size={SIZE.mini}
+                  name="lastName"
+                  value={lastName}
+                  onChange={(value) => {
+                    setLastName(value);
+                  }}
+                  required
+                />
+              </div>
             </div>
-            <div className="space-y-1 flex-1">
-              <label htmlFor="insuranceDetails" className="text-black text-xs">
-                Insurance Details
+            <div className="flex gap-4">
+              <div className="space-y-2 flex-1">
+                <label htmlFor="email" className="">
+                  <RequiredIndicator />
+                  &nbsp;Email
+                </label>
+                <TextInput
+                  size={SIZE.mini}
+                  name="email"
+                  value={email}
+                  onChange={(value) => {
+                    setEmail(value);
+                  }}
+                  required
+                />
+              </div>
+              <div className="space-y-2 flex-1">
+                <label htmlFor="phoneNumber" className="">
+                  <RequiredIndicator />
+                  &nbsp;Phone Number
+                </label>
+                <TextInput
+                  size={SIZE.mini}
+                  name="phoneNumber"
+                  value={phoneNumber}
+                  onChange={(value) => {
+                    setPhoneNumber(value);
+                  }}
+                  required
+                />
+              </div>
+              <div className="space-y-2 flex-1">
+                <label htmlFor="practiceHome" className="">
+                  <RequiredIndicator />
+                  &nbsp;Home
+                </label>
+                <Select
+                  placeholder="Select patient home location"
+                  backspaceClearsInputValue
+                  size={SIZE.mini}
+                  options={practiceHomesOptions}
+                  onChange={handlePracticeHomeChange}
+                  value={
+                    practiceHomeId
+                      ? [{ label: practiceHomeId, id: practiceHomeId }]
+                      : []
+                  }
+                  required
+                  overrides={{
+                    ControlContainer: {
+                      style: {
+                        backgroundColor: 'rgba(250, 250, 250, 1)',
+                        border: 'none',
+                        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                        color: '#52525B',
+                      },
+                    },
+                    ClearIcon: {
+                      component: () => null,
+                    },
+                  }}
+                />
+              </div>
+            </div>
+            <div className="flex gap-4">
+              <div className="space-y-2 flex-1">
+                <label htmlFor="referrer" className="">
+                  Referrer
+                </label>
+                <Select
+                  size={SIZE.mini}
+                  creatable
+                  placeholder="Select Referrer"
+                  backspaceClearsInputValue={true}
+                  onBlurResetsInput={false}
+                  onBlur={handleReferrerBlur}
+                  onChange={handleReferrerChange}
+                  value={
+                    referrerId ? [{ label: referrerId, id: referrerId }] : []
+                  }
+                  options={referrersOptions}
+                  overrides={{
+                    ControlContainer: {
+                      style: {
+                        backgroundColor: 'rgba(250, 250, 250, 1)',
+                        border: 'none',
+                        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                        color: '#52525B',
+                      },
+                    },
+                    ClearIcon: {
+                      component: () => null,
+                    },
+                  }}
+                />
+              </div>
+              <div className="space-y-2 flex-1">
+                <label htmlFor="urlEmbed" className="">
+                  No Wait list
+                </label>
+                <Select
+                  backspaceClearsInputValue
+                  size={SIZE.mini}
+                  placeholder="Select Waitlist"
+                  options={waitlistOptions}
+                  overrides={{
+                    ControlContainer: {
+                      style: {
+                        backgroundColor: 'rgba(250, 250, 250, 1)',
+                        border: 'none',
+                        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                        color: '#52525B',
+                      },
+                    },
+                    ClearIcon: {
+                      component: () => null,
+                    },
+                  }}
+                  onChange={handleWaitlistChange}
+                  value={
+                    waitlistId ? [{ label: waitlistId, id: waitlistId }] : []
+                  }
+                />
+              </div>
+              <div className="space-y-2 flex-1">
+                <Checkbox
+                  overrides={{
+                    Checkmark: {
+                      style: ({ $checked }) => ({
+                        backgroundColor: $checked
+                          ? 'rgba(59, 130, 246, 1)'
+                          : 'white',
+                        borderColor: $checked
+                          ? 'rgba(59, 130, 246, 1)'
+                          : 'rgba(161, 161, 170, 1)',
+                        borderRadius: '4px',
+                      }),
+                    },
+                  }}
+                  checked={false}
+                  onChange={(e) => {
+                    const target = e.target as HTMLInputElement;
+                    setCheckboxes([target.checked, checkboxes[1]]);
+                  }}
+                >
+                  <label htmlFor="pcp" className="">
+                    PCP (Check box if same)
+                  </label>
+                </Checkbox>
+                <TextInput
+                  size={SIZE.mini}
+                  name="pcp"
+                  disabled
+                  value={pcp}
+                  onChange={(value) => {
+                    setPcp(value);
+                  }}
+                />
+              </div>
+            </div>
+            <div className="flex gap-4">
+              <div className="space-y-2 flex-1 text-xs">
+                <Checkbox
+                  overrides={{
+                    Checkmark: {
+                      style: ({ $checked }) => ({
+                        backgroundColor: $checked
+                          ? 'rgba(59, 130, 246, 1)'
+                          : 'white',
+                        borderColor: $checked
+                          ? 'rgba(59, 130, 246, 1)'
+                          : 'rgba(161, 161, 170, 1)',
+                        borderRadius: '4px',
+                      }),
+                    },
+                  }}
+                  checked={email ? true : false}
+                  onChange={(e) => {
+                    const target = e.target as HTMLInputElement;
+                    setCheckboxes([target.checked, checkboxes[1]]);
+                  }}
+                >
+                  Notify patient
+                </Checkbox>
+                <Checkbox
+                  overrides={{
+                    Checkmark: {
+                      style: ({ $checked }) => ({
+                        backgroundColor: $checked
+                          ? 'rgba(59, 130, 246, 1)'
+                          : 'white',
+                        borderColor: $checked
+                          ? 'rgba(59, 130, 246, 1)'
+                          : 'rgba(161, 161, 170, 1)',
+                        borderRadius: '4px',
+                      }),
+                    },
+                  }}
+                  checked={referrerId && !isNewReferrer ? true : false}
+                >
+                  Notify referrer
+                </Checkbox>
+              </div>
+              <div className="space-y-2 flex-1">
+                <label htmlFor="insuranceType" className="">
+                  Insurance Type
+                </label>
+                <Select
+                  placeholder="Select Insurance Type"
+                  backspaceClearsInputValue
+                  size={SIZE.mini}
+                  options={insuranceTypesOptions}
+                  onChange={handleInsuranceTypeChange}
+                  value={
+                    insuranceTypeId
+                      ? [{ label: insuranceTypeId, id: insuranceTypeId }]
+                      : []
+                  }
+                  // required
+                  overrides={{
+                    ControlContainer: {
+                      style: {
+                        backgroundColor: 'rgba(250, 250, 250, 1)',
+                        border: 'none',
+                        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                        color: '#52525B',
+                      },
+                    },
+                    ClearIcon: {
+                      component: () => null,
+                    },
+                  }}
+                />
+              </div>
+              <div className="space-y-2 flex-1">
+                <label htmlFor="insuranceDetails" className="">
+                  Insurance Details
+                </label>
+                <TextInput
+                  size={SIZE.mini}
+                  name="insuranceDetails"
+                  value={insuranceDetails}
+                  onChange={(value) => {
+                    setInsuranceDetails(value);
+                  }}
+                  // required
+                />
+              </div>
+            </div>
+            <div>
+              <label htmlFor="notes" className="">
+                Notes
               </label>
               <TextInput
                 size={SIZE.mini}
-                name="insuranceDetails"
-                value={insuranceDetails}
+                name="notes"
+                value={notes}
                 onChange={(value) => {
-                  setInsuranceDetails(value);
+                  setNotes(value);
                 }}
-                // required
               />
-              <div className="space-y-1"></div>
             </div>
-          </div>
-          <div>
-            <label htmlFor="notes" className="text-black text-xs">
-              Notes
-            </label>
-            <TextInput
-              size={SIZE.mini}
-              name="notes"
-              value={notes}
-              onChange={(value) => {
-                setNotes(value);
-              }}
-            />
-            <div className="space-y-1"></div>
-          </div>
-          <div className="mt-2 flex">
-            <div className="px-6 border border-gray-100 pb-6 rounded-xl flex-1 w-4/12">
-              <div className="mt-2 text-xl font-bold border-b border-gray-100 text-black w-full">
-                Add Eval
-              </div>
-              <div className="flex gap-5 mt-2">
-                <div className="space-y-1 flex-1">
-                  <label htmlFor="notes" className="text-black text-xs">
-                    <RequiredIndicator />
-                    &nbsp;Surgery
-                  </label>
-                  <Select
-                    required
-                    placeholder="Select Surgery"
-                    backspaceClearsInputValue
-                    size={SIZE.mini}
-                    options={surgeryConfigurationsOptions}
-                    onChange={handleSurgeryNameChange}
-                    value={
-                      surgeryNameId
-                        ? [{ label: surgeryNameId, id: surgeryNameId }]
-                        : []
-                    }
-                    overrides={{
-                      ControlContainer: {
-                        style: {
-                          backgroundColor: 'rgba(250, 250, 250, 1)',
-                          border: 'none',
-                          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-                          color: '#52525B',
-                        },
-                      },
-                      ClearIcon: {
-                        component: () => null,
-                      },
-                    }}
-                  />
-                  <div className="space-y-1"></div>
+            <div className="mt-2 flex">
+              <div className="px-6 border border-gray-100 pb-6 rounded-xl flex-1 w-4/12">
+                <div className="mt-2 text-xl font-bold border-b border-gray-100 text-black w-full">
+                  Add Eval
                 </div>
-                <div className="space-y-1 flex-1">
-                  <label htmlFor="notes" className="text-black text-xs">
-                    <RequiredIndicator />
-                    &nbsp;Body Part
-                  </label>
-                  <Select
-                    required
-                    placeholder="Select Body Part"
-                    backspaceClearsInputValue
-                    disabled={surgeryNameId ? false : true}
-                    size={SIZE.mini}
-                    options={bodyPartOptions}
-                    onChange={(value) => handleBodyPartChange(value)}
-                    value={bodyPart ? [{ label: bodyPart, id: bodyPart }] : []}
-                    overrides={{
-                      ControlContainer: {
-                        style: {
-                          backgroundColor: 'rgba(250, 250, 250, 1)',
-                          border: 'none',
-                          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-                          color: '#52525B',
-                        },
-                      },
-                      ClearIcon: {
-                        component: () => null,
-                      },
-                    }}
-                  />
-                  <div className="space-y-1"></div>
-                </div>
-
-                <div className="space-y-1 flex-1">
-                  <label htmlFor="notes" className="text-black text-xs">
-                    <RequiredIndicator />
-                    &nbsp;Surgery Date
-                  </label>
-                  <DatePicker
-                    size={SIZE.mini}
-                    value={date}
-                    onChange={({ date }) => setDate(date)}
-                    placeholder="Eval Date"
-                    required
-                  />
-                  <div className="space-y-1"></div>
-                </div>
-              </div>
-              <div className="flex flex-row justify-between">
-                <div className="flex gap-5 mt-4 items-center w-2/3">
-                  <label htmlFor="title" className="text-black text-xs">
-                    Eval Status:
-                  </label>
-                  <div className="space-y-1 flex-1">
+                <div className="flex gap-5 mt-2">
+                  <div className="space-y-2 flex-1">
+                    <label htmlFor="notes" className="">
+                      <RequiredIndicator />
+                      &nbsp;Surgery
+                    </label>
                     <Select
-                      backspaceClearsInputValue
                       required
-                      disabled
+                      placeholder="Select Surgery"
+                      backspaceClearsInputValue
                       size={SIZE.mini}
-                      options={evalStatusOption}
-                      onChange={handleEvalStatusChange}
+                      options={surgeryConfigurationsOptions}
+                      onChange={handleSurgeryNameChange}
                       value={
-                        evalStatus
-                          ? [{ label: evalStatus, id: evalStatus }]
+                        surgeryNameId
+                          ? [{ label: surgeryNameId, id: surgeryNameId }]
                           : []
                       }
                       overrides={{
@@ -755,66 +666,146 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({ onClose, withLoader }) => {
                         },
                       }}
                     />
-                    <div className="space-y-1"></div>
+                  </div>
+                  <div className="space-y-2 flex-1">
+                    <label htmlFor="notes" className="">
+                      <RequiredIndicator />
+                      &nbsp;Body Part
+                    </label>
+                    <Select
+                      required
+                      placeholder="Select Body Part"
+                      backspaceClearsInputValue
+                      disabled={surgeryNameId ? false : true}
+                      size={SIZE.mini}
+                      options={bodyPartOptions}
+                      onChange={(value) => handleBodyPartChange(value)}
+                      value={
+                        bodyPart ? [{ label: bodyPart, id: bodyPart }] : []
+                      }
+                      overrides={{
+                        ControlContainer: {
+                          style: {
+                            backgroundColor: 'rgba(250, 250, 250, 1)',
+                            border: 'none',
+                            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                            color: '#52525B',
+                          },
+                        },
+                        ClearIcon: {
+                          component: () => null,
+                        },
+                      }}
+                    />
+                  </div>
+
+                  <div className="space-y-2 flex-1">
+                    <label htmlFor="notes" className="">
+                      <RequiredIndicator />
+                      &nbsp;Surgery Date
+                    </label>
+                    <DatePicker
+                      size={SIZE.mini}
+                      value={date}
+                      onChange={({ date }) => setDate(date)}
+                      placeholder="Eval Date"
+                      required
+                    />
                   </div>
                 </div>
-                <div className="flex gap-2 mt-4 justify-end">
-                  <Button
-                    kind="secondary"
-                    type="button"
-                    size={SIZE.mini}
-                    onClick={() => handleQuickDateChange(0)}
-                    title="Today"
-                  />
-                  <Button
-                    kind="secondary"
-                    type="button"
-                    size={SIZE.mini}
-                    onClick={() => handleQuickDateChange(1)}
-                    title="+1"
-                  />
-                  <Button
-                    kind="secondary"
-                    type="button"
-                    size={SIZE.mini}
-                    onClick={() => handleQuickDateChange(3)}
-                    title="+3"
-                  />
-                  <Button
-                    kind="secondary"
-                    type="button"
-                    size={SIZE.mini}
-                    onClick={() => handleQuickDateChange(6)}
-                    title="+6"
-                  />
-                  <Button
-                    kind="secondary"
-                    type="button"
-                    size={SIZE.mini}
-                    onClick={() => handleQuickDateChange(12)}
-                    title="+12"
-                  />
+                <div className="flex flex-row justify-between">
+                  <div className="flex gap-5 mt-4 items-center w-2/3">
+                    <label htmlFor="title" className="">
+                      Eval Status:
+                    </label>
+                    <div className="space-y-2 flex-1">
+                      <Select
+                        backspaceClearsInputValue
+                        required
+                        disabled
+                        size={SIZE.mini}
+                        options={evalStatusOption}
+                        onChange={handleEvalStatusChange}
+                        value={
+                          evalStatus
+                            ? [{ label: evalStatus, id: evalStatus }]
+                            : []
+                        }
+                        overrides={{
+                          ControlContainer: {
+                            style: {
+                              backgroundColor: 'rgba(250, 250, 250, 1)',
+                              border: 'none',
+                              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                              color: '#52525B',
+                            },
+                          },
+                          ClearIcon: {
+                            component: () => null,
+                          },
+                        }}
+                      />
+                    </div>
+                  </div>
+                  <div className="flex gap-2 mt-4 justify-end">
+                    <Button
+                      kind="secondary"
+                      type="button"
+                      size={SIZE.mini}
+                      onClick={() => handleQuickDateChange(0)}
+                      title="Today"
+                    />
+                    <Button
+                      kind="secondary"
+                      type="button"
+                      size={SIZE.mini}
+                      onClick={() => handleQuickDateChange(1)}
+                      title="+1"
+                    />
+                    <Button
+                      kind="secondary"
+                      type="button"
+                      size={SIZE.mini}
+                      onClick={() => handleQuickDateChange(3)}
+                      title="+3"
+                    />
+                    <Button
+                      kind="secondary"
+                      type="button"
+                      size={SIZE.mini}
+                      onClick={() => handleQuickDateChange(6)}
+                      title="+6"
+                    />
+                    <Button
+                      kind="secondary"
+                      type="button"
+                      size={SIZE.mini}
+                      onClick={() => handleQuickDateChange(12)}
+                      title="+12"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-          <div className="flex flex-row gap-3 justify-end">
-            {' '}
-            <div className="text-left text-xs mt-2">
-              <Button kind="primary" title="Add Eval" width={90} />
-            </div>
-            <div className="text-right text-xs mt-2">
-              <Button
-                type="button"
-                kind="tertiary"
-                title="Cancel"
-                width={90}
-                style={{
-                  backgroundColor: 'rgba(212, 212, 216, 1)',
-                  color: 'black',
-                }}
-                onClick={onClose}
-              />
+            <hr className="" />
+            <div className="flex flex-row gap-3 justify-end">
+              <div className="text-sm">
+                <Button padding="12px 16px" kind="primary" title="Add Eval" />
+              </div>
+              <div className="text-sm">
+                <Button
+                  type="button"
+                  kind="tertiary"
+                  title="Cancel"
+                  style={{
+                    backgroundColor: 'rgba(212, 212, 216, 1)',
+                    color: 'black',
+                    padding: '12px 16px',
+                    fontSize: '14px',
+                  }}
+                  onClick={onClose}
+                />
+              </div>
             </div>
           </div>
         </form>

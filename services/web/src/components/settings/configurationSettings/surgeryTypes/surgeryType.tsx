@@ -184,52 +184,55 @@ export default function SurgeryTypePage() {
         {showModal && <div className="text-green-700">{successMessage}</div>}
         {showErrorMessage && <div className="text-red-700">{errorMessage}</div>}
         <Button
-          kind="primary"
+          kind="secondary"
           title="Add New"
+          padding="5px 8px"
           onClick={handleOpenModal}
           startEnhancer={() => <AddIcon></AddIcon>}
         />
       </div>
       <hr className="h-px my-2.5 bg-gray-100 border-1 border-gray-100"></hr>
-      <div className="text-gray-50 w-full  items-center  bg-gray-50 py-4 rounded-lg">
-        <div className="bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 grid grid-cols-4 rounded-lg">
-          <div className="font-bold text-white p-4">S. No.</div>
-          <div className="font-bold text-white p-4">Surgery Location</div>
-          <div className="font-bold text-white p-4">Color</div>
-          <div className="font-bold text-white p-4">Action</div>
-          {surgeryTypes.map((data, index) => (
-            <React.Fragment key={data.id}>
-              <div className="text-gray-900 bg-gray-50 pt-2 px-4">
-                {index + 1}
-              </div>
-              <div className="text-gray-900 bg-gray-50 pt-2 px-4">
-                {data.name}
-              </div>
-              <div className="text-gray-900 bg-gray-50 pt-2 px-4">
-                <input
-                  type="color"
-                  required={true}
-                  id="primary_color"
-                  value={data.color ?? DEFAULT_SURGERYLOCATION_COLOR}
-                  style={{
-                    height: '30px',
-                    width: '30px',
-                    border: 'none',
-                    outline: 'none',
-                  }}
-                />
-              </div>
-              <div className="text-gray-900 bg-gray-50 pt-2 px-4">
-                <div
-                  onClick={() => data.id && handleOpenDeleteModal(data.id)}
-                  className="cursor-pointer"
-                >
-                  <DeleteIcon className="mt-2"></DeleteIcon>
-                </div>
-              </div>
-            </React.Fragment>
-          ))}
-        </div>
+      <div className="table-responsive overflow-x-auto rounded-lg">
+        <table className="">
+          <tbody>
+            <tr>
+              <th className="">S. No.</th>
+              <th className="">Surgery Location</th>
+              <th className="">Color</th>
+              <th className="">Action</th>
+            </tr>
+            {surgeryTypes.map((data, index) => (
+              <React.Fragment key={data.id}>
+                <tr className="border-t border-gray-300">
+                  <td className="">{index + 1}</td>
+                  <td className="">{data.name}</td>
+                  <td className="">
+                    <input
+                      type="color"
+                      required={true}
+                      id="primary_color"
+                      value={data.color ?? DEFAULT_SURGERYLOCATION_COLOR}
+                      style={{
+                        height: '30px',
+                        width: '30px',
+                        border: 'none',
+                        outline: 'none',
+                      }}
+                    />
+                  </td>
+                  <td className="">
+                    <div
+                      onClick={() => data.id && handleOpenDeleteModal(data.id)}
+                      className="cursor-pointer"
+                    >
+                      <DeleteIcon></DeleteIcon>
+                    </div>
+                  </td>
+                </tr>
+              </React.Fragment>
+            ))}
+          </tbody>
+        </table>
       </div>
       <AddSurgeryModal />
       <DeleteSurgeryTypeModal />

@@ -184,7 +184,14 @@ const Practice: React.FC = () => {
           },
         }}
       >
-        <ModalHeader $style={{ fontSize: '1.25rem', fontWeight: 700 }}>
+        <ModalHeader
+          $style={{
+            fontSize: '1.25rem',
+            fontWeight: 700,
+            borderBottom: '1px solid rgba(244, 244, 245, 1)',
+            paddingBottom: '8px',
+          }}
+        >
           Edit Practice
         </ModalHeader>
         <ModalBody>
@@ -263,120 +270,97 @@ const Practice: React.FC = () => {
         {showErrorMessage && <div className="text-red-700">{errorMessage}</div>}
         <Button
           kind="secondary"
+          padding="5px 8px"
           title="Add New"
           onClick={handleOpenCreateModal}
           startEnhancer={() => <AddIcon></AddIcon>}
         />
       </div>
       <hr className="h-px my-2.5 bg-gray-100 border-1 border-gray-100"></hr>
-      <div className="text-gray-50 w-full  items-center  bg-gray-50 py-4 rounded-lg">
-        <div className="bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2   focus:ring-indigo-500 grid grid-cols-[0.5fr_1fr_0.5fr_0.5fr_1fr_0.5fr_0.5fr_1fr] rounded-lg w-auto">
-          <div className="font-bold text-white p-4 w-auto  text-center">
-            Practice Photo
-          </div>
-          <div className="font-bold text-white p-4 w-auto text-center">
-            Practice Name
-          </div>
-          <div className="font-bold text-white p-4 w-auto text-center">
-            First Name
-          </div>
-          <div className="font-bold text-white p-4 w-auto text-center">
-            Last Name
-          </div>
-          <div className="font-bold text-white p-4 w-auto text-center">
-            Admin Email
-          </div>
-          <div className="font-bold text-white p-4 w-auto text-center">
-            Admin M. No.
-          </div>
-          <div className="font-bold text-white p-4 w-auto text-center">
-            Status
-          </div>
-          <div className="font-bold text-white p-4 w-auto text-center">
-            Action
-          </div>
+      <div className="table-responsive overflow-x-auto rounded-lg">
+        <table className="">
+          <tbody className="">
+            <tr>
+              <th className="">Practice Photo</th>
+              <th className="">Practice Name</th>
+              <th className="">First Name</th>
+              <th className="">Last Name</th>
+              <th className="">Admin Email</th>
+              <th className="">Admin M. No.</th>
+              <th className="">Status</th>
+              <th className="">Action</th>
+            </tr>
+            {practices.map((data) => (
+              <tr className="border-t border-gray-200 " key={data.id}>
+                <td className="">
+                  {data.imgUrl ? (
+                    <Image
+                      src={data.imgUrl}
+                      alt={data.id ?? ''}
+                      width={40}
+                      height={40}
+                      className="inline-block rounded-[10px]"
+                      style={{
+                        width: '40px',
+                        height: '40px',
+                        objectFit: 'cover',
+                        borderRadius: '100px',
+                      }}
+                    />
+                  ) : (
+                    <AvatarIcon size={40}></AvatarIcon>
+                  )}
+                </td>
+                <td className="">{data.name}</td>
+                <td className="">{data.adminFirstName}</td>
+                <td className="">{data.adminLastName}</td>
+                <td className="">{data.adminEmail}</td>
+                <td className="">{data.adminContactNumber}</td>
+                <td className="">
+                  <div
+                    className={`flex justify-center items-center rounded-md capitalize px-2 text-white ${
+                      data.status?.toString() === 'pending'
+                        ? 'bg-yellow-500'
+                        : data.status?.toString() === 'inactive'
+                          ? 'bg-red-500'
+                          : 'bg-green-500'
+                    }`}
+                  >
+                    {data.status?.toString()}
+                  </div>
+                </td>
+                <td className="">
+                  <div className="flex gap-1">
+                    <div
+                      className="cursor-pointer"
+                      onClick={() =>
+                        handleOpenEditModal({
+                          name: data.name,
+                          code: data.code,
+                          status: data.status,
+                          id: data.id,
+                          adminFirstName: data.adminFirstName,
+                          adminLastName: data.adminLastName,
+                          adminContactNumber: data.adminContactNumber,
+                          adminId: data.adminId,
+                        })
+                      }
+                    >
+                      <EditIcon />
+                    </div>
 
-          {practices.map((data) => (
-            <React.Fragment key={data.id}>
-              <div className="text-gray-900 bg-gray-50 pt-2 px-4 flex text-center items-center justify-center">
-                {data.imgUrl ? (
-                  <Image
-                    src={data.imgUrl}
-                    alt={data.id ?? ''}
-                    width={50}
-                    height={50}
-                    className="inline-block rounded-[10px]"
-                    style={{
-                      width: '50px',
-                      height: '50px',
-                      objectFit: 'cover',
-                      borderRadius: '100px',
-                    }}
-                  />
-                ) : (
-                  <AvatarIcon size={50}></AvatarIcon>
-                )}
-              </div>
-              <div className="text-gray-900 bg-gray-50 pt-2 px-4 flex text-center items-center justify-center">
-                {data.name}
-              </div>
-              <div className="text-gray-900 bg-gray-50 pt-2 px-4 flex text-center items-center justify-center">
-                {data.adminFirstName}
-              </div>
-              <div className="text-gray-900 bg-gray-50 pt-2 px-4 flex text-center items-center justify-center">
-                {data.adminLastName}
-              </div>
-              <div className="text-gray-900 bg-gray-50 pt-2 px-4 flex text-center items-center justify-center">
-                {data.adminEmail}
-              </div>
-              <div className="text-gray-900 bg-gray-50 pt-2 px-4 flex text-center items-center justify-center">
-                {data.adminContactNumber}
-              </div>
-              <div className="text-gray-900 bg-gray-50  pt-2 px-4 flex text-center items-center justify-center">
-                <div
-                  className={`flex justify-center items-center rounded-lg px-4 text-white w-20 ${
-                    data.status?.toString() === 'pending'
-                      ? 'bg-yellow-500'
-                      : data.status?.toString() === 'inactive'
-                        ? 'bg-red-500'
-                        : 'bg-green-500'
-                  }`}
-                >
-                  {data.status?.toString()}
-                </div>
-              </div>
-              <div className="flex flex-row bg-gray-50 pt-2 px-6 text-center items-center gap-1 justify-center">
-                <div className="text-center">
-                  <div
-                    className="rounded-lg bg-black text-white border-2 p-2 flex items-center justify-center"
-                    onClick={() =>
-                      handleOpenEditModal({
-                        name: data.name,
-                        code: data.code,
-                        status: data.status,
-                        id: data.id,
-                        adminFirstName: data.adminFirstName,
-                        adminLastName: data.adminLastName,
-                        adminContactNumber: data.adminContactNumber,
-                        adminId: data.adminId,
-                      })
-                    }
-                  >
-                    <EditIcon />
+                    <div
+                      className="cursor-pointer"
+                      onClick={() => data.id && handleOpenDeleteModal(data.id)}
+                    >
+                      <DeleteIcon />
+                    </div>
                   </div>
-                </div>
-                <div className="text-center">
-                  <div
-                    className="rounded-lg bg-black text-white border-2 p-2 flex items-center justify-center"
-                    onClick={() => data.id && handleOpenDeleteModal(data.id)}
-                  >
-                    <DeleteIcon />
-                  </div>
-                </div>
-              </div>
-            </React.Fragment>
-          ))}
-        </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
       <CreateFormModal />
       <EditFormModal />
