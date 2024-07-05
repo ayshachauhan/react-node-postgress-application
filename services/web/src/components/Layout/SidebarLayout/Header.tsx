@@ -156,6 +156,47 @@ const Header: React.FC<ChildProps> = ({ data }) => {
           <div className="flex items-center">
             {!is_super_admin && isDashboardPage && (
               <>
+                <div className="flex items-center border-r-2 pr-4 mr-4">
+                  {!is_super_admin && (
+                    <>
+                      <div>Practice:</div>
+                      <Dropdown
+                        position="bottomLeft"
+                        width={220}
+                        trigger={
+                          <span className="inline-flex items-center gap-2 font-bold">
+                            &nbsp;&nbsp;&nbsp;
+                            {selectedPractice}
+                            <ChevronDown />
+                          </span>
+                        }
+                      >
+                        {userPracticesList.map((item) => (
+                          <Dropdown.Item
+                            key={item.id}
+                            id={item.id}
+                            onClick={() =>
+                              handlePracticeChange(item.id, item.name)
+                            }
+                          >
+                            {item?.imgUrl ? (
+                              <Image
+                                src={item.imgUrl}
+                                alt={item.id!}
+                                className="inline-block rounded-full mr-2 h-10 w-10"
+                                width={40}
+                                height={40}
+                              />
+                            ) : (
+                              <AvatarIcon className="mr-2" size={40} />
+                            )}
+                            {item.name}
+                          </Dropdown.Item>
+                        ))}
+                      </Dropdown>
+                    </>
+                  )}
+                </div>
                 <div>Doctor:</div>
                 {users && users.length > 1 ? (
                   <Dropdown
@@ -177,45 +218,6 @@ const Header: React.FC<ChildProps> = ({ data }) => {
           </div>
 
           <div className="flex items-center justify-end">
-            <div className="flex items-center border-r-2 pr-4 mr-4">
-              {!is_super_admin && (
-                <>
-                  <div>Practice:</div>
-                  <Dropdown
-                    position="bottomLeft"
-                    width={220}
-                    trigger={
-                      <span className="inline-flex items-center gap-2 font-bold">
-                        &nbsp;&nbsp;&nbsp;
-                        {selectedPractice}
-                        <ChevronDown />
-                      </span>
-                    }
-                  >
-                    {userPracticesList.map((item) => (
-                      <Dropdown.Item
-                        key={item.id}
-                        id={item.id}
-                        onClick={() => handlePracticeChange(item.id, item.name)}
-                      >
-                        {item?.imgUrl ? (
-                          <Image
-                            src={item.imgUrl}
-                            alt={item.id!}
-                            className="inline-block rounded-full mr-2 h-10 w-10"
-                            width={40}
-                            height={40}
-                          />
-                        ) : (
-                          <AvatarIcon className="mr-2" size={40} />
-                        )}
-                        {item.name}
-                      </Dropdown.Item>
-                    ))}
-                  </Dropdown>
-                </>
-              )}
-            </div>
             <Dropdown
               position="bottomRight"
               trigger={
