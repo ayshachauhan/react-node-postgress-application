@@ -42,6 +42,11 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({
   withLoader,
   showDateOffsetControl,
 }) => {
+  const [showTooltip, setShowTooltip] = useState(false);
+  const [showDateOffsetField, setShowDateOffsetField] = useState(false);
+  const [updatedTemplateInfo, setTemplateInfo] = useState<
+    Partial<ITemplateUpdate>
+  >({});
   const userInfo = useAppSelector((state) => state.auth.user);
   const userId = userInfo?.id;
   const userPermissions = userInfo?.permissions;
@@ -87,8 +92,12 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({
   );
 
   const surguriesData = useMemo(
-    () => getRandomSurgeryData(filterUpcomingSurgeries(surgeries)),
-    [],
+    () =>
+      getRandomSurgeryData(
+        filterUpcomingSurgeries(surgeries),
+        updatedTemplateInfo,
+      ),
+    [templateInfo],
   );
 
   const surgeryConfigurationOptions = Object.values(surgeryConfigurations).map(
@@ -97,12 +106,6 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({
       id: surgeryConfiguration.id,
     }),
   );
-
-  const [showTooltip, setShowTooltip] = useState(false);
-  const [showDateOffsetField, setShowDateOffsetField] = useState(false);
-  const [updatedTemplateInfo, setTemplateInfo] = useState<
-    Partial<ITemplateUpdate>
-  >({});
 
   useEffect(() => {
     if (practiceId && userId) {
@@ -173,6 +176,26 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({
     setTemplateInfo({
       ...updatedTemplateInfo,
       messageText: value,
+    });
+  };
+
+  const handle1stCataractMessageTextChange = (
+    event: React.ChangeEvent<HTMLTextAreaElement>,
+  ) => {
+    const value = event.target.value;
+    setTemplateInfo({
+      ...updatedTemplateInfo,
+      email1stCataract: value,
+    });
+  };
+
+  const handle2ndCataractMessageTextChange = (
+    event: React.ChangeEvent<HTMLTextAreaElement>,
+  ) => {
+    const value = event.target.value;
+    setTemplateInfo({
+      ...updatedTemplateInfo,
+      email2ndCataract: value,
     });
   };
 
@@ -309,7 +332,7 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({
         </div>
         <div className="flex gap-5 mt-2">
           <div className="w-1/2 pr-3 border-r border-dotted border-gray-300 text-xs">
-            <div className="h-4/6 overflow-auto">
+            <div className="">
               <div className="flex justify-between border-b border-gray-100">
                 <div className="text-base font-bold pb-2 text-black">
                   Email Message
@@ -433,6 +456,61 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({
               </div>
             </div>
             <div>
+              {updatedTemplateInfo?.surgeryConfiguration?.name === 'cataract' &&
+                showDateOffsetField && (
+                  <div className="mt-1">
+                    <div className=" text-black text-sm font-normal mt-1">
+                      1st Cataract Message
+                    </div>
+                    <Textarea
+                      rows={4}
+                      value={updatedTemplateInfo?.email1stCataract || ''}
+                      onChange={handle1stCataractMessageTextChange}
+                      clearOnEscape
+                      overrides={{
+                        Root: {
+                          style: {
+                            border: 'none',
+                            boxShadow:
+                              '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+                            fontSize: '0.875rem',
+                          },
+                        },
+                        Input: {
+                          style: {
+                            backgroundColor: '#FAFAFA',
+                            border: 'none',
+                          },
+                        },
+                      }}
+                    />
+                    <div className="text-black text-sm font-normal mt-2">
+                      2nd Cataract Message
+                    </div>
+                    <Textarea
+                      rows={4}
+                      value={updatedTemplateInfo?.email2ndCataract || ''}
+                      onChange={handle2ndCataractMessageTextChange}
+                      clearOnEscape
+                      overrides={{
+                        Root: {
+                          style: {
+                            border: 'none',
+                            boxShadow:
+                              '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+                            fontSize: '0.875rem',
+                          },
+                        },
+                        Input: {
+                          style: {
+                            backgroundColor: '#FAFAFA',
+                            border: 'none',
+                          },
+                        },
+                      }}
+                    />
+                  </div>
+                )}
               <div className=" border-b border-gray-100 mt-3 text-black font-bold text-base pb-1">
                 Text Message
               </div>
@@ -469,7 +547,7 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({
             </div>
           </div>
           <div className="w-1/2">
-            <div className="h-4/6 overflow-auto">
+            <div className="h-[535px] overflow-auto">
               <div className="border-b border-gray-100 text-xl font-bold pb-2 text-black">
                 Email Message Preview
               </div>

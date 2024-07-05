@@ -18,6 +18,7 @@ import { SIZE, Select } from 'baseui/select';
 import moment from 'moment';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
+import { AddIcon } from '../Icons';
 import RequiredIndicator from '../RequiredIndicator';
 
 interface SurgeryPageProps {
@@ -90,14 +91,24 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
   const [waitlistId, setWaitlistId] = useState<string>('');
   const [practiceHomeId, setPracticeHomeId] = useState<string>('');
   const [bodyPart, setBodyPart] = useState<string>('');
+  const [cataractBodyPart, setCataractBodyPart] = useState<string>('');
   const [referrerId, setReferrerId] = useState<string>('');
   const [doctorId, setDoctorId] = useState<string | null>(getSelectedUserId);
   const [surgeryDate, SetSurgeryDate] = useState<Date | null>(new Date());
+  const [surgeryCataractDate, SetCataractSurgeryDate] = useState<Date | null>(
+    new Date(),
+  );
   const [pcp, setPcp] = useState('');
   const [notes, setNotes] = useState('');
   const [surgeryNameId, setSurgeryNameId] = useState<string>('');
+  const [surgeryCataractNameId, setSurgeryCataractNameId] =
+    useState<string>('');
+  const [errorMsgForCataract, setErrorMessageForCataract] = useState('');
   const [isMrnExists, setIsMrnExists] = useState<boolean>(false);
   const [isNewReferrer, setIsNewReferrer] = useState<boolean>(false);
+  const [isCataractSelected, setCataractSelected] = useState<boolean>(false);
+  const [addNewCataractSurgery, setAddNewCataractSurgery] =
+    useState<boolean>(false);
   const [surgeryDropdownOptions, setSurgeryDropdownOptions] = useState([
     {
       id: 0,
@@ -186,8 +197,11 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
     if (surgeryNameId) {
       const selectedSurgeryConfiguration =
         surgeryConfigurationsList[surgeryNameId];
+      const selectedCataractSurgeryConfiguration =
+        surgeryConfigurationsList[surgeryCataractNameId];
 
       setBodyPart(selectedSurgeryConfiguration.bodyPart[0]);
+      setCataractBodyPart(selectedCataractSurgeryConfiguration?.bodyPart[0]);
 
       const selectedSurgeryOptions = Object.values(
         selectedSurgeryConfiguration.options,
@@ -207,7 +221,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
 
       setSurgeryDropdownOptions([...selectedSurgeryOptions]);
     }
-  }, [surgeryNameId]);
+  }, [surgeryNameId, surgeryCataractNameId]);
 
   const surgeryConfigurationsOptions = surgeryConfigurations.map((key) => ({
     label: key.name,
@@ -245,6 +259,23 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
 
   const handleSurgeryNameChange = ({ value }) => {
     setSurgeryNameId(value[0] ? value[0].id : null);
+    if (value[0]?.label.toLowerCase() === 'cataract') {
+      setCataractSelected(true);
+    } else {
+      setCataractSelected(false);
+      setAddNewCataractSurgery(false);
+    }
+  };
+
+  const handleCatractSurgeryNameChange = ({ value }) => {
+    setSurgeryCataractNameId(value[0] ? value[0].id : null);
+    if (value[0] && value[0]?.label.toLowerCase() !== 'cataract') {
+      setErrorMessageForCataract(
+        'Only Cataract surgery needs to be selected as second surgery.',
+      );
+    } else {
+      setErrorMessageForCataract('');
+    }
   };
 
   const handlePracticeHomeChange = ({ value }) => {
@@ -265,6 +296,10 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
 
   const handleBodyPartTypeChange = ({ value }) => {
     setBodyPart(value[0] ? value[0].id : null);
+  };
+
+  const handleCataractBodyPartTypeChange = ({ value }) => {
+    setCataractBodyPart(value[0] ? value[0].id : null);
   };
 
   const handleDoctorChange = ({ value }) => {
@@ -305,32 +340,58 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
         };
       }
     });
+    const surgeryData = {
+      identifier: String(Date.now()),
+      firstName,
+      lastName,
+      email,
+      phoneNumber,
+      mrn: mrn ? Number(mrn) : 0,
+      practiceHomeId,
+      insuranceDetails,
+      insuranceTypeId,
+      practiceId: practiceId ?? '',
+      doctorId: doctorId ?? '',
+      pcp,
+      referrerId,
+      details: notes,
+      selectedSurgeryOptions: surgeryOptionObj,
+      totalHospitalPricing: '0',
+      totalProfessionalPricing: '0',
+      waitlistId,
+    };
+    const surgeryName = surgeryConfigurationsOptions.find(
+      (s) => s?.id === surgeryCataractNameId,
+    )?.label;
+    if (surgeryName && surgeryName !== 'cataract') {
+      setErrorMessageForCataract(
+        'Only Cataract surgery needs to be selected as second surgery.',
+      );
+      return;
+    }
     await withLoader(async () => {
       if (practiceId && doctorId) {
         await dispatch(
           addSurgeryRecord({
-            firstName,
-            lastName,
-            email,
+            ...surgeryData,
             date: surgeryDate ?? new Date(),
-            phoneNumber,
-            mrn: mrn ? Number(mrn) : 0,
-            practiceHomeId,
             surgeryConfigurationId: surgeryNameId,
-            insuranceDetails,
-            insuranceTypeId,
-            practiceId,
-            doctorId,
-            pcp,
-            referrerId,
-            details: notes,
-            selectedSurgeryOptions: surgeryOptionObj,
             bodyPart,
-            totalHospitalPricing: '0',
-            totalProfessionalPricing: '0',
-            waitlistId,
+            count: 1,
           }),
         );
+
+        if (surgeryCataractDate && surgeryCataractNameId && cataractBodyPart) {
+          await dispatch(
+            addSurgeryRecord({
+              ...surgeryData,
+              date: surgeryCataractDate ?? new Date(),
+              surgeryConfigurationId: surgeryCataractNameId,
+              bodyPart: cataractBodyPart,
+              count: 2,
+            }),
+          );
+        }
 
         if (autoFillFromEval && evalAutoFillInfo) {
           const {
@@ -397,6 +458,10 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
     setCurrentMonth(date.getMonth() + 1);
   };
 
+  const handleMonthChangeForCataract = ({ date }) => {
+    setCurrentMonth(date.getMonth() + 1);
+  };
+
   const isCalendarDates = (date: Date): boolean => {
     const formattedDate = moment(date).format('YYYY-MM-DD'); // Get date part only
 
@@ -450,9 +515,25 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
       : {};
   };
 
+  useEffect(() => {
+    if (errorMsgForCataract) {
+      const timer = setTimeout(() => {
+        setErrorMessageForCataract('');
+      }, 3000);
+
+      return () => clearTimeout(timer);
+    }
+    return undefined;
+  }, [errorMsgForCataract]);
+
   return (
     <div>
       <div className="border-border-l border-b border-gray-100">
+        {errorMsgForCataract && (
+          <div className="flex justify-center text-red-700">
+            {errorMsgForCataract}
+          </div>
+        )}
         <form onSubmit={handleSubmit} className="flex flex-col flex-wrap">
           <div className="flex mt-4 pb-2 border-b border-gray-100 items-center">
             <div className="text-xl font-bold text-black w-full">
@@ -814,8 +895,23 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
           </div>
           <div className="mt-2 flex gap-5">
             <div className="px-6 border border-gray-100 pb-6 rounded-xl flex-1 w-4/12">
-              <div className="mt-2 text-lg pb-2 font-bold border-b border-gray-100 text-black w-full">
+              <div className="flex mt-2 text-lg pb-2 font-bold border-b border-gray-100 text-black w-full">
                 Add Surgery
+                {(addNewCataractSurgery || isCataractSelected) && (
+                  <div className="pl-3">
+                    <Button
+                      type="button"
+                      kind="primary"
+                      title=""
+                      width={25}
+                      height={25}
+                      startEnhancer={() => <AddIcon className="mr-[-7px]" />}
+                      onClick={() => {
+                        setAddNewCataractSurgery(true);
+                      }}
+                    />
+                  </div>
+                )}
               </div>
               <div className="flex gap-5 mt-2">
                 <div className="space-y-1 flex-1">
@@ -928,6 +1024,128 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
                   />
                 </div>
               </div>
+              {addNewCataractSurgery && (
+                <div className="flex gap-5 mt-2">
+                  <div className="space-y-1 flex-1">
+                    <label htmlFor="surgeryType" className="text-black text-xs">
+                      <RequiredIndicator />
+                      &nbsp;Surgery
+                    </label>
+                    <Select
+                      placeholder="Select Surgery"
+                      backspaceClearsInputValue
+                      size={SIZE.mini}
+                      options={surgeryConfigurationsOptions}
+                      onChange={handleCatractSurgeryNameChange}
+                      value={
+                        surgeryCataractNameId
+                          ? [
+                              {
+                                label: surgeryCataractNameId,
+                                id: surgeryCataractNameId,
+                              },
+                            ]
+                          : []
+                      }
+                      overrides={{
+                        ControlContainer: {
+                          style: {
+                            backgroundColor: 'rgba(250, 250, 250, 1)',
+                            border: 'none',
+                            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                            color: '#52525B',
+                          },
+                        },
+                        ClearIcon: {
+                          component: () => null,
+                        },
+                      }}
+                    />
+                  </div>
+                  <div className="space-y-1 flex-1 w-1/3">
+                    <label htmlFor="bodypart" className="text-black text-xs">
+                      <RequiredIndicator />
+                      &nbsp;Body Part
+                    </label>
+                    <Select
+                      placeholder="Select Body Part"
+                      backspaceClearsInputValue
+                      size={SIZE.mini}
+                      options={
+                        surgeryCataractNameId
+                          ? surgeryConfigurationsList[
+                              surgeryCataractNameId
+                            ].bodyPart.map((ele) => ({ id: ele, label: ele }))
+                          : []
+                      }
+                      onChange={handleCataractBodyPartTypeChange}
+                      value={
+                        cataractBodyPart
+                          ? [{ label: cataractBodyPart, id: cataractBodyPart }]
+                          : []
+                      }
+                      disabled={surgeryCataractNameId ? false : true}
+                      overrides={{
+                        ControlContainer: {
+                          style: {
+                            backgroundColor: 'rgba(250, 250, 250, 1)',
+                            border: 'none',
+                            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                            color: '#52525B',
+                          },
+                        },
+                        ClearIcon: {
+                          component: () => null,
+                        },
+                      }}
+                    />
+                  </div>
+                  <div className="space-y-1 flex-1 w-1/3">
+                    <label htmlFor="surgeryDate" className="text-black text-xs">
+                      <RequiredIndicator />
+                      &nbsp;Surgery Date
+                    </label>
+                    <DatePicker
+                      size={SIZE.mini}
+                      value={surgeryCataractDate}
+                      onChange={({ date }) => SetCataractSurgeryDate(date)}
+                      placeholder="Surgery Date"
+                      required
+                      onMonthChange={handleMonthChangeForCataract}
+                      onOpen={() => {
+                        handleMonthChangeForCataract({
+                          date: surgeryCataractDate,
+                        });
+                      }}
+                      overrides={{
+                        Day: {
+                          style: ({ $date, $selected }) => {
+                            return {
+                              height: '53px',
+                              width: '53px',
+                              borderRadius: '50%',
+                              boxSizing: 'border-box',
+                              paddingTop: '6px',
+                              paddingBottom: '6px',
+                              margin: '2px',
+                              ...getBackGroundColorCss($date),
+                              ':after': '',
+                              ...($selected
+                                ? {
+                                    color: '#ffffff',
+                                    ...($date.getMonth() + 1 == currentMonth
+                                      ? { backgroundColor: '#000000' }
+                                      : {}),
+                                  }
+                                : {}),
+                            };
+                          },
+                        },
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
               <div className="flex flex-col gap-5 mt-2">
                 {surgeryNameId &&
                   surgeryDropdownOptions.map((option, index) => (
