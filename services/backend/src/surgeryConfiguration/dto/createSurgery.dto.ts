@@ -1,5 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { SurgeryChecklist, SurgeryOptions } from '@packages/entities/*';
+import {
+  SurgeryChecklist,
+  SurgeryConditionalOptions,
+  SurgeryOptions,
+} from '@packages/entities';
 import { IsNotEmpty } from 'class-validator';
 
 export class AddSurgeryConfigurationDto {
@@ -15,6 +19,9 @@ export class AddSurgeryConfigurationDto {
 
   @ApiProperty()
   options: SurgeryOptions;
+
+  @ApiProperty()
+  conditionalOptions: SurgeryConditionalOptions;
 
   @ApiProperty()
   checkList: SurgeryChecklist;
@@ -39,4 +46,7 @@ export class UpdateSurgeryConfigurationDto {
 
   @ApiProperty()
   checkList: SurgeryChecklist;
+
+  @ApiProperty()
+  conditionalOptions: SurgeryConditionalOptions;
 }

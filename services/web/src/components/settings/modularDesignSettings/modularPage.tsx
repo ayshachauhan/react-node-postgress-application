@@ -37,8 +37,8 @@ const Dashboard: React.FC = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [surgeryTypeId, setSurgeryTypeId] = useState<string>('');
   const { successMessage, errorMessage } = useAppSelector((state) => ({
-    successMessage: state.users.successMessage,
-    errorMessage: state.users.errorMessage,
+    successMessage: state.surgeryConfigurations.successMessage,
+    errorMessage: state.surgeryConfigurations.errorMessage,
   }));
   const modalRef = useRef(null);
 
