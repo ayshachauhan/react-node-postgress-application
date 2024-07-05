@@ -64,6 +64,9 @@ type WhereClause = {
   practiceHome: {
     id: ReturnType<typeof In>;
   };
+  practice: {
+    id: string; //TO DO: make practice id not null in future
+  };
   date?: Date | FindOperator<Date>;
   patient?: FindOptionsWhere<PatientEntity> | FindOptionsWhere<PatientEntity>[];
 };
@@ -125,6 +128,7 @@ export class SurgeryService {
       practiceHome: {
         id: In(dbPracticeHomesByPractice.map((ele) => ele.id)),
       },
+      practice: { id: practiceId }, //TO DO: make practice id not null in future
     };
 
     const searchConditions: FindManyOptions<SurgeryEntity> = {
@@ -138,6 +142,7 @@ export class SurgeryService {
         'patient.referrer',
         'doctor',
         'waitlist',
+        'practice', //TO DO: make practice id not null in future
       ],
       order: {},
     };
@@ -253,6 +258,7 @@ export class SurgeryService {
         'patient.referrer',
         'doctor',
         'waitlist',
+        'practice', //TO DO: make practice id not null in future
       ],
     });
   }
@@ -507,7 +513,12 @@ export class SurgeryService {
             SurgeryStatus.DATE_CHANGE,
           ]),
         },
-        relations: ['practiceHome', 'practiceHome.practice', 'patient'],
+        relations: [
+          'practiceHome',
+          'practiceHome.practice',
+          'patient',
+          'practice', //TO DO: make practice id not null in future
+        ],
       });
 
       const surgeryData = await this.surgeryRepository.update(

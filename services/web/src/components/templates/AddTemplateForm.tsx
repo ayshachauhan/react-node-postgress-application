@@ -40,9 +40,28 @@ const AddTemplateForm: React.FC<{
   const [messageType, setMsgType] = useState('');
   const [dateOffset, setDateOffset] = useState<number>(0);
   const [showDateOffsetField, setShowDateOffsetField] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const templates = useAppSelector(
+    (state) => Object.values(state.templates.entities) || [],
+  );
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const surgeryName = surgeryConfigurationOptions?.find(
+      (s) => s?.id === surgeryConfigurationId,
+    )?.label;
+    const isBookingTemplateExist = templates.find(
+      (t) => t?.surgeryConfigurationName === surgeryName,
+    )?.booking?.length;
+    if (
+      isBookingTemplateExist &&
+      messageType === TemplateMessageType.BOOKING.toUpperCase()
+    ) {
+      setErrorMessage('Booking template already created for this surgery');
+      return;
+    }
+    console.log({ surgeryName });
     if (practiceId && userInfo) {
       const data: ITemplateRequest = {
         practiceId,
@@ -80,6 +99,17 @@ const AddTemplateForm: React.FC<{
   };
 
   useEffect(() => {
+    if (errorMessage) {
+      const timer = setTimeout(() => {
+        setErrorMessage('');
+      }, 3000);
+
+      return () => clearTimeout(timer);
+    }
+    return undefined;
+  }, [errorMessage]);
+
+  useEffect(() => {
     if (practiceId !== null) {
       dispatch(fetchSurgeryConfigurations({ practiceId }));
     }
@@ -89,6 +119,11 @@ const AddTemplateForm: React.FC<{
     <div>
       <form onSubmit={handleSubmit}>
         <div className="space-y-4">
+          {errorMessage && (
+            <div className="flex justify-center text-red-700">
+              {errorMessage}
+            </div>
+          )}
           <label htmlFor="title" className="text-black text-sm font-normal">
             <RequiredIndicator />
             &nbsp;Surgery

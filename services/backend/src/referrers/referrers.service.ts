@@ -1,6 +1,14 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  NotFoundException,
+  forwardRef,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ReferrersEntity } from '@packages/entities/referrer';
+import { PracticesService } from 'src/practices/practices.service';
+import { SurgeryService } from 'src/surgery/surgery.service';
+import { filterUpcomingSurgeries } from 'src/utils';
 import { ILike, Repository } from 'typeorm';
 
 @Injectable()
@@ -8,6 +16,10 @@ export class ReferrersService {
   constructor(
     @InjectRepository(ReferrersEntity)
     private readonly referrers: Repository<ReferrersEntity>,
+    @Inject(forwardRef(() => SurgeryService))
+    private surgeryService: SurgeryService,
+    @Inject(forwardRef(() => PracticesService))
+    private practiceService: PracticesService,
   ) {}
 
   async createReferrer(
@@ -74,8 +86,38 @@ export class ReferrersService {
     referrerData: Partial<ReferrersEntity>,
   ): Promise<ReferrersEntity | undefined> {
     const referrer = await this.getReferrerById(practiceId, referrerId);
+    const { email: userEmail } = referrerData;
+    const { email: dbEmail } = referrer;
     const updatedReferrer = this.referrers.merge(referrer, referrerData);
-    return this.referrers.save(updatedReferrer);
+    const result = await this.referrers.save(updatedReferrer);
+    if (!dbEmail && userEmail) {
+      const { surgeries } = await this.surgeryService.findAll(
+        practiceId,
+        false,
+        [],
+        '',
+        '',
+        '',
+      );
+      const referrerSurgeries = filterUpcomingSurgeries(
+        surgeries.filter(
+          (surgery) => surgery?.patient?.referrer?.id === referrer?.id,
+        ),
+      );
+      const practiceEntity = await this.practiceService.findOne(practiceId);
+
+      if (practiceEntity) {
+        await Promise.all(
+          referrerSurgeries.map((surgery) =>
+            this.surgeryService.initiateReferrerSendEmail(
+              surgery,
+              practiceEntity,
+            ),
+          ),
+        );
+      }
+    }
+    return result;
   }
 
   async getReferrer(practiceId: string) {

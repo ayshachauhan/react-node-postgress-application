@@ -2,8 +2,10 @@ import {
   BadRequestException,
   HttpException,
   HttpStatus,
+  Inject,
   Injectable,
   NotFoundException,
+  forwardRef,
 } from '@nestjs/common';
 import { JwtService, TokenExpiredError } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -27,9 +29,12 @@ export class ReviewService {
   constructor(
     @InjectRepository(ReviewEntity)
     private readonly reviews: Repository<ReviewEntity>,
+    @Inject(forwardRef(() => TransporterService))
     private readonly transporterService: TransporterService,
     private jwtService: JwtService,
+    @Inject(forwardRef(() => PracticesService))
     private readonly practiceService: PracticesService,
+    @Inject(forwardRef(() => PatientsService))
     private readonly patientService: PatientsService,
   ) {}
 

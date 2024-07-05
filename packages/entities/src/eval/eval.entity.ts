@@ -2,6 +2,7 @@ import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { BaseEntity } from '../base.entity';
 import { InsuranceTypeEntity } from '../insuranceType';
 import { PatientEntity } from '../patient';
+import { PracticeEntity } from '../practice';
 import { PracticeHomesEntity } from '../practiceHomes';
 import { SurgeryConfigurationEntity } from '../surgeryConfiguration';
 import { UserEntity } from '../user';
@@ -44,4 +45,8 @@ export class EvalEntity extends BaseEntity {
 
   @Column()
   bodyPart: string;
+
+  @ManyToOne(() => PracticeEntity)
+  @JoinColumn({ name: 'practiceId' })
+  practice: PracticeEntity; //TO DO: make practice id not null in future
 }
