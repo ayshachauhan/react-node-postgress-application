@@ -71,6 +71,39 @@ const ReferedPatients = ({ referrerId, withLoader }) => {
       }
     };
   }, [successMessage, errorMessage, dispatch]);
+
+  const mixedEvalsSurgeries = filteredReferredPatients.flatMap((patient) => {
+    const surgeriesWithDetails =
+      patient.surgeries?.map((surgery) => ({
+        ...surgery,
+        type: 'surgery',
+        patientId: patient.id,
+        patientFirstName: patient.firstName,
+        patientLastName: patient.lastName,
+        totalProfessionalPricing: surgery?.totalProfessionalPricing,
+        totalHospitalPricing: surgery?.totalHospitalPricing,
+      })) ?? [];
+
+    const evalsWithDetails =
+      patient.evals?.map((evalEntity) => ({
+        ...evalEntity,
+        type: 'eval',
+        patientId: patient.id,
+        patientFirstName: patient.firstName,
+        patientLastName: patient.lastName,
+        totalProfessionalPricing: undefined,
+        totalHospitalPricing: undefined,
+      })) ?? [];
+
+    return [...surgeriesWithDetails, ...evalsWithDetails];
+  });
+
+  mixedEvalsSurgeries.sort((a, b) => {
+    return (
+      new Date(b.dateCreated).getTime() - new Date(a.dateCreated).getTime()
+    );
+  });
+
   return (
     <div className="mt-4">
       <div className="flex justify-between border-gray-400">
@@ -88,65 +121,42 @@ const ReferedPatients = ({ referrerId, withLoader }) => {
               {viewBillingColumn && <th className="">Billing</th>}
             </tr>
 
-            {filteredReferredPatients && filteredReferredPatients.length > 0 ? (
-              filteredReferredPatients.map((data: IPatient) => (
+            {mixedEvalsSurgeries && mixedEvalsSurgeries.length > 0 ? (
+              mixedEvalsSurgeries.map((data, dataIndex) => (
                 <React.Fragment key={data.id}>
-                  {data.surgeries?.map((surgery, surgIndex) => (
-                    <tr
-                      key={`${data.id}-surgery-${surgIndex}`}
-                      className="border-t border-gray-200"
-                    >
+                  <tr
+                    key={`${data.id}-surgery-${dataIndex}`}
+                    className="border-t border-gray-200"
+                  >
+                    <td className="">
+                      {data
+                        ? generateFullName(
+                            data.patientFirstName,
+                            data.patientLastName,
+                          )
+                        : null}
+                    </td>
+                    <td className="">
+                      {data.dateCreated ? formatDate(data.dateCreated) : 'NA'}
+                    </td>
+                    <td className="">
+                      {data.date ? formatDate(data.date) : 'NA'}
+                    </td>
+                    <td className="text-gray-900 w-40">
+                      {data?.bodyPart} {data?.surgeryConfiguration?.name || ''}
+                    </td>
+                    {viewBillingColumn && (
                       <td className="">
-                        {data
-                          ? generateFullName(data.firstName, data.lastName)
-                          : null}
-                      </td>
-                      <td className="">
-                        {surgery.dateCreated
-                          ? formatDate(surgery.dateCreated)
+                        {data.type === 'surgery'
+                          ? data.totalProfessionalPricing !== undefined &&
+                            data.totalHospitalPricing !== undefined
+                            ? +data.totalProfessionalPricing +
+                              +data.totalHospitalPricing
+                            : 0
                           : 'NA'}
                       </td>
-                      <td className="">
-                        {surgery.date ? formatDate(surgery.date) : 'NA'}
-                      </td>
-                      <td className="text-gray-900 w-40">
-                        {surgery?.bodyPart}{' '}
-                        {surgery?.surgeryConfiguration?.name || ''}
-                      </td>
-                      {viewBillingColumn && (
-                        <td className="">
-                          {surgery
-                            ? +surgery.totalProfessionalPricing +
-                              +surgery.totalHospitalPricing
-                            : 0}
-                        </td>
-                      )}
-                    </tr>
-                  ))}
-                  {data.evals?.map((evalEntity, evalIndex) => (
-                    <tr
-                      key={`${data.id}-eval-${evalIndex}`}
-                      className="border-t border-gray-200"
-                    >
-                      <td className="">
-                        {data
-                          ? generateFullName(data.firstName, data.lastName)
-                          : null}
-                      </td>
-                      <td className="">
-                        {evalEntity.dateCreated
-                          ? formatDate(evalEntity.dateCreated)
-                          : 'NA'}
-                      </td>
-                      <td className="">
-                        {evalEntity.date ? formatDate(evalEntity.date) : 'NA'}
-                      </td>
-                      <td className="text-gray-900 w-40">
-                        {evalEntity?.surgeryConfiguration?.name}
-                      </td>
-                      <td className="">NA</td>
-                    </tr>
-                  ))}
+                    )}
+                  </tr>
                 </React.Fragment>
               ))
             ) : (
