@@ -12,6 +12,7 @@ export interface IEval extends IBaseEntity {
   patient: IPatient;
   insuranceType: IInsuranceType;
   insuranceDetails: string;
+  notes: string;
   date: Date;
   status: string;
   bodyPart: string;
@@ -34,7 +35,7 @@ export interface CreateEvalInterface {
   phoneNumber: string;
   pcp?: string;
   referrerId?: string;
-  details?: string;
+  notes?: string;
   status: string;
   bodyPart: string;
   doctorId: string;
@@ -49,7 +50,7 @@ export interface UpdateEValInterface {
   lastName: string;
   mrn: number;
   bodyPart: string;
-  details?: string;
+  notes?: string;
   insuranceDetails?: string;
   email: string;
   phoneNumber: string;

@@ -53,7 +53,7 @@ export const findChangedValues = (oldObj, newObj): EntityChanges => {
 export type SurgeryChangesKeyValues = {
   bodyPart: string;
   date: Date;
-  details: string;
+  notes: string;
   firstName: string;
   lastName: string;
   mrn: number;
@@ -67,7 +67,7 @@ export type SurgeryChangesKeyValues = {
 export type EvalChangesKeyValues = {
   bodyPart: string;
   date: Date;
-  details: string;
+  notes: string;
   firstName: string;
   lastName: string;
   mrn: number;
@@ -81,7 +81,7 @@ export const transformSurgeryObject = (
   return {
     bodyPart: data.bodyPart,
     date: new Date(data.date),
-    details: data.patient.details,
+    notes: data.notes,
     firstName: data.patient.firstName,
     insuranceName: data?.insuranceType?.name,
     lastName: data.patient.lastName,
@@ -99,7 +99,7 @@ export const transformUpdateSurgeryDTO = (
   return {
     bodyPart: data.bodyPart,
     date: new Date(data.date),
-    details: data.details,
+    notes: data.notes,
     firstName: data.firstName,
     // @ts-expect-error this will present in updatesurgerydto object
     insuranceName: data?.insuranceType?.name,
@@ -123,7 +123,7 @@ export const transformUpdateEvalDTO = (
   return {
     bodyPart: data.bodyPart,
     date: new Date(data.date),
-    details: data.details,
+    notes: data.notes,
     firstName: data.firstName,
     insuranceName: data?.insuranceName,
     lastName: data.lastName,
@@ -141,7 +141,7 @@ export const transformEvalObject = (data: EvalEntity): EvalChangesKeyValues => {
   return {
     bodyPart: data.bodyPart,
     date: new Date(data.date),
-    details: data.patient.details,
+    notes: data.notes,
     firstName: data.patient.firstName,
     insuranceName: data?.insuranceType?.name,
     lastName: data.patient.lastName,

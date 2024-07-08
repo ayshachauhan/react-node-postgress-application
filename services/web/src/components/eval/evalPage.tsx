@@ -192,13 +192,12 @@ const EvalPage: React.FC = () => {
         insuranceTypeName: ele.insuranceType ? ele.insuranceType?.name : '',
         pcp: '',
         referrer: ele.patient.referrer ? toFullName(ele.patient.referrer) : '',
-        details: ele.patient.details ? ele.patient.details : '',
+        notes: ele.notes ? ele.notes : '',
         index: index + 1,
         id: ele.id,
         bodyPart: ele.bodyPart,
         home: ele.practiceHome.name,
         status: ele.status,
-        notes: ele.patient.details ?? '',
         waitlist: ele.waitlist ? ele.waitlist.name : '',
         actionDate:
           usDateFormatter(ele.date) +
@@ -457,7 +456,7 @@ const EvalPage: React.FC = () => {
                         <br />
                         <span className="font-semibold">Notes: </span>
                         <br />
-                        {data.notes}
+                        {data?.notes}
                       </td>
                     </tr>
                   </React.Fragment>

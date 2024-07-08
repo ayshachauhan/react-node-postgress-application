@@ -20,7 +20,7 @@ export class CreateEvalDto {
 
   @IsOptional()
   @ApiProperty()
-  details: string;
+  notes: string;
 
   @IsNotEmpty({ message: 'eval date is required' })
   @ApiProperty()

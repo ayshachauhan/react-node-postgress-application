@@ -13,7 +13,6 @@ export interface IPatient extends IBaseEntity {
   email: string;
   pcp?: string;
   referrer?: IReferrer;
-  details?: string;
   surgeries?: ISurgery[];
   evals?: IEval[];
 }

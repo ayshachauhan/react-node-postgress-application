@@ -3,7 +3,7 @@ export const SurgeryFields = {
   firstName: 'First Name',
   mrn: 'MRN',
   date: 'Date',
-  details: 'Notes',
+  notes: 'Notes',
   totalHospitalPricing: 'Hospital',
   totalProfessionalPricing: 'Prof',
   insuranceName: 'Insurance',
