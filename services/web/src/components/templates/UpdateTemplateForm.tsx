@@ -456,7 +456,8 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({
               </div>
             </div>
             <div>
-              {updatedTemplateInfo?.surgeryConfiguration?.name === 'cataract' &&
+              {updatedTemplateInfo?.surgeryConfiguration?.name?.toLowerCase() ===
+                'cataract' &&
                 showDateOffsetField && (
                   <div className="mt-1">
                     <div className=" text-black text-sm font-normal mt-1">
