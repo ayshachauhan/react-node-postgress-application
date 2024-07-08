@@ -112,7 +112,7 @@ export class TransporterService {
       try {
         await this.twilioClient.messages.create({
           body: cleanMessage,
-          to,
+          to: to.includes('+1') ? to : `+1${to}`,
           from: typeof twilioPhoneNumber == 'string' ? twilioPhoneNumber : '',
         });
         console.log('SMS sent successfully!');

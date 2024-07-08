@@ -147,38 +147,63 @@ export class SchedulerService {
         const currentPractice = dailyDataArray[0].practice;
 
         // fetching the admin cell emails of a practice
-        const to: string[] = currentPractice.emailData.adminCellEmails;
-        if (to.length) {
-          const entry: Partial<IEmailLog> = {
-            practice: currentPractice,
-            expectedDate: new Date(),
-            status: 'pending',
-            data: {
-              body: this.transporterService.readTemplates(
-                SystemTemplates.DAILY_SUMMARY,
-              ),
-              subject: `Daily Summary Data: ${currentPractice.name}`,
-              text: '',
-              practiceName: currentPractice.name,
-            },
-          };
+        const to: string[] = currentPractice.emailData.adminEmails;
+        const phoneNumbers: string[] =
+          currentPractice.emailData.adminCellEmails;
+        const entry: Partial<IEmailLog> = {
+          practice: currentPractice,
+          expectedDate: new Date(),
+          status: 'pending',
+          data: {
+            body: this.transporterService.readTemplates(
+              SystemTemplates.DAILY_SUMMARY,
+            ),
+            subject: `Daily Summary Data: ${currentPractice.name}`,
+            text: '',
+            practiceName: currentPractice.name,
+          },
+        };
 
-          const mailData = {
-            emailCount: 0,
-            textCount: 0,
-            data: [''],
-            mailDate,
-          };
+        let textToSend: string = '';
 
-          dailyDataArray.forEach((dailyData: IEmailLog) => {
-            if (dailyData && dailyData.data) {
-              const { fname, surgery_type, text, body } = dailyData.data;
-              if (text) mailData.textCount++;
-              if (body) mailData.emailCount++;
-              mailData.data.push(`${fname} (${surgery_type})`);
+        const mailData = {
+          emailCount: 0,
+          textCount: 0,
+          data: [''],
+          mailDate,
+        };
+
+        dailyDataArray.forEach((dailyData: IEmailLog) => {
+          if (dailyData && dailyData.data) {
+            const { fname, surgery_type, text, body } = dailyData.data;
+            const treasureData: string = `${fname} (${surgery_type})`;
+            if (text) mailData.textCount++;
+            if (body) mailData.emailCount++;
+            mailData.data.push(treasureData);
+
+            if (textToSend == '') {
+              textToSend = treasureData;
+            } else {
+              textToSend = text + '\n' + treasureData;
             }
-          });
+          }
+        });
 
+        if (textToSend) {
+          textToSend =
+            formatHeaderDate(String(new Date())) +
+            `\n${mailData.emailCount} emails, ${mailData.textCount} Texts sent. \n\n` +
+            textToSend;
+        }
+
+        phoneNumbers.forEach((phoneNumber) => {
+          emailLogEntries.push({
+            ...entry,
+            data: { ...entry.data, phoneNumber, text: textToSend, body: '' },
+          });
+        });
+
+        if (to.length) {
           // entries for email log table
           to.forEach((email: string) => {
             emailLogEntries.push({
