@@ -1,4 +1,3 @@
-import { MonthOption } from '@packages/entities';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { State } from '@root/store';
 import { indexBy } from '@root/utils/index';
@@ -11,21 +10,6 @@ import {
 } from '@store/requests/surgery';
 import { EntityLoadingState, SurgeryState } from 'src/store/types';
 
-const getCurrentMonthOption = (): MonthOption => {
-  const currentDate = new Date();
-  const monthLabel = currentDate.toLocaleString('default', { month: 'long' });
-  const monthValue = currentDate.toLocaleString('default', {
-    month: 'numeric',
-  });
-  const id = monthValue;
-
-  return {
-    label: monthLabel,
-    value: monthValue,
-    id: id,
-  };
-};
-
 const initialState: SurgeryState = {
   processing: false,
   entities: {},
@@ -34,9 +18,9 @@ const initialState: SurgeryState = {
   errorMessage: undefined,
   surgeryInfo: null,
   surgeryFilters: {
-    selectedMonth: [getCurrentMonthOption()],
+    selectedMonth: [],
     searchMRNName: null,
-    selectedValue: null,
+    selectedValue: 'Upcoming View',
   },
   restricted: false,
 };
