@@ -363,7 +363,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
     const surgeryName = surgeryConfigurationsOptions.find(
       (s) => s?.id === surgeryCataractNameId,
     )?.label;
-    if (surgeryName && surgeryName !== 'cataract') {
+    if (surgeryName && surgeryName.toLowerCase() !== 'cataract') {
       setErrorMessageForCataract(
         'Only Cataract surgery needs to be selected as second surgery.',
       );
