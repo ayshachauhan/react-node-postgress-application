@@ -33,14 +33,14 @@ export const DEFAULT_MAX_SLOTS: number = 14;
 const UpcomingSection: React.FC = () => {
   const dispatch = useAppDispatch();
   const userId: string | null = getUserId();
-  const userInfo = useAppSelector((state) => state.auth.user);
+  const userInfo = useAppSelector((state) => state.auth?.user);
   const userPermissions = userInfo?.permissions;
   const loggedInUserId = userInfo?.id;
   const { calendars, surgeryTypes } = useAppSelector((state) => ({
-    calendars: Object.values(state.calendars.entities).filter(
-      (calendar) => calendar.user.id === userId,
+    calendars: Object.values(state.calendars?.entities).filter(
+      (calendar) => calendar?.user?.id === userId,
     ),
-    surgeryTypes: Object.values(state.surgeryTypes.entities),
+    surgeryTypes: Object.values(state.surgeryTypes?.entities),
   }));
 
   const { errorMessage, calendarsWithoutPermission, restricted } =
@@ -107,7 +107,7 @@ const UpcomingSection: React.FC = () => {
 
   const currentDate = new Date();
   const { selectedMonth, selectedValue } = useAppSelector(
-    (state) => state.surgeries.surgeryFilters,
+    (state) => state.surgeries?.surgeryFilters,
   );
   const selectedValueStr = selectedValue || '';
 
