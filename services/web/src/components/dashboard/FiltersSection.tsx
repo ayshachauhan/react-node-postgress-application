@@ -402,7 +402,7 @@ const FiltersSection: React.FC<{
         }
       }
     } else {
-      errorMessage = `This surgery is still in ${row.surgeryStatus}. So review request can’t be sent to the patient.`;
+      errorMessage = `This surgery is still in ${row.surgeryStatus} phase. So review request can’t be sent to the patient.`;
     }
     setReviewErrorMessage(errorMessage);
     onReviewClickError(reviewErrorMessage);
