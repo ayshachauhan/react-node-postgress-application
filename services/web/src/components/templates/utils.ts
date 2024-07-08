@@ -33,17 +33,17 @@ export const findValueOfMailVariable = (upcompingSurgeries) => {
 
 export const replacePlaceholders = (text, data) => {
   if (data && text) {
-    return text.replace(/\[(\w+)\]/g, (_, key) => data[key] || _);
+    return text.replace(/\[(\w+)\]/g, (_, key) => data[key] || '');
   }
 };
 
 // Function to pick a random surgery data
-export const getRandomSurgeryData = (surgeries) => {
+export const getRandomSurgeryData = (surgeries, templateInfo) => {
   if (surgeries.length === 0) {
     return null;
   }
   const randomIndex = Math.floor(Math.random() * surgeries.length);
-  return formatSurgeryData(surgeries[randomIndex], surgeries);
+  return formatSurgeryData(surgeries[randomIndex], surgeries, templateInfo);
 };
 
 export function filterUpcomingSurgeries(data) {
@@ -56,7 +56,7 @@ export function filterUpcomingSurgeries(data) {
   });
 }
 
-export const formatSurgeryData = (surgery, allSurgeries) => {
+export const formatSurgeryData = (surgery, allSurgeries, templateInfo) => {
   const { allCataractDates, allCaseType } =
     findValueOfMailVariable(allSurgeries);
   return {
@@ -74,7 +74,8 @@ export const formatSurgeryData = (surgery, allSurgeries) => {
     Laterality: toPascalCase(surgery?.bodyPart),
     surgery_type: surgery?.surgeryConfiguration?.name,
     pod1_location: surgery?.practiceHome?.name,
-    cataract_variable: '',
+    cataract_variable:
+      templateInfo?.email1stCataract || templateInfo?.email2ndCataract,
     all_cases: `${
       surgery?.bodyPart +
       ' ' +

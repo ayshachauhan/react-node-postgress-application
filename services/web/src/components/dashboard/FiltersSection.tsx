@@ -1006,7 +1006,7 @@ const FiltersSection: React.FC<{
                                                 <span className="font-semibold">
                                                   Notes:{' '}
                                                 </span>
-                                                {row.notes}
+                                                {row?.notes}
                                               </div>
                                             </div>
                                           </td>

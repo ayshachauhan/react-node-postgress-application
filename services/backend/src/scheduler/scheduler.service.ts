@@ -8,7 +8,7 @@ import { ENVIRONMENT_VARIABLES } from 'src/enums/environment.enums';
 import logger from 'src/logger';
 import { SurgeryService } from 'src/surgery/surgery.service';
 import { TransporterService } from 'src/transporter';
-import { DataSource, LessThanOrEqual, Repository } from 'typeorm';
+import { LessThanOrEqual, Repository } from 'typeorm';
 
 @Injectable()
 export class SchedulerService {
@@ -18,7 +18,7 @@ export class SchedulerService {
     private configService: ConfigService,
     private transporterService: TransporterService,
     private readonly surgeryService: SurgeryService,
-    private dataSource: DataSource,
+    // private dataSource: DataSource,
   ) {}
 
   getMailLimit() {
@@ -27,18 +27,18 @@ export class SchedulerService {
 
   @Interval(15000) // This runs the task every 10 seconds
   async handleCron() {
-    const lockKey = 123456; // Unique key for the advisory lock
+    // const lockKey = 123456; // Unique key for the advisory lock
 
     logger.info('starting to send emails');
 
     // Acquire advisory lock
-    const queryRunner = this.dataSource.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
+    // const queryRunner = this.dataSource.createQueryRunner();
+    // await queryRunner.connect();
+    // await queryRunner.startTransaction();
 
     try {
-      await queryRunner.manager.query('SELECT pg_advisory_lock($1)', [lockKey]);
-      logger.info(`Advisory lock acquired with lockKey: ${lockKey}`);
+      // await queryRunner.manager.query('SELECT pg_advisory_lock($1)', [lockKey]);
+      // logger.info(`Advisory lock acquired with lockKey: ${lockKey}`);
 
       const today = this.getFormattedDate();
 
@@ -81,18 +81,18 @@ export class SchedulerService {
       logger.info('Processed emails');
 
       // Commit the transaction
-      await queryRunner.commitTransaction();
+      // await queryRunner.commitTransaction();
     } catch (error) {
       logger.error('Error processing emails:', error);
       // Rollback the transaction in case of error
-      await queryRunner.rollbackTransaction();
+      // await queryRunner.rollbackTransaction();
     } finally {
       // Release advisory lock
-      await queryRunner.manager.query('SELECT pg_advisory_unlock($1)', [
-        lockKey,
-      ]);
-      logger.info('Advisory lock released');
-      await queryRunner.release();
+      // await queryRunner.manager.query('SELECT pg_advisory_unlock($1)', [
+      //   lockKey,
+      // ]);
+      // logger.info('Advisory lock released');
+      // await queryRunner.release();
     }
   }
 

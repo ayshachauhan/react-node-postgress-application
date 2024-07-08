@@ -24,6 +24,8 @@ export interface ISurgery extends IBaseEntity {
   surgeryStatus: SurgeryStatus;
   selectedConditionalOptions: SelectedConditionalOption;
   practice: IPractice; //TO DO: make practice id not null in future
+  identifier?: string;
+  count?: number;
 }
 
 export interface CreateSurgeryPayload {
@@ -48,6 +50,8 @@ export interface CreateSurgeryPayload {
   totalProfessionalPricing: string;
   selectedCheckListOptions?: CheckListOptions;
   waitlistId?: string;
+  identifier?: string;
+  count?: number;
 }
 
 export interface SelectedSurgeryOption {

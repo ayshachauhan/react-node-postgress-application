@@ -128,6 +128,11 @@ export class EmailHandlerService {
     }
   }
 
+  // Type guard to check if entity is ISurgery
+  isSurgery(entity: IEval | ISurgery): entity is ISurgery {
+    return (entity as ISurgery).count !== undefined;
+  }
+
   async checkAndMakeEmailContent(
     practice: IPractice,
     entity: IEval | ISurgery,
@@ -177,11 +182,33 @@ export class EmailHandlerService {
 
         const surgeryDate = new Date(entity.date);
         if (template.messageType === 'preop') {
+          let cataract = '';
+          if (this.isSurgery(entity) && entity?.count === 1) {
+            cataract = template.email1stCataract;
+          }
+          if (this.isSurgery(entity) && entity?.count === 2) {
+            cataract = template.email2ndCataract;
+          }
+          entry.data = {
+            ...entry.data,
+            cataract_variable: cataract,
+          };
           surgeryDate.setDate(surgeryDate.getDate() - template.dateOffset);
           entry.expectedDate = surgeryDate;
           entry.status = surgeryDate < today ? 'completed' : 'pending';
           emailLogsEntries.push(entry);
         } else if (template.messageType === 'postop') {
+          let cataract = '';
+          if (this.isSurgery(entity) && entity?.count === 1) {
+            cataract = template.email1stCataract;
+          }
+          if (this.isSurgery(entity) && entity?.count === 2) {
+            cataract = template.email2ndCataract;
+          }
+          entry.data = {
+            ...entry.data,
+            cataract_variable: cataract,
+          };
           surgeryDate.setDate(surgeryDate.getDate() + template.dateOffset);
           entry.expectedDate = surgeryDate;
           entry.status = surgeryDate < today ? 'completed' : 'pending';

@@ -456,7 +456,7 @@ const EvalPage: React.FC = () => {
                         <br />
                         <span className="font-semibold">Notes: </span>
                         <br />
-                        {data.notes}
+                        {data?.notes}
                       </td>
                     </tr>
                   </React.Fragment>

@@ -76,7 +76,7 @@ function EditableRow({
         lastName: evalInfo.patient.lastName,
         email: evalInfo.patient.email,
         phoneNumber: evalInfo.patient.phoneNumber,
-        notes: evalInfo.notes,
+        notes: evalInfo.notes ? evalInfo.notes : '',
         bodyPart: evalInfo.bodyPart,
         mrn: evalInfo.patient.mrn,
         status: evalInfo.status,
@@ -509,7 +509,7 @@ function EditableRow({
             <TextInput
               size={SIZE.mini}
               onChange={(value) => handleObjChange('notes', value)}
-              value={obj.notes}
+              value={obj?.notes}
             />
           </td>
         </tr>
