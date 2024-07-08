@@ -13,9 +13,9 @@ const SurgeryPercentage: React.FC = () => {
   const userId: string | null = getUserId();
   const { calendars, surgeryConfigurations } = useAppSelector((state) => ({
     calendars: Object.values(state.calendars.entities).filter(
-      (calendar) => calendar.user.id === userId,
+      (calendar) => calendar?.user?.id === userId,
     ),
-    surgeryConfigurations: Object.values(state.surgeryConfigurations.entities),
+    surgeryConfigurations: Object.values(state.surgeryConfigurations?.entities),
   }));
 
   const maxCellStyle = (cellValue: string) => {
