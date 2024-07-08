@@ -131,101 +131,106 @@ export default function ReferrerTable() {
         <Button
           kind="secondary"
           title="Add"
+          padding="5px 8px"
           onClick={handleOpenModal}
           startEnhancer={() => <AddIcon></AddIcon>}
         />
       </div>
       <hr className="h-px my-2.5 bg-gray-100 border-1 border-gray-100"></hr>
-      <div className="w-full overflow-x-auto mt-2 border rounded-t-lg rounded-b-lg border-gray-200">
-        <div className="bg-gradient-to-br from-teal-600 to-green-500  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 flex">
-          <div className="font-bold text-white p-4 flex-1">Name</div>
-          <div className="font-bold text-white p-4 flex-1">Type</div>
-          <div className="font-bold text-white p-4 flex-1">Ref#</div>
-          <div className="font-bold text-white p-4 flex-1">Email</div>
-          <div className="font-bold text-white p-4 flex-1">Action</div>
-        </div>
-        {!isLoading &&
-          referrers.map((data, index) => {
-            const totalSurgeries = data.patients?.reduce(
-              (sum, patient) => sum + (patient.surgeries?.length || 0),
-              0,
-            );
-            const totalEvals = data.patients?.reduce(
-              (sum, patient) => sum + (patient.evals?.length || 0),
-              0,
-            );
-            const total = totalSurgeries + totalEvals;
+      <div className="table-responsive overflow-x-auto rounded-lg">
+        <table>
+          <tbody>
+            <tr className="">
+              <th className="">Name</th>
+              <th className="">Email</th>
+              <th className="">Type</th>
+              <th className="">Ref#</th>
+              <th className="">Action</th>
+            </tr>
+            {!isLoading &&
+              referrers.map((data, index) => {
+                const totalSurgeries = data.patients?.reduce(
+                  (sum, patient) => sum + (patient.surgeries?.length || 0),
+                  0,
+                );
+                const totalEvals = data.patients?.reduce(
+                  (sum, patient) => sum + (patient.evals?.length || 0),
+                  0,
+                );
+                const total = totalSurgeries + totalEvals;
 
-            return (
-              <React.Fragment key={data.id}>
-                <div
-                  className={`flex pb-2 ${
-                    index !== referrers.length - 1
-                      ? 'border-b border-gray-300'
-                      : ''
-                  }`}
-                >
-                  <div
-                    className="text-blue-600 hover:text-blue-800 visited:text-purple-600 decoration-solid cursor-pointer bg-gray-50 pt-2 px-4 flex-1"
-                    onClick={() => data.id && handleOpenListModal(data.id)}
-                  >
-                    <div className="flex">
-                      {data
-                        ? generateFullName(data.firstName, data.lastName)
-                        : null}
-                      {data && data.verified && (
-                        <Checkbox
-                          key={index}
-                          checked={true}
-                          overrides={{
-                            Checkmark: {
-                              style: ({ $checked }) => ({
-                                backgroundColor: $checked
-                                  ? 'rgba(34, 197, 94, 1)'
-                                  : 'white',
-                                borderColor: $checked
-                                  ? 'rgba(34, 197, 94, 1)'
-                                  : 'rgba(113, 113, 122, 1)',
-                                width: '15px',
-                                height: '15px',
-                                marginTop: '7px',
-                                marginRight: '0px',
-                                borderRadius: '2px',
-                                borderWidth: '2px',
-                              }),
-                            },
-                          }}
-                        ></Checkbox>
-                      )}
-                    </div>
-                  </div>
-                  <div className="text-gray-900 bg-gray-50 pt-2 px-4 flex-1">
-                    {data?.referrerType}
-                  </div>
-                  <div className="text-gray-900 bg-gray-50 pt-2 px-4 flex-1">
-                    {total ? total : 0}
-                  </div>
-                  <div className="text-gray-900 bg-gray-50 pt-2 px-4 flex-1">
-                    {data?.email}
-                  </div>
-                  <div className="text-gray-900 bg-gray-50 pt-2 px-4 flex-1 flex gap-1">
-                    <div
-                      onClick={() => data.id && handleOpenEditModal(data.id)}
-                      className="cursor-pointer"
+                return (
+                  <React.Fragment key={data.id}>
+                    <tr
+                      className={`${
+                        index !== referrers.length - 1
+                          ? 'border-b border-gray-300'
+                          : ''
+                      }`}
                     >
-                      <EditIcon></EditIcon>
-                    </div>
-                    <div
-                      onClick={() => data.id && handleOpenDeleteModal(data.id)}
-                      className="cursor-pointer"
-                    >
-                      <DeleteIcon></DeleteIcon>
-                    </div>
-                  </div>
-                </div>
-              </React.Fragment>
-            );
-          })}
+                      <td
+                        className="text-blue-600 hover:text-blue-800 visited:text-purple-600 decoration-solid cursor-pointer"
+                        onClick={() => data.id && handleOpenListModal(data.id)}
+                      >
+                        <div className="flex gap-1 items-center">
+                          {data
+                            ? generateFullName(data.firstName, data.lastName)
+                            : null}
+                          {data && data.verified && (
+                            <Checkbox
+                              key={index}
+                              checked={true}
+                              overrides={{
+                                Checkmark: {
+                                  style: ({ $checked }) => ({
+                                    backgroundColor: $checked
+                                      ? 'rgba(34, 197, 94, 1)'
+                                      : 'white',
+                                    borderColor: $checked
+                                      ? 'rgba(34, 197, 94, 1)'
+                                      : 'rgba(113, 113, 122, 1)',
+                                    width: '15px',
+                                    height: '15px',
+                                    marginRight: '0px',
+                                    borderRadius: '2px',
+                                    borderWidth: '2px',
+                                  }),
+                                },
+                              }}
+                            ></Checkbox>
+                          )}
+                        </div>
+                      </td>
+                      <td className="">{data?.email}</td>
+                      <td className="">{data?.referrerType}</td>
+                      <td className="">{total ? total : 0}</td>
+
+                      <td className="">
+                        <div className="flex gap-2">
+                          <div
+                            onClick={() =>
+                              data.id && handleOpenEditModal(data.id)
+                            }
+                            className="cursor-pointer"
+                          >
+                            <EditIcon></EditIcon>
+                          </div>
+                          <div
+                            onClick={() =>
+                              data.id && handleOpenDeleteModal(data.id)
+                            }
+                            className="cursor-pointer"
+                          >
+                            <DeleteIcon></DeleteIcon>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  </React.Fragment>
+                );
+              })}
+          </tbody>
+        </table>
       </div>
       <AddReferrerModal
         isModalOpen={isModalOpen}

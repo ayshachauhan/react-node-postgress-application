@@ -158,7 +158,7 @@ const ConditionalOptions: React.FC<{ props }> = ({ props }) => {
             </div>
           )}
         </div>
-        <hr className="h-px bg-gray-100 border-1 dark:bg-gray-800"></hr>
+        <hr className="h-px bg-gray-100 border-1 dark:bg-gray-800 my-2"></hr>
         {conditionalOptions.map(
           (
             conditionalOption: CustomConditionalOption,
@@ -193,12 +193,9 @@ const ConditionalOptions: React.FC<{ props }> = ({ props }) => {
                 <div className="flex flex-col gap-5 m-2">
                   <div className="space-y-2 ">
                     <div className="flex justify-between">
-                      <div className="flex flex-row gap-4 w-max">
+                      <div className="flex flex-row gap-4 items-end w-max">
                         <div className="space-y-1">
-                          <label
-                            htmlFor="category"
-                            className="text-black text-sm"
-                          >
+                          <label htmlFor="category" className="">
                             Name
                           </label>
                           <TextInput
@@ -216,10 +213,7 @@ const ConditionalOptions: React.FC<{ props }> = ({ props }) => {
                           />
                         </div>
                         <div className="space-y-1 min-w-40 max-w-1/2">
-                          <label
-                            htmlFor="category"
-                            className="text-black text-sm"
-                          >
+                          <label htmlFor="category" className="">
                             Values
                           </label>
                           <Select
@@ -270,7 +264,7 @@ const ConditionalOptions: React.FC<{ props }> = ({ props }) => {
                           />
                         </div>
                         <div className="space-y-1">
-                          <label htmlFor="count" className="text-black text-sm">
+                          <label htmlFor="count" className="">
                             Count
                           </label>
                           <div className="flex gap-3.5 items-center">
@@ -291,7 +285,7 @@ const ConditionalOptions: React.FC<{ props }> = ({ props }) => {
                             />
                           </div>
                         </div>
-                        <div className="space-y-1 flex flex-row gap-2 mt-8">
+                        <div className="space-y-1 flex flex-row  gap-2">
                           <Checkbox
                             name="editAdminOption"
                             //   key={index}
@@ -379,10 +373,7 @@ const ConditionalOptions: React.FC<{ props }> = ({ props }) => {
                     <>
                       <div className=" flex flex-row gap-5 items-center">
                         <div className="space-y-2 flex-1">
-                          <label
-                            htmlFor="option"
-                            className="text-black text-sm"
-                          >
+                          <label htmlFor="option" className="">
                             Option
                           </label>
                           <Select
@@ -423,25 +414,18 @@ const ConditionalOptions: React.FC<{ props }> = ({ props }) => {
                               )
                             }
                           />
-                          <div className="space-y-2"></div>
                         </div>
                       </div>
                       {dependsUpon && (
                         <div>
                           <div className="flex flex-row gap-5 items-center">
                             <div className="space-y-1 w-1/5">
-                              <label
-                                htmlFor="category"
-                                className="text-black text-sm"
-                              >
+                              <label htmlFor="category" className="">
                                 Key Values
                               </label>
                             </div>
                             <div className="space-y-1 w-1/5">
-                              <label
-                                htmlFor="category"
-                                className="text-black text-sm"
-                              >
+                              <label htmlFor="category" className="">
                                 Dependent Values
                               </label>
                             </div>

@@ -528,7 +528,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
 
   return (
     <div>
-      <div className="border-border-l border-b border-gray-100">
+      <div className="px-4">
         {errorMsgForCataract && (
           <div className="flex justify-center text-red-700">
             {errorMsgForCataract}
@@ -1207,19 +1207,21 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
               </div>
             </div>
           </div>
-          <div className="flex flex-row gap-3 right-1 mt-2">
-            <div className="text-right text-xs">
-              <Button kind="primary" title="Add Surgery" width={100} />
+          <hr className="my-4" />
+          <div className="flex justify-end gap-3">
+            <div className="">
+              <Button padding="12px 16px" kind="primary" title="Add Surgery" />
             </div>
-            <div className="text-right text-xs">
+            <div className="">
               <Button
                 type="button"
                 kind="tertiary"
                 title="Cancel"
-                width={100}
                 style={{
                   backgroundColor: 'rgba(212, 212, 216, 1)',
                   color: 'black',
+                  padding: '12px 16px',
+                  fontSize: '14px',
                 }}
                 onClick={onClose}
               />

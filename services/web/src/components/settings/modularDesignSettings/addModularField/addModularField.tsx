@@ -244,7 +244,7 @@ const AddModularField: React.FC<{
 
   return (
     <div>
-      <div className="px-6 border-border-l border-b border-gray-100 pb-6">
+      <div className="">
         <form onSubmit={handleSubmit}>
           <div className="flex mt-5  pb-3 border-b border-gray-100">
             <div className="text-xl font-bold text-black w-full">
@@ -253,7 +253,7 @@ const AddModularField: React.FC<{
           </div>
           <div className="flex gap-5 mt-4">
             <div className="space-y-2 flex-1">
-              <label htmlFor="surgeryName" className="text-black text-sm">
+              <label htmlFor="surgeryName" className="">
                 <RequiredIndicator />
                 &nbsp;Surgery Location
               </label>
@@ -284,7 +284,7 @@ const AddModularField: React.FC<{
               />
             </div>
             <div className="space-y-2 flex-2">
-              <label htmlFor="surgeryName" className="text-black text-sm">
+              <label htmlFor="surgeryName" className="">
                 <RequiredIndicator />
                 &nbsp;Surgery Name
               </label>
@@ -299,7 +299,7 @@ const AddModularField: React.FC<{
               />
             </div>
             <div className="space-y-2 flex-2">
-              <label htmlFor="surgeryName" className="text-black text-sm">
+              <label htmlFor="surgeryName" className="">
                 <RequiredIndicator />
                 &nbsp;Surgery Name Color
               </label>
@@ -323,10 +323,10 @@ const AddModularField: React.FC<{
 
           <div className="flex flex-col gap-1 mt-4">
             <div className="space-y-2 flex-1">
-              <label htmlFor="bodyPart" className="text-black text-sm">
+              <label htmlFor="bodyPart" className="">
                 Body Part
               </label>
-              <div className="flex flex-row gap-3">
+              <div className="grid grid-cols-3 gap-3">
                 {bodyPartInputFields.map((inputField, index, arr) => (
                   <div key={index}>
                     <TextInput
@@ -364,7 +364,7 @@ const AddModularField: React.FC<{
             </div>
 
             {/* <div className="space-y-2 flex-1">
-              <label htmlFor="facility" className="text-black text-sm">
+              <label htmlFor="facility" className="">
                 Facility
               </label>
               <div className="flex flex-row gap-3">
@@ -429,7 +429,7 @@ const AddModularField: React.FC<{
                 </div>
               </div>
             </div>
-            <hr className="h-px bg-gray-100 border-1 dark:bg-gray-800"></hr>
+            <hr className="h-px bg-gray-100 border-1 dark:bg-gray-800 my-2"></hr>
             {optionsFields.map((optionField, index, arr) => (
               <div
                 key={index}
@@ -440,10 +440,7 @@ const AddModularField: React.FC<{
                     <div className="flex justify-between">
                       <div className="flex gap-5">
                         <div className="space-y-1">
-                          <label
-                            htmlFor="category"
-                            className="text-black text-sm"
-                          >
+                          <label htmlFor="category" className="">
                             Category
                           </label>
                           <TextInput
@@ -460,7 +457,7 @@ const AddModularField: React.FC<{
                           />
                         </div>
                         <div className="space-y-1">
-                          <label htmlFor="count" className="text-black text-sm">
+                          <label htmlFor="count" className="">
                             Count
                           </label>
                           <div className="flex gap-3.5 items-center">
@@ -546,10 +543,7 @@ const AddModularField: React.FC<{
                             className=" flex flex-row gap-5 items-center"
                           >
                             <div className="space-y-2 flex-1">
-                              <label
-                                htmlFor="option"
-                                className="text-black text-sm"
-                              >
+                              <label htmlFor="option" className="">
                                 Option
                               </label>
                               <TextInput
@@ -570,13 +564,9 @@ const AddModularField: React.FC<{
                                   )
                                 }
                               />
-                              <div className="space-y-2"></div>
                             </div>
                             <div className="space-y-2 flex-1">
-                              <label
-                                htmlFor="billingType"
-                                className="text-black text-sm"
-                              >
+                              <label htmlFor="billingType" className="">
                                 Billing Type
                               </label>
                               <TextInput
@@ -598,13 +588,9 @@ const AddModularField: React.FC<{
                                   )
                                 }
                               />
-                              <div className="space-y-2"></div>
                             </div>
                             <div className="space-y-2 flex-1">
-                              <label
-                                htmlFor="hospitalPricing"
-                                className="text-black text-sm"
-                              >
+                              <label htmlFor="hospitalPricing" className="">
                                 Hospital Pricing
                               </label>
                               <TextInput
@@ -627,13 +613,9 @@ const AddModularField: React.FC<{
                                   )
                                 }
                               />
-                              <div className="space-y-2"></div>
                             </div>
                             <div className="space-y-2 flex-1">
-                              <label
-                                htmlFor="professionalPricing"
-                                className="text-black text-sm"
-                              >
+                              <label htmlFor="professionalPricing" className="">
                                 Professional Pricing
                               </label>
                               <TextInput
@@ -656,7 +638,6 @@ const AddModularField: React.FC<{
                                   )
                                 }
                               />
-                              <div className="space-y-2"></div>
                             </div>
 
                             <div className="flex flex-row gap-2">
@@ -718,14 +699,13 @@ const AddModularField: React.FC<{
           <Checklist
             props={{ checkListInputFields, setCheckListInputFields }}
           />
-          <div className="text-right text-base mt-6 flex justify-end pr-5">
+          <div className="text-right mt-6 flex justify-end">
             <div>
               <Button
                 type="button"
                 kind="tertiary"
                 title="Cancel"
                 onClick={onClose}
-                width={189}
                 style={{
                   backgroundColor: 'rgba(212, 212, 216, 1)',
                   color: 'black',
@@ -733,7 +713,7 @@ const AddModularField: React.FC<{
               />
             </div>
             <div className="pl-3">
-              <Button type="submit" kind="primary" title="Save" width={189} />
+              <Button type="submit" kind="primary" title="Save" />
             </div>
           </div>
         </form>

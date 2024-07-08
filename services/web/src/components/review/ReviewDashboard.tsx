@@ -126,49 +126,50 @@ const ReviewDashboard: React.FC = () => {
         )}
       </div>
       <hr className="h-px my-2.5 bg-gray-100 border-1 dark:bg-gray-700"></hr>
-      <table>
-        <thead>
-          <tr>
-            <td>Practice</td>
-            <td>MRN</td>
-            <td>Name</td>
-            <td>Source</td>
-            <td className="text-center">User Rating</td>
-            <td>User Comment</td>
-            <td>Requested Date</td>
-            <td>Status</td>
-            <td>Action</td>
-          </tr>
-        </thead>
-        <tbody>
-          {!isLoading &&
-            reviews.map((data, index) => (
-              <React.Fragment key={data.id}>
-                <tr
-                  className={`${
-                    index !== reviews.length - 1
-                      ? 'border-b border-gray-300'
-                      : ''
-                  }`}
-                >
-                  <td>{data?.practice?.name}</td>
-                  <td>{data?.patient.mrn}</td>
-                  <td>{data?.patient.firstName}</td>
-                  <td>{data?.source}</td>
-                  <td className="text-center">{data?.userRating}</td>
-                  <td>{data?.reviewComment}</td>
-                  <td>
-                    {data?.reviewRequestDate
-                      ? formatDate(new Date(data?.reviewRequestDate))
-                      : null}
-                  </td>
-                  <td>{data?.reviewStatus}</td>
-                  <td>{renderReviewStatus(data)}</td>
-                </tr>
-              </React.Fragment>
-            ))}
-        </tbody>
-      </table>
+      <div className="table-responsive overflow-x-auto rounded-lg">
+        <table>
+          <tbody>
+            <tr>
+              <th>Practice</th>
+              <th>MRN</th>
+              <th>Name</th>
+              <th>Source</th>
+              <th className="text-center">User Rating</th>
+              <th>User Comment</th>
+              <th>Requested Date</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+
+            {!isLoading &&
+              reviews.map((data, index) => (
+                <React.Fragment key={data.id}>
+                  <tr
+                    className={`${
+                      index !== reviews.length - 1
+                        ? 'border-b border-gray-300'
+                        : ''
+                    }`}
+                  >
+                    <td>{data?.practice?.name}</td>
+                    <td>{data?.patient.mrn}</td>
+                    <td>{data?.patient.firstName}</td>
+                    <td>{data?.source}</td>
+                    <td className="text-center">{data?.userRating}</td>
+                    <td>{data?.reviewComment}</td>
+                    <td>
+                      {data?.reviewRequestDate
+                        ? formatDate(new Date(data?.reviewRequestDate))
+                        : null}
+                    </td>
+                    <td>{data?.reviewStatus}</td>
+                    <td>{renderReviewStatus(data)}</td>
+                  </tr>
+                </React.Fragment>
+              ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

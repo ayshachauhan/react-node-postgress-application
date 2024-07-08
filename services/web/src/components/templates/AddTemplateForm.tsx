@@ -204,8 +204,8 @@ const AddTemplateForm: React.FC<{
             />
           </div>
         ) : null}
-        <div className="text-right text-base mt-4">
-          <Button kind="primary" title="Add New Template" width={189} />
+        <div className="text-right mt-4">
+          <Button kind="primary" title="Add New Template" />
         </div>
       </form>
     </div>

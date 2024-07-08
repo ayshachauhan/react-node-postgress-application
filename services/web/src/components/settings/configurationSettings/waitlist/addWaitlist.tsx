@@ -57,13 +57,8 @@ const AddWaitlist: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 required
               />
             </div>
-            <div className="text-right align-bottom pt-4">
-              <Button
-                kind="primary"
-                title="Add New Waitlist"
-                type="submit"
-                width={189}
-              />
+            <div className="text-right align-bottom mt-4">
+              <Button kind="primary" title="Add New Waitlist" type="submit" />
             </div>
           </div>
         </div>

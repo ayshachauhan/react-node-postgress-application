@@ -221,7 +221,7 @@ function EditableRow({
 
     return (
       <>
-        <tr className="border-t">
+        <tr className="border-t border-gray-300">
           <td rowSpan={2} className="min-w-32">
             <DatePicker
               value={obj.date}

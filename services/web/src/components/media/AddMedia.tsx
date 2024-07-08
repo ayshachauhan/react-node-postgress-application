@@ -8,7 +8,7 @@ import { fetchListings as fetchsurgeryConfigurations } from '@root/store/reducer
 import { AddMediaDTO } from '@root/store/requests/media/types';
 import { getPracticeId } from '@utils/index';
 import { Checkbox, LABEL_PLACEMENT } from 'baseui/checkbox';
-import { SIZE, Select } from 'baseui/select';
+import { Select } from 'baseui/select';
 import React, { useEffect, useState } from 'react';
 import { AddIcon, CloseIcon } from '../Icons';
 import RequiredIndicator from '../RequiredIndicator';
@@ -294,13 +294,13 @@ const MediaPage: React.FC<{
             </div>
           </div>
         ) : (
-          <div className="flex flex-col">
-            <div className="space-y-2">
-              <label htmlFor="mrn" className="text-black text-sm font-normal">
+          <div className="flex gap-5 flex-col">
+            <div className=" mt-4">
+              <label htmlFor="mrn" className="">
                 <RequiredIndicator />
                 &nbsp;MRN
               </label>
-              <div className="space-y-2 pt-4">
+              <div className="">
                 <Select
                   options={patientOptions}
                   onChange={handlePatientChange}
@@ -329,15 +329,11 @@ const MediaPage: React.FC<{
                     },
                   }}
                 />
-                <div className="space-y-2"></div>
               </div>
             </div>
-            <div className="flex flex-row justify-between gap-7 pt-4">
-              <div className="w-1/2 space-y-2">
-                <label
-                  htmlFor="firstName"
-                  className="text-black text-sm font-normal"
-                >
+            <div className="flex gap-5">
+              <div className="w-1/2">
+                <label htmlFor="firstName" className="">
                   First Name
                 </label>
                 <TextInput
@@ -348,11 +344,8 @@ const MediaPage: React.FC<{
                   disabled={true}
                 />
               </div>
-              <div className="w-1/2 space-y-2">
-                <label
-                  htmlFor="lastName"
-                  className="text-black text-sm font-normal"
-                >
+              <div className="w-1/2">
+                <label htmlFor="lastName" className="">
                   Last Name
                 </label>
                 <TextInput
@@ -364,15 +357,15 @@ const MediaPage: React.FC<{
                 />
               </div>
             </div>
-            <div className="pt-6">
+            <div className="">
               <div className="flex">
                 <div>
-                  <label htmlFor="lastName" className="text-black text-lg">
+                  <label htmlFor="lastName" className="">
                     Video Media
                   </label>
                 </div>
                 <div>
-                  <div className="pl-3">
+                  <div className="ml-4">
                     <Button
                       type="button"
                       kind="primary"
@@ -388,17 +381,13 @@ const MediaPage: React.FC<{
               <hr className="h-px bg-gray-100 border-1 dark:bg-gray-800"></hr>
               {patientForm.video.map((inputField, index, arr) => (
                 <>
-                  <div className="flex gap-5">
-                    <div className="space-y-2 flex-1">
-                      <label
-                        htmlFor="email"
-                        className="text-black text-sm mt-2"
-                      >
+                  <div className="flex gap-5 mt-4">
+                    <div className="w-1/2">
+                      <label htmlFor="email" className="">
                         Video Title
                       </label>
-                      <div className="flex flex-row gap-3">
+                      <div className="">
                         <TextInput
-                          size={SIZE.mini}
                           type="text"
                           value={inputField.title}
                           onChange={(value) =>
@@ -407,7 +396,7 @@ const MediaPage: React.FC<{
                           endEnhancer={
                             arr.length > 1 ? (
                               <div
-                                className="rounded-md cursor-pointer items-center pl-3"
+                                className="rounded-md cursor-pointer items-center"
                                 onClick={() => handleRemoveVideoField(index)}
                               >
                                 <CloseIcon className="" size={10} />
@@ -417,16 +406,12 @@ const MediaPage: React.FC<{
                         />
                       </div>
                     </div>
-                    <div className="space-y-2 flex-1">
-                      <label
-                        htmlFor="email"
-                        className="text-black text-sm mt-2"
-                      >
+                    <div className="w-1/2">
+                      <label htmlFor="email" className="">
                         Video Url
                       </label>
-                      <div className="flex flex-row gap-3">
+                      <div className="">
                         <TextInput
-                          size={SIZE.mini}
                           type="text"
                           value={inputField.url}
                           onChange={(value) =>
@@ -435,7 +420,7 @@ const MediaPage: React.FC<{
                           endEnhancer={
                             arr.length > 1 ? (
                               <div
-                                className="rounded-md cursor-pointer items-center pl-3"
+                                className="rounded-md cursor-pointer"
                                 onClick={() => handleRemoveVideoField(index)}
                               >
                                 <CloseIcon className="" size={10} />
@@ -449,15 +434,15 @@ const MediaPage: React.FC<{
                 </>
               ))}
             </div>
-            <div className="pt-6">
-              <div className="flex">
+            <div className="">
+              <div className="flex gap-4">
                 <div>
-                  <label htmlFor="imageMedia" className="text-black text-lg">
+                  <label htmlFor="imageMedia" className="">
                     Image Media
                   </label>
                 </div>
                 <div>
-                  <div className="pl-3">
+                  <div className="">
                     <Button
                       title=""
                       type="button"
@@ -472,17 +457,13 @@ const MediaPage: React.FC<{
               </div>
               <hr className="h-px bg-gray-100 border-1 dark:bg-gray-800"></hr>
               {patientForm.image.map((inputField, index, arr) => (
-                <div key={index} className="flex gap-5 mb-4">
-                  <div className="space-y-2 flex-1">
-                    <label
-                      htmlFor="imageTitle"
-                      className="text-black text-sm mt-2"
-                    >
+                <div key={index} className="flex gap-5 mt-4">
+                  <div className="w-1/2">
+                    <label htmlFor="imageTitle" className="">
                       Image Title
                     </label>
-                    <div className="flex flex-row gap-3">
+                    <div className="">
                       <TextInput
-                        size={SIZE.mini}
                         type="text"
                         value={inputField.title}
                         onChange={(__value, event) =>
@@ -491,7 +472,7 @@ const MediaPage: React.FC<{
                         endEnhancer={
                           arr.length > 1 ? (
                             <div
-                              className="rounded-md cursor-pointer items-center pl-3"
+                              className="rounded-md cursor-pointer"
                               onClick={() => handleRemoveImageField(index)}
                             >
                               <CloseIcon size={10} />
@@ -501,16 +482,12 @@ const MediaPage: React.FC<{
                       />
                     </div>
                   </div>
-                  <div className="space-y-2 flex-1">
-                    <label
-                      htmlFor="imageFile"
-                      className="text-black text-sm mt-2"
-                    >
+                  <div className="w-1/2">
+                    <label htmlFor="imageFile" className="">
                       Image File
                     </label>
-                    <div className="flex flex-row gap-3">
+                    <div className="">
                       <TextInput
-                        size={SIZE.mini}
                         type="file"
                         onChange={(__value, event) =>
                           handleImageChangeInput(index, event, 'file')
@@ -518,7 +495,7 @@ const MediaPage: React.FC<{
                         endEnhancer={
                           arr.length > 1 ? (
                             <div
-                              className="rounded-md cursor-pointer items-center pl-3"
+                              className="rounded-md cursor-pointer"
                               onClick={() => handleRemoveImageField(index)}
                             >
                               <CloseIcon size={10} />
@@ -533,11 +510,10 @@ const MediaPage: React.FC<{
             </div>
           </div>
         )}
-        <div className="text-right text-base pt-4">
+        <div className="text-right mt-4">
           <Button
             kind="primary"
             title="Add New Media"
-            width={189}
             disabled={!isFormFilled()}
           />
         </div>
