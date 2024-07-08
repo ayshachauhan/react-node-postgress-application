@@ -135,6 +135,13 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose, withLoader }) => {
   }, [data.id, userInfo]);
   const selectedItems = getSelectedItems();
 
+  const handleInputChange = (fieldName: keyof IUser, value: string) => {
+    setUserInfo((prevState) => ({
+      ...prevState,
+      [fieldName]: value.trim() === '' ? undefined : value,
+    }));
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const selectedUserPermissions = selectedItems.checkboxIds;
@@ -206,9 +213,7 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose, withLoader }) => {
               <TextInput
                 name="userName"
                 value={updatedUserInfo?.userName || ''}
-                onChange={(value) => {
-                  setUserInfo({ ...updatedUserInfo, userName: value });
-                }}
+                onChange={(value) => handleInputChange('userName', value)}
                 disabled={true}
               />
               <div className="w-1/2 space-y-2"></div>
@@ -221,9 +226,7 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose, withLoader }) => {
               <TextInput
                 name="email"
                 value={updatedUserInfo?.email || ''}
-                onChange={(value) => {
-                  setUserInfo({ ...updatedUserInfo, email: value });
-                }}
+                onChange={(value) => handleInputChange('email', value)}
                 disabled={true}
               />
               <div className="w-1/2 space-y-2"></div>
@@ -241,9 +244,7 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose, withLoader }) => {
               <TextInput
                 name="firstName"
                 value={updatedUserInfo?.firstName || ''}
-                onChange={(value) => {
-                  setUserInfo({ ...updatedUserInfo, firstName: value });
-                }}
+                onChange={(value) => handleInputChange('firstName', value)}
                 required
               />
               <div className="w-1/2 space-y-2"></div>
@@ -259,9 +260,7 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose, withLoader }) => {
               <TextInput
                 name="lastName"
                 value={updatedUserInfo?.lastName || ''}
-                onChange={(value) => {
-                  setUserInfo({ ...updatedUserInfo, lastName: value });
-                }}
+                onChange={(value) => handleInputChange('lastName', value)}
                 required
               />
               <div className="w-1/2 space-y-2"></div>
@@ -279,9 +278,7 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose, withLoader }) => {
               <TextInput
                 name="contactNumber"
                 value={updatedUserInfo?.contactNumber || ''}
-                onChange={(value) => {
-                  setUserInfo({ ...updatedUserInfo, contactNumber: value });
-                }}
+                onChange={(value) => handleInputChange('contactNumber', value)}
                 required
               />
               <div className="w-1/2 space-y-2"></div>

@@ -79,8 +79,67 @@ const AddUserPage: React.FC<{
     }
   };
 
+  const handleUserNameChange = (value: string) => {
+    setUserName(value);
+
+    if (value.trim() === '') {
+      setErrorMessage('Username cannot be empty');
+    } else {
+      setErrorMessage('');
+    }
+  };
+
+  const handleEmailChange = (value: string) => {
+    setEmail(value);
+
+    if (value.trim() === '') {
+      setErrorMessage('Email cannot be empty');
+    } else {
+      setErrorMessage('');
+    }
+  };
+
+  const handleFirstNameChange = (value: string) => {
+    setFirstName(value);
+
+    if (value.trim() === '') {
+      setErrorMessage('First name cannot be empty');
+    } else {
+      setErrorMessage('');
+    }
+  };
+
+  const handleLastNameChange = (value: string) => {
+    setLastName(value);
+
+    if (value.trim() === '') {
+      setErrorMessage('Last name cannot be empty');
+    } else {
+      setErrorMessage('');
+    }
+  };
+
+  const handleContactNumberChange = (value: string) => {
+    setcontactNumber(value);
+
+    if (value.trim() === '') {
+      setErrorMessage('Contact number cannot be empty');
+    } else {
+      setErrorMessage('');
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (
+      userName.trim() === '' ||
+      email.trim() === '' ||
+      firstName.trim() === '' ||
+      lastName.trim() === '' ||
+      contactNumber.trim() === ''
+    ) {
+      return;
+    }
     const selectedUserPermissions = getSelectedCheckboxIds();
     const fullName = generateFullName(firstName, lastName);
     if (practiceId) {
@@ -136,7 +195,7 @@ const AddUserPage: React.FC<{
                 name="userName"
                 value={userName}
                 onChange={(value) => {
-                  setUserName(value);
+                  handleUserNameChange(value);
                 }}
                 required
               />
@@ -150,7 +209,7 @@ const AddUserPage: React.FC<{
                 name="email"
                 value={email}
                 onChange={(value) => {
-                  setEmail(value);
+                  handleEmailChange(value);
                 }}
                 required
               />
@@ -169,7 +228,7 @@ const AddUserPage: React.FC<{
                 name="firstName"
                 value={firstName}
                 onChange={(value) => {
-                  setFirstName(value);
+                  handleFirstNameChange(value);
                 }}
                 required
               />
@@ -186,7 +245,7 @@ const AddUserPage: React.FC<{
                 name="lastName"
                 value={lastName}
                 onChange={(value) => {
-                  setLastName(value);
+                  handleLastNameChange(value);
                 }}
                 required
               />
@@ -205,7 +264,7 @@ const AddUserPage: React.FC<{
                 name="contactNumber"
                 value={contactNumber}
                 onChange={(value) => {
-                  setcontactNumber(value);
+                  handleContactNumberChange(value);
                 }}
                 required
               />
