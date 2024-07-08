@@ -69,4 +69,10 @@ export class CreateSurgeryDto {
 
   @IsNotEmpty()
   ipAddress: string;
+
+  @IsOptional()
+  identifier: string;
+
+  @IsOptional()
+  count: number;
 }
