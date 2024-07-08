@@ -168,6 +168,7 @@ const FiltersSection: React.FC<{
       // logic to place parent condition always ahead of dependant condition
       let conditionalHeaders = Object.keys(ele.conditionalOptions);
       if (
+        conditionalHeaders &&
         conditionalHeaders.length &&
         ele.conditionalOptions[conditionalHeaders[0]].dependsUpon
       ) {

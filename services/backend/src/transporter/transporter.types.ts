@@ -36,4 +36,5 @@ export enum SystemTemplates {
   NOTIFY_STAFF_SURGERY_BOOKED = 'notifyStaffSurgeryBooked',
   NOTIFY_STAFF_SURGERY_UPDATED = 'notifyStaffSurgeryUpdated',
   NOTIFY_REFERRER = 'notifyReferrer',
+  DAILY_SUMMARY = 'dailySummary',
 }
