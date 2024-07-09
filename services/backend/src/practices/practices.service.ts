@@ -142,7 +142,10 @@ export class PracticesService {
         await this.practicesRepository.save(newPractice);
 
       // creating admin user
-      const sendUserCreationEmail: boolean = true;
+      let sendUserCreationEmail: boolean = true;
+      if (!existingUser) {
+        sendUserCreationEmail = false;
+      }
       const newAdmin = await this.userService.create(
         {
           firstName: adminFirstName,
@@ -157,6 +160,7 @@ export class PracticesService {
         },
         practice.id,
         sendUserCreationEmail,
+        true,
       );
 
       const token: string = this.jwtService.sign({
@@ -181,11 +185,13 @@ export class PracticesService {
         contactPhone: adminContactNumber,
       };
 
-      await this.transporterService.sendSystemEmails(
-        mailOptions,
-        mailData,
-        SystemTemplates.ADMIN_INVITE,
-      );
+      if (!sendUserCreationEmail) {
+        await this.transporterService.sendSystemEmails(
+          mailOptions,
+          mailData,
+          SystemTemplates.ADMIN_INVITE,
+        );
+      }
       await queryRunner.commitTransaction();
 
       return practice;

@@ -62,6 +62,7 @@ export class UsersService {
     createUserDto: CreateUserDto,
     practiceId: string,
     sendUserCreationEmail: boolean,
+    isCallingFromPractice: boolean = false,
   ): Promise<SanitizedUser> {
     const { firstName, lastName } = createUserDto;
     const { permissionIds } = createUserDto;
@@ -101,7 +102,7 @@ export class UsersService {
           permissions: permissionEntities || [],
         });
 
-        if (sendUserCreationEmail) {
+        if (sendUserCreationEmail || !isCallingFromPractice) {
           await this.sendNewUserMail({ newUser, fullName, practiceEntity });
         }
       } else {
