@@ -199,7 +199,6 @@ const ConditionalOptions: React.FC<{ props }> = ({ props }) => {
                             Name
                           </label>
                           <TextInput
-                            required
                             size={SIZE.mini}
                             name="name"
                             value={name}
@@ -217,7 +216,7 @@ const ConditionalOptions: React.FC<{ props }> = ({ props }) => {
                             Values
                           </label>
                           <Select
-                            required
+                            required={name ? true : false}
                             creatable
                             clearable
                             multi
