@@ -111,6 +111,12 @@ export default function LoginPage() {
             <div className="mt-6 ">
               <div className=" flex justify-between">
                 <Button
+                  kind="primary"
+                  title="Login"
+                  type="submit"
+                  width={164}
+                />
+                <Button
                   kind="secondary"
                   onClick={handleLoginSSO}
                   title="Login With SSO"
@@ -118,12 +124,6 @@ export default function LoginPage() {
                 >
                   {/* <a href={`${API_BASE_URL}/auth/login/sso`}>Login With SSO</a> */}
                 </Button>
-                <Button
-                  kind="primary"
-                  title="Login"
-                  type="submit"
-                  width={164}
-                />
               </div>
               <div className="text-center mt-6">
                 <a
