@@ -150,6 +150,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
       const row = autoFillFromEval ? evalAutoFillInfo : surgeryAutoFillInfo;
 
       if (row) {
+        SetSurgeryDate(new Date(row.date));
         setFirstName(row.patient.firstName);
         setLastName(row.patient.lastName);
         setEmail(row.patient.email);
