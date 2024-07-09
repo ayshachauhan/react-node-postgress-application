@@ -184,7 +184,7 @@ jobs:
         run: terraform -chdir=./terraform init
 
 
-      # - name: get runner ip addresses
+      # - name: get runner ip addresses check
       #   id: ip
       #   uses: haythem/public-ip@v1.2
 
