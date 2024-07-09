@@ -222,7 +222,7 @@ function EditableRow({
     return (
       <>
         <tr className="border-t border-gray-300">
-          <td rowSpan={2} className="min-w-32">
+          <td rowSpan={2} className="min-w-28">
             <DatePicker
               value={obj.date}
               onChange={({ date }) => handleObjChange('date', date)}
@@ -275,7 +275,7 @@ function EditableRow({
                     border: 'none',
                     color: 'rgba(82, 82, 91, 1)',
                     boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-                    width: '150px',
+                    width: '130px',
                   },
                 },
                 ClearIcon: {
@@ -299,7 +299,7 @@ function EditableRow({
               }
             />
           </td>
-          <td rowSpan={1} className="">
+          <td rowSpan={1} className="min-w-24">
             <div className="">
               <TextInput
                 size={SIZE.mini}
@@ -309,7 +309,7 @@ function EditableRow({
               />
             </div>
           </td>
-          <td rowSpan={1} className="">
+          <td rowSpan={1} className="min-w-24">
             <div className="">
               <TextInput
                 size={SIZE.mini}
@@ -319,7 +319,7 @@ function EditableRow({
               />
             </div>
           </td>
-          <td rowSpan={1} className="">
+          <td rowSpan={1} className="min-w-24">
             <TextInput
               name="mrn"
               type="number"
@@ -394,202 +394,222 @@ function EditableRow({
               }}
             />
           </td>
+          <td rowSpan={2}>
+            <table className="w-full">
+              <tbody>
+                <tr>
+                  {customOptionsHeaders.map(
+                    (optionsHeader, optionsHeaderIndex) => {
+                      const count =
+                        surgeryConfiguration.options[optionsHeader]?.count;
 
-          {customOptionsHeaders.map((optionsHeader, optionsHeaderIndex) => {
-            const count = surgeryConfiguration.options[optionsHeader]?.count;
+                      const optionCountSelect: JSX.Element[] = [];
 
-            const optionCountSelect: JSX.Element[] = [];
+                      for (let index = 0; index < count; index++) {
+                        const selectOptionObj = obj.selectedSurgeryOptions
+                          ? obj.selectedSurgeryOptions[
+                              `${optionsHeader}-${index}`
+                            ]
+                          : {
+                              id: '',
+                              value: '',
+                              hospitalPricing: 0,
+                              professionalPricing: 0,
+                            };
 
-            for (let index = 0; index < count; index++) {
-              const selectOptionObj = obj.selectedSurgeryOptions
-                ? obj.selectedSurgeryOptions[`${optionsHeader}-${index}`]
-                : {
-                    id: '',
-                    value: '',
-                    hospitalPricing: 0,
-                    professionalPricing: 0,
-                  };
-
-              optionCountSelect.push(
-                <div key={index} className="">
-                  <Select
-                    backspaceRemoves={false}
-                    escapeClearsValue={false}
-                    key={optionsHeaderIndex}
-                    options={surgeryConfiguration.options[
-                      optionsHeader
-                    ]?.allowedValues?.map((ele) => {
-                      return {
-                        id: ele.name,
-                        label: ele.name,
-                        hospitalPricing: ele.hospitalPricing,
-                        professionalPricing: ele.professionalPricing,
-                      };
-                    })}
-                    value={
-                      selectOptionObj
-                        ? [
-                            {
-                              id: selectOptionObj.value,
-                              value: selectOptionObj.value,
-                              hospitalPricing: selectOptionObj.hospitalPricing,
-                              professionalPricing:
-                                selectOptionObj.professionalPricing,
-                            },
-                          ]
-                        : []
-                    }
-                    onChange={({ value }) =>
-                      handleObjChange('selectedSurgeryOptions', {
-                        ...obj.selectedSurgeryOptions,
-                        [`${optionsHeader}-${index}`]: {
-                          value: value[0].label,
-                        },
-                      })
-                    }
-                    disabled={
-                      surgeryConfiguration.options[optionsHeader]
-                        ?.edit_admin_option === true && !adminPermission
-                    }
-                    size={SIZE.mini}
-                    overrides={{
-                      ControlContainer: {
-                        style: {
-                          backgroundColor: 'rgba(250, 250, 250, 1)',
-                          border: 'none',
-                          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-                          color: '#52525B',
-                        },
-                      },
-
-                      ClearIcon: {
-                        component: () => null,
-                      },
-                    }}
-                  />
-                </div>,
-              );
-            }
-            return (
-              <td rowSpan={2} className="" key={optionsHeaderIndex}>
-                {optionCountSelect}
-              </td>
-            );
-          })}
-
-          {customConditionalHeaders &&
-            customConditionalHeaders.length &&
-            customConditionalHeaders.map(
-              (conditionalHeader, conditionalHeaderIndex) => {
-                const currentConditionalOption =
-                  surgeryConfiguration.conditionalOptions[conditionalHeader];
-                const count: number = currentConditionalOption.count;
-
-                const isDependant: boolean =
-                  currentConditionalOption.dependsUpon;
-
-                const conditionalCountSelect: JSX.Element[] = [];
-
-                for (let index = 0; index < count; index++) {
-                  const selectOptionObj = obj.selectedConditionalOptions
-                    ? obj.selectedConditionalOptions[
-                        `${conditionalHeader}-${index}`
-                      ]
-                    : {
-                        id: '',
-                        value: '',
-                      };
-                  let options = currentConditionalOption.values;
-                  if (isDependant) {
-                    // creating same index address for fetching corresponding parent
-                    const parentAddress: string = `${
-                      customConditionalHeaders[0] + '-' + index
-                    }`;
-
-                    // null check to verify selected conditional options
-                    const selectedConditions =
-                      obj.selectedConditionalOptions ?? null;
-
-                    // key value of dependency fetched.
-                    const correspondingParent =
-                      selectedConditions && selectedConditions[parentAddress]
-                        ? selectedConditions[parentAddress].value
-                        : '';
-
-                    // checking if dependencies exists for the parent
-                    const searchDependency =
-                      currentConditionalOption.dependencies.find(
-                        (ele) => ele.key == correspondingParent,
-                      );
-
-                    // creating options for select
-                    options = searchDependency
-                      ? searchDependency.values
-                      : currentConditionalOption.values;
-                  }
-
-                  conditionalCountSelect.push(
-                    <div key={index} className="mb-2 w-40">
-                      <Select
-                        backspaceRemoves={false}
-                        escapeClearsValue={false}
-                        key={conditionalHeaderIndex}
-                        options={options.map((ele) => {
-                          return {
-                            id: ele,
-                            label: ele,
-                          };
-                        })}
-                        value={
-                          selectOptionObj
-                            ? [
-                                {
-                                  id: selectOptionObj.value,
-                                  value: selectOptionObj.value,
+                        optionCountSelect.push(
+                          <div key={index} className="">
+                            <Select
+                              backspaceRemoves={false}
+                              escapeClearsValue={false}
+                              key={optionsHeaderIndex}
+                              options={surgeryConfiguration.options[
+                                optionsHeader
+                              ]?.allowedValues?.map((ele) => {
+                                return {
+                                  id: ele.name,
+                                  label: ele.name,
+                                  hospitalPricing: ele.hospitalPricing,
+                                  professionalPricing: ele.professionalPricing,
+                                };
+                              })}
+                              value={
+                                selectOptionObj
+                                  ? [
+                                      {
+                                        id: selectOptionObj.value,
+                                        value: selectOptionObj.value,
+                                        hospitalPricing:
+                                          selectOptionObj.hospitalPricing,
+                                        professionalPricing:
+                                          selectOptionObj.professionalPricing,
+                                      },
+                                    ]
+                                  : []
+                              }
+                              onChange={({ value }) =>
+                                handleObjChange('selectedSurgeryOptions', {
+                                  ...obj.selectedSurgeryOptions,
+                                  [`${optionsHeader}-${index}`]: {
+                                    value: value[0].label,
+                                  },
+                                })
+                              }
+                              disabled={
+                                surgeryConfiguration.options[optionsHeader]
+                                  ?.edit_admin_option === true &&
+                                !adminPermission
+                              }
+                              size={SIZE.mini}
+                              overrides={{
+                                ControlContainer: {
+                                  style: {
+                                    backgroundColor: 'rgba(250, 250, 250, 1)',
+                                    border: 'none',
+                                    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                                    color: '#52525B',
+                                  },
                                 },
-                              ]
-                            : []
-                        }
-                        onChange={({ value }) =>
-                          handleObjChange('selectedConditionalOptions', {
-                            ...obj.selectedConditionalOptions,
-                            [`${conditionalHeader}-${index}`]: {
-                              value: value[0].label,
-                            },
-                          })
-                        }
-                        disabled={
-                          surgeryConfiguration?.conditionalOptions[
-                            conditionalHeader
-                          ]?.editAdminOption === true && !adminPermission
-                        }
-                        size={SIZE.mini}
-                        overrides={{
-                          ControlContainer: {
-                            style: {
-                              backgroundColor: 'rgba(250, 250, 250, 1)',
-                              border: 'none',
-                              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-                              color: '#52525B',
-                            },
-                          },
 
-                          ClearIcon: {
-                            component: () => null,
-                          },
-                        }}
-                      />
-                    </div>,
-                  );
-                }
-                return (
-                  <td rowSpan={2} className="" key={conditionalHeaderIndex}>
-                    {conditionalCountSelect}
-                  </td>
-                );
-              },
-            )}
-          <td rowSpan={2} className="w-20">
+                                ClearIcon: {
+                                  component: () => null,
+                                },
+                              }}
+                            />
+                          </div>,
+                        );
+                      }
+                      return (
+                        <td className="min-w-10 w-1/2" key={optionsHeaderIndex}>
+                          {optionCountSelect}
+                        </td>
+                      );
+                    },
+                  )}
+                </tr>
+              </tbody>
+            </table>
+          </td>
+          <td className="p-0" rowSpan={2}>
+            <tr>
+              {customConditionalHeaders && customConditionalHeaders.length
+                ? customConditionalHeaders.map(
+                    (conditionalHeader, conditionalHeaderIndex) => {
+                      const currentConditionalOption =
+                        surgeryConfiguration.conditionalOptions[
+                          conditionalHeader
+                        ];
+                      const count: number = currentConditionalOption.count;
+
+                      const isDependant: boolean =
+                        currentConditionalOption.dependsUpon;
+
+                      const conditionalCountSelect: JSX.Element[] = [];
+
+                      for (let index = 0; index < count; index++) {
+                        const selectOptionObj = obj.selectedConditionalOptions
+                          ? obj.selectedConditionalOptions[
+                              `${conditionalHeader}-${index}`
+                            ]
+                          : {
+                              id: '',
+                              value: '',
+                            };
+                        let options = currentConditionalOption.values;
+                        if (isDependant) {
+                          // creating same index address for fetching corresponding parent
+                          const parentAddress: string = `${
+                            customConditionalHeaders[0] + '-' + index
+                          }`;
+
+                          // null check to verify selected conditional options
+                          const selectedConditions =
+                            obj.selectedConditionalOptions ?? null;
+
+                          // key value of dependency fetched.
+                          const correspondingParent =
+                            selectedConditions &&
+                            selectedConditions[parentAddress]
+                              ? selectedConditions[parentAddress].value
+                              : '';
+
+                          // checking if dependencies exists for the parent
+                          const searchDependency =
+                            currentConditionalOption.dependencies.find(
+                              (ele) => ele.key == correspondingParent,
+                            );
+
+                          // creating options for select
+                          options = searchDependency
+                            ? searchDependency.values
+                            : currentConditionalOption.values;
+                        }
+
+                        conditionalCountSelect.push(
+                          <div key={index} className="mb-2">
+                            <Select
+                              backspaceRemoves={false}
+                              escapeClearsValue={false}
+                              key={conditionalHeaderIndex}
+                              options={options.map((ele) => {
+                                return {
+                                  id: ele,
+                                  label: ele,
+                                };
+                              })}
+                              value={
+                                selectOptionObj
+                                  ? [
+                                      {
+                                        id: selectOptionObj.value,
+                                        value: selectOptionObj.value,
+                                      },
+                                    ]
+                                  : []
+                              }
+                              onChange={({ value }) =>
+                                handleObjChange('selectedConditionalOptions', {
+                                  ...obj.selectedConditionalOptions,
+                                  [`${conditionalHeader}-${index}`]: {
+                                    value: value[0].label,
+                                  },
+                                })
+                              }
+                              disabled={
+                                surgeryConfiguration?.conditionalOptions[
+                                  conditionalHeader
+                                ]?.editAdminOption === true && !adminPermission
+                              }
+                              size={SIZE.mini}
+                              overrides={{
+                                ControlContainer: {
+                                  style: {
+                                    backgroundColor: 'rgba(250, 250, 250, 1)',
+                                    border: 'none',
+                                    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                                    color: '#52525B',
+                                  },
+                                },
+
+                                ClearIcon: {
+                                  component: () => null,
+                                },
+                              }}
+                            />
+                          </div>,
+                        );
+                      }
+                      return (
+                        <td className="min-w-10" key={conditionalHeaderIndex}>
+                          {conditionalCountSelect}
+                        </td>
+                      );
+                    },
+                  )
+                : ''}
+            </tr>
+          </td>
+          <td rowSpan={2} className="min-w-12">
             <TextInput
               type="number"
               name="hash"
@@ -598,36 +618,46 @@ function EditableRow({
               size={SIZE.mini}
             />
           </td>
+          <td rowSpan={2}>
+            <table className="w-full">
+              <tbody>
+                <tr>
+                  {customCheckListHeaders.map(
+                    (checkListHeader, checkListHeaderIndex) => {
+                      const selectedChecklistOption =
+                        obj.selectedCheckListOptions
+                          ? obj.selectedCheckListOptions[checkListHeader]
+                          : '';
 
-          {customCheckListHeaders.map(
-            (checkListHeader, checkListHeaderIndex) => {
-              const selectedChecklistOption = obj.selectedCheckListOptions
-                ? obj.selectedCheckListOptions[checkListHeader]
-                : '';
-
-              return (
-                <td rowSpan={2} className="w-20" key={checkListHeaderIndex}>
-                  <TextInput
-                    size={SIZE.mini}
-                    value={
-                      selectedChecklistOption
-                        ? selectedChecklistOption.value
-                        : ''
-                    }
-                    onChange={(value) =>
-                      handleObjChange('selectedCheckListOptions', {
-                        ...obj.selectedCheckListOptions,
-                        [checkListHeader]: { value },
-                      })
-                    }
-                  />
-                </td>
-              );
-            },
-          )}
-
+                      return (
+                        <td
+                          className="w-full min-w-10"
+                          key={checkListHeaderIndex}
+                        >
+                          <TextInput
+                            size={SIZE.mini}
+                            value={
+                              selectedChecklistOption
+                                ? selectedChecklistOption.value
+                                : ''
+                            }
+                            onChange={(value) =>
+                              handleObjChange('selectedCheckListOptions', {
+                                ...obj.selectedCheckListOptions,
+                                [checkListHeader]: { value },
+                              })
+                            }
+                          />
+                        </td>
+                      );
+                    },
+                  )}
+                </tr>
+              </tbody>
+            </table>
+          </td>
           {viewBillingColumn && (
-            <td rowSpan={2} className="w-36">
+            <td rowSpan={2} className="min-w-12">
               <TextInput
                 size={SIZE.mini}
                 name="prof"
@@ -640,7 +670,7 @@ function EditableRow({
             </td>
           )}
           {viewBillingColumn && (
-            <td rowSpan={2} className="w-36">
+            <td rowSpan={2} className="min-w-12">
               <TextInput
                 size={SIZE.mini}
                 name="hospital"
