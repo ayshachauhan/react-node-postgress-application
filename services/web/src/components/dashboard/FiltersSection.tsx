@@ -1,6 +1,7 @@
 import {
   MonthOption,
   ReviewStatus,
+  SurgeryStatus,
   USER_PERMISSIONS,
 } from '@packages/entities';
 import Button from '@root/components/Button';
@@ -45,6 +46,49 @@ import DeleteFilterModal from './DeleteFilterModal';
 import EditableRow from './EditableRow';
 import ViewRow from './ViewRow';
 import AddSurgeryModal from './addSurgeryModal';
+
+interface Entry {
+  id: string;
+  firstName: string;
+  lastName: string;
+  patientId: string;
+  mrn: number;
+  email: string;
+  phoneNumber: string;
+  date: string;
+  surgery: string;
+  home: string;
+  insuranceDetails: string;
+  insurance: string;
+  pcp: string;
+  referrer: string;
+  notes: string;
+  bodyPart: string;
+  index: number;
+  hospital: string;
+  prof: string;
+  surgeryOrder: number;
+  surgeryStatus: SurgeryStatus;
+  selectedSurgeryOptions: {
+    [key: string]: {
+      professionalPricing: number;
+      hospitalPricing: number;
+      value: string;
+    };
+  };
+  selectedChecklistOptions: {
+    [ket: string]: {
+      value: string;
+    };
+  };
+  selectedConditionalOptions: {
+    [key: string]: {
+      value: string;
+    };
+  };
+  waitlist?: string;
+  referrerVerified: boolean;
+}
 
 const FiltersSection: React.FC<{
   practiceId: string;
@@ -652,24 +696,30 @@ const FiltersSection: React.FC<{
                   const customConditionalHeaders: string[] =
                     surgeryOptionsHeadersObj[key]?.conditionalHeaders;
                   if (waitlistShowFlag) {
-                    const entries = Object.entries(ele);
-                    entries.sort((a, b) => {
-                      const waitlistA = a[1][0].waitlist ?? '';
-                      const waitlistB = b[1][0].waitlist ?? '';
+                    const entries: [string, Entry[]][] = Object.entries(ele);
 
-                      if (waitlistA === '' && waitlistB === '') {
+                    entries.sort((a, b) => {
+                      const waitlistA = getWaitlist(a[1][0]);
+                      const waitlistB = getWaitlist(b[1][0]);
+
+                      if (!waitlistA && !waitlistB) {
                         return 0;
-                      } else if (waitlistA === '' || waitlistA === undefined) {
+                      } else if (!waitlistA || waitlistA === '') {
                         return 1;
-                      } else if (waitlistB === '' || waitlistB === undefined) {
+                      } else if (!waitlistB || waitlistB === '') {
                         return -1;
                       } else {
                         return waitlistA.localeCompare(waitlistB);
                       }
                     });
 
-                    const sortedData = Object.fromEntries(entries);
-                    ele = sortedData;
+                    const wailistSortedData: Record<string, Entry[]> =
+                      Object.fromEntries(entries);
+                    ele = wailistSortedData;
+                  }
+
+                  function getWaitlist(obj: Entry): string | undefined {
+                    return obj?.waitlist;
                   }
                   return (
                     <table key={index} className="w-full">
