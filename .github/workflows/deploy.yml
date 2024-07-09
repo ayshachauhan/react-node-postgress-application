@@ -184,30 +184,33 @@ jobs:
         run: terraform -chdir=./terraform init
 
 
-      # - name: get runner ip addresses check
-      #   id: ip
-      #   uses: haythem/public-ip@v1.2
+      - name: Get Runner IP address from ipinfo.io
+        id: ip
+        run: |
+          IP=$(curl -s https://ipinfo.io/ip)
+          echo "ipv4=$IP" >> $GITHUB_ENV
+          echo "Runner IP address is $IP"
 
-      # - name: Get RDS Security Group ID
-      #   id: rds_sg
-      #   run: echo "rds_sg_id=${rds_sg_id}" >> $GITHUB_ENV      
+      - name: Get RDS Security Group ID
+        id: rds_sg
+        run: echo "rds_sg_id=${rds_sg_id}" >> $GITHUB_ENV      
 
-      # - name: Allow DB Security group rule to connect Github Actions
-      #   run: |
-      #     aws ec2 authorize-security-group-ingress --group-id ${{ env.rds_sg_id }} --protocol tcp --port 5432 --cidr ${{ steps.ip.outputs.ipv4 }}/32       
+      - name: Allow DB Security group rule to connect GitHub Actions
+        run: |
+          aws ec2 authorize-security-group-ingress --group-id ${{ env.rds_sg_id }} --protocol tcp --port 5432 --cidr ${{ env.ipv4 }}/32
 
-      - name: show migrations
+      - name: Show migrations
         run: |
           pnpm list-migrations
 
-      - name: run migrations
+      - name: Run migrations
         run: |
           pnpm migrate
 
-      # - name: Remove Security group rule to connect Github Actions
-      #   run: |
-      #     aws ec2 revoke-security-group-ingress --group-id ${{ env.rds_sg_id }} --protocol tcp --port 5432 --cidr ${{ steps.ip.outputs.ipv4 }}/32
-      #   if: always() 
+      - name: Remove Security group rule to connect GitHub Actions
+        if: always()
+        run: |
+          aws ec2 revoke-security-group-ingress --group-id ${{ env.rds_sg_id }} --protocol tcp --port 5432 --cidr ${{ env.ipv4 }}/32 
 
       - name: Terraform Apply
         run: terraform -chdir=./terraform apply -auto-approve
