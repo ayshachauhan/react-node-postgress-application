@@ -457,7 +457,10 @@ const UpcomingSection: React.FC = () => {
                           </td>
                           <td className="">{data.bookedSlots}</td>
                           <td className="">{data.maxSlots}</td>
-                          <td className="" style={maxCellStyle(availableSlots)}>
+                          <td
+                            className="text-center"
+                            style={maxCellStyle(availableSlots)}
+                          >
                             {appendAddSign(availableSlots)}
                           </td>
                         </tr>

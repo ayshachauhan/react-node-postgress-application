@@ -358,7 +358,7 @@ const MediaPage: React.FC<{
               </div>
             </div>
             <div className="">
-              <div className="flex">
+              <div className="flex items-center mb-1">
                 <div>
                   <label htmlFor="lastName" className="">
                     Video Media
@@ -372,7 +372,9 @@ const MediaPage: React.FC<{
                       title=""
                       width={25}
                       height={25}
-                      startEnhancer={() => <AddIcon></AddIcon>}
+                      startEnhancer={() => (
+                        <AddIcon className="-mr-2"></AddIcon>
+                      )}
                       onClick={handleAddVideoField}
                     />
                   </div>
@@ -435,7 +437,7 @@ const MediaPage: React.FC<{
               ))}
             </div>
             <div className="">
-              <div className="flex gap-4">
+              <div className="flex gap-4 items-center mb-1">
                 <div>
                   <label htmlFor="imageMedia" className="">
                     Image Media
@@ -449,7 +451,9 @@ const MediaPage: React.FC<{
                       kind="primary"
                       width={25}
                       height={25}
-                      startEnhancer={() => <AddIcon></AddIcon>}
+                      startEnhancer={() => (
+                        <AddIcon className="-mr-2"></AddIcon>
+                      )}
                       onClick={handleAddImageField}
                     />
                   </div>

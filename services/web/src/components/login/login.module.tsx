@@ -41,6 +41,10 @@ export default function LoginPage() {
     }
   };
 
+  const handleLoginSSO = () => {
+    router.push(`${API_BASE_URL}/auth/login/sso`);
+  };
+
   useEffect(() => {
     let timer;
     if (successMessage) {
@@ -104,12 +108,24 @@ export default function LoginPage() {
               />
               <div className="space-y-4"></div>
             </div>
-            <div className="mt-6 flex flex-col sm:flex-row sm:justify-between items-center">
-              <Button kind="primary" title="Login" type="submit" width={164} />
-              <div className="text-sm">
-                <a href={`${API_BASE_URL}/auth/login/sso`}>Login With SSO</a>
+            <div className="mt-6 ">
+              <div className=" flex justify-between">
+                <Button
+                  kind="secondary"
+                  onClick={handleLoginSSO}
+                  title="Login With SSO"
+                  width={164}
+                >
+                  {/* <a href={`${API_BASE_URL}/auth/login/sso`}>Login With SSO</a> */}
+                </Button>
+                <Button
+                  kind="primary"
+                  title="Login"
+                  type="submit"
+                  width={164}
+                />
               </div>
-              <div className="text-sm">
+              <div className="text-center mt-6">
                 <a
                   href="/forgot-password"
                   className="font-medium text-blue-400 hover:text-blue-500 sm:pt-3"
