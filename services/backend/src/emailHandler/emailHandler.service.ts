@@ -17,7 +17,12 @@ import { SurgeryService } from 'src/surgery/surgery.service';
 import { TemplatesService } from 'src/templates/templates.service';
 import { TransporterService } from 'src/transporter';
 import { SystemTemplates } from 'src/transporter/transporter.types';
-import { formatHeaderDate, toLowerCase, toPascalCase } from 'src/utils';
+import {
+  formatHeaderDate,
+  setToMidnight,
+  toLowerCase,
+  toPascalCase,
+} from 'src/utils';
 import { Repository } from 'typeorm';
 
 export type SystemGeneratedMailData = {
@@ -193,9 +198,12 @@ export class EmailHandlerService {
             ...entry.data,
             cataract_variable: cataract,
           };
-          surgeryDate.setDate(surgeryDate.getDate() - template.dateOffset);
+          surgeryDate.setDate(surgeryDate.getDate() + template.dateOffset);
           entry.expectedDate = surgeryDate;
-          entry.status = surgeryDate < today ? 'completed' : 'pending';
+          entry.status =
+            setToMidnight(surgeryDate) < setToMidnight(today)
+              ? 'completed'
+              : 'pending';
           emailLogsEntries.push(entry);
         } else if (template.messageType === 'postop') {
           let cataract = '';
@@ -211,7 +219,10 @@ export class EmailHandlerService {
           };
           surgeryDate.setDate(surgeryDate.getDate() + template.dateOffset);
           entry.expectedDate = surgeryDate;
-          entry.status = surgeryDate < today ? 'completed' : 'pending';
+          entry.status =
+            setToMidnight(surgeryDate) < setToMidnight(today)
+              ? 'completed'
+              : 'pending';
           emailLogsEntries.push(entry);
         } else if (template.messageType === 'booking') {
           bookingTemplateFound = true;
