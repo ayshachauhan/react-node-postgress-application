@@ -199,7 +199,7 @@ export default function WaitlistPage() {
             </tr>
             {waitlist.map((data, index) => (
               <React.Fragment key={data.id}>
-                <tr>
+                <tr className="border-t border-gray-300">
                   <td className="">{index + 1}</td>
                   <td className="">{data.name}</td>
                   <td className="">
