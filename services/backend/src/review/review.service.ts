@@ -221,6 +221,9 @@ export class ReviewService {
     const reviews = await this.reviews.find({
       where: { practice: { id: practiceId } },
       relations: ['practice', 'patient'],
+      order: {
+        dateCreated: 'DESC',
+      },
     });
     return reviews;
   }
