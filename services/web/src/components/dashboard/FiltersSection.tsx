@@ -90,6 +90,7 @@ const FiltersSection: React.FC<{
   const [reviewErrorMessage, setReviewErrorMessage] = useState<string>('');
   const [reviewSuccessMessage, setReviewSuccessMessage] = useState<string>('');
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isWailistViewActive, setIsWailistViewActive] = useState(false);
   const [isIolViewActive, setIsIolViewActive] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [selectedAction, setSelectedAction] = useState<string | null>(null);
@@ -326,12 +327,15 @@ const FiltersSection: React.FC<{
     if (selectedLabel === 'past view' || selectedLabel === 'upcoming view') {
       dispatch(setSelectedMonth([]));
       setIsIolViewActive(false);
+      setIsWailistViewActive(false);
     }
     if (selectedLabel === 'waitlist view') {
       setIsIolViewActive(false);
+      setIsWailistViewActive(false);
     }
     if (selectedLabel === 'iol view') {
       setIsIolViewActive(true);
+      setIsWailistViewActive(false);
     }
   };
 
@@ -527,7 +531,9 @@ const FiltersSection: React.FC<{
 
   const iolListShowFlag =
     isIolViewActive || selectedValueStr.trim().toLowerCase() === 'iol view';
-
+  const waitlistShowFlag =
+    isWailistViewActive ||
+    selectedValueStr.trim().toLowerCase() === 'waitlist view';
   return (
     <div>
       {reviewSendingIsLoading && <Loader />}
@@ -636,7 +642,7 @@ const FiltersSection: React.FC<{
             Object.keys(modifiedObj).length > 0 ? (
               <div className="w-full overflow-x-auto mt-2 border rounded-t-lg rounded-b-lg border-gray-200">
                 {Object.keys(modifiedObj).map((key, index) => {
-                  const ele = modifiedObj[key];
+                  let ele = modifiedObj[key];
                   const customOptionsHeaders: string[] =
                     surgeryOptionsHeadersObj[key]?.surgeryOptionsHeaders;
                   const customCheckListHeaders: string[] =
@@ -644,7 +650,26 @@ const FiltersSection: React.FC<{
 
                   const customConditionalHeaders: string[] =
                     surgeryOptionsHeadersObj[key]?.conditionalHeaders;
+                  if (waitlistShowFlag) {
+                    const entries = Object.entries(ele);
+                    entries.sort((a, b) => {
+                      const waitlistA = a[1][0].waitlist ?? '';
+                      const waitlistB = b[1][0].waitlist ?? '';
 
+                      if (waitlistA === '' && waitlistB === '') {
+                        return 0;
+                      } else if (waitlistA === '' || waitlistA === undefined) {
+                        return 1;
+                      } else if (waitlistB === '' || waitlistB === undefined) {
+                        return -1;
+                      } else {
+                        return waitlistA.localeCompare(waitlistB);
+                      }
+                    });
+
+                    const sortedData = Object.fromEntries(entries);
+                    ele = sortedData;
+                  }
                   return (
                     <table key={index} className="w-full">
                       <tbody>
@@ -661,6 +686,28 @@ const FiltersSection: React.FC<{
                         </tr>
 
                         {Object.keys(ele).map((date, dateIndex) => {
+                          if (waitlistShowFlag) {
+                            ele[date].sort((a, b) => {
+                              const waitlistA = a.waitlist ?? '';
+                              const waitlistB = b.waitlist ?? '';
+
+                              if (waitlistA === '' && waitlistB === '') {
+                                return 0;
+                              } else if (
+                                waitlistA === '' ||
+                                waitlistA === undefined
+                              ) {
+                                return 1;
+                              } else if (
+                                waitlistB === '' ||
+                                waitlistB === undefined
+                              ) {
+                                return -1;
+                              } else {
+                                return waitlistA.localeCompare(waitlistB);
+                              }
+                            });
+                          }
                           return (
                             <>
                               <React.Fragment key={dateIndex}>
