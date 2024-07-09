@@ -330,8 +330,8 @@ const FiltersSection: React.FC<{
       setIsWailistViewActive(false);
     }
     if (selectedLabel === 'waitlist view') {
-      setIsIolViewActive(false);
       setIsWailistViewActive(false);
+      setIsIolViewActive(false);
     }
     if (selectedLabel === 'iol view') {
       setIsIolViewActive(true);
@@ -423,6 +423,7 @@ const FiltersSection: React.FC<{
     dispatch(setSelectedMonth([]));
     dispatch(setSearchMRNName(null));
     dispatch(setSelectedValue(null));
+    setIsWailistViewActive(false);
     setIsIolViewActive(false);
   };
 
@@ -529,11 +530,11 @@ const FiltersSection: React.FC<{
     setIsUpdateLoading(loadingState);
   };
 
-  const iolListShowFlag =
-    isIolViewActive || selectedValueStr.trim().toLowerCase() === 'iol view';
   const waitlistShowFlag =
     isWailistViewActive ||
     selectedValueStr.trim().toLowerCase() === 'waitlist view';
+  const iolListShowFlag =
+    isIolViewActive || selectedValueStr.trim().toLowerCase() === 'iol view';
   return (
     <div>
       {reviewSendingIsLoading && <Loader />}
