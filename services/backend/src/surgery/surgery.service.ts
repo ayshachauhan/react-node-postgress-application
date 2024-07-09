@@ -159,6 +159,10 @@ export class SurgeryService {
       searchConditions.order = {
         date: 'DESC',
       };
+    } else if (option?.toLowerCase() === 'waitlist view') {
+      searchConditions.order = {
+        waitlist: { name: 'ASC' },
+      };
     } else {
       searchConditions.order = {
         dateCreated: 'DESC',

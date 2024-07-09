@@ -32,9 +32,7 @@ import {
   setSelectedValue,
 } from '@root/store/reducers/surgery';
 import {
-  createTierOrder,
   getColorForSurgeryStatus,
-  sortSurgeryData,
   toFullName,
   toPascalCase,
   usDateFormatter,
@@ -71,7 +69,6 @@ const FiltersSection: React.FC<{
     errorMessage,
     surgeryList,
     surgeryConfigList,
-    waitlist,
     userInfo,
   } = useAppSelector((state) => ({
     selectedMonth: state.surgeries.surgeryFilters.selectedMonth,
@@ -93,7 +90,6 @@ const FiltersSection: React.FC<{
   const [reviewErrorMessage, setReviewErrorMessage] = useState<string>('');
   const [reviewSuccessMessage, setReviewSuccessMessage] = useState<string>('');
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [isWailistViewActive, setIsWailistViewActive] = useState(false);
   const [isIolViewActive, setIsIolViewActive] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [selectedAction, setSelectedAction] = useState<string | null>(null);
@@ -330,15 +326,12 @@ const FiltersSection: React.FC<{
     if (selectedLabel === 'past view' || selectedLabel === 'upcoming view') {
       dispatch(setSelectedMonth([]));
       setIsIolViewActive(false);
-      setIsWailistViewActive(false);
     }
     if (selectedLabel === 'waitlist view') {
-      setIsWailistViewActive(true);
       setIsIolViewActive(false);
     }
     if (selectedLabel === 'iol view') {
       setIsIolViewActive(true);
-      setIsWailistViewActive(false);
     }
   };
 
@@ -426,7 +419,6 @@ const FiltersSection: React.FC<{
     dispatch(setSelectedMonth([]));
     dispatch(setSearchMRNName(null));
     dispatch(setSelectedValue(null));
-    setIsWailistViewActive(false);
     setIsIolViewActive(false);
   };
 
@@ -533,10 +525,6 @@ const FiltersSection: React.FC<{
     setIsUpdateLoading(loadingState);
   };
 
-  const tierOrder = createTierOrder(waitlist);
-  const waitlistShowFlag =
-    isWailistViewActive ||
-    selectedValueStr.trim().toLowerCase() === 'waitlist view';
   const iolListShowFlag =
     isIolViewActive || selectedValueStr.trim().toLowerCase() === 'iol view';
 
@@ -673,13 +661,6 @@ const FiltersSection: React.FC<{
                         </tr>
 
                         {Object.keys(ele).map((date, dateIndex) => {
-                          if (waitlistShowFlag) {
-                            const sortedData = sortSurgeryData(
-                              ele[date],
-                              tierOrder,
-                            );
-                            ele[date] = sortedData;
-                          }
                           return (
                             <>
                               <React.Fragment key={dateIndex}>
