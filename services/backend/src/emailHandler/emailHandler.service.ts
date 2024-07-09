@@ -447,11 +447,10 @@ export class EmailHandlerService {
     );
 
     allCaseType.push(...makeAllCaseArray(upcomingEvals));
-    const currentDate: Date = new Date();
-    currentDate.setHours(0, 0, 0, 0);
+
     const upcomingSurgeries = await this.surgeryService.findSurgeryByPatient(
       patientId,
-      currentDate,
+      new Date(),
     );
 
     allCaseType.push(...makeAllCaseArray(upcomingSurgeries));
@@ -575,4 +574,4 @@ const makeAllCaseString = (
   surgery: string,
   date: Date,
 ): string =>
-  `${bodyPart + ' ' + surgery + ' | ' + formatHeaderDate(String(date))})`;
+  `${bodyPart + ' ' + surgery + ' | ' + formatHeaderDate(String(date))}`;
