@@ -38,6 +38,7 @@ const authSlice = createSlice({
       state.isSuperAdmin = false;
       removeLoginToken();
       localStorage.removeItem('practiceId');
+      localStorage.removeItem('SELECTED_DOCTOR');
     },
   },
   extraReducers(builder) {
