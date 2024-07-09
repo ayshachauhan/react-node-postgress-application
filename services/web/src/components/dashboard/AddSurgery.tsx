@@ -468,9 +468,9 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
 
     const dates = (calendars as ICalendar[])
       .filter((calendar: ICalendar) =>
-        moment(calendar.date).format('YYYY-MM-DD'),
+        moment(calendar?.date).format('YYYY-MM-DD'),
       )
-      .map((calendar) => moment(calendar.date).format('YYYY-MM-DD'));
+      .map((calendar) => moment(calendar?.date).format('YYYY-MM-DD'));
 
     return Boolean(dates.find((date) => date === formattedDate));
   };
@@ -480,11 +480,11 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
 
     const calendar = (calendars as ICalendar[]).find(
       (calendar: ICalendar) =>
-        moment(calendar.date).format('YYYY-MM-DD') === formattedDate,
+        moment(calendar?.date).format('YYYY-MM-DD') === formattedDate,
     ) as ICalendar;
 
     const surgeryTypeColor =
-      calendar.surgeryType.color ?? DEFAULT_SURGERYLOCATION_COLOR;
+      calendar.surgeryType?.color ?? DEFAULT_SURGERYLOCATION_COLOR;
 
     return calendar.maxSlots > calendar.bookedSlots
       ? {
