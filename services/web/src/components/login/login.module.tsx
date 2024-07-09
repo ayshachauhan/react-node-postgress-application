@@ -64,11 +64,24 @@ export default function LoginPage() {
     if (successMessage) {
       timer = setTimeout(() => {
         dispatch(clearSuccessMessage());
-      }, 4000);
+      }, 2000);
     }
-    if (error || validationError) {
+    if (error) {
       timer = setTimeout(() => {
         dispatch(clearErrorMessage());
+      }, 2000);
+    }
+    return () => {
+      if (timer) {
+        clearTimeout(timer);
+      }
+    };
+  }, [successMessage, error, dispatch]);
+
+  useEffect(() => {
+    let timer;
+    if (validationError) {
+      timer = setTimeout(() => {
         setValidationError('');
       }, 4000);
     }
@@ -77,7 +90,7 @@ export default function LoginPage() {
         clearTimeout(timer);
       }
     };
-  }, [successMessage, validationError, error, dispatch]);
+  }, [validationError]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-white py-12 px-4 sm:px-6 lg:px-8">
