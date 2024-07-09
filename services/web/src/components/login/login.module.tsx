@@ -20,11 +20,25 @@ export default function LoginPage() {
   const { API_BASE_URL } = publicRuntimeConfig;
   const [email, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [validationError, setValidationError] = useState('');
   const router = useRouter();
   const error = useAppSelector(selectError);
   const successMessage = useAppSelector(selectSuccessMessage);
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    let error = '';
+    if (!email && !password) {
+      error = 'Enter both username and password.';
+    } else if (!email) {
+      error = 'Enter the username.';
+    } else if (!password) {
+      error = 'Enter the password.';
+    }
+
+    if (error) {
+      setValidationError(error);
+      return;
+    }
     try {
       const user = await dispatch(loginUser({ email, password }));
       if (user.payload?.access_token) {
@@ -50,19 +64,20 @@ export default function LoginPage() {
     if (successMessage) {
       timer = setTimeout(() => {
         dispatch(clearSuccessMessage());
-      }, 2000);
+      }, 4000);
     }
-    if (error) {
+    if (error || validationError) {
       timer = setTimeout(() => {
         dispatch(clearErrorMessage());
-      }, 2000);
+        setValidationError('');
+      }, 4000);
     }
     return () => {
       if (timer) {
         clearTimeout(timer);
       }
     };
-  }, [successMessage, error, dispatch]);
+  }, [successMessage, validationError, error, dispatch]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-white py-12 px-4 sm:px-6 lg:px-8">
@@ -86,7 +101,6 @@ export default function LoginPage() {
                 name="email"
                 value={email}
                 onChange={(value) => setUsername(value)}
-                required
               />
               <div className="space-y-4"></div>
             </div>
@@ -103,7 +117,6 @@ export default function LoginPage() {
                 name="password"
                 value={password}
                 onChange={(value) => setPassword(value)}
-                required
                 type="password"
               />
               <div className="space-y-4"></div>
@@ -135,9 +148,15 @@ export default function LoginPage() {
               </div>
             </div>
           </form>
-          {error && <div className="text-red-700">{error}</div>}{' '}
+          {(error || validationError) && (
+            <div className="text-center text-red-700 mt-4 text-base">
+              {error || validationError}
+            </div>
+          )}{' '}
           {successMessage && (
-            <div className="text-green-700">{successMessage}</div>
+            <div className="text-center text-green-700 mt-4 text-base">
+              {successMessage}
+            </div>
           )}
         </div>
       </div>

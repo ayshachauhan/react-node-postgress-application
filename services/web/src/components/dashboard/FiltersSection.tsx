@@ -255,6 +255,10 @@ const FiltersSection: React.FC<{
       index: index + 1,
       hospital: ele.totalHospitalPricing,
       prof: ele.totalProfessionalPricing,
+      count:
+        ele?.surgeryConfiguration?.name.toLowerCase() === 'cataract'
+          ? ele?.count
+          : '',
       action: actionIcons,
       surgeryOrder: ele.surgeryOrder,
       surgeryStatus: ele.surgeryStatus,
@@ -863,7 +867,20 @@ const FiltersSection: React.FC<{
                                           </div>
                                         </td>
                                         <td rowSpan={1} className="">
-                                          {row.surgery}
+                                          {row?.count && (
+                                            <span
+                                              className={`px-1 text-white rounded mr-1 ${
+                                                row.count === 1
+                                                  ? 'bg-green-600'
+                                                  : row.count === 2
+                                                    ? 'bg-blue-600'
+                                                    : ''
+                                              }`}
+                                            >
+                                              {row.count}
+                                            </span>
+                                          )}
+                                          {row?.surgery}
                                         </td>
                                         <td rowSpan={1} className="">
                                           {row.bodyPart}
