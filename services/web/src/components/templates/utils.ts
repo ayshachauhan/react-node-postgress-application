@@ -48,10 +48,10 @@ export const getRandomSurgeryData = (surgeries, templateInfo) => {
 
 export function filterUpcomingSurgeries(data) {
   const currentDate = new Date();
-  currentDate.setHours(0, 0, 0, 0);
+  // currentDate.setHours(0, 0, 0, 0);
   return data.filter((item) => {
     const itemDate = new Date(item.date);
-    itemDate.setHours(0, 0, 0, 0);
+    // itemDate.setHours(0, 0, 0, 0);
     return itemDate >= currentDate;
   });
 }

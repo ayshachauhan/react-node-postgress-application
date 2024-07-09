@@ -21,7 +21,7 @@ import { SurgeryConfigurationsService } from 'src/surgeryConfiguration/surgeryCo
 import { SystemTemplates } from 'src/transporter/transporter.types';
 import { UsersService } from 'src/users/users.service';
 import { formatHeaderDate } from 'src/utils';
-import { In, MoreThanOrEqual, Repository } from 'typeorm';
+import { In, MoreThan, Repository } from 'typeorm';
 import {
   EvalChangesKeyValues,
   findChangedValues,
@@ -343,7 +343,7 @@ export class EvalsService {
 
   async findEvalByPatient(patientId: string, date: Date): Promise<IEval[]> {
     return await this.evalRepository.find({
-      where: { patient: { id: patientId }, date: MoreThanOrEqual(date) },
+      where: { patient: { id: patientId }, date: MoreThan(date) },
       relations: ['surgeryConfiguration'],
     });
   }

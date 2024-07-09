@@ -49,6 +49,7 @@ import {
   ILike,
   In,
   LessThan,
+  MoreThan,
   MoreThanOrEqual,
   Repository,
 } from 'typeorm';
@@ -652,7 +653,7 @@ export class SurgeryService {
     date: Date,
   ): Promise<ISurgery[]> {
     return await this.surgeryRepository.find({
-      where: { patient: { id: patientId }, date: MoreThanOrEqual(date) },
+      where: { patient: { id: patientId }, date: MoreThan(date) },
       relations: ['surgeryConfiguration'],
     });
   }
