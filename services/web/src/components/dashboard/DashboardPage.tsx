@@ -84,7 +84,7 @@ const DashboardPage: React.FC = () => {
     if (reviewErrorMessage) {
       const timeout = setTimeout(() => {
         setReviewErrorMessage('');
-      }, 1000);
+      }, 5000);
 
       return () => clearTimeout(timeout);
     }
@@ -96,7 +96,7 @@ const DashboardPage: React.FC = () => {
     if (reviewSuccessMessage) {
       const timeout2 = setTimeout(() => {
         setReviewSuccessMessage('');
-      }, 1000);
+      }, 5000);
 
       return () => clearTimeout(timeout2);
     }
@@ -237,12 +237,16 @@ const DashboardPage: React.FC = () => {
         )}
         {reviewErrorMessage && (
           <div className="text-red-700 fixed top-0 left-1/2 mt-20 transform -translate-x-1/2">
-            {reviewErrorMessage}
+            <div className="bg-white shadow text-base p-6 rounded-lg min-w-96 text-center">
+              {reviewErrorMessage}
+            </div>
           </div>
         )}
         {reviewSuccessMessage && (
           <div className="text-green-700 fixed top-0 left-1/2 mt-20 transform -translate-x-1/2">
-            {reviewSuccessMessage}
+            <div className="bg-white shadow text-base p-6 rounded-lg min-w-96 text-center">
+              {reviewSuccessMessage}
+            </div>
           </div>
         )}
         <div className="flex  justify-between">

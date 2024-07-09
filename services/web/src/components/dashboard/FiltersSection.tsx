@@ -694,55 +694,74 @@ const FiltersSection: React.FC<{
                                   <th className="">MRN</th>
                                   <th className="">Surgery</th>
                                   <th className="">Body Part</th>
-                                  <th>
-                                    {customOptionsHeaders &&
-                                      customOptionsHeaders.map(
-                                        (optionsHeader, optionsHeaderIndex) => (
-                                          <span
-                                            className=""
-                                            key={optionsHeaderIndex}
-                                          >
-                                            {optionsHeader}
-                                          </span>
-                                        ),
-                                      )}
+                                  <th className="p-0">
+                                    <table className="w-full">
+                                      <tbody>
+                                        <tr>
+                                          {customOptionsHeaders &&
+                                            customOptionsHeaders.map(
+                                              (
+                                                optionsHeader,
+                                                optionsHeaderIndex,
+                                              ) => (
+                                                <th
+                                                  className="min-w-12 w-1/2"
+                                                  key={optionsHeaderIndex}
+                                                >
+                                                  {optionsHeader}
+                                                </th>
+                                              ),
+                                            )}
+                                        </tr>
+                                      </tbody>
+                                    </table>
                                   </th>
                                   <th className="p-0">
-                                    <tr>
-                                      {customConditionalHeaders &&
-                                        customConditionalHeaders.map(
-                                          (
-                                            customConditionalHeader,
-                                            customConditionalHeaderIndex,
-                                          ) => (
-                                            <th
-                                              className=""
-                                              key={customConditionalHeaderIndex}
-                                            >
-                                              {customConditionalHeader}
-                                            </th>
-                                          ),
-                                        )}
-                                    </tr>
+                                    <table className="w-full">
+                                      <tbody>
+                                        <tr>
+                                          {customConditionalHeaders &&
+                                            customConditionalHeaders.map(
+                                              (
+                                                customConditionalHeader,
+                                                customConditionalHeaderIndex,
+                                              ) => (
+                                                <th
+                                                  className="w-1/2 min-w-10"
+                                                  key={
+                                                    customConditionalHeaderIndex
+                                                  }
+                                                >
+                                                  {customConditionalHeader}
+                                                </th>
+                                              ),
+                                            )}
+                                        </tr>
+                                      </tbody>
+                                    </table>
                                   </th>
                                   <th className="">#</th>
                                   <th className="p-0">
-                                    <tr>
-                                      {customCheckListHeaders &&
-                                        customCheckListHeaders.map(
-                                          (
-                                            checkListHeader,
-                                            checkListHeaderIndex,
-                                          ) => (
-                                            <th
-                                              className=""
-                                              key={checkListHeaderIndex}
-                                            >
-                                              {checkListHeader}
-                                            </th>
-                                          ),
-                                        )}
-                                    </tr>
+                                    <table className="w-full">
+                                      <tbody>
+                                        <tr>
+                                          {customCheckListHeaders &&
+                                            customCheckListHeaders.map(
+                                              (
+                                                checkListHeader,
+                                                checkListHeaderIndex,
+                                              ) => (
+                                                <th
+                                                  className="w-full min-w-10"
+                                                  key={checkListHeaderIndex}
+                                                >
+                                                  {checkListHeader}
+                                                </th>
+                                              ),
+                                            )}
+                                        </tr>
+                                      </tbody>
+                                    </table>
                                   </th>
                                   {viewBillingColumn && viewBillingColumn && (
                                     <th className="">Prof</th>
@@ -849,123 +868,143 @@ const FiltersSection: React.FC<{
                                         <td rowSpan={1} className="">
                                           {row.bodyPart}
                                         </td>
-                                        <td rowSpan={2}>
-                                          {customOptionsHeaders &&
-                                            customOptionsHeaders.map(
-                                              (
-                                                optionsHeader,
-                                                optionsHeaderIndex,
-                                              ) => {
-                                                const elements: JSX.Element[] =
-                                                  [];
-                                                if (
-                                                  row[`${optionsHeader}-count`]
-                                                ) {
-                                                  for (
-                                                    let index = 0;
-                                                    index <
-                                                    row[
-                                                      `${optionsHeader}-count`
-                                                    ];
-                                                    index++
-                                                  ) {
-                                                    elements.push(
-                                                      <div
-                                                        className=""
-                                                        key={index}
-                                                      >
-                                                        {
+                                        <td className="p-0" rowSpan={2}>
+                                          <table>
+                                            <tbody>
+                                              <tr>
+                                                {customOptionsHeaders &&
+                                                  customOptionsHeaders.map(
+                                                    (
+                                                      optionsHeader,
+                                                      optionsHeaderIndex,
+                                                    ) => {
+                                                      const elements: JSX.Element[] =
+                                                        [];
+                                                      if (
+                                                        row[
+                                                          `${optionsHeader}-count`
+                                                        ]
+                                                      ) {
+                                                        for (
+                                                          let index = 0;
+                                                          index <
                                                           row[
-                                                            `${optionsHeader}-${index}`
-                                                          ]
+                                                            `${optionsHeader}-count`
+                                                          ];
+                                                          index++
+                                                        ) {
+                                                          elements.push(
+                                                            <div
+                                                              className=""
+                                                              key={index}
+                                                            >
+                                                              {
+                                                                row[
+                                                                  `${optionsHeader}-${index}`
+                                                                ]
+                                                              }
+                                                            </div>,
+                                                          );
                                                         }
-                                                      </div>,
-                                                    );
-                                                  }
-                                                }
+                                                      }
 
-                                                return (
-                                                  <span
-                                                    className=""
-                                                    key={optionsHeaderIndex}
-                                                  >
-                                                    {elements}
-                                                  </span>
-                                                );
-                                              },
-                                            )}
+                                                      return (
+                                                        <td
+                                                          className="w-1/2 min-w-12"
+                                                          key={
+                                                            optionsHeaderIndex
+                                                          }
+                                                        >
+                                                          {elements}
+                                                        </td>
+                                                      );
+                                                    },
+                                                  )}
+                                              </tr>
+                                            </tbody>
+                                          </table>
                                         </td>
                                         <td className="p-0" rowSpan={2}>
-                                          <tr>
-                                            {customConditionalHeaders &&
-                                              customConditionalHeaders.map(
-                                                (
-                                                  conditionalHeader,
-                                                  conditionalHeaderIndex,
-                                                ) => {
-                                                  const elements: JSX.Element[] =
-                                                    [];
-                                                  if (
-                                                    row[
-                                                      `${conditionalHeader}-count`
-                                                    ]
-                                                  ) {
-                                                    for (
-                                                      let index = 0;
-                                                      index <
-                                                      row[
-                                                        `${conditionalHeader}-count`
-                                                      ];
-                                                      index++
-                                                    ) {
-                                                      elements.push(
-                                                        <div
-                                                          className=""
-                                                          key={index}
-                                                        >
-                                                          {
-                                                            row[
-                                                              `${conditionalHeader}-${index}`
-                                                            ]
-                                                          }
-                                                        </div>,
-                                                      );
-                                                    }
-                                                  }
-                                                  return (
-                                                    <td
-                                                      className=""
-                                                      key={
-                                                        conditionalHeaderIndex
+                                          <table>
+                                            <tbody>
+                                              <tr>
+                                                {customConditionalHeaders &&
+                                                  customConditionalHeaders.map(
+                                                    (
+                                                      conditionalHeader,
+                                                      conditionalHeaderIndex,
+                                                    ) => {
+                                                      const elements: JSX.Element[] =
+                                                        [];
+                                                      if (
+                                                        row[
+                                                          `${conditionalHeader}-count`
+                                                        ]
+                                                      ) {
+                                                        for (
+                                                          let index = 0;
+                                                          index <
+                                                          row[
+                                                            `${conditionalHeader}-count`
+                                                          ];
+                                                          index++
+                                                        ) {
+                                                          elements.push(
+                                                            <div
+                                                              className=""
+                                                              key={index}
+                                                            >
+                                                              {
+                                                                row[
+                                                                  `${conditionalHeader}-${index}`
+                                                                ]
+                                                              }
+                                                            </div>,
+                                                          );
+                                                        }
                                                       }
-                                                    >
-                                                      {elements}
-                                                    </td>
-                                                  );
-                                                },
-                                              )}
-                                          </tr>
+                                                      return (
+                                                        <td
+                                                          className="w-1/2 min-w-10"
+                                                          key={
+                                                            conditionalHeaderIndex
+                                                          }
+                                                        >
+                                                          {elements}
+                                                        </td>
+                                                      );
+                                                    },
+                                                  )}
+                                              </tr>
+                                            </tbody>
+                                          </table>
                                         </td>
                                         <td rowSpan={2} className="">
                                           {row.surgeryOrder}
                                         </td>
                                         <td className="p-0" rowSpan={2}>
-                                          <tr>
-                                            {customCheckListHeaders &&
-                                              customCheckListHeaders.map(
-                                                (
-                                                  checkListHeader,
-                                                  checkListHeaderIndex,
-                                                ) => (
-                                                  <td
-                                                    className=""
-                                                    key={checkListHeaderIndex}
-                                                  >
-                                                    {row[checkListHeader]}
-                                                  </td>
-                                                ),
-                                              )}
-                                          </tr>
+                                          <table className="w-full">
+                                            <tbody>
+                                              <tr>
+                                                {customCheckListHeaders &&
+                                                  customCheckListHeaders.map(
+                                                    (
+                                                      checkListHeader,
+                                                      checkListHeaderIndex,
+                                                    ) => (
+                                                      <td
+                                                        className="min-w-10 w-full"
+                                                        key={
+                                                          checkListHeaderIndex
+                                                        }
+                                                      >
+                                                        {row[checkListHeader]}
+                                                      </td>
+                                                    ),
+                                                  )}
+                                              </tr>
+                                            </tbody>
+                                          </table>
                                         </td>
 
                                         {viewBillingColumn && (
