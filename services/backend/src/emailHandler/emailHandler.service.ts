@@ -12,7 +12,7 @@ import {
   SurgeryEmailEntity,
 } from '@packages/entities';
 import { ENVIRONMENT_VARIABLES } from 'src/enums/environment.enums';
-import { EvalsService } from 'src/evals/evals.service';
+// import { EvalsService } from 'src/evals/evals.service';
 import { SurgeryService } from 'src/surgery/surgery.service';
 import { TemplatesService } from 'src/templates/templates.service';
 import { TransporterService } from 'src/transporter';
@@ -44,8 +44,8 @@ export class EmailHandlerService {
     private templateService: TemplatesService,
     @Inject(forwardRef(() => TransporterService))
     private transporterService: TransporterService,
-    @Inject(forwardRef(() => EvalsService))
-    private evalService: EvalsService,
+    // @Inject(forwardRef(() => EvalsService))s
+    // private evalService: EvalsService,
     @Inject(forwardRef(() => SurgeryService))
     private surgeryService: SurgeryService,
     private readonly configService: ConfigService,
@@ -452,12 +452,18 @@ export class EmailHandlerService {
     } = entity;
 
     const allCaseType: string[] = [];
-    const upcomingEvals = await this.evalService.findEvalByPatient(
-      patientId,
-      new Date(),
-    );
+    /*
+    
+    FOR FUTURE USE
+    this code may be beneficial for future use to add upcoming evals in variable
+    
+    */
+    // const upcomingEvals = await this.evalService.findEvalByPatient(
+    //   patientId,
+    //   new Date(),
+    // );
 
-    allCaseType.push(...makeAllCaseArray(upcomingEvals));
+    // allCaseType.push(...makeAllCaseArray(upcomingEvals));
 
     const upcomingSurgeries = await this.surgeryService.findSurgeryByPatient(
       patientId,
