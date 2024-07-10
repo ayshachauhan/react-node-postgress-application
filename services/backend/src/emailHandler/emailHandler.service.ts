@@ -150,6 +150,9 @@ export class EmailHandlerService {
     const templates = await this.templateService.getFilteredTemplates({
       surgeryConfigId,
     });
+    const { adminEmails } = practice.emailData;
+    const ccAdminEmails: string =
+      adminEmails && adminEmails.length ? `${adminEmails}` : '';
 
     const emailLogsEntries: Partial<IEmailLog>[] = [];
 
@@ -181,6 +184,7 @@ export class EmailHandlerService {
             '2ndCataract': template.email2ndCataract
               ? this.mailVariableManipulator(template.email2ndCataract)
               : '',
+            cc: ccAdminEmails,
           },
           attachment: template.emailAttachment,
         };
@@ -249,6 +253,7 @@ export class EmailHandlerService {
           subject: systemGeneratedMailData.subject,
           text: systemGeneratedMailData.text,
           to: mailVariables.pt_email_address,
+          cc: ccAdminEmails,
         },
       };
       emailLogsEntries.push(entry);
@@ -484,6 +489,9 @@ export class EmailHandlerService {
     data: Record<string, string>,
     practice: IPractice,
   ): Promise<void> {
+    const { adminEmails } = practice.emailData;
+    const ccAdminEmails: string =
+      adminEmails && adminEmails.length ? `${adminEmails}` : '';
     const entry: Partial<IEmailLog> = {
       practice,
       expectedDate: new Date(),
@@ -498,6 +506,7 @@ export class EmailHandlerService {
         subject: 'Surgery Videos.',
         text: '',
         pt_email_address: data.email,
+        cc: ccAdminEmails,
       },
     };
     await this.emailLogRepository.save(entry);
