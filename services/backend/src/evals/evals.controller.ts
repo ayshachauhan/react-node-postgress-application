@@ -38,8 +38,9 @@ export class EvalsController {
     @Param() { practiceId }: { practiceId: string },
     @Query('includeDeleted', ParseStringToBooleanPipe)
     includeDeleted: boolean = false,
+    @Query('doctorId') doctorId?: string,
   ): Promise<EvalEntity[]> {
-    return this.evalService.findAll(practiceId, includeDeleted);
+    return this.evalService.findAll(practiceId, includeDeleted, doctorId);
   }
 
   @Get(':id')

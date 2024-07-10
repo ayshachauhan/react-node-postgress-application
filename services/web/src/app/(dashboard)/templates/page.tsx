@@ -13,7 +13,7 @@ import {
   clearSuccessMessage,
   fetchListings,
 } from '@root/store/reducers/templates';
-import { getCurrentMonthName, getPracticeId } from '@utils/index';
+import { getCurrentMonthName, getPracticeId, getUserId } from '@utils/index';
 import React, { useEffect, useState } from 'react';
 
 const Templates: React.FC = () => {
@@ -39,6 +39,8 @@ const Templates: React.FC = () => {
   const handleOpenAddModal = (): void => {
     setIsAddModalOpen(true);
   };
+
+  const doctorId = getUserId();
 
   const handleOpenUpdateModal = (
     Id: string,
@@ -99,12 +101,13 @@ const Templates: React.FC = () => {
 
   useEffect(() => {
     (async () => {
-      if (practiceId) {
+      if (practiceId && doctorId) {
         await dispatch(
           fetchSurgeryList({
             loggedInUserId: userId,
             practiceId,
             month: getCurrentMonthName(),
+            doctorId,
           }),
         );
       }

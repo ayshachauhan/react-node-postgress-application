@@ -113,6 +113,7 @@ export function constructQueryParams(params: {
   searchMRNName?: string;
   option?: string;
   loggedInUserId?: string;
+  doctorId?: string;
 }): string {
   const queryString = Object.entries(params)
     .filter(([, value]) => value !== undefined && value !== null)

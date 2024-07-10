@@ -114,7 +114,9 @@ const EvalPage: React.FC = () => {
     if (practiceId) {
       const loadData = async () => {
         await withLoader(async () => {
-          await dispatch(fetchEvalsList({ practiceId }));
+          await dispatch(
+            fetchEvalsList({ practiceId, doctorId: userId || '' }),
+          );
         });
       };
 
@@ -128,14 +130,14 @@ const EvalPage: React.FC = () => {
       dispatch(fetchPatients({ practiceId }));
       dispatch(fetchWaitlist({ practiceId }));
     }
-  }, [practiceId, dispatch, withLoader]);
+  }, [practiceId, dispatch, withLoader, userId]);
 
   useEffect(() => {
     if (addEvalSuccessMessage) {
       if (practiceId) {
         const loadData = async () => {
           await withLoader(async () => {
-            dispatch(fetchEvalsList({ practiceId }));
+            dispatch(fetchEvalsList({ practiceId, doctorId: userId || '' }));
           });
         };
 

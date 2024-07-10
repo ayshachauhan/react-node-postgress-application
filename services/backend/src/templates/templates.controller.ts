@@ -33,9 +33,9 @@ export class TemplatesController {
   @UseGuards(PermissionGuard(USER_PERMISSIONS.VIEW_TEMPLATES))
   @UseInterceptors(practiceNotFoundInterceptor)
   async findAll(
-    @Param() { practiceId, userId }: { practiceId: string; userId: string },
+    @Param() { practiceId }: { practiceId: string; userId: string },
   ): Promise<TemplateEntity[]> {
-    return this.templateService.findAll(practiceId, userId);
+    return this.templateService.findAll(practiceId);
   }
 
   @Post()

@@ -74,6 +74,7 @@ type WhereClause = {
   };
   date?: Date | FindOperator<Date>;
   patient?: FindOptionsWhere<PatientEntity> | FindOptionsWhere<PatientEntity>[];
+  doctor?: { id: string };
 };
 
 @Injectable()
@@ -119,6 +120,7 @@ export class SurgeryService {
     searchMRNName?: string,
     option?: string,
     loggedInUserId?: string,
+    doctorId?: string,
   ): Promise<SurgerySearchResult> {
     const [userInfo, dbPracticeHomesByPractice] = await Promise.all([
       loggedInUserId ? this.userService.getUserById(loggedInUserId) : null,
@@ -135,6 +137,10 @@ export class SurgeryService {
       },
       practice: { id: practiceId }, //TO DO: make practice id not null in future
     };
+
+    if (doctorId) {
+      whereClause.doctor = { id: doctorId };
+    }
 
     const searchConditions: FindManyOptions<SurgeryEntity> = {
       where: whereClause,

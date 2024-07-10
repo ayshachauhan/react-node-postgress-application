@@ -92,7 +92,11 @@ const Header: React.FC<ChildProps> = ({ data }) => {
 
   const router = useRouter();
   const currentPath = usePathname();
-  const isDashboardPage = currentPath === '/dashboard';
+  // const isDashboardPage = currentPath === '/dashboard';
+  const isSettingsPage =
+    currentPath.includes('/settings') ||
+    currentPath === '/users' ||
+    currentPath === '/templates';
   const handleLogout = () => {
     dispatch(logoutUser());
     router.push('/login');
@@ -154,7 +158,7 @@ const Header: React.FC<ChildProps> = ({ data }) => {
       <div className="px-5 py-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
-            {!is_super_admin && isDashboardPage && (
+            {!is_super_admin && (
               <>
                 <div className="flex items-center border-r-2 pr-4 mr-4">
                   {!is_super_admin && (
@@ -197,8 +201,8 @@ const Header: React.FC<ChildProps> = ({ data }) => {
                     </>
                   )}
                 </div>
-                <div>Doctor:</div>
-                {users && users.length > 1 ? (
+                {!isSettingsPage && <div>Doctor:</div>}
+                {!isSettingsPage && users && users.length > 1 ? (
                   <Dropdown
                     position="bottomLeft"
                     trigger={selectedUserBox}
@@ -211,7 +215,9 @@ const Header: React.FC<ChildProps> = ({ data }) => {
                     ))}
                   </Dropdown>
                 ) : (
-                  <div>&nbsp;&nbsp;&nbsp;{users && users[0]?.fullName}</div>
+                  !isSettingsPage && (
+                    <div>&nbsp;&nbsp;&nbsp;{users && users[0]?.fullName}</div>
+                  )
                 )}
               </>
             )}

@@ -40,6 +40,7 @@ const DashboardPage: React.FC = () => {
   const userInfo = useAppSelector((state) => state.auth.user);
   const userPermissions = userInfo?.permissions;
   const loggedInUserId = userInfo?.id ?? null;
+  const doctorId = getUserId();
   const { selectedMonth, searchMRNName, selectedValue } = useAppSelector(
     (state) => state.surgeries.surgeryFilters,
   );
@@ -112,7 +113,7 @@ const DashboardPage: React.FC = () => {
     if (practiceId) {
       const loadData = async () => {
         await withLoader(async () => {
-          if (loggedInUserId !== null) {
+          if (loggedInUserId !== null && doctorId) {
             await dispatch(
               fetchSurgeryList({
                 loggedInUserId,
@@ -120,13 +121,14 @@ const DashboardPage: React.FC = () => {
                 month: month,
                 searchMRNName: searchMRNNameStr,
                 option: selectedValueStr,
+                doctorId,
               }),
             );
           }
         });
       };
       loadData();
-      dispatch(fetchEvalsList({ practiceId }));
+      dispatch(fetchEvalsList({ practiceId, doctorId: doctorId || '' }));
       dispatch(fetchInsuranceTypesList({ practiceId }));
       dispatch(fetchPracticeHomesListing({ practiceId }));
       dispatch(fetchSurgeryTypesListing({ practiceId }));
@@ -136,7 +138,7 @@ const DashboardPage: React.FC = () => {
       dispatch(fetchPatients({ practiceId }));
       dispatch(fetchWaitlist({ practiceId }));
     }
-  }, [practiceId, dispatch, withLoader]);
+  }, [practiceId, dispatch, withLoader, doctorId]);
   const updateSuccessCase = 'Surgery updated successfully.';
 
   useEffect(() => {
@@ -147,7 +149,7 @@ const DashboardPage: React.FC = () => {
       if (practiceId) {
         const loadData = async () => {
           await withLoader(async () => {
-            if (loggedInUserId !== null) {
+            if (loggedInUserId !== null && doctorId) {
               await dispatch(
                 fetchSurgeryList({
                   loggedInUserId,
@@ -155,13 +157,14 @@ const DashboardPage: React.FC = () => {
                   month: month,
                   searchMRNName: searchMRNNameStr,
                   option: selectedValueStr,
+                  doctorId: doctorId || '',
                 }),
               );
             }
           });
         };
         loadData();
-        dispatch(fetchEvalsList({ practiceId }));
+        dispatch(fetchEvalsList({ practiceId, doctorId: doctorId || '' }));
         dispatch(clearSurgerySuccessMessage());
         dispatch(clearEvalSuccessMessage());
         dispatch(fetchSurgeryConfigurationsListing({ practiceId }));

@@ -23,10 +23,10 @@ export class TemplatesService {
     private readonly s3Service: S3Service,
   ) {}
 
-  async findAll(practiceId: string, userId: string): Promise<TemplateEntity[]> {
+  async findAll(practiceId: string): Promise<TemplateEntity[]> {
     await this.practiceService.findOne(practiceId);
     return await this.templateRepository.find({
-      where: { practice: { id: practiceId }, surgeon: { id: userId } },
+      where: { practice: { id: practiceId } },
       relations: ['surgeryConfiguration'],
     });
   }

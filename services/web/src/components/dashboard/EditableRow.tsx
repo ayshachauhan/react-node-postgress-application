@@ -7,7 +7,7 @@ import { useUserPermission } from '@root/hooks/userHasPermission';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { fetchListings as fetchReviews } from '@root/store/reducers/review';
 import { fetchListings, updateRecordAsync } from '@root/store/reducers/surgery';
-import { getPracticeId, toFullName } from '@root/utils';
+import { getPracticeId, getUserId, toFullName } from '@root/utils';
 import { DatePicker } from 'baseui/datepicker';
 import { SIZE, Select } from 'baseui/select';
 import React, { useEffect, useState } from 'react';
@@ -63,6 +63,8 @@ function EditableRow({
   const [insuranceTypeId, setInsuranceTypeId] = useState<string>('');
   const [referrerId, setReferrerId] = useState<string>('');
   const [waitlistId, setWaitlistId] = useState<string>('');
+
+  const doctorId = getUserId();
 
   useEffect(() => {
     if (surgeryInfo.id && surgeryInfo) {
@@ -139,7 +141,7 @@ function EditableRow({
     const month = monthLabels.join(',');
     const selectedOption = selectedValue;
 
-    if (practiceId && loggedInUserId !== null) {
+    if (practiceId && loggedInUserId !== null && doctorId) {
       await dispatch(
         fetchListings({
           loggedInUserId,
@@ -147,6 +149,7 @@ function EditableRow({
           month: month,
           searchMRNName,
           option: selectedOption,
+          doctorId,
         }),
       );
     }
