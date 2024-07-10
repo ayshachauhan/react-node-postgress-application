@@ -12,7 +12,7 @@ import {
   SurgeryEmailEntity,
 } from '@packages/entities';
 import { ENVIRONMENT_VARIABLES } from 'src/enums/environment.enums';
-import { EvalsService } from 'src/evals/evals.service';
+// import { EvalsService } from 'src/evals/evals.service';
 import { SurgeryService } from 'src/surgery/surgery.service';
 import { TemplatesService } from 'src/templates/templates.service';
 import { TransporterService } from 'src/transporter';
@@ -44,8 +44,8 @@ export class EmailHandlerService {
     private templateService: TemplatesService,
     @Inject(forwardRef(() => TransporterService))
     private transporterService: TransporterService,
-    @Inject(forwardRef(() => EvalsService))
-    private evalService: EvalsService,
+    // @Inject(forwardRef(() => EvalsService))s
+    // private evalService: EvalsService,
     @Inject(forwardRef(() => SurgeryService))
     private surgeryService: SurgeryService,
     private readonly configService: ConfigService,
@@ -150,6 +150,9 @@ export class EmailHandlerService {
     const templates = await this.templateService.getFilteredTemplates({
       surgeryConfigId,
     });
+    const { adminEmails } = practice.emailData;
+    const ccAdminEmails: string =
+      adminEmails && adminEmails.length ? `${adminEmails}` : '';
 
     const emailLogsEntries: Partial<IEmailLog>[] = [];
 
@@ -181,6 +184,7 @@ export class EmailHandlerService {
             '2ndCataract': template.email2ndCataract
               ? this.mailVariableManipulator(template.email2ndCataract)
               : '',
+            cc: ccAdminEmails,
           },
           attachment: template.emailAttachment,
         };
@@ -249,6 +253,7 @@ export class EmailHandlerService {
           subject: systemGeneratedMailData.subject,
           text: systemGeneratedMailData.text,
           to: mailVariables.pt_email_address,
+          cc: ccAdminEmails,
         },
       };
       emailLogsEntries.push(entry);
@@ -452,12 +457,18 @@ export class EmailHandlerService {
     } = entity;
 
     const allCaseType: string[] = [];
-    const upcomingEvals = await this.evalService.findEvalByPatient(
-      patientId,
-      new Date(),
-    );
+    /*
+    
+    FOR FUTURE USE
+    this code may be beneficial for future use to add upcoming evals in variable
+    
+    */
+    // const upcomingEvals = await this.evalService.findEvalByPatient(
+    //   patientId,
+    //   new Date(),
+    // );
 
-    allCaseType.push(...makeAllCaseArray(upcomingEvals));
+    // allCaseType.push(...makeAllCaseArray(upcomingEvals));
 
     const upcomingSurgeries = await this.surgeryService.findSurgeryByPatient(
       patientId,
@@ -478,6 +489,9 @@ export class EmailHandlerService {
     data: Record<string, string>,
     practice: IPractice,
   ): Promise<void> {
+    const { adminEmails } = practice.emailData;
+    const ccAdminEmails: string =
+      adminEmails && adminEmails.length ? `${adminEmails}` : '';
     const entry: Partial<IEmailLog> = {
       practice,
       expectedDate: new Date(),
@@ -492,6 +506,7 @@ export class EmailHandlerService {
         subject: 'Surgery Videos.',
         text: '',
         pt_email_address: data.email,
+        cc: ccAdminEmails,
       },
     };
     await this.emailLogRepository.save(entry);

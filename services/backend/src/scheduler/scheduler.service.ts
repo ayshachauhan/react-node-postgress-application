@@ -52,7 +52,7 @@ export class SchedulerService {
       logger.info(`Found ${data.length} emails to send`);
 
       const promises = data.map(async (mailData: EmailLogEntity) => {
-        const { subject, text, body, to } = mailData.data;
+        const { subject, text, body, to, cc } = mailData.data;
         const mailOptions: Mail.Options = {
           subject,
           to,
@@ -61,6 +61,7 @@ export class SchedulerService {
           attachments: mailData.attachment
             ? [{ path: mailData.attachment }]
             : [],
+          cc: cc ?? '',
         };
 
         // sending mail here
