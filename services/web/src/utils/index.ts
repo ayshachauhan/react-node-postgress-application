@@ -134,7 +134,6 @@ export const getIpAddress = async (): Promise<string> => {
 
 export const getDifferenceInDays = (date1: Date, date2: Date): number => {
   // Convert both dates to UTC to avoid timezone issues
-  console.log(date1, date2);
 
   const utc1 = Date.UTC(date1.getFullYear(), date1.getMonth(), date1.getDate());
   const utc2 = Date.UTC(date2.getFullYear(), date2.getMonth(), date2.getDate());
