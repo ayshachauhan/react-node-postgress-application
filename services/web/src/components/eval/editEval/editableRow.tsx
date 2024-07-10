@@ -277,8 +277,8 @@ function EditableRow({
               }}
             />
           </td>
-          <td rowSpan={1}>
-            <div className="w-28">
+          <td className="min-w-20" rowSpan={1}>
+            <div className="">
               <TextInput
                 size={SIZE.mini}
                 name="lastName"
@@ -287,8 +287,8 @@ function EditableRow({
               />
             </div>
           </td>
-          <td rowSpan={1} className="">
-            <div className="w-28">
+          <td className="min-w-20" rowSpan={1}>
+            <div className="">
               <TextInput
                 size={SIZE.mini}
                 name="firstName"
@@ -297,8 +297,8 @@ function EditableRow({
               />
             </div>
           </td>
-          <td rowSpan={1} className="">
-            <div className="w-28">
+          <td rowSpan={1} className="min-w-20">
+            <div className="">
               <TextInput
                 name="mrn"
                 type="number"
@@ -308,8 +308,8 @@ function EditableRow({
               />
             </div>
           </td>
-          <td rowSpan={1} className="">
-            <div className="w-28">
+          <td rowSpan={1} className="min-w-20">
+            <div>
               <TextInput
                 size={SIZE.mini}
                 name="email"
@@ -318,7 +318,7 @@ function EditableRow({
               />
             </div>
           </td>
-          <td rowSpan={1} className="">
+          <td rowSpan={1} className="min-w-20">
             <Select
               backspaceRemoves={false}
               escapeClearsValue={false}
@@ -350,7 +350,7 @@ function EditableRow({
               }}
             />
           </td>
-          <td rowSpan={1} className="">
+          <td rowSpan={1} className="min-w-20">
             <Select
               backspaceRemoves={false}
               options={evalInfo.surgeryConfiguration.bodyPart.map((ele) => ({

@@ -14,7 +14,7 @@ const DeleteEvalModal = ({
       title="Confirm Deletion"
     >
       Are you sure you want to delete this Eval?
-      <div className="text-right text-base pt-4">
+      <div className="text-right pt-4">
         <Button kind="primary" title="Delete" onClick={onConfirmDelete}>
           Delete
         </Button>
