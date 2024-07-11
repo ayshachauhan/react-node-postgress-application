@@ -80,6 +80,17 @@ export default function MessagesTable() {
   }, [dispatch, practiceId]);
 
   useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const patientMrn = searchParams.get('patientMrn');
+    if (patientMrn) {
+      handleSearchMRNNameChange(String(patientMrn));
+      searchMRNNameStr = String(patientMrn);
+    } else {
+      searchMRNNameStr = '';
+    }
+  }, [location.search]);
+
+  useEffect(() => {
     if (practiceId !== null) {
       dispatchFetchMessages(searchMRNNameStr);
       dispatch(fetchPatients({ practiceId }));
@@ -176,8 +187,13 @@ export default function MessagesTable() {
   };
 
   const handleSearchMRNNameChange = (value) => {
+    const searchParams = new URLSearchParams(location.search);
+    const patientMrn = searchParams.get('patientMrn');
+    if (patientMrn) {
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
     if (value) {
-      const selectedMrn = value.id;
+      const selectedMrn = value;
       setMrn(selectedMrn);
       const selectedPatient = patientsList.find(
         (patient) => patient.mrn == selectedMrn,
@@ -218,7 +234,7 @@ export default function MessagesTable() {
     return convertedBody;
   };
 
-  const searchMRNNameStr = searchMRNName || '';
+  let searchMRNNameStr = searchMRNName || '';
   const { successMessage, errorMessage } = useAppSelector((state) => ({
     successMessage: state.messages.successMessage,
     errorMessage: state.messages.errorMessage,
@@ -322,7 +338,7 @@ export default function MessagesTable() {
             backspaceClearsInputValue
             backspaceRemoves
             value={mrn ? [{ id: mrn, label: mrn }] : [{ id: '', label: '' }]}
-            onChange={({ value }) => handleSearchMRNNameChange(value[0])}
+            onChange={({ value }) => handleSearchMRNNameChange(value[0]?.id)}
             options={patientsList.map((patient) => ({
               id: patient.mrn,
               label: `${patient.lastName}, ${patient.firstName} | ${patient.mrn}`,
