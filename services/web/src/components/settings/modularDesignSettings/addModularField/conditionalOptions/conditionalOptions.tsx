@@ -199,7 +199,6 @@ const ConditionalOptions: React.FC<{ props }> = ({ props }) => {
                             Name
                           </label>
                           <TextInput
-                            required
                             size={SIZE.mini}
                             name="name"
                             value={name}
@@ -217,7 +216,7 @@ const ConditionalOptions: React.FC<{ props }> = ({ props }) => {
                             Values
                           </label>
                           <Select
-                            required
+                            required={name ? true : false}
                             creatable
                             clearable
                             multi
@@ -449,151 +448,156 @@ const ConditionalOptions: React.FC<{ props }> = ({ props }) => {
                               </div>
                             )}
                           </div>
-                          {dependencies.length &&
-                            dependencies.map((dependency, dependencyIndex) => {
-                              return (
-                                <div
-                                  className="flex flex-row gap-5 mb-2"
-                                  key={dependencyIndex}
-                                >
-                                  <div className="w-1/5 flex-none">
-                                    <Select
-                                      required
-                                      backspaceClearsInputValue
-                                      size={SIZE.mini}
-                                      value={
-                                        dependency.key
-                                          ? [
-                                              {
-                                                id: dependency.key,
-                                                label: dependency.key,
-                                              },
-                                            ]
-                                          : []
-                                      }
-                                      options={
-                                        dependantConditionOption
-                                          ? dependantConditionOption.values.map(
-                                              (ele) => ({
-                                                id: ele,
-                                                label: ele,
-                                              }),
+                          {dependencies.length
+                            ? dependencies.map(
+                                (dependency, dependencyIndex) => {
+                                  return (
+                                    <div
+                                      className="flex flex-row gap-5 mb-2"
+                                      key={dependencyIndex}
+                                    >
+                                      <div className="w-1/5 flex-none">
+                                        <Select
+                                          required
+                                          backspaceClearsInputValue
+                                          size={SIZE.mini}
+                                          value={
+                                            dependency.key
+                                              ? [
+                                                  {
+                                                    id: dependency.key,
+                                                    label: dependency.key,
+                                                  },
+                                                ]
+                                              : []
+                                          }
+                                          options={
+                                            dependantConditionOption
+                                              ? dependantConditionOption.values.map(
+                                                  (ele) => ({
+                                                    id: ele,
+                                                    label: ele,
+                                                  }),
+                                                )
+                                              : []
+                                          }
+                                          onChange={({ option }) =>
+                                            handleDependantOptionKeyChange(
+                                              conditionalOptionIndex,
+                                              dependencyIndex,
+                                              option?.id,
                                             )
-                                          : []
-                                      }
-                                      onChange={({ option }) =>
-                                        handleDependantOptionKeyChange(
-                                          conditionalOptionIndex,
-                                          dependencyIndex,
-                                          option?.id,
-                                        )
-                                      }
-                                      placeholder="Keys Value"
-                                      overrides={{
-                                        ControlContainer: {
-                                          style: {
-                                            backgroundColor:
-                                              'rgba(250, 250, 250, 1)',
-                                            border: 'none',
-                                            color: 'rgba(82, 82, 91, 1)',
-                                            boxShadow:
-                                              '0 2px 4px rgba(0, 0, 0, 0.1)',
-                                          },
-                                        },
-                                        ClearIcon: {
-                                          component: () => null,
-                                        },
-                                      }}
-                                    />
-                                  </div>
-                                  <div className="flex gap-3 min-w-1/5 max-w-4/5">
-                                    <div>
-                                      <Select
-                                        required
-                                        size={SIZE.mini}
-                                        value={
-                                          dependency?.values?.length
-                                            ? dependency.values.map((ele) => ({
-                                                id: ele,
-                                                label: ele,
-                                              }))
-                                            : []
-                                        }
-                                        options={values.map((ele) => ({
-                                          id: ele,
-                                          label: ele,
-                                        }))}
-                                        onChange={(event) =>
-                                          handleDependantValueChange(
-                                            conditionalOptionIndex,
-                                            dependencyIndex,
-                                            event,
-                                          )
-                                        }
-                                        multi
-                                        placeholder="Dependant Value"
-                                        overrides={{
-                                          ControlContainer: {
-                                            style: {
-                                              backgroundColor:
-                                                'rgba(250, 250, 250, 1)',
-                                              border: 'none',
-                                              color: 'rgba(82, 82, 91, 1)',
-                                              boxShadow:
-                                                '0 2px 4px rgba(0, 0, 0, 0.1)',
+                                          }
+                                          placeholder="Keys Value"
+                                          overrides={{
+                                            ControlContainer: {
+                                              style: {
+                                                backgroundColor:
+                                                  'rgba(250, 250, 250, 1)',
+                                                border: 'none',
+                                                color: 'rgba(82, 82, 91, 1)',
+                                                boxShadow:
+                                                  '0 2px 4px rgba(0, 0, 0, 0.1)',
+                                              },
                                             },
-                                          },
-                                          Tag: {
-                                            props: {
-                                              overrides: {
-                                                Root: {
-                                                  style: {
-                                                    borderRadius: '8px',
-                                                    backgroundColor: 'teal',
+                                            ClearIcon: {
+                                              component: () => null,
+                                            },
+                                          }}
+                                        />
+                                      </div>
+                                      <div className="flex gap-3 min-w-1/5 max-w-4/5">
+                                        <div>
+                                          <Select
+                                            required
+                                            size={SIZE.mini}
+                                            value={
+                                              dependency?.values?.length
+                                                ? dependency.values.map(
+                                                    (ele) => ({
+                                                      id: ele,
+                                                      label: ele,
+                                                    }),
+                                                  )
+                                                : []
+                                            }
+                                            options={values.map((ele) => ({
+                                              id: ele,
+                                              label: ele,
+                                            }))}
+                                            onChange={(event) =>
+                                              handleDependantValueChange(
+                                                conditionalOptionIndex,
+                                                dependencyIndex,
+                                                event,
+                                              )
+                                            }
+                                            multi
+                                            placeholder="Dependant Value"
+                                            overrides={{
+                                              ControlContainer: {
+                                                style: {
+                                                  backgroundColor:
+                                                    'rgba(250, 250, 250, 1)',
+                                                  border: 'none',
+                                                  color: 'rgba(82, 82, 91, 1)',
+                                                  boxShadow:
+                                                    '0 2px 4px rgba(0, 0, 0, 0.1)',
+                                                },
+                                              },
+                                              Tag: {
+                                                props: {
+                                                  overrides: {
+                                                    Root: {
+                                                      style: {
+                                                        borderRadius: '8px',
+                                                        backgroundColor: 'teal',
+                                                      },
+                                                    },
                                                   },
                                                 },
                                               },
-                                            },
-                                          },
-                                          ClearIcon: {
-                                            component: () => null,
-                                          },
-                                        }}
-                                      />
-                                    </div>
-                                    {dependencies.length > 1 && (
-                                      <div className="text-right text-sm">
-                                        <Button
-                                          type="button"
-                                          kind="tertiary"
-                                          title=""
-                                          width={30}
-                                          height={30}
-                                          shape={SHAPE.circle}
-                                          style={{
-                                            backgroundColor: 'white',
-                                            color: 'black',
-                                            border: 'black',
-                                          }}
-                                          startEnhancer={() => (
-                                            <CloseIcon
-                                              className="mt-2 ml-2 pb-2"
-                                              size={20}
-                                            ></CloseIcon>
-                                          )}
-                                          onClick={() =>
-                                            handleRemoveDependencies(
-                                              conditionalOptionIndex,
-                                              dependencyIndex,
-                                            )
-                                          }
-                                        />
+                                              ClearIcon: {
+                                                component: () => null,
+                                              },
+                                            }}
+                                          />
+                                        </div>
+                                        {dependencies.length > 1 && (
+                                          <div className="text-right text-sm">
+                                            <Button
+                                              type="button"
+                                              kind="tertiary"
+                                              title=""
+                                              width={30}
+                                              height={30}
+                                              shape={SHAPE.circle}
+                                              style={{
+                                                backgroundColor: 'white',
+                                                color: 'black',
+                                                border: 'black',
+                                              }}
+                                              startEnhancer={() => (
+                                                <CloseIcon
+                                                  className="mt-2 ml-2 pb-2"
+                                                  size={20}
+                                                ></CloseIcon>
+                                              )}
+                                              onClick={() =>
+                                                handleRemoveDependencies(
+                                                  conditionalOptionIndex,
+                                                  dependencyIndex,
+                                                )
+                                              }
+                                            />
+                                          </div>
+                                        )}
                                       </div>
-                                    )}
-                                  </div>
-                                </div>
-                              );
-                            })}
+                                    </div>
+                                  );
+                                },
+                              )
+                            : ''}
                         </div>
                       )}
                     </>

@@ -20,11 +20,25 @@ export default function LoginPage() {
   const { API_BASE_URL } = publicRuntimeConfig;
   const [email, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [validationError, setValidationError] = useState('');
   const router = useRouter();
   const error = useAppSelector(selectError);
   const successMessage = useAppSelector(selectSuccessMessage);
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    let error = '';
+    if (!email && !password) {
+      error = 'Enter both username and password.';
+    } else if (!email) {
+      error = 'Enter the username.';
+    } else if (!password) {
+      error = 'Enter the password.';
+    }
+
+    if (error) {
+      setValidationError(error);
+      return;
+    }
     try {
       const user = await dispatch(loginUser({ email, password }));
       if (user.payload?.access_token) {
@@ -64,6 +78,20 @@ export default function LoginPage() {
     };
   }, [successMessage, error, dispatch]);
 
+  useEffect(() => {
+    let timer;
+    if (validationError) {
+      timer = setTimeout(() => {
+        setValidationError('');
+      }, 4000);
+    }
+    return () => {
+      if (timer) {
+        clearTimeout(timer);
+      }
+    };
+  }, [validationError]);
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-white py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full items-center shadow-xl rounded-2xl justify-center py-8">
@@ -86,7 +114,6 @@ export default function LoginPage() {
                 name="email"
                 value={email}
                 onChange={(value) => setUsername(value)}
-                required
               />
               <div className="space-y-4"></div>
             </div>
@@ -103,13 +130,18 @@ export default function LoginPage() {
                 name="password"
                 value={password}
                 onChange={(value) => setPassword(value)}
-                required
                 type="password"
               />
               <div className="space-y-4"></div>
             </div>
             <div className="mt-6 ">
               <div className=" flex justify-between">
+                <Button
+                  kind="primary"
+                  title="Login"
+                  type="submit"
+                  width={164}
+                />
                 <Button
                   kind="secondary"
                   onClick={handleLoginSSO}
@@ -118,12 +150,6 @@ export default function LoginPage() {
                 >
                   {/* <a href={`${API_BASE_URL}/auth/login/sso`}>Login With SSO</a> */}
                 </Button>
-                <Button
-                  kind="primary"
-                  title="Login"
-                  type="submit"
-                  width={164}
-                />
               </div>
               <div className="text-center mt-6">
                 <a
@@ -135,9 +161,15 @@ export default function LoginPage() {
               </div>
             </div>
           </form>
-          {error && <div className="text-red-700">{error}</div>}{' '}
+          {(error || validationError) && (
+            <div className="text-center text-red-700 mt-4 text-base">
+              {error || validationError}
+            </div>
+          )}{' '}
           {successMessage && (
-            <div className="text-green-700">{successMessage}</div>
+            <div className="text-center text-green-700 mt-4 text-base">
+              {successMessage}
+            </div>
           )}
         </div>
       </div>

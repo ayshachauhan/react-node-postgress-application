@@ -147,10 +147,14 @@ export const toPascalCase = (str: string): string => {
 
 export function filterUpcomingSurgeries(data) {
   const currentDate = new Date();
-  currentDate.setHours(0, 0, 0, 0);
   return data.filter((item) => {
     const itemDate = new Date(item.date);
-    itemDate.setHours(0, 0, 0, 0);
     return itemDate >= currentDate;
   });
+}
+
+export function setToMidnight(date: Date): Date {
+  const newDate = new Date(date);
+  newDate.setHours(0, 0, 0, 0);
+  return newDate;
 }

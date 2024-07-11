@@ -12,12 +12,17 @@ import {
   SurgeryEmailEntity,
 } from '@packages/entities';
 import { ENVIRONMENT_VARIABLES } from 'src/enums/environment.enums';
-import { EvalsService } from 'src/evals/evals.service';
+// import { EvalsService } from 'src/evals/evals.service';
 import { SurgeryService } from 'src/surgery/surgery.service';
 import { TemplatesService } from 'src/templates/templates.service';
 import { TransporterService } from 'src/transporter';
 import { SystemTemplates } from 'src/transporter/transporter.types';
-import { formatHeaderDate, toLowerCase, toPascalCase } from 'src/utils';
+import {
+  formatHeaderDate,
+  setToMidnight,
+  toLowerCase,
+  toPascalCase,
+} from 'src/utils';
 import { Repository } from 'typeorm';
 
 export type SystemGeneratedMailData = {
@@ -39,8 +44,8 @@ export class EmailHandlerService {
     private templateService: TemplatesService,
     @Inject(forwardRef(() => TransporterService))
     private transporterService: TransporterService,
-    @Inject(forwardRef(() => EvalsService))
-    private evalService: EvalsService,
+    // @Inject(forwardRef(() => EvalsService))s
+    // private evalService: EvalsService,
     @Inject(forwardRef(() => SurgeryService))
     private surgeryService: SurgeryService,
     private readonly configService: ConfigService,
@@ -145,6 +150,9 @@ export class EmailHandlerService {
     const templates = await this.templateService.getFilteredTemplates({
       surgeryConfigId,
     });
+    const { adminEmails } = practice.emailData;
+    const ccAdminEmails: string =
+      adminEmails && adminEmails.length ? `${adminEmails}` : '';
 
     const emailLogsEntries: Partial<IEmailLog>[] = [];
 
@@ -176,6 +184,7 @@ export class EmailHandlerService {
             '2ndCataract': template.email2ndCataract
               ? this.mailVariableManipulator(template.email2ndCataract)
               : '',
+            cc: ccAdminEmails,
           },
           attachment: template.emailAttachment,
         };
@@ -193,9 +202,12 @@ export class EmailHandlerService {
             ...entry.data,
             cataract_variable: cataract,
           };
-          surgeryDate.setDate(surgeryDate.getDate() - template.dateOffset);
+          surgeryDate.setDate(surgeryDate.getDate() + template.dateOffset);
           entry.expectedDate = surgeryDate;
-          entry.status = surgeryDate < today ? 'completed' : 'pending';
+          entry.status =
+            setToMidnight(surgeryDate) < setToMidnight(today)
+              ? 'completed'
+              : 'pending';
           emailLogsEntries.push(entry);
         } else if (template.messageType === 'postop') {
           let cataract = '';
@@ -211,7 +223,10 @@ export class EmailHandlerService {
           };
           surgeryDate.setDate(surgeryDate.getDate() + template.dateOffset);
           entry.expectedDate = surgeryDate;
-          entry.status = surgeryDate < today ? 'completed' : 'pending';
+          entry.status =
+            setToMidnight(surgeryDate) < setToMidnight(today)
+              ? 'completed'
+              : 'pending';
           emailLogsEntries.push(entry);
         } else if (template.messageType === 'booking') {
           bookingTemplateFound = true;
@@ -238,6 +253,7 @@ export class EmailHandlerService {
           subject: systemGeneratedMailData.subject,
           text: systemGeneratedMailData.text,
           to: mailVariables.pt_email_address,
+          cc: ccAdminEmails,
         },
       };
       emailLogsEntries.push(entry);
@@ -441,17 +457,22 @@ export class EmailHandlerService {
     } = entity;
 
     const allCaseType: string[] = [];
-    const upcomingEvals = await this.evalService.findEvalByPatient(
-      patientId,
-      new Date(),
-    );
+    /*
+    
+    FOR FUTURE USE
+    this code may be beneficial for future use to add upcoming evals in variable
+    
+    */
+    // const upcomingEvals = await this.evalService.findEvalByPatient(
+    //   patientId,
+    //   new Date(),
+    // );
 
-    allCaseType.push(...makeAllCaseArray(upcomingEvals));
-    const currentDate: Date = new Date();
-    currentDate.setHours(0, 0, 0, 0);
+    // allCaseType.push(...makeAllCaseArray(upcomingEvals));
+
     const upcomingSurgeries = await this.surgeryService.findSurgeryByPatient(
       patientId,
-      currentDate,
+      new Date(),
     );
 
     allCaseType.push(...makeAllCaseArray(upcomingSurgeries));
@@ -468,6 +489,9 @@ export class EmailHandlerService {
     data: Record<string, string>,
     practice: IPractice,
   ): Promise<void> {
+    const { adminEmails } = practice.emailData;
+    const ccAdminEmails: string =
+      adminEmails && adminEmails.length ? `${adminEmails}` : '';
     const entry: Partial<IEmailLog> = {
       practice,
       expectedDate: new Date(),
@@ -482,6 +506,7 @@ export class EmailHandlerService {
         subject: 'Surgery Videos.',
         text: '',
         pt_email_address: data.email,
+        cc: ccAdminEmails,
       },
     };
     await this.emailLogRepository.save(entry);
@@ -575,4 +600,4 @@ const makeAllCaseString = (
   surgery: string,
   date: Date,
 ): string =>
-  `${bodyPart + ' ' + surgery + ' | ' + formatHeaderDate(String(date))})`;
+  `${bodyPart + ' ' + surgery + ' | ' + formatHeaderDate(String(date))}`;
