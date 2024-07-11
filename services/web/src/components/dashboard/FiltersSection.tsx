@@ -41,6 +41,7 @@ import {
 import { monthOptions } from '@root/utils/constants';
 import { Checkbox } from 'baseui/checkbox';
 import { Select } from 'baseui/select';
+import { useRouter } from 'next/navigation';
 import React, { useEffect, useMemo, useState } from 'react';
 import DeleteFilterModal from './DeleteFilterModal';
 import EditableRow from './EditableRow';
@@ -87,6 +88,8 @@ const FiltersSection: React.FC<{
     isLoading: reviewSendingIsLoading,
     withLoader: reviewSenderWithLoader,
   } = useLoader();
+
+  const router = useRouter();
 
   const [reviewErrorMessage, setReviewErrorMessage] = useState<string>('');
   const [reviewSuccessMessage, setReviewSuccessMessage] = useState<string>('');
@@ -194,7 +197,12 @@ const FiltersSection: React.FC<{
         style={{ marginRight: '4px', cursor: 'pointer' }}
         onClick={() => handleCloneClick(row.id)}
       />
-      <DisplayIcon style={{ marginRight: '4px', cursor: 'pointer' }} />
+      <DisplayIcon
+        style={{ marginRight: '4px', cursor: 'pointer' }}
+        onClick={() => {
+          handlePatientMedia(row.mrn);
+        }}
+      />
       <ViewIcon
         style={{ marginRight: '4px', cursor: 'pointer' }}
         onClick={() => {
@@ -424,6 +432,12 @@ const FiltersSection: React.FC<{
   const handleViewClick = (rowId: string) => {
     setSelectedRow(selectedRow === rowId ? null : rowId);
     setSelectedAction('view');
+  };
+
+  const handlePatientMedia = (patientMrn: number): void => {
+    setSelectedAction('patientMedia');
+    const url = `/messages/?patientMrn=${patientMrn}`;
+    router.push(url);
   };
 
   const resetFilters = (): void => {
