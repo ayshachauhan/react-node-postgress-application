@@ -353,7 +353,8 @@ export class SurgeryService {
         (calendar: ICalendar) =>
           moment(calendar.date).format('YYYY-MM-DD') ===
             moment(createSurgeryDto.date).format('YYYY-MM-DD') &&
-          calendar.surgeryType.id === surgeryConfigurationEntity.surgeryType.id,
+          calendar.surgeryType?.id ===
+            surgeryConfigurationEntity.surgeryType?.id,
       );
 
       if (selectedCalendar) {
@@ -460,6 +461,65 @@ export class SurgeryService {
       ...surgeryToUpdate,
       ...dataToUpdate,
     });
+
+    // upsert calendar after updating surgery
+    const surgeryConfigurationEntity =
+      surgeryToUpdate &&
+      (await this.surgeryConfigurationService.getSurgeryConfigurationById(
+        surgeryToUpdate?.surgeryConfiguration?.id,
+      ));
+    if (surgeryConfigurationEntity && surgeryToUpdate) {
+      const calendars = await this.calendarService.getAllCalendars({
+        practiceId: surgeryToUpdate?.practice?.id,
+        userId: surgeryToUpdate?.doctor?.id,
+      });
+
+      const selectedCalendar = calendars.find(
+        (calendar: ICalendar) =>
+          moment(calendar.date).format('YYYY-MM-DD') ===
+            moment(createSurgeryDto?.date).format('YYYY-MM-DD') &&
+          calendar.surgeryType?.id ===
+            surgeryConfigurationEntity.surgeryType?.id,
+      );
+
+      const reomvedCalender = calendars.find(
+        (calendar: ICalendar) =>
+          moment(calendar.date).format('YYYY-MM-DD') ===
+            moment(surgeryToUpdate?.date).format('YYYY-MM-DD') &&
+          calendar.surgeryType?.id ===
+            surgeryConfigurationEntity.surgeryType?.id,
+      );
+
+      if (
+        reomvedCalender &&
+        moment(reomvedCalender?.date).format('YYYY-MM-DD')
+      ) {
+        await this.calendarService.updateCalendar({
+          id: reomvedCalender?.id,
+          bookedSlots: reomvedCalender?.bookedSlots - 1,
+        });
+      }
+
+      if (selectedCalendar) {
+        await this.calendarService.updateCalendar({
+          id: selectedCalendar?.id,
+          bookedSlots: selectedCalendar?.bookedSlots + 1,
+        });
+      } else {
+        await this.calendarService.createCalendar(
+          {
+            practiceId: surgeryToUpdate?.practice?.id,
+            userId: surgeryToUpdate?.doctor?.id,
+          },
+          {
+            date: createSurgeryDto?.date,
+            bookedSlots: 1,
+            maxSlots: 14,
+            surgeryTypeId: surgeryConfigurationEntity.surgeryType.id,
+          },
+        );
+      }
+    }
     if (createSurgeryDto.surgeryStatus === SurgeryStatus.COMPLETED) {
       await this.autoCompleteSurgeries(id);
     }

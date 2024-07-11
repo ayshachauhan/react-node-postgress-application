@@ -54,7 +54,9 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
     usersList: Object.values(state.users.entities).filter(
       (user) => user.type == UserType.DOCTOR,
     ),
-    calendars: Object.values(state.calendars.entities),
+    calendars: Object.values(state.calendars.entities)?.filter(
+      (calender) => calender?.surgeryType,
+    ),
     waitlist: Object.values(state.waitlist.entities),
     surgeryConfigurationsList: state.surgeryConfigurations.entities,
     patientsList: Object.values(state.patients.entities),
