@@ -63,6 +63,7 @@ export class EvalsService {
   async findAll(
     practiceId: string,
     includeDeleted: boolean = false,
+    doctorId?: string,
   ): Promise<EvalEntity[]> {
     const dbPracticeHomesByPractice =
       await this.practiceHomesService.getPracticeHomesByPractice(practiceId);
@@ -73,6 +74,7 @@ export class EvalsService {
           id: In(dbPracticeHomesByPractice.map((ele) => ele.id)),
         },
         practice: { id: practiceId }, //TO DO: make practice id not null in future
+        doctor: { id: doctorId },
       },
       withDeleted: includeDeleted,
       relations: [

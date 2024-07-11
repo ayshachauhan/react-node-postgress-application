@@ -60,6 +60,11 @@ export default function LoginPage() {
   };
 
   useEffect(() => {
+    localStorage.removeItem('practiceId');
+    localStorage.removeItem('SELECTED_DOCTOR');
+  }, []);
+
+  useEffect(() => {
     let timer;
     if (successMessage) {
       timer = setTimeout(() => {

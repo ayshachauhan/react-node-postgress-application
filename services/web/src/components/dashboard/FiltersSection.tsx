@@ -34,6 +34,7 @@ import {
 } from '@root/store/reducers/surgery';
 import {
   getColorForSurgeryStatus,
+  getUserId,
   toFullName,
   toPascalCase,
   usDateFormatter,
@@ -195,6 +196,8 @@ const FiltersSection: React.FC<{
     [viewPastCases, viewFutureCases],
   );
   const [isReviewRequestLoading, setIsReviewRequestLoading] = useState(false);
+
+  const doctorId = getUserId();
 
   const surgeryOptionsHeadersObj: {
     [key: string]: {
@@ -519,7 +522,7 @@ const FiltersSection: React.FC<{
     const month = monthLabels.join(',');
     const selectedOption = selectedValue;
 
-    if (practiceId && loggedInUserId !== null) {
+    if (practiceId && loggedInUserId !== null && doctorId) {
       dispatch(
         fetchListings({
           loggedInUserId,
@@ -527,6 +530,7 @@ const FiltersSection: React.FC<{
           month: month,
           searchMRNName,
           option: selectedOption,
+          doctorId: doctorId || '',
         }),
       );
     }
@@ -557,7 +561,7 @@ const FiltersSection: React.FC<{
   }, [practiceId, dispatch, withLoader]);
 
   useEffect(() => {
-    if (practiceId && loggedInUserId !== null) {
+    if (practiceId && loggedInUserId !== null && doctorId) {
       dispatchFetchFilteredSurgeryList(
         selectedMonth,
         searchMRNNameStr,
@@ -571,6 +575,7 @@ const FiltersSection: React.FC<{
     selectedMonth,
     searchMRNNameStr,
     selectedValueStr,
+    doctorId,
   ]);
   const [isUpdateLoading, setIsUpdateLoading] = useState(false);
 

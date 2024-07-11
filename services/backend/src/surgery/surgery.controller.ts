@@ -45,6 +45,7 @@ export class SurgeryController {
     @Query('searchMRNName') searchMRNName?: string,
     @Query('option') option?: string,
     @Query('loggedInUserId') loggedInUserId?: string,
+    @Query('doctorId') doctorId?: string,
   ): Promise<SurgerySearchResult> {
     const months = monthQueryParam?.trim() ? monthQueryParam.split(',') : [];
 
@@ -55,6 +56,7 @@ export class SurgeryController {
       searchMRNName,
       option,
       loggedInUserId,
+      doctorId,
     );
 
     return surgeries;

@@ -22,6 +22,7 @@ export const getSurgeries = async (
     month?: string;
     searchMRNName?: string;
     option?: string;
+    doctorId?: string;
   },
   { rejectWithValue },
 ): Promise<SurgerySearchResult> => {
@@ -32,6 +33,7 @@ export const getSurgeries = async (
     month,
     searchMRNName,
     option,
+    doctorId,
   } = payloadData;
 
   try {
@@ -41,6 +43,7 @@ export const getSurgeries = async (
       searchMRNName,
       option,
       loggedInUserId,
+      doctorId,
     });
 
     if (!queryParams) {

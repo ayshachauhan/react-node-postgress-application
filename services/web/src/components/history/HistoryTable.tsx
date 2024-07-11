@@ -19,6 +19,7 @@ import {
   formatColumnDate,
   generateFullName,
   getPracticeId,
+  // getUserId,
   toPascalCase,
 } from '@utils/index';
 import { useSearchParams } from 'next/navigation';
@@ -51,6 +52,7 @@ export default function HistoryTable() {
   const { isLoading, withLoader } = useLoader();
 
   const practiceId = getPracticeId();
+  // const doctorId = getUserId();
 
   const { historyLogs, surgeries, surgerySuccessMessage, evals } =
     useAppSelector((state) => ({
@@ -76,7 +78,10 @@ export default function HistoryTable() {
         });
       };
       loadData();
+      // TO DO later
+      // dispatch(fetchEvalsList({ practiceId, doctorId: doctorId || '' }));
       dispatch(fetchEvalsList({ practiceId }));
+      // dispatch(fetchSurgeryList({ practiceId, doctorId: doctorId || '' }));
       dispatch(fetchSurgeryList({ practiceId }));
     }
   }, [practiceId, dispatch]);

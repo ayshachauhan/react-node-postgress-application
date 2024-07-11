@@ -22,7 +22,7 @@ import {
 import { ChevronDown } from 'baseui/icon';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
 interface Data {
   collapsed: boolean;
@@ -48,8 +48,10 @@ const Header: React.FC<ChildProps> = ({ data }) => {
   const { entities } = useAppSelector((state: State) => state.users);
   const practiceId = getPracticeId();
 
-  const users: SanitizedUser[] = Object.values(entities).filter(
-    (user) => user.type == UserType.DOCTOR,
+  const users: SanitizedUser[] = useMemo(
+    () =>
+      Object.values(entities).filter((user) => user.type == UserType.DOCTOR),
+    [entities],
   );
 
   const findSelectedUser = (userId: string): SanitizedUser | undefined =>
@@ -92,7 +94,8 @@ const Header: React.FC<ChildProps> = ({ data }) => {
 
   const router = useRouter();
   const currentPath = usePathname();
-  const isDashboardPage = currentPath === '/dashboard';
+  const isDashboardPage =
+    currentPath === '/dashboard' || currentPath === '/eval';
   const handleLogout = () => {
     dispatch(logoutUser());
     router.push('/login');
@@ -145,6 +148,12 @@ const Header: React.FC<ChildProps> = ({ data }) => {
     router.refresh();
   };
 
+  useEffect(() => {
+    if (practiceId && users.length) {
+      localStorage.setItem('SELECTED_DOCTOR', users[0]?.id);
+    }
+  }, [practiceId, users]);
+
   return (
     <nav
       className={`fixed top-0 z-9 bg-white shadow-md h-[60px] ${
@@ -154,7 +163,7 @@ const Header: React.FC<ChildProps> = ({ data }) => {
       <div className="px-5 py-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
-            {!is_super_admin && isDashboardPage && (
+            {!is_super_admin && (
               <>
                 <div className="flex items-center border-r-2 pr-4 mr-4">
                   {!is_super_admin && (
@@ -197,8 +206,8 @@ const Header: React.FC<ChildProps> = ({ data }) => {
                     </>
                   )}
                 </div>
-                <div>Doctor:</div>
-                {users && users.length > 1 ? (
+                {isDashboardPage && <div>Doctor:</div>}
+                {isDashboardPage && users && users.length > 1 ? (
                   <Dropdown
                     position="bottomLeft"
                     trigger={selectedUserBox}
@@ -211,7 +220,9 @@ const Header: React.FC<ChildProps> = ({ data }) => {
                     ))}
                   </Dropdown>
                 ) : (
-                  <div>&nbsp;&nbsp;&nbsp;{users && users[0]?.fullName}</div>
+                  isDashboardPage && (
+                    <div>&nbsp;&nbsp;&nbsp;{users && users[0]?.fullName}</div>
+                  )
                 )}
               </>
             )}
