@@ -225,7 +225,7 @@ function EditableRow({
     return (
       <>
         <tr className="border-t border-gray-300">
-          <td rowSpan={2} className="min-w-28">
+          <td rowSpan={2} className="min-w-[85px]">
             <DatePicker
               value={obj.date}
               onChange={({ date }) => handleObjChange('date', date)}
@@ -239,7 +239,7 @@ function EditableRow({
               }}
             />
           </td>
-          <td rowSpan={2} className="">
+          <td rowSpan={2} className="min-w-[45px]">
             <Select
               size={SIZE.mini}
               required
@@ -278,7 +278,7 @@ function EditableRow({
                     border: 'none',
                     color: 'rgba(82, 82, 91, 1)',
                     boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-                    width: '130px',
+                    width: '70px',
                   },
                 },
                 ClearIcon: {
@@ -302,7 +302,7 @@ function EditableRow({
               }
             />
           </td>
-          <td rowSpan={1} className="min-w-24">
+          <td rowSpan={1} className="min-w-20">
             <div className="">
               <TextInput
                 size={SIZE.mini}
@@ -312,7 +312,7 @@ function EditableRow({
               />
             </div>
           </td>
-          <td rowSpan={1} className="min-w-24">
+          <td rowSpan={1} className="min-w-20">
             <div className="">
               <TextInput
                 size={SIZE.mini}
@@ -322,7 +322,7 @@ function EditableRow({
               />
             </div>
           </td>
-          <td rowSpan={1} className="min-w-24">
+          <td rowSpan={1} className="max-w-16">
             <TextInput
               name="mrn"
               type="number"
@@ -331,7 +331,7 @@ function EditableRow({
               size={SIZE.mini}
             />
           </td>
-          <td rowSpan={1} className="">
+          <td rowSpan={1} className="min-w-20">
             <Select
               backspaceRemoves={false}
               escapeClearsValue={false}
@@ -367,7 +367,7 @@ function EditableRow({
               }}
             />
           </td>
-          <td rowSpan={1} className="">
+          <td rowSpan={1} className="min-w-20">
             <Select
               backspaceRemoves={false}
               options={surgeryConfiguration.bodyPart.map((ele) => ({
@@ -612,7 +612,7 @@ function EditableRow({
                 : ''}
             </tr>
           </td>
-          <td rowSpan={2} className="min-w-12">
+          <td rowSpan={2} className="min-w-10">
             <TextInput
               type="number"
               name="hash"
@@ -634,7 +634,7 @@ function EditableRow({
 
                       return (
                         <td
-                          className="w-full min-w-10"
+                          className="w-1/4 min-w-10"
                           key={checkListHeaderIndex}
                         >
                           <TextInput
@@ -660,7 +660,7 @@ function EditableRow({
             </table>
           </td>
           {viewBillingColumn && (
-            <td rowSpan={2} className="min-w-12">
+            <td rowSpan={2} className="min-w-10">
               <TextInput
                 size={SIZE.mini}
                 name="prof"
@@ -673,7 +673,7 @@ function EditableRow({
             </td>
           )}
           {viewBillingColumn && (
-            <td rowSpan={2} className="min-w-12">
+            <td rowSpan={2} className="min-w-10">
               <TextInput
                 size={SIZE.mini}
                 name="hospital"
@@ -771,7 +771,7 @@ function EditableRow({
             </div>
           </td>
           <td rowSpan={2} className=" ">
-            <div className="flex gap-2">
+            <div className="flex flex-col gap-2">
               <Button
                 kind="primary"
                 title="Update"
