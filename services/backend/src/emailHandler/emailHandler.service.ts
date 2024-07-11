@@ -1,5 +1,6 @@
 import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
   EmailLogEntity,
@@ -49,6 +50,7 @@ export class EmailHandlerService {
     @Inject(forwardRef(() => SurgeryService))
     private surgeryService: SurgeryService,
     private readonly configService: ConfigService,
+    private jwtService: JwtService,
   ) {}
 
   getFrontEndBaseUrl() {
@@ -581,6 +583,15 @@ export class EmailHandlerService {
         emailLog: ele,
       }));
       await this.surgeryEmailRepository.save(surgeryEmailEntries);
+    }
+  }
+
+  async fetchAndMarkMailAsRead(id: string, token: string): Promise<void> {
+    const jwtResponse = await this.jwtService.verify(token);
+    if (jwtResponse) {
+      await this.emailLogRepository.update(id, {
+        isRead: true,
+      });
     }
   }
 }

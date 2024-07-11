@@ -13,5 +13,7 @@ export class EmailReadFlag1720667360686 implements MigrationInterface {
     );
   }
 
-  public async down(queryRunner: QueryRunner): Promise<void> {}
+  public async down(): Promise<void> {
+    // ignore
+  }
 }
