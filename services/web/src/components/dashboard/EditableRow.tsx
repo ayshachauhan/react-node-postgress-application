@@ -5,9 +5,15 @@ import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
 import { useUserPermission } from '@root/hooks/userHasPermission';
 import { useAppDispatch, useAppSelector } from '@root/store';
+import { fetchFilteredCalendars } from '@root/store/reducers/calendar';
 import { fetchListings as fetchReviews } from '@root/store/reducers/review';
 import { fetchListings, updateRecordAsync } from '@root/store/reducers/surgery';
-import { getPracticeId, getUserId, toFullName } from '@root/utils';
+import {
+  getPracticeId,
+  getSelectedMonths,
+  getUserId,
+  toFullName,
+} from '@root/utils';
 import { DatePicker } from 'baseui/datepicker';
 import { SIZE, Select } from 'baseui/select';
 import React, { useEffect, useState } from 'react';
@@ -50,6 +56,8 @@ function EditableRow({
     referrersList: Object.values(state.referrers.entities),
     practiceHomesList: Object.values(state.practiceHomes.entities),
   }));
+
+  const month = getSelectedMonths(selectedMonth);
 
   const userPermissions = userInfo?.permissions;
   const loggedInUserId = userInfo?.id ?? null;
@@ -177,6 +185,15 @@ function EditableRow({
           selectedMonth,
           searchMRNNameStr,
           selectedValueStr,
+        );
+        await dispatch(
+          fetchFilteredCalendars({
+            practiceId,
+            userId: doctorId || '',
+            month,
+            option: selectedValueStr,
+            loggedInUserId: userInfo?.id,
+          }),
         );
         if (payload?.surgeryStatus === SurgeryStatus.COMPLETED) {
           await dispatch(fetchReviews({ practiceId: practiceId }));
