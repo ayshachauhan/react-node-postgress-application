@@ -148,11 +148,11 @@ const Header: React.FC<ChildProps> = ({ data }) => {
     router.refresh();
   };
 
-  useEffect(() => {
-    if (practiceId && users.length) {
-      localStorage.setItem('SELECTED_DOCTOR', users[0]?.id);
-    }
-  }, [practiceId, users]);
+  // useEffect(() => {
+  //   if (practiceId && users.length) {
+  //     localStorage.setItem('SELECTED_DOCTOR', users[0]?.id);
+  //   }
+  // }, [practiceId, users]);
 
   return (
     <nav
