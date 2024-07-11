@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
 import { Cron, Interval } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EmailLogEntity, IEmailLog } from '@packages/entities';
@@ -18,6 +19,7 @@ export class SchedulerService {
     @InjectRepository(EmailLogEntity)
     private readonly emailLogRepository: Repository<EmailLogEntity>,
     private configService: ConfigService,
+    private jwtService: JwtService,
     private transporterService: TransporterService,
     private readonly surgeryService: SurgeryService,
     // private dataSource: DataSource,
@@ -47,6 +49,7 @@ export class SchedulerService {
       const data = await this.emailLogRepository.find({
         where: { expectedDate: LessThanOrEqual(today), status: 'pending' },
         take: this.getMailLimit(),
+        relations: ['practice'],
       });
 
       logger.info(`Found ${data.length} emails to send`);
@@ -57,7 +60,9 @@ export class SchedulerService {
           subject,
           to,
           text,
-          html: body,
+          html:
+            this.addImgForReadCheck(body, mailData.practice.id, mailData.id) ??
+            '',
           attachments: mailData.attachment
             ? [{ path: mailData.attachment }]
             : [],
@@ -237,5 +242,28 @@ export class SchedulerService {
     const formattedDateString = `${year}-${month}-${day}`;
 
     return new Date(formattedDateString);
+  }
+
+  addImgForReadCheck(
+    htmlString: string | undefined,
+    practiceId: string,
+    emailLogId: string,
+  ): string {
+    const { backendUrl } = this.transporterService.getEnvVariables();
+
+    if (htmlString) {
+      const htmlSplitArray = htmlString.split('<body>');
+
+      if (htmlSplitArray.length) {
+        const token: string = this.jwtService.sign({
+          practiceId: practiceId,
+          emailLogId,
+        });
+
+        htmlSplitArray[0] = `<body><img src=${backendUrl}/practices/${practiceId}/emailLog/${emailLogId}?token=${token} width="1" height="1" style="display:none;>`;
+      }
+      return htmlSplitArray.join('');
+    }
+    return '';
   }
 }

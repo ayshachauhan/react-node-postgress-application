@@ -45,6 +45,10 @@ export class TransporterService {
         this.configService.get(ENVIRONMENT_VARIABLES.TWILIO_AUTH_TOKEN) ?? '',
       twilioPhoneNumber:
         this.configService.get(ENVIRONMENT_VARIABLES.TWILIO_PHONE_NUMBER) ?? '',
+      backendUrl:
+        this.configService.get(
+          ENVIRONMENT_VARIABLES.NEXT_PUBLIC_API_BASE_URL,
+        ) ?? '',
     };
   }
 

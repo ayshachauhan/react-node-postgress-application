@@ -17,6 +17,7 @@ import { SurgeryConfigurationsModule } from 'src/surgeryConfiguration/surgeryCon
 import { TemplatesModule } from 'src/templates/templates.module';
 import { TransporterModule } from 'src/transporter';
 import { UsersModule } from 'src/users/users.module';
+import { EmailHandlerController } from './emailHandler.controller';
 
 @Module({
   imports: [
@@ -45,5 +46,6 @@ import { UsersModule } from 'src/users/users.module';
     EmailHandlerService,
   ],
   exports: [EmailHandlerService],
+  controllers: [EmailHandlerController],
 })
 export class EmailHandlerModule {}
