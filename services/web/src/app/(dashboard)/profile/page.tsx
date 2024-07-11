@@ -85,92 +85,96 @@ const Profile: React.FC = () => {
           <hr className="h-px my-2.5 bg-gray-100 border-1 border-gray-100"></hr>
         </div>
       </div>
-      <div className="flex flex-wrap gap-20 ml-64 mt-4">
-        <div>
-          <p>
-            <span className="font-bold">First Name</span>
-            <span> : {userInfo?.firstName}</span>
-          </p>
-          <p className="mt-2">
-            <span className="font-bold">Display Name</span>{' '}
-            <span>: {userInfo?.userName}</span>
-          </p>
+      <div className="w-8/12 mx-auto">
+        <div className="flex flex-wrap gap-x-20 gap-y-10 mt-4">
+          <div>
+            <p>
+              <span className="font-bold">First Name</span>
+              <span> : {userInfo?.firstName}</span>
+            </p>
+            <p className="mt-2">
+              <span className="font-bold">Display Name</span>{' '}
+              <span>: {userInfo?.userName}</span>
+            </p>
+          </div>
+          <div>
+            <p>
+              <span className="font-bold">Last Name</span>
+              <span> :{userInfo?.lastName} </span>
+            </p>
+            <p className="mt-2">
+              <span className="font-bold">Type</span>
+              <span> : {userInfo?.type}</span>
+            </p>
+          </div>
+          <div>
+            <p>
+              <span className="font-bold">Contact No.</span>{' '}
+              <span>: {userInfo?.contactNumber}</span>
+            </p>
+            <p className="mt-2">
+              <span className="font-bold">User URL </span>
+              <span>: {userInfo?.url}</span>
+            </p>
+          </div>
+          <div>
+            <p>
+              <span className="font-bold">Email</span>{' '}
+              <span>: {userInfo?.email}</span>
+            </p>
+            <p className="mt-2">
+              <span className="font-bold">Designation</span>{' '}
+              <span>: {userInfo?.designation}</span>
+            </p>
+          </div>
+          <div>
+            <p>
+              <span className="font-bold">Practice Name</span>{' '}
+              <span>: {practiceName}</span>
+            </p>
+          </div>
         </div>
-        <div>
-          <p>
-            <span className="font-bold">Last Name</span>
-            <span> :{userInfo?.lastName} </span>
-          </p>
-          <p className="mt-2">
-            <span className="font-bold">Type</span>
-            <span> : {userInfo?.type}</span>
-          </p>
-        </div>
-        <div>
-          <p>
-            <span className="font-bold">Contact No.</span>{' '}
-            <span>: {userInfo?.contactNumber}</span>
-          </p>
-          <p className="mt-2">
-            <span className="font-bold">User URL </span>
-            <span>: {userInfo?.url}</span>
-          </p>
-        </div>
-        <div>
-          <p>
-            <span className="font-bold">Email</span>{' '}
-            <span>: {userInfo?.email}</span>
-          </p>
-          <p className="mt-2">
-            <span className="font-bold">Designation</span>{' '}
-            <span>: {userInfo?.designation}</span>
-          </p>
-        </div>
-        <div>
-          <p>
-            <span className="font-bold">Practice Name</span>{' '}
-            <span>: {practiceName}</span>
-          </p>
-        </div>
-      </div>
-      <div className="ml-64 mt-8 w-1/3">
-        <span className="font-bold">Permissions </span>
-        <div className="grid grid-cols-2 gap-1 mt-4 w-30">
-          {permissions.map((label, index) => (
-            <Checkbox
-              key={index}
-              checked={
-                userInfo?.permissions
-                  ? isChecked(userInfo.permissions, label.id)
-                  : false
-              }
-              overrides={{
-                Checkmark: {
-                  style: ({ $checked }) => ({
-                    backgroundColor: $checked
-                      ? 'rgba(34, 197, 94, 1)'
-                      : 'white',
-                    borderColor: $checked
-                      ? 'rgba(34, 197, 94, 1)'
-                      : 'rgba(113, 113, 122, 1)',
-                    width: '15px',
-                    height: '15px',
-                    marginTop: '7px',
-                    marginRight: '0px',
-                    borderRadius: '2px',
-                    borderWidth: '2px',
-                  }),
-                },
-              }}
-            >
-              <label
-                htmlFor={`checkbox-${index}`}
-                className="text-black text-sm font-normal"
+        <div className="mt-8 ">
+          <span className="font-bold">Permissions </span>
+          <div className="grid grid-cols-5 gap-2 mt-4 w-30">
+            {permissions.map((label, index) => (
+              <Checkbox
+                key={index}
+                checked={
+                  userInfo?.permissions
+                    ? isChecked(userInfo.permissions, label.id)
+                    : false
+                }
+                overrides={{
+                  Checkmark: {
+                    style: ({ $checked }) => ({
+                      backgroundColor: $checked
+                        ? 'rgba(34, 197, 94, 1)'
+                        : 'white',
+                      borderColor: $checked
+                        ? 'rgba(34, 197, 94, 1)'
+                        : 'rgba(113, 113, 122, 1)',
+                      width: '15px',
+                      height: '15px',
+                      marginTop: '7px',
+                      marginRight: '0px',
+                      borderRadius: '2px',
+                      borderWidth: '2px',
+                    }),
+                  },
+                }}
               >
-                <span className="truncate">{label.name}</span>
-              </label>
-            </Checkbox>
-          ))}
+                <label
+                  htmlFor={`checkbox-${index}`}
+                  className="text-black text-sm font-normal"
+                >
+                  <span className="truncate inline-block max-w-32">
+                    {label.name}
+                  </span>
+                </label>
+              </Checkbox>
+            ))}
+          </div>
         </div>
       </div>
       <UploadImageModal
