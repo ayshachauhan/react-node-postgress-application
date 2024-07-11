@@ -77,8 +77,21 @@ table th {
   @apply bg-[#299479] capitalize font-normal text-white p-1 text-left whitespace-nowrap;
 }
 table tbody tr td {
-  @apply text-gray-900 bg-gray-50 p-1 border-l border-white;
+  @apply text-gray-900 bg-gray-50 p-1 border-l border-gray-200;
 }
+.dashboard-table input {
+  padding: 2px 2px !important;
+}
+.dashboard-table .css-jYsWkC {
+  padding: 0 !important;
+}
+.dashboard-table .css-iccmsU {
+  padding: 5px 0px 0px 2px !important;
+}
+.css-kmuqzC {
+  min-width: 110px !important;
+}
+
 .bg-purple-400 {
   background-color: rgb(192 132 252);
 }

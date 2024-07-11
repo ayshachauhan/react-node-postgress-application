@@ -651,7 +651,7 @@ const FiltersSection: React.FC<{
           {surgeryConfigList.length > 0 &&
           Object.keys(modifiedObj).length > 0 ? (
             <div className="table-responsive overflow-x-auto rounded-lg">
-              <table className="w-full">
+              <table className="w-full dashboard-table">
                 <tbody>
                   {Object.keys(modifiedObj).map((key, index) => {
                     const ele = modifiedObj[key];
@@ -704,16 +704,18 @@ const FiltersSection: React.FC<{
                             <>
                               <React.Fragment key={dateIndex}>
                                 <tr>
-                                  <th>Date</th>
-                                  <th>
+                                  <th className="w-[75px]">Date</th>
+                                  <th className="text-center">
                                     <HomeIcon></HomeIcon>
                                   </th>
-                                  <th className="">Status</th>
-                                  <th className="">Last Name</th>
-                                  <th className="">First Name</th>
+                                  <th className="w-[76px] text-center">
+                                    Status
+                                  </th>
+                                  <th className="w-[80px]">Last Name</th>
+                                  <th className="w-[76px]">First Name</th>
                                   <th className="">MRN</th>
-                                  <th className="">Surgery</th>
-                                  <th className="">Body Part</th>
+                                  <th className="w-[90px]">Surgery</th>
+                                  <th className="w-[60px]">Body Part</th>
                                   <th className="p-0">
                                     <table className="w-full">
                                       <tbody>
@@ -736,7 +738,7 @@ const FiltersSection: React.FC<{
                                       </tbody>
                                     </table>
                                   </th>
-                                  <th className="p-0">
+                                  <th className="p-0 w-[80px]">
                                     <table className="w-full">
                                       <tbody>
                                         <tr>
@@ -760,7 +762,7 @@ const FiltersSection: React.FC<{
                                       </tbody>
                                     </table>
                                   </th>
-                                  <th className="">#</th>
+                                  <th className="w-[30px] text-center">#</th>
                                   <th className="p-0">
                                     <table className="w-full">
                                       <tbody>
@@ -772,7 +774,7 @@ const FiltersSection: React.FC<{
                                                 checkListHeaderIndex,
                                               ) => (
                                                 <th
-                                                  className="w-full min-w-10"
+                                                  className="w-1/4"
                                                   key={checkListHeaderIndex}
                                                 >
                                                   {checkListHeader}
@@ -784,17 +786,19 @@ const FiltersSection: React.FC<{
                                     </table>
                                   </th>
                                   {viewBillingColumn && viewBillingColumn && (
-                                    <th className="">Prof</th>
+                                    <th className="w-[30px]">Prof</th>
                                   )}
 
                                   {viewBillingColumn && (
-                                    <th className="">Hospital</th>
+                                    <th className="w-[30px]">Hospital</th>
                                   )}
                                   {!iolListShowFlag && (
-                                    <th className="">Insurance</th>
+                                    <th className="w-[30px]">Insurance</th>
                                   )}
                                   <th className="">Contact Info</th>
-                                  {!iolListShowFlag && <th>Action</th>}
+                                  {!iolListShowFlag && (
+                                    <th className="w-[100px]">Action</th>
+                                  )}
                                 </tr>
                                 {ele[date].map((row, index) => {
                                   const isEditable =
@@ -828,7 +832,10 @@ const FiltersSection: React.FC<{
                                             : ''
                                         }`}
                                       >
-                                        <td rowSpan={2} className="">
+                                        <td
+                                          rowSpan={2}
+                                          className="max-w-[70px] break-all"
+                                        >
                                           {viewHistory ? (
                                             <div
                                               onClick={() =>
@@ -847,12 +854,15 @@ const FiltersSection: React.FC<{
                                         </td>
                                         <td
                                           rowSpan={2}
-                                          className="cursor-pointer"
+                                          className="cursor-pointer text-center"
                                           title={row.home}
                                         >
                                           {row.home[0]}
                                         </td>
-                                        <td rowSpan={2} className="">
+                                        <td
+                                          rowSpan={2}
+                                          className="max-w-[70px] break-all text-center"
+                                        >
                                           <div
                                             className={`rounded-md inline-block text-white p-1 ${getColorForSurgeryStatus(
                                               row.surgeryStatus.toUpperCase(),
@@ -861,10 +871,16 @@ const FiltersSection: React.FC<{
                                             {toPascalCase(row.surgeryStatus)}
                                           </div>
                                         </td>
-                                        <td rowSpan={1} className="">
+                                        <td
+                                          rowSpan={1}
+                                          className="max-w-[70px] break-all"
+                                        >
                                           {row.lastName}
                                         </td>
-                                        <td rowSpan={1} className="">
+                                        <td
+                                          rowSpan={1}
+                                          className="max-w-[70px] break-all"
+                                        >
                                           {row.firstName}
                                         </td>
                                         <td rowSpan={1} className="">
@@ -886,7 +902,10 @@ const FiltersSection: React.FC<{
                                             )}
                                           </div>
                                         </td>
-                                        <td rowSpan={1} className="">
+                                        <td
+                                          rowSpan={1}
+                                          className="max-w-[80px] break-all"
+                                        >
                                           {row?.count && (
                                             <span
                                               className={`px-1 text-white rounded mr-1 ${
@@ -902,7 +921,10 @@ const FiltersSection: React.FC<{
                                           )}
                                           {row?.surgery}
                                         </td>
-                                        <td rowSpan={1} className="">
+                                        <td
+                                          rowSpan={1}
+                                          className="max-w-[70px] break-all"
+                                        >
                                           {row.bodyPart}
                                         </td>
                                         <td className="p-0" rowSpan={2}>
@@ -1016,7 +1038,7 @@ const FiltersSection: React.FC<{
                                             </tbody>
                                           </table>
                                         </td>
-                                        <td rowSpan={2} className="">
+                                        <td rowSpan={2} className="text-center">
                                           {row.surgeryOrder}
                                         </td>
                                         <td className="p-0" rowSpan={2}>
@@ -1030,7 +1052,7 @@ const FiltersSection: React.FC<{
                                                       checkListHeaderIndex,
                                                     ) => (
                                                       <td
-                                                        className="min-w-10 w-full"
+                                                        className="w-1/4"
                                                         key={
                                                           checkListHeaderIndex
                                                         }
