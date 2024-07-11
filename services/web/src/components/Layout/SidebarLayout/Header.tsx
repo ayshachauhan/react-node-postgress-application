@@ -22,7 +22,7 @@ import {
 import { ChevronDown } from 'baseui/icon';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
 interface Data {
   collapsed: boolean;
@@ -48,8 +48,10 @@ const Header: React.FC<ChildProps> = ({ data }) => {
   const { entities } = useAppSelector((state: State) => state.users);
   const practiceId = getPracticeId();
 
-  const users: SanitizedUser[] = Object.values(entities).filter(
-    (user) => user.type == UserType.DOCTOR,
+  const users: SanitizedUser[] = useMemo(
+    () =>
+      Object.values(entities).filter((user) => user.type == UserType.DOCTOR),
+    [entities],
   );
 
   const findSelectedUser = (userId: string): SanitizedUser | undefined =>
@@ -148,6 +150,12 @@ const Header: React.FC<ChildProps> = ({ data }) => {
     localStorage.setItem('practiceId', practiceId);
     router.refresh();
   };
+
+  useEffect(() => {
+    if (practiceId && users.length) {
+      localStorage.setItem('SELECTED_DOCTOR', users[0]?.id);
+    }
+  }, [practiceId, users]);
 
   return (
     <nav
