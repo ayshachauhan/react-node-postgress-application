@@ -23,4 +23,7 @@ export class EmailLogEntity extends BaseEntity implements IEmailLog {
 
   @Column({ type: 'varchar', nullable: true })
   attachment?: string;
+
+  @Column({ type: 'boolean', nullable: false })
+  isRead: boolean;
 }
