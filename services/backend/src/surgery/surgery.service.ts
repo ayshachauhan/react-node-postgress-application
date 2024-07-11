@@ -49,6 +49,7 @@ import {
   ILike,
   In,
   LessThan,
+  LessThanOrEqual,
   MoreThan,
   MoreThanOrEqual,
   Repository,
@@ -160,11 +161,11 @@ export class SurgeryService {
 
     if (option?.toLowerCase() === 'past view') {
       searchConditions.order = {
-        date: 'ASC',
+        date: 'DESC',
       };
     } else if (option?.toLowerCase() === 'upcoming view') {
       searchConditions.order = {
-        date: 'DESC',
+        date: 'ASC',
       };
     } else {
       searchConditions.order = {
@@ -174,10 +175,11 @@ export class SurgeryService {
 
     const searchConditionsWithoutPermissions = { ...searchConditions };
 
-    if (
-      option?.toLowerCase() === 'upcoming view' ||
-      option?.toLowerCase() === 'past view'
-    ) {
+    if (option?.toLowerCase() === 'past view') {
+      const today = new Date();
+      today.setUTCHours(23, 59, 59, 999); // Set to end of today
+      whereClause.date = LessThanOrEqual(today);
+    } else if (option?.toLowerCase() === 'upcoming view') {
       const today = new Date();
       today.setUTCHours(0, 0, 0, 0); // Set to beginning of today
       const yesterday = new Date(today);

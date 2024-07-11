@@ -760,7 +760,7 @@ const FiltersSection: React.FC<{
                                       </tbody>
                                     </table>
                                   </th>
-                                  <th className="">#</th>
+                                  {!iolListShowFlag && <th className="">#</th>}
                                   <th className="p-0">
                                     <table className="w-full">
                                       <tbody>
@@ -783,17 +783,19 @@ const FiltersSection: React.FC<{
                                       </tbody>
                                     </table>
                                   </th>
-                                  {viewBillingColumn && viewBillingColumn && (
+                                  {!iolListShowFlag && viewBillingColumn && (
                                     <th className="">Prof</th>
                                   )}
 
-                                  {viewBillingColumn && (
+                                  {!iolListShowFlag && viewBillingColumn && (
                                     <th className="">Hospital</th>
                                   )}
                                   {!iolListShowFlag && (
                                     <th className="">Insurance</th>
                                   )}
-                                  <th className="">Contact Info</th>
+                                  {!iolListShowFlag && (
+                                    <th className="">Contact Info</th>
+                                  )}
                                   {!iolListShowFlag && <th>Action</th>}
                                 </tr>
                                 {ele[date].map((row, index) => {
@@ -1016,9 +1018,11 @@ const FiltersSection: React.FC<{
                                             </tbody>
                                           </table>
                                         </td>
-                                        <td rowSpan={2} className="">
-                                          {row.surgeryOrder}
-                                        </td>
+                                        {!iolListShowFlag && (
+                                          <td rowSpan={2} className="">
+                                            {row.surgeryOrder}
+                                          </td>
+                                        )}
                                         <td className="p-0" rowSpan={2}>
                                           <table className="w-full">
                                             <tbody>
@@ -1044,50 +1048,54 @@ const FiltersSection: React.FC<{
                                           </table>
                                         </td>
 
-                                        {viewBillingColumn && (
-                                          <td rowSpan={2} className="">
-                                            {row.prof}
-                                          </td>
-                                        )}
+                                        {!iolListShowFlag &&
+                                          viewBillingColumn && (
+                                            <td rowSpan={2} className="">
+                                              {row.prof}
+                                            </td>
+                                          )}
 
-                                        {viewBillingColumn && (
-                                          <td rowSpan={2} className="">
-                                            {row.hospital}
-                                          </td>
-                                        )}
+                                        {!iolListShowFlag &&
+                                          viewBillingColumn && (
+                                            <td rowSpan={2} className="">
+                                              {row.hospital}
+                                            </td>
+                                          )}
                                         {!iolListShowFlag && (
                                           <td rowSpan={2} className="">
                                             {row.insurance}
                                           </td>
                                         )}
-                                        <td rowSpan={2} className="">
-                                          {row.email}
-                                          <br />
-                                          {row.phoneNumber}
-                                          <br />
-                                          referrer: {row.referrer}
-                                          {row.referrerVerified && (
-                                            <Checkbox
-                                              checked={true}
-                                              overrides={{
-                                                Checkmark: {
-                                                  style: ({ $checked }) => ({
-                                                    backgroundColor: $checked
-                                                      ? 'rgba(34, 197, 94, 1)'
-                                                      : 'white',
-                                                    borderColor: $checked
-                                                      ? 'rgba(34, 197, 94, 1)'
-                                                      : 'rgba(113, 113, 122, 1)',
-                                                    width: '12px',
-                                                    height: '12px',
-                                                    borderRadius: '2px',
-                                                    borderWidth: '2px',
-                                                  }),
-                                                },
-                                              }}
-                                            />
-                                          )}
-                                        </td>
+                                        {!iolListShowFlag && (
+                                          <td rowSpan={2} className="">
+                                            {row.email}
+                                            <br />
+                                            {row.phoneNumber}
+                                            <br />
+                                            referrer: {row.referrer}
+                                            {row.referrerVerified && (
+                                              <Checkbox
+                                                checked={true}
+                                                overrides={{
+                                                  Checkmark: {
+                                                    style: ({ $checked }) => ({
+                                                      backgroundColor: $checked
+                                                        ? 'rgba(34, 197, 94, 1)'
+                                                        : 'white',
+                                                      borderColor: $checked
+                                                        ? 'rgba(34, 197, 94, 1)'
+                                                        : 'rgba(113, 113, 122, 1)',
+                                                      width: '12px',
+                                                      height: '12px',
+                                                      borderRadius: '2px',
+                                                      borderWidth: '2px',
+                                                    }),
+                                                  },
+                                                }}
+                                              />
+                                            )}
+                                          </td>
+                                        )}
                                         {!iolListShowFlag && (
                                           <td rowSpan={2} className="">
                                             {actionIcons(row)}
