@@ -91,6 +91,7 @@ const Header: React.FC<ChildProps> = ({ data }) => {
   }, [dispatch]);
 
   const userPracticesList = useAppSelector(userPractices);
+  const [isDoctorChange, setIsDoctorChange] = useState(false);
 
   const router = useRouter();
   const currentPath = usePathname();
@@ -112,6 +113,7 @@ const Header: React.FC<ChildProps> = ({ data }) => {
       const userId = user.id;
       setSelectedUser(user);
       localStorage.setItem(SELECTED_DOCTOR_KEY, user.id);
+      setIsDoctorChange(true);
       if (practiceId !== null && userId !== null && loggedInUserId !== null) {
         dispatch(
           fetchFilteredCalendars({
@@ -145,14 +147,15 @@ const Header: React.FC<ChildProps> = ({ data }) => {
   const handlePracticeChange = (practiceId: string, practiceName: string) => {
     setSelectedPractice(practiceName);
     localStorage.setItem('practiceId', practiceId);
+    setIsDoctorChange(false);
     router.refresh();
   };
 
-  // useEffect(() => {
-  //   if (practiceId && users.length) {
-  //     localStorage.setItem('SELECTED_DOCTOR', users[0]?.id);
-  //   }
-  // }, [practiceId, users]);
+  useEffect(() => {
+    if (practiceId && users.length && !isDoctorChange) {
+      localStorage.setItem('SELECTED_DOCTOR', users[0]?.id);
+    }
+  }, [practiceId, users]);
 
   return (
     <nav
