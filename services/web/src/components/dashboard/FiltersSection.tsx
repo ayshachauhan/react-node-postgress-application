@@ -1,6 +1,7 @@
 import {
   MonthOption,
   ReviewStatus,
+  SurgeryStatus,
   USER_PERMISSIONS,
 } from '@packages/entities';
 import Button from '@root/components/Button';
@@ -32,10 +33,8 @@ import {
   setSelectedValue,
 } from '@root/store/reducers/surgery';
 import {
-  createTierOrder,
   getColorForSurgeryStatus,
   getUserId,
-  sortSurgeryData,
   toFullName,
   toPascalCase,
   usDateFormatter,
@@ -48,6 +47,49 @@ import DeleteFilterModal from './DeleteFilterModal';
 import EditableRow from './EditableRow';
 import ViewRow from './ViewRow';
 import AddSurgeryModal from './addSurgeryModal';
+
+interface Entry {
+  id: string;
+  firstName: string;
+  lastName: string;
+  patientId: string;
+  mrn: number;
+  email: string;
+  phoneNumber: string;
+  date: string;
+  surgery: string;
+  home: string;
+  insuranceDetails: string;
+  insurance: string;
+  pcp: string;
+  referrer: string;
+  notes: string;
+  bodyPart: string;
+  index: number;
+  hospital: string;
+  prof: string;
+  surgeryOrder: number;
+  surgeryStatus: SurgeryStatus;
+  selectedSurgeryOptions: {
+    [key: string]: {
+      professionalPricing: number;
+      hospitalPricing: number;
+      value: string;
+    };
+  };
+  selectedChecklistOptions: {
+    [ket: string]: {
+      value: string;
+    };
+  };
+  selectedConditionalOptions: {
+    [key: string]: {
+      value: string;
+    };
+  };
+  waitlist?: string;
+  referrerVerified: boolean;
+}
 
 const FiltersSection: React.FC<{
   practiceId: string;
@@ -72,7 +114,6 @@ const FiltersSection: React.FC<{
     errorMessage,
     surgeryList,
     surgeryConfigList,
-    waitlist,
     userInfo,
   } = useAppSelector((state) => ({
     selectedMonth: state.surgeries.surgeryFilters.selectedMonth,
@@ -542,7 +583,6 @@ const FiltersSection: React.FC<{
     setIsUpdateLoading(loadingState);
   };
 
-  const tierOrder = createTierOrder(waitlist);
   const waitlistShowFlag =
     isWailistViewActive ||
     selectedValueStr.trim().toLowerCase() === 'waitlist view';
@@ -658,7 +698,7 @@ const FiltersSection: React.FC<{
               <table className="w-full">
                 <tbody>
                   {Object.keys(modifiedObj).map((key, index) => {
-                    const ele = modifiedObj[key];
+                    let ele = modifiedObj[key];
                     const customOptionsHeaders: string[] =
                       surgeryOptionsHeadersObj[key]?.surgeryOptionsHeaders;
                     const customCheckListHeaders: string[] =
@@ -667,6 +707,32 @@ const FiltersSection: React.FC<{
                     const customConditionalHeaders: string[] =
                       surgeryOptionsHeadersObj[key]?.conditionalHeaders;
 
+                    if (waitlistShowFlag) {
+                      const entries: [string, Entry[]][] = Object.entries(ele);
+
+                      entries.sort((a, b) => {
+                        const waitlistA = getWaitlist(a[1][0]);
+                        const waitlistB = getWaitlist(b[1][0]);
+
+                        if (!waitlistA && !waitlistB) {
+                          return 0;
+                        } else if (!waitlistA || waitlistA === '') {
+                          return 1;
+                        } else if (!waitlistB || waitlistB === '') {
+                          return -1;
+                        } else {
+                          return waitlistA.localeCompare(waitlistB);
+                        }
+                      });
+
+                      const wailistSortedData: Record<string, Entry[]> =
+                        Object.fromEntries(entries);
+                      ele = wailistSortedData;
+                    }
+
+                    function getWaitlist(obj: Entry): string | undefined {
+                      return obj?.waitlist;
+                    }
                     return (
                       <React.Fragment key={index}>
                         <tr>
@@ -683,11 +749,26 @@ const FiltersSection: React.FC<{
 
                         {Object.keys(ele).map((date, dateIndex) => {
                           if (waitlistShowFlag) {
-                            const sortedData = sortSurgeryData(
-                              ele[date],
-                              tierOrder,
-                            );
-                            ele[date] = sortedData;
+                            ele[date].sort((a, b) => {
+                              const waitlistA = a.waitlist ?? '';
+                              const waitlistB = b.waitlist ?? '';
+
+                              if (waitlistA === '' && waitlistB === '') {
+                                return 0;
+                              } else if (
+                                waitlistA === '' ||
+                                waitlistA === undefined
+                              ) {
+                                return 1;
+                              } else if (
+                                waitlistB === '' ||
+                                waitlistB === undefined
+                              ) {
+                                return -1;
+                              } else {
+                                return waitlistA.localeCompare(waitlistB);
+                              }
+                            });
                           }
                           return (
                             <>
