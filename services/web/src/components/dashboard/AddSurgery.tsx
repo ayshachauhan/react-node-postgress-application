@@ -217,7 +217,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
           }),
         );
 
-        return { id: i, label: ele.label, checked: true, allowedValues };
+        return { id: i, label: ele.label, checked: false, allowedValues };
       });
 
       setSurgeryDropdownOptions([...selectedSurgeryOptions]);
