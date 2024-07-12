@@ -180,7 +180,12 @@ const AddModularField: React.FC<{
           label: optionField.category,
           default: '',
           required: true,
-          allowedValues: optionField.options,
+          allowedValues: optionField.options.map((inputField) => ({
+            ...inputField,
+            billingType: inputField.billingType || '0',
+            hospitalPricing: inputField.hospitalPricing || '0',
+            professionalPricing: inputField.professionalPricing || '0',
+          })),
           count: optionField.count,
           edit_admin_option: optionField.edit_admin_option,
         };
@@ -573,9 +578,6 @@ const AddModularField: React.FC<{
                                 disabled={
                                   optionsFields[index].category ? false : true
                                 }
-                                required={
-                                  optionsFields[index].category ? true : false
-                                }
                                 size={SIZE.mini}
                                 name="billingType"
                                 value={inputField.billingType}
@@ -596,9 +598,6 @@ const AddModularField: React.FC<{
                               <TextInput
                                 disabled={
                                   optionsFields[index].category ? false : true
-                                }
-                                required={
-                                  optionsFields[index].category ? true : false
                                 }
                                 type="number"
                                 size={SIZE.mini}
@@ -621,9 +620,6 @@ const AddModularField: React.FC<{
                               <TextInput
                                 disabled={
                                   optionsFields[index].category ? false : true
-                                }
-                                required={
-                                  optionsFields[index].category ? true : false
                                 }
                                 size={SIZE.mini}
                                 type="number"
