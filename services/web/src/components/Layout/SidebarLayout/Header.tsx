@@ -58,9 +58,6 @@ const Header: React.FC<ChildProps> = ({ data }) => {
     Object.values(entities).find((user) => user.id === userId);
 
   const [selectedUser, setSelectedUser] = useState<SanitizedUser | null>(null);
-  if (!localStorage.getItem(SELECTED_DOCTOR_KEY) && users.length > 0) {
-    localStorage.setItem(SELECTED_DOCTOR_KEY, users[0].id);
-  }
 
   const is_super_admin = userInfo ? userInfo.isSuperAdmin : false;
   const selectedUserBox = (
@@ -152,10 +149,25 @@ const Header: React.FC<ChildProps> = ({ data }) => {
   };
 
   useEffect(() => {
-    if (practiceId && users.length && !isDoctorChange) {
-      localStorage.setItem('SELECTED_DOCTOR', users[0]?.id);
+    if (practiceId && users?.length && !isDoctorChange) {
+      const selectedDoctor = localStorage.getItem('SELECTED_DOCTOR');
+      const userIds = users?.map((user) => user?.id);
+      if (!selectedDoctor || !userIds.includes(selectedDoctor)) {
+        localStorage.setItem('SELECTED_DOCTOR', users[0]?.id);
+      }
+    }
+    if (!users?.length && entities?.length) {
+      localStorage.removeItem('SELECTED_DOCTOR');
     }
   }, [practiceId, users]);
+
+  const selectedDoctorName = useMemo(
+    () =>
+      users?.find(
+        (user) => user?.id === localStorage.getItem('SELECTED_DOCTOR'),
+      )?.fullName,
+    [users],
+  );
 
   return (
     <nav
@@ -224,7 +236,7 @@ const Header: React.FC<ChildProps> = ({ data }) => {
                   </Dropdown>
                 ) : (
                   isDashboardPage && (
-                    <div>&nbsp;&nbsp;&nbsp;{users && users[0]?.fullName}</div>
+                    <div>&nbsp;&nbsp;&nbsp;{users && selectedDoctorName}</div>
                   )
                 )}
               </>
