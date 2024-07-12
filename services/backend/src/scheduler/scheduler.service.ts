@@ -250,20 +250,22 @@ export class SchedulerService {
     emailLogId: string,
   ): string {
     const { backendUrl } = this.transporterService.getEnvVariables();
+    const token: string = this.jwtService.sign({
+      practiceId: practiceId,
+      emailLogId,
+    });
+    const imgTagString: string = `<img src="${backendUrl}/practices/${practiceId}/emailLog/${emailLogId}?token=${token}" width="1" height="1" style="display:none;" />`;
 
     if (htmlString) {
-      const htmlSplitArray = htmlString.split('<body>');
-
-      if (htmlSplitArray.length) {
-        const token: string = this.jwtService.sign({
-          practiceId: practiceId,
-          emailLogId,
-        });
-
-        htmlSplitArray[0] = `<body><img src=${backendUrl}/practices/${practiceId}/emailLog/${emailLogId}?token=${token} width="1" height="1" style="display:none;>`;
+      if (htmlString.includes('<body>')) {
+        const htmlSplitArray = htmlString.split('<body>');
+        htmlSplitArray[0] = '<body>\n' + '  ' + imgTagString + '<br/>';
+        return htmlSplitArray.join('');
+      } else {
+        return imgTagString + htmlString + '<br/>';
       }
-      return htmlSplitArray.join('');
     }
+
     return '';
   }
 }
