@@ -64,6 +64,20 @@ export class PatientsService {
     );
 
     if (mrnCheck) {
+      const hasChanges =
+        mrnCheck.firstName !== createPatientDto.firstName ||
+        mrnCheck.lastName !== createPatientDto.lastName ||
+        mrnCheck.email !== createPatientDto.email ||
+        mrnCheck.phoneNumber !== createPatientDto.phoneNumber;
+
+      if (hasChanges) {
+        await this.patientRepository.update(mrnCheck.id, {
+          firstName: createPatientDto.firstName,
+          lastName: createPatientDto.lastName,
+          email: createPatientDto.email,
+          phoneNumber: createPatientDto.phoneNumber,
+        });
+      }
       if (referrerEntity.dateCreated) {
         await this.patientRepository.update(mrnCheck.id, {
           referrer: referrerEntity,
