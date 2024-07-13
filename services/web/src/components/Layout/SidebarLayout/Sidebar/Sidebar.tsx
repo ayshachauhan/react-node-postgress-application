@@ -36,6 +36,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapseChange }) => {
       onCollapseChange(newCollapsed);
     }
   };
+  const currentUrlPath = window.location.pathname;
 
   const [expandedMenuItemId, setExpandedMenuItemId] = useState<string>('');
 
@@ -59,6 +60,12 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapseChange }) => {
       updateUserPermissions(userInfo.permissions);
     }
   }, [userPermissions, userInfo, updateUserPermissions]);
+
+  useEffect(() => {
+    if (currentUrlPath.startsWith('/messages')) {
+      setActiveMenuItemId('messages');
+    }
+  }, [currentUrlPath]);
 
   useEffect(() => {
     const currentPath = window.location.pathname + window.location.search;
