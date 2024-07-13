@@ -34,6 +34,7 @@ import {
 import { Checkbox } from 'baseui/checkbox';
 import { Select } from 'baseui/select';
 import Image from 'next/image';
+import { useSearchParams } from 'next/navigation';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 export interface customerMediaConfig extends IMediaConfig {
@@ -75,8 +76,20 @@ export default function MessagesTable() {
       (ele) => ele.mediaType == MediaType.PRACTICE && ele.mediaConfigs.length,
     ),
   }));
+  const searchParamsValue = useSearchParams();
+  const ifRedirectedFromDashboard = searchParamsValue.get(
+    'redirectedFromDashboard',
+  );
+
   useEffect(() => {
     dispatch(clearData());
+    if (
+      !ifRedirectedFromDashboard ||
+      ifRedirectedFromDashboard === 'undefined'
+    ) {
+      handleSearchMRNNameChange('');
+      searchMRNNameStr = '';
+    }
   }, [dispatch, practiceId]);
 
   useEffect(() => {

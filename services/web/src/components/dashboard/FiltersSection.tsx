@@ -435,10 +435,22 @@ const FiltersSection: React.FC<{
     setSelectedAction('view');
   };
 
+  const createQueryString = (params) => {
+    const queryString = new URLSearchParams();
+    Object.keys(params).forEach((key) => {
+      queryString.append(key, params[key]);
+    });
+    return queryString.toString();
+  };
+
   const handlePatientMedia = (patientMrn: number): void => {
+    const queryParams = {
+      patientMrn: patientMrn,
+      redirectedFromDashboard: true,
+    };
     setSelectedAction('patientMedia');
-    const url = `/messages/?patientMrn=${patientMrn}`;
-    router.push(url);
+    const queryString = createQueryString(queryParams);
+    router.push(`/messages?${queryString}`);
   };
 
   const resetFilters = (): void => {
