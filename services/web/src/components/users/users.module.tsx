@@ -312,7 +312,7 @@ export default function UserPage() {
                   </tr>
                   <tr>
                     <td colSpan={8} className="">
-                      <div className="grid grid-cols-8 text-[10px] bg-white px-1">
+                      <div className="grid grid-cols-9 text-[10px] bg-white px-1">
                         {data?.permissions.map((label, index) => (
                           <Checkbox
                             key={index}
@@ -337,9 +337,7 @@ export default function UserPage() {
                             }}
                           >
                             <label htmlFor={`checkbox-${index}`} className="">
-                              <span className="inline-block w-16 truncate">
-                                {label.name}
-                              </span>
+                              <span className="">{label.name}</span>
                             </label>
                           </Checkbox>
                         ))}
