@@ -4,7 +4,7 @@ import {
   SurgeryConfigurationEntity,
   SurgeryTypeEntity,
 } from '@packages/entities';
-import { Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import {
   AddSurgeryConfigurationDto,
   UpdateSurgeryConfigurationDto,
@@ -50,7 +50,7 @@ export class SurgeryConfigurationsService {
       await this.surgeryConfigurationRepository.findOne({
         where: {
           surgeryType: { id: surgeryType.id },
-          name: dto.name,
+          name: ILike(dto.name),
         },
       });
     if (sameSurgeryTypeCheck) {

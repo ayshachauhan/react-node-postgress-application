@@ -81,23 +81,35 @@ export const getSurgeryConfigurationInfo = async (
   }
 };
 
-export const addSurgeryConfiguration = async ({
-  payloadData,
-  practiceId,
-}: {
-  payloadData: CreateSurgeryConfigurationPayload;
-  practiceId: string;
-}) => {
+export const addSurgeryConfiguration = async (
+  {
+    payloadData,
+    practiceId,
+  }: {
+    payloadData: CreateSurgeryConfigurationPayload;
+    practiceId: string;
+  },
+  { rejectWithValue },
+) => {
   try {
     const response = await apiClient.post(
       `/practices/${practiceId}/surgeryTypes/configurations/${payloadData.surgeryTypeId}`,
       payloadData,
     );
 
+    if (!response?.ok) {
+      if (response?.status === 406) {
+        throw new Error('Surgery Name already exists for this type');
+      }
+      throw new Error('Failed to add surgery type');
+    }
     const data = await response.json();
     return data;
   } catch (error) {
-    return error;
+    if (error instanceof Error) {
+      return rejectWithValue(error?.message);
+    }
+    return rejectWithValue('An unknown error.');
   }
 };
 

@@ -274,8 +274,6 @@ const UpcomingSection: React.FC = () => {
       nextDate = moment(nextDate).add(1, 'days');
     }
 
-    console.log(nextDate.toDate(), 'nextdate');
-
     // Convert back to a Date object for DatePicker
     return nextDate.toDate();
   };
