@@ -14,6 +14,8 @@ const config: Config = {
         'primary-dark': '#117180',
         'primary-light': '#35A576',
         secondary: '#755A9F',
+        customPink: '#FCBAFB',
+        customGreen: '#e2efda',
       },
     },
   },

@@ -1065,7 +1065,7 @@ const FiltersSection: React.FC<{
                                           </td>
                                         )}
                                         <td className="p-0" rowSpan={2}>
-                                          <table className="w-full">
+                                          <table className="w-full h-24">
                                             <tbody>
                                               <tr>
                                                 {customCheckListHeaders &&
@@ -1075,7 +1075,11 @@ const FiltersSection: React.FC<{
                                                       checkListHeaderIndex,
                                                     ) => (
                                                       <td
-                                                        className="w-1/4"
+                                                        className={`w-1/4 ${
+                                                          row[checkListHeader]
+                                                            ? 'bg-customGreen'
+                                                            : 'bg-customPink'
+                                                        }`}
                                                         key={
                                                           checkListHeaderIndex
                                                         }
@@ -1090,7 +1094,14 @@ const FiltersSection: React.FC<{
                                         </td>
 
                                         {viewBillingColumn && (
-                                          <td rowSpan={2} className="">
+                                          <td
+                                            rowSpan={2}
+                                            className={`${
+                                              Number(row?.prof)
+                                                ? 'bg-customGreen'
+                                                : 'bg-customPink'
+                                            } pl-1`}
+                                          >
                                             {row.prof}
                                           </td>
                                         )}
