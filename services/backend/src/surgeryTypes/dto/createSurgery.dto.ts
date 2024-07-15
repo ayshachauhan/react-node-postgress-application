@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty } from 'class-validator';
+import { IsNotEmpty, IsOptional } from 'class-validator';
 
 export class CreateSurgeryTypeDto {
   @IsNotEmpty({ message: 'Name is required' })
@@ -7,6 +7,16 @@ export class CreateSurgeryTypeDto {
   name: string;
 
   @IsNotEmpty({ message: 'Surgery Location Color is required' })
+  @ApiProperty()
+  color: string;
+}
+
+export class UpdateSurgeryTypeDto {
+  @IsOptional()
+  @ApiProperty()
+  name: string;
+
+  @IsOptional()
   @ApiProperty()
   color: string;
 }

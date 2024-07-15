@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Post,
   Req,
   UseGuards,
@@ -14,7 +15,10 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { SurgeryTypeEntity } from '@packages/entities';
 import { AuthGuard } from '../auth/auth.guard';
 import { practiceNotFoundInterceptor } from '../interceptors/practiceNotFoundInterceptor';
-import { CreateSurgeryTypeDto } from './dto/createSurgery.dto';
+import {
+  CreateSurgeryTypeDto,
+  UpdateSurgeryTypeDto,
+} from './dto/createSurgery.dto';
 import { SurgeryTypesService } from './surgeryTypes.service';
 
 @ApiTags('SurgeryTypes')
@@ -56,5 +60,13 @@ export class SurgeryTypesController {
     const practiceEntity = request['practiceEntity'];
 
     return this.surgeryTypesService.create(dto, practiceEntity);
+  }
+
+  @Patch(':id')
+  async update(
+    @Param('id') id: string,
+    @Body(new ValidationPipe()) dto: UpdateSurgeryTypeDto,
+  ): Promise<SurgeryTypeEntity | null> {
+    return this.surgeryTypesService.update(dto, id);
   }
 }
