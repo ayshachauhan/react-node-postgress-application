@@ -594,6 +594,31 @@ export class EmailHandlerService {
       });
     }
   }
+
+  async checkAndMakeReviewEmailContent(
+    practice: IPractice,
+    data: Record<string, string>,
+    systemGeneratedMailData?: SystemGeneratedMailData,
+  ): Promise<void> {
+    const emailLogsEntries: Partial<IEmailLog>[] = [];
+    if (systemGeneratedMailData) {
+      const systemTemplateName = systemGeneratedMailData.systemTemplate;
+      const entry: Partial<IEmailLog> = {
+        practice: practice,
+        expectedDate: new Date(),
+        status: 'pending',
+        data: {
+          body: this.transporterService.readTemplates(systemTemplateName),
+          subject: systemGeneratedMailData.subject,
+          text: systemGeneratedMailData.text,
+          ...data,
+        },
+      };
+      emailLogsEntries.push(entry);
+    }
+
+    await this.emailLogRepository.save(emailLogsEntries);
+  }
 }
 
 const makeAllCaseArray = (dataArray: IEval[] | ISurgery[]) => {
