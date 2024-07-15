@@ -10,6 +10,7 @@ import { useAppDispatch, useAppSelector } from '@root/store';
 import { fetchFilteredCalendars } from '@root/store/reducers/calendar';
 import { updateRecordAsync as updateEval } from '@root/store/reducers/evals';
 import { addRecordAsync as addSurgeryRecord } from '@root/store/reducers/surgery';
+import { fetchListings as fetchUsersList } from '@root/store/reducers/users';
 import { DEFAULT_SURGERYLOCATION_COLOR } from '@root/utils/constants';
 import { getPracticeId, getSelectedMonths, toFullName } from '@utils/index';
 import { Checkbox } from 'baseui/checkbox';
@@ -426,6 +427,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
             loggedInUserId,
           }),
         );
+        dispatch(fetchUsersList({ practiceId }));
 
         try {
           setFirstName('');
