@@ -456,7 +456,6 @@ export class EmailHandlerService {
   ): Promise<Record<string, string[]>> {
     const {
       patient: { id: patientId },
-      practice: { id: practiceId },
     } = entity;
 
     const allCaseType: string[] = [];
@@ -473,13 +472,11 @@ export class EmailHandlerService {
 
     // allCaseType.push(...makeAllCaseArray(upcomingEvals));
 
-    const allPracticeSurgeries =
-      await this.surgeryService.findSurgeryByPatient(practiceId);
-    const upcomingSurgeries = allPracticeSurgeries.filter(
+    const patientAllSurgeries =
+      await this.surgeryService.findSurgeryByPatient(patientId);
+
+    const upcomingSurgeries = patientAllSurgeries.filter(
       (surgery: ISurgery) => new Date(surgery.date) > new Date(),
-    );
-    const particularPatientSurgeries = allPracticeSurgeries.filter(
-      (surgery: ISurgery) => surgery.patient.id === patientId,
     );
     allCaseType.push(...makeAllCaseArray(upcomingSurgeries));
 
@@ -488,7 +485,7 @@ export class EmailHandlerService {
         toLowerCase(ele).includes('cataract'),
       ),
       allCaseType,
-      allCases: makeAllCaseArray(particularPatientSurgeries),
+      allCases: makeAllCaseArray(patientAllSurgeries),
     };
   }
 

@@ -21,12 +21,15 @@ export const makeAllCaseArray = (dataArray) => {
 
 export const findValueOfMailVariable = (allSurgeries, patientId) => {
   const allCaseType: string[] = [];
-  const upcomingSurgeries = allSurgeries.filter(
-    (surgery) => new Date(surgery.date) > new Date(),
-  );
+
   const particularPatientSurgeries = allSurgeries.filter(
     (surgery) => surgery?.patient?.id === patientId,
   );
+
+  const upcomingSurgeries = particularPatientSurgeries.filter(
+    (surgery) => new Date(surgery.date) > new Date(),
+  );
+
   allCaseType.push(...makeAllCaseArray(upcomingSurgeries));
 
   return {

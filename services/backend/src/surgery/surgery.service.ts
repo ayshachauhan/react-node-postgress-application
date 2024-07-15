@@ -715,9 +715,9 @@ export class SurgeryService {
     );
   }
 
-  async findSurgeryByPatient(practiceId: string): Promise<ISurgery[]> {
+  async findSurgeryByPatient(patientId: string): Promise<ISurgery[]> {
     return await this.surgeryRepository.find({
-      where: { practice: { id: practiceId } },
+      where: { patient: { id: patientId } },
       relations: ['surgeryConfiguration', 'patient'],
       order: { date: 'ASC' },
     });
