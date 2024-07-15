@@ -801,7 +801,7 @@ const FiltersSection: React.FC<{
                                       </tbody>
                                     </table>
                                   </th>
-                                  {!iolListShowFlag && viewBillingColumn && (
+                                  {viewBillingColumn && (
                                     <th className="w-[30px]">Prof</th>
                                   )}
 
@@ -1089,19 +1089,17 @@ const FiltersSection: React.FC<{
                                           </table>
                                         </td>
 
-                                        {!iolListShowFlag &&
-                                          viewBillingColumn && (
-                                            <td rowSpan={2} className="">
-                                              {row.prof}
-                                            </td>
-                                          )}
+                                        {viewBillingColumn && (
+                                          <td rowSpan={2} className="">
+                                            {row.prof}
+                                          </td>
+                                        )}
 
-                                        {!iolListShowFlag &&
-                                          viewBillingColumn && (
-                                            <td rowSpan={2} className="">
-                                              {row.hospital}
-                                            </td>
-                                          )}
+                                        {viewBillingColumn && (
+                                          <td rowSpan={2} className="">
+                                            {row.hospital}
+                                          </td>
+                                        )}
                                         {!iolListShowFlag && (
                                           <td rowSpan={2} className="">
                                             {row.insurance}
