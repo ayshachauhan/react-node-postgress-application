@@ -18,11 +18,7 @@ import { SIZE, Select } from 'baseui/select';
 import { Textarea } from 'baseui/textarea';
 import React, { useEffect, useMemo, useState } from 'react';
 import RequiredIndicator from '../RequiredIndicator';
-import {
-  filterUpcomingSurgeries,
-  getRandomSurgeryData,
-  replacePlaceholders,
-} from './utils';
+import { getRandomSurgeryData, replacePlaceholders } from './utils';
 
 interface Data {
   id: string;
@@ -92,11 +88,7 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({
   );
 
   const surguriesData = useMemo(
-    () =>
-      getRandomSurgeryData(
-        filterUpcomingSurgeries(surgeries),
-        updatedTemplateInfo,
-      ),
+    () => getRandomSurgeryData(surgeries, updatedTemplateInfo),
     [templateInfo],
   );
 
