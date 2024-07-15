@@ -210,6 +210,7 @@ export default function SurgeryTypePage() {
                     <input
                       type="color"
                       required={true}
+                      disabled
                       id="primary_color"
                       value={data.color ?? DEFAULT_SURGERYLOCATION_COLOR}
                       style={{

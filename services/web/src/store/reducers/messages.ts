@@ -43,7 +43,10 @@ const messageSlice = createSlice({
     builder.addCase(fetchListings.fulfilled, (state, action) => {
       state.status = EntityLoadingState.SUCCEEDED;
       state.entities = {};
-      state.entities = indexBy('id', action.payload);
+      state.entities = {
+        ...state.entities,
+        ...indexBy('id', action.payload),
+      };
     });
 
     builder.addCase(fetchListings.rejected, (state, action) => {

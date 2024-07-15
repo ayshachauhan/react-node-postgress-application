@@ -106,7 +106,6 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
   const [surgeryCataractNameId, setSurgeryCataractNameId] =
     useState<string>('');
   const [errorMsgForCataract, setErrorMessageForCataract] = useState('');
-  const [isMrnExists, setIsMrnExists] = useState<boolean>(false);
   const [isNewReferrer, setIsNewReferrer] = useState<boolean>(false);
   const [isCataractSelected, setCataractSelected] = useState<boolean>(false);
   const [addNewCataractSurgery, setAddNewCataractSurgery] =
@@ -179,14 +178,12 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
       const patientCheck = patientsList.find((ele) => String(ele.mrn) === mrn);
 
       if (patientCheck) {
-        setIsMrnExists(true);
         setFirstName(patientCheck.firstName);
         setLastName(patientCheck.lastName);
         setEmail(patientCheck.email);
         setPhoneNumber(patientCheck.phoneNumber);
         setReferrerId(patientCheck.referrer ? patientCheck?.referrer.id : '');
       } else {
-        setIsMrnExists(false);
         setFirstName('');
         setLastName('');
         setEmail('');
@@ -612,7 +609,6 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
               </label>
               <TextInput
                 size={SIZE.mini}
-                disabled={isMrnExists}
                 name="name"
                 value={firstName}
                 onChange={(value) => {
@@ -629,7 +625,6 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
               </label>
               <TextInput
                 size={SIZE.mini}
-                disabled={isMrnExists}
                 name="lastName"
                 value={lastName}
                 onChange={(value) => {
@@ -648,7 +643,6 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
               </label>
               <TextInput
                 size={SIZE.mini}
-                disabled={isMrnExists}
                 name="email"
                 value={email}
                 onChange={(value) => {
@@ -666,7 +660,6 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
               <TextInput
                 size={SIZE.mini}
                 name="phoneNumber"
-                disabled={isMrnExists}
                 value={phoneNumber}
                 onChange={(value) => {
                   setPhoneNumber(value);
