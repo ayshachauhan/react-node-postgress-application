@@ -418,7 +418,7 @@ export class EmailHandlerService {
       insuranceType,
     } = entity;
 
-    const { allCataractDates, allCaseType } =
+    const { allCataractDates, allCaseType, allCases } =
       await this.findValueOfMailVariable(entity);
 
     const mailVariables: EmailVariables = {
@@ -436,7 +436,7 @@ export class EmailHandlerService {
       Laterality: toPascalCase(bodyPart),
       pod1_location: practiceHomeName,
       cataract_variable: '',
-      all_cases: makeAllCaseString(bodyPart, name, date),
+      all_cases: allCases.join(),
       all_cataract_dates: allCataractDates.join(),
       all_case_type: allCaseType.join(),
       phoneNumber: phoneNumber,
@@ -472,11 +472,12 @@ export class EmailHandlerService {
 
     // allCaseType.push(...makeAllCaseArray(upcomingEvals));
 
-    const upcomingSurgeries = await this.surgeryService.findSurgeryByPatient(
-      patientId,
-      new Date(),
-    );
+    const patientAllSurgeries =
+      await this.surgeryService.findSurgeryByPatient(patientId);
 
+    const upcomingSurgeries = patientAllSurgeries.filter(
+      (surgery: ISurgery) => new Date(surgery.date) > new Date(),
+    );
     allCaseType.push(...makeAllCaseArray(upcomingSurgeries));
 
     return {
@@ -484,6 +485,7 @@ export class EmailHandlerService {
         toLowerCase(ele).includes('cataract'),
       ),
       allCaseType,
+      allCases: makeAllCaseArray(patientAllSurgeries),
     };
   }
 
