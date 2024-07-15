@@ -435,11 +435,13 @@ const FiltersSection: React.FC<{
     setSelectedAction('view');
   };
 
-  const createQueryString = (params) => {
+  const createQueryString = (params): string => {
     const queryString = new URLSearchParams();
-    Object.keys(params).forEach((key) => {
-      queryString.append(key, params[key]);
-    });
+    if (params) {
+      Object.keys(params).forEach((key) => {
+        queryString.append(key, params[key]);
+      });
+    }
     return queryString.toString();
   };
 
@@ -450,7 +452,9 @@ const FiltersSection: React.FC<{
     };
     setSelectedAction('patientMedia');
     const queryString = createQueryString(queryParams);
-    router.push(`/messages?${queryString}`);
+    if (queryString) {
+      router.push(`/messages?${queryString}`);
+    }
   };
 
   const resetFilters = (): void => {
