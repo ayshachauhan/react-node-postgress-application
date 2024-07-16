@@ -221,7 +221,7 @@ export class UsersService {
     changePasswordDto,
     practiceId,
   }): Promise<SanitizedUser> {
-    const { email, newPassword, confirmPassword, oldPassword } =
+    const { email, newPassword, confirmPassword, oldPassword, token } =
       changePasswordDto;
     if (confirmPassword !== newPassword) {
       throw new HttpException(
@@ -235,13 +235,13 @@ export class UsersService {
       const newHashedPassword = await bcrypt.hash(newPassword, 10);
       if (!oldPassword) {
         // meaning that user is reseting own password only.
-        if (!user?.token) {
+        if (!user?.token && token) {
           throw new HttpException(
             `This link has been already used. Please request a new one.`,
             HttpStatus.PRECONDITION_FAILED,
           );
         }
-        if (user.status == UserStatus.ACTIVE && user?.token) {
+        if (user.status == UserStatus.ACTIVE && (user?.token || !token)) {
           const updatedResult = await this.usersRepository.update(user.id, {
             password: newHashedPassword,
             token: '',
