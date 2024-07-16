@@ -12,3 +12,9 @@ export type SurgeryType = {
   name: string;
   color: string;
 };
+
+export interface ISurgeryTypeUpdate {
+  practiceId?: string;
+  name?: string;
+  color?: string;
+}

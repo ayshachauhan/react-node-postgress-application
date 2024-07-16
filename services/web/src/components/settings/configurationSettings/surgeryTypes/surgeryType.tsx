@@ -1,7 +1,8 @@
 'use client';
 import { ModalCloseEvent } from '@root/components/BaseUiModal/BaseUiModal';
 import Button from '@root/components/Button';
-import { AddIcon, DeleteIcon } from '@root/components/Icons';
+import { AddIcon, DeleteIcon, EditIcon } from '@root/components/Icons';
+import EditSurgeryLocationModal from '@root/components/settings/configurationSettings/surgeryTypes/EditSurgeryLocationModal';
 import AddSurgeryType from '@root/components/settings/configurationSettings/surgeryTypes/addSurgeryType';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { getPracticeInfo } from '@root/store/reducers/practices';
@@ -31,6 +32,7 @@ export default function SurgeryTypePage() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const practiceId = getPracticeId();
   const surgeryTypes = useAppSelector((state) =>
     Object.values(state.surgeryTypes.entities),
@@ -40,6 +42,18 @@ export default function SurgeryTypePage() {
   const successMessage = useAppSelector(selectSuccessMessage);
   const errorMessage = useAppSelector(selectError);
   const modalRef = useRef(null);
+
+  const handleOpenEditModal = (Id: string): void => {
+    setIsModalOpen(false);
+    setIsEditModalOpen(true);
+    setIsDeleteModalOpen(false);
+    setSurgeryTypeId(Id);
+  };
+
+  const handleCloseEditModal = (): void => {
+    setIsEditModalOpen(false);
+    setSurgeryTypeId('');
+  };
 
   useEffect(() => {
     if (practiceId !== null) {
@@ -222,11 +236,21 @@ export default function SurgeryTypePage() {
                     />
                   </td>
                   <td className="">
-                    <div
-                      onClick={() => data.id && handleOpenDeleteModal(data.id)}
-                      className="cursor-pointer"
-                    >
-                      <DeleteIcon></DeleteIcon>
+                    <div className="flex gap-1">
+                      <div
+                        onClick={() =>
+                          data.id && handleOpenDeleteModal(data.id)
+                        }
+                        className="cursor-pointer"
+                      >
+                        <DeleteIcon></DeleteIcon>
+                      </div>
+                      <div
+                        onClick={() => data.id && handleOpenEditModal(data.id)}
+                        className="cursor-pointer"
+                      >
+                        <EditIcon></EditIcon>
+                      </div>
                     </div>
                   </td>
                 </tr>
@@ -237,6 +261,11 @@ export default function SurgeryTypePage() {
       </div>
       <AddSurgeryModal />
       <DeleteSurgeryTypeModal />
+      <EditSurgeryLocationModal
+        isEditModalOpen={isEditModalOpen}
+        handleCloseEditModal={handleCloseEditModal}
+        surgeryTypeId={surgeryTypeId}
+      />
     </div>
   );
 }
