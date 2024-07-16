@@ -1107,7 +1107,14 @@ const FiltersSection: React.FC<{
                                         )}
 
                                         {viewBillingColumn && (
-                                          <td rowSpan={2} className="">
+                                          <td
+                                            rowSpan={2}
+                                            className={`${
+                                              Number(row?.hospital)
+                                                ? 'bg-customGreen'
+                                                : 'bg-customPink'
+                                            } pl-1`}
+                                          >
                                             {row.hospital}
                                           </td>
                                         )}
