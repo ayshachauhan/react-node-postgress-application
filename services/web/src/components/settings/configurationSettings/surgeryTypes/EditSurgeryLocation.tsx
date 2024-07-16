@@ -1,5 +1,5 @@
 import { ISurgeryType } from '@packages/entities';
-import { SurgeryType } from '@packages/entities/index.browser';
+import { ISurgeryTypeUpdate } from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import RequiredIndicator from '@root/components/RequiredIndicator';
 import TextInput from '@root/components/TextInput';
@@ -37,14 +37,15 @@ const EditSurgeryLocation: React.FC<ChildProps> = ({ data, onClose }) => {
     e.preventDefault();
     const trimmedSurgeryType = updatedSurgeryTypeInfo.name;
     if (practiceId && trimmedSurgeryType !== '' && surgeryTypeId) {
-      const surgeryTypePayload: SurgeryType = {
+      const surgeryTypePayload: Partial<ISurgeryTypeUpdate> = {
         ...updatedSurgeryTypeInfo,
         practiceId,
         name: trimmedSurgeryType ?? '',
         color: updatedSurgeryTypeInfo.color ?? DEFAULT_SURGERYLOCATION_COLOR,
+        id: surgeryTypeId,
       };
       try {
-        dispatch(editRecordAsync(surgeryTypePayload));
+        await dispatch(editRecordAsync(surgeryTypePayload));
         onClose();
       } catch (error) {
         onClose();
