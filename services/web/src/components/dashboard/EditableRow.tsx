@@ -704,7 +704,7 @@ function EditableRow({
             <td
               rowSpan={2}
               className={`min-w-10 ${
-                Number(obj?.totalProfessionalPricing)
+                Number(obj?.totalHospitalPricing)
                   ? 'bg-customGreen'
                   : 'bg-customPink'
               }`}
