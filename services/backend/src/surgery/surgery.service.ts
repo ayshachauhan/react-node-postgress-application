@@ -50,7 +50,6 @@ import {
   In,
   LessThan,
   LessThanOrEqual,
-  MoreThan,
   MoreThanOrEqual,
   Repository,
 } from 'typeorm';
@@ -716,13 +715,11 @@ export class SurgeryService {
     );
   }
 
-  async findSurgeryByPatient(
-    patientId: string,
-    date: Date,
-  ): Promise<ISurgery[]> {
+  async findSurgeryByPatient(patientId: string): Promise<ISurgery[]> {
     return await this.surgeryRepository.find({
-      where: { patient: { id: patientId }, date: MoreThan(date) },
-      relations: ['surgeryConfiguration'],
+      where: { patient: { id: patientId } },
+      relations: ['surgeryConfiguration', 'patient'],
+      order: { date: 'ASC' },
     });
   }
 

@@ -639,7 +639,7 @@ function EditableRow({
             />
           </td>
           <td rowSpan={2}>
-            <table className="w-full">
+            <table className="w-full h-24">
               <tbody>
                 <tr>
                   {customCheckListHeaders.map(
@@ -651,7 +651,11 @@ function EditableRow({
 
                       return (
                         <td
-                          className="w-1/4 min-w-10"
+                          className={`w-1/4 min-w-10 ${
+                            selectedChecklistOption
+                              ? 'bg-customGreen'
+                              : 'bg-customPink'
+                          }`}
                           key={checkListHeaderIndex}
                         >
                           <TextInput
@@ -677,7 +681,14 @@ function EditableRow({
             </table>
           </td>
           {viewBillingColumn && (
-            <td rowSpan={2} className="min-w-10">
+            <td
+              rowSpan={2}
+              className={`min-w-10 ${
+                Number(obj?.totalProfessionalPricing)
+                  ? 'bg-customGreen'
+                  : 'bg-customPink'
+              }`}
+            >
               <TextInput
                 size={SIZE.mini}
                 name="prof"
@@ -690,7 +701,14 @@ function EditableRow({
             </td>
           )}
           {viewBillingColumn && (
-            <td rowSpan={2} className="min-w-10">
+            <td
+              rowSpan={2}
+              className={`min-w-10 ${
+                Number(obj?.totalProfessionalPricing)
+                  ? 'bg-customGreen'
+                  : 'bg-customPink'
+              }`}
+            >
               <TextInput
                 size={SIZE.mini}
                 name="hospital"

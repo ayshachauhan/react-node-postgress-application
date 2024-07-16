@@ -19,15 +19,25 @@ export const makeAllCaseArray = (dataArray) => {
   return caseArray;
 };
 
-export const findValueOfMailVariable = (upcompingSurgeries) => {
+export const findValueOfMailVariable = (allSurgeries, patientId) => {
   const allCaseType: string[] = [];
-  allCaseType.push(...makeAllCaseArray(upcompingSurgeries));
+
+  const particularPatientSurgeries = allSurgeries.filter(
+    (surgery) => surgery?.patient?.id === patientId,
+  );
+
+  const upcomingSurgeries = particularPatientSurgeries.filter(
+    (surgery) => new Date(surgery.date) > new Date(),
+  );
+
+  allCaseType.push(...makeAllCaseArray(upcomingSurgeries));
 
   return {
     allCataractDates: allCaseType.filter((ele) =>
       ele.toLowerCase().includes('cataract'),
     ),
     allCaseType,
+    allCases: makeAllCaseArray(particularPatientSurgeries),
   };
 };
 
@@ -55,8 +65,10 @@ export function filterUpcomingSurgeries(data) {
 }
 
 export const formatSurgeryData = (surgery, allSurgeries, templateInfo) => {
-  const { allCataractDates, allCaseType } =
-    findValueOfMailVariable(allSurgeries);
+  const { allCataractDates, allCaseType, allCases } = findValueOfMailVariable(
+    allSurgeries,
+    surgery?.patient?.id,
+  );
   return {
     fname: surgery?.patient?.firstName,
     lname: surgery?.patient?.lastName,
@@ -74,13 +86,7 @@ export const formatSurgeryData = (surgery, allSurgeries, templateInfo) => {
     pod1_location: surgery?.practiceHome?.name,
     cataract_variable:
       templateInfo?.email1stCataract || templateInfo?.email2ndCataract,
-    all_cases: `${
-      surgery?.bodyPart +
-      ' ' +
-      surgery?.surgeryConfiguration?.name +
-      ' | ' +
-      surgery?.date
-    }`,
+    all_cases: allCases.join(),
     all_cataract_dates: allCataractDates.join(),
     all_case_type: allCaseType.join(),
   };

@@ -15,12 +15,11 @@ import {
   ReviewEntity,
   ReviewStatus,
 } from '@packages/entities/review';
-import Mail from 'nodemailer/lib/mailer';
+import { EmailHandlerService } from 'src/emailHandler/emailHandler.service';
 import { PatientsService } from 'src/patients/patients.service';
 import { PracticesService } from 'src/practices/practices.service';
 import { Repository } from 'typeorm';
 import logger from '../logger';
-import { TransporterService } from '../transporter';
 import { SystemTemplates } from '../transporter/transporter.types';
 import { ReviewMailData } from './types';
 
@@ -29,8 +28,8 @@ export class ReviewService {
   constructor(
     @InjectRepository(ReviewEntity)
     private readonly reviews: Repository<ReviewEntity>,
-    @Inject(forwardRef(() => TransporterService))
-    private readonly transporterService: TransporterService,
+    @Inject(forwardRef(() => EmailHandlerService))
+    private readonly emailHandlerService: EmailHandlerService,
     private jwtService: JwtService,
     @Inject(forwardRef(() => PracticesService))
     private readonly practiceService: PracticesService,
@@ -60,11 +59,6 @@ export class ReviewService {
           id: reviewPatient?.id,
         });
 
-        const mailOptions: Mail.Options = {
-          to: reviewPatient?.email,
-          subject: 'Practice Optimizer Dashboard - Rate your visit',
-        };
-
         const frontendBaseUrl: string | undefined =
           this.practiceService.getFrontEndBaseUrl();
 
@@ -72,14 +66,12 @@ export class ReviewService {
           reviewLink: frontendBaseUrl + `/post/review/${practiceId}?r=${token}`,
           patientName: reviewPatient?.firstName || '',
           practiceName: '',
+          to: reviewPatient ? reviewPatient?.email : '',
+          pt_email_address: reviewPatient ? reviewPatient?.email : '',
         };
         const review = await this.getReviewById(reviewId);
         if (review?.reviewStatus === ReviewStatus.PENDING) {
-          await this.transporterService.sendSystemEmails(
-            mailOptions,
-            mailData,
-            SystemTemplates.REVIEW_REQUEST,
-          );
+          await this.initiateSendReviewEmail(practiceId, mailData);
 
           const reviewResponse = await this.updateReview(reviewId, {
             reviewStatus: ReviewStatus.SENT,
@@ -239,5 +231,25 @@ export class ReviewService {
     }
 
     return reviews;
+  }
+
+  async initiateSendReviewEmail(
+    practiceId: string,
+    mailData: ReviewMailData,
+  ): Promise<void> {
+    const practice = await this.practiceService.findOne(practiceId);
+    const systemGeneratedMailData = {
+      subject: 'Practice Optimizer Dashboard - Rate your visit',
+      text: '',
+      systemTemplate: SystemTemplates.REVIEW_REQUEST,
+    };
+
+    if (practice) {
+      await this.emailHandlerService.checkAndMakeReviewEmailContent(
+        practice,
+        mailData,
+        systemGeneratedMailData,
+      );
+    }
   }
 }

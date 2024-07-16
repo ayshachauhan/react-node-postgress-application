@@ -19,6 +19,7 @@ import Loader from '@root/components/loader';
 import { useLoader } from '@root/hooks/useLoader';
 import { useUserPermission } from '@root/hooks/userHasPermission';
 import { useAppDispatch, useAppSelector } from '@root/store';
+import { fetchListings as fetchMedia } from '@root/store/reducers/media';
 import {
   fetchListings as fetchReviews,
   sendReviewRequestAsyncThunk,
@@ -434,10 +435,26 @@ const FiltersSection: React.FC<{
     setSelectedAction('view');
   };
 
+  const createQueryString = (params): string => {
+    const queryString = new URLSearchParams();
+    if (params) {
+      Object.keys(params).forEach((key) => {
+        queryString.append(key, params[key]);
+      });
+    }
+    return queryString.toString();
+  };
+
   const handlePatientMedia = (patientMrn: number): void => {
+    const queryParams = {
+      patientMrn: patientMrn,
+      redirectedFromDashboard: true,
+    };
     setSelectedAction('patientMedia');
-    const url = `/messages/?patientMrn=${patientMrn}`;
-    router.push(url);
+    const queryString = createQueryString(queryParams);
+    if (queryString) {
+      router.push(`/messages?${queryString}`);
+    }
   };
 
   const resetFilters = (): void => {
@@ -509,6 +526,12 @@ const FiltersSection: React.FC<{
     selectedValue &&
     (selectedValue.toLowerCase() === 'past' ||
       selectedValue.toLowerCase() === 'upcoming');
+
+  useEffect(() => {
+    if (practiceId !== null) {
+      dispatch(fetchMedia({ practiceId }));
+    }
+  }, [practiceId, dispatch]);
 
   useEffect(() => {
     onReviewClickError(reviewErrorMessage);
@@ -801,7 +824,7 @@ const FiltersSection: React.FC<{
                                       </tbody>
                                     </table>
                                   </th>
-                                  {!iolListShowFlag && viewBillingColumn && (
+                                  {viewBillingColumn && (
                                     <th className="w-[30px]">Prof</th>
                                   )}
 
@@ -1065,7 +1088,7 @@ const FiltersSection: React.FC<{
                                           </td>
                                         )}
                                         <td className="p-0" rowSpan={2}>
-                                          <table className="w-full">
+                                          <table className="w-full h-24">
                                             <tbody>
                                               <tr>
                                                 {customCheckListHeaders &&
@@ -1075,7 +1098,11 @@ const FiltersSection: React.FC<{
                                                       checkListHeaderIndex,
                                                     ) => (
                                                       <td
-                                                        className="w-1/4"
+                                                        className={`w-1/4 ${
+                                                          row[checkListHeader]
+                                                            ? 'bg-customGreen'
+                                                            : 'bg-customPink'
+                                                        }`}
                                                         key={
                                                           checkListHeaderIndex
                                                         }
@@ -1089,19 +1116,31 @@ const FiltersSection: React.FC<{
                                           </table>
                                         </td>
 
-                                        {!iolListShowFlag &&
-                                          viewBillingColumn && (
-                                            <td rowSpan={2} className="">
-                                              {row.prof}
-                                            </td>
-                                          )}
+                                        {viewBillingColumn && (
+                                          <td
+                                            rowSpan={2}
+                                            className={`${
+                                              Number(row?.prof)
+                                                ? 'bg-customGreen'
+                                                : 'bg-customPink'
+                                            } pl-1`}
+                                          >
+                                            {row.prof}
+                                          </td>
+                                        )}
 
-                                        {!iolListShowFlag &&
-                                          viewBillingColumn && (
-                                            <td rowSpan={2} className="">
-                                              {row.hospital}
-                                            </td>
-                                          )}
+                                        {viewBillingColumn && (
+                                          <td
+                                            rowSpan={2}
+                                            className={`${
+                                              Number(row?.hospital)
+                                                ? 'bg-customGreen'
+                                                : 'bg-customPink'
+                                            } pl-1`}
+                                          >
+                                            {row.hospital}
+                                          </td>
+                                        )}
                                         {!iolListShowFlag && (
                                           <td rowSpan={2} className="">
                                             {row.insurance}
