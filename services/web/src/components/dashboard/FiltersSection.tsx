@@ -19,6 +19,7 @@ import Loader from '@root/components/loader';
 import { useLoader } from '@root/hooks/useLoader';
 import { useUserPermission } from '@root/hooks/userHasPermission';
 import { useAppDispatch, useAppSelector } from '@root/store';
+import { fetchListings as fetchMedia } from '@root/store/reducers/media';
 import {
   fetchListings as fetchReviews,
   sendReviewRequestAsyncThunk,
@@ -434,10 +435,26 @@ const FiltersSection: React.FC<{
     setSelectedAction('view');
   };
 
+  const createQueryString = (params): string => {
+    const queryString = new URLSearchParams();
+    if (params) {
+      Object.keys(params).forEach((key) => {
+        queryString.append(key, params[key]);
+      });
+    }
+    return queryString.toString();
+  };
+
   const handlePatientMedia = (patientMrn: number): void => {
+    const queryParams = {
+      patientMrn: patientMrn,
+      redirectedFromDashboard: true,
+    };
     setSelectedAction('patientMedia');
-    const url = `/messages/?patientMrn=${patientMrn}`;
-    router.push(url);
+    const queryString = createQueryString(queryParams);
+    if (queryString) {
+      router.push(`/messages?${queryString}`);
+    }
   };
 
   const resetFilters = (): void => {
@@ -509,6 +526,12 @@ const FiltersSection: React.FC<{
     selectedValue &&
     (selectedValue.toLowerCase() === 'past' ||
       selectedValue.toLowerCase() === 'upcoming');
+
+  useEffect(() => {
+    if (practiceId !== null) {
+      dispatch(fetchMedia({ practiceId }));
+    }
+  }, [practiceId, dispatch]);
 
   useEffect(() => {
     onReviewClickError(reviewErrorMessage);
