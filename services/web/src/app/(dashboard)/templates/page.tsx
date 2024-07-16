@@ -292,7 +292,7 @@ const Templates: React.FC = () => {
                         </div>
                       </div>
                     </div>
-                    <div className="min-h-10 flex items-center py-1">
+                    <div className="min-h-10 flex items-center py-1 border-b border-gray-200">
                       <div className="flex items-center gap-2">
                         <p className="font-bold">Postop: </p>
                         <div className="flex flex-wrap gap-1">
@@ -312,6 +312,30 @@ const Templates: React.FC = () => {
                                 className="rounded p-2 bg-green-500 text-white cursor-pointer"
                               >
                                 {ele.dateOffset}
+                              </span>
+                            ))}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="min-h-10 flex items-center py-1">
+                      <div className="flex items-center gap-2">
+                        <p className="font-bold">Evaluation: </p>
+                        <div className="flex flex-wrap gap-1">
+                          {data?.evaluation &&
+                            data?.evaluation.map((ele, i) => (
+                              <span
+                                key={i}
+                                onClick={() =>
+                                  ele.id &&
+                                  handleOpenUpdateModal(
+                                    ele.id,
+                                    ele.messageType,
+                                    ele.version,
+                                  )
+                                }
+                                className="rounded p-2 bg-green-500 text-white cursor-pointer"
+                              >
+                                {ele.version}
                               </span>
                             ))}
                         </div>
