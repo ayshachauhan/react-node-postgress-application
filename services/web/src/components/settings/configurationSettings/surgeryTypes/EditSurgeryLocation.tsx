@@ -98,7 +98,10 @@ const EditSurgeryLocation: React.FC<ChildProps> = ({ data, onClose }) => {
                   type="color"
                   required={true}
                   id="primary_color"
-                  value={updatedSurgeryTypeInfo?.color || ''}
+                  value={
+                    updatedSurgeryTypeInfo?.color ||
+                    DEFAULT_SURGERYLOCATION_COLOR
+                  }
                   onChange={(e) => {
                     setSurgeryTypeInfo({
                       ...updatedSurgeryTypeInfo,
