@@ -4,6 +4,7 @@ import { indexBy } from '@root/utils';
 import {
   addSurgeryType,
   deleteSurgeryType,
+  editSurgeryLocation,
   getSurgeryTypeInfo,
   getSurgeryTypes,
 } from 'src/store/requests/surgeryTypes';
@@ -91,6 +92,30 @@ const surgeryTypeSlice = createSlice({
       state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
         state.errorMessage =
+          action.payload ?? 'Failed to edit surgery location.';
+      } else {
+        state.errorMessage = 'Failed to edit surgery location.';
+      }
+    });
+
+    builder.addCase(editRecordAsync.pending, (state) => {
+      state.processing = true;
+      state.status = EntityLoadingState.PENDING;
+    });
+
+    builder.addCase(editRecordAsync.fulfilled, (state, action) => {
+      state.status = EntityLoadingState.SUCCEEDED;
+      state.entities = {
+        ...state.entities,
+        ...{ [action.payload.id]: action.payload },
+      };
+      state.successMessage = 'Surgery location updated successfully.';
+    });
+
+    builder.addCase(editRecordAsync.rejected, (state, action) => {
+      state.status = EntityLoadingState.FAILED;
+      if (typeof action.payload === 'string') {
+        state.errorMessage =
           action.payload ?? 'Failed to add surgery location.';
       } else {
         state.errorMessage = 'Failed to add surgery type.';
@@ -141,6 +166,11 @@ export const fetchSurgeryTypeInfo = createAsyncThunk(
 export const addRecordAsync = createAsyncThunk(
   'surgeryTypes/addRecordAsync',
   addSurgeryType,
+);
+
+export const editRecordAsync = createAsyncThunk(
+  'surgeryTypes/editRecordAsync',
+  editSurgeryLocation,
 );
 
 export const deleteRecordAsync = createAsyncThunk(

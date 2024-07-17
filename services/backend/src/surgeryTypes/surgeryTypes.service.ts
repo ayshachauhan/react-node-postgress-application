@@ -2,7 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PracticeEntity, SurgeryTypeEntity } from '@packages/entities';
 import { Repository } from 'typeorm';
-import { CreateSurgeryTypeDto } from './dto/createSurgery.dto';
+import {
+  CreateSurgeryTypeDto,
+  UpdateSurgeryTypeDto,
+} from './dto/createSurgery.dto';
 
 @Injectable()
 export class SurgeryTypesService {
@@ -46,6 +49,17 @@ export class SurgeryTypesService {
       practice,
       name,
       color,
+    });
+  }
+
+  async update(
+    updateDto: UpdateSurgeryTypeDto,
+    id: string,
+  ): Promise<SurgeryTypeEntity | null> {
+    await this.surgeryTypeRepository.update(id, updateDto);
+
+    return await this.surgeryTypeRepository.findOne({
+      where: { id },
     });
   }
 }
