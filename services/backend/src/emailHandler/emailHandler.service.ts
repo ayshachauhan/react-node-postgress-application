@@ -149,9 +149,11 @@ export class EmailHandlerService {
     let bookingTemplateFound: boolean = false;
     const mailVariables = await this.makeEmailVariable(entity, practice);
     const surgeryConfigId = entity.surgeryConfiguration.id;
-    const templates = await this.templateService.getFilteredTemplates({
+    const filter = {
       surgeryConfigId,
-    });
+      ...(fromEval && { messageType: 'evaluation' }),
+    };
+    const templates = await this.templateService.getFilteredTemplates(filter);
     const { adminEmails } = practice.emailData;
     const ccAdminEmails: string =
       adminEmails && adminEmails.length ? `${adminEmails}` : '';
