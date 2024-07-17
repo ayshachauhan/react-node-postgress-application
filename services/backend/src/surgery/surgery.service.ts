@@ -237,13 +237,12 @@ export class SurgeryService {
       ]);
 
     if (option?.toLowerCase() === 'waitlist view') {
-      dbSurgeryByPractice = dbSurgeryByPractice.filter(
-        (row) => row.waitlist && row.waitlist !== null,
-      );
+      const filterWaitlist = (row: SurgeryEntity) =>
+        row.waitlist && row.waitlist !== null;
+
+      dbSurgeryByPractice = dbSurgeryByPractice.filter(filterWaitlist);
       dbSurgeryByPracticeWithoutPermission =
-        dbSurgeryByPracticeWithoutPermission.filter(
-          (row) => row.waitlist && row.waitlist !== null,
-        );
+        dbSurgeryByPracticeWithoutPermission.filter(filterWaitlist);
     }
 
     dbSurgeryByPractice.forEach((ele) => {

@@ -516,7 +516,7 @@ const FiltersSection: React.FC<{
     setIsAddModalOpen(true);
   };
 
-  let searchMRNNameStr = searchMRNName || '';
+  const searchMRNNameStr = searchMRNName || '';
   const selectedValueStr = selectedValue || '';
 
   const dispatchFetchFilteredSurgeryList = (
