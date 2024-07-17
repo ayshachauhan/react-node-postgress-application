@@ -27,6 +27,7 @@ export enum TemplateMessageType {
   PCP = 'pcp',
   PREOP = 'preop',
   POSTOP = 'postop',
+  EVALUATION = 'evaluation',
 }
 
 export enum Meridiem {
