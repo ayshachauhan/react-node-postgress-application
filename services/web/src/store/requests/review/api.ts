@@ -25,7 +25,6 @@ export const getReviews = async (
       throw new Error('Failed to fetch reviews');
     }
     const data: IReview[] = await response.json();
-    console.log('reviews: ', data);
     return data;
   } catch (error) {
     if (error instanceof Error) {

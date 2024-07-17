@@ -87,6 +87,7 @@ export const ResetPassword: React.FC<Props> = ({
         confirmPassword,
         oldPassword,
         newPassword,
+        token,
       };
       try {
         const response = await dispatch(changePasswordAsync(payload));
