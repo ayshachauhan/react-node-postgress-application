@@ -758,10 +758,9 @@ const FiltersSection: React.FC<{
                         <tr>
                           <td
                             colSpan={20}
-                            className={`bg-purple-400 border-solid px-2.5 py-0.5 text-white text-lg font-bold   ${
+                            className={`bg-[#117180] border-solid px-2.5 py-0.5 text-white text-lg font-bold   ${
                               index == 0 ? 'rounded-t-lg' : ''
                             }`}
-                            style={{ backgroundColor: '#001A6D' }}
                           >
                             {new Date(
                               `${key.split('/')[1]}-${key.split('/')[0]}-01`,
@@ -817,7 +816,7 @@ const FiltersSection: React.FC<{
                                 <React.Fragment key={dateIndex}>
                                   <tr>
                                     <th className="w-[75px]">Date</th>
-                                    <th className="text-center">
+                                    <th className="text-center w-6">
                                       <HomeIcon></HomeIcon>
                                     </th>
                                     <th className="w-[76px] text-center">
@@ -829,9 +828,7 @@ const FiltersSection: React.FC<{
                                     <th className="w-[90px]">Surgery</th>
                                     <th className="w-[60px]">Body Part</th>
                                     {!iolListShowFlag && (
-                                      <th className="w-[30px] text-center">
-                                        #
-                                      </th>
+                                      <th className="w-6 text-center">#</th>
                                     )}
                                     <th className="text-center">Options</th>
                                     <th className="text-center">Implants</th>
@@ -1087,7 +1084,9 @@ const FiltersSection: React.FC<{
                                                                     optionsHeaderIndex
                                                                   }
                                                                 >
-                                                                  {elements}
+                                                                  <div className="min-h-4">
+                                                                    {elements}
+                                                                  </div>
                                                                 </td>
                                                               );
                                                             },
@@ -1167,7 +1166,9 @@ const FiltersSection: React.FC<{
                                                               conditionalHeaderIndex
                                                             }
                                                           >
-                                                            {elements}
+                                                            <div className="min-h-4">
+                                                              {elements}
+                                                            </div>
                                                           </td>
                                                         );
                                                       },
@@ -1217,13 +1218,13 @@ const FiltersSection: React.FC<{
                                                             checkListHeaderIndex
                                                           }
                                                         >
-                                                          <span className="min-h-6">
+                                                          <div className="min-h-4">
                                                             {
                                                               row[
                                                                 checkListHeader
                                                               ]
                                                             }
-                                                          </span>
+                                                          </div>
                                                         </td>
                                                       ),
                                                     )}
@@ -1235,7 +1236,7 @@ const FiltersSection: React.FC<{
                                           {viewBillingColumn && (
                                             <td
                                               rowSpan={2}
-                                              className={`${
+                                              className={`text-center ${
                                                 Number(row?.prof)
                                                   ? 'bg-customGreen'
                                                   : 'bg-customPink'
@@ -1248,7 +1249,7 @@ const FiltersSection: React.FC<{
                                           {viewBillingColumn && (
                                             <td
                                               rowSpan={2}
-                                              className={`${
+                                              className={`text-center ${
                                                 Number(row?.hospital)
                                                   ? 'bg-customGreen'
                                                   : 'bg-customPink'
