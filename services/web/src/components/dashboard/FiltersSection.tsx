@@ -19,6 +19,7 @@ import Loader from '@root/components/loader';
 import { useLoader } from '@root/hooks/useLoader';
 import { useUserPermission } from '@root/hooks/userHasPermission';
 import { useAppDispatch, useAppSelector } from '@root/store';
+import { fetchFilteredCalendars } from '@root/store/reducers/calendar';
 import { fetchListings as fetchMedia } from '@root/store/reducers/media';
 import {
   fetchListings as fetchReviews,
@@ -33,7 +34,9 @@ import {
   setSelectedValue,
 } from '@root/store/reducers/surgery';
 import {
+  formatDate,
   getColorForSurgeryStatus,
+  getSelectedMonths,
   getUserId,
   toFullName,
   toPascalCase,
@@ -307,7 +310,7 @@ const FiltersSection: React.FC<{
         viewData[data] = ele.selectedCheckListOptions[data].value;
       });
 
-    const modifiedObjKey: string = ele.surgeryConfiguration.name;
+    const modifiedObjKey: string = modifiedDate;
 
     if (modifiedObj[modifiedObjKey]) {
       if (modifiedObj[modifiedObjKey][modifiedDate]) {
@@ -334,6 +337,22 @@ const FiltersSection: React.FC<{
     } catch (error) {
       console.log(error);
     }
+  };
+
+  const calculatedMaxSlots = (targetDateString: string): number => {
+    const filteredEntries = calendars.filter((entry) => {
+      const entryDate = formatDate(entry.date);
+      return entryDate === targetDateString;
+    });
+
+    let maxSlots = 0;
+
+    filteredEntries.forEach((entry) => {
+      if (entry.maxSlots > maxSlots) {
+        maxSlots = entry?.maxSlots;
+      }
+    });
+    return maxSlots;
   };
 
   const handleChangeValue = ({ value }) => {
@@ -527,6 +546,30 @@ const FiltersSection: React.FC<{
     (selectedValue.toLowerCase() === 'past' ||
       selectedValue.toLowerCase() === 'upcoming');
 
+  const dispatchFetchFilteredCalendars = (
+    practiceId: string,
+    userId: string,
+    selectedMonth: MonthOption[],
+    option: string,
+    loggedInUserId: string,
+  ) => {
+    const month = getSelectedMonths(selectedMonth);
+    dispatch(
+      fetchFilteredCalendars({
+        practiceId,
+        userId,
+        month,
+        option,
+        loggedInUserId,
+      }),
+    );
+  };
+
+  useEffect(() => {
+    handleSearchMRNNameChange('');
+    setSearchMRNName('');
+  }, [dispatch, practiceId]);
+
   useEffect(() => {
     if (practiceId !== null) {
       dispatch(fetchMedia({ practiceId }));
@@ -554,6 +597,18 @@ const FiltersSection: React.FC<{
   }, [practiceId, dispatch, withLoader]);
 
   useEffect(() => {
+    if (practiceId !== null && doctorId !== null && loggedInUserId) {
+      dispatchFetchFilteredCalendars(
+        practiceId,
+        doctorId,
+        selectedMonth,
+        selectedValueStr,
+        loggedInUserId,
+      );
+    }
+  }, [practiceId, doctorId, loggedInUserId, dispatch]);
+
+  useEffect(() => {
     if (practiceId && loggedInUserId !== null && doctorId) {
       dispatchFetchFilteredSurgeryList(
         selectedMonth,
@@ -571,6 +626,11 @@ const FiltersSection: React.FC<{
     doctorId,
   ]);
   const [isUpdateLoading, setIsUpdateLoading] = useState(false);
+  const { calendars } = useAppSelector((state) => ({
+    calendars: Object.values(state.calendars?.entities).filter(
+      (calendar) => calendar?.user?.id === doctorId,
+    ),
+  }));
 
   const handleSetIsUpdateLoading = (loadingState: boolean) => {
     setIsUpdateLoading(loadingState);
@@ -582,13 +642,30 @@ const FiltersSection: React.FC<{
   const iolListShowFlag =
     isIolViewActive || selectedValueStr.trim().toLowerCase() === 'iol view';
 
+  const organizedObj = {};
+
+  Object.keys(modifiedObj).forEach((date) => {
+    const [month, , year] = date.split('/');
+    const monthYearKey = `${month}/${year}`;
+
+    if (!organizedObj[monthYearKey]) {
+      organizedObj[monthYearKey] = {};
+    }
+
+    if (!organizedObj[monthYearKey][date]) {
+      organizedObj[monthYearKey][date] = [];
+    }
+
+    organizedObj[monthYearKey][date] = modifiedObj[date][date];
+  });
+
   return (
     <div>
       {reviewSendingIsLoading && <Loader />}
       {isUpdateLoading && <Loader />}
       {!isLoading && (
         <div>
-          <div className="flex w-full bg-purple-50 p-2 border-t border-b border-gray-200 items-center mb-2">
+          <div className="flex w-full bg-purple-50 p-1 border-t border-b border-gray-200 items-center mb-2">
             <div className="flex w-1/4 items-center">
               <div className="text-xl font-bold border-r border-gray-300 pr-4 mr-4">
                 Filters
@@ -686,543 +763,686 @@ const FiltersSection: React.FC<{
           </div>
 
           {surgeryConfigList.length > 0 &&
-          Object.keys(modifiedObj).length > 0 ? (
+          Object.keys(organizedObj).length > 0 ? (
             <div className="table-responsive overflow-x-auto rounded-lg">
               <table className="w-full dashboard-table">
                 <tbody>
-                  {Object.keys(modifiedObj).map((key, index) => {
-                    const ele = modifiedObj[key];
-                    const customOptionsHeaders: string[] =
-                      surgeryOptionsHeadersObj[key]?.surgeryOptionsHeaders;
-                    const customCheckListHeaders: string[] =
-                      surgeryOptionsHeadersObj[key]?.checkListHeaders;
+                  {Object.keys(organizedObj).length > 0 &&
+                    Object.keys(organizedObj).map((key, index) => {
+                      const ele = organizedObj[key];
+                      return (
+                        <React.Fragment key={index}>
+                          <tr>
+                            <td
+                              colSpan={20}
+                              className={`bg-[#117180] border-solid px-2.5 py-0.5 text-white text-lg font-bold   ${
+                                index == 0 ? 'rounded-t-lg' : ''
+                              }`}
+                            >
+                              {new Date(
+                                `${key.split('/')[1]}-${key.split('/')[0]}-01`,
+                              ).toLocaleString('en-US', {
+                                month: 'long',
+                                year: 'numeric',
+                              })}
+                            </td>
+                          </tr>
+                          {Object.keys(ele).length > 0 &&
+                            Object.keys(ele).map((date, dateIndex) => {
+                              if (waitlistShowFlag) {
+                                ele[date].sort((a, b) => {
+                                  const waitlistA = a.waitlist ?? '';
+                                  const waitlistB = b.waitlist ?? '';
 
-                    const customConditionalHeaders: string[] =
-                      surgeryOptionsHeadersObj[key]?.conditionalHeaders;
-
-                    return (
-                      <React.Fragment key={index}>
-                        <tr>
-                          <td
-                            colSpan={20}
-                            className={`border-solid px-2.5 py-0.5 text-white text-base font-normal   ${
-                              index == 0 ? 'rounded-t-lg' : ''
-                            }`}
-                            style={{ backgroundColor: 'rgba(53, 165, 118, 1)' }}
-                          >
-                            {key}
-                          </td>
-                        </tr>
-
-                        {Object.keys(ele).map((date, dateIndex) => {
-                          if (waitlistShowFlag) {
-                            ele[date].sort((a, b) => {
-                              const waitlistA = a.waitlist ?? '';
-                              const waitlistB = b.waitlist ?? '';
-
-                              if (waitlistA === '' && waitlistB === '') {
-                                return 0;
-                              } else if (
-                                waitlistA === '' ||
-                                waitlistA === undefined
-                              ) {
-                                return 1;
-                              } else if (
-                                waitlistB === '' ||
-                                waitlistB === undefined
-                              ) {
-                                return -1;
-                              } else {
-                                return waitlistA.localeCompare(waitlistB);
+                                  if (waitlistA === '' && waitlistB === '') {
+                                    return 0;
+                                  } else if (
+                                    waitlistA === '' ||
+                                    waitlistA === undefined
+                                  ) {
+                                    return 1;
+                                  } else if (
+                                    waitlistB === '' ||
+                                    waitlistB === undefined
+                                  ) {
+                                    return -1;
+                                  } else {
+                                    return waitlistA.localeCompare(waitlistB);
+                                  }
+                                });
                               }
-                            });
-                          }
-                          return (
-                            <>
-                              <React.Fragment key={dateIndex}>
-                                <tr>
-                                  <th className="w-[75px]">Date</th>
-                                  <th className="text-center">
-                                    <HomeIcon></HomeIcon>
-                                  </th>
-                                  <th className="w-[76px] text-center">
-                                    Status
-                                  </th>
-                                  <th className="w-[80px]">Last Name</th>
-                                  <th className="w-[76px]">First Name</th>
-                                  <th className="">MRN</th>
-                                  <th className="w-[90px]">Surgery</th>
-                                  <th className="w-[60px]">Body Part</th>
-                                  <th className="p-0">
-                                    <table className="w-full">
-                                      <tbody>
-                                        <tr>
-                                          {customOptionsHeaders &&
-                                            customOptionsHeaders.map(
-                                              (
-                                                optionsHeader,
-                                                optionsHeaderIndex,
-                                              ) => (
-                                                <th
-                                                  className="min-w-12 w-1/2"
-                                                  key={optionsHeaderIndex}
-                                                >
-                                                  {optionsHeader}
-                                                </th>
-                                              ),
-                                            )}
-                                        </tr>
-                                      </tbody>
-                                    </table>
-                                  </th>
-                                  <th className="p-0 w-[80px]">
-                                    <table className="w-full">
-                                      <tbody>
-                                        <tr>
-                                          {customConditionalHeaders &&
-                                            customConditionalHeaders.map(
-                                              (
-                                                customConditionalHeader,
-                                                customConditionalHeaderIndex,
-                                              ) => (
-                                                <th
-                                                  className="w-1/2 min-w-10"
-                                                  key={
-                                                    customConditionalHeaderIndex
-                                                  }
-                                                >
-                                                  {customConditionalHeader}
-                                                </th>
-                                              ),
-                                            )}
-                                        </tr>
-                                      </tbody>
-                                    </table>
-                                  </th>
-                                  {!iolListShowFlag && (
-                                    <th className="w-[30px] text-center">#</th>
-                                  )}
-                                  <th className="p-0">
-                                    <table className="w-full">
-                                      <tbody>
-                                        <tr>
-                                          {customCheckListHeaders &&
-                                            customCheckListHeaders.map(
-                                              (
-                                                checkListHeader,
-                                                checkListHeaderIndex,
-                                              ) => (
-                                                <th
-                                                  className="w-1/4"
-                                                  key={checkListHeaderIndex}
-                                                >
-                                                  {checkListHeader}
-                                                </th>
-                                              ),
-                                            )}
-                                        </tr>
-                                      </tbody>
-                                    </table>
-                                  </th>
-                                  {viewBillingColumn && (
-                                    <th className="w-[30px]">Prof</th>
-                                  )}
-
-                                  {viewBillingColumn && (
-                                    <th className="w-[30px]">Hospital</th>
-                                  )}
-                                  {!iolListShowFlag && (
-                                    <th className="w-[30px]">Insurance</th>
-                                  )}
-                                  {!iolListShowFlag && (
-                                    <th className="">Contact Info</th>
-                                  )}
-                                  {!iolListShowFlag && (
-                                    <th className="w-[100px]">Action</th>
-                                  )}
-                                </tr>
-                                {ele[date].map((row, index) => {
-                                  const isEditable =
-                                    editableRows.includes(row.id) &&
-                                    selectedAction === 'edit';
-                                  const surgeryInfo = surgeryList.find(
-                                    (ele) => ele.id === row.id,
-                                  );
-                                  return isEditable && surgeryInfo ? (
-                                    <EditableRow
-                                      key={row.id}
-                                      rowId={row.id}
-                                      handleCancelClick={() =>
-                                        handleCancelClick(row.id)
-                                      }
-                                      customHeaders={surgeryOptionsHeadersObj}
-                                      surgeryInfo={surgeryInfo}
-                                      handleUpdateClick={handleUpdateClick}
-                                      setIsUpdateLoading={
-                                        handleSetIsUpdateLoading
-                                      }
-                                    />
-                                  ) : (
-                                    <>
-                                      <tr
-                                        key={row.id}
-                                        id={row.id}
-                                        className={`${
-                                          index !== ele.length - 1
-                                            ? 'border-t border-gray-300'
-                                            : ''
-                                        }`}
-                                      >
-                                        <td
-                                          rowSpan={2}
-                                          className="max-w-[70px] break-all"
-                                        >
-                                          {viewHistory ? (
-                                            <div
-                                              onClick={() =>
-                                                handleViewHistory(
-                                                  row.patientId,
-                                                  row.surgery,
-                                                )
-                                              }
-                                              className="cursor-pointer underline"
-                                            >
-                                              {row.date}
-                                            </div>
-                                          ) : (
-                                            <div>{row.date}</div>
-                                          )}
-                                        </td>
-                                        <td
-                                          rowSpan={2}
-                                          className="cursor-pointer text-center"
-                                          title={row.home}
-                                        >
-                                          {row.home[0]}
-                                        </td>
-                                        <td
-                                          rowSpan={2}
-                                          className="max-w-[70px] break-all text-center"
-                                        >
-                                          <div
-                                            className={`rounded-md inline-block text-white p-1 ${getColorForSurgeryStatus(
-                                              row.surgeryStatus.toUpperCase(),
-                                            )} text-xs`}
-                                          >
-                                            {toPascalCase(row.surgeryStatus)}
-                                          </div>
-                                        </td>
-                                        <td
-                                          rowSpan={1}
-                                          className="max-w-[70px] break-all"
-                                        >
-                                          {row.lastName}
-                                        </td>
-                                        <td
-                                          rowSpan={1}
-                                          className="max-w-[70px] break-all"
-                                        >
-                                          {row.firstName}
-                                        </td>
-                                        <td rowSpan={1} className="">
-                                          <div>
-                                            {viewHistory ? (
-                                              <div
-                                                onClick={() =>
-                                                  handleViewHistory(
-                                                    row.patientId,
-                                                    row.surgery,
-                                                  )
-                                                }
-                                                className="cursor-pointer underline"
-                                              >
-                                                {row.mrn}
-                                              </div>
-                                            ) : (
-                                              <div>{row.mrn}</div>
-                                            )}
-                                          </div>
-                                        </td>
-                                        <td
-                                          rowSpan={1}
-                                          className="max-w-[80px] break-all"
-                                        >
-                                          {row?.count && (
-                                            <span
-                                              className={`px-1 text-white rounded mr-1 ${
-                                                row.count === 1
-                                                  ? 'bg-green-600'
-                                                  : row.count === 2
-                                                    ? 'bg-blue-600'
-                                                    : ''
-                                              }`}
-                                            >
-                                              {row.count}
-                                            </span>
-                                          )}
-                                          {row?.surgery}
-                                        </td>
-                                        <td
-                                          rowSpan={1}
-                                          className="max-w-[70px] break-all"
-                                        >
-                                          {row.bodyPart}
-                                        </td>
-                                        <td className="p-0" rowSpan={2}>
-                                          <table>
-                                            <tbody>
-                                              <tr>
-                                                {customOptionsHeaders &&
-                                                  customOptionsHeaders.map(
-                                                    (
-                                                      optionsHeader,
-                                                      optionsHeaderIndex,
-                                                    ) => {
-                                                      const elements: JSX.Element[] =
-                                                        [];
-                                                      if (
-                                                        row[
-                                                          `${optionsHeader}-count`
-                                                        ]
-                                                      ) {
-                                                        for (
-                                                          let index = 0;
-                                                          index <
-                                                          row[
-                                                            `${optionsHeader}-count`
-                                                          ];
-                                                          index++
-                                                        ) {
-                                                          elements.push(
-                                                            <div
-                                                              className=""
-                                                              key={index}
-                                                            >
-                                                              {
-                                                                row[
-                                                                  `${optionsHeader}-${index}`
-                                                                ]
-                                                              }
-                                                            </div>,
-                                                          );
-                                                        }
-                                                      }
-
-                                                      return (
-                                                        <td
-                                                          className="w-1/2 min-w-12"
-                                                          key={
-                                                            optionsHeaderIndex
-                                                          }
-                                                        >
-                                                          {elements}
-                                                        </td>
-                                                      );
-                                                    },
-                                                  )}
-                                              </tr>
-                                            </tbody>
-                                          </table>
-                                        </td>
-                                        <td className="p-0" rowSpan={2}>
-                                          <table>
-                                            <tbody>
-                                              <tr>
-                                                {customConditionalHeaders &&
-                                                  customConditionalHeaders.map(
-                                                    (
-                                                      conditionalHeader,
-                                                      conditionalHeaderIndex,
-                                                    ) => {
-                                                      const elements: JSX.Element[] =
-                                                        [];
-                                                      if (
-                                                        row[
-                                                          `${conditionalHeader}-count`
-                                                        ]
-                                                      ) {
-                                                        for (
-                                                          let index = 0;
-                                                          index <
-                                                          row[
-                                                            `${conditionalHeader}-count`
-                                                          ];
-                                                          index++
-                                                        ) {
-                                                          elements.push(
-                                                            <div
-                                                              className=""
-                                                              key={index}
-                                                            >
-                                                              {
-                                                                row[
-                                                                  `${conditionalHeader}-${index}`
-                                                                ]
-                                                              }
-                                                            </div>,
-                                                          );
-                                                        }
-                                                      }
-                                                      return (
-                                                        <td
-                                                          className="w-1/2 min-w-10"
-                                                          key={
-                                                            conditionalHeaderIndex
-                                                          }
-                                                        >
-                                                          {elements}
-                                                        </td>
-                                                      );
-                                                    },
-                                                  )}
-                                              </tr>
-                                            </tbody>
-                                          </table>
-                                        </td>
-                                        {!iolListShowFlag && (
-                                          <td
-                                            rowSpan={2}
-                                            className="text-center"
-                                          >
-                                            {row.surgeryOrder}
-                                          </td>
-                                        )}
-                                        <td className="p-0" rowSpan={2}>
-                                          <table className="w-full h-24">
-                                            <tbody>
-                                              <tr>
-                                                {customCheckListHeaders &&
-                                                  customCheckListHeaders.map(
-                                                    (
-                                                      checkListHeader,
-                                                      checkListHeaderIndex,
-                                                    ) => (
-                                                      <td
-                                                        className={`w-1/4 ${
-                                                          row[checkListHeader]
-                                                            ? 'bg-customGreen'
-                                                            : 'bg-customPink'
-                                                        }`}
-                                                        key={
-                                                          checkListHeaderIndex
-                                                        }
-                                                      >
-                                                        {row[checkListHeader]}
-                                                      </td>
-                                                    ),
-                                                  )}
-                                              </tr>
-                                            </tbody>
-                                          </table>
-                                        </td>
-
-                                        {viewBillingColumn && (
-                                          <td
-                                            rowSpan={2}
-                                            className={`${
-                                              Number(row?.prof)
-                                                ? 'bg-customGreen'
-                                                : 'bg-customPink'
-                                            } pl-1`}
-                                          >
-                                            {row.prof}
-                                          </td>
-                                        )}
-
-                                        {viewBillingColumn && (
-                                          <td
-                                            rowSpan={2}
-                                            className={`${
-                                              Number(row?.hospital)
-                                                ? 'bg-customGreen'
-                                                : 'bg-customPink'
-                                            } pl-1`}
-                                          >
-                                            {row.hospital}
-                                          </td>
-                                        )}
-                                        {!iolListShowFlag && (
-                                          <td rowSpan={2} className="">
-                                            {row.insurance}
-                                          </td>
-                                        )}
-                                        {!iolListShowFlag && (
-                                          <td rowSpan={2} className="">
-                                            {row.email}
-                                            <br />
-                                            {row.phoneNumber}
-                                            <br />
-                                            referrer: {row.referrer}
-                                            {row.referrerVerified && (
-                                              <Checkbox
-                                                checked={true}
-                                                overrides={{
-                                                  Checkmark: {
-                                                    style: ({ $checked }) => ({
-                                                      backgroundColor: $checked
-                                                        ? 'rgba(34, 197, 94, 1)'
-                                                        : 'white',
-                                                      borderColor: $checked
-                                                        ? 'rgba(34, 197, 94, 1)'
-                                                        : 'rgba(113, 113, 122, 1)',
-                                                      width: '12px',
-                                                      height: '12px',
-                                                      borderRadius: '2px',
-                                                      borderWidth: '2px',
-                                                    }),
-                                                  },
-                                                }}
-                                              />
-                                            )}
-                                          </td>
-                                        )}
-                                        {!iolListShowFlag && (
-                                          <td rowSpan={2} className="">
-                                            {actionIcons(row)}
-                                          </td>
-                                        )}
-                                      </tr>
+                              return (
+                                <React.Fragment key={dateIndex}>
+                                  <tr>
+                                    <td
+                                      colSpan={20}
+                                      className="border-solid px-2.5 py-0.5 text-white text-base font-normal"
+                                      style={{
+                                        backgroundColor:
+                                          'rgba(53, 165, 118, 1)',
+                                      }}
+                                    >
+                                      {new Date(`${date}`).toLocaleDateString(
+                                        'en-US',
+                                        { weekday: 'long' },
+                                      )}
+                                      , {date} - {ele[date]?.length} case cases
+                                      &nbsp; &nbsp;(
+                                      {calculatedMaxSlots(date)} Max)
+                                    </td>
+                                  </tr>
+                                  <>
+                                    <React.Fragment key={dateIndex}>
                                       <tr>
+                                        <th className="w-[75px]">Date</th>
+                                        <th className="text-center w-6">
+                                          <HomeIcon></HomeIcon>
+                                        </th>
+                                        <th className="w-[76px] text-center">
+                                          Status
+                                        </th>
+                                        <th className="w-[80px]">Last Name</th>
+                                        <th className="w-[76px]">First Name</th>
+                                        <th className="">MRN</th>
+                                        <th className="w-[90px]">Surgery</th>
+                                        <th className="w-[60px]">Body Part</th>
                                         {!iolListShowFlag && (
-                                          <td colSpan={5} className="bg-white">
-                                            <div className="">
-                                              <div>
-                                                <span className="font-semibold">
-                                                  Waitlist:{' '}
-                                                </span>
-                                                {row.waitlist}
-                                              </div>
-                                              <div>
-                                                <span className="font-semibold">
-                                                  Notes:{' '}
-                                                </span>
-                                                {row?.notes}
-                                              </div>
-                                            </div>
-                                          </td>
+                                          <th className="w-6 text-center">#</th>
+                                        )}
+                                        <th className="text-center">Options</th>
+                                        <th className="text-center">
+                                          Implants
+                                        </th>
+                                        {!iolListShowFlag && (
+                                          <th className="text-center">
+                                            Checklist
+                                          </th>
+                                        )}
+                                        {!iolListShowFlag &&
+                                          viewBillingColumn && (
+                                            <th className="w-[30px]">Prof</th>
+                                          )}
+
+                                        {!iolListShowFlag &&
+                                          viewBillingColumn && (
+                                            <th className="w-[30px]">
+                                              Hospital
+                                            </th>
+                                          )}
+                                        {!iolListShowFlag && (
+                                          <th className="w-[30px]">
+                                            Insurance
+                                          </th>
+                                        )}
+                                        {!iolListShowFlag && (
+                                          <th className="">Contact Info</th>
+                                        )}
+                                        {!iolListShowFlag && (
+                                          <th className="w-[100px]">Action</th>
                                         )}
                                       </tr>
+                                      {ele[date] &&
+                                        ele[date].length > 0 &&
+                                        ele[date].map((row, index) => {
+                                          const isEditable =
+                                            editableRows.includes(row.id) &&
+                                            selectedAction === 'edit';
+                                          const surgeryInfo = surgeryList.find(
+                                            (ele) => ele.id === row.id,
+                                          );
+                                          const customOptionsHeaders: string[] =
+                                            surgeryOptionsHeadersObj[
+                                              row?.surgery
+                                            ]?.surgeryOptionsHeaders;
+                                          const customCheckListHeaders: string[] =
+                                            surgeryOptionsHeadersObj[
+                                              row?.surgery
+                                            ]?.checkListHeaders;
 
-                                      {selectedRow === row.id &&
-                                        selectedSurgery &&
-                                        selectedAction == 'view' && (
-                                          <ViewRow
-                                            selectedSurgery={row}
-                                            viewBillingColumn={
-                                              viewBillingColumn
-                                            }
-                                          />
-                                        )}
-                                    </>
-                                  );
-                                })}
-                              </React.Fragment>
-                            </>
-                          );
-                        })}
-                      </React.Fragment>
-                    );
-                  })}
+                                          const customConditionalHeaders: string[] =
+                                            surgeryOptionsHeadersObj[
+                                              row?.surgery
+                                            ]?.conditionalHeaders;
+                                          return isEditable && surgeryInfo ? (
+                                            <EditableRow
+                                              key={row.id}
+                                              rowId={row.id}
+                                              handleCancelClick={() =>
+                                                handleCancelClick(row.id)
+                                              }
+                                              customHeaders={
+                                                surgeryOptionsHeadersObj
+                                              }
+                                              surgeryInfo={surgeryInfo}
+                                              handleUpdateClick={
+                                                handleUpdateClick
+                                              }
+                                              setIsUpdateLoading={
+                                                handleSetIsUpdateLoading
+                                              }
+                                            />
+                                          ) : (
+                                            <>
+                                              <tr
+                                                key={row.id}
+                                                id={row.id}
+                                                className={`${
+                                                  index !== ele.length - 1
+                                                    ? 'border-t border-gray-300'
+                                                    : ''
+                                                }`}
+                                              >
+                                                <td
+                                                  rowSpan={2}
+                                                  className="max-w-[70px] break-all"
+                                                >
+                                                  {viewHistory ? (
+                                                    <div
+                                                      onClick={() =>
+                                                        handleViewHistory(
+                                                          row.patientId,
+                                                          row.surgery,
+                                                        )
+                                                      }
+                                                      className="cursor-pointer underline"
+                                                    >
+                                                      {row.date}
+                                                    </div>
+                                                  ) : (
+                                                    <div>{row.date}</div>
+                                                  )}
+                                                </td>
+                                                <td
+                                                  rowSpan={2}
+                                                  className="cursor-pointer text-center"
+                                                  title={row.home}
+                                                >
+                                                  {row.home[0]}
+                                                </td>
+                                                <td
+                                                  rowSpan={2}
+                                                  className="max-w-[70px] break-all text-center"
+                                                >
+                                                  <div
+                                                    className={`rounded-md inline-block text-white p-1 ${getColorForSurgeryStatus(
+                                                      row.surgeryStatus.toUpperCase(),
+                                                    )} text-xs`}
+                                                  >
+                                                    {toPascalCase(
+                                                      row.surgeryStatus,
+                                                    )}
+                                                  </div>
+                                                </td>
+                                                <td
+                                                  rowSpan={1}
+                                                  className="max-w-[70px] break-all"
+                                                >
+                                                  {row.lastName}
+                                                </td>
+                                                <td
+                                                  rowSpan={1}
+                                                  className="max-w-[70px] break-all"
+                                                >
+                                                  {row.firstName}
+                                                </td>
+                                                <td rowSpan={1} className="">
+                                                  <div>
+                                                    {viewHistory ? (
+                                                      <div
+                                                        onClick={() =>
+                                                          handleViewHistory(
+                                                            row.patientId,
+                                                            row.surgery,
+                                                          )
+                                                        }
+                                                        className="cursor-pointer underline"
+                                                      >
+                                                        {row.mrn}
+                                                      </div>
+                                                    ) : (
+                                                      <div>{row.mrn}</div>
+                                                    )}
+                                                  </div>
+                                                </td>
+                                                <td
+                                                  rowSpan={1}
+                                                  className="max-w-[80px] break-all"
+                                                >
+                                                  {row?.count && (
+                                                    <span
+                                                      className={`px-1 text-white rounded mr-1 ${
+                                                        row.count === 1
+                                                          ? 'bg-green-600'
+                                                          : row.count === 2
+                                                            ? 'bg-blue-600'
+                                                            : ''
+                                                      }`}
+                                                    >
+                                                      {row.count}
+                                                    </span>
+                                                  )}
+                                                  {row?.surgery}
+                                                </td>
+                                                <td
+                                                  rowSpan={1}
+                                                  className="max-w-[70px] break-all"
+                                                >
+                                                  {row.bodyPart}
+                                                </td>
+                                                {!iolListShowFlag && (
+                                                  <td
+                                                    rowSpan={2}
+                                                    className="text-center"
+                                                  >
+                                                    {row.surgeryOrder}
+                                                  </td>
+                                                )}
+                                                <td
+                                                  rowSpan={2}
+                                                  className="p-0 align-top"
+                                                >
+                                                  <table>
+                                                    <tbody>
+                                                      {customOptionsHeaders &&
+                                                        customOptionsHeaders.length >
+                                                          0 &&
+                                                        Array.from({
+                                                          length: Math.ceil(
+                                                            customOptionsHeaders.length /
+                                                              3,
+                                                          ),
+                                                        }).map(
+                                                          (_, rowIndex) => (
+                                                            <React.Fragment
+                                                              key={rowIndex}
+                                                            >
+                                                              <tr>
+                                                                {customOptionsHeaders
+                                                                  .slice(
+                                                                    rowIndex *
+                                                                      3,
+                                                                    rowIndex *
+                                                                      3 +
+                                                                      3,
+                                                                  )
+                                                                  .map(
+                                                                    (
+                                                                      optionsHeader,
+                                                                      optionsHeaderIndex,
+                                                                    ) => (
+                                                                      <th
+                                                                        className="bg-[#1B7F7D]"
+                                                                        key={
+                                                                          optionsHeaderIndex
+                                                                        }
+                                                                      >
+                                                                        {
+                                                                          optionsHeader
+                                                                        }
+                                                                      </th>
+                                                                    ),
+                                                                  )}
+                                                              </tr>
+                                                              <tr>
+                                                                {customOptionsHeaders
+                                                                  .slice(
+                                                                    rowIndex *
+                                                                      3,
+                                                                    rowIndex *
+                                                                      3 +
+                                                                      3,
+                                                                  )
+                                                                  .map(
+                                                                    (
+                                                                      optionsHeader,
+                                                                      optionsHeaderIndex,
+                                                                    ) => {
+                                                                      const elements: JSX.Element[] =
+                                                                        [];
+                                                                      if (
+                                                                        row[
+                                                                          `${optionsHeader}-count`
+                                                                        ]
+                                                                      ) {
+                                                                        for (
+                                                                          let index = 0;
+                                                                          index <
+                                                                          row[
+                                                                            `${optionsHeader}-count`
+                                                                          ];
+                                                                          index++
+                                                                        ) {
+                                                                          elements.push(
+                                                                            <div
+                                                                              className=""
+                                                                              key={
+                                                                                index
+                                                                              }
+                                                                            >
+                                                                              {
+                                                                                row[
+                                                                                  `${optionsHeader}-${index}`
+                                                                                ]
+                                                                              }
+                                                                            </div>,
+                                                                          );
+                                                                        }
+                                                                      }
+                                                                      return (
+                                                                        <td
+                                                                          className="w-1/2 min-w-12"
+                                                                          key={
+                                                                            optionsHeaderIndex
+                                                                          }
+                                                                        >
+                                                                          <div className="min-h-4">
+                                                                            {
+                                                                              elements
+                                                                            }
+                                                                          </div>
+                                                                        </td>
+                                                                      );
+                                                                    },
+                                                                  )}
+                                                              </tr>
+                                                            </React.Fragment>
+                                                          ),
+                                                        )}
+                                                    </tbody>
+                                                  </table>
+                                                </td>
+                                                <td
+                                                  rowSpan={2}
+                                                  className="p-0 align-top"
+                                                >
+                                                  <table>
+                                                    <tbody>
+                                                      <tr>
+                                                        {customConditionalHeaders &&
+                                                          customConditionalHeaders.map(
+                                                            (
+                                                              customConditionalHeader,
+                                                              customConditionalHeaderIndex,
+                                                            ) => (
+                                                              <th
+                                                                className="bg-[#1B7F7D]"
+                                                                key={
+                                                                  customConditionalHeaderIndex
+                                                                }
+                                                              >
+                                                                {
+                                                                  customConditionalHeader
+                                                                }
+                                                              </th>
+                                                            ),
+                                                          )}
+                                                      </tr>
+                                                      <tr>
+                                                        {customConditionalHeaders &&
+                                                          customConditionalHeaders.map(
+                                                            (
+                                                              conditionalHeader,
+                                                              conditionalHeaderIndex,
+                                                            ) => {
+                                                              const elements: JSX.Element[] =
+                                                                [];
+                                                              if (
+                                                                row[
+                                                                  `${conditionalHeader}-count`
+                                                                ]
+                                                              ) {
+                                                                for (
+                                                                  let index = 0;
+                                                                  index <
+                                                                  row[
+                                                                    `${conditionalHeader}-count`
+                                                                  ];
+                                                                  index++
+                                                                ) {
+                                                                  elements.push(
+                                                                    <div
+                                                                      className=""
+                                                                      key={
+                                                                        index
+                                                                      }
+                                                                    >
+                                                                      {
+                                                                        row[
+                                                                          `${conditionalHeader}-${index}`
+                                                                        ]
+                                                                      }
+                                                                    </div>,
+                                                                  );
+                                                                }
+                                                              }
+                                                              return (
+                                                                <td
+                                                                  className="w-1/2 min-w-10"
+                                                                  key={
+                                                                    conditionalHeaderIndex
+                                                                  }
+                                                                >
+                                                                  <div className="min-h-4">
+                                                                    {elements}
+                                                                  </div>
+                                                                </td>
+                                                              );
+                                                            },
+                                                          )}
+                                                      </tr>
+                                                    </tbody>
+                                                  </table>
+                                                </td>
+                                                {!iolListShowFlag && (
+                                                  <td
+                                                    rowSpan={2}
+                                                    className="p-0 align-top"
+                                                  >
+                                                    <table>
+                                                      <tbody>
+                                                        {customCheckListHeaders &&
+                                                          customCheckListHeaders.length >
+                                                            0 &&
+                                                          Array.from({
+                                                            length: Math.ceil(
+                                                              customCheckListHeaders.length /
+                                                                3,
+                                                            ),
+                                                          }).map(
+                                                            (_, rowIndex) => (
+                                                              <React.Fragment
+                                                                key={rowIndex}
+                                                              >
+                                                                <tr>
+                                                                  {customCheckListHeaders
+                                                                    .slice(
+                                                                      rowIndex *
+                                                                        3,
+                                                                      rowIndex *
+                                                                        3 +
+                                                                        3,
+                                                                    )
+                                                                    .map(
+                                                                      (
+                                                                        checkListHeader,
+                                                                        checkListHeaderIndex,
+                                                                      ) => (
+                                                                        <th
+                                                                          className="bg-[#1B7F7D]"
+                                                                          key={
+                                                                            checkListHeaderIndex
+                                                                          }
+                                                                        >
+                                                                          {
+                                                                            checkListHeader
+                                                                          }
+                                                                        </th>
+                                                                      ),
+                                                                    )}
+                                                                </tr>
+                                                                <tr>
+                                                                  {customCheckListHeaders
+                                                                    .slice(
+                                                                      rowIndex *
+                                                                        3,
+                                                                      rowIndex *
+                                                                        3 +
+                                                                        3,
+                                                                    )
+                                                                    .map(
+                                                                      (
+                                                                        checkListHeader,
+                                                                        checkListHeaderIndex,
+                                                                      ) => (
+                                                                        <td
+                                                                          className={`w-1/3 ${
+                                                                            row[
+                                                                              checkListHeader
+                                                                            ]
+                                                                              ? 'bg-customGreen'
+                                                                              : 'bg-customPink'
+                                                                          }`}
+                                                                          key={
+                                                                            checkListHeaderIndex
+                                                                          }
+                                                                        >
+                                                                          <div className="min-h-4">
+                                                                            {
+                                                                              row[
+                                                                                checkListHeader
+                                                                              ]
+                                                                            }
+                                                                          </div>
+                                                                        </td>
+                                                                      ),
+                                                                    )}
+                                                                </tr>
+                                                              </React.Fragment>
+                                                            ),
+                                                          )}
+                                                      </tbody>
+                                                    </table>
+                                                  </td>
+                                                )}
+                                                {!iolListShowFlag &&
+                                                  viewBillingColumn && (
+                                                    <td
+                                                      rowSpan={2}
+                                                      className={`text-center ${
+                                                        Number(row?.prof)
+                                                          ? 'bg-customGreen'
+                                                          : 'bg-customPink'
+                                                      } pl-1`}
+                                                    >
+                                                      {row.prof}
+                                                    </td>
+                                                  )}
+
+                                                {!iolListShowFlag &&
+                                                  viewBillingColumn && (
+                                                    <td
+                                                      rowSpan={2}
+                                                      className={`text-center ${
+                                                        Number(row?.hospital)
+                                                          ? 'bg-customGreen'
+                                                          : 'bg-customPink'
+                                                      } pl-1`}
+                                                    >
+                                                      {row.hospital}
+                                                    </td>
+                                                  )}
+                                                {!iolListShowFlag && (
+                                                  <td rowSpan={2} className="">
+                                                    {row.insurance}
+                                                  </td>
+                                                )}
+                                                {!iolListShowFlag && (
+                                                  <td rowSpan={2} className="">
+                                                    {row.email}
+                                                    <br />
+                                                    {row.phoneNumber}
+                                                    <br />
+                                                    referrer: {row.referrer}
+                                                    {row.referrerVerified && (
+                                                      <Checkbox
+                                                        checked={true}
+                                                        overrides={{
+                                                          Checkmark: {
+                                                            style: ({
+                                                              $checked,
+                                                            }) => ({
+                                                              backgroundColor:
+                                                                $checked
+                                                                  ? 'rgba(34, 197, 94, 1)'
+                                                                  : 'white',
+                                                              borderColor:
+                                                                $checked
+                                                                  ? 'rgba(34, 197, 94, 1)'
+                                                                  : 'rgba(113, 113, 122, 1)',
+                                                              width: '12px',
+                                                              height: '12px',
+                                                              borderRadius:
+                                                                '2px',
+                                                              borderWidth:
+                                                                '2px',
+                                                            }),
+                                                          },
+                                                        }}
+                                                      />
+                                                    )}
+                                                  </td>
+                                                )}
+                                                {!iolListShowFlag && (
+                                                  <td rowSpan={2} className="">
+                                                    {actionIcons(row)}
+                                                  </td>
+                                                )}
+                                              </tr>
+                                              <tr>
+                                                {!iolListShowFlag && (
+                                                  <td
+                                                    colSpan={5}
+                                                    className="bg-white"
+                                                  >
+                                                    <div className="">
+                                                      <div>
+                                                        <span className="font-semibold">
+                                                          Waitlist:{' '}
+                                                        </span>
+                                                        {row.waitlist}
+                                                      </div>
+                                                      <div>
+                                                        <span className="font-semibold">
+                                                          Notes:{' '}
+                                                        </span>
+                                                        {row?.notes}
+                                                      </div>
+                                                    </div>
+                                                  </td>
+                                                )}
+                                              </tr>
+
+                                              {selectedRow === row.id &&
+                                                selectedSurgery &&
+                                                selectedAction == 'view' && (
+                                                  <ViewRow
+                                                    selectedSurgery={row}
+                                                    viewBillingColumn={
+                                                      viewBillingColumn
+                                                    }
+                                                  />
+                                                )}
+                                            </>
+                                          );
+                                        })}
+                                    </React.Fragment>
+                                  </>
+                                </React.Fragment>
+                              );
+                            })}
+                        </React.Fragment>
+                      );
+                    })}
                   <DeleteFilterModal
                     onConfirmDelete={onConfirmDelete}
                     isDeleteModalOpen={isDeleteModalOpen}

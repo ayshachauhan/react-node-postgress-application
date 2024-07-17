@@ -519,10 +519,10 @@ function EditableRow({
                         surgeryConfiguration.conditionalOptions[
                           conditionalHeader
                         ];
-                      const count: number = currentConditionalOption.count;
+                      const count: number = currentConditionalOption?.count;
 
                       const isDependant: boolean =
-                        currentConditionalOption.dependsUpon;
+                        currentConditionalOption?.dependsUpon;
 
                       const conditionalCountSelect: JSX.Element[] = [];
 

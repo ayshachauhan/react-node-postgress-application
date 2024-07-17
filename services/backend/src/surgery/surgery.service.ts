@@ -230,11 +230,20 @@ export class SurgeryService {
       }
     }
 
-    const [dbSurgeryByPractice, dbSurgeryByPracticeWithoutPermission] =
+    let [dbSurgeryByPractice, dbSurgeryByPracticeWithoutPermission] =
       await Promise.all([
         this.surgeryRepository.find(searchConditions),
         this.surgeryRepository.find(searchConditionsWithoutPermissions),
       ]);
+
+    if (option?.toLowerCase() === 'waitlist view') {
+      const filterWaitlist = (row: SurgeryEntity) =>
+        row.waitlist && row.waitlist !== null;
+
+      dbSurgeryByPractice = dbSurgeryByPractice.filter(filterWaitlist);
+      dbSurgeryByPracticeWithoutPermission =
+        dbSurgeryByPracticeWithoutPermission.filter(filterWaitlist);
+    }
 
     dbSurgeryByPractice.forEach((ele) => {
       ele.doctor.password = '';
