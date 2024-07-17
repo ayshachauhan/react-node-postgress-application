@@ -34,6 +34,7 @@ import {
   setSelectedValue,
 } from '@root/store/reducers/surgery';
 import {
+  formatDate,
   getColorForSurgeryStatus,
   getSelectedMonths,
   getUserId,
@@ -338,10 +339,20 @@ const FiltersSection: React.FC<{
     }
   };
 
-  const calculatedBookesSlots = (date): number => {
-    console.log(date, 'date');
+  const calculatedMaxSlots = (targetDateString: string): number => {
+    const filteredEntries = calendars.filter((entry) => {
+      const entryDate = formatDate(entry.date);
+      return entryDate === targetDateString;
+    });
 
-    return 14;
+    let maxSlots = 0;
+
+    filteredEntries.forEach((entry) => {
+      if (entry.maxSlots > maxSlots) {
+        maxSlots = entry.maxSlots;
+      }
+    });
+    return maxSlots;
   };
 
   const handleChangeValue = ({ value }) => {
@@ -810,7 +821,7 @@ const FiltersSection: React.FC<{
                                   )}
                                   , {date} - {ele[date]?.length} case cases
                                   &nbsp; &nbsp;(
-                                  {calculatedBookesSlots(ele[date])} Max)
+                                  {calculatedMaxSlots(date)} Max)
                                 </td>
                               </tr>
                               <>
@@ -861,14 +872,14 @@ const FiltersSection: React.FC<{
                                       (ele) => ele.id === row.id,
                                     );
                                     const customOptionsHeaders: string[] =
-                                      surgeryOptionsHeadersObj[row.surgery]
+                                      surgeryOptionsHeadersObj[row?.surgery]
                                         ?.surgeryOptionsHeaders;
                                     const customCheckListHeaders: string[] =
-                                      surgeryOptionsHeadersObj[row.surgery]
+                                      surgeryOptionsHeadersObj[row?.surgery]
                                         ?.checkListHeaders;
 
                                     const customConditionalHeaders: string[] =
-                                      surgeryOptionsHeadersObj[row.surgery]
+                                      surgeryOptionsHeadersObj[row?.surgery]
                                         ?.conditionalHeaders;
                                     return isEditable && surgeryInfo ? (
                                       <EditableRow
@@ -1182,52 +1193,78 @@ const FiltersSection: React.FC<{
                                           >
                                             <table>
                                               <tbody>
-                                                <tr>
-                                                  {customCheckListHeaders &&
-                                                    customCheckListHeaders.map(
-                                                      (
-                                                        checkListHeader,
-                                                        checkListHeaderIndex,
-                                                      ) => (
-                                                        <th
-                                                          className="bg-[#1B7F7D]"
-                                                          key={
-                                                            checkListHeaderIndex
-                                                          }
-                                                        >
-                                                          {checkListHeader}
-                                                        </th>
-                                                      ),
-                                                    )}
-                                                </tr>
-                                                <tr>
-                                                  {customCheckListHeaders &&
-                                                    customCheckListHeaders.map(
-                                                      (
-                                                        checkListHeader,
-                                                        checkListHeaderIndex,
-                                                      ) => (
-                                                        <td
-                                                          className={`w-1/4 ${
-                                                            row[checkListHeader]
-                                                              ? 'bg-customGreen'
-                                                              : 'bg-customPink'
-                                                          }`}
-                                                          key={
-                                                            checkListHeaderIndex
-                                                          }
-                                                        >
-                                                          <span className="min-h-6">
-                                                            {
-                                                              row[
-                                                                checkListHeader
-                                                              ]
-                                                            }
-                                                          </span>
-                                                        </td>
-                                                      ),
-                                                    )}
-                                                </tr>
+                                                {customCheckListHeaders &&
+                                                  customCheckListHeaders.length >
+                                                    0 &&
+                                                  Array.from({
+                                                    length: Math.ceil(
+                                                      customCheckListHeaders.length /
+                                                        3,
+                                                    ),
+                                                  }).map((_, rowIndex) => (
+                                                    <React.Fragment
+                                                      key={rowIndex}
+                                                    >
+                                                      <tr>
+                                                        {customCheckListHeaders
+                                                          .slice(
+                                                            rowIndex * 3,
+                                                            rowIndex * 3 + 3,
+                                                          )
+                                                          .map(
+                                                            (
+                                                              checkListHeader,
+                                                              checkListHeaderIndex,
+                                                            ) => (
+                                                              <th
+                                                                className="bg-[#1B7F7D]"
+                                                                key={
+                                                                  checkListHeaderIndex
+                                                                }
+                                                              >
+                                                                {
+                                                                  checkListHeader
+                                                                }
+                                                              </th>
+                                                            ),
+                                                          )}
+                                                      </tr>
+                                                      <tr>
+                                                        {customCheckListHeaders
+                                                          .slice(
+                                                            rowIndex * 3,
+                                                            rowIndex * 3 + 3,
+                                                          )
+                                                          .map(
+                                                            (
+                                                              checkListHeader,
+                                                              checkListHeaderIndex,
+                                                            ) => (
+                                                              <td
+                                                                className={`w-1/3 ${
+                                                                  row[
+                                                                    checkListHeader
+                                                                  ]
+                                                                    ? 'bg-customGreen'
+                                                                    : 'bg-customPink'
+                                                                }`}
+                                                                key={
+                                                                  checkListHeaderIndex
+                                                                }
+                                                              >
+                                                                <span className="min-h-6">
+                                                                  {
+                                                                    row[
+                                                                      checkListHeader
+                                                                    ]
+                                                                  }
+                                                                </span>
+                                                              </td>
+                                                            ),
+                                                          )}
+                                                      </tr>
+                                                    </React.Fragment>
+                                                  ))}
                                               </tbody>
                                             </table>
                                           </td>
