@@ -62,7 +62,7 @@ function EditableRow({
   }));
 
   const practiceHomesOptions = Object.keys(practiceHomesList).map((key) => ({
-    label: practiceHomesList[key].name[0],
+    label: practiceHomesList[key].name,
     id: practiceHomesList[key].id,
   }));
 

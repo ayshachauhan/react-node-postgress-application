@@ -34,6 +34,7 @@ import {
   setSelectedValue,
 } from '@root/store/reducers/surgery';
 import {
+  abbreviatePracticeHome,
   createQueryString,
   formatDate,
   getColorForSurgeryStatus,
@@ -102,6 +103,7 @@ const FiltersSection: React.FC<{
   const [isWailistViewActive, setIsWailistViewActive] = useState(false);
   const [isIolViewActive, setIsIolViewActive] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [surgeryTypeSelected, setSurgeryTypeSelected] = useState<string>('');
   const [selectedAction, setSelectedAction] = useState<string | null>(null);
   const [selectedSurgery, setSelectedSurgery] = useState({});
   const [selectedRow, setSelectedRow] = useState<string | null>(null);
@@ -200,7 +202,7 @@ const FiltersSection: React.FC<{
       )}
       <CopyIcon
         style={{ marginRight: '4px', cursor: 'pointer' }}
-        onClick={() => handleCloneClick(row.id)}
+        onClick={() => handleCloneClick(row)}
       />
       <DisplayIcon
         style={{ marginRight: '4px', cursor: 'pointer' }}
@@ -406,7 +408,10 @@ const FiltersSection: React.FC<{
     dispatch(setSearchMRNName(mrn));
   };
 
-  const handleCloneClick = (rowId: string) => {
+  const handleCloneClick = (row) => {
+    const rowId = row?.id;
+    const surgeryName = row?.surgery;
+    setSurgeryTypeSelected(surgeryName);
     if (practiceId) dispatch(fetchSurgeryInfo({ practiceId, id: rowId }));
     handleOpenAddModal();
     setSelectedRow(selectedRow === rowId ? null : rowId);
@@ -531,11 +536,6 @@ const FiltersSection: React.FC<{
       );
     }
   };
-  const isDisabled =
-    selectedValue &&
-    (selectedValue.toLowerCase() === 'past' ||
-      selectedValue.toLowerCase() === 'upcoming');
-
   const dispatchFetchFilteredCalendars = (
     practiceId: string,
     userId: string,
@@ -687,7 +687,6 @@ const FiltersSection: React.FC<{
                   options={updatedMonthOptions}
                   value={selectedMonth}
                   onChange={handleChangeMonth}
-                  disabled={isDisabled || false}
                   multi
                   overrides={{
                     ControlContainer: {
@@ -947,7 +946,9 @@ const FiltersSection: React.FC<{
                                                   className="cursor-pointer text-center"
                                                   title={row.home}
                                                 >
-                                                  {row.home[0]}
+                                                  {abbreviatePracticeHome(
+                                                    row.home,
+                                                  )}
                                                 </td>
                                                 <td
                                                   rowSpan={2}
@@ -1442,6 +1443,7 @@ const FiltersSection: React.FC<{
                     isModalOpen={isAddModalOpen}
                     handleCloseModal={handleCloseAddModal}
                     autoFillFromSurgery={true}
+                    surgeryTypeSelected={surgeryTypeSelected}
                     withLoader={withLoader}
                   />
                 </tbody>

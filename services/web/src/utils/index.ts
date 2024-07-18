@@ -245,6 +245,10 @@ export const getColorForSurgeryStatus = (status) => {
   }
 };
 
+export const abbreviatePracticeHome = (str) => {
+  return str.match(/\b\w/g).join('').toUpperCase();
+};
+
 export const createQueryString = (params): string => {
   const queryString = new URLSearchParams();
   if (params) {

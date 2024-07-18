@@ -414,6 +414,15 @@ function EditableRow({
               }}
             />
           </td>
+          <td rowSpan={2} className="min-w-10">
+            <TextInput
+              type="number"
+              name="hash"
+              value={obj.surgeryOrder}
+              onChange={(value) => handleObjChange('surgeryOrder', value)}
+              size={SIZE.mini}
+            />
+          </td>
           <td rowSpan={2}>
             <table className="w-full">
               <tbody>
@@ -443,16 +452,24 @@ function EditableRow({
                               backspaceRemoves={false}
                               escapeClearsValue={false}
                               key={optionsHeaderIndex}
-                              options={surgeryConfiguration.options[
-                                optionsHeader
-                              ]?.allowedValues?.map((ele) => {
-                                return {
-                                  id: ele.name,
-                                  label: ele.name,
-                                  hospitalPricing: ele.hospitalPricing,
-                                  professionalPricing: ele.professionalPricing,
-                                };
-                              })}
+                              options={[
+                                { id: '', label: '' }, // Add a blank option
+                                ...(surgeryConfiguration.options[
+                                  optionsHeader
+                                ] &&
+                                surgeryConfiguration.options[optionsHeader]
+                                  .allowedValues
+                                  ? surgeryConfiguration.options[
+                                      optionsHeader
+                                    ].allowedValues.map((ele) => ({
+                                      id: ele.name,
+                                      label: ele.name,
+                                      hospitalPricing: ele.hospitalPricing,
+                                      professionalPricing:
+                                        ele.professionalPricing,
+                                    }))
+                                  : []),
+                              ]}
                               value={
                                 selectOptionObj
                                   ? [
@@ -571,12 +588,13 @@ function EditableRow({
                               backspaceRemoves={false}
                               escapeClearsValue={false}
                               key={conditionalHeaderIndex}
-                              options={options.map((ele) => {
-                                return {
+                              options={[
+                                { id: '', label: '' }, // Add a blank option
+                                ...options.map((ele) => ({
                                   id: ele,
                                   label: ele,
-                                };
-                              })}
+                                })),
+                              ]}
                               value={
                                 selectOptionObj
                                   ? [
@@ -628,15 +646,6 @@ function EditableRow({
                   )
                 : ''}
             </tr>
-          </td>
-          <td rowSpan={2} className="min-w-10">
-            <TextInput
-              type="number"
-              name="hash"
-              value={obj.surgeryOrder}
-              onChange={(value) => handleObjChange('surgeryOrder', value)}
-              size={SIZE.mini}
-            />
           </td>
           <td rowSpan={2}>
             <table className="w-full h-24">
