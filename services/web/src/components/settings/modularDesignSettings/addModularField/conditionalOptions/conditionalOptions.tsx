@@ -194,7 +194,7 @@ const ConditionalOptions: React.FC<{ props }> = ({ props }) => {
                   <div className="space-y-2 ">
                     <div className="flex justify-between">
                       <div className="flex flex-row gap-4 items-end w-max">
-                        <div className="space-y-1">
+                        <div className="space-y-1 min-w-40">
                           <label htmlFor="category" className="">
                             Name
                           </label>
@@ -284,7 +284,7 @@ const ConditionalOptions: React.FC<{ props }> = ({ props }) => {
                             />
                           </div>
                         </div>
-                        <div className="space-y-1 flex flex-row  gap-2">
+                        <div className="space-y-1 flex flex-row min-w-40 gap-2">
                           <Checkbox
                             name="editAdminOption"
                             //   key={index}
