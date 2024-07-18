@@ -244,3 +244,13 @@ export const getColorForSurgeryStatus = (status) => {
       return 'bg-indigo-400';
   }
 };
+
+export const createQueryString = (params): string => {
+  const queryString = new URLSearchParams();
+  if (params) {
+    Object.keys(params).forEach((key) => {
+      queryString.append(key, params[key]);
+    });
+  }
+  return queryString.toString();
+};

@@ -34,6 +34,7 @@ import {
   setSelectedValue,
 } from '@root/store/reducers/surgery';
 import {
+  createQueryString,
   formatDate,
   getColorForSurgeryStatus,
   getSelectedMonths,
@@ -360,7 +361,6 @@ const FiltersSection: React.FC<{
     const selectedLabel = value.length > 0 ? value[0].label.toLowerCase() : '';
 
     if (selectedLabel === 'past view' || selectedLabel === 'upcoming view') {
-      dispatch(setSelectedMonth([]));
       setIsIolViewActive(false);
       setIsWailistViewActive(false);
     }
@@ -452,16 +452,6 @@ const FiltersSection: React.FC<{
   const handleViewClick = (rowId: string) => {
     setSelectedRow(selectedRow === rowId ? null : rowId);
     setSelectedAction('view');
-  };
-
-  const createQueryString = (params): string => {
-    const queryString = new URLSearchParams();
-    if (params) {
-      Object.keys(params).forEach((key) => {
-        queryString.append(key, params[key]);
-      });
-    }
-    return queryString.toString();
   };
 
   const handlePatientMedia = (patientMrn: number): void => {
