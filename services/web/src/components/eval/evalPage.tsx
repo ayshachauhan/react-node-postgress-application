@@ -30,6 +30,7 @@ import { fetchListings as fetchSurgeryTypesListing } from '@root/store/reducers/
 import { fetchListings as fetchUsersList } from '@root/store/reducers/users';
 import { fetchListings as fetchWaitlist } from '@root/store/reducers/waitlist';
 import {
+  abbreviatePracticeHome,
   getDifferenceInDays,
   getPracticeId,
   getSelectedMonths,
@@ -342,8 +343,12 @@ const EvalPage: React.FC = () => {
                       <td rowSpan={2} className="">
                         <div>{data.actionDate}</div>
                       </td>
-                      <td rowSpan={2} className="">
-                        <div> {data.home[0]}</div>
+                      <td
+                        rowSpan={2}
+                        className="cursor-pointer text-center"
+                        title={data.home}
+                      >
+                        <div> {abbreviatePracticeHome(data.home)}</div>
                       </td>
                       <td rowSpan={2} className="">
                         <div className="rounded-md text-white text-center py-1 px-2 bg-indigo-500">

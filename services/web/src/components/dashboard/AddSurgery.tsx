@@ -27,6 +27,7 @@ interface SurgeryPageProps {
   autoFillFromEval?: boolean;
   autoFillFromSurgery?: boolean;
   withLoader: (func: () => Promise<void>) => Promise<void>;
+  surgeryTypeSelected?: string;
 }
 
 const SurgeryPage: React.FC<SurgeryPageProps> = ({
@@ -34,6 +35,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
   autoFillFromEval = false,
   autoFillFromSurgery = false,
   withLoader,
+  surgeryTypeSelected,
 }) => {
   const dispatch = useAppDispatch();
   const {
@@ -895,7 +897,10 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
             <div className="px-6 border border-gray-100 pb-6 rounded-xl flex-1 w-4/12">
               <div className="flex mt-2 text-lg pb-2 font-bold border-b border-gray-100 text-black w-full">
                 Add Surgery
-                {(addNewCataractSurgery || isCataractSelected) && (
+                {(addNewCataractSurgery ||
+                  isCataractSelected ||
+                  (surgeryTypeSelected &&
+                    surgeryTypeSelected.toLowerCase() === 'cataract')) && (
                   <div className="pl-3">
                     <Button
                       type="button"

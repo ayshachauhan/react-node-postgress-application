@@ -8,6 +8,7 @@ const AddSurgeryModal = ({
   autoFillFromEval = false,
   autoFillFromSurgery = false,
   withLoader,
+  surgeryTypeSelected = '',
 }) => {
   return (
     <BaseUIModal
@@ -36,6 +37,7 @@ const AddSurgeryModal = ({
         autoFillFromEval={autoFillFromEval}
         autoFillFromSurgery={autoFillFromSurgery}
         withLoader={withLoader}
+        surgeryTypeSelected={surgeryTypeSelected}
       />
     </BaseUIModal>
   );
