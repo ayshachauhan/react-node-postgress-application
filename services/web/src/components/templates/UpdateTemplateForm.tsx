@@ -49,6 +49,9 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({
   const editCaseAllowed = useUserPermission(userPermissions, [
     USER_PERMISSIONS.EDIT_TEMPLATES,
   ]);
+  const deleteCaseAllowed = useUserPermission(userPermissions, [
+    USER_PERMISSIONS.DELETE_TEMPLATE,
+  ]);
   const dispatch = useAppDispatch();
   const practiceId = getPracticeId();
   const templateId = data.id;
@@ -583,17 +586,19 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({
           </div>
         </div>
         <div className="flex justify-end gap-3 mt-10">
-          <Button
-            type="button"
-            kind="tertiary"
-            title="Delete"
-            width={136}
-            height={40}
-            onClick={onConfirmDelete}
-            style={{
-              backgroundColor: '#DC2626',
-            }}
-          />
+          {deleteCaseAllowed && (
+            <Button
+              type="button"
+              kind="tertiary"
+              title="Delete"
+              width={136}
+              height={40}
+              onClick={onConfirmDelete}
+              style={{
+                backgroundColor: '#DC2626',
+              }}
+            />
+          )}
           {editCaseAllowed && (
             <Button kind="primary" title="Update" width={136} height={40} />
           )}

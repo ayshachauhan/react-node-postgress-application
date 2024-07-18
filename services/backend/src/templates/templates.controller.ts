@@ -72,6 +72,7 @@ export class TemplatesController {
   }
 
   @Delete(':id')
+  @UseGuards(PermissionGuard(USER_PERMISSIONS.DELETE_TEMPLATE))
   async remove(@Param('id') id: string): Promise<void> {
     return await this.templateService.remove(id);
   }
