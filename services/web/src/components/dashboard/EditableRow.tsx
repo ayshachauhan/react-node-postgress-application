@@ -414,6 +414,15 @@ function EditableRow({
               }}
             />
           </td>
+          <td rowSpan={2} className="min-w-10">
+            <TextInput
+              type="number"
+              name="hash"
+              value={obj.surgeryOrder}
+              onChange={(value) => handleObjChange('surgeryOrder', value)}
+              size={SIZE.mini}
+            />
+          </td>
           <td rowSpan={2}>
             <table className="w-full">
               <tbody>
@@ -628,15 +637,6 @@ function EditableRow({
                   )
                 : ''}
             </tr>
-          </td>
-          <td rowSpan={2} className="min-w-10">
-            <TextInput
-              type="number"
-              name="hash"
-              value={obj.surgeryOrder}
-              onChange={(value) => handleObjChange('surgeryOrder', value)}
-              size={SIZE.mini}
-            />
           </td>
           <td rowSpan={2}>
             <table className="w-full h-24">
