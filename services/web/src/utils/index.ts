@@ -244,3 +244,10 @@ export const getColorForSurgeryStatus = (status) => {
       return 'bg-indigo-400';
   }
 };
+
+export const abbreviatePracticeHome = (str) => {
+  return str
+    .split(' ')
+    .map((word) => word.charAt(0).toUpperCase())
+    .join('');
+};
