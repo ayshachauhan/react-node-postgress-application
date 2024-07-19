@@ -112,37 +112,33 @@ const FiltersSection: React.FC<{
   const loggedInUserId = userInfo?.id ?? null;
   const userPermissions = userInfo?.permissions;
 
-  const userPermissionStates = {
-    viewPastCases: useUserPermission(userPermissions, [
-      USER_PERMISSIONS.VIEW_PAST_CASES,
-    ]),
-    viewFutureCases: useUserPermission(userPermissions, [
-      USER_PERMISSIONS.VIEW_FUTURE_CASES,
-    ]),
-    deleteCaseAllowed: useUserPermission(userPermissions, [
-      USER_PERMISSIONS.DELETE_CASE,
-    ]),
-    editCaseAllowed: useUserPermission(userPermissions, [
-      USER_PERMISSIONS.EDIT_CASE,
-    ]),
-    viewBillingColumn: useUserPermission(userPermissions, [
-      USER_PERMISSIONS.VIEW_BILLING,
-    ]),
-    viewHistory: useUserPermission(userPermissions, [USER_PERMISSIONS.VIEW_HX]),
-    viewReviews: useUserPermission(userPermissions, [
-      USER_PERMISSIONS.VIEW_REP,
-    ]),
-  };
+  const viewPastCases = useUserPermission(userPermissions, [
+    USER_PERMISSIONS.VIEW_PAST_CASES,
+  ]);
 
-  const {
-    viewPastCases,
-    viewFutureCases,
-    deleteCaseAllowed,
-    editCaseAllowed,
-    viewBillingColumn,
-    viewHistory,
-    viewReviews,
-  } = userPermissionStates;
+  const viewFutureCases = useUserPermission(userPermissions, [
+    USER_PERMISSIONS.VIEW_FUTURE_CASES,
+  ]);
+
+  const deleteCaseAllowed = useUserPermission(userPermissions, [
+    USER_PERMISSIONS.DELETE_CASE,
+  ]);
+
+  const editCaseAllowed = useUserPermission(userPermissions, [
+    USER_PERMISSIONS.EDIT_CASE,
+  ]);
+
+  const viewBillingColumn = useUserPermission(userPermissions, [
+    USER_PERMISSIONS.VIEW_BILLING,
+  ]);
+
+  const viewHistory = useUserPermission(userPermissions, [
+    USER_PERMISSIONS.VIEW_HX,
+  ]);
+
+  const viewReviews = useUserPermission(userPermissions, [
+    USER_PERMISSIONS.VIEW_REP,
+  ]);
 
   const getMonthOptions = (
     viewPastCases: boolean,
