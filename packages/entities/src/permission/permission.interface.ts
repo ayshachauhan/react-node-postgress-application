@@ -23,4 +23,5 @@ export enum USER_PERMISSIONS {
   DELETE_CASE = 'delete_case',
   LEADERBOARD_DISPLAY = 'leaderboard_display',
   ADMIN_PERMISSION = 'admin_permission',
+  DELETE_TEMPLATE = 'delete_template',
 }
