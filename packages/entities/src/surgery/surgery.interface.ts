@@ -99,6 +99,8 @@ export interface UpdateSurgeryPayload {
   referrerId?: string;
   practiceHomeId: string;
   selectedConditionalOptions?: SelectedConditionalOption;
+  inititalProfPrice?: string;
+  inititalHospitalPrice?: string;
 }
 
 export interface MonthOption {
