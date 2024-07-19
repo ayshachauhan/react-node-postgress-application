@@ -567,7 +567,7 @@ function EditableRow({
               <tbody>
                 <tr>
                   {customConditionalHeaders &&
-                    customConditionalHeaders.length &&
+                    customConditionalHeaders.length > 0 &&
                     customConditionalHeaders.map(
                       (
                         customConditionalHeader,
@@ -583,7 +583,8 @@ function EditableRow({
                     )}
                 </tr>
                 <tr>
-                  {customConditionalHeaders && customConditionalHeaders.length
+                  {customConditionalHeaders &&
+                  customConditionalHeaders.length > 0
                     ? customConditionalHeaders.map(
                         (conditionalHeader, conditionalHeaderIndex) => {
                           const currentConditionalOption =

@@ -33,6 +33,7 @@ import {
   setSelectedMonth,
   setSelectedValue,
 } from '@root/store/reducers/surgery';
+import { fetchListings as fetchUsersList } from '@root/store/reducers/users';
 import {
   abbreviatePracticeHome,
   createQueryString,
@@ -330,10 +331,11 @@ const FiltersSection: React.FC<{
     return viewData;
   });
 
-  const onConfirmDelete = (): void => {
+  const onConfirmDelete = async (): Promise<void> => {
     try {
       if (selectedRow) {
-        dispatch(deleteRecordAsync({ practiceId, id: selectedRow }));
+        await dispatch(deleteRecordAsync({ practiceId, id: selectedRow }));
+        dispatch(fetchUsersList({ practiceId }));
         setSelectedRow(null);
       }
       setIsDeleteModalOpen(false);
