@@ -246,8 +246,15 @@ export const getColorForSurgeryStatus = (status) => {
 };
 
 export const abbreviatePracticeHome = (str) => {
-  return str
-    .split(' ')
-    .map((word) => word.charAt(0).toUpperCase())
-    .join('');
+  return str.match(/\b\w/g).join('').toUpperCase();
+};
+
+export const createQueryString = (params): string => {
+  const queryString = new URLSearchParams();
+  if (params) {
+    Object.keys(params).forEach((key) => {
+      queryString.append(key, params[key]);
+    });
+  }
+  return queryString.toString();
 };

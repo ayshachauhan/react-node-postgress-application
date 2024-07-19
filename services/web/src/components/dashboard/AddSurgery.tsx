@@ -481,10 +481,22 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
   const isSlotsAvailable = (date: Date): Record<string, unknown> => {
     const formattedDate = moment(date).format('YYYY-MM-DD'); // Get date part only
 
-    const calendar = (calendars as ICalendar[]).find(
+    const matchingCalendars = (calendars as ICalendar[]).filter(
       (calendar: ICalendar) =>
-        moment(calendar?.date).format('YYYY-MM-DD') === formattedDate,
-    ) as ICalendar;
+        moment(calendar.date).format('YYYY-MM-DD') === formattedDate,
+    ) as ICalendar[];
+
+    const sortedCalendars = matchingCalendars.sort((a, b) => {
+      if (a.maxSlots !== b.maxSlots) {
+        return b.maxSlots - a.maxSlots; // Descending order by maxSlots
+      } else if (a.bookedSlots !== b.bookedSlots) {
+        return b.bookedSlots - a.bookedSlots; // Descending order by bookedSlots
+      } else {
+        return a.surgeryType.name.localeCompare(b.surgeryType.name); // Alphabetical order by surgeryType.name
+      }
+    });
+
+    const calendar = sortedCalendars[0];
 
     const surgeryTypeColor =
       calendar.surgeryType?.color ?? DEFAULT_SURGERYLOCATION_COLOR;

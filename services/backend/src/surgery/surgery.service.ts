@@ -648,16 +648,46 @@ export class SurgeryService {
     request: Request & { user: SanitizedUser },
     ipAddress: string,
   ): Promise<void> {
-    await this.surgeryRepository.softDelete(id);
+    const surgeryToUpdate = await this.getSurgeryById(id);
+    const surgeryConfigurationEntity =
+      surgeryToUpdate &&
+      (await this.surgeryConfigurationService.getSurgeryConfigurationById(
+        surgeryToUpdate?.surgeryConfiguration?.id,
+      ));
+    if (surgeryConfigurationEntity && surgeryToUpdate) {
+      const calendars = await this.calendarService.getAllCalendars({
+        practiceId: surgeryToUpdate?.practice?.id,
+        userId: surgeryToUpdate?.doctor?.id,
+      });
+      await this.surgeryRepository.softDelete(id);
 
-    await this.historyService.createHistory({
-      practiceId,
-      userId: request?.user?.id,
-      entityId: id,
-      entityType: HistoryType.SURGERY,
-      action: HistoryAction.DELETE,
-      ipAddress,
-    });
+      const reomvedCalender = calendars.find(
+        (calendar: ICalendar) =>
+          moment(calendar.date).format('YYYY-MM-DD') ===
+            moment(surgeryToUpdate?.date).format('YYYY-MM-DD') &&
+          calendar.surgeryType?.id ===
+            surgeryConfigurationEntity.surgeryType?.id,
+      );
+
+      if (
+        reomvedCalender &&
+        moment(reomvedCalender?.date).format('YYYY-MM-DD')
+      ) {
+        await this.calendarService.updateCalendar({
+          id: reomvedCalender?.id,
+          bookedSlots: reomvedCalender?.bookedSlots - 1,
+        });
+      }
+
+      await this.historyService.createHistory({
+        practiceId,
+        userId: request?.user?.id,
+        entityId: id,
+        entityType: HistoryType.SURGERY,
+        action: HistoryAction.DELETE,
+        ipAddress,
+      });
+    }
   }
 
   async initiateSendEmail(
