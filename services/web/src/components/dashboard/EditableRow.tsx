@@ -423,269 +423,358 @@ function EditableRow({
               size={SIZE.mini}
             />
           </td>
-          <td rowSpan={2}>
+          <td rowSpan={2} className="p-0 align-top">
             <table className="w-full">
               <tbody>
                 <tr>
-                  {customOptionsHeaders.map(
-                    (optionsHeader, optionsHeaderIndex) => {
-                      const count =
-                        surgeryConfiguration.options[optionsHeader]?.count;
-
-                      const optionCountSelect: JSX.Element[] = [];
-
-                      for (let index = 0; index < count; index++) {
-                        const selectOptionObj = obj.selectedSurgeryOptions
-                          ? obj.selectedSurgeryOptions[
-                              `${optionsHeader}-${index}`
-                            ]
-                          : {
-                              id: '',
-                              value: '',
-                              hospitalPricing: 0,
-                              professionalPricing: 0,
-                            };
-
-                        optionCountSelect.push(
-                          <div key={index} className="">
-                            <Select
-                              backspaceRemoves={false}
-                              escapeClearsValue={false}
-                              key={optionsHeaderIndex}
-                              options={[
-                                { id: '', label: '' }, // Add a blank option
-                                ...(surgeryConfiguration.options[
-                                  optionsHeader
-                                ] &&
+                  {customOptionsHeaders &&
+                    customOptionsHeaders.length > 0 &&
+                    Array.from({
+                      length: Math.ceil(customOptionsHeaders.length / 3),
+                    }).map((_, rowIndex) => (
+                      <React.Fragment key={rowIndex}>
+                        <tr>
+                          {customOptionsHeaders
+                            .slice(rowIndex * 3, rowIndex * 3 + 3)
+                            .map((optionsHeader, optionsHeaderIndex) => (
+                              <th
+                                className="bg-[#1B7F7D]"
+                                key={optionsHeaderIndex}
+                              >
+                                {optionsHeader}
+                              </th>
+                            ))}
+                        </tr>
+                        <tr>
+                          {customOptionsHeaders
+                            .slice(rowIndex * 3, rowIndex * 3 + 3)
+                            .map((optionsHeader, optionsHeaderIndex) => {
+                              const count =
                                 surgeryConfiguration.options[optionsHeader]
-                                  .allowedValues
-                                  ? surgeryConfiguration.options[
-                                      optionsHeader
-                                    ].allowedValues.map((ele) => ({
-                                      id: ele.name,
-                                      label: ele.name,
-                                      hospitalPricing: ele.hospitalPricing,
-                                      professionalPricing:
-                                        ele.professionalPricing,
-                                    }))
-                                  : []),
-                              ]}
-                              value={
-                                selectOptionObj
-                                  ? [
-                                      {
-                                        id: selectOptionObj.value,
-                                        value: selectOptionObj.value,
-                                        hospitalPricing:
-                                          selectOptionObj.hospitalPricing,
-                                        professionalPricing:
-                                          selectOptionObj.professionalPricing,
-                                      },
-                                    ]
-                                  : []
-                              }
-                              onChange={({ value }) =>
-                                handleObjChange('selectedSurgeryOptions', {
-                                  ...obj.selectedSurgeryOptions,
-                                  [`${optionsHeader}-${index}`]: {
-                                    value: value[0].label,
-                                  },
-                                })
-                              }
-                              disabled={
-                                surgeryConfiguration.options[optionsHeader]
-                                  ?.edit_admin_option === true &&
-                                !adminPermission
-                              }
-                              size={SIZE.mini}
-                              overrides={{
-                                ControlContainer: {
-                                  style: {
-                                    backgroundColor: 'rgba(250, 250, 250, 1)',
-                                    border: 'none',
-                                    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-                                    color: '#52525B',
-                                  },
-                                },
+                                  ?.count;
 
-                                ClearIcon: {
-                                  component: () => null,
-                                },
-                              }}
-                            />
-                          </div>,
-                        );
-                      }
-                      return (
-                        <td className="min-w-10 w-1/2" key={optionsHeaderIndex}>
-                          {optionCountSelect}
-                        </td>
-                      );
-                    },
-                  )}
+                              const optionCountSelect: JSX.Element[] = [];
+
+                              for (let index = 0; index < count; index++) {
+                                const selectOptionObj =
+                                  obj.selectedSurgeryOptions
+                                    ? obj.selectedSurgeryOptions[
+                                        `${optionsHeader}-${index}`
+                                      ]
+                                    : {
+                                        id: '',
+                                        value: '',
+                                        hospitalPricing: 0,
+                                        professionalPricing: 0,
+                                      };
+
+                                optionCountSelect.push(
+                                  <div key={index} className="">
+                                    <Select
+                                      backspaceRemoves={false}
+                                      escapeClearsValue={false}
+                                      key={optionsHeaderIndex}
+                                      options={[
+                                        { id: '', label: '' }, // Add a blank option
+                                        ...(surgeryConfiguration.options[
+                                          optionsHeader
+                                        ] &&
+                                        surgeryConfiguration.options[
+                                          optionsHeader
+                                        ].allowedValues
+                                          ? surgeryConfiguration.options[
+                                              optionsHeader
+                                            ].allowedValues.map((ele) => ({
+                                              id: ele.name,
+                                              label: ele.name,
+                                              hospitalPricing:
+                                                ele.hospitalPricing,
+                                              professionalPricing:
+                                                ele.professionalPricing,
+                                            }))
+                                          : []),
+                                      ]}
+                                      value={
+                                        selectOptionObj
+                                          ? [
+                                              {
+                                                id: selectOptionObj.value,
+                                                value: selectOptionObj.value,
+                                                hospitalPricing:
+                                                  selectOptionObj.hospitalPricing,
+                                                professionalPricing:
+                                                  selectOptionObj.professionalPricing,
+                                              },
+                                            ]
+                                          : []
+                                      }
+                                      onChange={({ value }) =>
+                                        handleObjChange(
+                                          'selectedSurgeryOptions',
+                                          {
+                                            ...obj.selectedSurgeryOptions,
+                                            [`${optionsHeader}-${index}`]: {
+                                              value: value[0].label,
+                                            },
+                                          },
+                                        )
+                                      }
+                                      disabled={
+                                        surgeryConfiguration.options[
+                                          optionsHeader
+                                        ]?.edit_admin_option === true &&
+                                        !adminPermission
+                                      }
+                                      size={SIZE.mini}
+                                      overrides={{
+                                        ControlContainer: {
+                                          style: {
+                                            backgroundColor:
+                                              'rgba(250, 250, 250, 1)',
+                                            border: 'none',
+                                            boxShadow:
+                                              '0 2px 4px rgba(0, 0, 0, 0.1)',
+                                            color: '#52525B',
+                                          },
+                                        },
+
+                                        ClearIcon: {
+                                          component: () => null,
+                                        },
+                                      }}
+                                    />
+                                  </div>,
+                                );
+                              }
+                              return (
+                                <td
+                                  className="min-w-10 w-1/2"
+                                  key={optionsHeaderIndex}
+                                >
+                                  {optionCountSelect}
+                                </td>
+                              );
+                            })}
+                        </tr>
+                      </React.Fragment>
+                    ))}
                 </tr>
               </tbody>
             </table>
           </td>
-          <td className="p-0" rowSpan={2}>
-            <tr>
-              {customConditionalHeaders && customConditionalHeaders.length
-                ? customConditionalHeaders.map(
-                    (conditionalHeader, conditionalHeaderIndex) => {
-                      const currentConditionalOption =
-                        surgeryConfiguration.conditionalOptions[
-                          conditionalHeader
-                        ];
-                      const count: number = currentConditionalOption?.count;
-
-                      const isDependant: boolean =
-                        currentConditionalOption?.dependsUpon;
-
-                      const conditionalCountSelect: JSX.Element[] = [];
-
-                      for (let index = 0; index < count; index++) {
-                        const selectOptionObj = obj.selectedConditionalOptions
-                          ? obj.selectedConditionalOptions[
-                              `${conditionalHeader}-${index}`
-                            ]
-                          : {
-                              id: '',
-                              value: '',
-                            };
-                        let options = currentConditionalOption.values;
-                        if (isDependant) {
-                          // creating same index address for fetching corresponding parent
-                          const parentAddress: string = `${
-                            customConditionalHeaders[0] + '-' + index
-                          }`;
-
-                          // null check to verify selected conditional options
-                          const selectedConditions =
-                            obj.selectedConditionalOptions ?? null;
-
-                          // key value of dependency fetched.
-                          const correspondingParent =
-                            selectedConditions &&
-                            selectedConditions[parentAddress]
-                              ? selectedConditions[parentAddress].value
-                              : '';
-
-                          // checking if dependencies exists for the parent
-                          const searchDependency =
-                            currentConditionalOption.dependencies.find(
-                              (ele) => ele.key == correspondingParent,
-                            );
-
-                          // creating options for select
-                          options = searchDependency
-                            ? searchDependency.values
-                            : currentConditionalOption.values;
-                        }
-
-                        conditionalCountSelect.push(
-                          <div key={index} className="mb-2">
-                            <Select
-                              backspaceRemoves={false}
-                              escapeClearsValue={false}
-                              key={conditionalHeaderIndex}
-                              options={[
-                                { id: '', label: '' }, // Add a blank option
-                                ...options.map((ele) => ({
-                                  id: ele,
-                                  label: ele,
-                                })),
-                              ]}
-                              value={
-                                selectOptionObj
-                                  ? [
-                                      {
-                                        id: selectOptionObj.value,
-                                        value: selectOptionObj.value,
-                                      },
-                                    ]
-                                  : []
-                              }
-                              onChange={({ value }) =>
-                                handleObjChange('selectedConditionalOptions', {
-                                  ...obj.selectedConditionalOptions,
-                                  [`${conditionalHeader}-${index}`]: {
-                                    value: value[0].label,
-                                  },
-                                })
-                              }
-                              disabled={
-                                surgeryConfiguration?.conditionalOptions[
-                                  conditionalHeader
-                                ]?.editAdminOption === true && !adminPermission
-                              }
-                              size={SIZE.mini}
-                              overrides={{
-                                ControlContainer: {
-                                  style: {
-                                    backgroundColor: 'rgba(250, 250, 250, 1)',
-                                    border: 'none',
-                                    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-                                    color: '#52525B',
-                                  },
-                                },
-
-                                ClearIcon: {
-                                  component: () => null,
-                                },
-                              }}
-                            />
-                          </div>,
-                        );
-                      }
-                      return (
-                        <td className="min-w-10" key={conditionalHeaderIndex}>
-                          {conditionalCountSelect}
-                        </td>
-                      );
-                    },
-                  )
-                : ''}
-            </tr>
-          </td>
-          <td rowSpan={2}>
-            <table className="w-full h-24">
+          <td rowSpan={2} className="p-0 align-top">
+            <table>
               <tbody>
                 <tr>
-                  {customCheckListHeaders.map(
-                    (checkListHeader, checkListHeaderIndex) => {
-                      const selectedChecklistOption =
-                        obj.selectedCheckListOptions
-                          ? obj.selectedCheckListOptions[checkListHeader]
-                          : '';
-
-                      return (
-                        <td
-                          className={`w-1/4 min-w-10 ${
-                            selectedChecklistOption
-                              ? 'bg-customGreen'
-                              : 'bg-customPink'
-                          }`}
-                          key={checkListHeaderIndex}
+                  {customConditionalHeaders &&
+                    customConditionalHeaders.length &&
+                    customConditionalHeaders.map(
+                      (
+                        customConditionalHeader,
+                        customConditionalHeaderIndex,
+                      ) => (
+                        <th
+                          className="bg-[#1B7F7D]"
+                          key={customConditionalHeaderIndex}
                         >
-                          <TextInput
-                            size={SIZE.mini}
-                            value={
-                              selectedChecklistOption
-                                ? selectedChecklistOption.value
-                                : ''
-                            }
-                            onChange={(value) =>
-                              handleObjChange('selectedCheckListOptions', {
-                                ...obj.selectedCheckListOptions,
-                                [checkListHeader]: { value },
-                              })
-                            }
-                          />
-                        </td>
-                      );
-                    },
-                  )}
+                          {customConditionalHeader}
+                        </th>
+                      ),
+                    )}
                 </tr>
+                <tr>
+                  {customConditionalHeaders && customConditionalHeaders.length
+                    ? customConditionalHeaders.map(
+                        (conditionalHeader, conditionalHeaderIndex) => {
+                          const currentConditionalOption =
+                            surgeryConfiguration.conditionalOptions[
+                              conditionalHeader
+                            ];
+                          const count: number = currentConditionalOption?.count;
+
+                          const isDependant: boolean =
+                            currentConditionalOption?.dependsUpon;
+
+                          const conditionalCountSelect: JSX.Element[] = [];
+
+                          for (let index = 0; index < count; index++) {
+                            const selectOptionObj =
+                              obj.selectedConditionalOptions
+                                ? obj.selectedConditionalOptions[
+                                    `${conditionalHeader}-${index}`
+                                  ]
+                                : {
+                                    id: '',
+                                    value: '',
+                                  };
+                            let options = currentConditionalOption.values;
+                            if (isDependant) {
+                              // creating same index address for fetching corresponding parent
+                              const parentAddress: string = `${
+                                customConditionalHeaders[0] + '-' + index
+                              }`;
+
+                              // null check to verify selected conditional options
+                              const selectedConditions =
+                                obj.selectedConditionalOptions ?? null;
+
+                              // key value of dependency fetched.
+                              const correspondingParent =
+                                selectedConditions &&
+                                selectedConditions[parentAddress]
+                                  ? selectedConditions[parentAddress].value
+                                  : '';
+
+                              // checking if dependencies exists for the parent
+                              const searchDependency =
+                                currentConditionalOption.dependencies.find(
+                                  (ele) => ele.key == correspondingParent,
+                                );
+
+                              // creating options for select
+                              options = searchDependency
+                                ? searchDependency.values
+                                : currentConditionalOption.values;
+                            }
+
+                            conditionalCountSelect.push(
+                              <div key={index}>
+                                <Select
+                                  backspaceRemoves={false}
+                                  escapeClearsValue={false}
+                                  key={conditionalHeaderIndex}
+                                  options={[
+                                    { id: '', label: '' }, // Add a blank option
+                                    ...options.map((ele) => ({
+                                      id: ele,
+                                      label: ele,
+                                    })),
+                                  ]}
+                                  value={
+                                    selectOptionObj
+                                      ? [
+                                          {
+                                            id: selectOptionObj.value,
+                                            value: selectOptionObj.value,
+                                          },
+                                        ]
+                                      : []
+                                  }
+                                  onChange={({ value }) =>
+                                    handleObjChange(
+                                      'selectedConditionalOptions',
+                                      {
+                                        ...obj.selectedConditionalOptions,
+                                        [`${conditionalHeader}-${index}`]: {
+                                          value: value[0].label,
+                                        },
+                                      },
+                                    )
+                                  }
+                                  disabled={
+                                    surgeryConfiguration?.conditionalOptions[
+                                      conditionalHeader
+                                    ]?.editAdminOption === true &&
+                                    !adminPermission
+                                  }
+                                  size={SIZE.mini}
+                                  overrides={{
+                                    ControlContainer: {
+                                      style: {
+                                        backgroundColor:
+                                          'rgba(250, 250, 250, 1)',
+                                        border: 'none',
+                                        boxShadow:
+                                          '0 2px 4px rgba(0, 0, 0, 0.1)',
+                                        color: '#52525B',
+                                      },
+                                    },
+
+                                    ClearIcon: {
+                                      component: () => null,
+                                    },
+                                  }}
+                                />
+                              </div>,
+                            );
+                          }
+                          return (
+                            <td
+                              className="min-w-10"
+                              key={conditionalHeaderIndex}
+                            >
+                              {conditionalCountSelect}
+                            </td>
+                          );
+                        },
+                      )
+                    : ''}
+                </tr>
+              </tbody>
+            </table>
+          </td>
+          <td rowSpan={2} className="p-0 align-top">
+            <table className="w-full">
+              <tbody>
+                {customCheckListHeaders &&
+                  customCheckListHeaders.length > 0 &&
+                  Array.from({
+                    length: Math.ceil(customCheckListHeaders.length / 3),
+                  }).map((_, rowIndex) => (
+                    <React.Fragment key={rowIndex}>
+                      <tr>
+                        {customCheckListHeaders
+                          .slice(rowIndex * 3, rowIndex * 3 + 3)
+                          .map((checkListHeader, checkListHeaderIndex) => (
+                            <th
+                              className="bg-[#1B7F7D]"
+                              key={checkListHeaderIndex}
+                            >
+                              {checkListHeader}
+                            </th>
+                          ))}
+                      </tr>
+                      <tr>
+                        {customCheckListHeaders
+                          .slice(rowIndex * 3, rowIndex * 3 + 3)
+                          .map((checkListHeader, checkListHeaderIndex) => {
+                            const selectedChecklistOption =
+                              obj.selectedCheckListOptions
+                                ? obj.selectedCheckListOptions[checkListHeader]
+                                : '';
+
+                            return (
+                              <td
+                                className={`w-1/4 min-w-10 ${
+                                  selectedChecklistOption
+                                    ? 'bg-customGreen'
+                                    : 'bg-customPink'
+                                }`}
+                                key={checkListHeaderIndex}
+                              >
+                                <TextInput
+                                  size={SIZE.mini}
+                                  value={
+                                    selectedChecklistOption
+                                      ? selectedChecklistOption.value
+                                      : ''
+                                  }
+                                  onChange={(value) =>
+                                    handleObjChange(
+                                      'selectedCheckListOptions',
+                                      {
+                                        ...obj.selectedCheckListOptions,
+                                        [checkListHeader]: { value },
+                                      },
+                                    )
+                                  }
+                                />
+                              </td>
+                            );
+                          })}
+                      </tr>
+                    </React.Fragment>
+                  ))}
               </tbody>
             </table>
           </td>
