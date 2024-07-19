@@ -65,9 +65,9 @@ const waitlistSlice = createSlice({
     builder.addCase(fetchWaitlistInfo.rejected, (state, action) => {
       state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
-        state.errorMessage = action.payload ?? 'Failed to fetch user info';
+        state.errorMessage = action.payload ?? 'Failed to fetch waitlist info';
       } else {
-        state.errorMessage = 'Failed to fetch surgery type info';
+        state.errorMessage = 'Failed to fetch waitlist info';
       }
     });
 
@@ -82,7 +82,7 @@ const waitlistSlice = createSlice({
         ...state.entities,
         ...{ [action.payload.id]: action.payload },
       };
-      state.successMessage = 'Record added successfully';
+      state.successMessage = 'Waitlist added successfully';
     });
 
     builder.addCase(addRecordAsync.rejected, (state, action) => {
@@ -108,7 +108,7 @@ const waitlistSlice = createSlice({
         ...remainingRecord
       } = state.entities;
       state.entities = remainingRecord;
-      state.successMessage = 'Record deleted successfully';
+      state.successMessage = 'Waitlist deleted successfully';
     });
 
     builder.addCase(deleteRecordAsync.rejected, (state, action) => {

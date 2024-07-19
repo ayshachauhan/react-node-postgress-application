@@ -35,6 +35,7 @@ import {
 } from '@root/store/reducers/surgery';
 import {
   abbreviatePracticeHome,
+  createQueryString,
   formatDate,
   getColorForSurgeryStatus,
   getSelectedMonths,
@@ -362,7 +363,6 @@ const FiltersSection: React.FC<{
     const selectedLabel = value.length > 0 ? value[0].label.toLowerCase() : '';
 
     if (selectedLabel === 'past view' || selectedLabel === 'upcoming view') {
-      dispatch(setSelectedMonth([]));
       setIsIolViewActive(false);
       setIsWailistViewActive(false);
     }
@@ -459,16 +459,6 @@ const FiltersSection: React.FC<{
     setSelectedAction('view');
   };
 
-  const createQueryString = (params): string => {
-    const queryString = new URLSearchParams();
-    if (params) {
-      Object.keys(params).forEach((key) => {
-        queryString.append(key, params[key]);
-      });
-    }
-    return queryString.toString();
-  };
-
   const handlePatientMedia = (patientMrn: number): void => {
     const queryParams = {
       patientMrn: patientMrn,
@@ -546,11 +536,6 @@ const FiltersSection: React.FC<{
       );
     }
   };
-  const isDisabled =
-    selectedValue &&
-    (selectedValue.toLowerCase() === 'past' ||
-      selectedValue.toLowerCase() === 'upcoming');
-
   const dispatchFetchFilteredCalendars = (
     practiceId: string,
     userId: string,
@@ -702,7 +687,6 @@ const FiltersSection: React.FC<{
                   options={updatedMonthOptions}
                   value={selectedMonth}
                   onChange={handleChangeMonth}
-                  disabled={isDisabled || false}
                   multi
                   overrides={{
                     ControlContainer: {
