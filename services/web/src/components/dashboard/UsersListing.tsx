@@ -8,6 +8,16 @@ const UsersListing: React.FC = () => {
   const userData = Object.values(entities).filter(
     (user) => user.type == UserType.DOCTOR,
   );
+  const { surgeryList } = useAppSelector((state) => ({
+    surgeryList: Object.values(state.surgeries.entities),
+  }));
+
+  const doctorsWithSurgeries = userData.map((doctor) => {
+    const doctorSurgeries = surgeryList.filter(
+      (surgery) => surgery.doctor.id === doctor.id,
+    );
+    return { ...doctor, surgeries: doctorSurgeries };
+  });
 
   return (
     <div>
@@ -23,11 +33,11 @@ const UsersListing: React.FC = () => {
             <th className="text-center">Month</th>
           </thead>
           <tbody>
-            {userData.map((user, index) => (
+            {doctorsWithSurgeries.map((user, index) => (
               <React.Fragment key={user.id}>
                 <tr
                   className={`${
-                    index !== userData.length - 1
+                    index !== doctorsWithSurgeries.length - 1
                       ? 'border-b border-gray-300'
                       : ''
                   }`}

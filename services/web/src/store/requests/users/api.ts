@@ -111,12 +111,7 @@ export const addUser = async (
 export const updateUser = async (
   payloadData: Omit<
     IUser,
-    | 'password'
-    | 'practices'
-    | 'dateCreated'
-    | 'dateUpdated'
-    | 'permissions'
-    | 'surgeries'
+    'password' | 'practices' | 'dateCreated' | 'dateUpdated' | 'permissions'
   > & { file: File | null },
   { rejectWithValue },
 ): Promise<SanitizedUser> => {
