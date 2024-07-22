@@ -10,7 +10,13 @@ import {
   CreateCalendarPayload,
   UpdateCalendarsPayload,
 } from '@root/store/requests/calendar';
-import { getPracticeId, getUserId } from '@root/utils';
+import {
+  getBackGroundColorCss,
+  getPracticeId,
+  getUserId,
+  isCalendarDates,
+  isSlotsAvailable,
+} from '@root/utils';
 import { DatePicker } from 'baseui/datepicker';
 import { Select } from 'baseui/select';
 import moment from 'moment';
@@ -91,6 +97,11 @@ const UpsertCalendar: React.FC<{
         dispatch(createCalendarEntry(payload));
         onClose();
       }
+  };
+
+  const [currentMonth, setCurrentMonth] = useState(new Date().getMonth() + 1);
+  const handleMonthChange = ({ date }) => {
+    setCurrentMonth(date.getMonth() + 1);
   };
 
   return (
@@ -178,11 +189,44 @@ const UpsertCalendar: React.FC<{
                       HTMLInputElement | HTMLTextAreaElement
                     >);
                   }}
+                  onMonthChange={handleMonthChange}
+                  onOpen={() => {
+                    handleMonthChange({ date: calendar.date });
+                  }}
                   placeholder="Surgery Date"
                   required
                   excludeDates={calendars.map(
                     (calendar) => new Date(calendar.date),
                   )}
+                  overrides={{
+                    Day: {
+                      style: ({ $date, $selected }) => {
+                        return {
+                          height: '53px',
+                          width: '53px',
+                          borderRadius: '50%',
+                          boxSizing: 'border-box',
+                          paddingTop: '6px',
+                          paddingBottom: '6px',
+                          margin: '2px',
+                          ...getBackGroundColorCss(
+                            $date,
+                            currentMonth,
+                            calendars,
+                          ),
+                          ':after': '',
+                          ...($selected
+                            ? {
+                                color: '#ffffff',
+                                ...(isCalendarDates($date, calendars)
+                                  ? isSlotsAvailable($date, calendars)
+                                  : { backgroundColor: '#000000' }),
+                              }
+                            : {}),
+                        };
+                      },
+                    },
+                  }}
                 />
               )}
             </div>

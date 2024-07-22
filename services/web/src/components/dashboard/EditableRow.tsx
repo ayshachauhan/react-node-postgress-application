@@ -9,9 +9,12 @@ import { fetchFilteredCalendars } from '@root/store/reducers/calendar';
 import { fetchListings as fetchReviews } from '@root/store/reducers/review';
 import { fetchListings, updateRecordAsync } from '@root/store/reducers/surgery';
 import {
+  getBackGroundColorCss,
   getPracticeId,
   getSelectedMonths,
   getUserId,
+  isCalendarDates,
+  isSlotsAvailable,
   toFullName,
 } from '@root/utils';
 import { DatePicker } from 'baseui/datepicker';
@@ -33,6 +36,9 @@ function EditableRow({
   }));
 
   const dispatch = useAppDispatch();
+  const handleMonthChange = ({ date }) => {
+    setCurrentMonth(date.getMonth() + 1);
+  };
   const {
     selectedMonth,
     searchMRNName,
@@ -68,11 +74,12 @@ function EditableRow({
     USER_PERMISSIONS.ADMIN_PERMISSION,
   ]);
   const [obj, setObj] = useState<Partial<UpdateSurgeryPayload>>({});
+  const [currentMonth, setCurrentMonth] = useState(new Date().getMonth() + 1);
   const [insuranceTypeId, setInsuranceTypeId] = useState<string>('');
   const [referrerId, setReferrerId] = useState<string>('');
   const [waitlistId, setWaitlistId] = useState<string>('');
 
-  const doctorId = getUserId();
+  const doctorId: string | null = getUserId();
 
   useEffect(() => {
     if (surgeryInfo.id && surgeryInfo) {
@@ -227,6 +234,11 @@ function EditableRow({
     }
     handleUpdateClick(rowId); // Close the specific row after updating
   };
+  const { calendars } = useAppSelector((state) => ({
+    calendars: Object.values(state.calendars?.entities).filter(
+      (calendar) => calendar?.user?.id === doctorId,
+    ),
+  }));
 
   if (surgeryInfo) {
     const { surgeryConfiguration } = surgeryInfo;
@@ -246,11 +258,38 @@ function EditableRow({
             <DatePicker
               value={obj.date}
               onChange={({ date }) => handleObjChange('date', date)}
+              onMonthChange={handleMonthChange}
               size={SIZE.mini}
+              onOpen={() => {
+                handleMonthChange({ date: obj.date });
+              }}
               overrides={{
                 Root: {
                   style: {
                     heightOverride: '40px',
+                  },
+                },
+                Day: {
+                  style: ({ $date, $selected }) => {
+                    return {
+                      height: '53px',
+                      width: '53px',
+                      borderRadius: '50%',
+                      boxSizing: 'border-box',
+                      paddingTop: '6px',
+                      paddingBottom: '6px',
+                      margin: '2px',
+                      ...getBackGroundColorCss($date, currentMonth, calendars),
+                      ':after': '',
+                      ...($selected
+                        ? {
+                            color: '#ffffff',
+                            ...(isCalendarDates($date, calendars)
+                              ? isSlotsAvailable($date, calendars)
+                              : { backgroundColor: '#000000' }),
+                          }
+                        : {}),
+                    };
                   },
                 },
               }}
