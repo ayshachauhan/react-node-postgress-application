@@ -1327,7 +1327,7 @@ const FiltersSection: React.FC<{
                                                         !row.prof &&
                                                         'text-gray-500'
                                                       } ${
-                                                        Number(row?.prof)
+                                                        row?.prof
                                                           ? 'bg-customGreen'
                                                           : 'bg-customPink'
                                                       } pl-1`}
@@ -1345,7 +1345,7 @@ const FiltersSection: React.FC<{
                                                         !row.hospital &&
                                                         'text-gray-500'
                                                       } ${
-                                                        Number(row?.hospital)
+                                                        row?.hospital
                                                           ? 'bg-customGreen'
                                                           : 'bg-customPink'
                                                       } pl-1`}

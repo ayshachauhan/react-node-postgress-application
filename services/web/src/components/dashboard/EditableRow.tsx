@@ -785,7 +785,7 @@ function EditableRow({
             <td
               rowSpan={2}
               className={`min-w-10 ${
-                Number(obj?.totalProfessionalPricing)
+                obj?.totalProfessionalPricing
                   ? 'bg-customGreen'
                   : 'bg-customPink'
               }`}
@@ -806,9 +806,7 @@ function EditableRow({
             <td
               rowSpan={2}
               className={`min-w-10 ${
-                Number(obj?.totalHospitalPricing)
-                  ? 'bg-customGreen'
-                  : 'bg-customPink'
+                obj?.totalHospitalPricing ? 'bg-customGreen' : 'bg-customPink'
               }`}
             >
               <TextInput
