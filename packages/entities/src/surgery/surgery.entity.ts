@@ -88,8 +88,8 @@ export class SurgeryEntity extends BaseEntity implements ISurgery {
   count: number;
 
   @Column()
-  inititalProfPrice: string;
+  initialProfPrice: string;
 
   @Column()
-  inititalHospitalPrice: string;
+  initialHospitalPrice: string;
 }

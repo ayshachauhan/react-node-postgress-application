@@ -26,8 +26,8 @@ export interface ISurgery extends IBaseEntity {
   practice: IPractice; //TO DO: make practice id not null in future
   identifier?: string;
   count?: number;
-  inititalProfPrice?: string;
-  inititalHospitalPrice?: string;
+  initialProfPrice?: string;
+  initialHospitalPrice?: string;
 }
 
 export interface CreateSurgeryPayload {
@@ -54,8 +54,8 @@ export interface CreateSurgeryPayload {
   waitlistId?: string;
   identifier?: string;
   count?: number;
-  inititalProfPrice?: string;
-  inititalHospitalPrice?: string;
+  initialProfPrice?: string;
+  initialHospitalPrice?: string;
 }
 
 export interface SelectedSurgeryOption {
@@ -99,8 +99,8 @@ export interface UpdateSurgeryPayload {
   referrerId?: string;
   practiceHomeId: string;
   selectedConditionalOptions?: SelectedConditionalOption;
-  inititalProfPrice?: string;
-  inititalHospitalPrice?: string;
+  initialProfPrice?: string;
+  initialHospitalPrice?: string;
 }
 
 export interface MonthOption {
