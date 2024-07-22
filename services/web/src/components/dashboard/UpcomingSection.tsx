@@ -11,7 +11,12 @@ import { useAppDispatch, useAppSelector } from '@root/store';
 import { fetchFilteredCalendars } from '@root/store/reducers/calendar';
 import { fetchListings } from '@root/store/reducers/surgeryConfigurations';
 import { DEFAULT_SURGERYNAME_COLOR } from '@root/utils/constants';
-import { getPracticeId, getSelectedMonths, getUserId } from '@root/utils/index';
+import {
+  customBackgroundColor,
+  getPracticeId,
+  getSelectedMonths,
+  getUserId,
+} from '@root/utils/index';
 import { Modal, ModalBody, ModalHeader, ROLE } from 'baseui/modal';
 import moment from 'moment';
 import React, { useEffect, useRef, useState } from 'react';
@@ -446,7 +451,12 @@ const UpcomingSection: React.FC = () => {
                         >
                           <td
                             className="text-white"
-                            style={{ background: data.surgeryNameColor }}
+                            style={{
+                              background: customBackgroundColor(
+                                data.date,
+                                calendars,
+                              ),
+                            }}
                           >
                             {data.surgeryName}
                           </td>

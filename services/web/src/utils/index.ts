@@ -335,3 +335,34 @@ export const getBackGroundColorCss = (
       : { backgroundColor: 'transparent' }
     : {};
 };
+
+export const customBackgroundColor = (
+  date: Date,
+  calendars: ICalendar[],
+): string => {
+  const formattedDate = moment(date).format('YYYY-MM-DD'); // Get date part only
+
+  const matchingCalendars = (calendars as ICalendar[]).filter(
+    (calendar: ICalendar) =>
+      moment(calendar.date).format('YYYY-MM-DD') === formattedDate,
+  ) as ICalendar[];
+  console.log(matchingCalendars);
+  const sortedCalendars = matchingCalendars.sort((a, b) => {
+    if (a.maxSlots !== b.maxSlots) {
+      return b.maxSlots - a.maxSlots; // Descending order by maxSlots
+    } else if (a.bookedSlots !== b.bookedSlots) {
+      return b.bookedSlots - a.bookedSlots; // Descending order by bookedSlots
+    } else {
+      return a.surgeryType.name.localeCompare(b.surgeryType.name); // Alphabetical order by surgeryType.name
+    }
+  });
+
+  const calendar = sortedCalendars[0];
+
+  const surgeryTypeColor =
+    calendar.surgeryType?.color ?? DEFAULT_SURGERYLOCATION_COLOR;
+
+  return calendar.maxSlots > calendar.bookedSlots
+    ? surgeryTypeColor
+    : 'transparent';
+};
