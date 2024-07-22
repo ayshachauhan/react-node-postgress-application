@@ -837,9 +837,7 @@ const FiltersSection: React.FC<{
                                         <th className="">MRN</th>
                                         <th className="w-[90px]">Surgery</th>
                                         <th className="w-[60px]">Body Part</th>
-                                        {!iolListShowFlag && (
-                                          <th className="w-6 text-center">#</th>
-                                        )}
+                                        <th className="w-6 text-center">#</th>
                                         <th className="text-center">Options</th>
                                         <th className="text-center">
                                           Implants
@@ -1022,14 +1020,13 @@ const FiltersSection: React.FC<{
                                                 >
                                                   {row.bodyPart}
                                                 </td>
-                                                {!iolListShowFlag && (
-                                                  <td
-                                                    rowSpan={2}
-                                                    className="text-center"
-                                                  >
-                                                    {row.surgeryOrder}
-                                                  </td>
-                                                )}
+                                                <td
+                                                  rowSpan={2}
+                                                  className="text-center"
+                                                >
+                                                  {row.surgeryOrder}
+                                                </td>
+
                                                 <td
                                                   rowSpan={2}
                                                   className="p-0 align-top"

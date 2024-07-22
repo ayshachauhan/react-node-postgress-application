@@ -148,6 +148,9 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
 
     setSurgeryDropdownOptions([...surgeryDropdownOptions]);
   };
+  useEffect(() => {
+    setCataractSelected(surgeryTypeSelected?.toLowerCase() === 'cataract');
+  }, [surgeryTypeSelected]);
 
   useEffect(() => {
     if (autoFillFromEval || autoFillFromSurgery) {
@@ -909,10 +912,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
             <div className="px-6 border border-gray-100 pb-6 rounded-xl flex-1 w-4/12">
               <div className="flex mt-2 text-lg pb-2 font-bold border-b border-gray-100 text-black w-full">
                 Add Surgery
-                {(addNewCataractSurgery ||
-                  isCataractSelected ||
-                  (surgeryTypeSelected &&
-                    surgeryTypeSelected.toLowerCase() === 'cataract')) && (
+                {(addNewCataractSurgery || isCataractSelected) && (
                   <div className="pl-3">
                     <Button
                       type="button"
