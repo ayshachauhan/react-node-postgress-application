@@ -210,15 +210,13 @@ export default function SurgeryTypePage() {
         <table className="">
           <tbody>
             <tr>
-              <th className="">S. No.</th>
               <th className="">Surgery Location</th>
               <th className="">Color</th>
               <th className="">Action</th>
             </tr>
-            {surgeryTypes.map((data, index) => (
+            {surgeryTypes.map((data) => (
               <React.Fragment key={data.id}>
                 <tr className="border-t border-gray-300">
-                  <td className="">{index + 1}</td>
                   <td className="">{data.name}</td>
                   <td className="">
                     <input
@@ -238,18 +236,18 @@ export default function SurgeryTypePage() {
                   <td className="">
                     <div className="flex gap-1">
                       <div
+                        onClick={() => data.id && handleOpenEditModal(data.id)}
+                        className="cursor-pointer"
+                      >
+                        <EditIcon></EditIcon>
+                      </div>
+                      <div
                         onClick={() =>
                           data.id && handleOpenDeleteModal(data.id)
                         }
                         className="cursor-pointer"
                       >
                         <DeleteIcon></DeleteIcon>
-                      </div>
-                      <div
-                        onClick={() => data.id && handleOpenEditModal(data.id)}
-                        className="cursor-pointer"
-                      >
-                        <EditIcon></EditIcon>
                       </div>
                     </div>
                   </td>

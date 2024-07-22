@@ -195,14 +195,12 @@ export default function InsuranceTypePage() {
         <table className="">
           <tbody className="">
             <tr>
-              <th className="">S. No.</th>
               <th className="">Insurance Type</th>
               <th className="">Action</th>
             </tr>
-            {insuranceTypes.map((data, index) => (
+            {insuranceTypes.map((data) => (
               <React.Fragment key={data.id}>
                 <tr className="border-t border-gray-300">
-                  <td className="">{index + 1}</td>
                   <td className="">{data.name}</td>
                   <td className="">
                     <div

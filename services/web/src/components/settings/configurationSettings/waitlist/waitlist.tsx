@@ -193,14 +193,12 @@ export default function WaitlistPage() {
         <table className="">
           <tbody className="">
             <tr>
-              <th className="">S. No.</th>
               <th className="">Waitlist</th>
               <th className="">Action</th>
             </tr>
-            {waitlist.map((data, index) => (
+            {waitlist.map((data) => (
               <React.Fragment key={data.id}>
                 <tr className="border-t border-gray-300">
-                  <td className="">{index + 1}</td>
                   <td className="">{data.name}</td>
                   <td className="">
                     <div
