@@ -10,6 +10,7 @@ export class AddInitialProfessionalPrice1721367822545
         name: 'initialProfPrice',
         type: 'varchar',
         isNullable: true,
+        default: '0',
       }),
     );
   }

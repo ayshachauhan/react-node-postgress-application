@@ -10,6 +10,7 @@ export class AddInitialProfessionalPrice1721367831354
         name: 'initialHospitalPrice',
         type: 'varchar',
         isNullable: true,
+        default: '0',
       }),
     );
   }
