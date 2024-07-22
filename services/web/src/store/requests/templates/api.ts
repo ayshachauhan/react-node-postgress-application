@@ -32,7 +32,7 @@ export const getTemplates = async (
 
     const modifiedDataObject = {};
     data.forEach((element: ITemplate) => {
-      const surgeryConfiguration: string = element.surgeryConfiguration.name;
+      const surgeryConfiguration: string = element.surgeryConfiguration?.name;
       const messageType: string = element.messageType;
       if (modifiedDataObject[surgeryConfiguration]) {
         if (modifiedDataObject[surgeryConfiguration][messageType]) {
