@@ -10,8 +10,13 @@ import {
   CreateCalendarPayload,
   UpdateCalendarsPayload,
 } from '@root/store/requests/calendar';
-import { getPracticeId, getUserId } from '@root/utils';
-import { DEFAULT_SURGERYLOCATION_COLOR } from '@root/utils/constants';
+import {
+  getBackGroundColorCss,
+  getPracticeId,
+  getUserId,
+  isCalendarDates,
+  isSlotsAvailable,
+} from '@root/utils';
 import { DatePicker } from 'baseui/datepicker';
 import { Select } from 'baseui/select';
 import moment from 'moment';
@@ -94,73 +99,9 @@ const UpsertCalendar: React.FC<{
       }
   };
 
-  const isCalendarDates = (date: Date): boolean => {
-    const formattedDate = moment(date).format('YYYY-MM-DD'); // Get date part only
-
-    const dates = (calendars as ICalendar[])
-      .filter((calendar: ICalendar) =>
-        moment(calendar?.date).format('YYYY-MM-DD'),
-      )
-      .map((calendar) => moment(calendar?.date).format('YYYY-MM-DD'));
-
-    return Boolean(dates.find((date) => date === formattedDate));
-  };
-
-  const isSlotsAvailable = (date: Date): Record<string, unknown> => {
-    const formattedDate = moment(date).format('YYYY-MM-DD'); // Get date part only
-
-    const matchingCalendars = (calendars as ICalendar[]).filter(
-      (calendar: ICalendar) =>
-        moment(calendar.date).format('YYYY-MM-DD') === formattedDate,
-    ) as ICalendar[];
-
-    const sortedCalendars = matchingCalendars.sort((a, b) => {
-      if (a.maxSlots !== b.maxSlots) {
-        return b.maxSlots - a.maxSlots; // Descending order by maxSlots
-      } else if (a.bookedSlots !== b.bookedSlots) {
-        return b.bookedSlots - a.bookedSlots; // Descending order by bookedSlots
-      } else {
-        return a.surgeryType.name.localeCompare(b.surgeryType.name); // Alphabetical order by surgeryType.name
-      }
-    });
-
-    const calendar = sortedCalendars[0];
-
-    const surgeryTypeColor =
-      calendar.surgeryType?.color ?? DEFAULT_SURGERYLOCATION_COLOR;
-
-    return calendar.maxSlots > calendar.bookedSlots
-      ? {
-          backgroundColor: surgeryTypeColor,
-          borderTopColor: surgeryTypeColor,
-          borderBottomColor: surgeryTypeColor,
-          borderRightColor: surgeryTypeColor,
-          borderLeftColor: surgeryTypeColor,
-        }
-      : {
-          backgroundColor: 'transparent',
-          border: `${surgeryTypeColor} solid 3px`,
-          borderTopColor: surgeryTypeColor,
-          borderBottomColor: surgeryTypeColor,
-          borderRightColor: surgeryTypeColor,
-          borderLeftColor: surgeryTypeColor,
-        };
-  };
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth() + 1);
   const handleMonthChange = ({ date }) => {
     setCurrentMonth(date.getMonth() + 1);
-  };
-
-  const getBackGroundColorCss = (date: Date): Record<string, unknown> => {
-    // checking selected month here because sometimes bg colors are reflecting in next month
-
-    // console.log(date, date.getMonth() + 1, 'datebg', currentMonth);
-
-    return date.getMonth() + 1 == currentMonth
-      ? isCalendarDates(date)
-        ? isSlotsAvailable(date)
-        : { backgroundColor: 'transparent' }
-      : {};
   };
 
   return (
@@ -249,6 +190,9 @@ const UpsertCalendar: React.FC<{
                     >);
                   }}
                   onMonthChange={handleMonthChange}
+                  onOpen={() => {
+                    handleMonthChange({ date: calendar.date });
+                  }}
                   placeholder="Surgery Date"
                   required
                   excludeDates={calendars.map(
@@ -265,16 +209,18 @@ const UpsertCalendar: React.FC<{
                           paddingTop: '6px',
                           paddingBottom: '6px',
                           margin: '2px',
-                          ...getBackGroundColorCss($date),
+                          ...getBackGroundColorCss(
+                            $date,
+                            currentMonth,
+                            calendars,
+                          ),
                           ':after': '',
                           ...($selected
                             ? {
                                 color: '#ffffff',
-                                ...($date.getMonth() + 1 == currentMonth
-                                  ? isCalendarDates($date)
-                                    ? isSlotsAvailable($date)
-                                    : { backgroundColor: '#000000' }
-                                  : {}),
+                                ...(isCalendarDates($date, calendars)
+                                  ? isSlotsAvailable($date, calendars)
+                                  : { backgroundColor: '#000000' }),
                               }
                             : {}),
                         };

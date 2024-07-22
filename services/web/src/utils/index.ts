@@ -1,5 +1,7 @@
 import { SurgeryStatus } from '@packages/entities';
-import { MonthOption } from '@packages/entities/index.browser';
+import { ICalendar, MonthOption } from '@packages/entities/index.browser';
+import { DEFAULT_SURGERYLOCATION_COLOR } from '@root/utils/constants';
+import moment from 'moment';
 
 export function indexBy<K extends keyof T, T>(
   key: K,
@@ -257,4 +259,79 @@ export const createQueryString = (params): string => {
     });
   }
   return queryString.toString();
+};
+
+export const isCalendarDates = (
+  date: Date,
+  calendars: ICalendar[],
+): boolean => {
+  const formattedDate = moment(date).format('YYYY-MM-DD'); // Get date part only
+
+  const dates = (calendars as ICalendar[])
+    .filter((calendar: ICalendar) =>
+      moment(calendar?.date).format('YYYY-MM-DD'),
+    )
+    .map((calendar) => moment(calendar?.date).format('YYYY-MM-DD'));
+
+  return Boolean(dates.find((date) => date === formattedDate));
+};
+
+export const isSlotsAvailable = (
+  date: Date,
+  calendars: ICalendar[],
+): Record<string, unknown> => {
+  const formattedDate = moment(date).format('YYYY-MM-DD'); // Get date part only
+
+  const matchingCalendars = (calendars as ICalendar[]).filter(
+    (calendar: ICalendar) =>
+      moment(calendar.date).format('YYYY-MM-DD') === formattedDate,
+  ) as ICalendar[];
+
+  const sortedCalendars = matchingCalendars.sort((a, b) => {
+    if (a.maxSlots !== b.maxSlots) {
+      return b.maxSlots - a.maxSlots; // Descending order by maxSlots
+    } else if (a.bookedSlots !== b.bookedSlots) {
+      return b.bookedSlots - a.bookedSlots; // Descending order by bookedSlots
+    } else {
+      return a.surgeryType.name.localeCompare(b.surgeryType.name); // Alphabetical order by surgeryType.name
+    }
+  });
+
+  const calendar = sortedCalendars[0];
+
+  const surgeryTypeColor =
+    calendar.surgeryType?.color ?? DEFAULT_SURGERYLOCATION_COLOR;
+
+  return calendar.maxSlots > calendar.bookedSlots
+    ? {
+        backgroundColor: surgeryTypeColor,
+        borderTopColor: surgeryTypeColor,
+        borderBottomColor: surgeryTypeColor,
+        borderRightColor: surgeryTypeColor,
+        borderLeftColor: surgeryTypeColor,
+      }
+    : {
+        backgroundColor: 'transparent',
+        border: `${surgeryTypeColor} solid 3px`,
+        borderTopColor: surgeryTypeColor,
+        borderBottomColor: surgeryTypeColor,
+        borderRightColor: surgeryTypeColor,
+        borderLeftColor: surgeryTypeColor,
+      };
+};
+
+export const getBackGroundColorCss = (
+  date: Date,
+  currentMonth,
+  calendars: ICalendar[],
+): Record<string, unknown> => {
+  // checking selected month here because sometimes bg colors are reflecting in next month
+
+  // console.log(date, date.getMonth() + 1, 'datebg', currentMonth);
+
+  return date.getMonth() + 1 == currentMonth
+    ? isCalendarDates(date, calendars)
+      ? isSlotsAvailable(date, calendars)
+      : { backgroundColor: 'transparent' }
+    : {};
 };
