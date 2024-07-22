@@ -7,7 +7,7 @@ export class AddInitialProfessionalPrice1721367831354
     await queryRunner.addColumn(
       'surgeries',
       new TableColumn({
-        name: 'inititalHospitalPrice',
+        name: 'initialHospitalPrice',
         type: 'varchar',
         isNullable: true,
       }),

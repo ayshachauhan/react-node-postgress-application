@@ -337,9 +337,9 @@ export class SurgeryService {
         +createSurgeryDto.totalProfessionalPricing;
     });
 
-    createSurgeryDto.inititalProfPrice =
+    createSurgeryDto.initialProfPrice =
       createSurgeryDto.totalProfessionalPricing;
-    createSurgeryDto.inititalHospitalPrice =
+    createSurgeryDto.initialHospitalPrice =
       createSurgeryDto.totalHospitalPricing;
 
     const resultSurgery = await this.surgeryRepository.save({
