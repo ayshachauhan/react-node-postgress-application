@@ -98,6 +98,8 @@ function EditableRow({
         selectedCheckListOptions: surgeryInfo.selectedCheckListOptions,
         totalHospitalPricing: surgeryInfo.totalHospitalPricing,
         totalProfessionalPricing: surgeryInfo.totalProfessionalPricing,
+        initialProfPrice: surgeryInfo.initialProfPrice,
+        initialHospitalPrice: surgeryInfo.initialHospitalPrice,
         surgeryOrder: surgeryInfo.surgeryOrder,
         referrerId: surgeryInfo.patient.referrer
           ? toFullName(surgeryInfo.patient.referrer)
@@ -822,13 +824,14 @@ function EditableRow({
             <td
               rowSpan={2}
               className={`min-w-10 ${
-                Number(obj?.totalProfessionalPricing)
+                obj?.totalProfessionalPricing
                   ? 'bg-customGreen'
                   : 'bg-customPink'
               }`}
             >
               <TextInput
                 size={SIZE.mini}
+                placeholder={obj?.initialProfPrice}
                 name="prof"
                 value={obj.totalProfessionalPricing}
                 onChange={(value) =>
@@ -842,13 +845,12 @@ function EditableRow({
             <td
               rowSpan={2}
               className={`min-w-10 ${
-                Number(obj?.totalHospitalPricing)
-                  ? 'bg-customGreen'
-                  : 'bg-customPink'
+                obj?.totalHospitalPricing ? 'bg-customGreen' : 'bg-customPink'
               }`}
             >
               <TextInput
                 size={SIZE.mini}
+                placeholder={obj?.initialHospitalPrice}
                 name="hospital"
                 value={obj.totalHospitalPricing}
                 onChange={(value) =>

@@ -271,6 +271,8 @@ const FiltersSection: React.FC<{
       index: index + 1,
       hospital: ele.totalHospitalPricing,
       prof: ele.totalProfessionalPricing,
+      initialHospitalPrice: ele.initialHospitalPrice,
+      initialProfPrice: ele.initialProfPrice,
       count:
         ele?.surgeryConfiguration?.name.toLowerCase() === 'cataract'
           ? ele?.count
@@ -1319,12 +1321,16 @@ const FiltersSection: React.FC<{
                                                     <td
                                                       rowSpan={2}
                                                       className={`text-center ${
-                                                        Number(row?.prof)
+                                                        !row.prof &&
+                                                        'text-gray-500'
+                                                      } ${
+                                                        row?.prof
                                                           ? 'bg-customGreen'
                                                           : 'bg-customPink'
                                                       } pl-1`}
                                                     >
-                                                      {row.prof}
+                                                      {row.prof ||
+                                                        row.initialProfPrice}
                                                     </td>
                                                   )}
 
@@ -1333,12 +1339,16 @@ const FiltersSection: React.FC<{
                                                     <td
                                                       rowSpan={2}
                                                       className={`text-center ${
-                                                        Number(row?.hospital)
+                                                        !row.hospital &&
+                                                        'text-gray-500'
+                                                      } ${
+                                                        row?.hospital
                                                           ? 'bg-customGreen'
                                                           : 'bg-customPink'
                                                       } pl-1`}
                                                     >
-                                                      {row.hospital}
+                                                      {row.hospital ||
+                                                        row.initialHospitalPrice}
                                                     </td>
                                                   )}
                                                 {!iolListShowFlag && (
