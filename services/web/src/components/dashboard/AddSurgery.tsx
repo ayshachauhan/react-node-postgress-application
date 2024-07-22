@@ -1028,7 +1028,9 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
                               ? {
                                   color: '#ffffff',
                                   ...($date.getMonth() + 1 == currentMonth
-                                    ? { backgroundColor: '#000000' }
+                                    ? isCalendarDates($date)
+                                      ? isSlotsAvailable($date)
+                                      : { backgroundColor: '#000000' }
                                     : {}),
                                 }
                               : {}),
@@ -1149,7 +1151,9 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
                                 ? {
                                     color: '#ffffff',
                                     ...($date.getMonth() + 1 == currentMonth
-                                      ? { backgroundColor: '#000000' }
+                                      ? isCalendarDates($date)
+                                        ? isSlotsAvailable($date)
+                                        : { backgroundColor: '#000000' }
                                       : {}),
                                   }
                                 : {}),
