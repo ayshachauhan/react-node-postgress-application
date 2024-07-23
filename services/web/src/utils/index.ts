@@ -332,7 +332,7 @@ export const getBackGroundColorCss = (
   return date.getMonth() + 1 == currentMonth
     ? isCalendarDates(date, calendars)
       ? isSlotsAvailable(date, calendars)
-      : { backgroundColor: 'transparent' }
+      : { backgroundColor: 'transparent', color: '#000000' }
     : {};
 };
 
