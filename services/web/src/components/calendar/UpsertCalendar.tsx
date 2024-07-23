@@ -195,9 +195,9 @@ const UpsertCalendar: React.FC<{
                   }}
                   placeholder="Surgery Date"
                   required
-                  excludeDates={calendars.map(
-                    (calendar) => new Date(calendar.date),
-                  )}
+                  //excludeDates={calendars.map(
+                  //  (calendar) => new Date(calendar.date),
+                  //)}
                   overrides={{
                     Day: {
                       style: ({ $date, $selected }) => {
