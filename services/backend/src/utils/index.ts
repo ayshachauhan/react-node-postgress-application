@@ -107,7 +107,7 @@ export function getFullYearDateConditions(userPermissions: PermissionEntity[]) {
         Date.UTC(currentYear, currentMonth, currentDay, 23, 59, 59, 999),
       );
     } else if (!hasViewPastCasesPermission) {
-      startDate = new Date(Date.UTC(currentYear, currentMonth, currentDay + 1));
+      startDate = new Date(Date.UTC(currentYear, currentMonth, currentDay - 1));
     } else if (!hasViewFutureCasesPermission) {
       endDate = new Date(
         Date.UTC(currentYear, currentMonth, currentDay - 1, 23, 59, 59, 999),

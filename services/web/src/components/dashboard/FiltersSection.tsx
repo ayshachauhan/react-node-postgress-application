@@ -48,8 +48,9 @@ import {
 import { monthOptions } from '@root/utils/constants';
 import { Checkbox } from 'baseui/checkbox';
 import { Select } from 'baseui/select';
+import { debounce } from 'lodash';
 import { useRouter } from 'next/navigation';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import DeleteFilterModal from './DeleteFilterModal';
 import EditableRow from './EditableRow';
 import ViewRow from './ViewRow';
@@ -143,25 +144,35 @@ const FiltersSection: React.FC<{
   const getMonthOptions = (
     viewPastCases: boolean,
     viewFutureCases: boolean,
+    option: string | null,
   ) => {
     const currentMonth = new Date().getMonth() + 1;
-    return monthOptions.map((option) => {
-      const optionMonth = parseInt(option.value, 10);
-      const isPastMonth = optionMonth < currentMonth;
-      const isFutureMonth = optionMonth > currentMonth;
+    return monthOptions.map((monthOption) => {
+      const optionMonth = parseInt(monthOption.value, 10);
+
+      let shouldDisable = false;
+
+      if (option?.toLowerCase() === 'past view') {
+        shouldDisable =
+          optionMonth > currentMonth ||
+          (!viewPastCases && optionMonth < currentMonth);
+      } else if (option?.toLowerCase() === 'upcoming view') {
+        shouldDisable =
+          optionMonth < currentMonth ||
+          (!viewFutureCases && optionMonth > currentMonth);
+      }
+
       return {
-        ...option,
-        disabled:
-          (!viewPastCases && isPastMonth) ||
-          (!viewFutureCases && isFutureMonth),
+        ...monthOption,
+        disabled: shouldDisable,
       };
     });
   };
 
-  const updatedMonthOptions: MonthOption[] = useMemo(
-    () => getMonthOptions(viewPastCases, viewFutureCases),
-    [viewPastCases, viewFutureCases],
+  const [updatedMonthOptions, setUpdatedMonthOptions] = useState<MonthOption[]>(
+    getMonthOptions(viewPastCases, viewFutureCases, selectedValue),
   );
+
   const [isReviewRequestLoading, setIsReviewRequestLoading] = useState(false);
 
   const doctorId = getUserId();
@@ -378,6 +389,31 @@ const FiltersSection: React.FC<{
       setIsIolViewActive(true);
       setIsWailistViewActive(false);
     }
+
+    const currentMonth = new Date().getMonth() + 1;
+    let updatedSelectedMonths = selectedMonth;
+
+    if (value[0]?.label?.toLowerCase() === 'past view') {
+      updatedSelectedMonths = updatedSelectedMonths.filter(
+        (month) => parseInt(month.value, 10) <= currentMonth,
+      );
+    }
+
+    if (value[0]?.label?.toLowerCase() === 'upcoming view') {
+      updatedSelectedMonths = updatedSelectedMonths.filter(
+        (month) => parseInt(month.value, 10) >= currentMonth,
+      );
+    }
+
+    setSelectedMonth(updatedSelectedMonths);
+    dispatch(setSelectedMonth(updatedSelectedMonths));
+
+    const updatedMonthOptions = getMonthOptions(
+      viewPastCases,
+      viewFutureCases,
+      value[0]?.label,
+    );
+    setUpdatedMonthOptions(updatedMonthOptions);
   };
 
   const handleChangeMonth = ({ value }) => {
@@ -518,7 +554,7 @@ const FiltersSection: React.FC<{
   const searchMRNNameStr = searchMRNName || '';
   const selectedValueStr = selectedValue || '';
 
-  const dispatchFetchFilteredSurgeryList = (
+  const dispatchFetchFilteredSurgeryList = async (
     selectedMonth: MonthOption[],
     searchMRNName: string,
     selectedValue: string,
@@ -528,7 +564,7 @@ const FiltersSection: React.FC<{
     const selectedOption = selectedValue;
 
     if (practiceId && loggedInUserId !== null && doctorId) {
-      dispatch(
+      await dispatch(
         fetchListings({
           loggedInUserId,
           practiceId,
@@ -558,6 +594,42 @@ const FiltersSection: React.FC<{
       }),
     );
   };
+  const [isViewFutureCasesFinalized, setIsViewFutureCasesFinalized] =
+    useState(false);
+
+  useEffect(() => {
+    setIsViewFutureCasesFinalized(true);
+  }, [viewFutureCases]);
+
+  const fetchSurgeryListDebounced = useCallback(
+    debounce(async () => {
+      if (practiceId && loggedInUserId !== null && doctorId) {
+        await dispatchFetchFilteredSurgeryList(
+          selectedMonth,
+          searchMRNNameStr,
+          selectedValueStr,
+        );
+      }
+    }, 400),
+    [
+      practiceId,
+      loggedInUserId,
+      selectedMonth,
+      searchMRNNameStr,
+      selectedValueStr,
+      doctorId,
+    ],
+  );
+
+  useEffect(() => {
+    if (isViewFutureCasesFinalized) {
+      if (!viewFutureCases) {
+        dispatch(setSelectedValue(null));
+      } else {
+        dispatch(setSelectedValue('Upcoming View'));
+      }
+    }
+  }, [isViewFutureCasesFinalized, viewFutureCases, dispatch]);
 
   useEffect(() => {
     handleSearchMRNNameChange('');
@@ -603,21 +675,15 @@ const FiltersSection: React.FC<{
   }, [practiceId, doctorId, loggedInUserId, dispatch]);
 
   useEffect(() => {
-    if (practiceId && loggedInUserId !== null && doctorId) {
-      dispatchFetchFilteredSurgeryList(
-        selectedMonth,
-        searchMRNNameStr,
-        selectedValueStr,
-      );
-    }
+    fetchSurgeryListDebounced();
   }, [
-    dispatch,
     practiceId,
     loggedInUserId,
     selectedMonth,
     searchMRNNameStr,
     selectedValueStr,
     doctorId,
+    isViewFutureCasesFinalized,
   ]);
   const [isUpdateLoading, setIsUpdateLoading] = useState(false);
   const { calendars } = useAppSelector((state) => ({
