@@ -454,7 +454,7 @@ const UpcomingSection: React.FC = () => {
                             style={{
                               background: customBackgroundColor(
                                 data.date,
-                                calendars,
+                                selectedSurgeryCalData,
                               ),
                             }}
                           >
