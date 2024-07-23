@@ -303,10 +303,9 @@ const Dashboard: React.FC = () => {
               <th className="">Action</th>
             </tr>
             {!isLoading &&
-              modifySurgeryConfigList.map((data, index) => (
+              modifySurgeryConfigList.map((data) => (
                 <React.Fragment key={data.id}>
                   <tr className="border-t border-gray-200">
-                    <td className="">{index + 1}</td>
                     <td className="">{data.surgeryType}</td>
                     <td className="">{data.surgeryName}</td>
                     <td className="">{data.bodyPart}</td>
