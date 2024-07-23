@@ -42,6 +42,7 @@ import {
 } from 'src/utils';
 import { WaitlistService } from 'src/waitlist/waitlist.service';
 import {
+  Between,
   Equal,
   FindManyOptions,
   FindOperator,
@@ -51,6 +52,7 @@ import {
   LessThan,
   LessThanOrEqual,
   MoreThanOrEqual,
+  Or,
   Repository,
 } from 'typeorm';
 import { CalendarService } from '../calendar/calendar.service';
@@ -173,52 +175,91 @@ export class SurgeryService {
     }
 
     const searchConditionsWithoutPermissions = { ...searchConditions };
-
-    if (option?.toLowerCase() === 'past view') {
-      const today = new Date();
-      today.setUTCHours(23, 59, 59, 999); // Set to end of today
-      whereClause.date = LessThanOrEqual(today);
-    } else if (option?.toLowerCase() === 'upcoming view') {
-      const today = new Date();
-      today.setUTCHours(0, 0, 0, 0); // Set to beginning of today
-      const yesterday = new Date(today);
-      yesterday.setUTCDate(today.getUTCDate() - 1); // Set to yesterday
-
-      whereClause.date = MoreThanOrEqual(yesterday);
-    }
-
     const dateConditionsWithPermissions = getConditions(
       months,
       userPermissions,
     );
     const dateConditionsWithoutPermissions = getConditions(months, []);
 
-    if (
-      months.length === 0 &&
-      searchMRNName &&
-      option?.toLowerCase() !== 'past view' &&
-      option?.toLowerCase() !== 'upcoming view'
-    ) {
-      updateWhereClauseWithSearchName(whereClause, searchMRNName);
-      searchConditions.where = mapDateConditions(
-        dateConditionsWithPermissions,
-        whereClause,
-      );
-      searchConditionsWithoutPermissions.where = mapDateConditions(
-        dateConditionsWithoutPermissions,
-        whereClause,
-      );
-    } else {
+    if (option?.toLowerCase() === 'past view') {
+      const today = new Date();
+      today.setUTCHours(23, 59, 59, 999); // Set to the end of today
+
+      if (months.length > 0) {
+        const currentYear = today.getFullYear();
+        const dateConditions: FindOperator<Date>[] = months.map((monthName) => {
+          const monthIndex = new Date(
+            Date.parse(monthName + ' 1, ' + currentYear),
+          ).getMonth();
+          const startOfMonth = new Date(Date.UTC(currentYear, monthIndex, 1));
+          const endOfMonth = new Date(
+            Date.UTC(currentYear, monthIndex + 1, 0, 23, 59, 59, 999),
+          );
+
+          if (monthIndex === today.getUTCMonth()) {
+            return Between(startOfMonth, today);
+          } else {
+            return Between(startOfMonth, endOfMonth);
+          }
+        });
+
+        if (dateConditions.length > 1) {
+          whereClause.date = Or(...dateConditions);
+        } else {
+          whereClause.date = dateConditions[0];
+        }
+      } else {
+        whereClause.date = LessThanOrEqual(today); // Only past records
+      }
       if (searchMRNName) {
         updateWhereClauseWithSearchName(whereClause, searchMRNName);
       }
+      searchConditions.where = whereClause;
+      searchConditionsWithoutPermissions.where = whereClause;
+    } else if (option?.toLowerCase() === 'upcoming view') {
+      const today = new Date();
+      today.setUTCHours(0, 0, 0, 0); // Set to beginning of today
+      const yesterday = new Date(today);
+      yesterday.setUTCDate(today.getUTCDate() - 1); // Set to yesterday
+      if (months.length > 0) {
+        const currentYear = today.getFullYear();
+        const dateConditions: FindOperator<Date>[] = months.map((monthName) => {
+          const monthIndex = new Date(
+            Date.parse(monthName + ' 1, ' + currentYear),
+          ).getMonth();
+          const startOfMonth = new Date(Date.UTC(currentYear, monthIndex, 1));
+          const endOfMonth = new Date(
+            Date.UTC(currentYear, monthIndex + 1, 0, 23, 59, 59, 999),
+          );
 
+          if (monthIndex === today.getUTCMonth()) {
+            return Between(yesterday, endOfMonth);
+          } else {
+            return Between(startOfMonth, endOfMonth);
+          }
+        });
+
+        if (dateConditions.length > 1) {
+          whereClause.date = Or(...dateConditions);
+        } else {
+          whereClause.date = dateConditions[0];
+        }
+      } else {
+        whereClause.date = MoreThanOrEqual(yesterday);
+      }
+      if (searchMRNName) {
+        updateWhereClauseWithSearchName(whereClause, searchMRNName);
+      }
+      searchConditions.where = whereClause;
+      searchConditionsWithoutPermissions.where = whereClause;
+    } else {
       if (
-        months.length > 0 ||
-        (months.length === 0 &&
-          option?.toLowerCase() !== 'past view' &&
-          option?.toLowerCase() !== 'upcoming view')
+        months.length === 0 &&
+        searchMRNName &&
+        option?.toLowerCase() !== 'past view' &&
+        option?.toLowerCase() !== 'upcoming view'
       ) {
+        updateWhereClauseWithSearchName(whereClause, searchMRNName);
         searchConditions.where = mapDateConditions(
           dateConditionsWithPermissions,
           whereClause,
@@ -227,6 +268,26 @@ export class SurgeryService {
           dateConditionsWithoutPermissions,
           whereClause,
         );
+      } else {
+        if (searchMRNName) {
+          updateWhereClauseWithSearchName(whereClause, searchMRNName);
+        }
+
+        if (
+          months.length > 0 ||
+          (months.length === 0 &&
+            option?.toLowerCase() !== 'past view' &&
+            option?.toLowerCase() !== 'upcoming view')
+        ) {
+          searchConditions.where = mapDateConditions(
+            dateConditionsWithPermissions,
+            whereClause,
+          );
+          searchConditionsWithoutPermissions.where = mapDateConditions(
+            dateConditionsWithoutPermissions,
+            whereClause,
+          );
+        }
       }
     }
 
