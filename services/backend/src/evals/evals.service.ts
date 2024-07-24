@@ -94,9 +94,9 @@ export class EvalsService {
     dbEvalsByPractice.forEach((ele) => (ele.doctor.password = ''));
     const statusOrder = {
       'future evaluation': 1,
-      'book': 2,
-      'cancel': 3,
-      'return': 4,
+      book: 2,
+      cancel: 3,
+      return: 4,
       'no show': 5,
     };
 
