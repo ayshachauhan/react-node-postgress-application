@@ -5,8 +5,12 @@ import { EVAL_STATUS } from '@root/enums/evalStatus.enum';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { updateRecordAsync } from '@root/store/reducers/evals';
 import {
+  getBackGroundColorCss,
   getDifferenceInDays,
   getPracticeId,
+  getUserId,
+  isCalendarDates,
+  isSlotsAvailable,
   toFullName,
   usDateFormatter,
 } from '@root/utils';
@@ -21,19 +25,28 @@ function EditableRow({
   withLoader,
 }) {
   const practiceId = getPracticeId();
+  const doctorId: string | null = getUserId();
   const dispatch = useAppDispatch();
   const [obj, setObj] = useState<Partial<UpdateEValInterface>>({});
   const [insuranceTypeId, setInsuranceTypeId] = useState<string>('');
   const [referrerId, setReferrerId] = useState<string>('');
   const [waitlistId, setWaitlistId] = useState<string>('');
 
-  const { insuranceTypesList, referrersList, waitlist, practiceHomesList } =
-    useAppSelector((state) => ({
-      insuranceTypesList: Object.values(state.insuranceTypes.entities),
-      referrersList: Object.values(state.referrers.entities),
-      waitlist: Object.values(state.waitlist.entities),
-      practiceHomesList: Object.values(state.practiceHomes.entities),
-    }));
+  const {
+    insuranceTypesList,
+    referrersList,
+    waitlist,
+    practiceHomesList,
+    calendars,
+  } = useAppSelector((state) => ({
+    insuranceTypesList: Object.values(state.insuranceTypes.entities),
+    referrersList: Object.values(state.referrers.entities),
+    waitlist: Object.values(state.waitlist.entities),
+    practiceHomesList: Object.values(state.practiceHomes.entities),
+    calendars: Object.values(state.calendars?.entities).filter(
+      (calendar) => calendar?.user?.id === doctorId,
+    ),
+  }));
 
   const evalStatusOption = Object.keys(EVAL_STATUS).map((key) => ({
     label: key,
@@ -65,6 +78,11 @@ function EditableRow({
     label: practiceHomesList[key].name,
     id: practiceHomesList[key].id,
   }));
+
+  const [currentMonth, setCurrentMonth] = useState(new Date().getMonth() + 1);
+  const handleMonthChange = ({ date }) => {
+    setCurrentMonth(date.getMonth() + 1);
+  };
 
   useEffect(() => {
     if (evalInfo.id && evalInfo) {
@@ -159,6 +177,10 @@ function EditableRow({
               value={obj.date}
               onChange={({ date }) => handleObjChange('date', date)}
               size={SIZE.mini}
+              onMonthChange={handleMonthChange}
+              onOpen={() => {
+                handleMonthChange({ date: obj.date });
+              }}
               overrides={{
                 Root: {
                   style: {
@@ -167,7 +189,30 @@ function EditableRow({
                 },
                 InputContainer: {
                   style: {
-                    backgroundColor: '#00000',
+                    backgroundColor: '#000000',
+                  },
+                },
+                Day: {
+                  style: ({ $date, $selected }) => {
+                    return {
+                      height: '53px',
+                      width: '53px',
+                      borderRadius: '50%',
+                      boxSizing: 'border-box',
+                      paddingTop: '6px',
+                      paddingBottom: '6px',
+                      margin: '2px',
+                      ...getBackGroundColorCss($date, currentMonth, calendars),
+                      ':after': '',
+                      ...($selected
+                        ? {
+                            color: '#ffffff',
+                            ...(isCalendarDates($date, calendars)
+                              ? isSlotsAvailable($date, calendars)
+                              : { backgroundColor: '#000000' }),
+                          }
+                        : {}),
+                    };
                   },
                 },
               }}
