@@ -4,7 +4,13 @@ import TextInput from '@root/components/TextInput';
 import { EVAL_STATUS } from '@root/enums/evalStatus.enum';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { addRecordAsync as addEvalRecord } from '@root/store/reducers/evals';
-import { getPracticeId, toFullName } from '@utils/index';
+import {
+  getBackGroundColorCss,
+  getPracticeId,
+  isCalendarDates,
+  isSlotsAvailable,
+  toFullName,
+} from '@utils/index';
 import { Checkbox } from 'baseui/checkbox';
 import { DatePicker } from 'baseui/datepicker';
 import { SIZE, Select } from 'baseui/select';
@@ -35,7 +41,6 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
     insuranceTypesList: Object.values(state.insuranceTypes.entities),
     referrersList: Object.values(state.referrers.entities),
     usersList: Object.values(state.users.entities),
-    calendars: Object.values(state.calendars.entities),
     patientsList: Object.values(state.patients.entities),
     surgeryConfigurationsList: Object.values(
       state.surgeryConfigurations.entities,
@@ -85,6 +90,12 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
   const [bodyPartOptions, setBodyPartOptions] = useState([
     { id: '', label: '' },
   ]);
+
+  const { calendars } = useAppSelector((state) => ({
+    calendars: Object.values(state.calendars?.entities).filter(
+      (calendar) => calendar?.user?.id === doctorId,
+    ),
+  }));
 
   useEffect(() => {
     if (mrn) {
@@ -161,6 +172,10 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
 
   const handleSurgeryNameChange = ({ value }) => {
     setSurgeryNameId(value[0] ? value[0].id : null);
+  };
+  const [currentMonth, setCurrentMonth] = useState(new Date().getMonth() + 1);
+  const handleMonthChange = ({ date }) => {
+    setCurrentMonth(date.getMonth() + 1);
   };
 
   const handlePracticeHomeChange = ({ value }) => {
@@ -718,6 +733,39 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
                       onChange={({ date }) => setDate(date)}
                       placeholder="Eval Date"
                       required
+                      onMonthChange={handleMonthChange}
+                      onOpen={() => {
+                        handleMonthChange({ date: date });
+                      }}
+                      overrides={{
+                        Day: {
+                          style: ({ $date, $selected }) => {
+                            return {
+                              height: '53px',
+                              width: '53px',
+                              borderRadius: '50%',
+                              boxSizing: 'border-box',
+                              paddingTop: '6px',
+                              paddingBottom: '6px',
+                              margin: '2px',
+                              ...getBackGroundColorCss(
+                                $date,
+                                currentMonth,
+                                calendars,
+                              ),
+                              ':after': '',
+                              ...($selected
+                                ? {
+                                    color: '#ffffff',
+                                    ...(isCalendarDates($date, calendars)
+                                      ? isSlotsAvailable($date, calendars)
+                                      : { backgroundColor: '#000000' }),
+                                  }
+                                : {}),
+                            };
+                          },
+                        },
+                      }}
                     />
                   </div>
                 </div>
