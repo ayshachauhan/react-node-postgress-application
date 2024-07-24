@@ -31,11 +31,14 @@ import { fetchListings as fetchSurgeryTypesListing } from '@root/store/reducers/
 import { fetchListings as fetchUsersList } from '@root/store/reducers/users';
 import { fetchListings as fetchWaitlist } from '@root/store/reducers/waitlist';
 import { getPracticeId, getUserId } from '@root/utils';
+import { PAGINATION_LIMIT } from '@root/utils/constants';
 import React, { useEffect, useState } from 'react';
 
 const DashboardPage: React.FC = () => {
   const dispatch = useAppDispatch();
   const practiceId = getPracticeId();
+  const page = 1;
+  const limit = PAGINATION_LIMIT;
   const userId: string | null = getUserId();
   const userInfo = useAppSelector((state) => state.auth.user);
   const userPermissions = userInfo?.permissions;
@@ -122,13 +125,17 @@ const DashboardPage: React.FC = () => {
                 searchMRNName: searchMRNNameStr,
                 option: selectedValueStr,
                 doctorId,
+                page: page,
+                limit: limit,
               }),
             );
           }
         });
       };
       loadData();
-      dispatch(fetchEvalsList({ practiceId, doctorId: doctorId || '' }));
+      dispatch(
+        fetchEvalsList({ practiceId, doctorId: doctorId || '', page, limit }),
+      );
       dispatch(fetchInsuranceTypesList({ practiceId }));
       dispatch(fetchPracticeHomesListing({ practiceId }));
       dispatch(fetchSurgeryTypesListing({ practiceId }));
@@ -158,13 +165,17 @@ const DashboardPage: React.FC = () => {
                   searchMRNName: searchMRNNameStr,
                   option: selectedValueStr,
                   doctorId: doctorId || '',
+                  page: page,
+                  limit: limit,
                 }),
               );
             }
           });
         };
         loadData();
-        dispatch(fetchEvalsList({ practiceId, doctorId: doctorId || '' }));
+        dispatch(
+          fetchEvalsList({ practiceId, doctorId: doctorId || '', page, limit }),
+        );
         dispatch(clearSurgerySuccessMessage());
         dispatch(clearEvalSuccessMessage());
         dispatch(fetchSurgeryConfigurationsListing({ practiceId }));
