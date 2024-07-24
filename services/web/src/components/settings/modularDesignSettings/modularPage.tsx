@@ -296,7 +296,6 @@ const Dashboard: React.FC = () => {
         <table className="text-gray-50 w-full  items-center  bg-gray-50 py-4 rounded-lg">
           <tbody className="">
             <tr>
-              <th className="">S. No.</th>
               <th className="">Surgery Location</th>
               <th className="">Surgery Name</th>
               <th className="">Body Part</th>
