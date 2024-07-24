@@ -14,9 +14,14 @@ import React, { useEffect, useState } from 'react';
 interface SurgeryPageProps {
   onClose: () => void;
   withLoader: (func: () => Promise<void>) => Promise<void>;
+  onRecordAdded?: () => void;
 }
 
-const SurgeryPage: React.FC<SurgeryPageProps> = ({ onClose, withLoader }) => {
+const SurgeryPage: React.FC<SurgeryPageProps> = ({
+  onClose,
+  withLoader,
+  onRecordAdded,
+}) => {
   const {
     practiceHomesList,
     insuranceTypesList,
@@ -250,6 +255,9 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({ onClose, withLoader }) => {
         setNotes('');
         setEvalStatus('');
         setWaitlistId('');
+        if (onRecordAdded) {
+          onRecordAdded();
+        }
         onClose();
       } catch (error) {
         onClose();

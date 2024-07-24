@@ -1,4 +1,5 @@
 'use client';
+import { EvalEntity } from '@packages/entities/eval';
 import { USER_PERMISSIONS } from '@packages/entities/permission';
 import Button from '@root/components/Button';
 import {
@@ -38,9 +39,10 @@ import {
   toFullName,
   usDateFormatter,
 } from '@root/utils';
+import { PAGINATION_LIMIT } from '@root/utils/constants';
 import { Checkbox } from 'baseui/checkbox';
 import { useRouter } from 'next/navigation';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import EditableRow from 'src/components/eval/editEval/editableRow';
 import AddSurgeryModal from '../dashboard/addSurgeryModal';
 import DeleteEvalModal from './DeleteEvalModal';
@@ -48,23 +50,19 @@ import AddEvalModal from './addEval/addEvalModal';
 
 const EvalPage: React.FC = () => {
   const dispatch = useAppDispatch();
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
 
   const router = useRouter();
   const { isLoading, withLoader } = useLoader();
-  const {
-    evalsList,
-    calendarSuccessMessage,
-    addEvalSuccessMessage,
-    evalInfo,
-    userInfo,
-  } = useAppSelector((state) => ({
-    evalsList: Object.values(state.evals.entities),
-    calendarSuccessMessage: state.calendars.successMessage,
-    addEvalSuccessMessage: state.evals.successMessage,
-    errorMessage: state.evals.errorMessage,
-    evalInfo: state.evals.evalInfo,
-    userInfo: state.auth.user,
-  }));
+  const { calendarSuccessMessage, addEvalSuccessMessage, evalInfo, userInfo } =
+    useAppSelector((state) => ({
+      calendarSuccessMessage: state.calendars.successMessage,
+      addEvalSuccessMessage: state.evals.successMessage,
+      errorMessage: state.evals.errorMessage,
+      evalInfo: state.evals.evalInfo,
+      userInfo: state.auth.user,
+    }));
   const loggedInUserId = userInfo?.id ?? null;
   const handleViewHistory = (id: string): void => {
     const query = { id };
@@ -72,7 +70,7 @@ const EvalPage: React.FC = () => {
     const url = `/history/?${queryString}`;
     router.push(url);
   };
-
+  const [records, setRecords] = useState<EvalEntity[]>([]);
   const practiceId = getPracticeId();
   const userId = getUserId();
   const userPermissions = userInfo?.permissions;
@@ -82,7 +80,8 @@ const EvalPage: React.FC = () => {
   const [selectedAction, setSelectedAction] = useState<string | null>(null);
   const [selectedRow, setSelectedRow] = useState<string | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-
+  const loader = useRef(null);
+  const [isEvalsLoading, setIsLoading] = useState(false);
   const editCaseAllowed = useUserPermission(userPermissions, [
     USER_PERMISSIONS.EDIT_CASE,
   ]);
@@ -111,17 +110,47 @@ const EvalPage: React.FC = () => {
     dispatch(fetchLoggedInUser());
   }, [dispatch]);
 
-  useEffect(() => {
-    if (practiceId) {
-      const loadData = async () => {
-        await withLoader(async () => {
-          await dispatch(
-            fetchEvalsList({ practiceId, doctorId: userId || '' }),
-          );
-        });
-      };
+  const loadData = useCallback(async () => {
+    if (!isEvalsLoading && hasMore && practiceId) {
+      setIsLoading(true);
+      try {
+        const resultAction = await dispatch(
+          fetchEvalsList({
+            practiceId,
+            doctorId: userId || '',
+            page,
+            limit: PAGINATION_LIMIT,
+          }),
+        );
 
-      loadData();
+        if (fetchEvalsList.fulfilled.match(resultAction)) {
+          const data = resultAction.payload;
+
+          if (Array.isArray(data)) {
+            setRecords((prevRecords) => {
+              const newRecords = data.filter(
+                (record) => !prevRecords.some((prev) => prev.id === record.id),
+              );
+              return [...prevRecords, ...newRecords];
+            });
+
+            setHasMore(data.length === PAGINATION_LIMIT);
+
+            if (data.length === PAGINATION_LIMIT) {
+              setPage((prevPage) => prevPage + 1);
+            }
+          } else {
+            setHasMore(false);
+          }
+        } else {
+          setHasMore(false);
+        }
+      } catch (error) {
+        setHasMore(false);
+      } finally {
+        setIsLoading(false);
+      }
+
       dispatch(fetchInsuranceTypesList({ practiceId }));
       dispatch(fetchPracticeHomesListing({ practiceId }));
       dispatch(fetchSurgeryTypesListing({ practiceId }));
@@ -131,17 +160,22 @@ const EvalPage: React.FC = () => {
       dispatch(fetchPatients({ practiceId }));
       dispatch(fetchWaitlist({ practiceId }));
     }
-  }, [practiceId, dispatch, withLoader, userId]);
+  }, [isEvalsLoading, hasMore, practiceId, userId, page, dispatch]);
+
+  const handleRecordAdded = async () => {
+    setPage(1);
+    setHasMore(true);
+    setRecords([]);
+    await loadData(); // Fetch fresh data
+  };
+
+  useEffect(() => {
+    loadData();
+  }, [page, loadData]);
 
   useEffect(() => {
     if (addEvalSuccessMessage) {
       if (practiceId) {
-        const loadData = async () => {
-          await withLoader(async () => {
-            dispatch(fetchEvalsList({ practiceId, doctorId: userId || '' }));
-          });
-        };
-
         loadData();
         dispatch(clearEvalSuccessMessage());
         dispatch(fetchSurgeryConfigurationsListing({ practiceId }));
@@ -160,7 +194,17 @@ const EvalPage: React.FC = () => {
         }
       }
     }
-  }, [addEvalSuccessMessage, calendarSuccessMessage, dispatch]);
+  }, [
+    addEvalSuccessMessage,
+    calendarSuccessMessage,
+    page,
+    dispatch,
+    practiceId,
+    userId,
+    loggedInUserId,
+    month,
+    selectedValueStr,
+  ]);
 
   useEffect(() => {
     let timer;
@@ -178,7 +222,7 @@ const EvalPage: React.FC = () => {
     };
   }, [addEvalSuccessMessage, dispatch]);
 
-  const modifyEvalList = evalsList
+  const modifyEvalList = records
     .map((ele, index) => {
       const viewData = {
         firstName: ele.patient.firstName,
@@ -234,13 +278,17 @@ const EvalPage: React.FC = () => {
     setSelectedRow(null);
   };
 
-  const onConfirmDelete = (): void => {
+  const onConfirmDelete = async () => {
     if (practiceId && selectedRow) {
       try {
         const id = selectedRow;
-        dispatch(deleteRecordAsync({ practiceId, id }));
+        await dispatch(deleteRecordAsync({ practiceId, id }));
         setIsDeleteModalOpen(false);
         setSelectedRow(null);
+        setPage(1);
+        setHasMore(true);
+        setRecords([]);
+        await loadData();
       } catch (error) {
         console.log(error);
       }
@@ -268,6 +316,36 @@ const EvalPage: React.FC = () => {
 
     setIsBookSurgeryOpenModal(true);
   };
+
+  const loadMore = useCallback(() => {
+    if (hasMore) {
+      setPage((prevPage) => prevPage + 1);
+    }
+  }, [hasMore]);
+
+  useEffect(() => {
+    const options = {
+      root: null,
+      rootMargin: '20px',
+      threshold: 1.0,
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting && !isEvalsLoading && hasMore) {
+        loadMore();
+      }
+    }, options);
+
+    if (loader.current) {
+      observer.observe(loader.current);
+    }
+
+    return () => {
+      if (loader.current) {
+        observer.unobserve(loader.current);
+      }
+    };
+  }, [loadMore, isEvalsLoading, hasMore]);
 
   return (
     <div id="__next" className="">
@@ -471,11 +549,16 @@ const EvalPage: React.FC = () => {
               )}
           </tbody>
         </table>
+        {isEvalsLoading && (
+          <div className="text-center font-bold text-base p-6">Loading...</div>
+        )}
+        <div ref={loader} />
       </div>
       <AddEvalModal
         isSecondModalOpen={isAddModalOpen}
         handleCloseSecondModal={handleCloseAddModal}
         withLoader={withLoader}
+        onRecordAdded={handleRecordAdded}
       />
       <DeleteEvalModal
         onConfirmDelete={onConfirmDelete}
