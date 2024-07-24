@@ -133,9 +133,9 @@ const ReviewDashboard: React.FC = () => {
               <th>Practice</th>
               <th>MRN</th>
               <th>Name</th>
-              <th>Source</th>
+              {/* <th>Source</th>
               <th className="text-center">User Rating</th>
-              <th>User Comment</th>
+              <th>User Comment</th> */}
               <th>Requested Date</th>
               <th>Status</th>
               <th>Action</th>
@@ -154,9 +154,9 @@ const ReviewDashboard: React.FC = () => {
                     <td>{data?.practice?.name}</td>
                     <td>{data?.patient.mrn}</td>
                     <td>{data?.patient.firstName}</td>
-                    <td>{data?.source}</td>
+                    {/* <td>{data?.source}</td>
                     <td className="text-center">{data?.userRating}</td>
-                    <td>{data?.reviewComment}</td>
+                    <td>{data?.reviewComment}</td> */}
                     <td>
                       {data?.reviewRequestDate
                         ? formatDate(new Date(data?.reviewRequestDate))

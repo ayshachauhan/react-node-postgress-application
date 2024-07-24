@@ -72,4 +72,7 @@ export class UserEntity extends BaseEntity implements IUser {
 
   @Column({ type: 'varchar', default: false })
   token?: string;
+
+  @Column({ type: 'varchar', default: false })
+  reviewLinkURL?: string;
 }
