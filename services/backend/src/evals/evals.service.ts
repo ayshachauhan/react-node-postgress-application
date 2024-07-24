@@ -87,9 +87,24 @@ export class EvalsService {
         'waitlist',
         'practice', //TO DO: make practice id not null in future
       ],
+      order: {
+        date: 'DESC',
+      },
     });
     dbEvalsByPractice.forEach((ele) => (ele.doctor.password = ''));
+    const statusOrder = {
+      'future evaluation': 1,
+      book: 2,
+      cancel: 3,
+      return: 4,
+      'no show': 5,
+    };
 
+    dbEvalsByPractice.sort((eval1, eval2) => {
+      const status1 = eval1.status.toLowerCase();
+      const status2 = eval2.status.toLowerCase();
+      return statusOrder[status1] - statusOrder[status2];
+    });
     return dbEvalsByPractice;
   }
 
