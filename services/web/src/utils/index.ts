@@ -346,7 +346,7 @@ export const customBackgroundColor = (
     (calendar: ICalendar) =>
       moment(calendar.date).format('YYYY-MM-DD') === formattedDate,
   ) as ICalendar[];
-  console.log(matchingCalendars);
+
   const sortedCalendars = matchingCalendars.sort((a, b) => {
     if (a.maxSlots !== b.maxSlots) {
       return b.maxSlots - a.maxSlots; // Descending order by maxSlots

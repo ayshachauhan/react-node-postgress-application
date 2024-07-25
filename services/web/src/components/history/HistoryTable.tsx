@@ -85,7 +85,9 @@ export default function HistoryTable() {
         fetchEvalsList({ practiceId, page: 1, limit: PAGINATION_LIMIT }),
       );
       // dispatch(fetchSurgeryList({ practiceId, doctorId: doctorId || '' }));
-      dispatch(fetchSurgeryList({ practiceId }));
+      dispatch(
+        fetchSurgeryList({ practiceId, page: 1, limit: PAGINATION_LIMIT }),
+      );
     }
   }, [practiceId, dispatch]);
 

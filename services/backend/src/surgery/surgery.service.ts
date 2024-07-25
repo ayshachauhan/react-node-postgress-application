@@ -40,6 +40,7 @@ import {
   getFullYearDateConditions,
   getStartEndDate,
 } from 'src/utils';
+import { PAGINATION_LIMIT } from 'src/utils/constants';
 import { WaitlistService } from 'src/waitlist/waitlist.service';
 import {
   Between,
@@ -123,12 +124,14 @@ export class SurgeryService {
     option?: string,
     loggedInUserId?: string,
     doctorId?: string,
+    page: number = 1,
+    limit: number = PAGINATION_LIMIT,
   ): Promise<SurgerySearchResult> {
     const [userInfo, dbPracticeHomesByPractice] = await Promise.all([
       loggedInUserId ? this.userService.getUserById(loggedInUserId) : null,
       this.practiceHomesService.getPracticeHomesByPractice(practiceId),
     ]);
-
+    const skip = (page - 1) * limit;
     const userPermissions: PermissionEntity[] = userInfo
       ? userInfo.permissions || []
       : [];
@@ -157,6 +160,8 @@ export class SurgeryService {
         'waitlist',
         'practice', //TO DO: make practice id not null in future
       ],
+      skip,
+      take: limit,
       order: {},
     };
 

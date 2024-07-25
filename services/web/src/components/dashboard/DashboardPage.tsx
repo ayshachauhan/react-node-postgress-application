@@ -2,7 +2,9 @@
 import { USER_PERMISSIONS } from '@packages/entities/permission';
 import Button from '@root/components/Button';
 import { AddIcon } from '@root/components/Icons';
-import FiltersSection from '@root/components/dashboard/FiltersSection';
+import FiltersSection, {
+  FiltersSectionRef,
+} from '@root/components/dashboard/FiltersSection';
 import SurgeryPercentage from '@root/components/dashboard/SurgeryPercentage';
 import UpcomingSection from '@root/components/dashboard/UpcomingSection';
 import UsersListing from '@root/components/dashboard/UsersListing';
@@ -32,7 +34,7 @@ import { fetchListings as fetchUsersList } from '@root/store/reducers/users';
 import { fetchListings as fetchWaitlist } from '@root/store/reducers/waitlist';
 import { getPracticeId, getUserId } from '@root/utils';
 import { PAGINATION_LIMIT } from '@root/utils/constants';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 const DashboardPage: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -113,26 +115,13 @@ const DashboardPage: React.FC = () => {
   }, [dispatch]);
 
   useEffect(() => {
+    if (practiceId && filtersSectionRef.current) {
+      filtersSectionRef.current.fetchSurgeryListDebounced(page);
+    }
+  }, [practiceId, page, dispatch, doctorId]);
+
+  useEffect(() => {
     if (practiceId) {
-      const loadData = async () => {
-        await withLoader(async () => {
-          if (loggedInUserId !== null && doctorId) {
-            await dispatch(
-              fetchSurgeryList({
-                loggedInUserId,
-                practiceId,
-                month: month,
-                searchMRNName: searchMRNNameStr,
-                option: selectedValueStr,
-                doctorId,
-                page: page,
-                limit: limit,
-              }),
-            );
-          }
-        });
-      };
-      loadData();
       dispatch(
         fetchEvalsList({ practiceId, doctorId: doctorId || '', page, limit }),
       );
@@ -224,9 +213,12 @@ const DashboardPage: React.FC = () => {
   const handleCloseAddModal = (): void => {
     setIsAddModalOpen(false);
   };
+  const filtersSectionRef = useRef<FiltersSectionRef>(null);
 
   const handleOpenAddModal = (): void => {
-    setIsAddModalOpen(true);
+    if (filtersSectionRef.current) {
+      filtersSectionRef.current.handleOpenAddModal();
+    }
   };
 
   const handleCloseAddEvalModal = (): void => {
@@ -310,6 +302,7 @@ const DashboardPage: React.FC = () => {
       <div className="mt-2 mb-12">
         {practiceId && (
           <FiltersSection
+            ref={filtersSectionRef}
             practiceId={practiceId}
             withLoader={withLoader}
             isLoading={isLoading}

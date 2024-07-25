@@ -47,8 +47,11 @@ export function getStartEndDate(
     );
   }
 
-  const dateConditions = months.map((month) => {
+  const dateConditions = months.flatMap((month) => {
     const monthIndex = monthMap[month];
+    if (monthIndex > currentMonth && !hasViewFutureCasesPermission) {
+      return []; // Return an empty array for this month
+    }
     let startDate = new Date(Date.UTC(currentYear, monthIndex, 1));
     let endDate = new Date(
       Date.UTC(currentYear, monthIndex + 1, 0, 23, 59, 59, 999),
