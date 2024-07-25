@@ -15,6 +15,7 @@ import {
   getUserId,
   isCalendarDates,
   isSlotsAvailable,
+  isZeroPricing,
   toFullName,
 } from '@root/utils';
 import { DatePicker } from 'baseui/datepicker';
@@ -824,7 +825,7 @@ function EditableRow({
             <td
               rowSpan={2}
               className={`min-w-10 ${
-                obj?.totalProfessionalPricing
+                !isZeroPricing(obj?.totalProfessionalPricing)
                   ? 'bg-customGreen'
                   : 'bg-customPink'
               }`}
@@ -845,7 +846,9 @@ function EditableRow({
             <td
               rowSpan={2}
               className={`min-w-10 ${
-                obj?.totalHospitalPricing ? 'bg-customGreen' : 'bg-customPink'
+                !isZeroPricing(obj?.totalHospitalPricing)
+                  ? 'bg-customGreen'
+                  : 'bg-customPink'
               }`}
             >
               <TextInput
