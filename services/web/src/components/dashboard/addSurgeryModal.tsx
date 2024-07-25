@@ -2,7 +2,17 @@
 import BaseUIModal from '@root/components/BaseUiModal/BaseUiModal';
 import AddSurgeryForm from '@root/components/dashboard/AddSurgery';
 
-const AddSurgeryModal = ({
+interface AddSurgeryModalProps {
+  isModalOpen: boolean;
+  handleCloseModal: () => void;
+  autoFillFromEval?: boolean;
+  autoFillFromSurgery?: boolean;
+  withLoader: (func: () => Promise<void>) => Promise<void>;
+  surgeryTypeSelected?: string;
+  onRecordAdded?: () => void;
+}
+
+const AddSurgeryModal: React.FC<AddSurgeryModalProps> = ({
   isModalOpen,
   handleCloseModal,
   autoFillFromEval = false,
