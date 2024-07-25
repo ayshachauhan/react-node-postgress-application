@@ -328,7 +328,7 @@ export class EvalsService {
     const name = practice.name;
 
     const systemGeneratedMailData = {
-      subject: `A new surgery added to your practice ${name}`,
+      subject: `A new evaluation added to your practice ${name}`,
       text: `<p>An eval has been scheduled for you. Here is the summary:</p><p>${evalEntity
         ?.patient?.firstName} ${evalEntity?.patient
         ?.lastName} (${formatHeaderDate(

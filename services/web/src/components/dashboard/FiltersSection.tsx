@@ -42,6 +42,7 @@ import {
   getColorForSurgeryStatus,
   getSelectedMonths,
   getUserId,
+  isZeroPricing,
   toFullName,
   toPascalCase,
   usDateFormatter,
@@ -1538,7 +1539,9 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
                                                           !row.prof &&
                                                           'text-gray-500'
                                                         } ${
-                                                          row?.prof
+                                                          !isZeroPricing(
+                                                            row?.prof,
+                                                          )
                                                             ? 'bg-customGreen'
                                                             : 'bg-customPink'
                                                         } pl-1`}
@@ -1556,7 +1559,9 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
                                                           !row.hospital &&
                                                           'text-gray-500'
                                                         } ${
-                                                          row?.hospital
+                                                          !isZeroPricing(
+                                                            row?.hospital,
+                                                          )
                                                             ? 'bg-customGreen'
                                                             : 'bg-customPink'
                                                         } pl-1`}
