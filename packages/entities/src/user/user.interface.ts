@@ -21,6 +21,7 @@ export interface IUser extends IBaseEntity {
   imgUrl?: string;
   permissionsUpdated?: boolean;
   token?: string;
+  reviewLinkURL?: string;
 }
 
 export enum UserType {
