@@ -158,3 +158,19 @@ export function setToMidnight(date: Date): Date {
   newDate.setHours(0, 0, 0, 0);
   return newDate;
 }
+
+export const getDateDiffInDays = (date1: Date, date2: Date): number => {
+  // Convert both dates to UTC to avoid timezone issues
+
+  const utc1 = Date.UTC(date1.getFullYear(), date1.getMonth(), date1.getDate());
+  const utc2 = Date.UTC(date2.getFullYear(), date2.getMonth(), date2.getDate());
+
+  // Calculate the difference in milliseconds
+  const diffInMilliseconds = utc1 - utc2;
+
+  // Convert milliseconds to days
+  const millisecondsPerDay = 24 * 60 * 60 * 1000;
+  const diffInDays = diffInMilliseconds / millisecondsPerDay;
+
+  return diffInDays;
+};

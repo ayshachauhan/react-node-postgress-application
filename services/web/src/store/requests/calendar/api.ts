@@ -75,7 +75,8 @@ export const createCalendar = async (
     );
 
     if (!response.ok) {
-      throw new Error('Failed to add calendar entry');
+      const errResponse = await response.json();
+      throw new Error(errResponse?.message || 'Failed to add calendar entry');
     }
     const data: ICalendar = await response.json();
 

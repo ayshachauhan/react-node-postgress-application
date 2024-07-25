@@ -11,6 +11,7 @@ import { useAppDispatch, useAppSelector } from '@root/store';
 import { fetchFilteredCalendars } from '@root/store/reducers/calendar';
 import { fetchListings } from '@root/store/reducers/surgeryConfigurations';
 import { DEFAULT_SURGERYNAME_COLOR } from '@root/utils/constants';
+import { MESSAGE_TYPE } from '@root/utils/enums';
 import {
   customBackgroundColor,
   getPracticeId,
@@ -32,6 +33,11 @@ export type CalendarData = {
   surgeryNameColor: string;
   selectedSurgery: ISurgeryType;
 };
+
+export interface CalendarMessage {
+  messageType: MESSAGE_TYPE;
+  message: string;
+}
 
 export const DEFAULT_MAX_SLOTS: number = 14;
 
@@ -56,6 +62,10 @@ const UpcomingSection: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isUpdating, setIsUpdating] = useState<boolean>(false);
   const modalRef = useRef(null);
+  const [calendarMessage, setCalendarMessage] = useState<CalendarMessage>({
+    messageType: MESSAGE_TYPE.INFO,
+    message: '',
+  });
 
   const [selectedSurgery, setSelectedSurgery] = useState<ISurgeryType | null>(
     null,
@@ -173,6 +183,23 @@ const UpcomingSection: React.FC = () => {
       setSelectedSurgery(surgeryTypes[0]);
     }
   }, [surgeryTypes]);
+
+  useEffect(() => {
+    let timer;
+    if (calendarMessage.message) {
+      timer = setTimeout(() => {
+        setCalendarMessage({
+          messageType: MESSAGE_TYPE.INFO,
+          message: '',
+        });
+      }, 5000);
+    }
+    return () => {
+      if (timer) {
+        clearTimeout(timer);
+      }
+    };
+  }, [calendarMessage.message]);
 
   const toggleActive = (surgeryType: ISurgeryType) => {
     setSelectedSurgery(surgeryType);
@@ -308,7 +335,13 @@ const UpcomingSection: React.FC = () => {
    * @param param0
    * @returns
    */
-  const UpsertCalendarModal = ({ isUpdating }: { isUpdating: boolean }) => {
+  const UpsertCalendarModal = ({
+    isUpdating,
+    calendarMessageFunc,
+  }: {
+    isUpdating: boolean;
+    calendarMessageFunc: React.Dispatch<React.SetStateAction<CalendarMessage>>;
+  }) => {
     return (
       <Modal
         isOpen={isModalOpen}
@@ -365,6 +398,7 @@ const UpcomingSection: React.FC = () => {
             }
             isUpdating={isUpdating ?? false}
             calendars={calendars}
+            calendarMessageFunc={calendarMessageFunc}
           />
         </ModalBody>
       </Modal>
@@ -375,6 +409,17 @@ const UpcomingSection: React.FC = () => {
     <div>
       <div className="text-lg font-normal flex justify-between">
         <span>Calendar</span>
+        <span
+          style={{
+            color:
+              calendarMessage.messageType === MESSAGE_TYPE.ERROR
+                ? 'red'
+                : 'green',
+            fontSize: '12px',
+          }}
+        >
+          {calendarMessage.message}
+        </span>
         {selectedSurgery && (
           <div className="flex gap-3 items-center">
             <div
@@ -483,7 +528,10 @@ const UpcomingSection: React.FC = () => {
           <div>{displayErrorMessage}</div>
         )}
       </div>
-      <UpsertCalendarModal isUpdating={isUpdating} />
+      <UpsertCalendarModal
+        isUpdating={isUpdating}
+        calendarMessageFunc={setCalendarMessage}
+      />
     </div>
   );
 };

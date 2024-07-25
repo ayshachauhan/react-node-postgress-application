@@ -15,7 +15,11 @@ import {
 import { CalendarEntity } from '@packages/entities/calendar';
 import { USER_PERMISSIONS } from '@packages/entities/permission';
 import { UsersService } from 'src/users/users.service';
-import { getFullYearDateConditions, getStartEndDate } from 'src/utils';
+import {
+  getDateDiffInDays,
+  getFullYearDateConditions,
+  getStartEndDate,
+} from 'src/utils';
 import {
   FindManyOptions,
   FindOperator,
@@ -154,6 +158,27 @@ export class CalendarService {
 
     if (!surgeryTypeEntity) {
       throw new HttpException('Surgery Type Not found', HttpStatus.NOT_FOUND);
+    }
+
+    const existingSurgeryTypeRecords = await this.getCalendarBySurgeryTypes({
+      surgeryTypeId: dto.surgeryTypeId,
+      practiceId: practiceId,
+      userId: userId,
+    });
+
+    if (existingSurgeryTypeRecords) {
+      const existingRecords = existingSurgeryTypeRecords.find(
+        (s) =>
+          s.practice?.id === practiceId &&
+          s.user?.id === userId &&
+          getDateDiffInDays(new Date(s.date), new Date(dto.date)) === 0,
+      );
+      if (existingRecords) {
+        throw new HttpException(
+          `Calendar slot found for this surgery type on the same date ${dto.date}`,
+          HttpStatus.PRECONDITION_FAILED,
+        );
+      }
     }
 
     //TODO: need to check why we need to add the ! operator here, giving typeerror whithout them about DeepPartialEntity

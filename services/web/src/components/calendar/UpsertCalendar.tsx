@@ -11,25 +11,35 @@ import {
   UpdateCalendarsPayload,
 } from '@root/store/requests/calendar';
 import {
+  formatDate,
   getBackGroundColorCss,
+  getDifferenceInDays,
   getPracticeId,
   getUserId,
   isCalendarDates,
   isSlotsAvailable,
 } from '@root/utils';
+import { MESSAGE_TYPE } from '@root/utils/enums';
 import { DatePicker } from 'baseui/datepicker';
 import { Select } from 'baseui/select';
 import moment from 'moment';
 import React, { useState } from 'react';
 import RequiredIndicator from '../RequiredIndicator';
-import { CalendarData } from '../dashboard/UpcomingSection';
+import { CalendarData, CalendarMessage } from '../dashboard/UpcomingSection';
 
 const UpsertCalendar: React.FC<{
   onClose: () => void;
   calendarData: CalendarData[];
   isUpdating: boolean;
   calendars: ICalendar[];
-}> = ({ onClose, calendarData, isUpdating, calendars }) => {
+  calendarMessageFunc: React.Dispatch<React.SetStateAction<CalendarMessage>>;
+}> = ({
+  onClose,
+  calendarData,
+  isUpdating,
+  calendars,
+  calendarMessageFunc,
+}) => {
   const maxSlotsOptions = Array.from({ length: 14 }, (_, index) => index + 1);
   const dispatch = useAppDispatch();
   const { surgeryTypes } = useAppSelector((state) => ({
@@ -94,7 +104,23 @@ const UpsertCalendar: React.FC<{
           date: upsertCalendarData[0].date,
         };
 
-        dispatch(createCalendarEntry(payload));
+        const existingRecords = calendars.find(
+          (c) =>
+            c?.practice?.id === practiceId &&
+            c?.user?.id === userId &&
+            getDifferenceInDays(new Date(c.date), new Date(payload.date)) === 0,
+        );
+
+        if (!existingRecords) {
+          dispatch(createCalendarEntry(payload));
+        } else {
+          calendarMessageFunc({
+            messageType: MESSAGE_TYPE.ERROR,
+            message: `Slot already exists for this location for selected date ${formatDate(
+              upsertCalendarData[0].date,
+            )}`,
+          });
+        }
         onClose();
       }
   };
