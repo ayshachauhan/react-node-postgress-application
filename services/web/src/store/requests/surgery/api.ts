@@ -23,8 +23,8 @@ export const getSurgeries = async (
     searchMRNName?: string;
     option?: string;
     doctorId?: string;
-    page: number;
-    limit: number;
+    page?: number;
+    limit?: number;
   },
   { rejectWithValue },
 ): Promise<SurgerySearchResult> => {
