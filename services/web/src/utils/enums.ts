@@ -14,3 +14,9 @@ export enum TEMPLATE_VARIABLES {
   'all_cataract_dates' = 'all_cataract_dates',
   'all_case_type' = 'all_case_type',
 }
+
+export enum MESSAGE_TYPE {
+  ERROR = 'error',
+  INFO = 'info',
+  WARNING = 'warning',
+}
