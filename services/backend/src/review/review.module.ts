@@ -7,6 +7,7 @@ import { EmailHandlerModule } from 'src/emailHandler/emailHandler.module';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
 import { PatientsModule } from 'src/patients/patients.module';
 import { PracticesModule } from 'src/practices/practices.module';
+import { SurgeryModule } from 'src/surgery/surgery.module';
 import { UsersModule } from 'src/users/users.module';
 import { PublicReviewController } from './public.review.controller';
 import { ReviewController } from './review.controller';
@@ -17,6 +18,7 @@ import { ReviewService } from './review.service';
     TypeOrmModule.forFeature([ReviewEntity, PracticeEntity, PatientEntity]),
     forwardRef(() => PatientsModule),
     forwardRef(() => EmailHandlerModule),
+    forwardRef(() => SurgeryModule),
     PracticesModule,
     UsersModule,
   ],

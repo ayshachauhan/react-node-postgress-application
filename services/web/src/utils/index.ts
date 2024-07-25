@@ -293,7 +293,7 @@ export const isSlotsAvailable = (
     } else if (a.bookedSlots !== b.bookedSlots) {
       return b.bookedSlots - a.bookedSlots; // Descending order by bookedSlots
     } else {
-      return a.surgeryType.name.localeCompare(b.surgeryType.name); // Alphabetical order by surgeryType.name
+      return a.surgeryType?.name.localeCompare(b.surgeryType?.name); // Alphabetical order by surgeryType.name
     }
   });
 
@@ -332,7 +332,7 @@ export const getBackGroundColorCss = (
   return date.getMonth() + 1 == currentMonth
     ? isCalendarDates(date, calendars)
       ? isSlotsAvailable(date, calendars)
-      : { backgroundColor: 'transparent' }
+      : { backgroundColor: 'transparent', color: '#000000' }
     : {};
 };
 
@@ -353,7 +353,7 @@ export const customBackgroundColor = (
     } else if (a.bookedSlots !== b.bookedSlots) {
       return b.bookedSlots - a.bookedSlots; // Descending order by bookedSlots
     } else {
-      return a.surgeryType.name.localeCompare(b.surgeryType.name); // Alphabetical order by surgeryType.name
+      return a.surgeryType?.name.localeCompare(b.surgeryType?.name); // Alphabetical order by surgeryType.name
     }
   });
 

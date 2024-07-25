@@ -222,40 +222,40 @@ const EvalPage: React.FC = () => {
     };
   }, [addEvalSuccessMessage, dispatch]);
 
-  const modifyEvalList = records
-    .map((ele, index) => {
-      const viewData = {
-        firstName: ele.patient.firstName,
-        lastName: ele.patient.lastName,
-        patientId: ele.patient.id,
-        fullName: toFullName(ele?.patient),
-        mrn: ele.patient.mrn,
-        email: ele.patient.email,
-        phoneNumber: ele.patient.phoneNumber,
-        date: usDateFormatter(ele.date),
-        surgeryConfigName: ele.surgeryConfiguration.name,
-        practiceHomeName: ele.practiceHome.name,
-        insuranceDetails: ele.insuranceDetails,
-        insuranceTypeName: ele.insuranceType ? ele.insuranceType?.name : '',
-        pcp: '',
-        referrer: ele.patient.referrer ? toFullName(ele.patient.referrer) : '',
-        notes: ele.notes ? ele.notes : '',
-        index: index + 1,
-        id: ele.id,
-        bodyPart: ele.bodyPart,
-        home: ele.practiceHome.name,
-        status: ele.status,
-        waitlist: ele.waitlist ? ele.waitlist.name : '',
-        actionDate:
-          usDateFormatter(ele.date) +
-          ` (${getDifferenceInDays(new Date(ele.date), new Date())})`,
-        referrerVerified:
-          ele.patient.referrer && ele.patient.referrer.verified ? true : false,
-      };
+  const modifyEvalList = records.map((ele, index) => {
+    const viewData = {
+      firstName: ele.patient.firstName,
+      lastName: ele.patient.lastName,
+      patientId: ele.patient.id,
+      fullName: toFullName(ele?.patient),
+      mrn: ele.patient.mrn,
+      email: ele.patient.email,
+      phoneNumber: ele.patient.phoneNumber,
+      date: usDateFormatter(ele.date),
+      surgeryConfigName: ele.surgeryConfiguration.name,
+      practiceHomeName: ele.practiceHome.name,
+      insuranceDetails: ele.insuranceDetails,
+      insuranceTypeName: ele.insuranceType ? ele.insuranceType?.name : '',
+      pcp: '',
+      referrer: ele.patient.referrer ? toFullName(ele.patient.referrer) : '',
+      notes: ele.notes ? ele.notes : '',
+      index: index + 1,
+      id: ele.id,
+      bodyPart: ele.bodyPart,
+      home: ele.practiceHome.name,
+      status: ele.status,
+      waitlist: ele.waitlist ? ele.waitlist.name : '',
+      actionDate:
+        usDateFormatter(ele.date) +
+        ` (${getDifferenceInDays(new Date(ele.date), new Date())})`,
+      referrerVerified:
+        ele.patient.referrer && ele.patient.referrer.verified ? true : false,
+    };
 
-      return viewData;
-    })
-    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    return viewData;
+  });
+  // Commented this line because we are sorting records on the backend by status first & then action date.
+  //.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
   const handleEditClick = (rowId: string) => {
     if (practiceId) {

@@ -241,6 +241,10 @@ export class EmailHandlerService {
           //
         } else if (template.messageType === 'pcp') {
           //
+        } else if (template.messageType === 'evaluation') {
+          surgeryDate.setDate(surgeryDate.getDate() + template.dateOffset);
+          entry.expectedDate = new Date();
+          emailLogsEntries.push(entry);
         }
       });
     }

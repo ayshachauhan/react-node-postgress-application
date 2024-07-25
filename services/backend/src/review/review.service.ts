@@ -18,6 +18,7 @@ import {
 import { EmailHandlerService } from 'src/emailHandler/emailHandler.service';
 import { PatientsService } from 'src/patients/patients.service';
 import { PracticesService } from 'src/practices/practices.service';
+import { SurgeryService } from 'src/surgery/surgery.service';
 import { Repository } from 'typeorm';
 import logger from '../logger';
 import { SystemTemplates } from '../transporter/transporter.types';
@@ -35,6 +36,8 @@ export class ReviewService {
     private readonly practiceService: PracticesService,
     @Inject(forwardRef(() => PatientsService))
     private readonly patientService: PatientsService,
+    @Inject(forwardRef(() => SurgeryService))
+    private readonly surgeryService: SurgeryService,
   ) {}
 
   async createReview(
@@ -48,29 +51,53 @@ export class ReviewService {
       const reviewData = await this.getReviewById(reviewId);
 
       if (practiceId && reviewData) {
+        const surgeryId = reviewData?.surgeryId;
+
         const patientList: PatientEntity[] =
           await this.patientService.getPatientsByPractice(practiceId);
         const reviewPatient: PatientEntity | undefined = patientList.find(
           (p) => p.id === reviewData.patient.id,
         );
-        const token: string = this.jwtService.sign({
-          practiceId: practiceId,
-          reviewId: reviewId,
-          id: reviewPatient?.id,
-        });
 
-        const frontendBaseUrl: string | undefined =
-          this.practiceService.getFrontEndBaseUrl();
+        //  Commented this code because client wanted to send doctor's review link in the email.
+        // const token: string = this.jwtService.sign({
+        //   practiceId: practiceId,
+        //   reviewId: reviewId,
+        //   id: reviewPatient?.id,
+        // });
 
-        const mailData: ReviewMailData = {
-          reviewLink: frontendBaseUrl + `/post/review/${practiceId}?r=${token}`,
+        // const frontendBaseUrl: string | undefined =
+        //   this.practiceService.getFrontEndBaseUrl();
+
+        let mailData: ReviewMailData = {
+          reviewLink: '',
           patientName: reviewPatient?.firstName || '',
           practiceName: '',
           to: reviewPatient ? reviewPatient?.email : '',
           pt_email_address: reviewPatient ? reviewPatient?.email : '',
         };
-        const review = await this.getReviewById(reviewId);
-        if (review?.reviewStatus === ReviewStatus.PENDING) {
+
+        if (surgeryId) {
+          const surgeryData =
+            await this.surgeryService.getSurgeryById(surgeryId);
+          const doctor = surgeryData?.doctor;
+          const reviewLink = doctor?.reviewLinkURL;
+          if (reviewLink) {
+            mailData = { ...mailData, reviewLink };
+          } else {
+            throw new HttpException(
+              'Review link not found',
+              HttpStatus.PRECONDITION_FAILED,
+            );
+          }
+        } else {
+          throw new HttpException(
+            'Associated surgery not found in the system',
+            HttpStatus.PRECONDITION_FAILED,
+          );
+        }
+
+        if (reviewData?.reviewStatus === ReviewStatus.PENDING) {
           await this.initiateSendReviewEmail(practiceId, mailData);
 
           const reviewResponse = await this.updateReview(reviewId, {
@@ -81,8 +108,8 @@ export class ReviewService {
           return reviewResponse;
         } else {
           logger.info(
-            `Review status is ${review?.reviewStatus}. So review request can’t be sent to the patient.`,
-            [practiceId, reviewId, review?.reviewStatus],
+            `Review status is ${reviewData?.reviewStatus}. So review request can’t be sent to the patient.`,
+            [practiceId, reviewId, reviewData?.reviewStatus],
           );
           throw new HttpException(
             'Invalid review request',
@@ -90,7 +117,7 @@ export class ReviewService {
           );
         }
       } else {
-        logger.info(`Practice Id or Review id is missing`, [
+        logger.info(`Review request is not associated to any practice`, [
           practiceId,
           reviewId,
         ]);
