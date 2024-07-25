@@ -366,3 +366,7 @@ export const customBackgroundColor = (
     ? surgeryTypeColor
     : 'transparent';
 };
+
+export const isZeroPricing = (price) => {
+  return !price || /^0(\D|$)/.test(price.trim());
+};
