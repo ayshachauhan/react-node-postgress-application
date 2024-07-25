@@ -18,6 +18,7 @@ import {
   isZeroPricing,
   toFullName,
 } from '@root/utils';
+import { PAGINATION_LIMIT } from '@root/utils/constants';
 import { DatePicker } from 'baseui/datepicker';
 import { SIZE, Select } from 'baseui/select';
 import React, { useEffect, useState } from 'react';
@@ -168,6 +169,8 @@ function EditableRow({
           searchMRNName,
           option: selectedOption,
           doctorId,
+          page: 1,
+          limit: PAGINATION_LIMIT,
         }),
       );
     }
