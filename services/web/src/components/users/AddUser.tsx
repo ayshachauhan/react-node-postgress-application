@@ -30,9 +30,8 @@ const AddUserPage: React.FC<{
   }));
 
   const dispatch = useAppDispatch();
-  const permissions = useAppSelector((state) =>
-    Object.values(state.permissions.entities),
-  );
+  const permissions =
+    useAppSelector((state) => Object.values(state.permissions.entities)) || [];
   const [checkboxes, setCheckboxes] = useState(() =>
     Array(permissions.length).fill(false),
   );
@@ -389,38 +388,40 @@ const AddUserPage: React.FC<{
                 Permissions
               </label>
               <div className="grid grid-cols-3 gap-1">
-                {permissions.map((label, index) => (
-                  <Checkbox
-                    key={index}
-                    checked={checkboxes[index]}
-                    onChange={() => handleCheckboxChange(index)}
-                    overrides={{
-                      Checkmark: {
-                        style: ({ $checked }) => ({
-                          backgroundColor: $checked
-                            ? 'rgba(34, 197, 94, 1)'
-                            : 'white',
-                          borderColor: $checked
-                            ? 'rgba(34, 197, 94, 1)'
-                            : 'rgba(113, 113, 122, 1)',
-                          width: '15px',
-                          height: '15px',
-                          marginTop: '7px',
-                          marginRight: '0px',
-                          borderRadius: '2px',
-                          borderWidth: '2px',
-                        }),
-                      },
-                    }}
-                  >
-                    <label
-                      htmlFor={`checkbox-${index}`}
-                      className="text-black text-xs"
-                    >
-                      <span className="truncate">{label.name}</span>
-                    </label>
-                  </Checkbox>
-                ))}
+                {permissions && permissions.length
+                  ? permissions.map((label, index) => (
+                      <Checkbox
+                        key={index}
+                        checked={checkboxes[index]}
+                        onChange={() => handleCheckboxChange(index)}
+                        overrides={{
+                          Checkmark: {
+                            style: ({ $checked }) => ({
+                              backgroundColor: $checked
+                                ? 'rgba(34, 197, 94, 1)'
+                                : 'white',
+                              borderColor: $checked
+                                ? 'rgba(34, 197, 94, 1)'
+                                : 'rgba(113, 113, 122, 1)',
+                              width: '15px',
+                              height: '15px',
+                              marginTop: '7px',
+                              marginRight: '0px',
+                              borderRadius: '2px',
+                              borderWidth: '2px',
+                            }),
+                          },
+                        }}
+                      >
+                        <label
+                          htmlFor={`checkbox-${index}`}
+                          className="text-black text-xs"
+                        >
+                          <span className="truncate">{label.name}</span>
+                        </label>
+                      </Checkbox>
+                    ))
+                  : null}
               </div>
             </div>
           </div>
