@@ -69,8 +69,10 @@ interface FiltersSectionProps {
   practiceId: string;
   withLoader: (func: () => Promise<void>) => Promise<void>;
   isLoading: boolean;
-  onReviewClickError;
-  onReviewClickSuccess;
+  onReviewClickError: (error: string) => void;
+  onReviewClickSuccess: (message: string) => void;
+  isFiltersApplied: boolean;
+  setIsFiltersApplied: (value: boolean) => void;
 }
 
 export interface FiltersSectionRef {
@@ -85,15 +87,11 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
       isLoading,
       onReviewClickError,
       onReviewClickSuccess,
+      isFiltersApplied,
+      setIsFiltersApplied,
     },
     ref,
   ) => {
-    useImperativeHandle(ref, () => ({
-      handleOpenAddModal() {
-        setIsAddModalOpen(true);
-      },
-      fetchSurgeryListDebounced,
-    }));
     const dispatch = useAppDispatch();
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
@@ -645,44 +643,23 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
     }, [viewFutureCases]);
 
     useEffect(() => {
-      const options = {
-        root: null,
-        rootMargin: '20px',
-        threshold: 1.0,
-      };
+      dispatch(setSelectedMonth([]));
+      dispatch(setSearchMRNName(''));
+      dispatch(setSelectedValue(viewFutureCases ? 'Upcoming View' : null));
+      setIsFiltersApplied(false);
+      setIsViewFutureCasesFinalized(false);
+    }, [dispatch, viewFutureCases]);
 
-      const observer = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting && !isSurgeriesLoading && hasMore) {
-          console.log('Intersection observed, loading more'); // Debugging log
-          loadMore();
-        }
-      }, options);
-
-      if (loader.current) {
-        observer.observe(loader.current);
+    // Finalize filters
+    useEffect(() => {
+      if (viewFutureCases !== null) {
+        setIsFiltersApplied(true);
+        setIsViewFutureCasesFinalized(true);
       }
+    }, [viewFutureCases]);
 
-      return () => {
-        if (loader.current) {
-          observer.unobserve(loader.current);
-        }
-      };
-    }, [loadMore, isSurgeriesLoading, hasMore, loader]);
-
-    const fetchSurgeryListDebounced = useCallback(
-      debounce(async (currentPage: number) => {
-        console.log(
-          isSurgeriesLoading,
-          344,
-          hasMore,
-          45,
-          practiceId,
-          41,
-          loggedInUserId,
-          5,
-          doctorId,
-          6,
-        );
+    const fetchSurgeryList = useCallback(
+      async (currentPage: number) => {
         if (
           !isSurgeriesLoading &&
           hasMore &&
@@ -733,30 +710,81 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
             setIsLoading(false);
           }
         }
-      }, 400),
+      },
       [
         isSurgeriesLoading,
-        hasMore,
         practiceId,
         loggedInUserId,
         selectedMonth,
         searchMRNNameStr,
         selectedValueStr,
         doctorId,
+        dispatch,
       ],
     );
 
+    const fetchSurgeryListDebounced = useCallback(
+      debounce(async (currentPage: number) => {
+        await fetchSurgeryList(currentPage);
+      }, 400),
+      [fetchSurgeryList],
+    );
+
+    useImperativeHandle(ref, () => ({
+      handleOpenAddModal() {
+        setIsAddModalOpen(true);
+      },
+      fetchSurgeryListDebounced,
+    }));
+
     useEffect(() => {
-      if (isViewFutureCasesFinalized) {
-        dispatch(setSelectedMonth([]));
-        dispatch(setSearchMRNName(''));
-        if (viewFutureCases) {
-          dispatch(setSelectedValue('Upcoming View'));
-        } else {
-          dispatch(setSelectedValue(null));
-        }
+      if (isFiltersApplied && isViewFutureCasesFinalized) {
+        const fetchData = async () => {
+          setHasMore(true); // Allow more data to be fetched
+          try {
+            await fetchSurgeryListDebounced(page); // Fetch data with current page
+          } catch (error) {
+            console.error('Error fetching data:', error);
+          }
+        };
+        fetchData();
       }
-    }, [isViewFutureCasesFinalized, viewFutureCases, dispatch]);
+    }, [
+      isFiltersApplied,
+      isViewFutureCasesFinalized,
+      page,
+      fetchSurgeryListDebounced,
+    ]);
+
+    useEffect(() => {
+      if (doctorId) {
+        resetPagination();
+      }
+    }, [doctorId]);
+
+    useEffect(() => {
+      const options = {
+        root: null,
+        rootMargin: '20px',
+        threshold: 1.0,
+      };
+
+      const observer = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && !isSurgeriesLoading && hasMore) {
+          loadMore();
+        }
+      }, options);
+
+      if (loader.current) {
+        observer.observe(loader.current);
+      }
+
+      return () => {
+        if (loader.current) {
+          observer.unobserve(loader.current);
+        }
+      };
+    }, [loadMore, isSurgeriesLoading, hasMore, loader]);
 
     useEffect(() => {
       handleSearchMRNNameChange('');
@@ -803,25 +831,6 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
       }
     }, [practiceId, doctorId, loggedInUserId, dispatch]);
 
-    useEffect(() => {
-      const fetchData = async () => {
-        if (isViewFutureCasesFinalized) {
-          setHasMore(false);
-          await fetchSurgeryListDebounced(page);
-        }
-      };
-
-      fetchData();
-    }, [
-      page,
-      isViewFutureCasesFinalized,
-      practiceId,
-      loggedInUserId,
-      selectedMonth,
-      searchMRNNameStr,
-      selectedValueStr,
-      doctorId,
-    ]);
     const [isUpdateLoading, setIsUpdateLoading] = useState(false);
     const { calendars } = useAppSelector((state) => ({
       calendars: Object.values(state.calendars?.entities).filter(
@@ -1125,6 +1134,9 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
                                                 }
                                                 setIsUpdateLoading={
                                                   handleSetIsUpdateLoading
+                                                }
+                                                onRecordEdited={
+                                                  handleRecordAdded
                                                 }
                                               />
                                             ) : (
