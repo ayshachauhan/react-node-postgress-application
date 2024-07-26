@@ -401,6 +401,7 @@ const EvalPage: React.FC = () => {
                     evalInfo={evalInfo}
                     setSelectedAction={setSelectedAction}
                     withLoader={withLoader}
+                    onRecordEdited={handleRecordAdded}
                   />
                 ) : (
                   <React.Fragment key={data.id}>

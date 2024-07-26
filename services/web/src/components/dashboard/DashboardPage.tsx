@@ -85,6 +85,7 @@ const DashboardPage: React.FC = () => {
   const handleReviewSuccessMessage = (message: string) => {
     setReviewSuccessMessage(message);
   };
+  const [isFiltersApplied, setIsFiltersApplied] = useState(false);
 
   useEffect(() => {
     if (reviewErrorMessage) {
@@ -136,6 +137,27 @@ const DashboardPage: React.FC = () => {
     }
   }, [practiceId, dispatch, withLoader, doctorId]);
   const updateSuccessCase = 'Surgery updated successfully.';
+
+  useEffect(() => {
+    if (
+      (addSurgerySuccessMessage || addEvalSuccessMessage) &&
+      addSurgerySuccessMessage !== updateSuccessCase
+    ) {
+      if (practiceId) {
+        if (isFiltersApplied && filtersSectionRef.current) {
+          filtersSectionRef.current.fetchSurgeryListDebounced(1);
+        }
+      }
+    }
+  }, [
+    addSurgerySuccessMessage,
+    addEvalSuccessMessage,
+    calendarSuccessMessage,
+    practiceId,
+    page,
+    userId,
+    isFiltersApplied,
+  ]);
 
   useEffect(() => {
     if (
@@ -308,6 +330,8 @@ const DashboardPage: React.FC = () => {
             isLoading={isLoading}
             onReviewClickError={handleReviewErrorMessage}
             onReviewClickSuccess={handleReviewSuccessMessage}
+            isFiltersApplied={isFiltersApplied}
+            setIsFiltersApplied={setIsFiltersApplied}
           />
         )}
       </div>
