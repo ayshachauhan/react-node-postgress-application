@@ -20,7 +20,7 @@ import {
 } from '@root/utils/index';
 import { Modal, ModalBody, ModalHeader, ROLE } from 'baseui/modal';
 import moment from 'moment';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ModalCloseEvent } from '../BaseUiModal/BaseUiModal';
 import UpsertCalendar from '../calendar/UpsertCalendar';
 
@@ -40,6 +40,8 @@ export interface CalendarMessage {
 }
 
 export const DEFAULT_MAX_SLOTS: number = 14;
+
+export type SetMessageFunction = (messageObj: CalendarMessage) => void;
 
 const UpcomingSection: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -297,38 +299,11 @@ const UpcomingSection: React.FC = () => {
     displayErrorMessage = 'No records found';
   }
 
-  const getNextValidDate = (excludedDates: Date[]) => {
-    // Start from now with the current time
-    let nextDate = moment();
+  const memoizedSetMessage = useCallback((msgObj: CalendarMessage) => {
+    setCalendarMessage(msgObj);
+  }, []);
 
-    while (excludedDates.some((date) => moment(date).isSame(nextDate, 'day'))) {
-      // Move to the next day while keeping the current time
-      nextDate = moment(nextDate).add(1, 'days');
-    }
-
-    // Convert back to a Date object for DatePicker
-    return nextDate.toDate();
-  };
-
-  const resolvedCalendarData: CalendarData[] = calendars.map(
-    (data: ICalendar) => ({
-      id: data.id,
-      date: data.date,
-      maxSlots: data.maxSlots,
-      bookedSlots: data.bookedSlots,
-      // using data from selectedsurgery here because calendar data doesn't contain surgerytype relation, for fallback using surgeryconfig name
-      surgeryName:
-        selectedSurgery?.name.charAt(0).toUpperCase() ??
-        data?.surgeryType?.name.charAt(0).toUpperCase(),
-      surgeryNameColor: data?.surgeryType?.color ?? DEFAULT_SURGERYNAME_COLOR,
-      selectedSurgery: selectedSurgery as ISurgeryType,
-    }),
-  );
-
-  const excludedDates: Date[] = resolvedCalendarData.map(
-    (calendar) => new Date(calendar.date),
-  );
-  const nextValidDate: Date = getNextValidDate(excludedDates);
+  const nextValidDate: Date = new Date();
 
   /**
    * @summary Upsert calendar modal to add or update the data
@@ -340,7 +315,7 @@ const UpcomingSection: React.FC = () => {
     calendarMessageFunc,
   }: {
     isUpdating: boolean;
-    calendarMessageFunc: React.Dispatch<React.SetStateAction<CalendarMessage>>;
+    calendarMessageFunc: SetMessageFunction;
   }) => {
     return (
       <Modal
@@ -530,7 +505,7 @@ const UpcomingSection: React.FC = () => {
       </div>
       <UpsertCalendarModal
         isUpdating={isUpdating}
-        calendarMessageFunc={setCalendarMessage}
+        calendarMessageFunc={memoizedSetMessage}
       />
     </div>
   );

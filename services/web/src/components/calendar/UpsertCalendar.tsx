@@ -25,14 +25,14 @@ import { Select } from 'baseui/select';
 import moment from 'moment';
 import React, { useState } from 'react';
 import RequiredIndicator from '../RequiredIndicator';
-import { CalendarData, CalendarMessage } from '../dashboard/UpcomingSection';
+import { CalendarData, SetMessageFunction } from '../dashboard/UpcomingSection';
 
 const UpsertCalendar: React.FC<{
   onClose: () => void;
   calendarData: CalendarData[];
   isUpdating: boolean;
   calendars: ICalendar[];
-  calendarMessageFunc: React.Dispatch<React.SetStateAction<CalendarMessage>>;
+  calendarMessageFunc: SetMessageFunction;
 }> = ({
   onClose,
   calendarData,
@@ -108,7 +108,9 @@ const UpsertCalendar: React.FC<{
           (c) =>
             c?.practice?.id === practiceId &&
             c?.user?.id === userId &&
-            getDifferenceInDays(new Date(c.date), new Date(payload.date)) === 0,
+            getDifferenceInDays(new Date(c.date), new Date(payload.date)) ===
+              0 &&
+            c?.surgeryType?.id === payload.surgeryTypeId,
         );
 
         if (!existingRecords) {
