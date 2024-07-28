@@ -24,10 +24,7 @@ import { fetchListings as fetchInsuranceTypesList } from '@root/store/reducers/i
 import { fetchListings as fetchPatients } from '@root/store/reducers/patient';
 import { fetchListings as fetchPracticeHomesListing } from '@root/store/reducers/practiceHomes';
 import { fetchListings as fetchReferrerList } from '@root/store/reducers/referrer';
-import {
-  clearSuccessMessage as clearSurgerySuccessMessage,
-  fetchListings as fetchSurgeryList,
-} from '@root/store/reducers/surgery';
+import { clearSuccessMessage as clearSurgerySuccessMessage } from '@root/store/reducers/surgery';
 import { fetchListings as fetchSurgeryConfigurationsListing } from '@root/store/reducers/surgeryConfigurations';
 import { fetchListings as fetchSurgeryTypesListing } from '@root/store/reducers/surgeryTypes';
 import { fetchListings as fetchUsersList } from '@root/store/reducers/users';
@@ -46,7 +43,7 @@ const DashboardPage: React.FC = () => {
   const userPermissions = userInfo?.permissions;
   const loggedInUserId = userInfo?.id ?? null;
   const doctorId = getUserId();
-  const { selectedMonth, searchMRNName, selectedValue } = useAppSelector(
+  const { selectedMonth, selectedValue } = useAppSelector(
     (state) => state.surgeries.surgeryFilters,
   );
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -75,7 +72,6 @@ const DashboardPage: React.FC = () => {
   const selectedValueStr = selectedValue || '';
   const monthLabels = selectedMonth.map((month) => month.label);
   const month = monthLabels.join(',');
-  const searchMRNNameStr = searchMRNName || '';
   const { isLoading, withLoader } = useLoader();
 
   const handleReviewErrorMessage = (message: string) => {
@@ -116,12 +112,6 @@ const DashboardPage: React.FC = () => {
   }, [dispatch]);
 
   useEffect(() => {
-    if (practiceId && filtersSectionRef.current) {
-      filtersSectionRef.current.fetchSurgeryListDebounced(page);
-    }
-  }, [practiceId, page, dispatch, doctorId]);
-
-  useEffect(() => {
     if (practiceId) {
       dispatch(
         fetchEvalsList({ practiceId, doctorId: doctorId || '', page, limit }),
@@ -145,7 +135,7 @@ const DashboardPage: React.FC = () => {
     ) {
       if (practiceId) {
         if (isFiltersApplied && filtersSectionRef.current) {
-          filtersSectionRef.current.fetchSurgeryListDebounced(1);
+          filtersSectionRef.current.fetchSurgeryList(1);
         }
       }
     }
@@ -165,25 +155,6 @@ const DashboardPage: React.FC = () => {
       addSurgerySuccessMessage !== updateSuccessCase
     ) {
       if (practiceId) {
-        const loadData = async () => {
-          await withLoader(async () => {
-            if (loggedInUserId !== null && doctorId) {
-              await dispatch(
-                fetchSurgeryList({
-                  loggedInUserId,
-                  practiceId,
-                  month: month,
-                  searchMRNName: searchMRNNameStr,
-                  option: selectedValueStr,
-                  doctorId: doctorId || '',
-                  page: page,
-                  limit: limit,
-                }),
-              );
-            }
-          });
-        };
-        loadData();
         dispatch(
           fetchEvalsList({ practiceId, doctorId: doctorId || '', page, limit }),
         );

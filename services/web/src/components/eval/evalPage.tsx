@@ -80,7 +80,6 @@ const EvalPage: React.FC = () => {
   const [selectedAction, setSelectedAction] = useState<string | null>(null);
   const [selectedRow, setSelectedRow] = useState<string | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const loader = useRef(null);
   const [isEvalsLoading, setIsLoading] = useState(false);
   const editCaseAllowed = useUserPermission(userPermissions, [
     USER_PERMISSIONS.EDIT_CASE,
@@ -110,73 +109,107 @@ const EvalPage: React.FC = () => {
     dispatch(fetchLoggedInUser());
   }, [dispatch]);
 
-  const loadData = useCallback(async () => {
-    if (!isEvalsLoading && hasMore && practiceId) {
-      setIsLoading(true);
-      try {
-        const resultAction = await dispatch(
-          fetchEvalsList({
-            practiceId,
-            doctorId: userId || '',
-            page,
-            limit: PAGINATION_LIMIT,
-          }),
-        );
+  const fetchedPages = useRef(new Set<number>());
 
-        if (fetchEvalsList.fulfilled.match(resultAction)) {
-          const data = resultAction.payload;
+  const getEvalsList = async (currentPage: number) => {
+    if (
+      isEvalsLoading ||
+      !hasMore ||
+      !practiceId ||
+      fetchedPages.current.has(currentPage)
+    )
+      return;
 
-          if (Array.isArray(data)) {
-            setRecords((prevRecords) => {
-              const newRecords = data.filter(
-                (record) => !prevRecords.some((prev) => prev.id === record.id),
-              );
-              return [...prevRecords, ...newRecords];
-            });
+    setIsLoading(true);
+    fetchedPages.current.add(currentPage);
+    try {
+      const resultAction = await dispatch(
+        fetchEvalsList({
+          practiceId,
+          doctorId: userId || '',
+          page: currentPage,
+          limit: PAGINATION_LIMIT,
+        }),
+      );
 
-            setHasMore(data.length === PAGINATION_LIMIT);
+      if (fetchEvalsList.fulfilled.match(resultAction)) {
+        const data = resultAction.payload;
 
-            if (data.length === PAGINATION_LIMIT) {
-              setPage((prevPage) => prevPage + 1);
-            }
-          } else {
-            setHasMore(false);
-          }
+        if (Array.isArray(data)) {
+          setRecords((prevRecords) => [
+            ...prevRecords,
+            ...data.filter(
+              (record) => !prevRecords.some((prev) => prev.id === record.id),
+            ),
+          ]);
+          setHasMore(data.length === PAGINATION_LIMIT);
         } else {
           setHasMore(false);
         }
-      } catch (error) {
+      } else {
         setHasMore(false);
-      } finally {
-        setIsLoading(false);
       }
-
-      dispatch(fetchInsuranceTypesList({ practiceId }));
-      dispatch(fetchPracticeHomesListing({ practiceId }));
-      dispatch(fetchSurgeryTypesListing({ practiceId }));
-      dispatch(fetchReferrerList({ practiceId }));
-      dispatch(fetchUsersList({ practiceId }));
-      dispatch(fetchSurgeryConfigurationsListing({ practiceId }));
-      dispatch(fetchPatients({ practiceId }));
-      dispatch(fetchWaitlist({ practiceId }));
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      setHasMore(false);
+    } finally {
+      setIsLoading(false);
     }
-  }, [isEvalsLoading, hasMore, practiceId, userId, page, dispatch]);
+    dispatch(fetchInsuranceTypesList({ practiceId }));
+    dispatch(fetchPracticeHomesListing({ practiceId }));
+    dispatch(fetchSurgeryTypesListing({ practiceId }));
+    dispatch(fetchReferrerList({ practiceId }));
+    dispatch(fetchUsersList({ practiceId }));
+    dispatch(fetchSurgeryConfigurationsListing({ practiceId }));
+    dispatch(fetchPatients({ practiceId }));
+    dispatch(fetchWaitlist({ practiceId }));
+  };
 
-  const handleRecordAdded = async () => {
+  const resetPagination = useCallback(() => {
     setPage(1);
     setHasMore(true);
     setRecords([]);
-    await loadData(); // Fetch fresh data
+    fetchedPages.current.clear();
+  }, []);
+
+  const handleRecordAdded = async () => {
+    resetPagination();
+    await getEvalsList(1);
   };
 
-  useEffect(() => {
-    loadData();
-  }, [page, loadData]);
+  const loadMore = useCallback(() => {
+    if (!isEvalsLoading && hasMore) {
+      setPage((prevPage) => prevPage + 1);
+    }
+  }, [isEvalsLoading, hasMore]);
+
+  const handleScroll = useCallback(() => {
+    if (
+      window.innerHeight + document.documentElement.scrollTop !==
+        document.documentElement.offsetHeight ||
+      isEvalsLoading
+    )
+      return;
+
+    loadMore();
+  }, [isEvalsLoading, loadMore]);
 
   useEffect(() => {
-    if (addEvalSuccessMessage) {
+    window.addEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [handleScroll]);
+
+  useEffect(() => {
+    getEvalsList(page);
+  }, [page]);
+
+  useEffect(() => {
+    const fetchAndReset = async () => {
       if (practiceId) {
-        loadData();
+        resetPagination();
+        await getEvalsList(1);
         dispatch(clearEvalSuccessMessage());
         dispatch(fetchSurgeryConfigurationsListing({ practiceId }));
         dispatch(fetchPatients({ practiceId }));
@@ -193,11 +226,14 @@ const EvalPage: React.FC = () => {
           );
         }
       }
+    };
+
+    if (addEvalSuccessMessage) {
+      fetchAndReset();
     }
   }, [
     addEvalSuccessMessage,
     calendarSuccessMessage,
-    page,
     dispatch,
     practiceId,
     userId,
@@ -285,10 +321,8 @@ const EvalPage: React.FC = () => {
         await dispatch(deleteRecordAsync({ practiceId, id }));
         setIsDeleteModalOpen(false);
         setSelectedRow(null);
-        setPage(1);
-        setHasMore(true);
-        setRecords([]);
-        await loadData();
+        resetPagination();
+        await getEvalsList(1);
       } catch (error) {
         console.log(error);
       }
@@ -317,39 +351,9 @@ const EvalPage: React.FC = () => {
     setIsBookSurgeryOpenModal(true);
   };
 
-  const loadMore = useCallback(() => {
-    if (hasMore) {
-      setPage((prevPage) => prevPage + 1);
-    }
-  }, [hasMore]);
-
-  useEffect(() => {
-    const options = {
-      root: null,
-      rootMargin: '20px',
-      threshold: 1.0,
-    };
-
-    const observer = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting && !isEvalsLoading && hasMore) {
-        loadMore();
-      }
-    }, options);
-
-    if (loader.current) {
-      observer.observe(loader.current);
-    }
-
-    return () => {
-      if (loader.current) {
-        observer.unobserve(loader.current);
-      }
-    };
-  }, [loadMore, isEvalsLoading, hasMore]);
-
   return (
     <div id="__next" className="">
-      {isLoading && <Loader />}
+      {isEvalsLoading && <Loader />}
       <div className="flex justify-between border-gray-400 items-center ">
         <span className="text-xl font-bold">Evals</span>
         <div className="flex  justify-between">
@@ -550,10 +554,6 @@ const EvalPage: React.FC = () => {
               )}
           </tbody>
         </table>
-        {isEvalsLoading && (
-          <div className="text-center font-bold text-base p-6">Loading...</div>
-        )}
-        <div ref={loader} />
       </div>
       <AddEvalModal
         isSecondModalOpen={isAddModalOpen}

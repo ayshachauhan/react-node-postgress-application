@@ -46,4 +46,4 @@ export const DEFAULT_SURGERYNAME_COLOR = '#299479';
 
 export const DEFAULT_SURGERYLOCATION_COLOR = '#299479';
 
-export const PAGINATION_LIMIT = 10;
+export const PAGINATION_LIMIT = 100;

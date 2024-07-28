@@ -17,6 +17,7 @@ import {
 } from '@root/components/Icons';
 import TextInput from '@root/components/TextInput';
 import Loader from '@root/components/loader';
+import { useUserPermissions } from '@root/context/UserPermissionsContext';
 import { useLoader } from '@root/hooks/useLoader';
 import { useUserPermission } from '@root/hooks/userHasPermission';
 import { useAppDispatch, useAppSelector } from '@root/store';
@@ -50,7 +51,6 @@ import {
 import { PAGINATION_LIMIT, monthOptions } from '@root/utils/constants';
 import { Checkbox } from 'baseui/checkbox';
 import { Select } from 'baseui/select';
-import { debounce } from 'lodash';
 import { useRouter } from 'next/navigation';
 import React, {
   forwardRef,
@@ -65,6 +65,7 @@ import DeleteFilterModal from './DeleteFilterModal';
 import EditableRow from './EditableRow';
 import ViewRow from './ViewRow';
 import AddSurgeryModal from './addSurgeryModal';
+
 interface FiltersSectionProps {
   practiceId: string;
   withLoader: (func: () => Promise<void>) => Promise<void>;
@@ -77,7 +78,7 @@ interface FiltersSectionProps {
 
 export interface FiltersSectionRef {
   handleOpenAddModal: () => void;
-  fetchSurgeryListDebounced: (currentPage: number) => void;
+  fetchSurgeryList: (currentPage: number) => void;
 }
 const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
   (
@@ -114,13 +115,10 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
       waitlist: Object.values(state.waitlist.entities),
       userInfo: state.auth.user,
     }));
-    const loader = useRef(null);
     const [isSurgeriesLoading, setIsLoading] = useState(false);
     const handleRecordAdded = async () => {
-      setPage(1); // Reset page to 1
-      setHasMore(true); // Ensure there are more records to load
-      setRecords([]); // Clear existing records
-      await fetchSurgeryListDebounced(1); // Fetch fresh data from page 1
+      resetPagination();
+      await fetchSurgeryList(1);
     };
 
     const {
@@ -129,14 +127,13 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
     } = useLoader();
 
     const router = useRouter();
+    const { userPermissions } = useUserPermissions();
+
     const loadMore = useCallback(() => {
-      if (hasMore) {
-        setPage((prevPage) => {
-          const nextPage = prevPage + 1;
-          return nextPage;
-        });
+      if (!isSurgeriesLoading && hasMore) {
+        setPage((prevPage) => prevPage + 1);
       }
-    }, [hasMore]);
+    }, [isSurgeriesLoading, hasMore]);
 
     const [reviewErrorMessage, setReviewErrorMessage] = useState<string>('');
     const [reviewSuccessMessage, setReviewSuccessMessage] =
@@ -151,7 +148,6 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
     const [selectedRow, setSelectedRow] = useState<string | null>(null);
     const [editableRows, setEditableRows] = useState<string[]>([]);
     const loggedInUserId = userInfo?.id ?? null;
-    const userPermissions = userInfo?.permissions;
 
     const viewPastCases = useUserPermission(userPermissions, [
       USER_PERMISSIONS.VIEW_PAST_CASES,
@@ -391,16 +387,16 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
           await dispatch(deleteRecordAsync({ practiceId, id: selectedRow }));
           dispatch(fetchUsersList({ practiceId }));
           setSelectedRow(null);
-          setPage(1);
-          setHasMore(true);
-          setRecords([]);
-          await fetchSurgeryListDebounced(1);
+          resetPagination();
+          await fetchSurgeryList(1);
         }
         setIsDeleteModalOpen(false);
       } catch (error) {
         console.log(error);
       }
     };
+
+    const fetchedPages = useRef(new Set<number>());
 
     const calculatedMaxSlots = (targetDateString: string): number => {
       const filteredEntries = calendars.filter((entry) => {
@@ -418,17 +414,15 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
       return maxSlots;
     };
 
-    const resetPagination = () => {
-      setPage(1); // Reset page
-      setRecords([]); // Clear records
-      setHasMore(true); // Reset hasMore
-      fetchSurgeryListDebounced(1);
-    };
-
-    const handleChangeValue = ({ value }) => {
+    const resetPagination = useCallback(() => {
       setPage(1);
       setHasMore(true);
       setRecords([]);
+      fetchedPages.current.clear();
+    }, []);
+
+    const handleChangeValue = ({ value }) => {
+      resetPagination();
       dispatch(setSelectedValue(value[0] ? value[0].label : null));
       const selectedLabel =
         value.length > 0 ? value[0].label.toLowerCase() : '';
@@ -473,9 +467,7 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
     };
 
     const handleChangeMonth = ({ value }) => {
-      setPage(1);
-      setHasMore(true);
-      setRecords([]);
+      resetPagination();
       dispatch(setSelectedMonth(value));
     };
     const sendReqest = async (id: string, patientEmail: string) => {
@@ -503,9 +495,7 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
     };
 
     const handleSearchMRNNameChange = (value: string) => {
-      setPage(1);
-      setHasMore(true);
-      setRecords([]);
+      resetPagination();
       const mrn = value.toLowerCase();
       dispatch(setSearchMRNName(mrn));
     };
@@ -573,13 +563,14 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
       }
     };
 
-    const resetFilters = (): void => {
+    const resetFilters = async (): Promise<void> => {
       dispatch(setSelectedMonth([]));
       dispatch(setSearchMRNName(null));
       dispatch(setSelectedValue(null));
       setIsWailistViewActive(false);
       setIsIolViewActive(false);
       resetPagination();
+      await fetchSurgeryList(1);
     };
 
     const handleViewHistory = (id: string, surgery: string): void => {
@@ -658,133 +649,82 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
       }
     }, [viewFutureCases]);
 
-    const fetchSurgeryList = useCallback(
-      async (currentPage: number) => {
-        if (
-          !isSurgeriesLoading &&
-          hasMore &&
-          practiceId &&
-          loggedInUserId !== null &&
-          doctorId
-        ) {
-          setIsLoading(true);
-          try {
-            const resultAction = await dispatch(
-              fetchListings({
-                loggedInUserId,
-                practiceId,
-                month: selectedMonth.map((month) => month.label).join(','),
-                searchMRNName: searchMRNNameStr,
-                option: selectedValueStr,
-                doctorId: doctorId || '',
-                page: currentPage,
-                limit: limit,
-              }),
-            );
+    const fetchSurgeryList = async (currentPage: number) => {
+      if (
+        isSurgeriesLoading ||
+        !hasMore ||
+        !practiceId ||
+        loggedInUserId === null ||
+        !doctorId ||
+        fetchedPages.current.has(currentPage)
+      )
+        return;
+      setIsLoading(true);
+      fetchedPages.current.add(currentPage);
+      try {
+        const resultAction = await dispatch(
+          fetchListings({
+            loggedInUserId,
+            practiceId,
+            month: selectedMonth.map((month) => month.label).join(','),
+            searchMRNName: searchMRNNameStr,
+            option: selectedValueStr,
+            doctorId: doctorId || '',
+            page: currentPage,
+            limit: limit,
+          }),
+        );
 
-            if (fetchListings.fulfilled.match(resultAction)) {
-              const data = resultAction.payload;
-              if (Array.isArray(data.surgeries)) {
-                setRecords((prevRecords) => {
-                  const newRecords = data.surgeries.filter(
-                    (record) =>
-                      !prevRecords.some((prev) => prev.id === record.id),
-                  );
-                  return [...prevRecords, ...newRecords];
-                });
+        if (fetchListings.fulfilled.match(resultAction)) {
+          const data = resultAction.payload;
+          if (Array.isArray(data.surgeries)) {
+            setRecords((prevRecords) => {
+              const newRecords = data.surgeries.filter(
+                (record) => !prevRecords.some((prev) => prev.id === record.id),
+              );
+              return [...prevRecords, ...newRecords];
+            });
 
-                setHasMore(data.surgeries.length === limit);
-                if (data.surgeries.length === limit) {
-                  setPage((prevPage) => prevPage + 1);
-                }
-              } else {
-                setHasMore(false);
-              }
-            } else {
-              setHasMore(false);
-            }
-          } catch (error) {
-            console.error('Error fetching surgeries:', error);
+            setHasMore(data.surgeries.length === limit);
+          } else {
             setHasMore(false);
-          } finally {
-            setIsLoading(false);
           }
+        } else {
+          setHasMore(false);
         }
-      },
-      [
-        isSurgeriesLoading,
-        practiceId,
-        loggedInUserId,
-        selectedMonth,
-        searchMRNNameStr,
-        selectedValueStr,
-        doctorId,
-        dispatch,
-      ],
-    );
-
-    const fetchSurgeryListDebounced = useCallback(
-      debounce(async (currentPage: number) => {
-        await fetchSurgeryList(currentPage);
-      }, 400),
-      [fetchSurgeryList],
-    );
+      } catch (error) {
+        console.error('Error fetching surgeries:', error);
+        setHasMore(false);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
     useImperativeHandle(ref, () => ({
       handleOpenAddModal() {
         setIsAddModalOpen(true);
       },
-      fetchSurgeryListDebounced,
+      fetchSurgeryList,
     }));
 
     useEffect(() => {
       if (isFiltersApplied && isViewFutureCasesFinalized) {
         const fetchData = async () => {
-          setHasMore(true); // Allow more data to be fetched
           try {
-            await fetchSurgeryListDebounced(page); // Fetch data with current page
+            await fetchSurgeryList(page); // Fetch data with current page
           } catch (error) {
             console.error('Error fetching data:', error);
           }
         };
         fetchData();
       }
-    }, [
-      isFiltersApplied,
-      isViewFutureCasesFinalized,
-      page,
-      fetchSurgeryListDebounced,
-    ]);
+    }, [isFiltersApplied, isViewFutureCasesFinalized, page, fetchSurgeryList]);
 
     useEffect(() => {
       if (doctorId) {
         resetPagination();
       }
     }, [doctorId]);
-
-    useEffect(() => {
-      const options = {
-        root: null,
-        rootMargin: '20px',
-        threshold: 1.0,
-      };
-
-      const observer = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting && !isSurgeriesLoading && hasMore) {
-          loadMore();
-        }
-      }, options);
-
-      if (loader.current) {
-        observer.observe(loader.current);
-      }
-
-      return () => {
-        if (loader.current) {
-          observer.unobserve(loader.current);
-        }
-      };
-    }, [loadMore, isSurgeriesLoading, hasMore, loader]);
 
     useEffect(() => {
       handleSearchMRNNameChange('');
@@ -842,6 +782,24 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
       setIsUpdateLoading(loadingState);
     };
 
+    const handleScroll = useCallback(() => {
+      if (
+        window.innerHeight + document.documentElement.scrollTop !==
+          document.documentElement.offsetHeight ||
+        isSurgeriesLoading
+      )
+        return;
+
+      loadMore();
+    }, [isSurgeriesLoading, loadMore]);
+
+    useEffect(() => {
+      window.addEventListener('scroll', handleScroll);
+      return () => {
+        window.removeEventListener('scroll', handleScroll);
+      };
+    }, [handleScroll]);
+
     const waitlistShowFlag =
       isWailistViewActive ||
       selectedValueStr.trim().toLowerCase() === 'waitlist view';
@@ -869,6 +827,7 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
       <div>
         {reviewSendingIsLoading && <Loader />}
         {isUpdateLoading && <Loader />}
+        {isSurgeriesLoading && <Loader />}
         {!isLoading && (
           <div>
             <div className="flex w-full bg-purple-50 p-1 border-t border-b border-gray-200 items-center mb-2">
@@ -1698,12 +1657,6 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
                     />
                   </tbody>
                 </table>
-                {isSurgeriesLoading && (
-                  <div className="text-center font-bold text-base p-6">
-                    Loading...
-                  </div>
-                )}
-                <div ref={loader} />
               </div>
             ) : (
               <div className="text-center py-3 px-2.5">{errorMessage}</div>
