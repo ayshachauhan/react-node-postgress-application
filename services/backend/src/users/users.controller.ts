@@ -15,11 +15,13 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { UserEntity } from '@packages/entities/user';
+import { UserEntity, UserType } from '@packages/entities/user';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
 //import { AuthGuard } from '../auth/auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express/multer';
 import { AuthGuard, RequestWithUser } from 'src/auth/auth.guard';
+import { Roles } from 'src/auth/role.decorator';
+import { RolesGuard } from 'src/auth/roles.gaurd';
 import { ChangePasswordDto } from './dto/changePassword.dto';
 import { CreateUserDto } from './dto/create.dto';
 import { UpdateUserDto } from './dto/update.dto';
@@ -29,12 +31,13 @@ import { UsersService } from './users.service';
 @ApiTags('Users')
 @Controller('practices/:practiceId/users')
 @ApiBearerAuth('normal')
-@UseGuards(AuthGuard)
+@UseGuards(AuthGuard, RolesGuard)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
   @UseInterceptors(practiceNotFoundInterceptor)
+  @Roles(UserType.ADMIN, UserType.DOCTOR)
   create(
     @Body(new ValidationPipe()) createUserDto: CreateUserDto,
     @Param() { practiceId }: { practiceId: string },
@@ -57,6 +60,7 @@ export class UsersController {
 
   @Delete(':id')
   @UseInterceptors(practiceNotFoundInterceptor)
+  @Roles(UserType.ADMIN, UserType.DOCTOR)
   async deleteUser(
     @Param() { id }: { id: string },
     @Req() request: RequestWithUser,
