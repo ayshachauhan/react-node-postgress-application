@@ -20,6 +20,7 @@ import { PermissionGuard } from 'src/auth/userPermissions.guard';
 import { CreateEvalDto } from 'src/evals/dto/createEval.dto';
 import { EvalsService } from 'src/evals/evals.service';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
+import { PAGINATION_LIMIT } from 'src/utils/constants';
 import { ParseStringToBooleanPipe } from 'src/utils/pipes/stringToBoolean.pipes';
 import { UpdateEvalDto } from './dto/updateEval.dto';
 import { AuthenticatedRequest } from './types';
@@ -39,8 +40,16 @@ export class EvalsController {
     @Query('includeDeleted', ParseStringToBooleanPipe)
     includeDeleted: boolean = false,
     @Query('doctorId') doctorId?: string,
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = PAGINATION_LIMIT,
   ): Promise<EvalEntity[]> {
-    return this.evalService.findAll(practiceId, includeDeleted, doctorId);
+    return this.evalService.findAll(
+      practiceId,
+      includeDeleted,
+      doctorId,
+      page,
+      limit,
+    );
   }
 
   @Get(':id')

@@ -23,6 +23,8 @@ export const getSurgeries = async (
     searchMRNName?: string;
     option?: string;
     doctorId?: string;
+    page?: number;
+    limit?: number;
   },
   { rejectWithValue },
 ): Promise<SurgerySearchResult> => {
@@ -34,6 +36,8 @@ export const getSurgeries = async (
     searchMRNName,
     option,
     doctorId,
+    page,
+    limit,
   } = payloadData;
 
   try {
@@ -51,7 +55,7 @@ export const getSurgeries = async (
     }
 
     const response = await apiClient.get(
-      `/practices/${practiceId}/surgery${queryParams}`,
+      `/practices/${practiceId}/surgery${queryParams}&page=${page}&limit=${limit}`,
     );
 
     if (!response.ok) {

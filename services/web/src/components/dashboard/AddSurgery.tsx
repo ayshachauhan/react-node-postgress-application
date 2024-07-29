@@ -32,6 +32,7 @@ interface SurgeryPageProps {
   autoFillFromSurgery?: boolean;
   withLoader: (func: () => Promise<void>) => Promise<void>;
   surgeryTypeSelected?: string;
+  onRecordAdded?: () => void;
 }
 
 const SurgeryPage: React.FC<SurgeryPageProps> = ({
@@ -40,6 +41,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
   autoFillFromSurgery = false,
   withLoader,
   surgeryTypeSelected,
+  onRecordAdded,
 }) => {
   const dispatch = useAppDispatch();
   const {
@@ -452,6 +454,9 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
           setNotes('');
           setBodyPart('');
           setWaitlistId('');
+          if (onRecordAdded) {
+            onRecordAdded();
+          }
           onClose();
         } catch (error) {
           onClose();

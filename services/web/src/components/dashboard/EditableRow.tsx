@@ -1,4 +1,4 @@
-import { MonthOption, UpdateSurgeryPayload } from '@packages/entities';
+import { UpdateSurgeryPayload } from '@packages/entities';
 import { SurgeryStatus } from '@packages/entities/index.browser';
 import { USER_PERMISSIONS } from '@packages/entities/permission';
 import Button from '@root/components/Button';
@@ -7,7 +7,7 @@ import { useUserPermission } from '@root/hooks/userHasPermission';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { fetchFilteredCalendars } from '@root/store/reducers/calendar';
 import { fetchListings as fetchReviews } from '@root/store/reducers/review';
-import { fetchListings, updateRecordAsync } from '@root/store/reducers/surgery';
+import { updateRecordAsync } from '@root/store/reducers/surgery';
 import {
   getBackGroundColorCss,
   getPracticeId,
@@ -22,14 +22,25 @@ import { DatePicker } from 'baseui/datepicker';
 import { SIZE, Select } from 'baseui/select';
 import React, { useEffect, useState } from 'react';
 
-function EditableRow({
+interface EditableRowProps {
+  rowId: string;
+  handleCancelClick: () => void;
+  customHeaders;
+  surgeryInfo;
+  handleUpdateClick;
+  setIsUpdateLoading;
+  onRecordEdited?: () => void;
+}
+
+const EditableRow: React.FC<EditableRowProps> = ({
   rowId,
   handleCancelClick,
   customHeaders,
   surgeryInfo,
   handleUpdateClick,
   setIsUpdateLoading,
-}) {
+  onRecordEdited,
+}) => {
   const practiceId = getPracticeId();
   const surgeryStatusOptions = Object.keys(SurgeryStatus).map((key) => ({
     label: SurgeryStatus[key as keyof typeof SurgeryStatus],
@@ -42,7 +53,6 @@ function EditableRow({
   };
   const {
     selectedMonth,
-    searchMRNName,
     selectedValue,
     surgeryConfigurationsList,
     waitlist,
@@ -52,7 +62,6 @@ function EditableRow({
     practiceHomesList,
   } = useAppSelector((state) => ({
     selectedMonth: state.surgeries.surgeryFilters.selectedMonth,
-    searchMRNName: state.surgeries.surgeryFilters.searchMRNName,
     selectedValue: state.surgeries.surgeryFilters.selectedValue,
     surgeryConfigurationsList: Object.values(
       state.surgeryConfigurations.entities,
@@ -67,7 +76,6 @@ function EditableRow({
   const month = getSelectedMonths(selectedMonth);
 
   const userPermissions = userInfo?.permissions;
-  const loggedInUserId = userInfo?.id ?? null;
   const viewBillingColumn = useUserPermission(userPermissions, [
     USER_PERMISSIONS.VIEW_BILLING,
   ]);
@@ -150,29 +158,6 @@ function EditableRow({
     setWaitlistId(value[0] ? value[0].id : null);
   };
 
-  const dispatchFetchFilteredSurgeryList = async (
-    selectedMonth: MonthOption[],
-    searchMRNName: string,
-    selectedValue: string,
-  ) => {
-    const monthLabels = selectedMonth.map((month) => month.label);
-    const month = monthLabels.join(',');
-    const selectedOption = selectedValue;
-
-    if (practiceId && loggedInUserId !== null && doctorId) {
-      await dispatch(
-        fetchListings({
-          loggedInUserId,
-          practiceId,
-          month: month,
-          searchMRNName,
-          option: selectedOption,
-          doctorId,
-        }),
-      );
-    }
-  };
-  const searchMRNNameStr = searchMRNName || '';
   const selectedValueStr = selectedValue || '';
 
   const handleSubmit = async (e) => {
@@ -191,11 +176,9 @@ function EditableRow({
 
         await dispatch(updateRecordAsync({ payload, id: surgeryInfo.id }));
 
-        await dispatchFetchFilteredSurgeryList(
-          selectedMonth,
-          searchMRNNameStr,
-          selectedValueStr,
-        );
+        if (onRecordEdited) {
+          onRecordEdited();
+        }
         await dispatch(
           fetchFilteredCalendars({
             practiceId,
@@ -1018,5 +1001,5 @@ function EditableRow({
       </>
     );
   } else return null;
-}
+};
 export default EditableRow;

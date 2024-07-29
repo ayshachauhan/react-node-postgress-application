@@ -13,6 +13,7 @@ import {
   clearSuccessMessage,
   fetchListings,
 } from '@root/store/reducers/templates';
+import { PAGINATION_LIMIT } from '@root/utils/constants';
 import { getCurrentMonthName, getPracticeId, getUserId } from '@utils/index';
 import React, { useEffect, useState } from 'react';
 
@@ -108,6 +109,8 @@ const Templates: React.FC = () => {
             practiceId,
             month: getCurrentMonthName(),
             doctorId,
+            page: 1,
+            limit: PAGINATION_LIMIT,
           }),
         );
       }

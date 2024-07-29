@@ -9,6 +9,8 @@ export const getEvals = async (
     practiceId: string;
     includeDeleted?: boolean;
     doctorId?: string;
+    page: number;
+    limit: number;
   },
   { rejectWithValue },
 ) => {
@@ -16,7 +18,7 @@ export const getEvals = async (
     const response: Response = await apiClient.get(
       `/practices/${payloadData.practiceId}/evals?includeDeleted=${
         payloadData.includeDeleted ?? false
-      }&doctorId=${payloadData?.doctorId}`,
+      }&doctorId=${payloadData?.doctorId}&page=${payloadData?.page}&limit=${payloadData?.limit}`,
     );
 
     if (!response.ok) {
