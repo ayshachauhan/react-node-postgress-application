@@ -241,7 +241,7 @@ export class EmailHandlerService {
           //
         } else if (template.messageType === 'pcp') {
           //
-        } else if (template.messageType === 'evaluation') {
+        } else if (template.messageType === 'evaluation' && fromEval) {
           bookingTemplateFound = true;
           surgeryDate.setDate(surgeryDate.getDate() + template.dateOffset);
           entry.expectedDate = new Date();
