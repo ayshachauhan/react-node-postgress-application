@@ -21,6 +21,7 @@ import { SurgeryConfigurationsService } from 'src/surgeryConfiguration/surgeryCo
 import { SystemTemplates } from 'src/transporter/transporter.types';
 import { UsersService } from 'src/users/users.service';
 import { formatHeaderDate } from 'src/utils';
+import { PAGINATION_LIMIT } from 'src/utils/constants';
 import { In, MoreThan, Repository } from 'typeorm';
 import {
   EvalChangesKeyValues,
@@ -64,10 +65,12 @@ export class EvalsService {
     practiceId: string,
     includeDeleted: boolean = false,
     doctorId?: string,
+    page: number = 1,
+    limit: number = PAGINATION_LIMIT,
   ): Promise<EvalEntity[]> {
     const dbPracticeHomesByPractice =
       await this.practiceHomesService.getPracticeHomesByPractice(practiceId);
-
+    const skip = (page - 1) * limit;
     const dbEvalsByPractice = await this.evalRepository.find({
       where: {
         practiceHome: {
@@ -90,6 +93,8 @@ export class EvalsService {
       order: {
         date: 'DESC',
       },
+      skip,
+      take: limit,
     });
     dbEvalsByPractice.forEach((ele) => (ele.doctor.password = ''));
     const statusOrder = {

@@ -15,6 +15,7 @@ import { fetchLoggedInUser } from '@root/store/reducers/auth';
 import { fetchListings as fetchEvalsList } from '@root/store/reducers/evals';
 import { clearData, fetchHistory } from '@root/store/reducers/history';
 import { fetchListings as fetchSurgeryList } from '@root/store/reducers/surgery';
+import { PAGINATION_LIMIT } from '@root/utils/constants';
 import {
   formatColumnDate,
   generateFullName,
@@ -80,9 +81,13 @@ export default function HistoryTable() {
       loadData();
       // TO DO later
       // dispatch(fetchEvalsList({ practiceId, doctorId: doctorId || '' }));
-      dispatch(fetchEvalsList({ practiceId }));
+      dispatch(
+        fetchEvalsList({ practiceId, page: 1, limit: PAGINATION_LIMIT }),
+      );
       // dispatch(fetchSurgeryList({ practiceId, doctorId: doctorId || '' }));
-      dispatch(fetchSurgeryList({ practiceId }));
+      dispatch(
+        fetchSurgeryList({ practiceId, page: 1, limit: PAGINATION_LIMIT }),
+      );
     }
   }, [practiceId, dispatch]);
 

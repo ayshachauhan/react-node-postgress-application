@@ -2,7 +2,9 @@
 import { USER_PERMISSIONS } from '@packages/entities/permission';
 import Button from '@root/components/Button';
 import { AddIcon } from '@root/components/Icons';
-import FiltersSection from '@root/components/dashboard/FiltersSection';
+import FiltersSection, {
+  FiltersSectionRef,
+} from '@root/components/dashboard/FiltersSection';
 import SurgeryPercentage from '@root/components/dashboard/SurgeryPercentage';
 import UpcomingSection from '@root/components/dashboard/UpcomingSection';
 import UsersListing from '@root/components/dashboard/UsersListing';
@@ -22,26 +24,26 @@ import { fetchListings as fetchInsuranceTypesList } from '@root/store/reducers/i
 import { fetchListings as fetchPatients } from '@root/store/reducers/patient';
 import { fetchListings as fetchPracticeHomesListing } from '@root/store/reducers/practiceHomes';
 import { fetchListings as fetchReferrerList } from '@root/store/reducers/referrer';
-import {
-  clearSuccessMessage as clearSurgerySuccessMessage,
-  fetchListings as fetchSurgeryList,
-} from '@root/store/reducers/surgery';
+import { clearSuccessMessage as clearSurgerySuccessMessage } from '@root/store/reducers/surgery';
 import { fetchListings as fetchSurgeryConfigurationsListing } from '@root/store/reducers/surgeryConfigurations';
 import { fetchListings as fetchSurgeryTypesListing } from '@root/store/reducers/surgeryTypes';
 import { fetchListings as fetchUsersList } from '@root/store/reducers/users';
 import { fetchListings as fetchWaitlist } from '@root/store/reducers/waitlist';
 import { getPracticeId, getUserId } from '@root/utils';
-import React, { useEffect, useState } from 'react';
+import { PAGINATION_LIMIT } from '@root/utils/constants';
+import React, { useEffect, useRef, useState } from 'react';
 
 const DashboardPage: React.FC = () => {
   const dispatch = useAppDispatch();
   const practiceId = getPracticeId();
+  const page = 1;
+  const limit = PAGINATION_LIMIT;
   const userId: string | null = getUserId();
   const userInfo = useAppSelector((state) => state.auth.user);
   const userPermissions = userInfo?.permissions;
   const loggedInUserId = userInfo?.id ?? null;
   const doctorId = getUserId();
-  const { selectedMonth, searchMRNName, selectedValue } = useAppSelector(
+  const { selectedMonth, selectedValue } = useAppSelector(
     (state) => state.surgeries.surgeryFilters,
   );
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -70,7 +72,6 @@ const DashboardPage: React.FC = () => {
   const selectedValueStr = selectedValue || '';
   const monthLabels = selectedMonth.map((month) => month.label);
   const month = monthLabels.join(',');
-  const searchMRNNameStr = searchMRNName || '';
   const { isLoading, withLoader } = useLoader();
 
   const handleReviewErrorMessage = (message: string) => {
@@ -80,6 +81,7 @@ const DashboardPage: React.FC = () => {
   const handleReviewSuccessMessage = (message: string) => {
     setReviewSuccessMessage(message);
   };
+  const [isFiltersApplied, setIsFiltersApplied] = useState(false);
 
   useEffect(() => {
     if (reviewErrorMessage) {
@@ -111,24 +113,9 @@ const DashboardPage: React.FC = () => {
 
   useEffect(() => {
     if (practiceId) {
-      const loadData = async () => {
-        await withLoader(async () => {
-          if (loggedInUserId !== null && doctorId) {
-            await dispatch(
-              fetchSurgeryList({
-                loggedInUserId,
-                practiceId,
-                month: month,
-                searchMRNName: searchMRNNameStr,
-                option: selectedValueStr,
-                doctorId,
-              }),
-            );
-          }
-        });
-      };
-      loadData();
-      dispatch(fetchEvalsList({ practiceId, doctorId: doctorId || '' }));
+      dispatch(
+        fetchEvalsList({ practiceId, doctorId: doctorId || '', page, limit }),
+      );
       dispatch(fetchInsuranceTypesList({ practiceId }));
       dispatch(fetchPracticeHomesListing({ practiceId }));
       dispatch(fetchSurgeryTypesListing({ practiceId }));
@@ -147,24 +134,30 @@ const DashboardPage: React.FC = () => {
       addSurgerySuccessMessage !== updateSuccessCase
     ) {
       if (practiceId) {
-        const loadData = async () => {
-          await withLoader(async () => {
-            if (loggedInUserId !== null && doctorId) {
-              await dispatch(
-                fetchSurgeryList({
-                  loggedInUserId,
-                  practiceId,
-                  month: month,
-                  searchMRNName: searchMRNNameStr,
-                  option: selectedValueStr,
-                  doctorId: doctorId || '',
-                }),
-              );
-            }
-          });
-        };
-        loadData();
-        dispatch(fetchEvalsList({ practiceId, doctorId: doctorId || '' }));
+        if (isFiltersApplied && filtersSectionRef.current) {
+          filtersSectionRef.current.fetchSurgeryList(1);
+        }
+      }
+    }
+  }, [
+    addSurgerySuccessMessage,
+    addEvalSuccessMessage,
+    calendarSuccessMessage,
+    practiceId,
+    page,
+    userId,
+    isFiltersApplied,
+  ]);
+
+  useEffect(() => {
+    if (
+      (addSurgerySuccessMessage || addEvalSuccessMessage) &&
+      addSurgerySuccessMessage !== updateSuccessCase
+    ) {
+      if (practiceId) {
+        dispatch(
+          fetchEvalsList({ practiceId, doctorId: doctorId || '', page, limit }),
+        );
         dispatch(clearSurgerySuccessMessage());
         dispatch(clearEvalSuccessMessage());
         dispatch(fetchSurgeryConfigurationsListing({ practiceId }));
@@ -213,9 +206,12 @@ const DashboardPage: React.FC = () => {
   const handleCloseAddModal = (): void => {
     setIsAddModalOpen(false);
   };
+  const filtersSectionRef = useRef<FiltersSectionRef>(null);
 
   const handleOpenAddModal = (): void => {
-    setIsAddModalOpen(true);
+    if (filtersSectionRef.current) {
+      filtersSectionRef.current.handleOpenAddModal();
+    }
   };
 
   const handleCloseAddEvalModal = (): void => {
@@ -299,11 +295,14 @@ const DashboardPage: React.FC = () => {
       <div className="mt-2 mb-12">
         {practiceId && (
           <FiltersSection
+            ref={filtersSectionRef}
             practiceId={practiceId}
             withLoader={withLoader}
             isLoading={isLoading}
             onReviewClickError={handleReviewErrorMessage}
             onReviewClickSuccess={handleReviewSuccessMessage}
+            isFiltersApplied={isFiltersApplied}
+            setIsFiltersApplied={setIsFiltersApplied}
           />
         )}
       </div>

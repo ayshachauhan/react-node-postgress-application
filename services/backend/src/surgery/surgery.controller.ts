@@ -18,6 +18,7 @@ import { USER_PERMISSIONS } from '@packages/entities/permission';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { PermissionGuard } from 'src/auth/userPermissions.guard';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
+import { PAGINATION_LIMIT } from 'src/utils/constants';
 import { SanitizedUser } from '../auth/types';
 import { CreateSurgeryDto } from '../surgery/dto/createSurgery.dto';
 import { UpdateSurgeryDto } from '../surgery/dto/updateSurgery.dto';
@@ -46,6 +47,8 @@ export class SurgeryController {
     @Query('option') option?: string,
     @Query('loggedInUserId') loggedInUserId?: string,
     @Query('doctorId') doctorId?: string,
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = PAGINATION_LIMIT,
   ): Promise<SurgerySearchResult> {
     const months = monthQueryParam?.trim() ? monthQueryParam.split(',') : [];
 
@@ -57,6 +60,8 @@ export class SurgeryController {
       option,
       loggedInUserId,
       doctorId,
+      page,
+      limit,
     );
 
     return surgeries;

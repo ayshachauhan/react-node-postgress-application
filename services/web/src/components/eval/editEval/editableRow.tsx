@@ -17,13 +17,21 @@ import {
 import { DatePicker } from 'baseui/datepicker';
 import { SIZE, Select } from 'baseui/select';
 import React, { useEffect, useState } from 'react';
+interface EditableRowProps {
+  handleCancelClick;
+  evalInfo;
+  setSelectedAction;
+  withLoader: (func: () => Promise<void>) => Promise<void>;
+  onRecordEdited?: () => void;
+}
 
-function EditableRow({
+const EditableRow: React.FC<EditableRowProps> = ({
   handleCancelClick,
   evalInfo,
   setSelectedAction,
   withLoader,
-}) {
+  onRecordEdited,
+}) => {
   const practiceId = getPracticeId();
   const doctorId: string | null = getUserId();
   const dispatch = useAppDispatch();
@@ -85,7 +93,7 @@ function EditableRow({
   };
 
   useEffect(() => {
-    if (evalInfo.id && evalInfo) {
+    if (evalInfo && evalInfo.id) {
       setObj({
         insuranceTypeId: evalInfo.insuranceType?.name,
         insuranceDetails: evalInfo.insuranceDetails,
@@ -166,6 +174,9 @@ function EditableRow({
           mrn: 0,
           status: '',
         });
+        if (onRecordEdited) {
+          onRecordEdited();
+        }
       }
     };
 
@@ -561,5 +572,5 @@ function EditableRow({
       </>
     );
   } else return null;
-}
+};
 export default EditableRow;
