@@ -175,7 +175,7 @@ export class SurgeryService {
       };
     } else {
       searchConditions.order = {
-        dateCreated: 'DESC',
+        date: 'DESC',
       };
     }
 
