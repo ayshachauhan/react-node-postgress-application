@@ -1,4 +1,5 @@
 'use client';
+import { UserType } from '@packages/entities';
 import Button from '@root/components/Button';
 import {
   AddIcon,
@@ -40,6 +41,7 @@ export default function UserPage() {
   const { isLoading, withLoader } = useLoader();
   const dispatch = useAppDispatch();
   const users = useAppSelector((state) => Object.values(state.users.entities));
+  const loggedInUserInfo = useAppSelector((state) => state.auth.user);
   const [userId, setUserId] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -51,7 +53,6 @@ export default function UserPage() {
     errorMessage: state.users.errorMessage,
   }));
   const router = useRouter();
-
   const modalRef = useRef(null);
 
   useEffect(() => {
@@ -101,6 +102,10 @@ export default function UserPage() {
   const practiceName = useAppSelector(
     (state) => state.practices.practiceInfo?.name,
   );
+
+  const addUserPermission = UserType.EMPLOYEE != loggedInUserInfo?.type;
+  const editUserPermission = UserType.EMPLOYEE != loggedInUserInfo?.type;
+  const deleteUserPermission = UserType.EMPLOYEE != loggedInUserInfo?.type;
 
   const onConfirmDelete = (): void => {
     const id = userId;
@@ -197,13 +202,15 @@ export default function UserPage() {
         <span className="text-xl font-bold">Users</span>
         {showModal && <div className="text-green-700">{successMessage}</div>}
         {showErrorMessage && <div className="text-red-700">{errorMessage}</div>}
-        <Button
-          kind="secondary"
-          padding="5px 8px"
-          title="Add New"
-          onClick={handleOpenModal}
-          startEnhancer={() => <AddIcon></AddIcon>}
-        />
+        {addUserPermission && (
+          <Button
+            kind="secondary"
+            padding="5px 8px"
+            title="Add New"
+            onClick={handleOpenModal}
+            startEnhancer={() => <AddIcon></AddIcon>}
+          />
+        )}
       </div>
       <hr className="h-px my-2.5 bg-gray-100 border-1 border-gray-100"></hr>
       <div className="table-responsive overflow-x-auto rounded-lg">
@@ -291,22 +298,27 @@ export default function UserPage() {
                         >
                           <ViewIcon></ViewIcon>
                         </div>
-                        <div
-                          onClick={() =>
-                            data.id && handleOpenEditModal(data.id)
-                          }
-                          className="cursor-pointer"
-                        >
-                          <EditIcon></EditIcon>
-                        </div>
-                        <div
-                          onClick={() =>
-                            data.id && handleOpenDeleteModal(data.id)
-                          }
-                          className="cursor-pointer"
-                        >
-                          <DeleteIcon></DeleteIcon>
-                        </div>
+                        {(editUserPermission ||
+                          loggedInUserInfo.id === data.id) && (
+                          <div
+                            onClick={() =>
+                              data.id && handleOpenEditModal(data.id)
+                            }
+                            className="cursor-pointer"
+                          >
+                            <EditIcon></EditIcon>
+                          </div>
+                        )}
+                        {deleteUserPermission && (
+                          <div
+                            onClick={() =>
+                              data.id && handleOpenDeleteModal(data.id)
+                            }
+                            className="cursor-pointer"
+                          >
+                            <DeleteIcon></DeleteIcon>
+                          </div>
+                        )}
                       </div>
                     </td>
                   </tr>
