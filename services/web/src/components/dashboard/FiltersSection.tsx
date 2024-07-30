@@ -652,6 +652,11 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
     }, [viewFutureCases]);
 
     const fetchSurgeryList = async (currentPage: number): Promise<void> => {
+      if (selectedValueStr === '') {
+        if (viewFutureCases) {
+          selectedValueStr = 'Upcoming View';
+        }
+      }
       if (
         isSurgeriesLoading ||
         !hasMore ||
