@@ -10,6 +10,7 @@ interface AddSurgeryModalProps {
   withLoader: (func: () => Promise<void>) => Promise<void>;
   surgeryTypeSelected?: string;
   onRecordAdded?: () => void;
+  redirectFromEval?: boolean;
 }
 
 const AddSurgeryModal: React.FC<AddSurgeryModalProps> = ({
@@ -20,6 +21,7 @@ const AddSurgeryModal: React.FC<AddSurgeryModalProps> = ({
   withLoader,
   surgeryTypeSelected = '',
   onRecordAdded,
+  redirectFromEval,
 }) => {
   return (
     <BaseUIModal
@@ -50,6 +52,7 @@ const AddSurgeryModal: React.FC<AddSurgeryModalProps> = ({
         withLoader={withLoader}
         surgeryTypeSelected={surgeryTypeSelected}
         onRecordAdded={onRecordAdded}
+        redirectFromEval={redirectFromEval}
       />
     </BaseUIModal>
   );
