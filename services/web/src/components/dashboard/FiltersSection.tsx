@@ -566,7 +566,6 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
     const resetFilters = async (): Promise<void> => {
       dispatch(setSelectedMonth([]));
       dispatch(setSearchMRNName(null));
-      dispatch(setSelectedValue(null));
       setIsWailistViewActive(false);
       setIsIolViewActive(false);
       resetPagination();
@@ -606,7 +605,7 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
     };
 
     const searchMRNNameStr = searchMRNName || '';
-    const selectedValueStr = selectedValue || '';
+    let selectedValueStr = selectedValue || '';
 
     const dispatchFetchFilteredCalendars = (
       practiceId: string,
@@ -650,6 +649,11 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
     }, [viewFutureCases]);
 
     const fetchSurgeryList = async (currentPage: number) => {
+      if (selectedValueStr === '') {
+        if (viewFutureCases) {
+          selectedValueStr = 'Upcoming View';
+        }
+      }
       if (
         isSurgeriesLoading ||
         !hasMore ||
