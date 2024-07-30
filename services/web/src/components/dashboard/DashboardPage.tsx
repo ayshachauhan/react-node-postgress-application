@@ -31,7 +31,7 @@ import { fetchListings as fetchUsersList } from '@root/store/reducers/users';
 import { fetchListings as fetchWaitlist } from '@root/store/reducers/waitlist';
 import { getPracticeId, getUserId } from '@root/utils';
 import { PAGINATION_LIMIT } from '@root/utils/constants';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 const DashboardPage: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -208,11 +208,22 @@ const DashboardPage: React.FC = () => {
   };
   const filtersSectionRef = useRef<FiltersSectionRef>(null);
 
-  const handleOpenAddModal = (): void => {
+  const handleOpenAddModal = useCallback(() => {
     if (filtersSectionRef.current) {
       filtersSectionRef.current.handleOpenAddModal();
     }
-  };
+  }, []);
+
+  const handleRecordAdded = useCallback(async () => {
+    if (filtersSectionRef.current) {
+      filtersSectionRef.current.resetPagination();
+      try {
+        await filtersSectionRef.current.fetchSurgeryList(1);
+      } catch (error) {
+        console.error('Error fetching surgery list:', error);
+      }
+    }
+  }, []);
 
   const handleCloseAddEvalModal = (): void => {
     setIsAddEvalModalOpen(false);
@@ -303,6 +314,7 @@ const DashboardPage: React.FC = () => {
             onReviewClickSuccess={handleReviewSuccessMessage}
             isFiltersApplied={isFiltersApplied}
             setIsFiltersApplied={setIsFiltersApplied}
+            onRecordAdded={handleRecordAdded}
           />
         )}
       </div>

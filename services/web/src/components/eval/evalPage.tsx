@@ -572,6 +572,7 @@ const EvalPage: React.FC = () => {
         handleCloseModal={handleCloseBookSurgeryModal}
         autoFillFromEval={true}
         withLoader={withLoader}
+        redirectFromEval={true}
       />
     </div>
   );

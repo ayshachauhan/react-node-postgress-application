@@ -74,11 +74,13 @@ interface FiltersSectionProps {
   onReviewClickSuccess: (message: string) => void;
   isFiltersApplied: boolean;
   setIsFiltersApplied: (value: boolean) => void;
+  onRecordAdded?: () => Promise<void> | void;
 }
 
 export interface FiltersSectionRef {
   handleOpenAddModal: () => void;
-  fetchSurgeryList: (currentPage: number) => void;
+  fetchSurgeryList: (currentPage: number) => Promise<void>;
+  resetPagination: () => void;
 }
 const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
   (
@@ -90,6 +92,7 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
       onReviewClickSuccess,
       isFiltersApplied,
       setIsFiltersApplied,
+      onRecordAdded,
     },
     ref,
   ) => {
@@ -649,7 +652,7 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
       }
     }, [viewFutureCases]);
 
-    const fetchSurgeryList = async (currentPage: number) => {
+    const fetchSurgeryList = async (currentPage: number): Promise<void> => {
       if (
         isSurgeriesLoading ||
         !hasMore ||
@@ -701,10 +704,11 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
     };
 
     useImperativeHandle(ref, () => ({
+      resetPagination,
+      fetchSurgeryList,
       handleOpenAddModal() {
         setIsAddModalOpen(true);
       },
-      fetchSurgeryList,
     }));
 
     useEffect(() => {
@@ -1653,7 +1657,7 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
                       autoFillFromSurgery={true}
                       surgeryTypeSelected={surgeryTypeSelected}
                       withLoader={withLoader}
-                      onRecordAdded={handleRecordAdded}
+                      onRecordAdded={onRecordAdded}
                     />
                   </tbody>
                 </table>
