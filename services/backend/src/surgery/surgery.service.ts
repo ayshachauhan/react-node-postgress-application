@@ -136,6 +136,14 @@ export class SurgeryService {
       ? userInfo.permissions || []
       : [];
 
+    const viewFutureCases = userPermissions.some(
+      (p) => p.name === USER_PERMISSIONS.VIEW_FUTURE_CASES,
+    );
+
+    if (!option && viewFutureCases) {
+      option = 'Upcoming View';
+    }
+
     const whereClause: WhereClause = {
       practiceHome: {
         id: In(dbPracticeHomesByPractice.map((ele) => ele.id)),
