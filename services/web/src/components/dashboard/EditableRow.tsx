@@ -966,6 +966,8 @@ const EditableRow: React.FC<EditableRowProps> = ({
                 <div className="">
                   <Select
                     options={waitlistOptions}
+                    backspaceClearsInputValue={true}
+                    escapeClearsValue={false}
                     size={SIZE.mini}
                     onChange={handleWaitlistChange}
                     value={
