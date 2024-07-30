@@ -264,7 +264,11 @@ export const createQueryString = (params): string => {
 export const isCalendarDates = (
   date: Date,
   calendars: ICalendar[],
+  currentMonth: number = 0,
 ): boolean => {
+  if (currentMonth != 0 && currentMonth != moment(date).month() + 1) {
+    return false;
+  }
   const formattedDate = moment(date).format('YYYY-MM-DD'); // Get date part only
 
   const dates = (calendars as ICalendar[])
@@ -301,7 +305,7 @@ export const isSlotsAvailable = (
 
   const surgeryTypeColor =
     calendar.surgeryType?.color ?? DEFAULT_SURGERYLOCATION_COLOR;
-
+  //console.log(moment(calendar.date).format('YYYY-MM-DD'), '  --  ', calendar.maxSlots > calendar.bookedSlots);
   return calendar.maxSlots > calendar.bookedSlots
     ? {
         backgroundColor: surgeryTypeColor,
@@ -327,13 +331,12 @@ export const getBackGroundColorCss = (
 ): Record<string, unknown> => {
   // checking selected month here because sometimes bg colors are reflecting in next month
 
-  // console.log(date, date.getMonth() + 1, 'datebg', currentMonth);
+  //console.log(isCalendarDates(date, calendars) && currentMonth == (new Date(date).getMonth() + 1), '  --  ', moment(date).format('YYYY-MM-DD'));
 
-  return date.getMonth() + 1 == currentMonth
-    ? isCalendarDates(date, calendars)
-      ? isSlotsAvailable(date, calendars)
-      : { backgroundColor: 'transparent', color: '#000000' }
-    : {};
+  return isCalendarDates(date, calendars, currentMonth) &&
+    currentMonth == new Date(date).getMonth() + 1
+    ? isSlotsAvailable(date, calendars)
+    : { backgroundColor: 'transparent', color: '#000000' };
 };
 
 export const customBackgroundColor = (

@@ -14,8 +14,6 @@ import {
   getBackGroundColorCss,
   getPracticeId,
   getSelectedMonths,
-  isCalendarDates,
-  isSlotsAvailable,
   toFullName,
 } from '@utils/index';
 import { Checkbox } from 'baseui/checkbox';
@@ -962,7 +960,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
                     }}
                     overrides={{
                       Day: {
-                        style: ({ $date, $selected }) => {
+                        style: ({ $date }) => {
                           return {
                             height: '53px',
                             width: '53px',
@@ -977,14 +975,6 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
                               calendars,
                             ),
                             ':after': '',
-                            ...($selected
-                              ? {
-                                  color: '#ffffff',
-                                  ...(isCalendarDates($date, calendars)
-                                    ? isSlotsAvailable($date, calendars)
-                                    : { backgroundColor: '#000000' }),
-                                }
-                              : {}),
                           };
                         },
                       },
@@ -1087,7 +1077,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
                       }}
                       overrides={{
                         Day: {
-                          style: ({ $date, $selected }) => {
+                          style: ({ $date }) => {
                             return {
                               height: '53px',
                               width: '53px',
@@ -1102,14 +1092,6 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
                                 calendars,
                               ),
                               ':after': '',
-                              ...($selected
-                                ? {
-                                    color: '#ffffff',
-                                    ...(isCalendarDates($date, calendars)
-                                      ? isSlotsAvailable($date, calendars)
-                                      : { backgroundColor: '#000000' }),
-                                  }
-                                : {}),
                             };
                           },
                         },

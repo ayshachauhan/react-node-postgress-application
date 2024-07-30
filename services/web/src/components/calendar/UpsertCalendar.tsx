@@ -16,8 +16,6 @@ import {
   getDifferenceInDays,
   getPracticeId,
   getUserId,
-  isCalendarDates,
-  isSlotsAvailable,
 } from '@root/utils';
 import { MESSAGE_TYPE } from '@root/utils/enums';
 import { DatePicker } from 'baseui/datepicker';
@@ -228,7 +226,7 @@ const UpsertCalendar: React.FC<{
                   //)}
                   overrides={{
                     Day: {
-                      style: ({ $date, $selected }) => {
+                      style: ({ $date }) => {
                         return {
                           height: '53px',
                           width: '53px',
@@ -243,14 +241,6 @@ const UpsertCalendar: React.FC<{
                             calendars,
                           ),
                           ':after': '',
-                          ...($selected
-                            ? {
-                                color: '#ffffff',
-                                ...(isCalendarDates($date, calendars)
-                                  ? isSlotsAvailable($date, calendars)
-                                  : { backgroundColor: '#000000' }),
-                              }
-                            : {}),
                         };
                       },
                     },
