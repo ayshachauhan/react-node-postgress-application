@@ -772,7 +772,8 @@ const EditableRow: React.FC<EditableRowProps> = ({
                             return (
                               <td
                                 className={`w-1/4 min-w-10 ${
-                                  selectedChecklistOption
+                                  selectedChecklistOption &&
+                                  selectedChecklistOption?.value != ''
                                     ? 'bg-customGreen'
                                     : 'bg-customPink'
                                 }`}
