@@ -243,6 +243,23 @@ const EvalPage: React.FC = () => {
   ]);
 
   useEffect(() => {
+    if (userId) {
+      resetPagination();
+    }
+  }, [userId]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        await getEvalsList(page); // Fetch data with current page
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+    fetchData();
+  }, [page, getEvalsList]);
+
+  useEffect(() => {
     let timer;
     if (addEvalSuccessMessage) {
       setShowModal(true);
