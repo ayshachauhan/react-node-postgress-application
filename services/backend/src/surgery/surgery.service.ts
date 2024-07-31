@@ -136,6 +136,14 @@ export class SurgeryService {
       ? userInfo.permissions || []
       : [];
 
+    const viewFutureCases = userPermissions.some(
+      (p) => p.name === USER_PERMISSIONS.VIEW_FUTURE_CASES,
+    );
+
+    if (!option && viewFutureCases) {
+      option = 'Upcoming View';
+    }
+
     const whereClause: WhereClause = {
       practiceHome: {
         id: In(dbPracticeHomesByPractice.map((ele) => ele.id)),
@@ -192,6 +200,7 @@ export class SurgeryService {
 
       if (months.length > 0) {
         const currentYear = today.getFullYear();
+        const currentMonth = today.getUTCMonth();
         const dateConditions: FindOperator<Date>[] = months.map((monthName) => {
           const monthIndex = new Date(
             Date.parse(monthName + ' 1, ' + currentYear),
@@ -203,6 +212,10 @@ export class SurgeryService {
 
           if (monthIndex === today.getUTCMonth()) {
             return Between(startOfMonth, today);
+          } else if (monthIndex > currentMonth) {
+            const startDate = new Date(Date.UTC(9999, 0, 1)); // Far future date
+            const endDate = new Date(Date.UTC(9999, 0, 2)); // Just one day after
+            return Between(startDate, endDate);
           } else {
             return Between(startOfMonth, endOfMonth);
           }
@@ -228,6 +241,8 @@ export class SurgeryService {
       yesterday.setUTCDate(today.getUTCDate() - 1); // Set to yesterday
       if (months.length > 0) {
         const currentYear = today.getFullYear();
+        const currentMonth = today.getUTCMonth();
+
         const dateConditions: FindOperator<Date>[] = months.map((monthName) => {
           const monthIndex = new Date(
             Date.parse(monthName + ' 1, ' + currentYear),
@@ -239,6 +254,11 @@ export class SurgeryService {
 
           if (monthIndex === today.getUTCMonth()) {
             return Between(yesterday, endOfMonth);
+          } else if (monthIndex < currentMonth) {
+            // Set startDate and endDate to an impossible range to ensure no data is returned
+            const startDate = new Date(Date.UTC(9999, 0, 1)); // Far future date
+            const endDate = new Date(Date.UTC(9999, 0, 2)); // Just one day after
+            return Between(startDate, endDate);
           } else {
             return Between(startOfMonth, endOfMonth);
           }
