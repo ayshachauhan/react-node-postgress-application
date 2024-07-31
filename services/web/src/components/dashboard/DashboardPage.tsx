@@ -208,11 +208,9 @@ const DashboardPage: React.FC = () => {
   };
   const filtersSectionRef = useRef<FiltersSectionRef>(null);
 
-  const handleOpenAddModal = useCallback(() => {
-    if (filtersSectionRef.current) {
-      filtersSectionRef.current.handleOpenAddModal();
-    }
-  }, []);
+  const handleOpenAddModal = () => {
+    setIsAddModalOpen(true);
+  };
 
   const handleRecordAdded = useCallback(async () => {
     if (filtersSectionRef.current) {
@@ -314,7 +312,6 @@ const DashboardPage: React.FC = () => {
             onReviewClickSuccess={handleReviewSuccessMessage}
             isFiltersApplied={isFiltersApplied}
             setIsFiltersApplied={setIsFiltersApplied}
-            onRecordAdded={handleRecordAdded}
           />
         )}
       </div>
@@ -322,6 +319,7 @@ const DashboardPage: React.FC = () => {
         isModalOpen={isAddModalOpen}
         handleCloseModal={handleCloseAddModal}
         withLoader={withLoader}
+        onRecordAdded={handleRecordAdded}
       />
       <div className="w-400">
         <AddEvalModal
