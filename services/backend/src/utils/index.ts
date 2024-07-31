@@ -50,8 +50,18 @@ export function getStartEndDate(
   const dateConditions = months.flatMap((month) => {
     const monthIndex = monthMap[month];
     if (monthIndex > currentMonth && !hasViewFutureCasesPermission) {
-      return []; // Return an empty array for this month
+      const startDate = new Date(Date.UTC(9999, 0, 1)); // Far future date
+      const endDate = new Date(Date.UTC(9999, 0, 2)); // Just one day after
+      return { date: Between(startDate, endDate) };
     }
+
+    if (monthIndex < currentMonth && !hasViewPastCasesPermission) {
+      // Set startDate and endDate to an impossible range to ensure no data is returned
+      const startDate = new Date(Date.UTC(9999, 0, 1)); // Far future date
+      const endDate = new Date(Date.UTC(9999, 0, 2)); // Just one day after
+      return { date: Between(startDate, endDate) };
+    }
+
     let startDate = new Date(Date.UTC(currentYear, monthIndex, 1));
     let endDate = new Date(
       Date.UTC(currentYear, monthIndex + 1, 0, 23, 59, 59, 999),

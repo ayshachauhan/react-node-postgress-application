@@ -180,37 +180,16 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
       USER_PERMISSIONS.VIEW_REP,
     ]);
 
-    const getMonthOptions = (
-      viewPastCases: boolean,
-      viewFutureCases: boolean,
-      option: string | null,
-    ) => {
-      const currentMonth = new Date().getMonth() + 1;
+    const getMonthOptions = () => {
       return monthOptions.map((monthOption) => {
-        const optionMonth = parseInt(monthOption.value, 10);
-
-        let shouldDisable = false;
-
-        if (option?.toLowerCase() === 'past view') {
-          shouldDisable =
-            optionMonth > currentMonth ||
-            (!viewPastCases && optionMonth < currentMonth);
-        } else if (option?.toLowerCase() === 'upcoming view') {
-          shouldDisable =
-            optionMonth < currentMonth ||
-            (!viewFutureCases && optionMonth > currentMonth);
-        }
-
         return {
           ...monthOption,
-          disabled: shouldDisable,
         };
       });
     };
 
-    const [updatedMonthOptions, setUpdatedMonthOptions] = useState<
-      MonthOption[]
-    >(getMonthOptions(viewPastCases, viewFutureCases, selectedValue));
+    const [updatedMonthOptions, setUpdatedMonthOptions] =
+      useState<MonthOption[]>(monthOptions);
 
     const [isReviewRequestLoading, setIsReviewRequestLoading] = useState(false);
 
@@ -461,11 +440,7 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
       setSelectedMonth(updatedSelectedMonths);
       dispatch(setSelectedMonth(updatedSelectedMonths));
 
-      const updatedMonthOptions = getMonthOptions(
-        viewPastCases,
-        viewFutureCases,
-        value[0]?.label,
-      );
+      const updatedMonthOptions = getMonthOptions();
       setUpdatedMonthOptions(updatedMonthOptions);
     };
 
@@ -569,6 +544,7 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
     const resetFilters = async (): Promise<void> => {
       dispatch(setSelectedMonth([]));
       dispatch(setSearchMRNName(null));
+      dispatch(setSelectedValue(viewFutureCases ? 'Upcoming View' : null));
       setIsWailistViewActive(false);
       setIsIolViewActive(false);
       resetPagination();
