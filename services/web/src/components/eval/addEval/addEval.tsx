@@ -4,11 +4,7 @@ import TextInput from '@root/components/TextInput';
 import { EVAL_STATUS } from '@root/enums/evalStatus.enum';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { addRecordAsync as addEvalRecord } from '@root/store/reducers/evals';
-import {
-  getBackGroundColorCss,
-  getPracticeId,
-  toFullName,
-} from '@utils/index';
+import { getBackGroundColorCss, getPracticeId, toFullName } from '@utils/index';
 import { Checkbox } from 'baseui/checkbox';
 import { DatePicker } from 'baseui/datepicker';
 import { SIZE, Select } from 'baseui/select';

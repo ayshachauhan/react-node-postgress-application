@@ -83,7 +83,7 @@ const UpsertCalendar: React.FC<{
         };
         if (updatedData.length) {
           let shouldUpdate = true;
-          for (let calendar of updatedData) {
+          for (const calendar of updatedData) {
             const existingRecords = calendars.find(
               (c) =>
                 c?.practice?.id === practiceId &&
