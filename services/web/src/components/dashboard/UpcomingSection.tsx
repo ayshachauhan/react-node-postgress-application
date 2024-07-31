@@ -161,28 +161,25 @@ const UpcomingSection: React.FC = () => {
         loggedInUserId,
       );
     }
-  }, [practiceId, userId, loggedInUserId, dispatch]);
-
-  useEffect(() => {
-    if (
-      practiceId !== null &&
-      userId !== null &&
-      selectedMonth &&
-      loggedInUserId
-    ) {
-      dispatchFetchFilteredCalendars(
-        practiceId,
-        userId,
-        selectedMonth,
-        selectedValueStr,
-        loggedInUserId,
-      );
-    }
-  }, [practiceId, userId, selectedMonth, selectedValue, loggedInUserId]);
+  }, [
+    practiceId,
+    userId,
+    selectedMonth,
+    selectedValue,
+    loggedInUserId,
+    dispatch,
+  ]);
 
   useEffect(() => {
     if (surgeryTypes.length > 0 && selectedSurgery === null) {
       setSelectedSurgery(surgeryTypes[0]);
+    } else if (selectedSurgery?.id) {
+      const findElement = surgeryTypes.find(
+        (s) => s.id === selectedSurgery?.id,
+      );
+      if (!findElement) {
+        setSelectedSurgery(surgeryTypes[0]);
+      }
     }
   }, [surgeryTypes]);
 

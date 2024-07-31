@@ -50,6 +50,7 @@ const calendarSlice = createSlice({
 
     builder.addCase(fetchCalendars.fulfilled, (state, action) => {
       state.status = EntityLoadingState.SUCCEEDED;
+      state.entities = {};
       if (action.payload.length === 0) {
         state.errorMessage = 'No records found.';
       }
@@ -76,6 +77,7 @@ const calendarSlice = createSlice({
 
     builder.addCase(fetchFilteredCalendars.fulfilled, (state, action) => {
       state.status = EntityLoadingState.SUCCEEDED;
+      state.entities = {};
       state.entities = indexBy('id', action.payload.calendars);
       state.calendarsWithoutPermission =
         action.payload.calendarsWithoutPermission;

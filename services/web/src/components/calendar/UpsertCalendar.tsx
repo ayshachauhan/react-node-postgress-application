@@ -82,8 +82,34 @@ const UpsertCalendar: React.FC<{
           })),
         };
         if (updatedData.length) {
+          let shouldUpdate = true;
+          for (let calendar of updatedData) {
+            const existingRecords = calendars.find(
+              (c) =>
+                c?.practice?.id === practiceId &&
+                c?.user?.id === userId &&
+                getDifferenceInDays(
+                  new Date(c.date),
+                  new Date(calendar.date),
+                ) === 0 &&
+                c?.surgeryType?.id === calendar?.selectedSurgery?.id,
+            );
+
+            if (existingRecords) {
+              calendarMessageFunc({
+                messageType: MESSAGE_TYPE.ERROR,
+                message: `Slot already exists for this location for selected date ${formatDate(
+                  calendar.date,
+                )}`,
+              });
+              shouldUpdate = false;
+              break;
+            }
+          }
           try {
-            dispatch(updateBulkCalendars(payload));
+            if (shouldUpdate) {
+              dispatch(updateBulkCalendars(payload));
+            }
             onClose();
           } catch (error) {
             onClose();
