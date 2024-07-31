@@ -9,8 +9,6 @@ import {
   getDifferenceInDays,
   getPracticeId,
   getUserId,
-  isCalendarDates,
-  isSlotsAvailable,
   toFullName,
   usDateFormatter,
 } from '@root/utils';
@@ -204,7 +202,7 @@ const EditableRow: React.FC<EditableRowProps> = ({
                   },
                 },
                 Day: {
-                  style: ({ $date, $selected }) => {
+                  style: ({ $date }) => {
                     return {
                       height: '53px',
                       width: '53px',
@@ -215,14 +213,6 @@ const EditableRow: React.FC<EditableRowProps> = ({
                       margin: '2px',
                       ...getBackGroundColorCss($date, currentMonth, calendars),
                       ':after': '',
-                      ...($selected
-                        ? {
-                            color: '#ffffff',
-                            ...(isCalendarDates($date, calendars)
-                              ? isSlotsAvailable($date, calendars)
-                              : { backgroundColor: '#000000' }),
-                          }
-                        : {}),
                     };
                   },
                 },

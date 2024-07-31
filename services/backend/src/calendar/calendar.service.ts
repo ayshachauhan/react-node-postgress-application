@@ -14,6 +14,7 @@ import {
 } from '@packages/entities';
 import { CalendarEntity } from '@packages/entities/calendar';
 import { USER_PERMISSIONS } from '@packages/entities/permission';
+import logger from 'src/logger';
 import { UsersService } from 'src/users/users.service';
 import {
   getDateDiffInDays,
@@ -254,6 +255,36 @@ export class CalendarService {
             surgeryTypeId,
             practiceId,
           );
+
+          const existingSurgeryTypeRecords =
+            await this.getCalendarBySurgeryTypes({
+              surgeryTypeId: surgeryTypeId,
+              practiceId: practiceId,
+              userId: '',
+            });
+
+          if (existingSurgeryTypeRecords) {
+            const existingCalendarRecord = (await this.calendarRepo.findOne({
+              where: { id },
+              relations: ['practice', 'surgeryType', 'user'],
+            })) as CalendarEntity;
+
+            const existingRecords = existingSurgeryTypeRecords.find(
+              (s) =>
+                s.practice?.id === practiceId &&
+                s.user?.id === existingCalendarRecord?.user?.id &&
+                getDateDiffInDays(
+                  new Date(s.date),
+                  new Date(existingCalendarRecord.date),
+                ) === 0,
+            );
+            if (existingRecords) {
+              logger.info(
+                `Calendar slot found for this surgery type on the same date ${existingCalendarRecord.date}`,
+              );
+              return;
+            }
+          }
         }
 
         await this.calendarRepo.update(id, {

@@ -4,13 +4,7 @@ import TextInput from '@root/components/TextInput';
 import { EVAL_STATUS } from '@root/enums/evalStatus.enum';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { addRecordAsync as addEvalRecord } from '@root/store/reducers/evals';
-import {
-  getBackGroundColorCss,
-  getPracticeId,
-  isCalendarDates,
-  isSlotsAvailable,
-  toFullName,
-} from '@utils/index';
+import { getBackGroundColorCss, getPracticeId, toFullName } from '@utils/index';
 import { Checkbox } from 'baseui/checkbox';
 import { DatePicker } from 'baseui/datepicker';
 import { SIZE, Select } from 'baseui/select';
@@ -739,7 +733,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
                       }}
                       overrides={{
                         Day: {
-                          style: ({ $date, $selected }) => {
+                          style: ({ $date }) => {
                             return {
                               height: '53px',
                               width: '53px',
@@ -754,14 +748,6 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
                                 calendars,
                               ),
                               ':after': '',
-                              ...($selected
-                                ? {
-                                    color: '#ffffff',
-                                    ...(isCalendarDates($date, calendars)
-                                      ? isSlotsAvailable($date, calendars)
-                                      : { backgroundColor: '#000000' }),
-                                  }
-                                : {}),
                             };
                           },
                         },

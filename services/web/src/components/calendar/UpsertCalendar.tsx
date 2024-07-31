@@ -16,8 +16,6 @@ import {
   getDifferenceInDays,
   getPracticeId,
   getUserId,
-  isCalendarDates,
-  isSlotsAvailable,
 } from '@root/utils';
 import { MESSAGE_TYPE } from '@root/utils/enums';
 import { DatePicker } from 'baseui/datepicker';
@@ -84,8 +82,34 @@ const UpsertCalendar: React.FC<{
           })),
         };
         if (updatedData.length) {
+          let shouldUpdate = true;
+          for (const calendar of updatedData) {
+            const existingRecords = calendars.find(
+              (c) =>
+                c?.practice?.id === practiceId &&
+                c?.user?.id === userId &&
+                getDifferenceInDays(
+                  new Date(c.date),
+                  new Date(calendar.date),
+                ) === 0 &&
+                c?.surgeryType?.id === calendar?.selectedSurgery?.id,
+            );
+
+            if (existingRecords) {
+              calendarMessageFunc({
+                messageType: MESSAGE_TYPE.ERROR,
+                message: `Slot already exists for this location for selected date ${formatDate(
+                  calendar.date,
+                )}`,
+              });
+              shouldUpdate = false;
+              break;
+            }
+          }
           try {
-            dispatch(updateBulkCalendars(payload));
+            if (shouldUpdate) {
+              dispatch(updateBulkCalendars(payload));
+            }
             onClose();
           } catch (error) {
             onClose();
@@ -228,7 +252,7 @@ const UpsertCalendar: React.FC<{
                   //)}
                   overrides={{
                     Day: {
-                      style: ({ $date, $selected }) => {
+                      style: ({ $date }) => {
                         return {
                           height: '53px',
                           width: '53px',
@@ -243,14 +267,6 @@ const UpsertCalendar: React.FC<{
                             calendars,
                           ),
                           ':after': '',
-                          ...($selected
-                            ? {
-                                color: '#ffffff',
-                                ...(isCalendarDates($date, calendars)
-                                  ? isSlotsAvailable($date, calendars)
-                                  : { backgroundColor: '#000000' }),
-                              }
-                            : {}),
                         };
                       },
                     },
