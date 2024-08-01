@@ -523,17 +523,68 @@ const EditableRow: React.FC<EditableRowProps> = ({
                                             ]
                                           : []
                                       }
-                                      onChange={({ value }) =>
+                                      onChange={({ value }) => {
+                                        let selectedValues = {
+                                          ...obj.selectedSurgeryOptions,
+                                          [`${optionsHeader}-${index}`]: {
+                                            value: value[0].label,
+                                          },
+                                        };
+
+                                        let startHospPrice = 0,
+                                          startProfPrice = 0,
+                                          hospitalTotal = 0,
+                                          profTotal = 0;
+                                        if (
+                                          selectedValues &&
+                                          Object.keys(selectedValues).length > 0
+                                        ) {
+                                          Object.keys(selectedValues)?.map(
+                                            (s) => {
+                                              const optionName = s.slice(
+                                                0,
+                                                s.lastIndexOf('-'),
+                                              );
+                                              const objValue =
+                                                surgeryConfiguration.options[
+                                                  `${optionName}`
+                                                ]?.allowedValues?.find(
+                                                  (c) =>
+                                                    c.name ==
+                                                    selectedValues[s]?.value,
+                                                );
+
+                                              if (objValue) {
+                                                startHospPrice += Number(
+                                                  objValue.hospitalPricing,
+                                                );
+                                                startProfPrice += Number(
+                                                  objValue.professionalPricing,
+                                                );
+                                                hospitalTotal += Number(
+                                                  objValue.hospitalPricing,
+                                                );
+                                                profTotal += Number(
+                                                  objValue.professionalPricing,
+                                                );
+                                              }
+                                            },
+                                          );
+                                        }
+
+                                        setObj((prevState) => ({
+                                          ...prevState,
+                                          initialHospitalPrice: `${startHospPrice}`,
+                                          initialProfPrice: `${startProfPrice}`,
+                                          totalHospitalPricing: `${hospitalTotal}`,
+                                          totalProfessionalPricing: `${profTotal}`,
+                                        }));
+
                                         handleObjChange(
                                           'selectedSurgeryOptions',
-                                          {
-                                            ...obj.selectedSurgeryOptions,
-                                            [`${optionsHeader}-${index}`]: {
-                                              value: value[0].label,
-                                            },
-                                          },
-                                        )
-                                      }
+                                          selectedValues,
+                                        );
+                                      }}
                                       disabled={
                                         surgeryConfiguration.options[
                                           optionsHeader
