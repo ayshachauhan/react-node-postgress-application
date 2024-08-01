@@ -122,7 +122,6 @@ const UpcomingSection: React.FC = () => {
     }
   };
 
-  const currentDate = new Date();
   const { selectedMonth, selectedValue } = useAppSelector(
     (state) => state.surgeries?.surgeryFilters,
   );
@@ -205,22 +204,11 @@ const UpcomingSection: React.FC = () => {
   };
 
   const filterCalendarByMonth = (calendars: CalendarData[]): CalendarData[] => {
-    const currentMonth = currentDate.getMonth();
-    const currentYear = currentDate.getFullYear();
-    const startDate = new Date(currentYear, currentMonth, 1);
-
-    return calendars
-      .filter((calendar) => {
-        const calendarDate = new Date(calendar.date);
-
-        // Adjust the filter condition to include all calendars from the current date onwards
-        return calendarDate >= startDate;
-      })
-      .sort((a, b) => {
-        const dateA = new Date(a.date);
-        const dateB = new Date(b.date);
-        return dateA.getTime() - dateB.getTime();
-      });
+    return calendars.sort((a, b) => {
+      const dateA = new Date(a.date);
+      const dateB = new Date(b.date);
+      return dateA.getTime() - dateB.getTime();
+    });
   };
 
   /**

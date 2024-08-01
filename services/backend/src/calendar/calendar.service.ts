@@ -22,9 +22,12 @@ import {
   getStartEndDate,
 } from 'src/utils';
 import {
+  Between,
   FindManyOptions,
   FindOperator,
   LessThanOrEqual,
+  MoreThanOrEqual,
+  Or,
   Repository,
 } from 'typeorm';
 import { PracticesService } from '../practices/practices.service';
@@ -328,15 +331,19 @@ export class CalendarService {
     if (loggedInUserId) {
       const userInfo = await this.userService.getUserById(loggedInUserId);
       userPermissions = userInfo?.permissions || [];
+      const viewFutureCases = userPermissions.some(
+        (p) => p.name === USER_PERMISSIONS.VIEW_FUTURE_CASES,
+      );
+
+      if (!option && viewFutureCases) {
+        option = 'Upcoming View';
+      }
     }
 
     const whereClause: WhereClause = {
       practice: { id: practiceId },
       user: { id: userId },
     };
-    if (option?.toLowerCase() === 'past') {
-      whereClause.date = LessThanOrEqual(new Date());
-    }
 
     const searchConditions: FindManyOptions<CalendarEntity> = {
       where: whereClause,
@@ -351,21 +358,97 @@ export class CalendarService {
     );
     const dateConditionsWithoutPermissions = getConditions(months, []);
 
-    if (
-      months.length > 0 ||
-      (months.length === 0 && option?.toLowerCase() !== 'past')
-    ) {
-      const conditionsWithPermissions = mapDateConditions(
-        dateConditionsWithPermissions,
-        whereClause,
-      );
-      const conditionsWithoutPermissions = mapDateConditions(
-        dateConditionsWithoutPermissions,
-        whereClause,
-      );
+    if (option?.toLowerCase() === 'past view') {
+      const today = new Date();
+      today.setUTCHours(23, 59, 59, 999); // Set to the end of today
+      if (months.length > 0) {
+        const currentYear = today.getFullYear();
+        const currentMonth = today.getUTCMonth();
+        const dateConditions: FindOperator<Date>[] = months.map((monthName) => {
+          const monthIndex = new Date(
+            Date.parse(monthName + ' 1, ' + currentYear),
+          ).getMonth();
+          const startOfMonth = new Date(Date.UTC(currentYear, monthIndex, 1));
+          const endOfMonth = new Date(
+            Date.UTC(currentYear, monthIndex + 1, 0, 23, 59, 59, 999),
+          );
 
-      searchConditions.where = conditionsWithPermissions;
-      searchConditionsWithoutPermissions.where = conditionsWithoutPermissions;
+          if (monthIndex === today.getUTCMonth()) {
+            return Between(startOfMonth, today);
+          } else if (monthIndex > currentMonth) {
+            const startDate = new Date(Date.UTC(9999, 0, 1)); // Far future date
+            const endDate = new Date(Date.UTC(9999, 0, 2)); // Just one day after
+            return Between(startDate, endDate);
+          } else {
+            return Between(startOfMonth, endOfMonth);
+          }
+        });
+
+        if (dateConditions.length > 1) {
+          whereClause.date = Or(...dateConditions);
+        } else {
+          whereClause.date = dateConditions[0];
+        }
+      } else {
+        whereClause.date = LessThanOrEqual(today);
+      }
+    } else if (option?.toLowerCase() === 'upcoming view') {
+      const today = new Date();
+      today.setUTCHours(0, 0, 0, 0); // Set to beginning of today
+      const yesterday = new Date(today);
+      yesterday.setUTCDate(today.getUTCDate() - 1); // Set to yesterday
+      if (months.length > 0) {
+        const currentYear = today.getFullYear();
+        const currentMonth = today.getUTCMonth();
+
+        const dateConditions: FindOperator<Date>[] = months.map((monthName) => {
+          const monthIndex = new Date(
+            Date.parse(monthName + ' 1, ' + currentYear),
+          ).getMonth();
+          const startOfMonth = new Date(Date.UTC(currentYear, monthIndex, 1));
+          const endOfMonth = new Date(
+            Date.UTC(currentYear, monthIndex + 1, 0, 23, 59, 59, 999),
+          );
+
+          if (monthIndex === today.getUTCMonth()) {
+            return Between(yesterday, endOfMonth);
+          } else if (monthIndex < currentMonth) {
+            // Set startDate and endDate to an impossible range to ensure no data is returned
+            const startDate = new Date(Date.UTC(9999, 0, 1)); // Far future date
+            const endDate = new Date(Date.UTC(9999, 0, 2)); // Just one day after
+            return Between(startDate, endDate);
+          } else {
+            return Between(startOfMonth, endOfMonth);
+          }
+        });
+
+        if (dateConditions.length > 1) {
+          whereClause.date = Or(...dateConditions);
+        } else {
+          whereClause.date = dateConditions[0];
+        }
+      } else {
+        whereClause.date = MoreThanOrEqual(yesterday);
+      }
+    } else {
+      if (
+        months.length > 0 ||
+        (months.length === 0 &&
+          option?.toLowerCase() !== 'past view' &&
+          option?.toLowerCase() !== 'upcoming view')
+      ) {
+        const conditionsWithPermissions = mapDateConditions(
+          dateConditionsWithPermissions,
+          whereClause,
+        );
+        const conditionsWithoutPermissions = mapDateConditions(
+          dateConditionsWithoutPermissions,
+          whereClause,
+        );
+
+        searchConditions.where = conditionsWithPermissions;
+        searchConditionsWithoutPermissions.where = conditionsWithoutPermissions;
+      }
     }
 
     const [dbCalendars, dbCalendarsWithoutPermission] = await Promise.all([
