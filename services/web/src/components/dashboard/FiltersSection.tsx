@@ -1,6 +1,5 @@
 import {
   MonthOption,
-  PatientEntity,
   ReviewStatus,
   SurgeryEntity,
   USER_PERMISSIONS,
@@ -279,22 +278,6 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
       [viewPastCases, viewFutureCases],
     );
     const [records, setRecords] = useState<SurgeryEntity[]>([]);
-    const patientListIds = patientsList.map((patient) => patient.id);
-
-    let finalPatientList: PatientEntity[] = [];
-
-    if (records.length > 0) {
-      finalPatientList = records
-        .map((surgery) => surgery.patient)
-        .filter((patient, index, self) => {
-          return (
-            patientListIds.includes(patient.id) &&
-            index === self.findIndex((p) => p.id === patient.id)
-          );
-        });
-    } else {
-      finalPatientList = [];
-    }
 
     const modifiedObj = {};
     records.forEach((ele, index) => {
@@ -858,12 +841,12 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
                       value={
                         searchMRNName
                           ? [{ id: searchMRNName, label: searchMRNName }]
-                          : [{ id: '', label: '' }]
+                          : []
                       }
                       onChange={({ value }) =>
                         handleSearchMRNNameChange(value[0]?.id)
                       }
-                      options={finalPatientList.map((patient) => ({
+                      options={patientsList.map((patient) => ({
                         id: patient.mrn,
                         label: `${patient.lastName}, ${patient.firstName} | ${patient.mrn}`,
                       }))}
