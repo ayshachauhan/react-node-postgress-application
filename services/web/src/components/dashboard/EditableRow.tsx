@@ -524,7 +524,7 @@ const EditableRow: React.FC<EditableRowProps> = ({
                                           : []
                                       }
                                       onChange={({ value }) => {
-                                        let selectedValues = {
+                                        const selectedValues = {
                                           ...obj.selectedSurgeryOptions,
                                           [`${optionsHeader}-${index}`]: {
                                             value: value[0].label,
