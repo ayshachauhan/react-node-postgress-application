@@ -1,5 +1,6 @@
 import {
   MonthOption,
+  PatientEntity,
   ReviewStatus,
   SurgeryEntity,
   USER_PERMISSIONS,
@@ -15,7 +16,6 @@ import {
   StarIcon,
   ViewIcon,
 } from '@root/components/Icons';
-import TextInput from '@root/components/TextInput';
 import Loader from '@root/components/loader';
 import { useUserPermissions } from '@root/context/UserPermissionsContext';
 import { useLoader } from '@root/hooks/useLoader';
@@ -108,6 +108,7 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
       errorMessage,
       surgeryConfigList,
       userInfo,
+      patientsList,
     } = useAppSelector((state) => ({
       selectedMonth: state.surgeries.surgeryFilters.selectedMonth,
       searchMRNName: state.surgeries.surgeryFilters.searchMRNName,
@@ -117,6 +118,7 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
       surgeryConfigList: Object.values(state.surgeryConfigurations.entities),
       waitlist: Object.values(state.waitlist.entities),
       userInfo: state.auth.user,
+      patientsList: Object.values(state.patients.entities),
     }));
     const [isSurgeriesLoading, setIsLoading] = useState(false);
     const handleRecordAdded = async () => {
@@ -277,6 +279,22 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
       [viewPastCases, viewFutureCases],
     );
     const [records, setRecords] = useState<SurgeryEntity[]>([]);
+    const patientListIds = patientsList.map((patient) => patient.id);
+
+    let finalPatientList: PatientEntity[] = [];
+
+    if (records.length > 0) {
+      finalPatientList = records
+        .map((surgery) => surgery.patient)
+        .filter((patient, index, self) => {
+          return (
+            patientListIds.includes(patient.id) &&
+            index === self.findIndex((p) => p.id === patient.id)
+          );
+        });
+    } else {
+      finalPatientList = [];
+    }
 
     const modifiedObj = {};
     records.forEach((ele, index) => {
@@ -472,10 +490,16 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
       }
     };
 
-    const handleSearchMRNNameChange = (value: string) => {
+    const handleSearchMRNNameChange = (value) => {
       resetPagination();
-      const mrn = value.toLowerCase();
-      dispatch(setSearchMRNName(mrn));
+      if (value) {
+        const selectedMrn = value;
+        setSearchMRNName(selectedMrn);
+        dispatch(setSearchMRNName(selectedMrn));
+      } else {
+        setSearchMRNName('');
+        resetFilters();
+      }
     };
 
     const handleCloneClick = (row) => {
@@ -827,12 +851,38 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
               </div>
               <div className="flex w-3/4 justify-end gap-3 items-center text-sm">
                 <div className="flex">
-                  <div className="items-center">
-                    <TextInput
-                      name="search"
-                      value={searchMRNName || ''}
-                      onChange={handleSearchMRNNameChange}
+                  <div className="flex items-center min-w-56">
+                    <Select
+                      backspaceClearsInputValue
+                      backspaceRemoves
+                      value={
+                        searchMRNName
+                          ? [{ id: searchMRNName, label: searchMRNName }]
+                          : [{ id: '', label: '' }]
+                      }
+                      onChange={({ value }) =>
+                        handleSearchMRNNameChange(value[0]?.id)
+                      }
+                      options={finalPatientList.map((patient) => ({
+                        id: patient.mrn,
+                        label: `${patient.lastName}, ${patient.firstName} | ${patient.mrn}`,
+                      }))}
                       placeholder="Search MRN or Name"
+                      overrides={{
+                        ControlContainer: {
+                          style: {
+                            backgroundColor: 'rgba(250, 250, 250, 1)',
+                            border: 'none',
+                            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                            color: '#52525B',
+                            borderTopRightRadius: '0',
+                            borderBottomRightRadius: '0',
+                          },
+                        },
+                        ClearIcon: {
+                          component: () => null,
+                        },
+                      }}
                     />
                   </div>
                   <div className="bg-gradient-to-br from-teal-600 to-green-500 px-4 py-2 text-white flex items-center rounded-r-lg border-r border-gray-300">
