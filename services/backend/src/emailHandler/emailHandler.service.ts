@@ -510,8 +510,15 @@ export class EmailHandlerService {
       data: {
         ...data,
         to: data.email,
-        body: this.transporterService.readTemplates(
-          SystemTemplates.SEND_VIDEO_TO_PATIENT,
+        body: await this.transporterService.compileTemplate(
+          await this.transporterService.readTemplates(
+            SystemTemplates.SEND_VIDEO_TO_PATIENT,
+          ),
+          {
+            ...data,
+            links: data?.links?.split(','),
+            patientName: `${data.fname} ${data.lname}`,
+          },
         ),
         patientName: `${data.fname} ${data.lname}`,
         subject: 'Surgery Videos.',
