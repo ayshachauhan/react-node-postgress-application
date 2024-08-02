@@ -132,16 +132,6 @@ jobs:
           filenames: |
             .env
 
-      - name: Check Docker Compose and Install if not present
-        run: |
-          if ! [ -x "$(command -v docker-compose)" ]; then
-            echo "Docker Compose is not installed. Installing..."
-            sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-            sudo chmod +x /usr/local/bin/docker-compose
-          else
-            echo "Docker Compose is already installed. Version: $(docker-compose --version)"
-          fi
-
       - name: build docker images
         run: |
           docker-compose build
