@@ -593,7 +593,9 @@ export class SurgeryService {
 
       if (
         reomvedCalender &&
-        moment(reomvedCalender?.date).format('YYYY-MM-DD')
+        moment(reomvedCalender?.date).format('YYYY-MM-DD') &&
+        moment(createSurgeryDto.date).format('YYYY-MM-DD') !==
+          moment(reomvedCalender.date).format('YYYY-MM-DD')
       ) {
         await this.calendarService.updateCalendar({
           id: reomvedCalender?.id,
@@ -601,7 +603,11 @@ export class SurgeryService {
         });
       }
 
-      if (selectedCalendar) {
+      if (
+        selectedCalendar &&
+        moment(createSurgeryDto.date).format('YYYY-MM-DD') !==
+          moment(selectedCalendar.date).format('YYYY-MM-DD')
+      ) {
         await this.calendarService.updateCalendar({
           id: selectedCalendar?.id,
           bookedSlots: selectedCalendar?.bookedSlots + 1,
