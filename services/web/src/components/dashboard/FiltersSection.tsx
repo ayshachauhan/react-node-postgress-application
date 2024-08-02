@@ -546,13 +546,12 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
     };
 
     const resetFilters = async (): Promise<void> => {
-      resetPagination();
       dispatch(setSelectedValue(viewFutureCases ? 'Upcoming View' : null));
       dispatch(setSelectedMonth([]));
       dispatch(setSearchMRNName(null));
       setIsWailistViewActive(false);
       setIsIolViewActive(false);
-      await fetchSurgeryList(1);
+      resetPagination();
     };
 
     const handleViewHistory = (id: string, surgery: string): void => {
