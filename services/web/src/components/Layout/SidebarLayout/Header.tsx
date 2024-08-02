@@ -3,6 +3,7 @@
 import { UserType } from '@packages/entities/index.browser';
 import Dropdown from '@root/components/Dropdown';
 import { AvatarIcon } from '@root/components/Icons';
+import { useUserPermissions } from '@root/context/UserPermissionsContext';
 import { State, useAppDispatch, useAppSelector } from '@root/store';
 import {
   fetchLoggedInUser,
@@ -53,7 +54,7 @@ const Header: React.FC<ChildProps> = ({ data }) => {
       Object.values(entities).filter((user) => user.type == UserType.DOCTOR),
     [entities],
   );
-
+  const { updateUserPermissions } = useUserPermissions();
   const findSelectedUser = (userId: string): SanitizedUser | undefined =>
     Object.values(entities).find((user) => user.id === userId);
 
@@ -96,6 +97,7 @@ const Header: React.FC<ChildProps> = ({ data }) => {
     currentPath === '/dashboard' || currentPath === '/eval';
   const handleLogout = () => {
     dispatch(logoutUser());
+    updateUserPermissions([]);
     router.push('/login');
   };
 
