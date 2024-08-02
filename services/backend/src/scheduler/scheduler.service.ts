@@ -113,15 +113,20 @@ export class SchedulerService {
 
   @Cron('0 0 * * *') // every 24 hours
   async createDailySummary() {
+    logger.info(`Starting summary email scheduler`);
     const today = this.getFormattedDate();
-
+    const dateMinus15Minutes = new Date(
+      today.setMinutes(today.getMinutes() - 5),
+    );
+    logger.info('Current Date and Time:', today);
+    logger.info('Date and Time minus 15 minutes:', dateMinus15Minutes);
     const dailySummaryByPractice = {};
 
     const data = await this.emailLogRepository.find({
-      where: { expectedDate: Equal(today), status: 'completed' },
+      where: { expectedDate: Equal(dateMinus15Minutes), status: 'completed' },
       relations: ['practice', 'practice.users'],
     });
-
+    logger.info(`Processing ${data.length} records in summary email scheduler`);
     const emailLogEntries: Partial<IEmailLog>[] = [];
 
     // filtering data on the basis of separate practices
@@ -229,8 +234,10 @@ export class SchedulerService {
     }
 
     if (emailLogEntries.length) {
+      logger.info(`${emailLogEntries.length} summary email(s) to be processed`);
       await this.emailLogRepository.save(emailLogEntries);
     }
+    logger.info(`Summary email scheduler ended`);
   }
 
   private getFormattedDate() {
