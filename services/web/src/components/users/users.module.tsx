@@ -103,9 +103,9 @@ export default function UserPage() {
     (state) => state.practices.practiceInfo?.name,
   );
 
-  const addUserPermission = UserType.EMPLOYEE != loggedInUserInfo?.type;
-  const editUserPermission = UserType.EMPLOYEE != loggedInUserInfo?.type;
-  const deleteUserPermission = UserType.EMPLOYEE != loggedInUserInfo?.type;
+  const addUserPermission = UserType.ADMIN === loggedInUserInfo?.type;
+  const editUserPermission = UserType.ADMIN === loggedInUserInfo?.type;
+  const deleteUserPermission = UserType.ADMIN === loggedInUserInfo?.type;
 
   const onConfirmDelete = (): void => {
     const id = userId;
@@ -298,8 +298,7 @@ export default function UserPage() {
                         >
                           <ViewIcon></ViewIcon>
                         </div>
-                        {(editUserPermission ||
-                          loggedInUserInfo.id === data.id) && (
+                        {editUserPermission && (
                           <div
                             onClick={() =>
                               data.id && handleOpenEditModal(data.id)

@@ -49,12 +49,18 @@ const Header: React.FC<ChildProps> = ({ data }) => {
   const { entities } = useAppSelector((state: State) => state.users);
   const practiceId = getPracticeId();
 
-  const users: SanitizedUser[] = useMemo(
-    () =>
-      Object.values(entities).filter((user) => user.type == UserType.DOCTOR),
-    [entities],
-  );
+  const users: SanitizedUser[] = useMemo(() => {
+    if (userInfo?.type === UserType.DOCTOR) {
+      return Object.values(entities).filter(
+        (user) => user.type == UserType.DOCTOR && user.id === loggedInUserId,
+      );
+    }
+    return Object.values(entities).filter(
+      (user) => user.type == UserType.DOCTOR,
+    );
+  }, [entities]);
   const { updateUserPermissions } = useUserPermissions();
+
   const findSelectedUser = (userId: string): SanitizedUser | undefined =>
     Object.values(entities).find((user) => user.id === userId);
 
