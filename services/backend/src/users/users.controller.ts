@@ -60,7 +60,7 @@ export class UsersController {
 
   @Delete(':id')
   @UseInterceptors(practiceNotFoundInterceptor)
-  @Roles(UserType.ADMIN, UserType.DOCTOR)
+  @Roles(UserType.ADMIN)
   async deleteUser(
     @Param() { id }: { id: string },
     @Req() request: RequestWithUser,
@@ -80,6 +80,7 @@ export class UsersController {
   }
 
   @Patch(':id')
+  @Roles(UserType.ADMIN)
   async updateUser(
     @Param('id') id: string,
     @Body(new ValidationPipe()) patchUserDto: UpdateUserDto,
