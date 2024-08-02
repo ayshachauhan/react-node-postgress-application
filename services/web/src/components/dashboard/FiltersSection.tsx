@@ -181,25 +181,18 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
     const getMonthOptions = (
       viewPastCases: boolean,
       viewFutureCases: boolean,
-      option: string | null,
     ) => {
       const currentMonth = new Date().getMonth() + 1;
       return monthOptions.map((monthOption) => {
         const optionMonth = parseInt(monthOption.value, 10);
 
         let shouldDisable = false;
-        if (!option || option.trim() === '') {
-          shouldDisable =
-            (!viewFutureCases && optionMonth > currentMonth) ||
-            (!viewPastCases && optionMonth < currentMonth);
-        } else if (option?.toLowerCase() === 'past view') {
-          shouldDisable =
-            optionMonth > currentMonth ||
-            (!viewPastCases && optionMonth < currentMonth);
-        } else if (option?.toLowerCase() === 'upcoming view') {
-          shouldDisable =
-            optionMonth < currentMonth ||
-            (!viewFutureCases && optionMonth > currentMonth);
+
+        if (!viewFutureCases && optionMonth > currentMonth) {
+          shouldDisable = true;
+        }
+        if (!viewPastCases && optionMonth < currentMonth) {
+          shouldDisable = true;
         }
 
         return {
@@ -211,7 +204,7 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
 
     const [updatedMonthOptions, setUpdatedMonthOptions] = useState<
       MonthOption[]
-    >(getMonthOptions(viewPastCases, viewFutureCases, selectedValue));
+    >(getMonthOptions(viewPastCases, viewFutureCases));
 
     const [isReviewRequestLoading, setIsReviewRequestLoading] = useState(false);
 
@@ -461,13 +454,6 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
 
       setSelectedMonth(updatedSelectedMonths);
       dispatch(setSelectedMonth(updatedSelectedMonths));
-
-      const updatedMonthOptions = getMonthOptions(
-        viewPastCases,
-        viewFutureCases,
-        value[0]?.label,
-      );
-      setUpdatedMonthOptions(updatedMonthOptions);
     };
 
     const handleChangeMonth = ({ value }) => {
@@ -643,9 +629,7 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
     }, [viewFutureCases]);
 
     useEffect(() => {
-      setUpdatedMonthOptions(
-        getMonthOptions(viewPastCases, viewFutureCases, selectedValue),
-      );
+      setUpdatedMonthOptions(getMonthOptions(viewPastCases, viewFutureCases));
     }, [viewPastCases, viewFutureCases, selectedValue]);
 
     useEffect(() => {
