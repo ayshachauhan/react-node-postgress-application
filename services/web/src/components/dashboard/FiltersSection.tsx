@@ -178,16 +178,40 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
       USER_PERMISSIONS.VIEW_REP,
     ]);
 
-    const getMonthOptions = () => {
+    const getMonthOptions = (
+      viewPastCases: boolean,
+      viewFutureCases: boolean,
+      option: string | null,
+    ) => {
+      const currentMonth = new Date().getMonth() + 1;
       return monthOptions.map((monthOption) => {
+        const optionMonth = parseInt(monthOption.value, 10);
+
+        let shouldDisable = false;
+        if (!option || option.trim() === '') {
+          shouldDisable =
+            (!viewFutureCases && optionMonth > currentMonth) ||
+            (!viewPastCases && optionMonth < currentMonth);
+        } else if (option?.toLowerCase() === 'past view') {
+          shouldDisable =
+            optionMonth > currentMonth ||
+            (!viewPastCases && optionMonth < currentMonth);
+        } else if (option?.toLowerCase() === 'upcoming view') {
+          shouldDisable =
+            optionMonth < currentMonth ||
+            (!viewFutureCases && optionMonth > currentMonth);
+        }
+
         return {
           ...monthOption,
+          disabled: shouldDisable,
         };
       });
     };
 
-    const [updatedMonthOptions, setUpdatedMonthOptions] =
-      useState<MonthOption[]>(monthOptions);
+    const [updatedMonthOptions, setUpdatedMonthOptions] = useState<
+      MonthOption[]
+    >(getMonthOptions(viewPastCases, viewFutureCases, selectedValue));
 
     const [isReviewRequestLoading, setIsReviewRequestLoading] = useState(false);
 
@@ -438,7 +462,11 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
       setSelectedMonth(updatedSelectedMonths);
       dispatch(setSelectedMonth(updatedSelectedMonths));
 
-      const updatedMonthOptions = getMonthOptions();
+      const updatedMonthOptions = getMonthOptions(
+        viewPastCases,
+        viewFutureCases,
+        value[0]?.label,
+      );
       setUpdatedMonthOptions(updatedMonthOptions);
     };
 
@@ -613,6 +641,12 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
     useEffect(() => {
       setIsViewFutureCasesFinalized(true);
     }, [viewFutureCases]);
+
+    useEffect(() => {
+      setUpdatedMonthOptions(
+        getMonthOptions(viewPastCases, viewFutureCases, selectedValue),
+      );
+    }, [viewPastCases, viewFutureCases, selectedValue]);
 
     useEffect(() => {
       dispatch(setSelectedMonth([]));
