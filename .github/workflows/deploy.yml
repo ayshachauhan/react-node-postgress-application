@@ -160,7 +160,7 @@ jobs:
         run: |
           echo $VERSION_TAG
           echo $ECR_REGISTRY/$ECR_REPOSITORY:$VERSION_TAG
-          docker tag azentia_backend:latest $ECR_REGISTRY/$ECR_REPOSITORY:$VERSION_TAG
+          docker tag ***-backend:latest $ECR_REGISTRY/$ECR_REPOSITORY:$VERSION_TAG
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$VERSION_TAG
           echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$VERSION_TAG"
 
@@ -172,7 +172,7 @@ jobs:
         run: |
           echo $VERSION_TAG
           echo $ECR_REGISTRY/$ECR_REPOSITORY:$VERSION_TAG
-          docker tag azentia_web:latest $ECR_REGISTRY/$ECR_REPOSITORY:$VERSION_TAG
+          docker tag ***-web:latest $ECR_REGISTRY/$ECR_REPOSITORY:$VERSION_TAG
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$VERSION_TAG
           echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$VERSION_TAG"
 
