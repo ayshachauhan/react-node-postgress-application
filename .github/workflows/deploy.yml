@@ -150,17 +150,24 @@ jobs:
           docker-compose build
 
       - name: List Docker images
-        run: docker images 
+        run: docker images
+
+      - name: Print variables for debugging
+        run: |
+          echo "ECR_REGISTRY=${{ steps.login-ecr.outputs.registry }}"
+          echo "ECR_REPOSITORY=azentia-${{ github.event.inputs.environment }}-backend-image-repository"
+          echo "VERSION_TAG=${{ steps.version.outputs.version }}" 
 
       - name: tag and push backend docker image
         id: push_backend_image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: azentia-${{ github.event.inputs.environment }}-backend-image-repository
+          VERSION_TAG: ${{ steps.version.outputs.version }}
         run: |
           echo $VERSION_TAG
           echo $ECR_REGISTRY/$ECR_REPOSITORY:$VERSION_TAG
-          docker tag ***-backend:latest $ECR_REGISTRY/$ECR_REPOSITORY:$VERSION_TAG
+          docker tag azentia_backend:latest $ECR_REGISTRY/$ECR_REPOSITORY:$VERSION_TAG
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$VERSION_TAG
           echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$VERSION_TAG"
 
@@ -169,10 +176,11 @@ jobs:
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: azentia-${{ github.event.inputs.environment }}-web-image-repository
+          VERSION_TAG: ${{ steps.version.outputs.version }}
         run: |
           echo $VERSION_TAG
           echo $ECR_REGISTRY/$ECR_REPOSITORY:$VERSION_TAG
-          docker tag ***-web:latest $ECR_REGISTRY/$ECR_REPOSITORY:$VERSION_TAG
+          docker tag azentia_web:latest $ECR_REGISTRY/$ECR_REPOSITORY:$VERSION_TAG
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$VERSION_TAG
           echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$VERSION_TAG"
 
