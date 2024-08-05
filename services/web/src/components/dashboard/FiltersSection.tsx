@@ -689,7 +689,9 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
               return [...prevRecords, ...newRecords];
             });
 
-            setHasMore(data.surgeries.length === limit);
+            if (data.surgeries.length > limit) {
+              setHasMore(data.surgeries.length === limit);
+            }
           } else {
             setHasMore(false);
           }
@@ -710,7 +712,13 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
     }));
 
     useEffect(() => {
-      if (isFiltersApplied && isViewFutureCasesFinalized) {
+      if (doctorId) {
+        resetPagination();
+      }
+    }, [doctorId]);
+
+    useEffect(() => {
+      if (isFiltersApplied && isViewFutureCasesFinalized && doctorId) {
         const fetchData = async () => {
           try {
             await fetchSurgeryList(page); // Fetch data with current page
@@ -720,13 +728,13 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
         };
         fetchData();
       }
-    }, [isFiltersApplied, isViewFutureCasesFinalized, page, fetchSurgeryList]);
-
-    useEffect(() => {
-      if (doctorId) {
-        resetPagination();
-      }
-    }, [doctorId]);
+    }, [
+      isFiltersApplied,
+      isViewFutureCasesFinalized,
+      page,
+      fetchSurgeryList,
+      doctorId,
+    ]);
 
     useEffect(() => {
       handleSearchMRNNameChange('');
