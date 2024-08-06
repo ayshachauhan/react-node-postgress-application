@@ -103,7 +103,8 @@ const UpsertCalendar: React.FC<{
                   new Date(c.date),
                   new Date(calendar.date),
                 ) === 0 &&
-                c?.surgeryType?.id === calendar?.selectedSurgery?.id,
+                c?.surgeryType?.id === calendar?.selectedSurgery?.id &&
+                c.maxSlots === calendar?.maxSlots,
             );
 
             if (existingRecords) {
