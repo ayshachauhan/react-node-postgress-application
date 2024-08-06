@@ -14,12 +14,15 @@ export class EmailLogEntity extends BaseEntity implements IEmailLog {
   @Column({ type: 'jsonb', nullable: true })
   response: EmailResponse;
 
-  @Column({ type: 'date' })
+  @Column({ type: 'timestamp' })
   expectedDate: Date;
 
   @ManyToOne(() => PracticeEntity)
   @JoinColumn({ name: 'practiceId' })
   practice: PracticeEntity;
+
+  @Column({ type: 'uuid' })
+  practiceId: string;
 
   @Column({ type: 'varchar', nullable: true })
   attachment?: string;

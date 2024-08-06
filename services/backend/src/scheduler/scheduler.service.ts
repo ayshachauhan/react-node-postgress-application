@@ -3,18 +3,24 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Cron, Interval } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
-import { EmailLogEntity, IEmailLog } from '@packages/entities';
+import { EmailLogEntity, EmailResponse, IEmailLog } from '@packages/entities';
 import Mail from 'nodemailer/lib/mailer';
 import { ENVIRONMENT_VARIABLES } from 'src/enums/environment.enums';
 import logger from 'src/logger';
 import { SurgeryService } from 'src/surgery/surgery.service';
-import { TransporterService } from 'src/transporter';
+import { CustomError, TransporterService } from 'src/transporter';
 import { SystemTemplates } from 'src/transporter/transporter.types';
 import { formatHeaderDate } from 'src/utils';
-import { Equal, LessThanOrEqual, Repository } from 'typeorm';
+import { EntityManager, Equal, Repository } from 'typeorm';
+
+type EmailLogResponse = {
+  id: string;
+  response: EmailResponse | CustomError;
+};
 
 @Injectable()
 export class SchedulerService {
+  private isEmailLogCronRunning: boolean = false;
   constructor(
     @InjectRepository(EmailLogEntity)
     private readonly emailLogRepository: Repository<EmailLogEntity>,
@@ -22,7 +28,6 @@ export class SchedulerService {
     private jwtService: JwtService,
     private transporterService: TransporterService,
     private readonly surgeryService: SurgeryService,
-    // private dataSource: DataSource,
   ) {}
 
   getMailLimit() {
@@ -31,76 +36,87 @@ export class SchedulerService {
 
   @Interval(15000) // This runs the task every 10 seconds
   async handleCron() {
-    // const lockKey = 123456; // Unique key for the advisory lock
-
-    logger.info('starting to send emails');
-
-    // Acquire advisory lock
-    // const queryRunner = this.dataSource.createQueryRunner();
-    // await queryRunner.connect();
-    // await queryRunner.startTransaction();
-
+    if (this.isEmailLogCronRunning) {
+      logger.info('Exiting early to avoid cron duplication');
+      return;
+    }
+    this.isEmailLogCronRunning = true;
     try {
-      // await queryRunner.manager.query('SELECT pg_advisory_lock($1)', [lockKey]);
-      // logger.info(`Advisory lock acquired with lockKey: ${lockKey}`);
+      await this.emailLogRepository.manager.transaction(
+        async (manager: EntityManager) => {
+          const currentTime = new Date();
+          const emailsToSend: EmailLogEntity[] = await manager.query(
+            `SELECT * FROM email_logs WHERE "expectedDate" <= $1 AND status='pending' FOR UPDATE LIMIT $2`,
+            [currentTime, this.getMailLimit()],
+          );
 
-      const today = this.getFormattedDate();
+          if (!emailsToSend.length) {
+            return;
+          }
 
-      const data = await this.emailLogRepository.find({
-        where: { expectedDate: LessThanOrEqual(today), status: 'pending' },
-        take: this.getMailLimit(),
-        relations: ['practice'],
-      });
+          logger.info(`Found ${emailsToSend.length} emails to send`);
 
-      logger.info(`Found ${data.length} emails to send`);
+          const promises = emailsToSend.map(
+            async (mailData: EmailLogEntity) => {
+              const { subject, text, body, to, cc } = mailData.data;
+              const mailOptions: Mail.Options = {
+                subject,
+                to,
+                text,
+                html:
+                  this.addImgForReadCheck(
+                    body,
+                    mailData.practiceId,
+                    mailData.id,
+                  ) ?? '',
+                attachments: mailData.attachment
+                  ? [{ path: mailData.attachment }]
+                  : [],
+                cc: cc ?? '',
+              };
+              mailOptions && mailOptions;
 
-      const promises = data.map(async (mailData: EmailLogEntity) => {
-        const { subject, text, body, to, cc } = mailData.data;
-        const mailOptions: Mail.Options = {
-          subject,
-          to,
-          text,
-          html:
-            this.addImgForReadCheck(body, mailData.practice.id, mailData.id) ??
-            '',
-          attachments: mailData.attachment
-            ? [{ path: mailData.attachment }]
-            : [],
-          cc: cc ?? '',
-        };
+              // sending mail here
+              const response = await this.transporterService.sendEmail(
+                mailOptions,
+                mailData.data,
+              );
 
-        // sending mail here
-        const response = await this.transporterService.sendEmail(
-          mailOptions,
-          mailData.data,
-        );
+              return { id: mailData.id, response };
+            },
+          );
 
-        // updating status in the parent table
-        await this.emailLogRepository.update(mailData.id, {
-          response,
-          status:
-            'status' in response && response.status == 'rejected'
-              ? 'rejected'
-              : 'completed',
-        });
-      });
+          const smtpEmailResponses: PromiseSettledResult<EmailLogResponse>[] =
+            await Promise.allSettled(promises);
 
-      await Promise.allSettled(promises);
-      logger.info('Processed emails');
+          const filteredSuccessfullPromises = smtpEmailResponses
+            .filter((item) => item.status === 'fulfilled')
+            .map(
+              (item) =>
+                (item as PromiseFulfilledResult<EmailLogResponse>).value,
+            );
 
-      // Commit the transaction
-      // await queryRunner.commitTransaction();
+          await Promise.all(
+            filteredSuccessfullPromises.map((log) => {
+              const { id, response } = log;
+              const status =
+                'status' in response && response.status == 'rejected'
+                  ? 'rejected'
+                  : 'completed';
+              return manager.query(
+                `UPDATE email_logs SET status = $1, response=$2 WHERE id=$3`,
+                [status, response, id],
+              );
+            }),
+          );
+          logger.info('Processed emails');
+        },
+      );
     } catch (error) {
-      logger.error('Error processing emails:', error);
-      // Rollback the transaction in case of error
-      // await queryRunner.rollbackTransaction();
+      logger.error(error);
+      logger.error('Error processing emails:');
     } finally {
-      // Release advisory lock
-      // await queryRunner.manager.query('SELECT pg_advisory_unlock($1)', [
-      //   lockKey,
-      // ]);
-      // logger.info('Advisory lock released');
-      // await queryRunner.release();
+      this.isEmailLogCronRunning = false;
     }
   }
 
