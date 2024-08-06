@@ -165,7 +165,7 @@ const Header: React.FC<ChildProps> = ({ data }) => {
         localStorage.setItem('SELECTED_DOCTOR', users[0]?.id);
       }
     }
-    if (!users?.length && entities?.length) {
+    if (!users?.length) {
       localStorage.removeItem('SELECTED_DOCTOR');
     }
   }, [practiceId, users]);
