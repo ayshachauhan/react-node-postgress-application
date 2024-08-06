@@ -686,7 +686,19 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
               const newRecords = data.surgeries.filter(
                 (record) => !prevRecords.some((prev) => prev.id === record.id),
               );
-              return [...prevRecords, ...newRecords];
+
+              if (newRecords.length > 0) {
+                const newDoctorId = newRecords[0]?.doctor.id;
+                const matchingRecords = prevRecords.some(
+                  (prev) => prev.doctor.id === newDoctorId,
+                );
+
+                return matchingRecords
+                  ? [...prevRecords, ...newRecords]
+                  : [...newRecords];
+              } else {
+                return prevRecords;
+              }
             });
 
             if (data.surgeries.length > limit) {
