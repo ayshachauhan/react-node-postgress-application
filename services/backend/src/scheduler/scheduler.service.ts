@@ -11,7 +11,7 @@ import { SurgeryService } from 'src/surgery/surgery.service';
 import { TransporterService } from 'src/transporter';
 import { SystemTemplates } from 'src/transporter/transporter.types';
 import { formatHeaderDate } from 'src/utils';
-import { Equal, LessThanOrEqual, Repository } from 'typeorm';
+import { LessThanOrEqual, Repository } from 'typeorm';
 
 @Injectable()
 export class SchedulerService {
@@ -44,7 +44,7 @@ export class SchedulerService {
       // await queryRunner.manager.query('SELECT pg_advisory_lock($1)', [lockKey]);
       // logger.info(`Advisory lock acquired with lockKey: ${lockKey}`);
 
-      const today = this.getFormattedDate();
+      const today = this.getFormattedDate(new Date());
 
       const data = await this.emailLogRepository.find({
         where: { expectedDate: LessThanOrEqual(today), status: 'pending' },
@@ -114,134 +114,151 @@ export class SchedulerService {
   @Cron('0 0 * * *') // every 24 hours
   async createDailySummary() {
     logger.info(`Starting summary email scheduler`);
-    const today = this.getFormattedDate();
     const dateMinus15Minutes = new Date(
-      today.setMinutes(today.getMinutes() - 5),
+      new Date().setMinutes(new Date().getMinutes() - 10),
     );
+    const today = this.getFormattedDate(dateMinus15Minutes);
+
     logger.info('Current Date and Time:', today);
-    logger.info('Date and Time minus 15 minutes:', dateMinus15Minutes);
     const dailySummaryByPractice = {};
 
     const data = await this.emailLogRepository.find({
-      where: { expectedDate: Equal(dateMinus15Minutes), status: 'completed' },
+      where: { status: 'completed' },
       relations: ['practice', 'practice.users'],
     });
-    logger.info(`Processing ${data.length} records in summary email scheduler`);
-    const emailLogEntries: Partial<IEmailLog>[] = [];
 
-    // filtering data on the basis of separate practices
-    data.forEach((ele) => {
-      if (dailySummaryByPractice[ele.practice.id]) {
-        if (
-          ele.data.pt_email_address &&
-          ele.data.pt_email_address == ele.data.to
-        ) {
-          dailySummaryByPractice[ele.practice.id].push(ele);
-        }
-      } else {
-        if (
-          ele.data.pt_email_address &&
-          ele.data.pt_email_address == ele.data.to
-        ) {
-          dailySummaryByPractice[ele.practice.id] = [ele];
-        }
-      }
+    const filteredData = data.filter((emailLog) => {
+      const emailLogDate = this.getFormattedDate(emailLog.expectedDate);
+      return emailLogDate === today;
     });
 
-    const practiceArray: string[] = Object.keys(dailySummaryByPractice);
+    logger.info(
+      `Processing ${filteredData.length} records in summary email scheduler`,
+    );
+    const emailLogEntries: Partial<IEmailLog>[] = [];
 
-    // making entries to send daily summary to all cell admin in a particular practice.
-    if (practiceArray.length) {
-      practiceArray.forEach((practice) => {
-        const mailDate = formatHeaderDate(String(new Date()));
-        const dailyDataArray: IEmailLog[] = dailySummaryByPractice[practice];
-        const currentPractice = dailyDataArray[0].practice;
-
-        // fetching the admin cell emails of a practice
-        const to: string[] = currentPractice.emailData.adminEmails;
-        const phoneNumbers: string[] =
-          currentPractice.emailData.adminCellEmails;
-        const entry: Partial<IEmailLog> = {
-          practice: currentPractice,
-          expectedDate: new Date(),
-          status: 'pending',
-          data: {
-            body: this.transporterService.readTemplates(
-              SystemTemplates.DAILY_SUMMARY,
-            ),
-            subject: `Daily Summary Data: ${currentPractice.name}`,
-            text: '',
-            practiceName: currentPractice.name,
-          },
-        };
-
-        let textToSend: string = '';
-
-        const mailData = {
-          emailCount: 0,
-          textCount: 0,
-          data: [''],
-          mailDate,
-        };
-
-        dailyDataArray.forEach((dailyData: IEmailLog) => {
-          if (dailyData && dailyData.data) {
-            const { fname, surgery_type, text, body } = dailyData.data;
-            const treasureData: string = `${fname} (${surgery_type})`;
-            if (text) mailData.textCount++;
-            if (body) mailData.emailCount++;
-            mailData.data.push(treasureData);
-
-            if (textToSend == '') {
-              textToSend = treasureData;
-            } else {
-              textToSend = text + '\n' + treasureData;
-            }
+    try {
+      // filtering data on the basis of separate practices
+      filteredData.forEach((ele) => {
+        if (dailySummaryByPractice[ele.practice.id]) {
+          if (
+            ele.data.pt_email_address &&
+            ele.data.pt_email_address == ele.data.to
+          ) {
+            dailySummaryByPractice[ele.practice.id].push(ele);
           }
-        });
-
-        if (textToSend) {
-          textToSend =
-            formatHeaderDate(String(new Date())) +
-            `\n${mailData.emailCount} emails, ${mailData.textCount} Texts sent. \n\n` +
-            textToSend;
-        }
-
-        phoneNumbers.forEach((phoneNumber) => {
-          emailLogEntries.push({
-            ...entry,
-            data: { ...entry.data, phoneNumber, text: textToSend, body: '' },
-          });
-        });
-
-        if (to.length) {
-          // entries for email log table
-          to.forEach((email: string) => {
-            emailLogEntries.push({
-              ...entry,
-              data: {
-                ...entry.data,
-                mailDate,
-                links: String(mailData.data),
-                textCount: String(mailData.textCount),
-                emailCount: String(mailData.emailCount),
-                to: email,
-              },
-            });
-          });
+        } else {
+          if (
+            ele.data.pt_email_address &&
+            ele.data.pt_email_address == ele.data.to
+          ) {
+            dailySummaryByPractice[ele.practice.id] = [ele];
+          }
         }
       });
-    }
 
-    if (emailLogEntries.length) {
-      logger.info(`${emailLogEntries.length} summary email(s) to be processed`);
-      await this.emailLogRepository.save(emailLogEntries);
+      const practiceArray: string[] = Object.keys(dailySummaryByPractice);
+
+      // making entries to send daily summary to all cell admin in a particular practice.
+      if (practiceArray.length) {
+        practiceArray.forEach((practice) => {
+          const mailDate = formatHeaderDate(String(new Date()));
+          const dailyDataArray: IEmailLog[] = dailySummaryByPractice[practice];
+          const currentPractice = dailyDataArray[0].practice;
+
+          // fetching the admin cell emails of a practice
+          const to: string[] = currentPractice.emailData.adminEmails;
+          const phoneNumbers: string[] =
+            currentPractice.emailData.adminCellEmails;
+          const entry: Partial<IEmailLog> = {
+            practice: currentPractice,
+            expectedDate: new Date(),
+            status: 'pending',
+            data: {
+              body: this.transporterService.readTemplates(
+                SystemTemplates.DAILY_SUMMARY,
+              ),
+              subject: `Daily Summary Data: ${currentPractice.name}`,
+              text: '',
+              practiceName: currentPractice.name,
+            },
+          };
+
+          let textToSend: string = '';
+
+          const mailData = {
+            emailCount: 0,
+            textCount: 0,
+            data: [''],
+            mailDate,
+          };
+
+          dailyDataArray.forEach((dailyData: IEmailLog) => {
+            if (dailyData && dailyData.data) {
+              const { fname, surgery_type, text, body } = dailyData.data;
+              const treasureData: string = `${fname} (${surgery_type})`;
+              if (text) mailData.textCount++;
+              if (body) mailData.emailCount++;
+              mailData.data.push(treasureData);
+
+              if (textToSend == '') {
+                textToSend = treasureData;
+              } else {
+                textToSend = text + '\n' + treasureData;
+              }
+            }
+          });
+
+          if (textToSend) {
+            textToSend =
+              formatHeaderDate(String(new Date())) +
+              `\n${mailData.emailCount} emails, ${mailData.textCount} Texts sent. \n\n` +
+              textToSend;
+          }
+
+          phoneNumbers.forEach((phoneNumber) => {
+            emailLogEntries.push({
+              ...entry,
+              data: { ...entry.data, phoneNumber, text: textToSend, body: '' },
+            });
+          });
+
+          if (to.length) {
+            // entries for email log table
+            to.forEach((email: string) => {
+              emailLogEntries.push({
+                ...entry,
+                data: {
+                  ...entry.data,
+                  mailDate,
+                  links: String(mailData.data),
+                  textCount: String(mailData.textCount),
+                  emailCount: String(mailData.emailCount),
+                  to: email,
+                },
+              });
+            });
+          }
+        });
+      }
+
+      if (emailLogEntries.length) {
+        logger.info(
+          `${emailLogEntries.length} summary email(s) to be processed`,
+        );
+        await this.emailLogRepository.save(emailLogEntries);
+      }
+    } catch (ex) {
+      logger.error(ex);
     }
     logger.info(`Summary email scheduler ended`);
   }
 
-  private getFormattedDate() {
-    const today = new Date();
+  private getFormattedDate(_inputDate: Date) {
+    let today = new Date();
+    if (_inputDate) {
+      today = new Date(_inputDate);
+    }
     const year = today.getFullYear();
     const month = String(today.getMonth() + 1).padStart(2, '0'); // Months are zero-based
     const day = String(today.getDate()).padStart(2, '0');
