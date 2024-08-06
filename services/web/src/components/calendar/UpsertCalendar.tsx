@@ -10,6 +10,7 @@ import {
   CreateCalendarPayload,
   UpdateCalendarsPayload,
 } from '@root/store/requests/calendar';
+import { SanitizedUser } from '@root/store/types';
 import {
   formatDate,
   getBackGroundColorCss,
@@ -31,12 +32,14 @@ const UpsertCalendar: React.FC<{
   isUpdating: boolean;
   calendars: ICalendar[];
   calendarMessageFunc: SetMessageFunction;
+  allDoctors: SanitizedUser[];
 }> = ({
   onClose,
   calendarData,
   isUpdating,
   calendars,
   calendarMessageFunc,
+  allDoctors,
 }) => {
   const maxSlotsOptions = Array.from({ length: 14 }, (_, index) => index + 1);
   const dispatch = useAppDispatch();
@@ -62,9 +65,17 @@ const UpsertCalendar: React.FC<{
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const practiceId = getPracticeId();
-    const userId: string | null = getUserId();
+    let userId: string | null = getUserId();
+    if (allDoctors.length <= 0) {
+      calendarMessageFunc({
+        messageType: MESSAGE_TYPE.ERROR,
+        message: `No doctor selected`,
+      });
+      userId = null;
+      onClose();
+    }
 
-    if (practiceId && userId)
+    if (practiceId && userId) {
       if (isUpdating) {
         const updatedData: CalendarData[] = upsertCalendarData.filter(
           (calendar, index) =>
@@ -149,6 +160,7 @@ const UpsertCalendar: React.FC<{
         }
         onClose();
       }
+    }
   };
 
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth() + 1);
