@@ -155,9 +155,16 @@ const DashboardPage: React.FC = () => {
       addSurgerySuccessMessage !== updateSuccessCase
     ) {
       if (practiceId) {
-        dispatch(
-          fetchEvalsList({ practiceId, doctorId: doctorId || '', page, limit }),
-        );
+        if (doctorId) {
+          dispatch(
+            fetchEvalsList({
+              practiceId,
+              doctorId: doctorId || '',
+              page,
+              limit,
+            }),
+          );
+        }
         dispatch(clearSurgerySuccessMessage());
         dispatch(clearEvalSuccessMessage());
         dispatch(fetchSurgeryConfigurationsListing({ practiceId }));

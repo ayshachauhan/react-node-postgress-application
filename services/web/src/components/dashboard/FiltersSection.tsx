@@ -178,16 +178,33 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
       USER_PERMISSIONS.VIEW_REP,
     ]);
 
-    const getMonthOptions = () => {
+    const getMonthOptions = (
+      viewPastCases: boolean,
+      viewFutureCases: boolean,
+    ) => {
+      const currentMonth = new Date().getMonth() + 1;
       return monthOptions.map((monthOption) => {
+        const optionMonth = parseInt(monthOption.value, 10);
+
+        let shouldDisable = false;
+
+        if (!viewFutureCases && optionMonth > currentMonth) {
+          shouldDisable = true;
+        }
+        if (!viewPastCases && optionMonth < currentMonth) {
+          shouldDisable = true;
+        }
+
         return {
           ...monthOption,
+          disabled: shouldDisable,
         };
       });
     };
 
-    const [updatedMonthOptions, setUpdatedMonthOptions] =
-      useState<MonthOption[]>(monthOptions);
+    const [updatedMonthOptions, setUpdatedMonthOptions] = useState<
+      MonthOption[]
+    >(getMonthOptions(viewPastCases, viewFutureCases));
 
     const [isReviewRequestLoading, setIsReviewRequestLoading] = useState(false);
 
@@ -437,9 +454,6 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
 
       setSelectedMonth(updatedSelectedMonths);
       dispatch(setSelectedMonth(updatedSelectedMonths));
-
-      const updatedMonthOptions = getMonthOptions();
-      setUpdatedMonthOptions(updatedMonthOptions);
     };
 
     const handleChangeMonth = ({ value }) => {
@@ -546,13 +560,12 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
     };
 
     const resetFilters = async (): Promise<void> => {
-      resetPagination();
       dispatch(setSelectedValue(viewFutureCases ? 'Upcoming View' : null));
       dispatch(setSelectedMonth([]));
       dispatch(setSearchMRNName(null));
       setIsWailistViewActive(false);
       setIsIolViewActive(false);
-      await fetchSurgeryList(1);
+      resetPagination();
     };
 
     const handleViewHistory = (id: string, surgery: string): void => {
@@ -616,6 +629,10 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
     }, [viewFutureCases]);
 
     useEffect(() => {
+      setUpdatedMonthOptions(getMonthOptions(viewPastCases, viewFutureCases));
+    }, [viewPastCases, viewFutureCases, selectedValue]);
+
+    useEffect(() => {
       dispatch(setSelectedMonth([]));
       dispatch(setSearchMRNName(''));
       dispatch(setSelectedValue(viewFutureCases ? 'Upcoming View' : null));
@@ -669,10 +686,24 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
               const newRecords = data.surgeries.filter(
                 (record) => !prevRecords.some((prev) => prev.id === record.id),
               );
-              return [...prevRecords, ...newRecords];
+
+              if (newRecords.length > 0) {
+                const newDoctorId = newRecords[0]?.doctor.id;
+                const matchingRecords = prevRecords.some(
+                  (prev) => prev.doctor.id === newDoctorId,
+                );
+
+                return matchingRecords
+                  ? [...prevRecords, ...newRecords]
+                  : [...newRecords];
+              } else {
+                return prevRecords;
+              }
             });
 
-            setHasMore(data.surgeries.length === limit);
+            if (data.surgeries.length > limit) {
+              setHasMore(data.surgeries.length === limit);
+            }
           } else {
             setHasMore(false);
           }
@@ -693,7 +724,13 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
     }));
 
     useEffect(() => {
-      if (isFiltersApplied && isViewFutureCasesFinalized) {
+      if (doctorId) {
+        resetPagination();
+      }
+    }, [doctorId]);
+
+    useEffect(() => {
+      if (isFiltersApplied && isViewFutureCasesFinalized && doctorId) {
         const fetchData = async () => {
           try {
             await fetchSurgeryList(page); // Fetch data with current page
@@ -703,13 +740,13 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
         };
         fetchData();
       }
-    }, [isFiltersApplied, isViewFutureCasesFinalized, page, fetchSurgeryList]);
-
-    useEffect(() => {
-      if (doctorId) {
-        resetPagination();
-      }
-    }, [doctorId]);
+    }, [
+      isFiltersApplied,
+      isViewFutureCasesFinalized,
+      page,
+      fetchSurgeryList,
+      doctorId,
+    ]);
 
     useEffect(() => {
       handleSearchMRNNameChange('');

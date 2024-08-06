@@ -163,7 +163,7 @@ export const toPascalCase = (str: string): string => {
 export const jsonResponseFromStream = async (response: Response) => {
   if (response && response.body) {
     // Access the response body as a ReadableStream
-    const reader = await response.body?.getReader();
+    const reader = await response?.body?.getReader();
     const decoder = new TextDecoder();
     let responseBody = '';
 
@@ -178,7 +178,6 @@ export const jsonResponseFromStream = async (response: Response) => {
     };
 
     const responsedata = await readStream();
-    console.log('JSON response from body: ', JSON.parse(responsedata));
     return JSON.parse(responsedata);
   }
   return response;

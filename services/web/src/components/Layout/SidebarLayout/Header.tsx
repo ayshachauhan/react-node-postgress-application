@@ -161,10 +161,11 @@ const Header: React.FC<ChildProps> = ({ data }) => {
       const selectedDoctor = localStorage.getItem('SELECTED_DOCTOR');
       const userIds = users?.map((user) => user?.id);
       if (!selectedDoctor || !userIds.includes(selectedDoctor)) {
+        setSelectedUser(users[0]);
         localStorage.setItem('SELECTED_DOCTOR', users[0]?.id);
       }
     }
-    if (!users?.length && entities?.length) {
+    if (!users?.length) {
       localStorage.removeItem('SELECTED_DOCTOR');
     }
   }, [practiceId, users]);
