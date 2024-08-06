@@ -31,6 +31,7 @@ import { fetchListings as fetchSurgeryTypesListing } from '@root/store/reducers/
 import { fetchListings as fetchUsersList } from '@root/store/reducers/users';
 import { fetchListings as fetchWaitlist } from '@root/store/reducers/waitlist';
 import {
+  SELECTED_DOCTOR_KEY,
   abbreviatePracticeHome,
   getDifferenceInDays,
   getPracticeId,
@@ -72,7 +73,7 @@ const EvalPage: React.FC = () => {
   };
   const [records, setRecords] = useState<EvalEntity[]>([]);
   const practiceId = getPracticeId();
-  const userId = getUserId();
+  let userId = getUserId();
   const userPermissions = userInfo?.permissions;
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isBookSurgeryOpenModal, setIsBookSurgeryOpenModal] = useState(false);
@@ -268,6 +269,7 @@ const EvalPage: React.FC = () => {
   }, [userId]);
 
   useEffect(() => {
+    userId = userId || localStorage.getItem(SELECTED_DOCTOR_KEY);
     if (userId) {
       const fetchData = async () => {
         try {
