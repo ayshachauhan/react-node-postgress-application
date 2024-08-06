@@ -116,6 +116,7 @@ const EvalPage: React.FC = () => {
       isEvalsLoading ||
       !hasMore ||
       !practiceId ||
+      !userId ||
       fetchedPages.current.has(currentPage)
     )
       return;
@@ -136,13 +137,27 @@ const EvalPage: React.FC = () => {
         const data = resultAction.payload;
 
         if (Array.isArray(data)) {
-          setRecords((prevRecords) => [
-            ...prevRecords,
-            ...data.filter(
+          setRecords((prevRecords) => {
+            const newRecords = data.filter(
               (record) => !prevRecords.some((prev) => prev.id === record.id),
-            ),
-          ]);
-          setHasMore(data.length === PAGINATION_LIMIT);
+            );
+
+            if (newRecords.length > 0) {
+              const newDoctorId = newRecords[0]?.doctor.id;
+              const matchingRecords = prevRecords.some(
+                (prev) => prev.doctor.id === newDoctorId,
+              );
+
+              return matchingRecords
+                ? [...prevRecords, ...newRecords]
+                : [...newRecords];
+            } else {
+              return prevRecords;
+            }
+          });
+          if (data.length > PAGINATION_LIMIT) {
+            setHasMore(data.length === PAGINATION_LIMIT);
+          }
         } else {
           setHasMore(false);
         }
@@ -202,6 +217,10 @@ const EvalPage: React.FC = () => {
   }, [handleScroll]);
 
   useEffect(() => {
+    resetPagination();
+  }, [practiceId]);
+
+  useEffect(() => {
     getEvalsList(page);
   }, [page]);
 
@@ -249,15 +268,17 @@ const EvalPage: React.FC = () => {
   }, [userId]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        await getEvalsList(page); // Fetch data with current page
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
-    fetchData();
-  }, [page, getEvalsList]);
+    if (userId) {
+      const fetchData = async () => {
+        try {
+          await getEvalsList(page); // Fetch data with current page
+        } catch (error) {
+          console.error('Error fetching data:', error);
+        }
+      };
+      fetchData();
+    }
+  }, [page, getEvalsList, userId]);
 
   useEffect(() => {
     let timer;
