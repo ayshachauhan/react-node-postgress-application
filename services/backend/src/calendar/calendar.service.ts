@@ -279,7 +279,8 @@ export class CalendarService {
                 getDateDiffInDays(
                   new Date(s.date),
                   new Date(existingCalendarRecord.date),
-                ) === 0,
+                ) === 0 &&
+                s.maxSlots === maxSlots,
             );
             if (existingRecords) {
               logger.info(
