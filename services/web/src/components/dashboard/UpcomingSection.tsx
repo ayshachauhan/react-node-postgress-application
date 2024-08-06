@@ -5,11 +5,13 @@ import {
   ISurgeryType,
   MonthOption,
   USER_PERMISSIONS,
+  UserType,
 } from '@packages/entities/index.browser';
 import { useUserPermission } from '@root/hooks/userHasPermission';
-import { useAppDispatch, useAppSelector } from '@root/store';
+import { State, useAppDispatch, useAppSelector } from '@root/store';
 import { fetchFilteredCalendars } from '@root/store/reducers/calendar';
 import { fetchListings } from '@root/store/reducers/surgeryConfigurations';
+import { SanitizedUser } from '@root/store/types';
 import { DEFAULT_SURGERYNAME_COLOR } from '@root/utils/constants';
 import { MESSAGE_TYPE } from '@root/utils/enums';
 import {
@@ -46,6 +48,10 @@ export type SetMessageFunction = (messageObj: CalendarMessage) => void;
 const UpcomingSection: React.FC = () => {
   const dispatch = useAppDispatch();
   const userId: string | null = getUserId();
+  const { entities } = useAppSelector((state: State) => state.users);
+  const allDoctorUsers = Object.values(entities).filter(
+    (user) => user.type == UserType.DOCTOR,
+  );
   const userInfo = useAppSelector((state) => state.auth?.user);
   const userPermissions = userInfo?.permissions;
   const loggedInUserId = userInfo?.id;
@@ -298,9 +304,11 @@ const UpcomingSection: React.FC = () => {
   const UpsertCalendarModal = ({
     isUpdating,
     calendarMessageFunc,
+    allDoctors,
   }: {
     isUpdating: boolean;
     calendarMessageFunc: SetMessageFunction;
+    allDoctors: SanitizedUser[];
   }) => {
     return (
       <Modal
@@ -359,6 +367,7 @@ const UpcomingSection: React.FC = () => {
             isUpdating={isUpdating ?? false}
             calendars={calendars}
             calendarMessageFunc={calendarMessageFunc}
+            allDoctors={allDoctors}
           />
         </ModalBody>
       </Modal>
@@ -380,7 +389,7 @@ const UpcomingSection: React.FC = () => {
         >
           {calendarMessage.message}
         </span>
-        {selectedSurgery && (
+        {selectedSurgery && allDoctorUsers.length > 0 && (
           <div className="flex gap-3 items-center">
             <div
               className="cursor-pointer flex items-center"
@@ -491,6 +500,7 @@ const UpcomingSection: React.FC = () => {
       <UpsertCalendarModal
         isUpdating={isUpdating}
         calendarMessageFunc={memoizedSetMessage}
+        allDoctors={allDoctorUsers}
       />
     </div>
   );

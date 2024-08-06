@@ -86,7 +86,7 @@ export class ReviewService {
             mailData = { ...mailData, reviewLink };
           } else {
             throw new HttpException(
-              'Review link not found',
+              'Your page review URL is missing in POD app. Please contact to Practiec Admin.',
               HttpStatus.PRECONDITION_FAILED,
             );
           }
@@ -112,7 +112,7 @@ export class ReviewService {
             [practiceId, reviewId, reviewData?.reviewStatus],
           );
           throw new HttpException(
-            'Invalid review request',
+            `Review status is ${reviewData?.reviewStatus}. So review request can’t be sent to the patient.`,
             HttpStatus.PRECONDITION_FAILED,
           );
         }
@@ -129,7 +129,7 @@ export class ReviewService {
     } catch (ex) {
       logger.error(ex);
       throw new HttpException(
-        'An error occured in sending review',
+        ex ?? 'An error occured in sending review',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
