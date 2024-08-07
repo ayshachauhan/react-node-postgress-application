@@ -3,7 +3,7 @@
 import { CollapseLeftIcon, CollapseRightIcon } from '@root/components/Icons';
 import { useUserPermissions } from '@root/context/UserPermissionsContext';
 import { useAppSelector } from '@root/store';
-import { ChevronDown, ChevronRightSmall } from 'baseui/icon';
+import { ChevronDown, ChevronRightSmall, ChevronUp } from 'baseui/icon';
 import clsx from 'clsx';
 import Link from 'next/link';
 import React, { useEffect, useRef, useState } from 'react';
@@ -44,7 +44,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapseChange }) => {
     setActiveMenuItemId(item.id);
     setExpandedMenuItemId(item.id === expandedMenuItemId ? '' : item.id);
     if (item.id === 'setting') {
-      setHideChildMenu(false);
+      setHideChildMenu((prevState) => !prevState);
     }
     if (item.id !== 'setting') {
       setActiveChildMenuItemId('');
@@ -162,17 +162,21 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapseChange }) => {
                 {!collapsed && <span className="ms-3">{item.title}</span>}
                 {!collapsed && item.child && (
                   <span className="ml-auto">
-                    <ChevronDown size={20} />
+                    {item.id === activeMenuItemId && !hideChildMenu ? (
+                      <ChevronUp size={20} />
+                    ) : (
+                      <ChevronDown size={20} />
+                    )}
                   </span>
                 )}
               </Link>
 
-              {item.child && !hideChildMenu && (
+              {item.child && (
                 <ul
                   className={clsx(
                     'ease-in-out duration-300 py-2 space-y-2 bg-[#ffffff33]',
                     {
-                      hidden: item.id !== activeMenuItemId,
+                      hidden: item.id !== activeMenuItemId || hideChildMenu,
                       'bg-green-500 fixed ml-14 mt-0': collapsed,
                     },
                   )}
@@ -183,7 +187,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapseChange }) => {
                         href={childItem.path}
                         onClick={() => handleSidebarChildItemClick(childItem)}
                         className={clsx(
-                          'flex items-center w-full pl-5 p-2  text-white ',
+                          'flex items-center w-full pl-5 p-2 text-white',
                           {
                             'bg-[#ffffff33]':
                               childItem.id === activeChildMenuItemId,
