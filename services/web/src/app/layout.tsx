@@ -15,7 +15,7 @@ const RootLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     <html lang="en">
       <head>
         <title>POD - Practice Optimization Dashboard</title>
-        <link rel="shortcut icon" href="./images/favicon.ico"></link>
+        <link rel="shortcut icon" href="/images/favicon.ico"></link>
       </head>
       <body className={lato.className}>
         <StyleProvider font={lato}>
