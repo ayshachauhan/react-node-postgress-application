@@ -1,10 +1,10 @@
-name: deplooy app
+name: deploy app
 
 on:
   workflow_dispatch:
     inputs:
       environment:
-        description: 'environment to deploy to'
+        description: 'Environment to deploy to'
         required: true
         default: 'qa'
 
