@@ -78,6 +78,12 @@ const EditModularField: React.FC<{
   ]);
 
   useEffect(() => {
+    if (checkListInputFields.length === 0) {
+      setCheckListInputFields([{ value: '' }]);
+    }
+  }, [checkListInputFields]);
+
+  useEffect(() => {
     if (surgeryConfigInfo) {
       const defaultChecklist = Object.values(surgeryConfigInfo?.checkList);
       const defaultOptions = Object.values(surgeryConfigInfo?.options);
