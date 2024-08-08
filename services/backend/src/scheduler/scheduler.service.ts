@@ -58,31 +58,36 @@ export class SchedulerService {
 
           const promises = emailsToSend.map(
             async (mailData: EmailLogEntity) => {
-              const { subject, text, body, to, cc } = mailData.data;
-              const mailOptions: Mail.Options = {
-                subject,
-                to,
-                text,
-                html:
-                  this.addImgForReadCheck(
-                    body,
-                    mailData.practice.id,
-                    mailData.id,
-                  ) ?? '',
-                attachments: mailData.attachment
-                  ? [{ path: mailData.attachment }]
-                  : [],
-                cc: cc ?? '',
-              };
-              mailOptions && mailOptions;
+              try {
+                const { subject, text, body, to, cc } = mailData.data;
+                const mailOptions: Mail.Options = {
+                  subject,
+                  to,
+                  text,
+                  html:
+                    this.addImgForReadCheck(
+                      body,
+                      mailData?.practiceId,
+                      mailData.id,
+                    ) ?? '',
+                  attachments: mailData.attachment
+                    ? [{ path: mailData.attachment }]
+                    : [],
+                  cc: cc ?? '',
+                };
+                mailOptions && mailOptions;
 
-              // sending mail here
-              const response = await this.transporterService.sendEmail(
-                mailOptions,
-                mailData.data,
-              );
+                // sending mail here
+                const response = await this.transporterService.sendEmail(
+                  mailOptions,
+                  mailData.data,
+                );
 
-              return { id: mailData.id, response };
+                return { id: mailData.id, response };
+              } catch (ex) {
+                logger.error(ex);
+                throw ex;
+              }
             },
           );
 
