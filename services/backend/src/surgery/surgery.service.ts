@@ -387,7 +387,7 @@ export class SurgeryService {
       );
     });
 
-    return { surgeries: dbSurgeryByPractice, restricted: false };
+    return { surgeries: dbSurgeryByPractice };
   }
 
   async getSurgeryById(id: string): Promise<SurgeryEntity | null> {
