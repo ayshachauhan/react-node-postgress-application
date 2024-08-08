@@ -87,7 +87,6 @@ const surgeriesSlicer = createSlice({
     builder.addCase(fetchAllSurgeries.fulfilled, (state, action) => {
       state.status = EntityLoadingState.SUCCEEDED;
       state.allSurgeries = action.payload.surgeries;
-      state.restricted = action.payload.restricted;
       if (action.payload.surgeries.length === 0) {
         state.errorMessage = 'No surgeries found.';
       } else {
