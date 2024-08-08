@@ -57,25 +57,10 @@ const UsersListing: React.FC = () => {
                     {user.surgeries?.filter((surgery) => {
                       const surgeryDate = new Date(surgery.date);
                       const currentDate = new Date();
-                      return (
-                        surgeryDate.getFullYear() ===
-                          currentDate.getFullYear() &&
-                        surgeryDate.getMonth() === currentDate.getMonth() &&
-                        surgeryDate.getDate() === currentDate.getDate()
-                      );
+                      return surgeryDate.getDate() === currentDate.getDate();
                     }).length || 0}
                   </td>
-                  <td className="text-center">
-                    {user.surgeries?.filter((surgery) => {
-                      const surgeryDate = new Date(surgery.date);
-                      const currentDate = new Date();
-                      return (
-                        surgeryDate.getFullYear() ===
-                          currentDate.getFullYear() &&
-                        surgeryDate.getMonth() === currentDate.getMonth()
-                      );
-                    }).length || 0}
-                  </td>
+                  <td className="text-center">{user.surgeries.length || 0}</td>
                 </tr>
               </React.Fragment>
             ))}

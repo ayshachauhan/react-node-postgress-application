@@ -369,8 +369,6 @@ export class SurgeryService {
       where: whereClause,
       withDeleted: includeDelete,
       relations: [
-        'practiceHome',
-        'surgeryConfiguration',
         'doctor',
         'practice', //TO DO: make practice id not null in future
       ],
