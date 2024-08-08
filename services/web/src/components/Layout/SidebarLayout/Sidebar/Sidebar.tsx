@@ -3,7 +3,7 @@
 import { CollapseLeftIcon, CollapseRightIcon } from '@root/components/Icons';
 import { useUserPermissions } from '@root/context/UserPermissionsContext';
 import { useAppSelector } from '@root/store';
-import { ChevronDown, ChevronRightSmall } from 'baseui/icon';
+import { ChevronDown, ChevronRightSmall, ChevronUp } from 'baseui/icon';
 import clsx from 'clsx';
 import Link from 'next/link';
 import React, { useEffect, useRef, useState } from 'react';
@@ -40,20 +40,27 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapseChange }) => {
 
   const [expandedMenuItemId, setExpandedMenuItemId] = useState<string>('');
 
-  function handleSidebarItemClick(item: SideBarItem) {
-    setActiveMenuItemId(item.id);
-    setExpandedMenuItemId(item.id === expandedMenuItemId ? '' : item.id);
+  const handleSidebarItemClick = (item: SideBarItem) => {
     if (item.id === 'setting') {
-      setHideChildMenu(false);
-    }
-    if (item.id !== 'setting') {
+      setHideChildMenu((prevState) => !prevState);
+    } else {
+      setHideChildMenu(true);
       setActiveChildMenuItemId('');
     }
-  }
+
+    setActiveMenuItemId(item.id);
+    setExpandedMenuItemId(item.id === expandedMenuItemId ? '' : item.id);
+  };
 
   function handleSidebarChildItemClick(item) {
     setActiveChildMenuItemId(item.id);
   }
+
+  useEffect(() => {
+    if (activeMenuItemId !== 'setting') {
+      setHideChildMenu(true);
+    }
+  }, [activeMenuItemId]);
 
   useEffect(() => {
     if (!userPermissions.length && userInfo && userInfo.permissions) {
@@ -162,7 +169,11 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapseChange }) => {
                 {!collapsed && <span className="ms-3">{item.title}</span>}
                 {!collapsed && item.child && (
                   <span className="ml-auto">
-                    <ChevronDown size={20} />
+                    {item.id === activeMenuItemId && !hideChildMenu ? (
+                      <ChevronUp size={20} />
+                    ) : (
+                      <ChevronDown size={20} />
+                    )}
                   </span>
                 )}
               </Link>
