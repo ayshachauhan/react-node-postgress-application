@@ -66,6 +66,7 @@ export type SurgeryState = EntitiesState<ISurgery> & {
   surgeryInfo: ISurgery | null;
   surgeryFilters: SurgeryFilters;
   restricted: boolean;
+  allSurgeries: ISurgery[];
 };
 
 export type SurgeryConfigurationState = EntitiesState<ISurgeryConfiguration> & {

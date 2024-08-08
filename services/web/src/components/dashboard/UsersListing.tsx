@@ -1,16 +1,28 @@
 'use client';
-import { UserType } from '@packages/entities';
-import { State, useAppSelector } from '@root/store';
-import React from 'react';
+import { ISurgery, UserType } from '@packages/entities';
+import { State, useAppDispatch, useAppSelector } from '@root/store';
+import { fetchAllSurgeries } from '@root/store/reducers/surgery';
+import { getPracticeId } from '@root/utils';
+import React, { useEffect } from 'react';
 
 const UsersListing: React.FC = () => {
   const { entities } = useAppSelector((state: State) => state.users);
-  const userData = Object.values(entities).filter(
+  let userData = Object.values(entities).filter(
     (user) => user.type == UserType.DOCTOR,
   );
   const { surgeryList } = useAppSelector((state) => ({
-    surgeryList: Object.values(state.surgeries.entities),
+    surgeryList: Object.values(state.surgeries.allSurgeries) as ISurgery[],
   }));
+  const { userInfo } = useAppSelector((state) => ({
+    userInfo: state.auth.user,
+  }));
+
+  const loggedInUserId = userInfo?.id;
+  if (userInfo?.type === UserType.DOCTOR) {
+    userData = Object.values(entities).filter(
+      (user) => user.id === loggedInUserId,
+    );
+  }
 
   const doctorsWithSurgeries = userData.map((doctor) => {
     const doctorSurgeries = surgeryList.filter(
@@ -18,6 +30,14 @@ const UsersListing: React.FC = () => {
     );
     return { ...doctor, surgeries: doctorSurgeries };
   });
+  const practiceId = getPracticeId();
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    if (practiceId) {
+      dispatch(fetchAllSurgeries({ practiceId }));
+    }
+  }, [practiceId, dispatch]);
 
   return (
     <div>
@@ -47,25 +67,10 @@ const UsersListing: React.FC = () => {
                     {user.surgeries?.filter((surgery) => {
                       const surgeryDate = new Date(surgery.date);
                       const currentDate = new Date();
-                      return (
-                        surgeryDate.getFullYear() ===
-                          currentDate.getFullYear() &&
-                        surgeryDate.getMonth() === currentDate.getMonth() &&
-                        surgeryDate.getDate() === currentDate.getDate()
-                      );
+                      return surgeryDate.getDate() === currentDate.getDate();
                     }).length || 0}
                   </td>
-                  <td className="text-center">
-                    {user.surgeries?.filter((surgery) => {
-                      const surgeryDate = new Date(surgery.date);
-                      const currentDate = new Date();
-                      return (
-                        surgeryDate.getFullYear() ===
-                          currentDate.getFullYear() &&
-                        surgeryDate.getMonth() === currentDate.getMonth()
-                      );
-                    }).length || 0}
-                  </td>
+                  <td className="text-center">{user.surgeries.length || 0}</td>
                 </tr>
               </React.Fragment>
             ))}

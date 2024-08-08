@@ -8,8 +8,12 @@ import { EVAL_STATUS } from '@root/enums/evalStatus.enum';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { fetchFilteredCalendars } from '@root/store/reducers/calendar';
 import { updateRecordAsync as updateEval } from '@root/store/reducers/evals';
-import { addRecordAsync as addSurgeryRecord } from '@root/store/reducers/surgery';
+import {
+  addRecordAsync as addSurgeryRecord,
+  fetchAllSurgeries,
+} from '@root/store/reducers/surgery';
 import { fetchListings as fetchUsersList } from '@root/store/reducers/users';
+
 import {
   getBackGroundColorCss,
   getPracticeId,
@@ -439,6 +443,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
           }),
         );
         dispatch(fetchUsersList({ practiceId }));
+        dispatch(fetchAllSurgeries({ practiceId }));
 
         try {
           setFirstName('');

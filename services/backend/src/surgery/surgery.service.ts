@@ -354,6 +354,42 @@ export class SurgeryService {
     return { surgeries: dbSurgeryByPractice, restricted };
   }
 
+  async findAllSurgeries(practiceId: string, includeDelete: boolean = false) {
+    const dbPracticeHomesByPractice =
+      await this.practiceHomesService.getPracticeHomesByPractice(practiceId);
+
+    const whereClause: WhereClause = {
+      practiceHome: {
+        id: In(dbPracticeHomesByPractice.map((ele) => ele.id)),
+      },
+      practice: { id: practiceId }, //TO DO: make practice id not null in future
+    };
+
+    const searchConditions: FindManyOptions<SurgeryEntity> = {
+      where: whereClause,
+      withDeleted: includeDelete,
+      relations: [
+        'doctor',
+        'practice', //TO DO: make practice id not null in future
+      ],
+      order: {},
+    };
+
+    let dbSurgeryByPractice =
+      await this.surgeryRepository.find(searchConditions);
+
+    dbSurgeryByPractice = dbSurgeryByPractice.filter((surgery) => {
+      const surgeryDate = new Date(surgery.date);
+      const currentDate = new Date();
+      return (
+        surgeryDate.getFullYear() === currentDate.getFullYear() &&
+        surgeryDate.getMonth() === currentDate.getMonth()
+      );
+    });
+
+    return { surgeries: dbSurgeryByPractice };
+  }
+
   async getSurgeryById(id: string): Promise<SurgeryEntity | null> {
     return await this.surgeryRepository.findOne({
       where: { id },

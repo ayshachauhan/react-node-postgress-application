@@ -28,6 +28,7 @@ import {
 } from '@root/store/reducers/review';
 import {
   deleteRecordAsync,
+  fetchAllSurgeries,
   fetchListings,
   fetchSurgeryInfo,
   setSearchMRNName,
@@ -383,6 +384,7 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
         if (selectedRow) {
           await dispatch(deleteRecordAsync({ practiceId, id: selectedRow }));
           dispatch(fetchUsersList({ practiceId }));
+          dispatch(fetchAllSurgeries({ practiceId }));
           setSelectedRow(null);
           resetPagination();
           await fetchSurgeryList(1);
