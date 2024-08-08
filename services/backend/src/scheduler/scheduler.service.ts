@@ -135,7 +135,7 @@ export class SchedulerService {
     );
     const today = this.getFormattedDate(dateMinus15Minutes);
 
-    logger.info('Current Date and Time:', today);
+    logger.info(`Current Date and Time: ${today}`);
     const dailySummaryByPractice = {};
 
     const data = await this.emailLogRepository.find({
@@ -145,7 +145,7 @@ export class SchedulerService {
 
     const filteredData = data.filter((emailLog) => {
       const emailLogDate = this.getFormattedDate(emailLog.expectedDate);
-      return emailLogDate === today;
+      return emailLogDate.getTime() === today.getTime();
     });
 
     logger.info(
@@ -241,19 +241,28 @@ export class SchedulerService {
 
           if (to.length) {
             // entries for email log table
-            to.forEach((email: string) => {
+            to.forEach((email: string) =>
               emailLogEntries.push({
                 ...entry,
                 data: {
                   ...entry.data,
+                  body: this.transporterService.compileTemplate(
+                    entry.data?.body || '',
+                    {
+                      mailDate,
+                      links: String(mailData.data).split(','),
+                      textCount: String(mailData.textCount),
+                      emailCount: String(mailData.emailCount),
+                    },
+                  ),
                   mailDate,
                   links: String(mailData.data),
                   textCount: String(mailData.textCount),
                   emailCount: String(mailData.emailCount),
                   to: email,
                 },
-              });
-            });
+              }),
+            );
           }
         });
       }

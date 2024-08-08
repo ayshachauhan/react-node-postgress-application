@@ -1,4 +1,4 @@
-name: destroy app
+name: destroy-infra app
 
 on:
   workflow_dispatch:

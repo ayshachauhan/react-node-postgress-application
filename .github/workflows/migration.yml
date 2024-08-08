@@ -153,4 +153,4 @@ jobs:
       - name: Deny Security group rule to connect Github Actions
         run: |
           aws ec2 revoke-security-group-ingress --group-id ${{ env.rds_sg_id }} --protocol tcp --port 5432 --cidr ${{ steps.ip.outputs.ipv4 }}/32
-        if: always()      
+        if: always() 

@@ -176,14 +176,16 @@ const UpcomingSection: React.FC = () => {
   ]);
 
   useEffect(() => {
-    if (surgeryTypes.length > 0 && selectedSurgery === null) {
-      setSelectedSurgery(surgeryTypes[0]);
-    } else if (selectedSurgery?.id) {
-      const findElement = surgeryTypes.find(
-        (s) => s.id === selectedSurgery?.id,
-      );
-      if (!findElement) {
+    if (surgeryTypes.length > 0) {
+      if (!selectedSurgery) {
         setSelectedSurgery(surgeryTypes[0]);
+      } else {
+        const findElement = surgeryTypes.find(
+          (s) => s.id === selectedSurgery.id,
+        );
+        if (!findElement) {
+          setSelectedSurgery(surgeryTypes[0]);
+        }
       }
     }
   }, [surgeryTypes]);
