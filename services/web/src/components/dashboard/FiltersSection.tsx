@@ -1606,34 +1606,50 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
                                                       <br />
                                                       {row.phoneNumber}
                                                       <br />
-                                                      referrer: {row.referrer}
-                                                      {row.referrerVerified && (
-                                                        <Checkbox
-                                                          checked={true}
-                                                          overrides={{
-                                                            Checkmark: {
-                                                              style: ({
-                                                                $checked,
-                                                              }) => ({
-                                                                backgroundColor:
-                                                                  $checked
-                                                                    ? 'rgba(34, 197, 94, 1)'
-                                                                    : 'white',
-                                                                borderColor:
-                                                                  $checked
-                                                                    ? 'rgba(34, 197, 94, 1)'
-                                                                    : 'rgba(113, 113, 122, 1)',
-                                                                width: '12px',
-                                                                height: '12px',
-                                                                borderRadius:
-                                                                  '2px',
-                                                                borderWidth:
-                                                                  '2px',
-                                                              }),
-                                                            },
+                                                      <span
+                                                        style={{
+                                                          display: 'flex',
+                                                        }}
+                                                      >
+                                                        Referrer:&nbsp;
+                                                        <span
+                                                          style={{
+                                                            display: 'flex',
+                                                            alignItems: 'start',
                                                           }}
-                                                        />
-                                                      )}
+                                                        >
+                                                          {row.referrer}&nbsp;
+                                                          {row.referrerVerified && (
+                                                            <Checkbox
+                                                              checked={true}
+                                                              overrides={{
+                                                                Checkmark: {
+                                                                  style: ({
+                                                                    $checked,
+                                                                  }) => ({
+                                                                    backgroundColor:
+                                                                      $checked
+                                                                        ? 'rgba(34, 197, 94, 1)'
+                                                                        : 'white',
+                                                                    borderColor:
+                                                                      $checked
+                                                                        ? 'rgba(34, 197, 94, 1)'
+                                                                        : 'rgba(113, 113, 122, 1)',
+                                                                    width:
+                                                                      '12px',
+                                                                    height:
+                                                                      '12px',
+                                                                    borderRadius:
+                                                                      '2px',
+                                                                    borderWidth:
+                                                                      '2px',
+                                                                  }),
+                                                                },
+                                                              }}
+                                                            />
+                                                          )}
+                                                        </span>
+                                                      </span>
                                                     </td>
                                                   )}
                                                   {!iolListShowFlag && (
