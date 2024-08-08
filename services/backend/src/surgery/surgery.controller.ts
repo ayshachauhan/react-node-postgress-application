@@ -37,18 +37,6 @@ interface SurgerySearchResult {
 export class SurgeryController {
   constructor(private readonly surgeryService: SurgeryService) {}
 
-  @Get('all')
-  async getAllSurgeries(
-    @Param('practiceId') practiceId: string,
-    @Query('includeDeleted') includeDeleted: boolean = false,
-  ) {
-    const surgeries = await this.surgeryService.findAllSurgeries(
-      practiceId,
-      includeDeleted,
-    );
-    return surgeries;
-  }
-
   @Get()
   @UseInterceptors(practiceNotFoundInterceptor)
   async searchSurgeries(
