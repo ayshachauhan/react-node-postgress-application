@@ -40,20 +40,27 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapseChange }) => {
 
   const [expandedMenuItemId, setExpandedMenuItemId] = useState<string>('');
 
-  function handleSidebarItemClick(item: SideBarItem) {
-    setActiveMenuItemId(item.id);
-    setExpandedMenuItemId(item.id === expandedMenuItemId ? '' : item.id);
+  const handleSidebarItemClick = (item: SideBarItem) => {
     if (item.id === 'setting') {
       setHideChildMenu((prevState) => !prevState);
-    }
-    if (item.id !== 'setting') {
+    } else {
+      setHideChildMenu(true);
       setActiveChildMenuItemId('');
     }
-  }
+
+    setActiveMenuItemId(item.id);
+    setExpandedMenuItemId(item.id === expandedMenuItemId ? '' : item.id);
+  };
 
   function handleSidebarChildItemClick(item) {
     setActiveChildMenuItemId(item.id);
   }
+
+  useEffect(() => {
+    if (activeMenuItemId !== 'setting') {
+      setHideChildMenu(true);
+    }
+  }, [activeMenuItemId]);
 
   useEffect(() => {
     if (!userPermissions.length && userInfo && userInfo.permissions) {
@@ -171,12 +178,12 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapseChange }) => {
                 )}
               </Link>
 
-              {item.child && (
+              {item.child && !hideChildMenu && (
                 <ul
                   className={clsx(
                     'ease-in-out duration-300 py-2 space-y-2 bg-[#ffffff33]',
                     {
-                      hidden: item.id !== activeMenuItemId || hideChildMenu,
+                      hidden: item.id !== activeMenuItemId,
                       'bg-green-500 fixed ml-14 mt-0': collapsed,
                     },
                   )}
