@@ -7,12 +7,22 @@ import React, { useEffect } from 'react';
 
 const UsersListing: React.FC = () => {
   const { entities } = useAppSelector((state: State) => state.users);
-  const userData = Object.values(entities).filter(
+  let userData = Object.values(entities).filter(
     (user) => user.type == UserType.DOCTOR,
   );
   const { surgeryList } = useAppSelector((state) => ({
     surgeryList: Object.values(state.surgeries.allSurgeries) as ISurgery[],
   }));
+  const { userInfo } = useAppSelector((state) => ({
+    userInfo: state.auth.user,
+  }));
+
+  const loggedInUserId = userInfo?.id;
+  if (userInfo?.type === UserType.DOCTOR) {
+    userData = Object.values(entities).filter(
+      (user) => user.id === loggedInUserId,
+    );
+  }
 
   const doctorsWithSurgeries = userData.map((doctor) => {
     const doctorSurgeries = surgeryList.filter(
