@@ -4,6 +4,7 @@ import { indexBy } from '@root/utils/index';
 import {
   addSurgery,
   deleteSurgery,
+  getAllSurgeries,
   getSurgeries,
   getSurgeryInfo,
   updateSurgery,
@@ -17,6 +18,7 @@ const initialState: SurgeryState = {
   successMessage: undefined,
   errorMessage: undefined,
   surgeryInfo: null,
+  allSurgeries: [],
   surgeryFilters: {
     selectedMonth: [],
     searchMRNName: null,
@@ -69,6 +71,31 @@ const surgeriesSlicer = createSlice({
     });
 
     builder.addCase(fetchListings.rejected, (state, action) => {
+      state.status = EntityLoadingState.FAILED;
+      if (typeof action.payload === 'string') {
+        state.errorMessage = action.payload ?? 'Failed to fetch surgeries.';
+      } else {
+        state.errorMessage = 'Failed to fetch surgeries.';
+      }
+    });
+
+    builder.addCase(fetchAllSurgeries.pending, (state) => {
+      state.processing = true;
+      state.status = EntityLoadingState.PENDING;
+    });
+
+    builder.addCase(fetchAllSurgeries.fulfilled, (state, action) => {
+      state.status = EntityLoadingState.SUCCEEDED;
+      state.allSurgeries = action.payload.surgeries;
+      state.restricted = action.payload.restricted;
+      if (action.payload.surgeries.length === 0) {
+        state.errorMessage = 'No surgeries found.';
+      } else {
+        state.errorMessage = '';
+      }
+    });
+
+    builder.addCase(fetchAllSurgeries.rejected, (state, action) => {
       state.status = EntityLoadingState.FAILED;
       if (typeof action.payload === 'string') {
         state.errorMessage = action.payload ?? 'Failed to fetch surgeries.';
@@ -171,6 +198,11 @@ export const { clearSuccessMessage, clearErrorMessage } =
 export const fetchListings = createAsyncThunk(
   'surgery/fetchListings',
   getSurgeries,
+);
+
+export const fetchAllSurgeries = createAsyncThunk(
+  'surgery/fetchAllSurgeries',
+  getAllSurgeries,
 );
 
 export const fetchSurgeryInfo = createAsyncThunk(

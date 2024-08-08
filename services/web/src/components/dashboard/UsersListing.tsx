@@ -1,7 +1,9 @@
 'use client';
-import { UserType } from '@packages/entities';
-import { State, useAppSelector } from '@root/store';
-import React from 'react';
+import { ISurgery, UserType } from '@packages/entities';
+import { State, useAppDispatch, useAppSelector } from '@root/store';
+import { fetchAllSurgeries } from '@root/store/reducers/surgery';
+import { getPracticeId } from '@root/utils';
+import React, { useEffect } from 'react';
 
 const UsersListing: React.FC = () => {
   const { entities } = useAppSelector((state: State) => state.users);
@@ -9,7 +11,7 @@ const UsersListing: React.FC = () => {
     (user) => user.type == UserType.DOCTOR,
   );
   const { surgeryList } = useAppSelector((state) => ({
-    surgeryList: Object.values(state.surgeries.entities),
+    surgeryList: Object.values(state.surgeries.allSurgeries) as ISurgery[],
   }));
 
   const doctorsWithSurgeries = userData.map((doctor) => {
@@ -18,6 +20,14 @@ const UsersListing: React.FC = () => {
     );
     return { ...doctor, surgeries: doctorSurgeries };
   });
+  const practiceId = getPracticeId();
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    if (practiceId) {
+      dispatch(fetchAllSurgeries({ practiceId }));
+    }
+  }, [practiceId, dispatch]);
 
   return (
     <div>

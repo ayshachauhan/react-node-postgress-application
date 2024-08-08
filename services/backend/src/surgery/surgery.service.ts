@@ -354,6 +354,39 @@ export class SurgeryService {
     return { surgeries: dbSurgeryByPractice, restricted };
   }
 
+  async findAllSurgeries(practiceId: string, includeDelete: boolean = false) {
+    const dbPracticeHomesByPractice =
+      await this.practiceHomesService.getPracticeHomesByPractice(practiceId);
+
+    const whereClause: WhereClause = {
+      practiceHome: {
+        id: In(dbPracticeHomesByPractice.map((ele) => ele.id)),
+      },
+      practice: { id: practiceId }, //TO DO: make practice id not null in future
+    };
+
+    const searchConditions: FindManyOptions<SurgeryEntity> = {
+      where: whereClause,
+      withDeleted: includeDelete,
+      relations: [
+        'practiceHome',
+        'surgeryConfiguration',
+        'patient',
+        'insuranceType',
+        'patient.referrer',
+        'doctor',
+        'waitlist',
+        'practice', //TO DO: make practice id not null in future
+      ],
+      order: {},
+    };
+
+    const dbSurgeryByPractice =
+      await this.surgeryRepository.find(searchConditions);
+
+    return { surgeries: dbSurgeryByPractice, restricted: false };
+  }
+
   async getSurgeryById(id: string): Promise<SurgeryEntity | null> {
     return await this.surgeryRepository.findOne({
       where: { id },

@@ -69,6 +69,37 @@ export const getSurgeries = async (
   }
 };
 
+export const getAllSurgeries = async (
+  payloadData: {
+    practiceId: string;
+    includeDeleted?: boolean;
+  },
+  { rejectWithValue },
+) => {
+  const { practiceId, includeDeleted } = payloadData;
+
+  try {
+    const queryParams = `?includeDeleted=${includeDeleted ?? false}&all=true`;
+
+    if (!queryParams) {
+      throw new Error('No query parameters provided');
+    }
+
+    const response = await apiClient.get(
+      `/practices/${practiceId}/surgery${queryParams}`,
+    );
+
+    if (!response.ok) {
+      throw new Error('Failed to get surgery');
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    return rejectWithValue(error);
+  }
+};
+
 export const addSurgery = async (payloadData: CreateSurgeryPayload) => {
   try {
     const response = await apiClient.post(
