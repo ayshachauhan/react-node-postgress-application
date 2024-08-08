@@ -37,6 +37,18 @@ interface SurgerySearchResult {
 export class SurgeryController {
   constructor(private readonly surgeryService: SurgeryService) {}
 
+  @Get('all')
+  async getAllSurgeries(
+    @Param('practiceId') practiceId: string,
+    @Query('includeDeleted') includeDeleted: boolean = false,
+  ) {
+    const surgeries = await this.surgeryService.findAllSurgeries(
+      practiceId,
+      includeDeleted,
+    );
+    return surgeries;
+  }
+
   @Get()
   @UseInterceptors(practiceNotFoundInterceptor)
   async searchSurgeries(
@@ -49,15 +61,7 @@ export class SurgeryController {
     @Query('doctorId') doctorId?: string,
     @Query('page') page: number = 1,
     @Query('limit') limit: number = PAGINATION_LIMIT,
-    @Query('all') all: boolean = false,
   ): Promise<SurgerySearchResult> {
-    if (all) {
-      const surgeries = await this.surgeryService.findAllSurgeries(
-        practiceId,
-        query.includeDeleted,
-      );
-      return surgeries;
-    }
     const months = monthQueryParam?.trim() ? monthQueryParam.split(',') : [];
 
     const surgeries = await this.surgeryService.findAll(

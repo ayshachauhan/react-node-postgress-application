@@ -79,14 +79,14 @@ export const getAllSurgeries = async (
   const { practiceId, includeDeleted } = payloadData;
 
   try {
-    const queryParams = `?includeDeleted=${includeDeleted ?? false}&all=true`;
+    const queryParams = `?includeDeleted=${includeDeleted ?? false}`;
 
     if (!queryParams) {
       throw new Error('No query parameters provided');
     }
 
     const response = await apiClient.get(
-      `/practices/${practiceId}/surgery${queryParams}`,
+      `/practices/${practiceId}/surgery/all${queryParams}`,
     );
 
     if (!response.ok) {
