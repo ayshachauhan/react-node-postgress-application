@@ -194,7 +194,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapseChange }) => {
                         href={childItem.path}
                         onClick={() => handleSidebarChildItemClick(childItem)}
                         className={clsx(
-                          'flex items-center w-full pl-5 p-2 text-white',
+                          'flex items-center w-full pl-5 p-2  text-white ',
                           {
                             'bg-[#ffffff33]':
                               childItem.id === activeChildMenuItemId,
