@@ -371,18 +371,23 @@ export class SurgeryService {
       relations: [
         'practiceHome',
         'surgeryConfiguration',
-        'patient',
-        'insuranceType',
-        'patient.referrer',
         'doctor',
-        'waitlist',
         'practice', //TO DO: make practice id not null in future
       ],
       order: {},
     };
 
-    const dbSurgeryByPractice =
+    let dbSurgeryByPractice =
       await this.surgeryRepository.find(searchConditions);
+
+    dbSurgeryByPractice = dbSurgeryByPractice.filter((surgery) => {
+      const surgeryDate = new Date(surgery.date);
+      const currentDate = new Date();
+      return (
+        surgeryDate.getFullYear() === currentDate.getFullYear() &&
+        surgeryDate.getMonth() === currentDate.getMonth()
+      );
+    });
 
     return { surgeries: dbSurgeryByPractice, restricted: false };
   }
