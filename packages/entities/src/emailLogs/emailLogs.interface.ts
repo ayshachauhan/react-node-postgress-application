@@ -9,6 +9,7 @@ export interface IEmailLog extends IBaseEntity {
   practice: IPractice;
   attachment?: string;
   isRead: boolean;
+  practiceId?: string;
 }
 
 export interface EmailData {
