@@ -1,7 +1,7 @@
 'use client';
 import { ICalendar } from '@packages/entities/index.browser';
 import { useAppSelector } from '@root/store';
-import { getUserId } from '@root/utils';
+import { formatDate, getUserId } from '@root/utils';
 import React from 'react';
 
 export type CalendarData = {
@@ -11,19 +11,23 @@ export type CalendarData = {
 
 const SurgeryPercentage: React.FC = () => {
   const userId: string | null = getUserId();
-  const { calendars, surgeryConfigurations } = useAppSelector((state) => ({
+  const { calendars } = useAppSelector((state) => ({
     calendars: Object.values(state.calendars.entities).filter(
       (calendar) => calendar?.user?.id === userId,
     ),
-    surgeryConfigurations: Object.values(state.surgeryConfigurations?.entities),
+    //surgeryConfigurations: Object.values(state.surgeryConfigurations?.entities),
   }));
+
+  const uniqueSurgeryLocations = Array.from(
+    new Map(calendars.map((item) => [item.surgeryType.id, item])).values(),
+  );
 
   const maxCellStyle = (cellValue: string) => {
     const numericValue =
       typeof cellValue === 'string'
         ? parseInt(cellValue.replace('%', ''), 10)
         : cellValue;
-    const isRed = numericValue < 50;
+    const isRed = numericValue > 0 && numericValue < 50;
     const isYellow = numericValue >= 50 && numericValue < 80;
     const isGreen = numericValue >= 80;
     if (isRed) {
@@ -33,24 +37,38 @@ const SurgeryPercentage: React.FC = () => {
     } else if (isGreen) {
       return { color: 'rgb(53, 165, 118)' };
     } else {
-      return {};
+      return { color: 'rgb(0, 0, 0)' };
     }
   };
 
-  function calculateSurgeryPercentageForRange(
-    rangeInMonths: number | 'all',
-  ): { name: string; id: string; percentage: number }[] {
+  function calculateSurgeryPercentageForRange(rangeInMonths: number | 'all'): {
+    name: string;
+    id: string;
+    percentage: number;
+    booked: number;
+    maxSlots: number;
+    endDate: Date;
+  }[] {
     const today = new Date();
     const surgeryPercentage: {
       name: string;
       id: string;
       percentage: number;
+      booked: number;
+      maxSlots: number;
+      endDate: Date;
     }[] = [];
 
-    surgeryConfigurations.forEach((config) => {
+    uniqueSurgeryLocations.forEach((config) => {
       const selectedSurgeryId = config?.surgeryType.id;
       let matchingDates: CalendarData[] = [];
 
+      //  For default range 'All'
+      let endDate = new Date(
+        today.getFullYear(),
+        today.getMonth() + 9999,
+        today.getDate(),
+      );
       if (rangeInMonths === 'all') {
         matchingDates = calendars
           .filter(
@@ -61,7 +79,7 @@ const SurgeryPercentage: React.FC = () => {
             bookedSlots: data.bookedSlots,
           }));
       } else {
-        const endDate = new Date(
+        endDate = new Date(
           today.getFullYear(),
           today.getMonth() + rangeInMonths,
           today.getDate(),
@@ -92,28 +110,41 @@ const SurgeryPercentage: React.FC = () => {
       const percentage =
         totalMaxSlots !== 0 ? (totalBookedSlots / totalMaxSlots) * 100 : 0;
 
-      surgeryPercentage.push({
-        name: config?.surgeryType.name,
-        id: selectedSurgeryId,
-        percentage: percentage,
-      });
+      if (
+        surgeryPercentage.length === 0 ||
+        (surgeryPercentage.length > 0 &&
+          !surgeryPercentage.find(
+            (s) =>
+              s.name.toLowerCase() == config?.surgeryType.name.toLowerCase(),
+          ))
+      ) {
+        surgeryPercentage.push({
+          name: config?.surgeryType.name,
+          id: selectedSurgeryId,
+          percentage: percentage,
+          booked: totalBookedSlots,
+          maxSlots: totalMaxSlots,
+          endDate,
+        });
+      }
     });
 
     return surgeryPercentage;
   }
   const ranges: (number | 'all')[] = [1, 2, 3, 6, 12, 'all'];
 
-  const surgeryPercentageData = surgeryConfigurations.map((config) => ({
-    name: config?.surgeryType.name,
-    id: config?.surgeryType.id,
-    percentages: ranges.map((range) => ({
-      range: range,
-      percentage:
-        calculateSurgeryPercentageForRange(range).find(
+  const surgeryPercentageData = uniqueSurgeryLocations.map((config) => {
+    return {
+      name: config?.surgeryType.name,
+      id: config?.surgeryType.id,
+      percentages: ranges.map((range) => ({
+        range: range,
+        data: calculateSurgeryPercentageForRange(range).find(
           (surgery) => surgery.id === config?.surgeryType.id,
-        )?.percentage || 0,
-    })),
-  }));
+        ),
+      })),
+    };
+  });
 
   return (
     <div>
@@ -147,9 +178,18 @@ const SurgeryPercentage: React.FC = () => {
                     <td
                       key={index}
                       className="text-center"
-                      style={maxCellStyle(percentageObj.percentage.toFixed(0))}
+                      style={maxCellStyle(
+                        percentageObj?.data?.percentage?.toFixed(0) || '0',
+                      )}
+                      title={`${percentageObj?.data?.booked ?? 0}/${
+                        percentageObj?.data?.maxSlots ?? 0
+                      } | Date End: ${
+                        formatDate(
+                          percentageObj?.data?.endDate || new Date(),
+                        ) ?? 0
+                      }`}
                     >
-                      {percentageObj.percentage.toFixed(0)}%
+                      {percentageObj.data?.percentage?.toFixed(0)}%
                     </td>
                   ))}
                 </tr>
