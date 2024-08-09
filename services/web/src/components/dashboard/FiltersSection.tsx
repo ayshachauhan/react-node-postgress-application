@@ -851,7 +851,7 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
       <div>
         {reviewSendingIsLoading && <Loader />}
         {isUpdateLoading && <Loader />}
-        {isSurgeriesLoading && <Loader />}
+        {/* {isSurgeriesLoading && <Loader />} */}
         {!isLoading && (
           <div>
             <div className="flex w-full bg-purple-50 p-1 border-t border-b border-gray-200 items-center mb-2">

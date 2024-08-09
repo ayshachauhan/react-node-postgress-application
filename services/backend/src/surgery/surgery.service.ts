@@ -13,6 +13,7 @@ import {
   SelectedSurgeryOption,
   SurgeryEntity,
   SurgeryStatus,
+  WaitlistEntity,
 } from '@packages/entities';
 import { PatientEntity } from '@packages/entities/patient';
 import { USER_PERMISSIONS } from '@packages/entities/permission';
@@ -51,9 +52,11 @@ import {
   FindOptionsWhere,
   ILike,
   In,
+  IsNull,
   LessThan,
   LessThanOrEqual,
   MoreThanOrEqual,
+  Not,
   Or,
   Repository,
 } from 'typeorm';
@@ -79,6 +82,9 @@ type WhereClause = {
   date?: Date | FindOperator<Date>;
   patient?: FindOptionsWhere<PatientEntity> | FindOptionsWhere<PatientEntity>[];
   doctor?: { id: string };
+  waitlist?:
+    | FindOptionsWhere<WaitlistEntity>
+    | FindOptionsWhere<WaitlistEntity>[];
 };
 
 @Injectable()
@@ -182,6 +188,12 @@ export class SurgeryService {
       searchConditions.order = {
         date: 'ASC',
       };
+    } else if (option?.toLowerCase() === 'waitlist view') {
+      whereClause.waitlist = {
+        name: Not(IsNull()), // Checking the 'name' field within the waitlist entity
+      } as FindOptionsWhere<WaitlistEntity>;
+
+      searchConditions.where = whereClause;
     } else {
       searchConditions.order = {
         date: 'DESC',
@@ -322,15 +334,6 @@ export class SurgeryService {
         this.surgeryRepository.find(searchConditions),
         this.surgeryRepository.find(searchConditionsWithoutPermissions),
       ]);
-
-    if (option?.toLowerCase() === 'waitlist view') {
-      const filterWaitlist = (row: SurgeryEntity) =>
-        row.waitlist && row.waitlist !== null;
-
-      dbSurgeryByPractice = dbSurgeryByPractice.filter(filterWaitlist);
-      dbSurgeryByPracticeWithoutPermission =
-        dbSurgeryByPracticeWithoutPermission.filter(filterWaitlist);
-    }
 
     dbSurgeryByPractice.forEach((ele) => {
       ele.doctor.password = '';
