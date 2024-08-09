@@ -1,4 +1,5 @@
 import { UpdateEValInterface } from '@packages/entities';
+import { IReferrer } from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
 import { EVAL_STATUS } from '@root/enums/evalStatus.enum';
@@ -12,6 +13,7 @@ import {
   toFullName,
   usDateFormatter,
 } from '@root/utils';
+import { Checkbox } from 'baseui/checkbox';
 import { DatePicker } from 'baseui/datepicker';
 import { SIZE, Select } from 'baseui/select';
 import React, { useEffect, useState } from 'react';
@@ -138,6 +140,35 @@ const EditableRow: React.FC<EditableRowProps> = ({
 
     const handleWaitlistChange = ({ value }) => {
       setWaitlistId(value[0] ? value[0].id : null);
+    };
+
+    const CustomOptionWithTick = (option: IReferrer) => {
+      return (
+        <span style={{ display: 'flex', alignItems: 'start', padding: '2px' }}>
+          {toFullName(option)} &nbsp;
+          {option?.verified && (
+            <Checkbox
+              checked={option?.verified}
+              overrides={{
+                Checkmark: {
+                  style: ({ $checked }) => ({
+                    backgroundColor: $checked
+                      ? 'rgba(34, 197, 94, 1)'
+                      : 'white',
+                    borderColor: $checked
+                      ? 'rgba(34, 197, 94, 1)'
+                      : 'rgba(113, 113, 122, 1)',
+                    width: '12px',
+                    height: '12px',
+                    borderRadius: '2px',
+                    borderWidth: '2px',
+                  }),
+                },
+              }}
+            />
+          )}
+        </span>
+      );
     };
 
     const handleSubmit = async (e) => {
@@ -475,7 +506,7 @@ const EditableRow: React.FC<EditableRowProps> = ({
                 escapeClearsValue={false}
                 options={referrersList.map((ele) => ({
                   id: ele.id,
-                  label: toFullName(ele),
+                  label: CustomOptionWithTick(ele),
                 }))}
                 value={
                   referrerId ? [{ label: referrerId, id: referrerId }] : []
