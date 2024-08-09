@@ -8,7 +8,7 @@ import {
   EditIcon,
   HomeIcon,
 } from '@root/components/Icons';
-import Loader from '@root/components/loader';
+// import Loader from '@root/components/loader';
 import { EVAL_STATUS } from '@root/enums/evalStatus.enum';
 import { useLoader } from '@root/hooks/useLoader';
 import { useUserPermission } from '@root/hooks/userHasPermission';
@@ -393,7 +393,7 @@ const EvalPage: React.FC = () => {
 
   return (
     <div id="__next" className="">
-      {isEvalsLoading && <Loader />}
+      {/* {isEvalsLoading && <Loader />} */}
       <div className="flex justify-between border-gray-400 items-center ">
         <span className="text-xl font-bold">Evals</span>
         <div className="flex  justify-between">

@@ -150,7 +150,9 @@ const EditableRow: React.FC<EditableRowProps> = ({
   };
 
   const handleReferrerChange = ({ value }) => {
-    setReferrerId(value[0] ? value[0].id : null);
+    if (value.length > 0) {
+      setReferrerId(value[0] ? value[0].id : null);
+    }
   };
 
   const handleWaitlistChange = ({ value }) => {
@@ -262,6 +264,10 @@ const EditableRow: React.FC<EditableRowProps> = ({
 
     const customConditionalHeaders: string[] =
       customHeaders[surgeryName].conditionalHeaders;
+
+    const selectedReferrer = referrerId
+      ? referrersList.find((ele) => ele.id === referrerId)
+      : null;
 
     return (
       <>
@@ -973,11 +979,11 @@ const EditableRow: React.FC<EditableRowProps> = ({
                   label: CustomOptionWithTick(ele),
                 }))}
                 value={
-                  referrerId
+                  selectedReferrer
                     ? [
                         {
-                          label: toFullName(surgeryInfo?.patient?.referrer),
-                          id: referrerId,
+                          label: toFullName(selectedReferrer),
+                          id: selectedReferrer.id,
                         },
                       ]
                     : []
