@@ -11,15 +11,11 @@ import {
   selectedPracticeName,
   userPractices,
 } from '@root/store/reducers/auth';
-import { fetchFilteredCalendars } from '@root/store/reducers/calendar';
+import { fetchCalendars } from '@root/store/reducers/calendar';
 import { getPracticeInfo } from '@root/store/reducers/practices';
 import { fetchListings } from '@root/store/reducers/users';
 import { SanitizedUser } from '@root/store/types';
-import {
-  SELECTED_DOCTOR_KEY,
-  getPracticeId,
-  getSelectedMonths,
-} from '@utils/index';
+import { SELECTED_DOCTOR_KEY, getPracticeId } from '@utils/index';
 import { ChevronDown } from 'baseui/icon';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
@@ -40,12 +36,7 @@ const Header: React.FC<ChildProps> = ({ data }) => {
 
   const userInfo = useAppSelector((state) => state.auth.user);
   const loggedInUserId = userInfo?.id;
-  const { selectedMonth, selectedValue } = useAppSelector(
-    (state) => state.surgeries.surgeryFilters,
-  );
-  const selectedValueStr = selectedValue || '';
 
-  const month = getSelectedMonths(selectedMonth);
   const { entities } = useAppSelector((state: State) => state.users);
   const practiceId = getPracticeId();
 
@@ -119,16 +110,8 @@ const Header: React.FC<ChildProps> = ({ data }) => {
       setSelectedUser(user);
       localStorage.setItem(SELECTED_DOCTOR_KEY, user.id);
       setIsDoctorChange(true);
-      if (practiceId !== null && userId !== null && loggedInUserId !== null) {
-        dispatch(
-          fetchFilteredCalendars({
-            practiceId,
-            userId,
-            month,
-            option: selectedValueStr,
-            loggedInUserId,
-          }),
-        );
+      if (practiceId !== null && userId !== null) {
+        dispatch(fetchCalendars({ practiceId, userId }));
       }
     }
   };

@@ -13,11 +13,13 @@ import { EntitiesState, EntityLoadingState } from '../types';
 interface EntitiesStateWithRestricted<T> extends EntitiesState<T> {
   restricted: boolean;
   calendarsWithoutPermission: CalendarEntity[];
+  filteredEntities: Record<string, T>;
 }
 
 const initialState: EntitiesStateWithRestricted<ICalendar> = {
   processing: false,
   entities: {},
+  filteredEntities: {},
   status: EntityLoadingState.IDLE,
   successMessage: undefined,
   restricted: false,
@@ -77,8 +79,8 @@ const calendarSlice = createSlice({
 
     builder.addCase(fetchFilteredCalendars.fulfilled, (state, action) => {
       state.status = EntityLoadingState.SUCCEEDED;
-      state.entities = {};
-      state.entities = indexBy('id', action.payload.calendars);
+      state.filteredEntities = {};
+      state.filteredEntities = indexBy('id', action.payload.calendars);
       state.calendarsWithoutPermission =
         action.payload.calendarsWithoutPermission;
       state.restricted = action.payload.restricted;
