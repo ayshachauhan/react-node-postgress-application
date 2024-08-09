@@ -502,9 +502,18 @@ const EvalPage: React.FC = () => {
                           {data.email}
                         </div>
                         <div className="">{data.phoneNumber}</div>
-                        <div className=" ">
-                          <div className="">referrer: {data.referrer}</div>
-                          <div>
+                        <span
+                          style={{
+                            display: 'flex',
+                          }}
+                        >
+                          Referrer: {data.referrer}&nbsp;
+                          <span
+                            style={{
+                              display: 'flex',
+                              alignItems: 'start',
+                            }}
+                          >
                             {data.referrerVerified && (
                               <Checkbox
                                 checked={true}
@@ -526,8 +535,8 @@ const EvalPage: React.FC = () => {
                                 }}
                               />
                             )}
-                          </div>
-                        </div>
+                          </span>
+                        </span>
                       </td>
                       <td rowSpan={2} className="">
                         <div className="flex items-center gap-1">

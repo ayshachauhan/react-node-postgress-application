@@ -1,5 +1,5 @@
 import { UpdateSurgeryPayload } from '@packages/entities';
-import { SurgeryStatus } from '@packages/entities/index.browser';
+import { IReferrer, SurgeryStatus } from '@packages/entities/index.browser';
 import { USER_PERMISSIONS } from '@packages/entities/permission';
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
@@ -16,6 +16,7 @@ import {
   isZeroPricing,
   toFullName,
 } from '@root/utils';
+import { Checkbox } from 'baseui/checkbox';
 import { DatePicker } from 'baseui/datepicker';
 import { SIZE, Select } from 'baseui/select';
 import React, { useEffect, useState } from 'react';
@@ -225,6 +226,33 @@ const EditableRow: React.FC<EditableRowProps> = ({
       (calendar) => calendar?.user?.id === doctorId,
     ),
   }));
+
+  const CustomOptionWithTick = (option: IReferrer) => {
+    return (
+      <span style={{ display: 'flex', alignItems: 'start', padding: '2px' }}>
+        {toFullName(option)} &nbsp;
+        {option?.verified && (
+          <Checkbox
+            checked={option?.verified}
+            overrides={{
+              Checkmark: {
+                style: ({ $checked }) => ({
+                  backgroundColor: $checked ? 'rgba(34, 197, 94, 1)' : 'white',
+                  borderColor: $checked
+                    ? 'rgba(34, 197, 94, 1)'
+                    : 'rgba(113, 113, 122, 1)',
+                  width: '12px',
+                  height: '12px',
+                  borderRadius: '2px',
+                  borderWidth: '2px',
+                }),
+              },
+            }}
+          />
+        )}
+      </span>
+    );
+  };
 
   if (surgeryInfo) {
     const { surgeryConfiguration } = surgeryInfo;
@@ -948,7 +976,7 @@ const EditableRow: React.FC<EditableRowProps> = ({
                 escapeClearsValue={false}
                 options={referrersList.map((ele) => ({
                   id: ele.id,
-                  label: toFullName(ele),
+                  label: CustomOptionWithTick(ele),
                 }))}
                 value={
                   selectedReferrer
