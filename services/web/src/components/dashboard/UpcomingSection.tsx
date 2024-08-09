@@ -55,12 +55,17 @@ const UpcomingSection: React.FC = () => {
   const userInfo = useAppSelector((state) => state.auth?.user);
   const userPermissions = userInfo?.permissions;
   const loggedInUserId = userInfo?.id;
-  const { calendars, surgeryTypes } = useAppSelector((state) => ({
-    calendars: Object.values(state.calendars?.entities).filter(
-      (calendar) => calendar?.user?.id === userId,
-    ),
-    surgeryTypes: Object.values(state.surgeryTypes?.entities),
-  }));
+  const { calendars, surgeryTypes, allCalendarData } = useAppSelector(
+    (state) => ({
+      calendars: Object.values(state.calendars?.filteredEntities).filter(
+        (calendar) => calendar?.user?.id === userId,
+      ),
+      surgeryTypes: Object.values(state.surgeryTypes?.entities),
+      allCalendarData: Object.values(state.calendars?.entities).filter(
+        (calendar) => calendar?.user?.id === userId,
+      ),
+    }),
+  );
 
   const { errorMessage, calendarsWithoutPermission, restricted } =
     useAppSelector((state) => state.calendars);
@@ -367,7 +372,7 @@ const UpcomingSection: React.FC = () => {
                   ]
             }
             isUpdating={isUpdating ?? false}
-            calendars={calendars}
+            calendars={allCalendarData}
             calendarMessageFunc={calendarMessageFunc}
             allDoctors={allDoctors}
           />
