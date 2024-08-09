@@ -329,7 +329,7 @@ export class SurgeryService {
       }
     }
 
-    let [dbSurgeryByPractice, dbSurgeryByPracticeWithoutPermission] =
+    const [dbSurgeryByPractice, dbSurgeryByPracticeWithoutPermission] =
       await Promise.all([
         this.surgeryRepository.find(searchConditions),
         this.surgeryRepository.find(searchConditionsWithoutPermissions),
