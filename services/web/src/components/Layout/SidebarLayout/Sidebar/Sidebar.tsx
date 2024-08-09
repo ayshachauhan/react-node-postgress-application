@@ -71,6 +71,8 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapseChange }) => {
   useEffect(() => {
     if (currentUrlPath.startsWith('/messages')) {
       setActiveMenuItemId('messages');
+    } else if (currentUrlPath.startsWith('/history')) {
+      setActiveMenuItemId('history');
     }
   }, [currentUrlPath]);
 
