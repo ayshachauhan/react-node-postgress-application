@@ -20,7 +20,7 @@ import { useUserPermissions } from '@root/context/UserPermissionsContext';
 import { useLoader } from '@root/hooks/useLoader';
 import { useUserPermission } from '@root/hooks/userHasPermission';
 import { useAppDispatch, useAppSelector } from '@root/store';
-import { fetchFilteredCalendars } from '@root/store/reducers/calendar';
+import { fetchCalendars } from '@root/store/reducers/calendar';
 import { fetchListings as fetchMedia } from '@root/store/reducers/media';
 import {
   fetchListings as fetchReviews,
@@ -41,7 +41,6 @@ import {
   createQueryString,
   formatDate,
   getColorForSurgeryStatus,
-  getSelectedMonths,
   getUserId,
   isZeroPricing,
   toFullName,
@@ -608,20 +607,8 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
     const dispatchFetchFilteredCalendars = (
       practiceId: string,
       userId: string,
-      selectedMonth: MonthOption[],
-      option: string,
-      loggedInUserId: string,
     ) => {
-      const month = getSelectedMonths(selectedMonth);
-      dispatch(
-        fetchFilteredCalendars({
-          practiceId,
-          userId,
-          month,
-          option,
-          loggedInUserId,
-        }),
-      );
+      dispatch(fetchCalendars({ practiceId, userId }));
     };
     const [isViewFutureCasesFinalized, setIsViewFutureCasesFinalized] =
       useState(false);
@@ -784,14 +771,8 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
     }, [practiceId, dispatch, withLoader]);
 
     useEffect(() => {
-      if (practiceId !== null && doctorId !== null && loggedInUserId) {
-        dispatchFetchFilteredCalendars(
-          practiceId,
-          doctorId,
-          selectedMonth,
-          selectedValueStr,
-          loggedInUserId,
-        );
+      if (practiceId !== null && doctorId !== null) {
+        dispatchFetchFilteredCalendars(practiceId, doctorId);
       }
     }, [practiceId, doctorId, loggedInUserId, dispatch]);
 

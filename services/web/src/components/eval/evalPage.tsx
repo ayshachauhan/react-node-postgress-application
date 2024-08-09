@@ -14,7 +14,7 @@ import { useLoader } from '@root/hooks/useLoader';
 import { useUserPermission } from '@root/hooks/userHasPermission';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { fetchLoggedInUser } from '@root/store/reducers/auth';
-import { fetchFilteredCalendars } from '@root/store/reducers/calendar';
+import { fetchCalendars } from '@root/store/reducers/calendar';
 import {
   clearData,
   clearSuccessMessage as clearEvalSuccessMessage,
@@ -234,17 +234,7 @@ const EvalPage: React.FC = () => {
         dispatch(fetchSurgeryConfigurationsListing({ practiceId }));
         dispatch(fetchPatients({ practiceId }));
         dispatch(fetchWaitlist({ practiceId }));
-        if (userId && loggedInUserId !== null) {
-          dispatch(
-            fetchFilteredCalendars({
-              practiceId,
-              userId,
-              month,
-              option: selectedValueStr,
-              loggedInUserId,
-            }),
-          );
-        }
+        if (userId) dispatch(fetchCalendars({ practiceId, userId }));
       }
     };
 
