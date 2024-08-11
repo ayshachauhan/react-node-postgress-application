@@ -30,7 +30,6 @@ interface SurgeryPageProps {
   withLoader: (func: () => Promise<void>) => Promise<void>;
   surgeryTypeSelected?: string;
   onRecordAdded?: () => void;
-  redirectFromEval?: boolean;
 }
 
 const SurgeryPage: React.FC<SurgeryPageProps> = ({
@@ -40,7 +39,6 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
   withLoader,
   surgeryTypeSelected,
   onRecordAdded,
-  redirectFromEval = false,
 }) => {
   const dispatch = useAppDispatch();
   const {
@@ -440,9 +438,6 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
           setWaitlistId('');
           if (onRecordAdded) {
             onRecordAdded();
-          }
-          if (redirectFromEval) {
-            window.location.replace('/eval');
           }
           onClose();
         } catch (error) {
