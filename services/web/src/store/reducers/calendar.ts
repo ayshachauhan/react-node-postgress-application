@@ -32,6 +32,10 @@ const calendarSlice = createSlice({
   initialState,
   reducers: {
     addCalendarItem(state, action: PayloadAction<ICalendar>) {
+      state.filteredEntities = {
+        ...state.filteredEntities,
+        ...{ [action.payload.id]: action.payload },
+      };
       state.entities = {
         ...state.entities,
         ...{ [action.payload.id]: action.payload },
@@ -111,6 +115,10 @@ const calendarSlice = createSlice({
 
     builder.addCase(createCalendarEntry.fulfilled, (state, action) => {
       state.status = EntityLoadingState.SUCCEEDED;
+      state.filteredEntities = {
+        ...state.filteredEntities,
+        ...{ [action.payload.id]: action.payload },
+      };
       state.entities = {
         ...state.entities,
         ...{ [action.payload.id]: action.payload },
@@ -135,6 +143,10 @@ const calendarSlice = createSlice({
 
     builder.addCase(updateBulkCalendars.fulfilled, (state, action) => {
       state.status = EntityLoadingState.SUCCEEDED;
+      state.filteredEntities = {
+        ...state.filteredEntities,
+        ...indexBy('id', action.payload),
+      };
       state.entities = {
         ...state.entities,
         ...indexBy('id', action.payload),
