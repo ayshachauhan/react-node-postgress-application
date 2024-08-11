@@ -15,7 +15,10 @@ import { useLoader } from '@root/hooks/useLoader';
 import { useUserPermission } from '@root/hooks/userHasPermission';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { fetchLoggedInUser } from '@root/store/reducers/auth';
-import { fetchCalendars } from '@root/store/reducers/calendar';
+import {
+  fetchCalendars,
+  fetchFilteredCalendars,
+} from '@root/store/reducers/calendar';
 import {
   clearSuccessMessage as clearEvalSuccessMessage,
   fetchListings as fetchEvalsList,
@@ -41,7 +44,11 @@ const DashboardPage: React.FC = () => {
   const userId: string | null = getUserId();
   const userInfo = useAppSelector((state) => state.auth.user);
   const userPermissions = userInfo?.permissions;
+  const loggedInUserId = userInfo?.id ?? null;
   const doctorId = getUserId();
+  const { selectedMonth, selectedValue } = useAppSelector(
+    (state) => state.surgeries.surgeryFilters,
+  );
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isAddEvalModalOpen, setIsAddEvalModalOpen] = useState(false);
 
@@ -65,6 +72,9 @@ const DashboardPage: React.FC = () => {
     errorMessage: state.evals.errorMessage,
   }));
   const [showModal, setShowModal] = useState(false);
+  const selectedValueStr = selectedValue || '';
+  const monthLabels = selectedMonth.map((month) => month.label);
+  const month = monthLabels.join(',');
 
   const { isLoading, withLoader } = useLoader();
 
@@ -164,6 +174,17 @@ const DashboardPage: React.FC = () => {
         dispatch(fetchSurgeryConfigurationsListing({ practiceId }));
         dispatch(fetchWaitlist({ practiceId }));
         dispatch(fetchPatients({ practiceId }));
+        if (userId && loggedInUserId !== null) {
+          dispatch(
+            fetchFilteredCalendars({
+              practiceId,
+              userId,
+              month,
+              option: selectedValueStr,
+              loggedInUserId,
+            }),
+          );
+        }
         if (userId) {
           dispatch(fetchCalendars({ practiceId, userId }));
         }

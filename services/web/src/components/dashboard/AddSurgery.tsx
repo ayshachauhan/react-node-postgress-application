@@ -6,7 +6,10 @@ import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
 import { EVAL_STATUS } from '@root/enums/evalStatus.enum';
 import { useAppDispatch, useAppSelector } from '@root/store';
-import { fetchCalendars } from '@root/store/reducers/calendar';
+import {
+  fetchCalendars,
+  fetchFilteredCalendars,
+} from '@root/store/reducers/calendar';
 import { updateRecordAsync as updateEval } from '@root/store/reducers/evals';
 import {
   addRecordAsync as addSurgeryRecord,
@@ -14,7 +17,12 @@ import {
 } from '@root/store/reducers/surgery';
 import { fetchListings as fetchUsersList } from '@root/store/reducers/users';
 
-import { getBackGroundColorCss, getPracticeId, toFullName } from '@utils/index';
+import {
+  getBackGroundColorCss,
+  getPracticeId,
+  getSelectedMonths,
+  toFullName,
+} from '@utils/index';
 import { Checkbox } from 'baseui/checkbox';
 import { DatePicker } from 'baseui/datepicker';
 import { SIZE, Select } from 'baseui/select';
@@ -73,6 +81,14 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
   }));
 
   const SELECTED_DOCTOR_KEY: string = 'SELECTED_DOCTOR';
+  const userInfo = useAppSelector((state) => state.auth.user);
+  const loggedInUserId = userInfo?.id;
+  const { selectedMonth, selectedValue } = useAppSelector(
+    (state) => state.surgeries.surgeryFilters,
+  );
+  const selectedValueStr = selectedValue || '';
+
+  const month = getSelectedMonths(selectedMonth);
   const getSelectedUserId: string | null =
     localStorage.getItem(SELECTED_DOCTOR_KEY);
 
@@ -419,6 +435,15 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
             }),
           );
         }
+        await dispatch(
+          fetchFilteredCalendars({
+            practiceId,
+            userId: doctorId,
+            month,
+            option: selectedValueStr,
+            loggedInUserId,
+          }),
+        );
 
         await dispatch(fetchCalendars({ practiceId, userId: doctorId }));
         dispatch(fetchUsersList({ practiceId }));
