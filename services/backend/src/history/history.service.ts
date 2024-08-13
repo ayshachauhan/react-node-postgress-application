@@ -5,7 +5,10 @@ import {
   forwardRef,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { HistoryEntity, UserEntity } from '@packages/entities';
+import { HistoryEntity, HistoryType, UserEntity } from '@packages/entities';
+import { EvalsService } from 'src/evals/evals.service';
+import { SurgeryService } from 'src/surgery/surgery.service';
+import { PAGINATION_LIMIT } from 'src/utils/constants';
 import { Repository } from 'typeorm';
 import { PracticesService } from '../practices/practices.service';
 import {
@@ -21,6 +24,10 @@ export class HistoryService {
     private readonly historyRepo: Repository<HistoryEntity>,
     @Inject(forwardRef(() => PracticesService))
     private practiceService: PracticesService,
+    @Inject(forwardRef(() => SurgeryService))
+    private surgeryService: SurgeryService,
+    @Inject(forwardRef(() => EvalsService))
+    private evalService: EvalsService,
   ) {}
 
   /**
@@ -31,16 +38,40 @@ export class HistoryService {
   async getAllHistoryLogs({
     practiceId,
     userId,
-  }: GetHistoryParams & { userId: string }): Promise<HistoryEntity[]> {
-    return await this.historyRepo.find({
+    page,
+    limit = PAGINATION_LIMIT,
+  }: GetHistoryParams & {
+    userId: string;
+    page: number;
+    limit: number;
+  }): Promise<HistoryEntity[]> {
+    const skip = (page - 1) * limit;
+    const response = await this.historyRepo.find({
       where: {
         practice: { id: practiceId },
-        user: {
-          id: userId,
-        },
+        user: { id: userId },
       },
       relations: ['practice', 'user'],
+      order: {
+        dateCreated: 'DESC',
+      },
+      skip,
+      take: limit,
     });
+
+    for (const log of response) {
+      if (log.entityType === HistoryType.SURGERY) {
+        const surgery = await this.surgeryService.getSurgeryById(log.entityId);
+        log.entityData = surgery || undefined;
+      } else if (log.entityType === HistoryType.EVAL) {
+        const evalData = await this.evalService.getEvalById(log.entityId);
+        log.entityData = evalData || undefined;
+      } else {
+        log.entityData = undefined;
+      }
+    }
+
+    return response;
   }
 
   /**
