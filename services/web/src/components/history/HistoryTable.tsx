@@ -65,17 +65,6 @@ export default function HistoryTable() {
   const fetchedPages = useRef(new Set<number>());
 
   const getHistory = async (currentPage: number) => {
-    console.log(
-      currentPage,
-      2,
-      isHistoryLoading,
-      3,
-      hasMore,
-      4,
-      practiceId,
-      5,
-      fetchedPages.current.has(currentPage),
-    );
     if (
       isHistoryLoading ||
       !hasMore ||
@@ -126,8 +115,6 @@ export default function HistoryTable() {
     }
   };
 
-  console.log(records.length, 2);
-
   const resetPagination = useCallback(() => {
     setPage(1);
     setHasMore(true);
@@ -145,13 +132,11 @@ export default function HistoryTable() {
 
   useEffect(() => {
     if (practiceId) {
-      console.log('hi');
       resetPagination();
     }
   }, [practiceId]);
 
   useEffect(() => {
-    console.log(page, page);
     getHistory(page);
   }, [page]);
 
@@ -269,7 +254,6 @@ export default function HistoryTable() {
    */
   const getResolvedHistoryData = (): HistoryData[] => {
     let filteredHistoryLogs = records as HistoryEntity[];
-    console.log(filteredHistoryLogs.length, 3);
     if (patientId) {
       filteredHistoryLogs = records.filter((history) => {
         if (history.entityType === HistoryType.SURGERY) {
@@ -305,7 +289,7 @@ export default function HistoryTable() {
       })
       .flat();
   };
-  console.log(getResolvedHistoryData().length, 31);
+
   const getSortedHistoryData = (): HistoryData[] => {
     const resolvedHistoryData = getResolvedHistoryData();
     let sortedHistoryData = resolvedHistoryData;
