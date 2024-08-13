@@ -60,7 +60,7 @@ const SurgeryPercentage: React.FC = () => {
     }[] = [];
 
     uniqueSurgeryLocations.forEach((config) => {
-      const selectedSurgeryId = config?.surgeryType.id;
+      const selectedSurgeryId = config?.surgeryType?.id;
       let matchingDates: CalendarData[] = [];
 
       //  For default range 'All'
@@ -115,11 +115,11 @@ const SurgeryPercentage: React.FC = () => {
         (surgeryPercentage.length > 0 &&
           !surgeryPercentage.find(
             (s) =>
-              s.name.toLowerCase() == config?.surgeryType.name.toLowerCase(),
+              s.name.toLowerCase() == config?.surgeryType?.name.toLowerCase(),
           ))
       ) {
         surgeryPercentage.push({
-          name: config?.surgeryType.name,
+          name: config?.surgeryType?.name,
           id: selectedSurgeryId,
           percentage: percentage,
           booked: totalBookedSlots,
@@ -135,12 +135,12 @@ const SurgeryPercentage: React.FC = () => {
 
   const surgeryPercentageData = uniqueSurgeryLocations.map((config) => {
     return {
-      name: config?.surgeryType.name,
-      id: config?.surgeryType.id,
+      name: config?.surgeryType?.name,
+      id: config?.surgeryType?.id,
       percentages: ranges.map((range) => ({
         range: range,
         data: calculateSurgeryPercentageForRange(range).find(
-          (surgery) => surgery.id === config?.surgeryType.id,
+          (surgery) => surgery.id === config?.surgeryType?.id,
         ),
       })),
     };

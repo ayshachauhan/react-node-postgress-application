@@ -95,27 +95,36 @@ const UpsertCalendar: React.FC<{
         if (updatedData.length) {
           let shouldUpdate = true;
           for (const calendar of updatedData) {
-            const existingRecords = calendars.find(
-              (c) =>
-                c?.practice?.id === practiceId &&
-                c?.user?.id === userId &&
-                getDifferenceInDays(
-                  new Date(c.date),
-                  new Date(calendar.date),
-                ) === 0 &&
-                c?.surgeryType?.id === calendar?.selectedSurgery?.id &&
-                c.maxSlots === calendar?.maxSlots,
+            const initialCalendar = calendarData.find(
+              (c) => c.id === calendar.id,
             );
+            const surgeryTypeChanged =
+              initialCalendar &&
+              calendar.selectedSurgery?.id !==
+                initialCalendar.selectedSurgery?.id;
 
-            if (existingRecords) {
-              calendarMessageFunc({
-                messageType: MESSAGE_TYPE.ERROR,
-                message: `Slot already exists for this location for selected date ${formatDate(
-                  calendar.date,
-                )}`,
-              });
-              shouldUpdate = false;
-              break;
+            if (surgeryTypeChanged) {
+              const existingRecords = calendars.find(
+                (c) =>
+                  c?.practice?.id === practiceId &&
+                  c?.user?.id === userId &&
+                  getDifferenceInDays(
+                    new Date(c.date),
+                    new Date(calendar.date),
+                  ) === 0 &&
+                  c?.surgeryType?.id === calendar?.selectedSurgery?.id,
+              );
+
+              if (existingRecords) {
+                calendarMessageFunc({
+                  messageType: MESSAGE_TYPE.ERROR,
+                  message: `Slot already exists for this location for selected date ${formatDate(
+                    calendar.date,
+                  )}`,
+                });
+                shouldUpdate = false;
+                break;
+              }
             }
           }
           try {
