@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Param,
+  Query,
   Req,
   UseGuards,
   UseInterceptors,
@@ -10,6 +11,7 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { HistoryEntity } from '@packages/entities';
 import { USER_PERMISSIONS } from '@packages/entities/permission';
 import { PermissionGuard } from 'src/auth/userPermissions.guard';
+import { PAGINATION_LIMIT } from 'src/utils/constants';
 import { AuthGuard } from '../auth/auth.guard';
 import { SanitizedUser } from '../auth/types';
 import { practiceNotFoundInterceptor } from '../interceptors/practiceNotFoundInterceptor';
@@ -29,11 +31,15 @@ export class HistoryController {
   getAllHistory(
     @Param()
     params: GetHistoryParams,
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = PAGINATION_LIMIT,
     @Req() request: Request & { user: SanitizedUser },
   ): Promise<HistoryEntity[]> {
     return this.historyService.getAllHistoryLogs({
       practiceId: params.practiceId,
       userId: request.user.id,
+      page,
+      limit,
     });
   }
 

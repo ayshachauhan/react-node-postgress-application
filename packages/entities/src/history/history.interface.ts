@@ -30,4 +30,5 @@ export interface IHistory extends IBaseEntity {
   entityId: string;
   changes?: EntityChanges;
   ipAddress?: string;
+  entityData?: ISurgery | IEval | {};
 }

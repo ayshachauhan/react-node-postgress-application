@@ -17,6 +17,13 @@ export const findChangedValues = (oldObj, newObj): EntityChanges => {
   const changedValues: Partial<EntityChanges> = {};
 
   const findChanges = (oldVal, newVal, path = '') => {
+    if (oldVal instanceof Date && newVal instanceof Date) {
+      if (oldVal.getTime() !== newVal.getTime()) {
+        changedValues[path] = { oldValue: oldVal, newValue: newVal };
+      }
+      return;
+    }
+
     if (typeof oldVal !== 'object' && typeof newVal !== 'object') {
       if (oldVal !== newVal) {
         changedValues[path] = { oldValue: oldVal, newValue: newVal };
