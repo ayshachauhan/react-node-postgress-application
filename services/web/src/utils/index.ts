@@ -73,6 +73,13 @@ export function usDateFormatter(date: Date): string {
 
 export function formatColumnDate(dateString: Date) {
   const date = new Date(dateString);
+
+  // Check if the date is valid
+  if (isNaN(date.getTime())) {
+    console.error('Invalid date:', dateString);
+    return 'Invalid date';
+  }
+
   const formattedDate = new Intl.DateTimeFormat('en-US', {
     month: 'numeric',
     day: 'numeric',

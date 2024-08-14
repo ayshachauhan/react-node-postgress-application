@@ -134,6 +134,7 @@ export class EvalsService {
       .createQueryBuilder('eval')
       .where('eval.id = :id', { id })
       .withDeleted() // Include soft-deleted entities
+      .addSelect('eval.dateDeleted') // Explicitly select dateDeleted column
       .leftJoinAndSelect('eval.practiceHome', 'practiceHome')
       .leftJoinAndSelect('eval.surgeryConfiguration', 'surgeryConfiguration')
       .leftJoinAndSelect('eval.patient', 'patient')

@@ -55,13 +55,10 @@ export default function HistoryTable() {
   const practiceId = getPracticeId();
   // const doctorId = getUserId();
 
-  const { historyLogs, surgeries, surgerySuccessMessage, evals } =
-    useAppSelector((state) => ({
-      historyLogs: Object.values(state.history.entities),
-      evals: Object.values(state.evals.entities),
-      surgeries: Object.values(state.surgeries.entities),
-      surgerySuccessMessage: state.surgeries.successMessage,
-    }));
+  const { historyLogs, surgerySuccessMessage } = useAppSelector((state) => ({
+    historyLogs: Object.values(state.history.entities),
+    surgerySuccessMessage: state.surgeries.successMessage,
+  }));
   const fetchedPages = useRef(new Set<number>());
 
   const getHistory = async (currentPage: number) => {
@@ -239,18 +236,13 @@ export default function HistoryTable() {
     let filteredHistoryLogs = records as HistoryEntity[];
     if (patientId) {
       filteredHistoryLogs = records.filter((history) => {
-        if (history.entityType === HistoryType.SURGERY) {
-          const surgeryData = surgeries.find(
-            (surgery) => surgery.id === history.entityId,
-          );
-          if (surgeryData && surgeryData.patient.id === patientId) {
-            return true;
-          }
-        } else if (history.entityType === HistoryType.EVAL) {
-          const evalData = evals.find(
-            (evaluation) => evaluation.id === history.entityId,
-          );
-          if (evalData && evalData.patient.id === patientId) {
+        if (
+          (history.entityType === HistoryType.SURGERY ||
+            history.entityType === HistoryType.EVAL) &&
+          history.entityData
+        ) {
+          const entityData = history.entityData;
+          if ('patient' in entityData && entityData.patient?.id === patientId) {
             return true;
           }
         }
