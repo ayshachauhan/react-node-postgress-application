@@ -200,52 +200,35 @@ export default function HistoryTable() {
     entityData: ISurgery | IEval | undefined,
     history: IHistory,
   ): HistoryData[] => {
-    let resolvedData: HistoryData[];
-    if (entityData) {
-      const historyData = {
-        id: entityData.id,
-        date:
-          history.action === HistoryAction.CREATE
-            ? entityData.dateCreated
-            : history.action === HistoryAction.DELETE
-              ? (entityData.dateDeleted as Date)
-              : entityData.dateUpdated,
-        surgery: entityData.surgeryConfiguration.name,
-        firstName: entityData.patient.firstName,
-        lastName: entityData.patient.lastName,
-        patientId: entityData.patient.id,
-        mrn: entityData.patient.mrn,
-        user: history.user.fullName,
-        ip: history.ipAddress ?? '',
-        field: history.action === HistoryAction.CREATE ? 'Initial' : 'Delete',
-        action: history.action,
-        type: toPascalCase(history.entityType),
-      };
-
-      resolvedData = history.changes
-        ? resolvedHistoryChanges(historyData, history.changes)
-        : [historyData];
-
-      return resolvedData;
-    } else {
-      const historyData = {
-        id: history.entityId,
-        date: history.dateCreated,
-        surgery: 'Deleted Surgery',
-        firstName: 'N/A',
-        lastName: 'N/A',
-        patientId: 'N/A',
-        mrn: 123,
-        user: history.user.fullName,
-        ip: history.ipAddress ?? '',
-        field: history.action === HistoryAction.CREATE ? 'Initial' : 'Delete',
-        action: history.action,
-        type: toPascalCase(history.entityType),
-      };
-
-      resolvedData = [historyData];
-      return resolvedData;
+    if (!entityData) {
+      return [];
     }
+
+    const historyData = {
+      id: entityData.id,
+      date:
+        history.action === HistoryAction.CREATE
+          ? entityData.dateCreated
+          : history.action === HistoryAction.DELETE
+            ? (entityData.dateDeleted as Date)
+            : entityData.dateUpdated,
+      surgery: entityData.surgeryConfiguration.name,
+      firstName: entityData.patient.firstName,
+      lastName: entityData.patient.lastName,
+      patientId: entityData.patient.id,
+      mrn: entityData.patient.mrn,
+      user: history.user.fullName,
+      ip: history.ipAddress ?? '',
+      field: history.action === HistoryAction.CREATE ? 'Initial' : 'Delete',
+      action: history.action,
+      type: toPascalCase(history.entityType),
+    };
+
+    const resolvedData: HistoryData[] = history.changes
+      ? resolvedHistoryChanges(historyData, history.changes)
+      : [historyData];
+
+    return resolvedData;
   };
 
   /**

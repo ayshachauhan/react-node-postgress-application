@@ -61,10 +61,14 @@ export class HistoryService {
 
     for (const log of response) {
       if (log.entityType === HistoryType.SURGERY) {
-        const surgery = await this.surgeryService.getSurgeryById(log.entityId);
+        const surgery = await this.surgeryService.getSurgeryByIdIncludeDeleted(
+          log.entityId,
+        );
         log.entityData = surgery || undefined;
       } else if (log.entityType === HistoryType.EVAL) {
-        const evalData = await this.evalService.getEvalById(log.entityId);
+        const evalData = await this.evalService.getEvalByIdIncludeDeleted(
+          log.entityId,
+        );
         log.entityData = evalData || undefined;
       } else {
         log.entityData = undefined;

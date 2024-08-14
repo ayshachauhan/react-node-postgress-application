@@ -129,6 +129,22 @@ export class EvalsService {
     });
   }
 
+  async getEvalByIdIncludeDeleted(id: string): Promise<EvalEntity | null> {
+    return await this.evalRepository
+      .createQueryBuilder('eval')
+      .where('eval.id = :id', { id })
+      .withDeleted() // Include soft-deleted entities
+      .leftJoinAndSelect('eval.practiceHome', 'practiceHome')
+      .leftJoinAndSelect('eval.surgeryConfiguration', 'surgeryConfiguration')
+      .leftJoinAndSelect('eval.patient', 'patient')
+      .leftJoinAndSelect('eval.insuranceType', 'insuranceType')
+      .leftJoinAndSelect('patient.referrer', 'referrer')
+      .leftJoinAndSelect('eval.doctor', 'doctor')
+      .leftJoinAndSelect('eval.waitlist', 'waitlist')
+      .leftJoinAndSelect('eval.practice', 'evalPractice') //TO DO: make practice id not null in future
+      .getOne();
+  }
+
   async create({ practiceId, createEvalDto, user }): Promise<EvalEntity> {
     const newEval: EvalEntity = new EvalEntity();
 
