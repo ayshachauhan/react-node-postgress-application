@@ -565,8 +565,8 @@ const EditableRow: React.FC<EditableRowProps> = ({
                                           },
                                         };
 
-                                        let startHospPrice = 0,
-                                          startProfPrice = 0,
+                                        let //startHospPrice = 0,
+                                          //startProfPrice = 0,
                                           hospitalTotal = 0,
                                           profTotal = 0;
                                         if (
@@ -589,12 +589,12 @@ const EditableRow: React.FC<EditableRowProps> = ({
                                                 );
 
                                               if (objValue) {
-                                                startHospPrice += Number(
-                                                  objValue.hospitalPricing,
-                                                );
-                                                startProfPrice += Number(
-                                                  objValue.professionalPricing,
-                                                );
+                                                // startHospPrice += Number(
+                                                //   objValue.hospitalPricing,
+                                                // );
+                                                // startProfPrice += Number(
+                                                //   objValue.professionalPricing,
+                                                // );
                                                 hospitalTotal += Number(
                                                   objValue.hospitalPricing,
                                                 );
@@ -608,8 +608,8 @@ const EditableRow: React.FC<EditableRowProps> = ({
 
                                         setObj((prevState) => ({
                                           ...prevState,
-                                          initialHospitalPrice: `${startHospPrice}`,
-                                          initialProfPrice: `${startProfPrice}`,
+                                          //initialHospitalPrice: `${startHospPrice}`,
+                                          //initialProfPrice: `${startProfPrice}`,
                                           totalHospitalPricing: `${hospitalTotal}`,
                                           totalProfessionalPricing: `${profTotal}`,
                                         }));
