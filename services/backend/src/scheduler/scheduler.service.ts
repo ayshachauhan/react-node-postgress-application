@@ -42,6 +42,7 @@ export class SchedulerService {
     }
     this.isEmailLogCronRunning = true;
     try {
+      logger.info(`Starting scheduler to processing pending emails`);
       await this.emailLogRepository.manager.transaction(
         async (manager: EntityManager) => {
           const currentTime = new Date();
@@ -51,6 +52,7 @@ export class SchedulerService {
           );
 
           if (!emailsToSend.length) {
+            logger.info(`No emails found to be sent.`);
             return;
           }
 

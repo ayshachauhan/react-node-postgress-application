@@ -61,7 +61,8 @@ export class TransporterService {
     const text: string = options.text
       ? this.compileTemplate(options.text.toString(), data)
       : '';
-    await this.sendText(data.phoneNumber, text);
+    const sms = await this.sendText(data.phoneNumber, text);
+    logger.info(`SMS sending response status: ${sms}`);
 
     if (data.links && typeof data.links == 'string') {
       data.links = data.links.split(',');
@@ -70,16 +71,22 @@ export class TransporterService {
     // compile check
     const error = this.compileCheck(options, data);
     if (error) return error;
-    const result = await this.emailTransporter.sendMail({
-      ...options,
-      from: typeof smtpEmail == 'string' ? smtpEmail : '',
-      html: options.html ?? undefined,
-      subject: options.subject ?? undefined,
-    });
-
-    return {
-      message: result.response,
-    };
+    let message = '';
+    if (options?.to) {
+      const result = await this.emailTransporter.sendMail({
+        ...options,
+        from: typeof smtpEmail == 'string' ? smtpEmail : '',
+        html: options.html ?? undefined,
+        subject: options.subject ?? undefined,
+      });
+      message = result.response;
+    } else {
+      logger.error(`Email toAddress is missing ${JSON.stringify(options)}`);
+      if ((!options?.html || options?.html === '') && options?.text) {
+        message = sms ?? '';
+      }
+    }
+    return { message };
   }
 
   async sendSystemEmails(
@@ -108,23 +115,27 @@ export class TransporterService {
   }
 
   // TODO implement twillio to send sms
-  async sendText(to, message: string) {
+  async sendText(to, message: string): Promise<string | null> {
     const { twilioPhoneNumber, sendTextMessages } = this.getEnvVariables();
 
     if (sendTextMessages && message) {
       const cleanMessage = message.replace(/<\/?p[^>]*>/g, '\n');
       try {
-        await this.twilioClient.messages.create({
+        const smsResponse = await this.twilioClient.messages.create({
           body: cleanMessage,
           to: to.includes('+1') ? to : `+1${to}`,
           from: typeof twilioPhoneNumber == 'string' ? twilioPhoneNumber : '',
         });
-        console.log('SMS sent successfully!');
+        console.log(
+          `SMS sent successfully with status ${smsResponse?.status}!`,
+        );
+        return smsResponse?.status;
       } catch (error) {
         console.error('Error sending SMS:', error);
         throw error;
       }
     }
+    return null;
   }
 
   compileTemplate(text: string, data: Record<string, unknown>): string {
