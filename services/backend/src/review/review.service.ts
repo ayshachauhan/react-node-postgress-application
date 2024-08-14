@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { JwtService, TokenExpiredError } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
-import { PatientEntity } from '@packages/entities';
+import { ISurgery, PatientEntity } from '@packages/entities';
 import {
   PostUserReview,
   ReviewEntity,
@@ -19,6 +19,7 @@ import { EmailHandlerService } from 'src/emailHandler/emailHandler.service';
 import { PatientsService } from 'src/patients/patients.service';
 import { PracticesService } from 'src/practices/practices.service';
 import { SurgeryService } from 'src/surgery/surgery.service';
+import { toPascalCase } from 'src/utils';
 import { Repository } from 'typeorm';
 import logger from '../logger';
 import { SystemTemplates } from '../transporter/transporter.types';
@@ -68,9 +69,18 @@ export class ReviewService {
 
         // const frontendBaseUrl: string | undefined =
         //   this.practiceService.getFrontEndBaseUrl();
+        let surgery: ISurgery | null = null;
+        if (surgeryId) {
+          surgery = await this.surgeryService.getSurgeryById(surgeryId);
+        }
 
         let mailData: ReviewMailData = {
           reviewLink: '',
+          fname: reviewPatient?.firstName || '',
+          lname: reviewPatient?.lastName || '',
+          mrn: reviewPatient ? String(reviewPatient?.mrn) : '',
+          Laterality: surgery ? toPascalCase(surgery.bodyPart) : '',
+          surgery_type: surgery ? surgery.surgeryConfiguration.name : '',
           patientName: reviewPatient?.firstName || '',
           practiceName: '',
           to: reviewPatient ? reviewPatient?.email : '',
