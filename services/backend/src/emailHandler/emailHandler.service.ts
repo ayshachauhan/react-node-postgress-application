@@ -421,9 +421,10 @@ export class EmailHandlerService {
       surgeryConfiguration: { name },
       date,
       bodyPart,
-      practiceHome: { name: practiceHomeName },
       insuranceType,
     } = entity;
+
+    const practiceHomeName = entity?.practiceHome?.name ?? '';
 
     const { allCataractDates, allCaseType, allCases } =
       await this.findValueOfMailVariable(entity);

@@ -174,7 +174,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
         setEmail(row.patient.email);
         setPhoneNumber(row.patient.phoneNumber);
         setMrn(String(row.patient.mrn));
-        setPracticeHomeId(row.practiceHome.id);
+        setPracticeHomeId(row?.practiceHome?.id);
         setBodyPart(row.bodyPart);
         setSurgeryNameId(row.surgeryConfiguration.id);
         if (row.waitlist) setWaitlistId(row.waitlist.id);

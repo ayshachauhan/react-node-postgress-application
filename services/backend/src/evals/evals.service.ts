@@ -22,7 +22,7 @@ import { SystemTemplates } from 'src/transporter/transporter.types';
 import { UsersService } from 'src/users/users.service';
 import { formatHeaderDate } from 'src/utils';
 import { PAGINATION_LIMIT } from 'src/utils/constants';
-import { In, MoreThan, Repository } from 'typeorm';
+import { In, IsNull, MoreThan, Repository } from 'typeorm';
 import {
   EvalChangesKeyValues,
   findChangedValues,
@@ -69,13 +69,16 @@ export class EvalsService {
     limit: number = PAGINATION_LIMIT,
   ): Promise<EvalEntity[]> {
     const dbPracticeHomesByPractice =
-      await this.practiceHomesService.getPracticeHomesByPractice(practiceId);
+      await this.practiceHomesService.getPracticeHomesByPracticeIncludeDeleted(
+        practiceId,
+      );
     const skip = (page - 1) * limit;
     const dbEvalsByPractice = await this.evalRepository.find({
       where: {
-        practiceHome: {
-          id: In(dbPracticeHomesByPractice.map((ele) => ele.id)),
-        },
+        practiceHome: [
+          { id: In(dbPracticeHomesByPractice.map((ele) => ele.id)) },
+          { id: IsNull() },
+        ],
         practice: { id: practiceId }, //TO DO: make practice id not null in future
         doctor: { id: doctorId },
       },

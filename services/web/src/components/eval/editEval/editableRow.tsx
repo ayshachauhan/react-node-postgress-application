@@ -107,7 +107,7 @@ const EditableRow: React.FC<EditableRowProps> = ({
         mrn: evalInfo.patient.mrn,
         status: evalInfo.status,
         waitlistId: evalInfo.waitlistId,
-        practiceHomeId: evalInfo.practiceHome.id,
+        practiceHomeId: evalInfo?.practiceHome?.id,
       });
 
       setInsuranceTypeId(evalInfo?.insuranceType?.id);

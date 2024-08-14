@@ -73,9 +73,9 @@ interface SurgerySearchResult {
 }
 
 type WhereClause = {
-  practiceHome: {
-    id: ReturnType<typeof In>;
-  };
+  practiceHome: Array<
+    { id: ReturnType<typeof In> } | { id: ReturnType<typeof IsNull> }
+  >;
   practice: {
     id: string; //TO DO: make practice id not null in future
   };
@@ -136,7 +136,9 @@ export class SurgeryService {
   ): Promise<SurgerySearchResult> {
     const [userInfo, dbPracticeHomesByPractice] = await Promise.all([
       loggedInUserId ? this.userService.getUserById(loggedInUserId) : null,
-      this.practiceHomesService.getPracticeHomesByPractice(practiceId),
+      this.practiceHomesService.getPracticeHomesByPracticeIncludeDeleted(
+        practiceId,
+      ),
     ]);
     const skip = (page - 1) * limit;
     const userPermissions: PermissionEntity[] = userInfo
@@ -151,10 +153,13 @@ export class SurgeryService {
       option = 'Upcoming View';
     }
 
+    const validPracticeHomeIds = dbPracticeHomesByPractice.map((ele) => ele.id);
+
     const whereClause: WhereClause = {
-      practiceHome: {
-        id: In(dbPracticeHomesByPractice.map((ele) => ele.id)),
-      },
+      practiceHome: [
+        { id: In(validPracticeHomeIds) },
+        { id: IsNull() }, // Include surgeries where practiceHome is null
+      ],
       practice: { id: practiceId }, //TO DO: make practice id not null in future
     };
 
@@ -359,12 +364,17 @@ export class SurgeryService {
 
   async findAllSurgeries(practiceId: string, includeDelete: boolean = false) {
     const dbPracticeHomesByPractice =
-      await this.practiceHomesService.getPracticeHomesByPractice(practiceId);
+      await this.practiceHomesService.getPracticeHomesByPracticeIncludeDeleted(
+        practiceId,
+      );
+
+    const validPracticeHomeIds = dbPracticeHomesByPractice.map((ele) => ele.id);
 
     const whereClause: WhereClause = {
-      practiceHome: {
-        id: In(dbPracticeHomesByPractice.map((ele) => ele.id)),
-      },
+      practiceHome: [
+        { id: In(validPracticeHomeIds) },
+        { id: IsNull() }, // Include surgeries where practiceHome is null
+      ],
       practice: { id: practiceId }, //TO DO: make practice id not null in future
     };
 
@@ -717,11 +727,11 @@ export class SurgeryService {
       );
       if (surgeryResponse.affected) {
         const surgeryData = await this.getSurgeryById(surgeryId);
-        if (surgeryData && surgeryData.practiceHome.practice) {
+        if (surgeryData && surgeryData?.practiceHome?.practice) {
           await this.createReviewEntity([
             {
               reviewStatus: ReviewStatus.PENDING,
-              practice: surgeryData.practiceHome.practice,
+              practice: surgeryData?.practiceHome?.practice,
               patient: surgeryData.patient,
               surgeryId: surgeryData.id,
             },

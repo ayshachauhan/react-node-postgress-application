@@ -313,7 +313,7 @@ const EvalPage: React.FC = () => {
       phoneNumber: ele.patient.phoneNumber,
       date: usDateFormatter(ele.date),
       surgeryConfigName: ele.surgeryConfiguration.name,
-      practiceHomeName: ele.practiceHome.name,
+      practiceHomeName: ele?.practiceHome?.name,
       insuranceDetails: ele.insuranceDetails,
       insuranceTypeName: ele.insuranceType ? ele.insuranceType?.name : '',
       pcp: '',
@@ -322,7 +322,7 @@ const EvalPage: React.FC = () => {
       index: index + 1,
       id: ele.id,
       bodyPart: ele.bodyPart,
-      home: ele.practiceHome.name,
+      home: ele?.practiceHome?.name,
       status: ele.status,
       waitlist: ele.waitlist ? ele.waitlist.name : '',
       actionDate:

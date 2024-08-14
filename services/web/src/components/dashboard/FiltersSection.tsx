@@ -310,7 +310,7 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
         phoneNumber: ele.patient.phoneNumber,
         date: modifiedDate,
         surgery: ele.surgeryConfiguration.name,
-        home: ele.practiceHome.name,
+        home: ele?.practiceHome?.name,
         insuranceDetails: ele.insuranceDetails,
         insurance: ele.insuranceType ? ele.insuranceType?.name : '',
         pcp: '',
