@@ -112,7 +112,7 @@ const EditableRow: React.FC<EditableRowProps> = ({
         referrerId: surgeryInfo.patient.referrer
           ? toFullName(surgeryInfo.patient.referrer)
           : '',
-        practiceHomeId: surgeryInfo.practiceHome.id,
+        practiceHomeId: surgeryInfo?.practiceHome?.id,
         selectedConditionalOptions: surgeryInfo.selectedConditionalOptions,
       });
       setInsuranceTypeId(surgeryInfo?.insuranceType?.id);

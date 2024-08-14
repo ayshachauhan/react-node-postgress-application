@@ -20,6 +20,15 @@ export class PracticeHomesService {
     });
   }
 
+  async getPracticeHomesByPracticeIncludeDeleted(
+    practiceId: string,
+  ): Promise<PracticeHomesEntity[]> {
+    return this.practiceHomesRepository.find({
+      where: { practice: { id: practiceId } },
+      withDeleted: true,
+    });
+  }
+
   async getPracticeHomeById(
     id: string,
     practiceId: string,
