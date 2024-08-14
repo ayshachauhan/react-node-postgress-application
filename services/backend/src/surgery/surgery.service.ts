@@ -654,18 +654,23 @@ export class SurgeryService {
             bookedSlots: selectedCalendar?.bookedSlots + 1,
           });
         } else if (createSurgeryDto.surgeryStatus !== SurgeryStatus.COMPLETED) {
-          await this.calendarService.createCalendar(
-            {
-              practiceId: surgeryToUpdate?.practice?.id,
-              userId: surgeryToUpdate?.doctor?.id,
-            },
-            {
-              date: createSurgeryDto?.date,
-              bookedSlots: 1,
-              maxSlots: 14,
-              surgeryTypeId: surgeryConfigurationEntity.surgeryType.id,
-            },
-          );
+          if (
+            moment(createSurgeryDto.date).format('YYYY-MM-DD') !==
+            moment(surgeryToUpdate.date).format('YYYY-MM-DD')
+          ) {
+            await this.calendarService.createCalendar(
+              {
+                practiceId: surgeryToUpdate?.practice?.id,
+                userId: surgeryToUpdate?.doctor?.id,
+              },
+              {
+                date: createSurgeryDto?.date,
+                bookedSlots: 1,
+                maxSlots: 14,
+                surgeryTypeId: surgeryConfigurationEntity.surgeryType.id,
+              },
+            );
+          }
         }
       }
     } catch (ex) {

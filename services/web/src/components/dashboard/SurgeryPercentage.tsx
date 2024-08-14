@@ -50,6 +50,15 @@ const SurgeryPercentage: React.FC = () => {
     endDate: Date;
   }[] {
     const today = new Date();
+    const todayMidnight = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate(),
+      0,
+      0,
+      0,
+      0,
+    );
     const surgeryPercentage: {
       name: string;
       id: string;
@@ -71,9 +80,14 @@ const SurgeryPercentage: React.FC = () => {
       );
       if (rangeInMonths === 'all') {
         matchingDates = calendars
-          .filter(
-            (data: ICalendar) => data?.surgeryType?.id === selectedSurgeryId,
-          )
+          .filter((data: ICalendar) => {
+            const calendarDate = new Date(data.date);
+            return (
+              data?.surgeryType?.id === selectedSurgeryId &&
+              calendarDate.getTime() >= todayMidnight.getTime() &&
+              calendarDate.getTime() <= endDate.getTime()
+            );
+          })
           .map((data: ICalendar) => ({
             maxSlots: data.maxSlots,
             bookedSlots: data.bookedSlots,
@@ -83,14 +97,18 @@ const SurgeryPercentage: React.FC = () => {
           today.getFullYear(),
           today.getMonth() + rangeInMonths,
           today.getDate(),
+          23,
+          59,
+          59,
+          0,
         );
         matchingDates = calendars
           .filter((data: ICalendar) => {
             const calendarDate = new Date(data.date);
             return (
               data?.surgeryType?.id === selectedSurgeryId &&
-              calendarDate >= today &&
-              calendarDate <= endDate
+              calendarDate.getTime() >= todayMidnight.getTime() &&
+              calendarDate.getTime() <= endDate.getTime()
             );
           })
           .map((data: ICalendar) => ({
