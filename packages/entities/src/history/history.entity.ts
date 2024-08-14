@@ -1,6 +1,8 @@
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { BaseEntity } from '../base.entity';
+import { EvalEntity } from '../eval/eval.entity';
 import { PracticeEntity } from '../practice/practice.entity';
+import { SurgeryEntity } from '../surgery/surgery.entity';
 import { UserEntity } from '../user/user.entity';
 import {
   EntityChanges,
@@ -39,4 +41,6 @@ export class HistoryEntity extends BaseEntity implements IHistory {
 
   @Column({ type: 'varchar', nullable: true })
   ipAddress: string;
+
+  entityData?: {} | SurgeryEntity | EvalEntity | undefined;
 }
