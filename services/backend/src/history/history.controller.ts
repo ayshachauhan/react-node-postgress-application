@@ -33,6 +33,8 @@ export class HistoryController {
     params: GetHistoryParams,
     @Query('page') page: number = 1,
     @Query('limit') limit: number = PAGINATION_LIMIT,
+    @Query('patientId') patientId: string,
+    @Query('surgery') surgery: string,
     @Req() request: Request & { user: SanitizedUser },
   ): Promise<HistoryEntity[]> {
     return this.historyService.getAllHistoryLogs({
@@ -40,6 +42,8 @@ export class HistoryController {
       userId: request.user.id,
       page,
       limit,
+      patientId,
+      surgery,
     });
   }
 

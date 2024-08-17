@@ -21,6 +21,14 @@ export class HistoryEntity extends BaseEntity implements IHistory {
   @JoinColumn({ name: 'userId' })
   user: UserEntity;
 
+  @ManyToOne(() => SurgeryEntity)
+  @JoinColumn({ name: 'entityId' })
+  surgery: SurgeryEntity;
+
+  @ManyToOne(() => EvalEntity)
+  @JoinColumn({ name: 'entityId' })
+  eval: EvalEntity;
+
   // ID of the entity that this history entry is related to
   @Column({ type: 'uuid' })
   entityId: string;

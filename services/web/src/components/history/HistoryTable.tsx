@@ -48,8 +48,8 @@ export default function HistoryTable() {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [records, setRecords] = useState<HistoryEntity[]>([]);
-  const patientId = searchParams.get('id');
-  const surgery = searchParams.get('surgery');
+  const patientId = searchParams.get('id') || undefined;
+  const surgery = searchParams.get('surgery') || undefined;
   const showCaseHistory = !!patientId;
 
   const practiceId = getPracticeId();
@@ -79,6 +79,8 @@ export default function HistoryTable() {
           practiceId,
           page: currentPage,
           limit: PAGINATION_LIMIT,
+          patientId, // Pass patientId
+          surgery, // Pass surgery
         }),
       );
 
@@ -86,17 +88,17 @@ export default function HistoryTable() {
         const data = resultAction.payload as HistoryEntity[];
 
         if (Array.isArray(data)) {
+          const filteredData = data;
+
           setRecords((prevRecords) => {
-            const newRecords = data.filter(
+            const newRecords = filteredData.filter(
               (record) => !prevRecords.some((prev) => prev.id === record.id),
             );
             return [...prevRecords, ...newRecords];
           });
 
-          if (data.length === PAGINATION_LIMIT) {
-            setHasMore(true);
-          } else {
-            setHasMore(false);
+          if (filteredData.length < PAGINATION_LIMIT) {
+            setHasMore(false); // No more records
           }
         } else {
           setHasMore(false);
@@ -233,31 +235,17 @@ export default function HistoryTable() {
    * @returns resolved history data for surgery and eval
    */
   const getResolvedHistoryData = (): HistoryData[] => {
-    let filteredHistoryLogs = records as HistoryEntity[];
-    if (patientId) {
-      filteredHistoryLogs = records.filter((history) => {
-        if (
-          (history.entityType === HistoryType.SURGERY ||
-            history.entityType === HistoryType.EVAL) &&
-          history.entityData
-        ) {
-          const entityData = history.entityData;
-          if ('patient' in entityData && entityData.patient?.id === patientId) {
-            return true;
-          }
-        }
-        return false;
-      });
-    }
+    const filteredHistoryLogs = records as HistoryEntity[];
 
     return filteredHistoryLogs
       .map((history: HistoryEntity) => {
-        const entityData = history.entityData;
+        const surgeryData = history.surgery;
+        const evalData = history.eval;
 
         if (history.entityType === HistoryType.SURGERY) {
-          return getTransformedHistoryData(entityData as ISurgery, history);
+          return getTransformedHistoryData(surgeryData as ISurgery, history);
         } else if (history.entityType === HistoryType.EVAL) {
-          return getTransformedHistoryData(entityData as IEval, history);
+          return getTransformedHistoryData(evalData as IEval, history);
         }
 
         return [];
@@ -267,13 +255,7 @@ export default function HistoryTable() {
 
   const getSortedHistoryData = (): HistoryData[] => {
     const resolvedHistoryData = getResolvedHistoryData();
-    let sortedHistoryData = resolvedHistoryData;
-    if (surgery) {
-      sortedHistoryData = sortedHistoryData.filter(
-        (ele) => ele.surgery === surgery,
-      );
-    }
-    return sortedHistoryData;
+    return resolvedHistoryData;
   };
   return (
     <div className="my-4">

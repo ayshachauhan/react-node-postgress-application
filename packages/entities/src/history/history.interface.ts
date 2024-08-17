@@ -25,10 +25,11 @@ export type EntityChanges = Record<keyof ISurgery | keyof IEval, ChangedValue>;
 export interface IHistory extends IBaseEntity {
   practice: IPractice;
   user: ISanitizedUser;
+  surgery: ISurgery;
+  eval: IEval;
   entityType: HistoryType;
   action: HistoryAction;
   entityId: string;
   changes?: EntityChanges;
   ipAddress?: string;
-  entityData?: ISurgery | IEval | {};
 }

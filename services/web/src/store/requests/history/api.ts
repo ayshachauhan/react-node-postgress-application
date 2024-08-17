@@ -6,7 +6,7 @@ import { GetHistoryPayload, HistoryPayload } from './types';
 const apiClient = new ApiService();
 
 export const getUrlPath = (payload: HistoryPayload) => {
-  return `/practices/${payload.practiceId}/history?page=${payload?.page}&limit=${payload?.limit}`;
+  return `/practices/${payload.practiceId}/history?page=${payload?.page}&limit=${payload?.limit}&patientId=${payload?.patientId}&surgery=${payload?.surgery}`;
 };
 
 /**

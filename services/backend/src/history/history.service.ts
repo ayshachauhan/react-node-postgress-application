@@ -5,11 +5,9 @@ import {
   forwardRef,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { HistoryEntity, HistoryType, UserEntity } from '@packages/entities';
-import { EvalsService } from 'src/evals/evals.service';
-import { SurgeryService } from 'src/surgery/surgery.service';
+import { HistoryEntity, UserEntity } from '@packages/entities';
 import { PAGINATION_LIMIT } from 'src/utils/constants';
-import { Repository } from 'typeorm';
+import { Brackets, Repository } from 'typeorm';
 import { PracticesService } from '../practices/practices.service';
 import {
   CreateHistoryParams,
@@ -24,10 +22,6 @@ export class HistoryService {
     private readonly historyRepo: Repository<HistoryEntity>,
     @Inject(forwardRef(() => PracticesService))
     private practiceService: PracticesService,
-    @Inject(forwardRef(() => SurgeryService))
-    private surgeryService: SurgeryService,
-    @Inject(forwardRef(() => EvalsService))
-    private evalService: EvalsService,
   ) {}
 
   /**
@@ -40,40 +34,70 @@ export class HistoryService {
     userId,
     page,
     limit = PAGINATION_LIMIT,
+    patientId,
+    surgery,
   }: GetHistoryParams & {
     userId: string;
     page: number;
     limit: number;
+    patientId?: string;
+    surgery?: string;
   }): Promise<HistoryEntity[]> {
     const skip = (page - 1) * limit;
-    const response = await this.historyRepo.find({
-      where: {
-        practice: { id: practiceId },
-        user: { id: userId },
-      },
-      relations: ['practice', 'user'],
-      order: {
-        dateCreated: 'DESC',
-      },
-      skip,
-      take: limit,
-    });
 
-    for (const log of response) {
-      if (log.entityType === HistoryType.SURGERY) {
-        const surgery = await this.surgeryService.getSurgeryByIdIncludeDeleted(
-          log.entityId,
-        );
-        log.entityData = surgery || undefined;
-      } else if (log.entityType === HistoryType.EVAL) {
-        const evalData = await this.evalService.getEvalByIdIncludeDeleted(
-          log.entityId,
-        );
-        log.entityData = evalData || undefined;
-      } else {
-        log.entityData = undefined;
-      }
+    const queryBuilder = this.historyRepo
+      .createQueryBuilder('history')
+      .where('history.practiceId = :practiceId', { practiceId })
+      .andWhere('history.userId = :userId', { userId })
+      .withDeleted()
+      .addSelect('eval.dateDeleted') // Explicitly select dateDeleted column
+      .addSelect('surgery.dateDeleted') // Explicitly select dateDeleted column
+      .leftJoinAndSelect('history.practice', 'practice')
+      .leftJoinAndSelect('history.user', 'user')
+      .leftJoinAndSelect(
+        'history.surgery',
+        'surgery',
+        'surgery.dateDeleted IS NULL OR surgery.dateDeleted IS NOT NULL',
+      )
+      .leftJoinAndSelect(
+        'history.eval',
+        'eval',
+        'eval.dateDeleted IS NULL OR eval.dateDeleted IS NOT NULL',
+      )
+      .leftJoinAndSelect('surgery.patient', 'surgeryPatient')
+      .leftJoinAndSelect('surgery.surgeryConfiguration', 'surgeryConfig')
+      .leftJoinAndSelect('eval.surgeryConfiguration', 'evalSurgeryConfig')
+      .leftJoinAndSelect('eval.patient', 'evalPatient')
+      .orderBy('history.dateCreated', 'DESC')
+      .skip(skip)
+      .take(limit);
+
+    const surgeryFilter = surgery === 'undefined' ? undefined : surgery;
+    const patientFilter = patientId === 'undefined' ? undefined : patientId;
+
+    if (patientFilter && patientId) {
+      queryBuilder.andWhere(
+        new Brackets((qb) => {
+          qb.where('surgeryPatient.id = :patientId', { patientId }).orWhere(
+            'evalPatient.id = :patientId',
+            { patientId },
+          );
+        }),
+      );
     }
+
+    if (surgeryFilter && surgery) {
+      queryBuilder.andWhere(
+        new Brackets((qb) => {
+          qb.where('surgeryConfig.name = :surgery', { surgery }).orWhere(
+            'evalSurgeryConfig.name = :surgery',
+            { surgery },
+          );
+        }),
+      );
+    }
+
+    const response = await queryBuilder.getMany();
 
     return response;
   }
