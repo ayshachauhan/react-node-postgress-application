@@ -53,6 +53,7 @@ export default function HistoryTable() {
   const showCaseHistory = !!patientId;
 
   const practiceId = getPracticeId();
+  const [paginationReset, setPaginationReset] = useState(false);
   // const doctorId = getUserId();
 
   const { historyLogs, surgerySuccessMessage } = useAppSelector((state) => ({
@@ -122,22 +123,28 @@ export default function HistoryTable() {
   }, []);
 
   useEffect(() => {
-    dispatch(clearData());
-  }, [dispatch, practiceId]);
+    if (practiceId) {
+      dispatch(clearData());
+      resetPagination();
+      setPaginationReset(true);
+    }
+  }, [dispatch, practiceId, resetPagination]);
 
   useEffect(() => {
     dispatch(fetchLoggedInUser());
   }, [dispatch]);
 
   useEffect(() => {
-    if (practiceId) {
-      resetPagination();
+    if (practiceId && paginationReset) {
+      getHistory(1).then(() => setPaginationReset(false));
     }
-  }, [practiceId]);
+  }, [practiceId, paginationReset, getHistory]);
 
   useEffect(() => {
-    getHistory(page);
-  }, [page]);
+    if (practiceId && page > 1) {
+      getHistory(page);
+    }
+  }, [practiceId, page, getHistory]);
 
   useEffect(() => {
     const fetchAndReset = async () => {
