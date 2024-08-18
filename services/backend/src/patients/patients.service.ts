@@ -40,6 +40,7 @@ export class PatientsService {
     }
 
     let referrerEntity = new ReferrersEntity();
+    let pcpReferrerEntity = new ReferrersEntity();
     if (createPatientDto.referrerId) {
       try {
         uuidv4(createPatientDto.referrerId);
@@ -52,6 +53,25 @@ export class PatientsService {
           practiceEntity.id,
           {
             firstName: createPatientDto.referrerId,
+            referrerType: ReferrerType.PCP,
+            verified: false,
+          },
+        );
+      }
+    }
+
+    if (createPatientDto.pcp) {
+      try {
+        uuidv4(createPatientDto.pcp); // Validate the pcp
+        pcpReferrerEntity = await this.referrerService.getReferrerById(
+          practiceEntity.id,
+          createPatientDto.pcp,
+        );
+      } catch (error) {
+        pcpReferrerEntity = await this.referrerService.createReferrer(
+          practiceEntity.id,
+          {
+            firstName: createPatientDto.pcp,
             referrerType: ReferrerType.PCP,
             verified: false,
           },
@@ -78,10 +98,19 @@ export class PatientsService {
           phoneNumber: createPatientDto.phoneNumber,
         });
       }
-      if (referrerEntity.dateCreated) {
-        await this.patientRepository.update(mrnCheck.id, {
-          referrer: referrerEntity,
-        });
+
+      if (referrerEntity.dateCreated || pcpReferrerEntity.dateCreated) {
+        const updateData: Partial<PatientEntity> = {};
+
+        if (pcpReferrerEntity && pcpReferrerEntity.dateCreated) {
+          updateData.pcp = pcpReferrerEntity;
+        }
+
+        if (referrerEntity && referrerEntity.dateCreated) {
+          updateData.referrer = referrerEntity;
+        }
+
+        await this.patientRepository.update(mrnCheck.id, updateData);
 
         const updatedPatient = await this.getPatientsByMrn(
           practiceEntity.id,
@@ -100,7 +129,8 @@ export class PatientsService {
       const newPatient = this.patientRepository.create({
         practice: practiceEntity,
         ...createPatientDto,
-        referrer: referrerEntity,
+        referrer: referrerEntity.dateCreated ? referrerEntity : undefined,
+        pcp: pcpReferrerEntity.dateCreated ? pcpReferrerEntity : undefined,
       });
       return await this.patientRepository.save(newPatient);
     }
