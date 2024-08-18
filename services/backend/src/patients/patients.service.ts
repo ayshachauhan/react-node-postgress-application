@@ -151,6 +151,15 @@ export class PatientsService {
         data.referrer = refererEntity;
       }
 
+      if (data.pcp) {
+        const refererEntity = await this.referrerService.getReferrerById(
+          practiceId,
+          data.pcp,
+        );
+
+        delete data.pcp;
+        data.pcp = refererEntity;
+      }
       const patientEntity = await this.patientRepository.findOne({
         where: { id, practice: { id: practiceId } },
       });
@@ -163,6 +172,7 @@ export class PatientsService {
           phoneNumber: data.phoneNumber,
           mrn: data.mrn,
           referrer: data.referrer ? data.referrer : null,
+          pcp: data.pcp ? data.pcp : null,
         });
 
         await this.emailHandlerService.updateEmailLogsByPatientMrn(
