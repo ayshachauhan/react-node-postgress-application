@@ -4,6 +4,7 @@ import { USER_PERMISSIONS } from '@packages/entities/permission';
 import Button from '@root/components/Button';
 import {
   AddIcon,
+  CopyIcon,
   DeleteIcon,
   EditIcon,
   HomeIcon,
@@ -194,6 +195,18 @@ const EvalPage: React.FC = () => {
   const handleRecordAdded = async () => {
     resetPagination();
     await getEvalsList(1);
+  };
+
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async (textToCopy: string) => {
+    try {
+      await navigator.clipboard.writeText(textToCopy);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000); // Reset copied status after 2 seconds
+    } catch (err) {
+      console.error('Failed to copy text: ', err);
+    }
   };
 
   const loadMore = useCallback(() => {
@@ -488,8 +501,14 @@ const EvalPage: React.FC = () => {
                       <td rowSpan={1} className="">
                         {data.firstName}
                       </td>
-                      <td rowSpan={1} className="">
+                      <td rowSpan={1} className="flex">
                         {data.mrn}
+                        <CopyIcon
+                          style={{ marginLeft: '4px', cursor: 'pointer' }}
+                          onClick={() => handleCopy(String(data.mrn))}
+                          size={13}
+                          title={copied ? 'Copied!' : 'Copy'}
+                        />
                       </td>
                       <td
                         rowSpan={1}
