@@ -314,7 +314,7 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
         home: ele?.practiceHome?.name,
         insuranceDetails: ele.insuranceDetails,
         insurance: ele.insuranceType ? ele.insuranceType?.name : '',
-        pcp: '',
+        pcp: ele.patient.pcp ? toFullName(ele.patient.pcp) : '',
         referrer: ele.patient.referrer ? toFullName(ele.patient.referrer) : '',
         notes: ele.notes ? ele.notes : '',
         bodyPart: ele.bodyPart,
@@ -336,6 +336,7 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
         waitlist: ele?.waitlist?.name,
         referrerVerified:
           ele.patient.referrer && ele.patient.referrer.verified ? true : false,
+        pcpVerified: ele.patient.pcp && ele.patient.pcp.verified ? true : false,
       };
 
       const optionArr = Object.keys(ele.surgeryConfiguration.options);
@@ -473,7 +474,7 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
       try {
         await navigator.clipboard.writeText(textToCopy);
         setCopied(true);
-        setTimeout(() => setCopied(false), 2000); // Reset copied status after 2 seconds
+        setTimeout(() => setCopied(false), 3000); // Reset copied status after 3 seconds
       } catch (err) {
         console.error('Failed to copy text: ', err);
       }
@@ -1686,6 +1687,50 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
                                                         >
                                                           {row.referrer}&nbsp;
                                                           {row.referrerVerified && (
+                                                            <Checkbox
+                                                              checked={true}
+                                                              overrides={{
+                                                                Checkmark: {
+                                                                  style: ({
+                                                                    $checked,
+                                                                  }) => ({
+                                                                    backgroundColor:
+                                                                      $checked
+                                                                        ? 'rgba(34, 197, 94, 1)'
+                                                                        : 'white',
+                                                                    borderColor:
+                                                                      $checked
+                                                                        ? 'rgba(34, 197, 94, 1)'
+                                                                        : 'rgba(113, 113, 122, 1)',
+                                                                    width:
+                                                                      '12px',
+                                                                    height:
+                                                                      '12px',
+                                                                    borderRadius:
+                                                                      '2px',
+                                                                    borderWidth:
+                                                                      '2px',
+                                                                  }),
+                                                                },
+                                                              }}
+                                                            />
+                                                          )}
+                                                        </span>
+                                                      </span>
+                                                      <span
+                                                        style={{
+                                                          display: 'flex',
+                                                        }}
+                                                      >
+                                                        PCP:&nbsp;
+                                                        <span
+                                                          style={{
+                                                            display: 'flex',
+                                                            alignItems: 'start',
+                                                          }}
+                                                        >
+                                                          {row.pcp}&nbsp;
+                                                          {row.pcpVerified && (
                                                             <Checkbox
                                                               checked={true}
                                                               overrides={{

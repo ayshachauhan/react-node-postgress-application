@@ -203,7 +203,7 @@ const EvalPage: React.FC = () => {
     try {
       await navigator.clipboard.writeText(textToCopy);
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000); // Reset copied status after 2 seconds
+      setTimeout(() => setCopied(false), 3000); // Reset copied status after 3 seconds
     } catch (err) {
       console.error('Failed to copy text: ', err);
     }
@@ -503,14 +503,23 @@ const EvalPage: React.FC = () => {
                       <td rowSpan={1} className="">
                         {data.firstName}
                       </td>
-                      <td rowSpan={1} className="flex">
-                        {data.mrn}
-                        <CopyIcon
-                          style={{ marginLeft: '4px', cursor: 'pointer' }}
-                          onClick={() => handleCopy(String(data.mrn))}
-                          size={13}
-                          title={copied ? 'Copied!' : 'Copy'}
-                        />
+                      <td rowSpan={1} className="">
+                        <div>
+                          <div className="flex">
+                            <div>{data.mrn}</div>
+                            <div>
+                              <CopyIcon
+                                style={{
+                                  marginRight: '4px',
+                                  cursor: 'pointer',
+                                }}
+                                onClick={() => handleCopy(String(data.mrn))}
+                                size={13}
+                                title={copied ? 'Copied!' : 'Copy'}
+                              />
+                            </div>
+                          </div>
+                        </div>
                       </td>
                       <td
                         rowSpan={1}

@@ -117,9 +117,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
     new Date(),
   );
   const [pcp, setPcp] = useState('');
-  const [isPCPSameAsReferer, setIsPCPSameAsReferer] = useState<boolean | null>(
-    null,
-  );
+  const [isPCPSameAsReferer, setIsPCPSameAsReferer] = useState<boolean>(false);
   const [notes, setNotes] = useState('');
   const [surgeryNameId, setSurgeryNameId] = useState<string>('');
   const [surgeryCataractNameId, setSurgeryCataractNameId] =
@@ -145,7 +143,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
       ],
     },
   ]);
-  console.log(pcpList);
+
   const handleCheckboxChange = (index: number) => {
     surgeryDropdownOptions[index].checked =
       !surgeryDropdownOptions[index].checked;
@@ -184,7 +182,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
         setSurgeryNameId(row.surgeryConfiguration.id);
         if (row.waitlist) setWaitlistId(row.waitlist.id);
         if (row.patient.referrer) setReferrerId(row.patient.referrer.id);
-        if (row.patient.pcp) setReferrerId(row.patient.pcp);
+        if (row.patient.pcp) setPcp(row.patient.pcp.id);
         if (row.insuranceType) setInsuranceTypeId(row.insuranceType.id);
         if (row.insuranceDetails) setInsuranceDetails(row.insuranceDetails);
       }
@@ -206,7 +204,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
         setEmail(patientCheck.email);
         setPhoneNumber(patientCheck.phoneNumber);
         setReferrerId(patientCheck.referrer ? patientCheck?.referrer.id : '');
-        setPcp(patientCheck.pcp ? patientCheck?.pcp : '');
+        setPcp(patientCheck?.pcp?.id ? patientCheck.pcp.id : '');
       } else {
         setFirstName('');
         setLastName('');
@@ -320,6 +318,9 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
 
   const handleReferrerChange = ({ value }) => {
     setReferrerId(value[0] ? value[0].id : null);
+    if (isPCPSameAsReferer) {
+      setPcp(value[0] ? value[0].id : null);
+    }
   };
 
   const handlePCPChange = ({ value }) => {
@@ -369,6 +370,9 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
       const newValue: string = target.value;
       setReferrerId(newValue);
       setIsNewReferrer(true);
+      if (isPCPSameAsReferer) {
+        setPcp(newValue ? newValue : '');
+      }
     }
   };
 
@@ -376,7 +380,6 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
     if (target.value) {
       const newValue: string = target.value;
       setPcp(newValue);
-      //setIsNewReferrer(true);
     }
   };
 
@@ -769,6 +772,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
             </div>
             <div className="space-y-1 flex-1">
               <Checkbox
+                checked={isPCPSameAsReferer}
                 overrides={{
                   Checkmark: {
                     style: ({ $checked }) => ({
@@ -782,7 +786,6 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
                     }),
                   },
                 }}
-                checked={isPCPSameAsReferer}
                 onChange={handlePCPCheckChange}
               >
                 <label htmlFor="pcp" className="text-black text-xs">
