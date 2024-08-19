@@ -58,6 +58,7 @@ const EditableRow: React.FC<EditableRowProps> = ({
     userInfo,
     insuranceTypesList,
     referrersList,
+    pcpList,
     practiceHomesList,
   } = useAppSelector((state) => ({
     selectedMonth: state.surgeries.surgeryFilters.selectedMonth,
@@ -69,6 +70,7 @@ const EditableRow: React.FC<EditableRowProps> = ({
     userInfo: state.auth.user,
     insuranceTypesList: Object.values(state.insuranceTypes.entities),
     referrersList: Object.values(state.referrers.entities),
+    pcpList: Object.values(state.referrers.entities),
     practiceHomesList: Object.values(state.practiceHomes.entities),
   }));
 
@@ -85,6 +87,7 @@ const EditableRow: React.FC<EditableRowProps> = ({
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth() + 1);
   const [insuranceTypeId, setInsuranceTypeId] = useState<string>('');
   const [referrerId, setReferrerId] = useState<string>('');
+  const [pcp, setPcp] = useState<string>('');
   const [waitlistId, setWaitlistId] = useState<string>('');
 
   const doctorId: string | null = getUserId();
@@ -112,11 +115,13 @@ const EditableRow: React.FC<EditableRowProps> = ({
         referrerId: surgeryInfo.patient.referrer
           ? toFullName(surgeryInfo.patient.referrer)
           : '',
+        pcp: surgeryInfo.patient.pcp ? toFullName(surgeryInfo.patient.pcp) : '',
         practiceHomeId: surgeryInfo?.practiceHome?.id,
         selectedConditionalOptions: surgeryInfo.selectedConditionalOptions,
       });
       setInsuranceTypeId(surgeryInfo?.insuranceType?.id);
       setReferrerId(surgeryInfo.patient?.referrer?.id);
+      setPcp(surgeryInfo.patient?.pcp?.id);
       setWaitlistId(surgeryInfo?.waitlist?.id);
     }
   }, [surgeryInfo.id, surgeryInfo]);
@@ -155,6 +160,12 @@ const EditableRow: React.FC<EditableRowProps> = ({
     }
   };
 
+  const handlePcpChange = ({ value }) => {
+    if (value.length > 0) {
+      setPcp(value[0] ? value[0].id : null);
+    }
+  };
+
   const handleWaitlistChange = ({ value }) => {
     setWaitlistId(value[0] ? value[0].id : null);
   };
@@ -171,6 +182,7 @@ const EditableRow: React.FC<EditableRowProps> = ({
         insuranceTypeId,
         referrerId,
         waitlistId,
+        pcp,
       };
       try {
         setIsUpdateLoading(true);
@@ -217,6 +229,7 @@ const EditableRow: React.FC<EditableRowProps> = ({
         totalHospitalPricing: '0',
         totalProfessionalPricing: '0',
         referrerId: '',
+        pcp: '',
       });
     }
     handleUpdateClick(rowId); // Close the specific row after updating
@@ -268,6 +281,8 @@ const EditableRow: React.FC<EditableRowProps> = ({
     const selectedReferrer = referrerId
       ? referrersList.find((ele) => ele.id === referrerId)
       : null;
+
+    const selectedPcp = pcp ? pcpList.find((ele) => ele.id === pcp) : null;
 
     return (
       <>
@@ -989,6 +1004,42 @@ const EditableRow: React.FC<EditableRowProps> = ({
                     : []
                 }
                 onChange={handleReferrerChange}
+                size={SIZE.mini}
+                overrides={{
+                  ControlContainer: {
+                    style: {
+                      backgroundColor: 'rgba(250, 250, 250, 1)',
+                      border: 'none',
+                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                      color: '#52525B',
+                    },
+                  },
+
+                  ClearIcon: {
+                    component: () => null,
+                  },
+                }}
+              />
+            </div>
+            <div className="text-black py-0.5 px-1 w-40 text-center">
+              <Select
+                backspaceClearsInputValue={true}
+                escapeClearsValue={false}
+                options={pcpList.map((ele) => ({
+                  id: ele.id,
+                  label: CustomOptionWithTick(ele),
+                }))}
+                value={
+                  selectedPcp
+                    ? [
+                        {
+                          label: toFullName(selectedPcp),
+                          id: selectedPcp.id,
+                        },
+                      ]
+                    : []
+                }
+                onChange={handlePcpChange}
                 size={SIZE.mini}
                 overrides={{
                   ControlContainer: {

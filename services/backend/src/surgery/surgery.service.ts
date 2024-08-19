@@ -176,6 +176,7 @@ export class SurgeryService {
         'patient',
         'insuranceType',
         'patient.referrer',
+        'patient.pcp',
         'doctor',
         'waitlist',
         'practice', //TO DO: make practice id not null in future
@@ -413,6 +414,7 @@ export class SurgeryService {
         'patient',
         'insuranceType',
         'patient.referrer',
+        'patient.pcp',
         'doctor',
         'waitlist',
         'practice', //TO DO: make practice id not null in future

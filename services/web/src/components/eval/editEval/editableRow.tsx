@@ -38,6 +38,7 @@ const EditableRow: React.FC<EditableRowProps> = ({
   const [obj, setObj] = useState<Partial<UpdateEValInterface>>({});
   const [insuranceTypeId, setInsuranceTypeId] = useState<string>('');
   const [referrerId, setReferrerId] = useState<string>('');
+  const [pcp, setPCP] = useState<string>('');
   const [waitlistId, setWaitlistId] = useState<string>('');
 
   const {
@@ -112,6 +113,7 @@ const EditableRow: React.FC<EditableRowProps> = ({
 
       setInsuranceTypeId(evalInfo?.insuranceType?.id);
       setReferrerId(evalInfo.patient?.referrer?.id);
+      setPCP(evalInfo.patient?.pcp?.id);
       setWaitlistId(evalInfo?.waitlist?.id);
     }
   }, [evalInfo.id, evalInfo]);
@@ -130,6 +132,10 @@ const EditableRow: React.FC<EditableRowProps> = ({
 
     const handleReferrerChange = ({ value }) => {
       setReferrerId(value[0] ? value[0].id : null);
+    };
+
+    const handlePCPChange = ({ value }) => {
+      setPCP(value[0] ? value[0].id : null);
     };
 
     const handleQuickDateChange = (offset: number) => {
@@ -180,6 +186,7 @@ const EditableRow: React.FC<EditableRowProps> = ({
           ...obj,
           insuranceTypeId,
           referrerId,
+          pcp,
           waitlistId,
         };
         await withLoader(async () => {
@@ -189,6 +196,7 @@ const EditableRow: React.FC<EditableRowProps> = ({
         setSelectedAction(null);
         setInsuranceTypeId('');
         setReferrerId('');
+        setPCP('');
         setWaitlistId('');
         setObj({
           insuranceTypeId: '',
@@ -512,6 +520,33 @@ const EditableRow: React.FC<EditableRowProps> = ({
                   referrerId ? [{ label: referrerId, id: referrerId }] : []
                 }
                 onChange={handleReferrerChange}
+                size={SIZE.mini}
+                overrides={{
+                  ControlContainer: {
+                    style: {
+                      backgroundColor: 'rgba(250, 250, 250, 1)',
+                      border: 'none',
+                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                      color: '#52525B',
+                    },
+                  },
+
+                  ClearIcon: {
+                    component: () => null,
+                  },
+                }}
+              />
+            </div>
+            <div className="">
+              <Select
+                backspaceClearsInputValue={true}
+                escapeClearsValue={false}
+                options={referrersList.map((ele) => ({
+                  id: ele.id,
+                  label: CustomOptionWithTick(ele),
+                }))}
+                value={pcp ? [{ label: pcp, id: pcp }] : []}
+                onChange={handlePCPChange}
                 size={SIZE.mini}
                 overrides={{
                   ControlContainer: {
