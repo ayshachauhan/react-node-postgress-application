@@ -252,6 +252,7 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
         <CopyIcon
           style={{ marginRight: '4px', cursor: 'pointer' }}
           onClick={() => handleCloneClick(row)}
+          title="Copy"
         />
         <DisplayIcon
           style={{ marginRight: '4px', cursor: 'pointer' }}
@@ -465,6 +466,19 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
       resetPagination();
       dispatch(setSelectedMonth(value));
     };
+
+    const [copied, setCopied] = useState(false);
+
+    const handleCopy = async (textToCopy: string) => {
+      try {
+        await navigator.clipboard.writeText(textToCopy);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000); // Reset copied status after 2 seconds
+      } catch (err) {
+        console.error('Failed to copy text: ', err);
+      }
+    };
+
     const sendReqest = async (id: string, patientEmail: string) => {
       if (practiceId && id) {
         try {
@@ -1221,19 +1235,65 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
                                                   <td rowSpan={1} className="">
                                                     <div>
                                                       {viewHistory ? (
-                                                        <div
-                                                          onClick={() =>
-                                                            handleViewHistory(
-                                                              row.patientId,
-                                                              row.surgery,
-                                                            )
-                                                          }
-                                                          className="cursor-pointer underline"
-                                                        >
-                                                          {row.mrn}
+                                                        <div className="flex">
+                                                          <div
+                                                            onClick={() =>
+                                                              handleViewHistory(
+                                                                row.patientId,
+                                                                row.surgery,
+                                                              )
+                                                            }
+                                                            className="cursor-pointer underline"
+                                                          >
+                                                            {row.mrn}
+                                                          </div>
+                                                          <div>
+                                                            <CopyIcon
+                                                              style={{
+                                                                marginLeft:
+                                                                  '4px',
+                                                                cursor:
+                                                                  'pointer',
+                                                              }}
+                                                              onClick={() =>
+                                                                handleCopy(
+                                                                  row.mrn,
+                                                                )
+                                                              }
+                                                              size={13}
+                                                              title={
+                                                                copied
+                                                                  ? 'Copied!'
+                                                                  : 'Copy'
+                                                              }
+                                                            />
+                                                          </div>
                                                         </div>
                                                       ) : (
-                                                        <div>{row.mrn}</div>
+                                                        <div className="flex">
+                                                          <div>{row.mrn}</div>
+                                                          <div>
+                                                            <CopyIcon
+                                                              style={{
+                                                                marginRight:
+                                                                  '4px',
+                                                                cursor:
+                                                                  'pointer',
+                                                              }}
+                                                              onClick={() =>
+                                                                handleCopy(
+                                                                  row.mrn,
+                                                                )
+                                                              }
+                                                              size={13}
+                                                              title={
+                                                                copied
+                                                                  ? 'Copied!'
+                                                                  : 'Copy'
+                                                              }
+                                                            />
+                                                          </div>
+                                                        </div>
                                                       )}
                                                     </div>
                                                   </td>
