@@ -33,8 +33,9 @@ export class PatientEntity extends BaseEntity {
   @Column({ type: 'boolean', default: false })
   active: boolean;
 
-  @Column({ type: 'varchar' })
-  pcp: string;
+  @ManyToOne(() => ReferrersEntity)
+  @JoinColumn({ name: 'pcp' })
+  pcp: ReferrersEntity;
 
   @OneToMany(() => SurgeryEntity, (surgery) => surgery.patient)
   surgeries: SurgeryEntity[];

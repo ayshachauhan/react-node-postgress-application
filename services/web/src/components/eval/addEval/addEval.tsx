@@ -92,6 +92,10 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
   }));
 
   useEffect(() => {
+    setCheckboxChecked(false);
+  }, []);
+
+  useEffect(() => {
     if (mrn) {
       const patientCheck = patientsList.find((ele) => String(ele.mrn) === mrn);
 
@@ -125,6 +129,8 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
     }
   }, [surgeryNameId]);
 
+  const [checkboxChecked, setCheckboxChecked] = useState(false);
+
   const surgeryConfigurationsOptions = surgeryConfigurations.map((key) => ({
     label: key.name,
     id: key.id,
@@ -151,6 +157,17 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
       label: EVAL_STATUS['Future Evaluation'],
     },
   ];
+
+  const handleCheckboxChange = (e) => {
+    const target = e.target as HTMLInputElement;
+    setCheckboxChecked(target.checked);
+
+    if (target.checked && referrerId) {
+      setPcp(referrerId);
+    } else {
+      setPcp('');
+    }
+  };
 
   const referrersOptions = Object.keys(referrersList).map((key) => ({
     label: referrersList[key].email
@@ -182,6 +199,13 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
   };
   const handleReferrerChange = ({ value }) => {
     setReferrerId(value[0] ? value[0].id : null);
+    if (checkboxChecked) {
+      setPcp(value[0] ? value[0].id : '');
+    }
+  };
+
+  const handlePCPReferrerChange = ({ value }) => {
+    setPcp(value[0] ? value[0].id : null);
   };
 
   const handleEvalStatusChange = ({ value }) => {
@@ -221,7 +245,17 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
     if (target.value) {
       const newValue: string = target.value;
       setReferrerId(newValue);
+      if (checkboxChecked) {
+        setPcp(newValue);
+      }
       setIsNewReferrer(true);
+    }
+  };
+
+  const handlePCPReferrerBlur = ({ target }) => {
+    if (target.value) {
+      const newValue: string = target.value;
+      setPcp(newValue);
     }
   };
 
@@ -525,23 +559,36 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
                       }),
                     },
                   }}
-                  checked={false}
-                  onChange={(e) => {
-                    const target = e.target as HTMLInputElement;
-                    setCheckboxes([target.checked, checkboxes[1]]);
-                  }}
+                  checked={checkboxChecked}
+                  onChange={handleCheckboxChange}
+                  disabled={!referrerId} // Disable checkbox if referrerId is not set
                 >
                   <label htmlFor="pcp" className="">
                     PCP (Check box if same)
                   </label>
                 </Checkbox>
-                <TextInput
+                <Select
                   size={SIZE.mini}
-                  name="pcp"
-                  disabled
-                  value={pcp}
-                  onChange={(value) => {
-                    setPcp(value);
+                  creatable
+                  placeholder="Select PCP"
+                  backspaceClearsInputValue={true}
+                  onBlurResetsInput={false}
+                  onBlur={handlePCPReferrerBlur}
+                  onChange={handlePCPReferrerChange}
+                  value={pcp ? [{ label: pcp, id: pcp }] : []}
+                  options={referrersOptions}
+                  overrides={{
+                    ControlContainer: {
+                      style: {
+                        backgroundColor: 'rgba(250, 250, 250, 1)',
+                        border: 'none',
+                        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                        color: '#52525B',
+                      },
+                    },
+                    ClearIcon: {
+                      component: () => null,
+                    },
                   }}
                 />
               </div>

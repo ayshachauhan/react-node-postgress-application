@@ -331,6 +331,7 @@ const EvalPage: React.FC = () => {
       insuranceTypeName: ele.insuranceType ? ele.insuranceType?.name : '',
       pcp: '',
       referrer: ele.patient.referrer ? toFullName(ele.patient.referrer) : '',
+      pcpInfo: ele.patient.pcp ? toFullName(ele.patient.pcp) : '',
       notes: ele.notes ? ele.notes : '',
       index: index + 1,
       id: ele.id,
@@ -343,6 +344,7 @@ const EvalPage: React.FC = () => {
         ` (${getDifferenceInDays(new Date(ele.date), new Date())})`,
       referrerVerified:
         ele.patient.referrer && ele.patient.referrer.verified ? true : false,
+      pcpVerified: ele.patient.pcp && ele.patient.pcp.verified ? true : false,
     };
 
     return viewData;
@@ -548,6 +550,41 @@ const EvalPage: React.FC = () => {
                             }}
                           >
                             {data.referrerVerified && (
+                              <Checkbox
+                                checked={true}
+                                overrides={{
+                                  Checkmark: {
+                                    style: ({ $checked }) => ({
+                                      backgroundColor: $checked
+                                        ? 'rgba(34, 197, 94, 1)'
+                                        : 'white',
+                                      borderColor: $checked
+                                        ? 'rgba(34, 197, 94, 1)'
+                                        : 'rgba(113, 113, 122, 1)',
+                                      width: '12px',
+                                      height: '12px',
+                                      borderRadius: '2px',
+                                      borderWidth: '2px',
+                                    }),
+                                  },
+                                }}
+                              />
+                            )}
+                          </span>
+                        </span>
+                        <span
+                          style={{
+                            display: 'flex',
+                          }}
+                        >
+                          PCP: {data.pcpInfo}&nbsp;
+                          <span
+                            style={{
+                              display: 'flex',
+                              alignItems: 'start',
+                            }}
+                          >
+                            {data.pcpVerified && (
                               <Checkbox
                                 checked={true}
                                 overrides={{
