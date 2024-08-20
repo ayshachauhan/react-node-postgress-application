@@ -97,6 +97,7 @@ export interface UpdateSurgeryPayload {
   waitlistId?: string;
   surgeryOrder?: number;
   referrerId?: string;
+  pcp?: string;
   practiceHomeId: string;
   selectedConditionalOptions?: SelectedConditionalOption;
   initialProfPrice?: string;

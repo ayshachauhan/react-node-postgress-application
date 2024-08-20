@@ -53,6 +53,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
     practiceHomesList,
     insuranceTypesList,
     referrersList,
+    pcpList,
     usersList,
     calendars,
     waitlist,
@@ -64,6 +65,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
     practiceHomesList: Object.values(state.practiceHomes.entities),
     surgeryTypesList: Object.values(state.surgeryTypes.entities),
     insuranceTypesList: Object.values(state.insuranceTypes.entities),
+    pcpList: Object.values(state.referrers.entities),
     referrersList: Object.values(state.referrers.entities),
     usersList: Object.values(state.users.entities).filter(
       (user) => user.type == UserType.DOCTOR,
@@ -115,6 +117,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
     new Date(),
   );
   const [pcp, setPcp] = useState('');
+  const [isPCPSameAsReferer, setIsPCPSameAsReferer] = useState<boolean>(false);
   const [notes, setNotes] = useState('');
   const [surgeryNameId, setSurgeryNameId] = useState<string>('');
   const [surgeryCataractNameId, setSurgeryCataractNameId] =
@@ -179,6 +182,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
         setSurgeryNameId(row.surgeryConfiguration.id);
         if (row.waitlist) setWaitlistId(row.waitlist.id);
         if (row.patient.referrer) setReferrerId(row.patient.referrer.id);
+        if (row.patient.pcp) setPcp(row.patient.pcp.id);
         if (row.insuranceType) setInsuranceTypeId(row.insuranceType.id);
         if (row.insuranceDetails) setInsuranceDetails(row.insuranceDetails);
       }
@@ -200,12 +204,14 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
         setEmail(patientCheck.email);
         setPhoneNumber(patientCheck.phoneNumber);
         setReferrerId(patientCheck.referrer ? patientCheck?.referrer.id : '');
+        setPcp(patientCheck?.pcp?.id ? patientCheck.pcp.id : '');
       } else {
         setFirstName('');
         setLastName('');
         setEmail('');
         setPhoneNumber('');
         setReferrerId('');
+        setPcp('');
       }
     }
   }, [mrn]);
@@ -262,6 +268,13 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
     id: referrersList[key].id,
   }));
 
+  const pcpOptions = Object.keys(pcpList).map((key) => ({
+    label: pcpList[key].email
+      ? `${toFullName(pcpList[key])} (${pcpList[key].email})`
+      : `${toFullName(pcpList[key])}`,
+    id: pcpList[key].id,
+  }));
+
   const waitlistOptions = Object.keys(waitlist).map((key) => ({
     label: waitlist[key].name,
     id: waitlist[key].id,
@@ -305,6 +318,22 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
 
   const handleReferrerChange = ({ value }) => {
     setReferrerId(value[0] ? value[0].id : null);
+    if (isPCPSameAsReferer) {
+      setPcp(value[0] ? value[0].id : null);
+    }
+  };
+
+  const handlePCPChange = ({ value }) => {
+    setPcp(value[0] ? value[0].id : null);
+  };
+
+  const handlePCPCheckChange = (event) => {
+    setIsPCPSameAsReferer(event?.target?.checked || null);
+    if (event?.target?.checked) {
+      setPcp(referrerId ? referrerId : '');
+    } else {
+      setPcp('');
+    }
   };
 
   const handleWaitlistChange = ({ value }) => {
@@ -341,6 +370,16 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
       const newValue: string = target.value;
       setReferrerId(newValue);
       setIsNewReferrer(true);
+      if (isPCPSameAsReferer) {
+        setPcp(newValue ? newValue : '');
+      }
+    }
+  };
+
+  const handlePCPBlur = ({ target }) => {
+    if (target.value) {
+      const newValue: string = target.value;
+      setPcp(newValue);
     }
   };
 
@@ -733,6 +772,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
             </div>
             <div className="space-y-1 flex-1">
               <Checkbox
+                checked={isPCPSameAsReferer}
                 overrides={{
                   Checkmark: {
                     style: ({ $checked }) => ({
@@ -746,19 +786,33 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
                     }),
                   },
                 }}
-                checked={false}
+                onChange={handlePCPCheckChange}
               >
                 <label htmlFor="pcp" className="text-black text-xs">
-                  PCP (Check box if same)
+                  PCP (Check if same as referrer)
                 </label>
               </Checkbox>
-              <TextInput
-                disabled
+              <Select
+                placeholder="Select PCP"
+                backspaceClearsInputValue={true}
                 size={SIZE.mini}
-                name="pcp"
-                value={pcp}
-                onChange={(value) => {
-                  setPcp(value);
+                onBlurResetsInput={false}
+                onBlur={handlePCPBlur}
+                onChange={handlePCPChange}
+                value={pcp ? [{ label: pcp, id: pcp }] : []}
+                options={pcpOptions}
+                overrides={{
+                  ControlContainer: {
+                    style: {
+                      backgroundColor: 'rgba(250, 250, 250, 1)',
+                      border: 'none',
+                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                      color: '#52525B',
+                    },
+                  },
+                  ClearIcon: {
+                    component: () => null,
+                  },
                 }}
               />
             </div>
