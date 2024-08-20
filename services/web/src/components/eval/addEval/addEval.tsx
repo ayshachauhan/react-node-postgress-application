@@ -561,7 +561,6 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
                   }}
                   checked={checkboxChecked}
                   onChange={handleCheckboxChange}
-                  disabled={!referrerId} // Disable checkbox if referrerId is not set
                 >
                   <label htmlFor="pcp" className="">
                     PCP (Check box if same)

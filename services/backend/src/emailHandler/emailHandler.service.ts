@@ -371,6 +371,86 @@ export class EmailHandlerService {
     await this.saveEmailLogs(emailLogsEntries, entity, fromEval);
   }
 
+  async checkAndMakePCPEmailContent(
+    practice: IPractice,
+    entity: IEval | ISurgery,
+    systemGeneratedMailData?: SystemGeneratedMailData,
+    fromEval?: boolean,
+  ) {
+    let pcpTemplateFound: boolean = false;
+    const mailVariables = await this.makeEmailVariable(entity, practice);
+    const surgeryConfigId = entity.surgeryConfiguration.id;
+    const pcpTemplates = await this.templateService.getFilteredTemplates({
+      surgeryConfigId,
+      messageType: 'pcp',
+    });
+
+    const emailLogsEntries: Partial<IEmailLog>[] = [];
+
+    const randomIndex = Math.floor(Math.random() * pcpTemplates.length);
+    const pcpTemplate = pcpTemplates[randomIndex];
+    if (
+      pcpTemplate &&
+      Object.keys(pcpTemplate).length &&
+      mailVariables?.pcpEmail
+    ) {
+      pcpTemplateFound = true;
+      const entry: Partial<IEmailLog> = {
+        practice: practice,
+        expectedDate: new Date(),
+        status: 'pending',
+        data: {
+          to: mailVariables?.pcpEmail,
+          subject: pcpTemplate.emailSubject
+            ? this.mailVariableManipulator(pcpTemplate.emailSubject)
+            : '',
+          body: pcpTemplate.emailBody
+            ? this.mailVariableManipulator(pcpTemplate.emailBody)
+            : this.transporterService.readTemplates(SystemTemplates.NOTIFY_PCP),
+          attachment: pcpTemplate.emailAttachment
+            ? pcpTemplate.emailAttachment
+            : '',
+          text: pcpTemplate.messageText
+            ? this.mailVariableManipulator(pcpTemplate.messageText)
+            : '',
+          ...mailVariables,
+          '1stCataract': pcpTemplate.email1stCataract
+            ? this.mailVariableManipulator(pcpTemplate.email1stCataract)
+            : '',
+          '2ndCataract': pcpTemplate.email2ndCataract
+            ? this.mailVariableManipulator(pcpTemplate.email2ndCataract)
+            : '',
+        },
+        attachment: pcpTemplate.emailAttachment,
+      };
+      emailLogsEntries.push(entry);
+    }
+
+    if (
+      !pcpTemplateFound &&
+      mailVariables?.pcpEmail &&
+      systemGeneratedMailData
+    ) {
+      const systemTemplateName = systemGeneratedMailData.systemTemplate;
+      const entry: Partial<IEmailLog> = {
+        practice: practice,
+        expectedDate: new Date(),
+        status: 'pending',
+        data: {
+          body: this.transporterService.readTemplates(systemTemplateName),
+          ...mailVariables,
+          subject: systemGeneratedMailData.subject,
+          text: systemGeneratedMailData.text,
+          to: mailVariables?.pcpEmail,
+        },
+      };
+      emailLogsEntries.push(entry);
+    }
+
+    // Use the generic function to save email logs
+    await this.saveEmailLogs(emailLogsEntries, entity, fromEval);
+  }
+
   async saveEmailLogs(
     emailLogsEntries: Partial<IEmailLog>[],
     entity: IEval | ISurgery,
@@ -453,6 +533,9 @@ export class EmailHandlerService {
       referrerFname: entity?.patient?.referrer?.firstName,
       referrerLname: entity?.patient?.referrer?.lastName,
       referrerEmail: entity?.patient?.referrer?.email,
+      pcpFname: entity?.patient?.pcp?.firstName,
+      pcpLname: entity?.patient?.pcp?.lastName,
+      pcpEmail: entity?.patient?.pcp?.email,
       doctorPhoneNumber: doctorPhoneNumber,
     };
 
