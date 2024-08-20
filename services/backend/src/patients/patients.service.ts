@@ -207,6 +207,7 @@ export class PatientsService {
       where: { practice: { id: practiceId }, mrn },
       relations: [
         'referrer',
+        'pcp',
         'surgeries',
         'evals',
         'surgeries.surgeryConfiguration',

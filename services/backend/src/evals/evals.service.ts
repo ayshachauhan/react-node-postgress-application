@@ -195,6 +195,7 @@ export class EvalsService {
       await this.initiateSendEmail(resultEval, practiceEntity);
       await this.initiateDoctorSendEmail(resultEval, practiceEntity);
       await this.initiateReferrerSendEmail(resultEval, practiceEntity);
+      await this.initiatePCPSendEmail(resultEval, practiceEntity);
     }
     return resultEval;
   }
@@ -361,6 +362,24 @@ export class EvalsService {
       systemTemplate: SystemTemplates.NOTIFY_REFERRER,
     };
     await this.emailHandlerService.checkAndMakeReferrerEmailContent(
+      practice,
+      evalEntity,
+      systemGeneratedMailData,
+      true,
+    );
+  }
+
+  async initiatePCPSendEmail(
+    evalEntity: IEval,
+    practice: IPractice,
+  ): Promise<void> {
+    const name = practice.name;
+    const systemGeneratedMailData = {
+      subject: `Thanks for sending your patient to me: ${name}`,
+      text: 'text message',
+      systemTemplate: SystemTemplates.NOTIFY_PCP,
+    };
+    await this.emailHandlerService.checkAndMakePCPEmailContent(
       practice,
       evalEntity,
       systemGeneratedMailData,

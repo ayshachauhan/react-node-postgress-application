@@ -545,6 +545,7 @@ export class SurgeryService {
       await this.initiateSendEmail(resultSurgery, practiceEntity);
       await this.initiateDoctorSendEmail(resultSurgery, practiceEntity);
       await this.initiateReferrerSendEmail(resultSurgery, practiceEntity);
+      await this.initiatePCPSendEmail(resultSurgery, practiceEntity);
     }
 
     return resultSurgery;
@@ -906,6 +907,26 @@ export class SurgeryService {
     };
 
     await this.emailHandlerService.checkAndMakeReferrerEmailContent(
+      practice,
+      surgery,
+      systemGeneratedMailData,
+      false,
+    );
+  }
+
+  async initiatePCPSendEmail(
+    surgery: ISurgery,
+    practice: IPractice,
+  ): Promise<void> {
+    const name = practice.name;
+
+    const systemGeneratedMailData = {
+      subject: `Thanks for sending your patient to me  ${name}`,
+      text: 'text message',
+      systemTemplate: SystemTemplates.NOTIFY_PCP,
+    };
+
+    await this.emailHandlerService.checkAndMakePCPEmailContent(
       practice,
       surgery,
       systemGeneratedMailData,
