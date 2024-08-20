@@ -112,8 +112,8 @@ const EditableRow: React.FC<EditableRowProps> = ({
       });
 
       setInsuranceTypeId(evalInfo?.insuranceType?.id);
-      setReferrerId(evalInfo.patient?.referrer?.id);
-      setPCP(evalInfo.patient?.pcp?.id);
+      setReferrerId(evalInfo.referrer?.id);
+      setPCP(evalInfo.pcp?.id);
       setWaitlistId(evalInfo?.waitlist?.id);
     }
   }, [evalInfo.id, evalInfo]);

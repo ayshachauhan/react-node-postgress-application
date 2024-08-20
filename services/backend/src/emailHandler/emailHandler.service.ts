@@ -450,9 +450,9 @@ export class EmailHandlerService {
       phoneNumber: phoneNumber,
       practiceName: practice.name,
       insuranceType: insuranceType ? insuranceType.name : '',
-      referrerFname: entity?.patient?.referrer?.firstName,
-      referrerLname: entity?.patient?.referrer?.lastName,
-      referrerEmail: entity?.patient?.referrer?.email,
+      referrerFname: entity?.referrer?.firstName,
+      referrerLname: entity?.referrer?.lastName,
+      referrerEmail: entity?.referrer?.email,
       doctorPhoneNumber: doctorPhoneNumber,
     };
 

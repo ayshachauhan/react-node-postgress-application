@@ -112,16 +112,16 @@ const EditableRow: React.FC<EditableRowProps> = ({
         initialProfPrice: surgeryInfo.initialProfPrice,
         initialHospitalPrice: surgeryInfo.initialHospitalPrice,
         surgeryOrder: surgeryInfo.surgeryOrder,
-        referrerId: surgeryInfo.patient.referrer
-          ? toFullName(surgeryInfo.patient.referrer)
+        referrerId: surgeryInfo.referrer
+          ? toFullName(surgeryInfo.referrer)
           : '',
-        pcp: surgeryInfo.patient.pcp ? toFullName(surgeryInfo.patient.pcp) : '',
+        pcp: surgeryInfo.pcp ? toFullName(surgeryInfo.pcp) : '',
         practiceHomeId: surgeryInfo?.practiceHome?.id,
         selectedConditionalOptions: surgeryInfo.selectedConditionalOptions,
       });
       setInsuranceTypeId(surgeryInfo?.insuranceType?.id);
-      setReferrerId(surgeryInfo.patient?.referrer?.id);
-      setPcp(surgeryInfo.patient?.pcp?.id);
+      setReferrerId(surgeryInfo.referrer?.id);
+      setPcp(surgeryInfo.pcp?.id);
       setWaitlistId(surgeryInfo?.waitlist?.id);
     }
   }, [surgeryInfo.id, surgeryInfo]);

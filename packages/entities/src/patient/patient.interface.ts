@@ -1,7 +1,6 @@
 import { IBaseEntity } from '../base.interface';
 import { IEval } from '../eval';
 import { IPractice } from '../practice';
-import { IReferrer } from '../referrer';
 import { ISurgery } from '../surgery';
 
 export interface IPatient extends IBaseEntity {
@@ -11,8 +10,6 @@ export interface IPatient extends IBaseEntity {
   lastName: string;
   phoneNumber: string;
   email: string;
-  pcp?: IReferrer;
-  referrer?: IReferrer;
   surgeries?: ISurgery[];
   evals?: IEval[];
 }

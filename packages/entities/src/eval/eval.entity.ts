@@ -4,6 +4,7 @@ import { InsuranceTypeEntity } from '../insuranceType';
 import { PatientEntity } from '../patient';
 import { PracticeEntity } from '../practice';
 import { PracticeHomesEntity } from '../practiceHomes';
+import { ReferrersEntity } from '../referrer';
 import { SurgeryConfigurationEntity } from '../surgeryConfiguration';
 import { UserEntity } from '../user';
 import { WaitlistEntity } from '../waitlist';
@@ -52,4 +53,12 @@ export class EvalEntity extends BaseEntity {
   @ManyToOne(() => PracticeEntity)
   @JoinColumn({ name: 'practiceId' })
   practice: PracticeEntity; //TO DO: make practice id not null in future
+
+  @ManyToOne(() => ReferrersEntity)
+  @JoinColumn({ name: 'pcp' })
+  pcp: ReferrersEntity;
+
+  @ManyToOne(() => ReferrersEntity)
+  @JoinColumn({ name: 'referrerId' })
+  referrer: ReferrersEntity;
 }

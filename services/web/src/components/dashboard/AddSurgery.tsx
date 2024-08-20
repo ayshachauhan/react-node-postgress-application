@@ -181,8 +181,8 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
         setBodyPart(row.bodyPart);
         setSurgeryNameId(row.surgeryConfiguration.id);
         if (row.waitlist) setWaitlistId(row.waitlist.id);
-        if (row.patient.referrer) setReferrerId(row.patient.referrer.id);
-        if (row.patient.pcp) setPcp(row.patient.pcp.id);
+        if (row.referrer) setReferrerId(row.referrer.id);
+        if (row.pcp) setPcp(row.pcp.id);
         if (row.insuranceType) setInsuranceTypeId(row.insuranceType.id);
         if (row.insuranceDetails) setInsuranceDetails(row.insuranceDetails);
       }
@@ -203,15 +203,11 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
         setLastName(patientCheck.lastName);
         setEmail(patientCheck.email);
         setPhoneNumber(patientCheck.phoneNumber);
-        setReferrerId(patientCheck.referrer ? patientCheck?.referrer.id : '');
-        setPcp(patientCheck?.pcp?.id ? patientCheck.pcp.id : '');
       } else {
         setFirstName('');
         setLastName('');
         setEmail('');
         setPhoneNumber('');
-        setReferrerId('');
-        setPcp('');
       }
     }
   }, [mrn]);

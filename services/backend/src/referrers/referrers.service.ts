@@ -45,10 +45,10 @@ export class ReferrersService {
       where: { id: referrerId, practiceId },
       relations: [
         'patients',
-        'patients.surgeries',
-        'patients.evals',
-        'patients.surgeries.surgeryConfiguration',
-        'patients.evals.surgeryConfiguration',
+        'surgeries',
+        'evals',
+        'surgeries.surgeryConfiguration',
+        'evals.surgeryConfiguration',
       ],
     });
 
@@ -100,9 +100,7 @@ export class ReferrersService {
         '',
       );
       const referrerSurgeries = filterUpcomingSurgeries(
-        surgeries.filter(
-          (surgery) => surgery?.patient?.referrer?.id === referrer?.id,
-        ),
+        surgeries.filter((surgery) => surgery?.referrer?.id === referrer?.id),
       );
       const practiceEntity = await this.practiceService.findOne(practiceId);
 

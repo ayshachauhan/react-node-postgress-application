@@ -8,6 +8,8 @@ import {
   IPractice,
   ISurgery,
   PermissionEntity,
+  ReferrerType,
+  ReferrersEntity,
   ReviewEntity,
   ReviewStatus,
   SelectedSurgeryOption,
@@ -60,8 +62,10 @@ import {
   Or,
   Repository,
 } from 'typeorm';
+import { v4 as uuidv4 } from 'uuid';
 import { CalendarService } from '../calendar/calendar.service';
 import { HistoryService } from '../history/history.service';
+import { ReferrersService } from '../referrers/referrers.service';
 
 type DateCondition = {
   date: FindOperator<Date>;
@@ -117,6 +121,8 @@ export class SurgeryService {
     private emailHandlerService: EmailHandlerService,
     @Inject(forwardRef(() => ReviewService))
     private reviewService: ReviewService,
+    @Inject(forwardRef(() => ReferrersService))
+    private referrerService: ReferrersService,
   ) {}
 
   getFrontEndBaseUrl() {
@@ -175,8 +181,6 @@ export class SurgeryService {
         'surgeryConfiguration',
         'patient',
         'insuranceType',
-        'patient.referrer',
-        'patient.pcp',
         'doctor',
         'waitlist',
         'practice', //TO DO: make practice id not null in future
@@ -413,8 +417,6 @@ export class SurgeryService {
         'surgeryConfiguration',
         'patient',
         'insuranceType',
-        'patient.referrer',
-        'patient.pcp',
         'doctor',
         'waitlist',
         'practice', //TO DO: make practice id not null in future
@@ -480,6 +482,43 @@ export class SurgeryService {
     createSurgeryDto.initialHospitalPrice =
       createSurgeryDto.totalHospitalPricing;
 
+    let referrerEntity = new ReferrersEntity();
+    let pcpReferrerEntity = new ReferrersEntity();
+    if (createSurgeryDto.referrerId) {
+      try {
+        uuidv4(createSurgeryDto.referrerId);
+        referrerEntity = await this.referrerService.getReferrerById(
+          practiceId,
+          createSurgeryDto.referrerId,
+        );
+      } catch (error) {
+        referrerEntity = await this.referrerService.createReferrer(practiceId, {
+          firstName: createSurgeryDto.referrerId,
+          referrerType: ReferrerType.PCP,
+          verified: false,
+        });
+      }
+    }
+
+    if (createSurgeryDto.pcp) {
+      try {
+        uuidv4(createSurgeryDto.pcp); // Validate the pcp
+        pcpReferrerEntity = await this.referrerService.getReferrerById(
+          practiceId,
+          createSurgeryDto.pcp,
+        );
+      } catch (error) {
+        pcpReferrerEntity = await this.referrerService.createReferrer(
+          practiceId,
+          {
+            firstName: createSurgeryDto.pcp,
+            referrerType: ReferrerType.PCP,
+            verified: false,
+          },
+        );
+      }
+    }
+
     const resultSurgery = await this.surgeryRepository.save({
       ...newSurgery,
       ...createSurgeryDto,
@@ -493,6 +532,8 @@ export class SurgeryService {
       surgeryStatus: SurgeryStatus.BOOK,
       waitlist: waitlistEntity,
       SelectedConditionsOptions: {},
+      referrer: referrerEntity.dateCreated ? referrerEntity : undefined,
+      pcp: pcpReferrerEntity.dateCreated ? pcpReferrerEntity : undefined,
     });
 
     // upsert calendar after creating surgery
@@ -586,6 +627,26 @@ export class SurgeryService {
       practiceId,
     );
 
+    if (createSurgeryDto.referrerId) {
+      const refererEntity = await this.referrerService.getReferrerById(
+        practiceId,
+        createSurgeryDto.referrerId,
+      );
+
+      delete createSurgeryDto.referrerId;
+      createSurgeryDto.referrer = refererEntity;
+    }
+
+    if (createSurgeryDto.pcp) {
+      const refererEntity = await this.referrerService.getReferrerById(
+        practiceId,
+        createSurgeryDto.pcp,
+      );
+
+      delete createSurgeryDto.pcp;
+      createSurgeryDto.pcp = refererEntity;
+    }
+
     const dataToUpdate = {
       insuranceType: createSurgeryDto.insuranceType
         ? createSurgeryDto.insuranceType
@@ -608,6 +669,8 @@ export class SurgeryService {
         : surgeryToUpdate?.practiceHome,
       waitlist: waitlistEntity ? waitlistEntity : surgeryToUpdate?.waitlist,
       selectedConditionalOptions: createSurgeryDto.selectedConditionalOptions,
+      referrer: createSurgeryDto.referrer ? createSurgeryDto.referrer : null,
+      pcp: createSurgeryDto.pcp ? createSurgeryDto.pcp : null,
     };
 
     await this.surgeryRepository.update(id, {
