@@ -453,7 +453,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
           const {
             id,
             date,
-            patient: { firstName, mrn, phoneNumber, email },
+            patient: { firstName, mrn, phoneNumber, email, referrer, pcp },
             bodyPart,
           } = evalAutoFillInfo;
           await dispatch(
@@ -467,6 +467,8 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
                 phoneNumber,
                 firstName,
                 mrn,
+                pcp: pcp?.id,
+                referrerId: referrer?.id,
               },
               id,
             }),
