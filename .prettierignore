@@ -9,6 +9,7 @@ tmp/**
 .eslintignore
 .dockerignore
 favicon.ico
+favicon-new.ico
 
 /packages/*/dist
 
