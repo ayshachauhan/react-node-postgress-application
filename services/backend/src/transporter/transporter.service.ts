@@ -109,8 +109,14 @@ export class TransporterService {
     // Read the HTML file content
     const htmlFilePath = path.join(
       __dirname,
-      `/emailTemplates/${template}.html`,
+      'emailTemplates',
+      `${template}.html`,
     );
+    logger.info(`Template file path: ${htmlFilePath}`);
+    if (!fs.existsSync(htmlFilePath)) {
+      logger.error(`Template file not found: ${htmlFilePath}`);
+      throw new Error(`Template file not found: ${htmlFilePath}`);
+    }
     return fs.readFileSync(htmlFilePath, 'utf8');
   }
 
