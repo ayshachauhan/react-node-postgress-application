@@ -11,6 +11,7 @@ import {
   fetchFilteredCalendars,
 } from '@root/store/reducers/calendar';
 import { updateRecordAsync as updateEval } from '@root/store/reducers/evals';
+import { fetchListings as fetchReferrersList } from '@root/store/reducers/referrer';
 import {
   addRecordAsync as addSurgeryRecord,
   fetchAllSurgeries,
@@ -485,6 +486,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
         );
 
         await dispatch(fetchCalendars({ practiceId, userId: doctorId }));
+        await dispatch(fetchReferrersList({ practiceId: practiceId }));
         dispatch(fetchUsersList({ practiceId }));
         dispatch(fetchAllSurgeries({ practiceId }));
 
