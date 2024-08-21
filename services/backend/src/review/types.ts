@@ -9,4 +9,5 @@ export type ReviewMailData = {
   Laterality: string;
   to: string;
   pt_email_address: string;
+  phoneNumber: string;
 };

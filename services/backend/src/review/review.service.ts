@@ -78,6 +78,7 @@ export class ReviewService {
           reviewLink: '',
           fname: reviewPatient?.firstName || '',
           lname: reviewPatient?.lastName || '',
+          phoneNumber: reviewPatient?.phoneNumber || '',
           mrn: reviewPatient ? String(reviewPatient?.mrn) : '',
           Laterality: surgery ? toPascalCase(surgery.bodyPart) : '',
           surgery_type: surgery ? surgery.surgeryConfiguration.name : '',
