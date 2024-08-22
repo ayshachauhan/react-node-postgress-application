@@ -19,7 +19,7 @@ const SurgeryPercentage: React.FC = () => {
   }));
 
   const uniqueSurgeryLocations = Array.from(
-    new Map(calendars.map((item) => [item.surgeryType.id, item])).values(),
+    new Map(calendars.map((item) => [item?.surgeryType?.id, item])).values(),
   );
 
   const maxCellStyle = (cellValue: string) => {
@@ -133,7 +133,7 @@ const SurgeryPercentage: React.FC = () => {
         (surgeryPercentage.length > 0 &&
           !surgeryPercentage.find(
             (s) =>
-              s.name.toLowerCase() == config?.surgeryType?.name.toLowerCase(),
+              s?.name?.toLowerCase() == config?.surgeryType?.name.toLowerCase(),
           ))
       ) {
         surgeryPercentage.push({
@@ -151,18 +151,23 @@ const SurgeryPercentage: React.FC = () => {
   }
   const ranges: (number | 'all')[] = [1, 2, 3, 6, 12, 'all'];
 
-  const surgeryPercentageData = uniqueSurgeryLocations.map((config) => {
-    return {
-      name: config?.surgeryType?.name,
-      id: config?.surgeryType?.id,
-      percentages: ranges.map((range) => ({
-        range: range,
-        data: calculateSurgeryPercentageForRange(range).find(
-          (surgery) => surgery.id === config?.surgeryType?.id,
-        ),
-      })),
-    };
-  });
+  const surgeryPercentageData = uniqueSurgeryLocations
+    .filter(
+      (config) =>
+        config?.surgeryType !== null && config?.surgeryType !== undefined,
+    )
+    .map((config) => {
+      return {
+        name: config?.surgeryType?.name,
+        id: config?.surgeryType?.id,
+        percentages: ranges.map((range) => ({
+          range: range,
+          data: calculateSurgeryPercentageForRange(range).find(
+            (surgery) => surgery.id === config?.surgeryType?.id,
+          ),
+        })),
+      };
+    });
 
   return (
     <div>
@@ -191,7 +196,7 @@ const SurgeryPercentage: React.FC = () => {
                       : ''
                   }`}
                 >
-                  <td className="">{surgery.name}</td>
+                  <td className="">{surgery?.name}</td>
                   {surgery?.percentages.map((percentageObj, index) => (
                     <td
                       key={index}
