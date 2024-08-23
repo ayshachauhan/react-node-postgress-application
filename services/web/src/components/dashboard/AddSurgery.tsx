@@ -982,9 +982,9 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
                     required
                     options={
                       surgeryNameId
-                        ? surgeryConfigurationsList[surgeryNameId].bodyPart.map(
-                            (ele) => ({ id: ele, label: ele }),
-                          )
+                        ? surgeryConfigurationsList[
+                            surgeryNameId
+                          ]?.bodyPart.map((ele) => ({ id: ele, label: ele }))
                         : []
                     }
                     onChange={handleBodyPartTypeChange}
