@@ -224,24 +224,24 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
       const selectedCataractSurgeryConfiguration =
         surgeryConfigurationsList[surgeryCataractNameId];
 
-      setBodyPart(selectedSurgeryConfiguration.bodyPart[0]);
+      setBodyPart(selectedSurgeryConfiguration?.bodyPart[0]);
       setCataractBodyPart(selectedCataractSurgeryConfiguration?.bodyPart[0]);
 
-      const selectedSurgeryOptions = Object.values(
-        selectedSurgeryConfiguration.options,
-      ).map((ele, i) => {
-        const allowedValues = ele.allowedValues.map(
-          (allowedValue, allowedValueIndex) => ({
-            id: allowedValueIndex,
-            label: allowedValue.name,
-            selected: allowedValueIndex === 0 ? true : false,
-            hospitalPricing: allowedValue.hospitalPricing,
-            professionalPricing: allowedValue.professionalPricing,
-          }),
-        );
+      const selectedSurgeryOptions = selectedSurgeryConfiguration?.options
+        ? Object.values(selectedSurgeryConfiguration.options).map((ele, i) => {
+            const allowedValues = ele.allowedValues.map(
+              (allowedValue, allowedValueIndex) => ({
+                id: allowedValueIndex,
+                label: allowedValue.name,
+                selected: allowedValueIndex === 0 ? true : false,
+                hospitalPricing: allowedValue.hospitalPricing,
+                professionalPricing: allowedValue.professionalPricing,
+              }),
+            );
 
-        return { id: i, label: ele.label, checked: false, allowedValues };
-      });
+            return { id: i, label: ele.label, checked: false, allowedValues };
+          })
+        : [];
 
       setSurgeryDropdownOptions([...selectedSurgeryOptions]);
     }
