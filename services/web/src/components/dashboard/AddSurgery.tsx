@@ -1095,7 +1095,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
                         surgeryCataractNameId
                           ? surgeryConfigurationsList[
                               surgeryCataractNameId
-                            ].bodyPart.map((ele) => ({ id: ele, label: ele }))
+                            ]?.bodyPart.map((ele) => ({ id: ele, label: ele }))
                           : []
                       }
                       onChange={handleCataractBodyPartTypeChange}
