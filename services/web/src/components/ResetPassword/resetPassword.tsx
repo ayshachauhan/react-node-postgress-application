@@ -142,93 +142,89 @@ export const ResetPassword: React.FC<Props> = ({
         <div className="flex justify-between border-gray-400 items-center ml-2 mt-5 flex-col text-red-900">
           <p>Reset Password link has been expired</p>
         </div>
-      ) : (
-        <LogoWrapper>
-          {isAlreadyOnboared && isOnboarding ? (
-            children
-          ) : (
-            <>
-              <div className="mt-11 mx-11">
-                <form className="w-full" onSubmit={handleSubmit}>
-                  <input type="hidden" name="remember" defaultValue="true" />
-                  {!isAlreadyOnboared && isOnboarding ? (
-                    <div className="mb-4">
-                      <div className="mb-1">
-                        {' '}
-                        <label
-                          htmlFor="oldPassword"
-                          className="text-black text-sm"
-                        >
-                          Old Password
-                        </label>
-                      </div>
-
-                      <TextInput
-                        name="oldPassword"
-                        value={oldPassword}
-                        onChange={(value) => setOldPassword(value)}
-                        required
-                        type="password"
-                      />
-                      <div className="space-y-4"></div>
-                    </div>
-                  ) : null}
+      ) : null}
+      <LogoWrapper>
+        {isAlreadyOnboared && isOnboarding ? (
+          children
+        ) : (
+          <>
+            <div className="mt-11 mx-11">
+              <form className="w-full" onSubmit={handleSubmit}>
+                <input type="hidden" name="remember" defaultValue="true" />
+                {!isAlreadyOnboared && isOnboarding ? (
                   <div className="mb-4">
-                    <div className="mb-1">
-                      <label
-                        htmlFor="newPassword"
-                        className="text-black text-sm"
-                      >
-                        New Password
-                      </label>
-                    </div>
-
-                    <TextInput
-                      name="newPassword"
-                      value={newPassword}
-                      onChange={(value) => setNewPassword(value)}
-                      required
-                      type="password"
-                    />
-                    <div className="space-y-4"></div>
-                  </div>
-                  <div className="">
                     <div className="mb-1">
                       {' '}
                       <label
-                        htmlFor="confirmPassword"
+                        htmlFor="oldPassword"
                         className="text-black text-sm"
                       >
-                        Confirm Password
+                        Old Password
                       </label>
                     </div>
 
                     <TextInput
-                      name="confirmPassword"
-                      value={confirmPassword}
-                      onChange={(value) => setConfirmPassword(value)}
+                      name="oldPassword"
+                      value={oldPassword}
+                      onChange={(value) => setOldPassword(value)}
                       required
                       type="password"
                     />
                     <div className="space-y-4"></div>
                   </div>
-                  <div className="mt-6 flex flex-col items-center">
-                    <Button
-                      kind="primary"
-                      title="Reset"
-                      type="submit"
-                      width={164}
-                    />
+                ) : null}
+                <div className="mb-4">
+                  <div className="mb-1">
+                    <label htmlFor="newPassword" className="text-black text-sm">
+                      New Password
+                    </label>
                   </div>
-                </form>
-                {showErrorMessage && (
-                  <div className="text-red-700">{errorMessage}</div>
-                )}
-              </div>
-            </>
-          )}
-        </LogoWrapper>
-      )}
+
+                  <TextInput
+                    name="newPassword"
+                    value={newPassword}
+                    onChange={(value) => setNewPassword(value)}
+                    required
+                    type="password"
+                  />
+                  <div className="space-y-4"></div>
+                </div>
+                <div className="">
+                  <div className="mb-1">
+                    {' '}
+                    <label
+                      htmlFor="confirmPassword"
+                      className="text-black text-sm"
+                    >
+                      Confirm Password
+                    </label>
+                  </div>
+
+                  <TextInput
+                    name="confirmPassword"
+                    value={confirmPassword}
+                    onChange={(value) => setConfirmPassword(value)}
+                    required
+                    type="password"
+                  />
+                  <div className="space-y-4"></div>
+                </div>
+                <div className="mt-6 flex flex-col items-center">
+                  <Button
+                    kind="primary"
+                    title="Reset"
+                    type="submit"
+                    width={164}
+                  />
+                </div>
+              </form>
+              {showErrorMessage && (
+                <div className="text-red-700">{errorMessage}</div>
+              )}
+            </div>
+          </>
+        )}
+      </LogoWrapper>
     </div>
   );
 };
