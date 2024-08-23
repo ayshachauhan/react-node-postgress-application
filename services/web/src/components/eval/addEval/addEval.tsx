@@ -121,7 +121,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
         surgeryConfigurationsList[surgeryNameId];
 
       setBodyPartOptions(
-        selectedSurgeryConfiguration.bodyPart.map((ele) => ({
+        selectedSurgeryConfiguration?.bodyPart.map((ele) => ({
           id: ele,
           label: ele,
         })),
