@@ -22,8 +22,25 @@ const ReferedPatients = ({ referrerId, withLoader }) => {
       referrerInfo: state.referrers.referrerInfo,
     }),
   );
-  const referredPatients = referrerInfo?.patients ?? [];
-  const filteredReferredPatients = referredPatients.filter(
+
+  const referredPatients = [
+    ...(referrerInfo?.patients ?? []),
+    ...(referrerInfo?.patientsByPcp ?? []),
+  ];
+
+  const uniqueReferredPatients = Array.from(
+    referredPatients
+      .reduce((acc, patient) => {
+        const uniqueKey = patient.id; // Assuming `id` uniquely identifies a patient
+        if (!acc.has(uniqueKey)) {
+          acc.set(uniqueKey, patient);
+        }
+        return acc;
+      }, new Map())
+      .values(),
+  );
+
+  const filteredReferredPatients = uniqueReferredPatients.filter(
     (patient: IPatient) =>
       (patient.surgeries && patient.surgeries.length > 0) ||
       (patient.evals && patient.evals.length > 0),

@@ -26,4 +26,7 @@ export class ReferrersEntity extends BaseEntity implements IReferrer {
 
   @OneToMany(() => PatientEntity, (patient) => patient.referrer)
   patients: IPatient[];
+
+  @OneToMany(() => PatientEntity, (patient) => patient.pcp)
+  patientsByPcp: IPatient[];
 }

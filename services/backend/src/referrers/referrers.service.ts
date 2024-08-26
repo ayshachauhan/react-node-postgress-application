@@ -49,6 +49,11 @@ export class ReferrersService {
         'patients.evals',
         'patients.surgeries.surgeryConfiguration',
         'patients.evals.surgeryConfiguration',
+        'patientsByPcp',
+        'patientsByPcp.surgeries',
+        'patientsByPcp.evals',
+        'patientsByPcp.surgeries.surgeryConfiguration',
+        'patientsByPcp.evals.surgeryConfiguration',
       ],
     });
 

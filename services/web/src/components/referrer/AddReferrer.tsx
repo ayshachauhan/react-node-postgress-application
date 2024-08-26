@@ -29,7 +29,7 @@ const AddReferrerForm: React.FC<{
 
   type AddReferrerDto = Omit<
     IReferrer,
-    'dateCreated' | 'dateUpdated' | 'id' | 'patients'
+    'dateCreated' | 'dateUpdated' | 'id' | 'patients' | 'patientsByPcp'
   >;
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
