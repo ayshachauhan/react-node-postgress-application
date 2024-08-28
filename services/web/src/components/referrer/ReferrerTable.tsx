@@ -149,11 +149,26 @@ export default function ReferrerTable() {
             </tr>
             {!isLoading &&
               referrers.map((data, index) => {
-                const totalSurgeries = data.patients?.reduce(
+                const combinedPatients = [
+                  ...(data.patients || []),
+                  ...(data.patientsByPcp || []),
+                ];
+                const uniqueReferredPatients = Array.from(
+                  combinedPatients
+                    .reduce((acc, patient) => {
+                      const uniqueKey = patient.id; // Assuming `id` uniquely identifies a patient
+                      if (!acc.has(uniqueKey)) {
+                        acc.set(uniqueKey, patient);
+                      }
+                      return acc;
+                    }, new Map())
+                    .values(),
+                );
+                const totalSurgeries = uniqueReferredPatients.reduce(
                   (sum, patient) => sum + (patient.surgeries?.length || 0),
                   0,
                 );
-                const totalEvals = data.patients?.reduce(
+                const totalEvals = uniqueReferredPatients.reduce(
                   (sum, patient) => sum + (patient.evals?.length || 0),
                   0,
                 );
