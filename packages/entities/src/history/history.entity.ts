@@ -1,6 +1,8 @@
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { BaseEntity } from '../base.entity';
+import { EvalEntity } from '../eval/eval.entity';
 import { PracticeEntity } from '../practice/practice.entity';
+import { SurgeryEntity } from '../surgery/surgery.entity';
 import { UserEntity } from '../user/user.entity';
 import {
   EntityChanges,
@@ -18,6 +20,14 @@ export class HistoryEntity extends BaseEntity implements IHistory {
   @ManyToOne(() => UserEntity)
   @JoinColumn({ name: 'userId' })
   user: UserEntity;
+
+  @ManyToOne(() => SurgeryEntity)
+  @JoinColumn({ name: 'entityId' })
+  surgery: SurgeryEntity;
+
+  @ManyToOne(() => EvalEntity)
+  @JoinColumn({ name: 'entityId' })
+  eval: EvalEntity;
 
   // ID of the entity that this history entry is related to
   @Column({ type: 'uuid' })
@@ -39,4 +49,6 @@ export class HistoryEntity extends BaseEntity implements IHistory {
 
   @Column({ type: 'varchar', nullable: true })
   ipAddress: string;
+
+  entityData?: {} | SurgeryEntity | EvalEntity | undefined;
 }

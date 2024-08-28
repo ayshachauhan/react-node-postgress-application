@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { HistoryEntity } from '@packages/entities';
 import { practiceNotFoundInterceptor as PracticeNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
 import { UsersModule } from 'src/users/users.module';
+import { EvalsModule } from '../evals/evals.module';
 import { PracticesModule } from '../practices/practices.module';
 import { SurgeryModule } from '../surgery/surgery.module';
 import { HistoryController } from './history.controller';
@@ -15,6 +16,7 @@ import { HistoryService } from './history.service';
     forwardRef(() => PracticesModule),
     forwardRef(() => SurgeryModule),
     forwardRef(() => UsersModule),
+    forwardRef(() => EvalsModule),
   ],
   controllers: [HistoryController],
   providers: [PracticeNotFoundInterceptor, HistoryService],

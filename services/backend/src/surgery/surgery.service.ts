@@ -422,6 +422,26 @@ export class SurgeryService {
     });
   }
 
+  async getSurgeryByIdIncludeDeleted(
+    id: string,
+  ): Promise<SurgeryEntity | null> {
+    return await this.surgeryRepository
+      .createQueryBuilder('surgery')
+      .where('surgery.id = :id', { id })
+      .withDeleted() // Include soft-deleted entities
+      .addSelect('surgery.dateDeleted') // Explicitly select dateDeleted column
+      .leftJoinAndSelect('surgery.practiceHome', 'practiceHome')
+      .leftJoinAndSelect('practiceHome.practice', 'homePractice')
+      .leftJoinAndSelect('surgery.surgeryConfiguration', 'surgeryConfiguration')
+      .leftJoinAndSelect('surgery.patient', 'patient')
+      .leftJoinAndSelect('surgery.insuranceType', 'insuranceType')
+      .leftJoinAndSelect('patient.referrer', 'referrer')
+      .leftJoinAndSelect('surgery.doctor', 'doctor')
+      .leftJoinAndSelect('surgery.waitlist', 'waitlist')
+      .leftJoinAndSelect('surgery.practice', 'surgeryPractice') //TO DO: make practice id not null in future
+      .getOne();
+  }
+
   async create(
     { practiceId, createSurgeryDto },
     request: Request & { user: SanitizedUser },
