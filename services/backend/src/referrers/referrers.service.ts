@@ -5,6 +5,7 @@ import {
   forwardRef,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { PatientEntity } from '@packages/entities/patient';
 import { ReferrersEntity } from '@packages/entities/referrer';
 import { PracticesService } from 'src/practices/practices.service';
 import { SurgeryService } from 'src/surgery/surgery.service';
@@ -16,6 +17,8 @@ export class ReferrersService {
   constructor(
     @InjectRepository(ReferrersEntity)
     private readonly referrers: Repository<ReferrersEntity>,
+    @InjectRepository(PatientEntity)
+    private readonly patientRepository: Repository<PatientEntity>,
     @Inject(forwardRef(() => SurgeryService))
     private surgeryService: SurgeryService,
     @Inject(forwardRef(() => PracticesService))
@@ -37,7 +40,7 @@ export class ReferrersService {
     });
   }
 
-  async getReferrerById(
+  async getReferrerByIdOld(
     practiceId: string,
     referrerId: string,
   ): Promise<ReferrersEntity> {
@@ -85,6 +88,84 @@ export class ReferrersService {
     return referrer;
   }
 
+  async getReferrerById(
+    practiceId: string,
+    referrerId: string,
+  ): Promise<ReferrersEntity> {
+    const referrer = await this.referrers.findOne({
+      where: { id: referrerId, practiceId },
+    });
+
+    if (!referrer) {
+      throw new NotFoundException('Referrer not exists');
+    }
+
+    // Fetch patients and related data for the referrer
+    const patients = await this.patientRepository
+      .createQueryBuilder('patient')
+      .leftJoinAndSelect('patient.referrer', 'referrer')
+      .leftJoinAndSelect('patient.pcp', 'pcp')
+      .leftJoinAndSelect('patient.surgeries', 'surgeries')
+      .leftJoinAndSelect(
+        'surgeries.surgeryConfiguration',
+        'surgeryConfiguration',
+      )
+      .leftJoinAndSelect('patient.evals', 'evals')
+      .leftJoinAndSelect(
+        'evals.surgeryConfiguration',
+        'evalSurgeryConfiguration',
+      )
+      .where('patient.referrerId = :referrerId', { referrerId })
+      .andWhere('patient.practiceId = :practiceId', { practiceId })
+      .getMany();
+
+    // Fetch patients by PCP
+    const patientsByPcp = await this.patientRepository
+      .createQueryBuilder('patient')
+      .leftJoinAndSelect('patient.pcp', 'pcp')
+      .leftJoinAndSelect('patient.surgeries', 'surgeries')
+      .leftJoinAndSelect(
+        'surgeries.surgeryConfiguration',
+        'pcpSurgeryConfiguration',
+      )
+      .leftJoinAndSelect('patient.evals', 'evals')
+      .leftJoinAndSelect(
+        'evals.surgeryConfiguration',
+        'pcpEvalSurgeryConfiguration',
+      )
+      .where('patient.pcp = :referrerId', { referrerId })
+      .andWhere('patient.practiceId = :practiceId', { practiceId })
+      .getMany();
+
+    referrer.patients = patients;
+    referrer.patientsByPcp = patientsByPcp;
+
+    // Sort surgeries and evals
+    referrer.patients.forEach((patient) => {
+      patient.surgeries?.sort(
+        (a, b) =>
+          new Date(b.dateCreated).getTime() - new Date(a.dateCreated).getTime(),
+      );
+      patient.evals?.sort(
+        (a, b) =>
+          new Date(b.dateCreated).getTime() - new Date(a.dateCreated).getTime(),
+      );
+    });
+
+    referrer.patientsByPcp.forEach((patient) => {
+      patient.surgeries?.sort(
+        (a, b) =>
+          new Date(b.dateCreated).getTime() - new Date(a.dateCreated).getTime(),
+      );
+      patient.evals?.sort(
+        (a, b) =>
+          new Date(b.dateCreated).getTime() - new Date(a.dateCreated).getTime(),
+      );
+    });
+
+    return referrer;
+  }
+
   async updateReferrer(
     practiceId: string,
     referrerId: string,
@@ -125,12 +206,54 @@ export class ReferrersService {
     return result;
   }
 
-  async getReferrer(practiceId: string) {
+  async getReferrerOld(practiceId: string) {
     const referrers = await this.referrers.find({
       where: { practiceId },
       relations: ['patients', 'patients.surgeries', 'patients.evals'],
     });
     return referrers;
+  }
+
+  async getReferrer(practiceId: string) {
+    const referrers = await this.referrers.find({
+      where: { practiceId },
+    });
+
+    const referrerIds = referrers.map((referrer) => referrer.id);
+
+    // Fetch patients for referrers
+    const patients = await this.patientRepository
+      .createQueryBuilder('patient')
+      .leftJoinAndSelect('patient.referrer', 'referrer')
+      .leftJoinAndSelect('patient.pcp', 'pcp')
+      .leftJoinAndSelect('patient.surgeries', 'surgeries')
+      .leftJoinAndSelect('patient.evals', 'evals')
+      .where('patient.referrerId IN (:...referrerIds)', { referrerIds })
+      .andWhere('patient.practiceId = :practiceId', { practiceId })
+      .getMany();
+
+    // Fetch patientsByPcp for referrers
+    const patientsByPcp = await this.patientRepository
+      .createQueryBuilder('patient')
+      .leftJoinAndSelect('patient.referrer', 'referrer')
+      .leftJoinAndSelect('patient.pcp', 'pcp')
+      .leftJoinAndSelect('patient.surgeries', 'surgeries')
+      .leftJoinAndSelect('patient.evals', 'evals')
+      .where('patient.pcp IN (:...referrerIds)', { referrerIds })
+      .andWhere('patient.practiceId = :practiceId', { practiceId })
+      .getMany();
+
+    const enrichedReferrers = referrers.map((referrer) => ({
+      ...referrer,
+      patients: patients.filter(
+        (patient) => patient?.referrer?.id === referrer?.id,
+      ),
+      patientsByPcp: patientsByPcp.filter(
+        (patient) => patient?.pcp?.id === referrer?.id,
+      ),
+    }));
+
+    return enrichedReferrers;
   }
 
   async getReferrerByName(
