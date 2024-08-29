@@ -239,19 +239,25 @@ export class EvalsService {
       data: createEvalDto,
     });
 
-    const practiceHomeEntity =
-      await this.practiceHomesService.getPracticeHomeById(
-        createEvalDto.practiceHomeId,
+    if (createEvalDto.practiceHomeId) {
+      createEvalDto.practiceHome =
+        await this.practiceHomesService.getPracticeHomeById(
+          createEvalDto.practiceHomeId,
+          practiceId,
+        );
+    }
+
+    if (createEvalDto.waitlistId) {
+      createEvalDto.waitlist = await this.waitlistService.getWaitlistById(
+        createEvalDto.waitlistId,
         practiceId,
       );
-
-    const waitlistEntity = await this.waitlistService.getWaitlistById(
-      createEvalDto.waitlistId,
-      practiceId,
-    );
+    }
 
     delete createEvalDto.practiceId;
     delete createEvalDto.insuranceTypeId;
+    delete createEvalDto.waitlistId;
+    delete createEvalDto.practiceHomeId;
 
     await this.evalRepository.update(id, {
       ...evalToUpdate,
@@ -264,9 +270,11 @@ export class EvalsService {
       notes: createEvalDto.notes,
       date: createEvalDto.date,
       insuranceDetails: createEvalDto.insuranceDetails,
-      waitlist: waitlistEntity ? waitlistEntity : evalToUpdate?.waitlist,
-      practiceHome: practiceHomeEntity
-        ? practiceHomeEntity
+      waitlist: createEvalDto.waitlist
+        ? createEvalDto.waitlist
+        : evalToUpdate?.waitlist,
+      practiceHome: createEvalDto.practiceHome
+        ? createEvalDto.practiceHome
         : evalToUpdate?.practiceHome,
     });
 
@@ -278,6 +286,8 @@ export class EvalsService {
         transformUpdateEvalDTO({
           ...createEvalDto,
           insuranceName: createEvalDto?.insuranceType?.name,
+          practiceHomeName: createEvalDto?.practiceHome?.name,
+          waitlistName: createEvalDto?.waitlist?.name,
         });
 
       // create history logs for updated values in evals

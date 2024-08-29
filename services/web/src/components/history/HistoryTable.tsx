@@ -212,12 +212,7 @@ export default function HistoryTable() {
 
     const historyData = {
       id: entityData.id,
-      date:
-        history.action === HistoryAction.CREATE
-          ? entityData.dateCreated
-          : history.action === HistoryAction.DELETE
-            ? (entityData.dateDeleted as Date)
-            : entityData.dateUpdated,
+      date: history.dateCreated,
       surgery: entityData.surgeryConfiguration.name,
       firstName: entityData.patient.firstName,
       lastName: entityData.patient.lastName,
@@ -260,10 +255,6 @@ export default function HistoryTable() {
       .flat();
   };
 
-  const getSortedHistoryData = (): HistoryData[] => {
-    const resolvedHistoryData = getResolvedHistoryData();
-    return resolvedHistoryData;
-  };
   return (
     <div className="my-4">
       {isHistoryLoading && <Loader />}
@@ -292,7 +283,7 @@ export default function HistoryTable() {
                 <th className="">New</th>
                 <th className="">IP</th>
               </tr>
-              {getSortedHistoryData().map((row, index) => (
+              {getResolvedHistoryData().map((row, index) => (
                 <tr
                   key={row.id}
                   id={row.id}

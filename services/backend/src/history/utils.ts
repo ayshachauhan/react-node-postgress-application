@@ -69,6 +69,10 @@ export type SurgeryChangesKeyValues = {
   totalHospitalPricing: string;
   totalProfessionalPricing: string;
   insuranceName: string;
+  waitlistName: string;
+  surgeryStatus: string;
+  practiceHomeName: string;
+  surgeryOrder: number;
 };
 
 export type EvalChangesKeyValues = {
@@ -80,6 +84,8 @@ export type EvalChangesKeyValues = {
   mrn: number;
   status: string;
   insuranceName: string;
+  waitlistName: string;
+  practiceHomeName: string;
 };
 
 export const transformSurgeryObject = (
@@ -97,6 +103,10 @@ export const transformSurgeryObject = (
     selectedSurgeryOptions: data.selectedSurgeryOptions,
     totalHospitalPricing: data.totalHospitalPricing,
     totalProfessionalPricing: data.totalProfessionalPricing,
+    waitlistName: data?.waitlist?.name,
+    practiceHomeName: data?.practiceHome?.name,
+    surgeryStatus: data?.surgeryStatus,
+    surgeryOrder: data?.surgeryOrder,
   };
 };
 
@@ -116,6 +126,12 @@ export const transformUpdateSurgeryDTO = (
     selectedSurgeryOptions: data.selectedSurgeryOptions,
     totalHospitalPricing: data.totalHospitalPricing,
     totalProfessionalPricing: data.totalProfessionalPricing,
+    // @ts-expect-error this will present in updatesurgerydto object
+    waitlistName: data?.waitlist?.name,
+    // @ts-expect-error this will present in updatesurgerydto object
+    practiceHomeName: data?.practiceHome?.name,
+    surgeryStatus: data?.surgeryStatus,
+    surgeryOrder: data?.surgeryOrder,
   };
 };
 
@@ -125,7 +141,11 @@ export const transformUpdateSurgeryDTO = (
  * @returns transformed udpateeval dto for finding changed values
  */
 export const transformUpdateEvalDTO = (
-  data: UpdateEvalDto & { insuranceName: string },
+  data: UpdateEvalDto & {
+    insuranceName: string;
+    waitlistName: string;
+    practiceHomeName: string;
+  },
 ): EvalChangesKeyValues => {
   return {
     bodyPart: data.bodyPart,
@@ -136,6 +156,8 @@ export const transformUpdateEvalDTO = (
     lastName: data.lastName,
     mrn: data.mrn,
     status: data.status,
+    waitlistName: data?.waitlistName,
+    practiceHomeName: data?.practiceHomeName,
   };
 };
 
@@ -154,5 +176,7 @@ export const transformEvalObject = (data: EvalEntity): EvalChangesKeyValues => {
     lastName: data.patient.lastName,
     mrn: data.patient.mrn,
     status: data.status,
+    waitlistName: data?.waitlist?.name,
+    practiceHomeName: data?.practiceHome?.name,
   };
 };
