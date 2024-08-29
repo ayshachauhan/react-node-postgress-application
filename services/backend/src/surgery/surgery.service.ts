@@ -588,11 +588,15 @@ export class SurgeryService {
       createSurgeryDto.insuranceType = insuranceTypeEntity;
     }
 
-    const practiceHomeEntity =
-      await this.practiceHomesService.getPracticeHomeById(
-        createSurgeryDto.practiceHomeId,
-        practiceId,
-      );
+    if (createSurgeryDto.practiceHomeId) {
+      const practiceHomeEntity =
+        await this.practiceHomesService.getPracticeHomeById(
+          createSurgeryDto.practiceHomeId,
+          practiceId,
+        );
+      delete createSurgeryDto.practiceHomeId;
+      createSurgeryDto.practiceHome = practiceHomeEntity;
+    }
 
     if (surgeryToUpdate) {
       await this.patientService.update({
@@ -602,10 +606,15 @@ export class SurgeryService {
       });
     }
 
-    const waitlistEntity = await this.waitlistService.getWaitlistById(
-      createSurgeryDto.waitlistId,
-      practiceId,
-    );
+    if (createSurgeryDto.waitlistId) {
+      const waitlistEntity = await this.waitlistService.getWaitlistById(
+        createSurgeryDto.waitlistId,
+        practiceId,
+      );
+
+      delete createSurgeryDto.waitlistId;
+      createSurgeryDto.waitlist = waitlistEntity;
+    }
 
     const dataToUpdate = {
       insuranceType: createSurgeryDto.insuranceType
@@ -624,10 +633,10 @@ export class SurgeryService {
       surgeryStatus: createSurgeryDto.surgeryStatus
         ? createSurgeryDto.surgeryStatus
         : surgeryToUpdate?.surgeryStatus,
-      practiceHome: practiceHomeEntity
-        ? practiceHomeEntity
-        : surgeryToUpdate?.practiceHome,
-      waitlist: waitlistEntity ? waitlistEntity : surgeryToUpdate?.waitlist,
+      practiceHome: createSurgeryDto.practiceHome
+        ? createSurgeryDto.practiceHome
+        : null,
+      waitlist: createSurgeryDto.waitlist ? createSurgeryDto.waitlist : null,
       selectedConditionalOptions: createSurgeryDto.selectedConditionalOptions,
     };
 

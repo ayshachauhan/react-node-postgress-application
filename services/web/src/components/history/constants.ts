@@ -7,4 +7,8 @@ export const SurgeryFields = {
   totalHospitalPricing: 'Hospital',
   totalProfessionalPricing: 'Prof',
   insuranceName: 'Insurance',
+  waitlistName: 'Waitlist',
+  surgeryStatus: 'Status',
+  practiceHomeName: 'Practice Home',
+  surgeryOrder: 'Surgery Order',
 };

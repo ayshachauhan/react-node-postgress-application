@@ -271,12 +271,12 @@ const EditableRow: React.FC<EditableRowProps> = ({
     const { surgeryConfiguration } = surgeryInfo;
     const surgeryName: string = surgeryConfiguration.name;
     const customOptionsHeaders: string[] =
-      customHeaders[surgeryName].surgeryOptionsHeaders;
+      customHeaders[surgeryName]?.surgeryOptionsHeaders;
     const customCheckListHeaders: string[] =
-      customHeaders[surgeryName].checkListHeaders;
+      customHeaders[surgeryName]?.checkListHeaders;
 
     const customConditionalHeaders: string[] =
-      customHeaders[surgeryName].conditionalHeaders;
+      customHeaders[surgeryName]?.conditionalHeaders;
 
     const selectedReferrer = referrerId
       ? referrersList.find((ele) => ele.id === referrerId)
