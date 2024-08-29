@@ -56,24 +56,19 @@ export class ReferrersService {
       throw new NotFoundException('Referrer not exists');
     }
 
-    if (referrer.patients && referrer.patients.length > 0) {
-      referrer.patients.forEach((patient) => {
-        if (patient.surgeries && patient.surgeries.length > 0) {
-          patient.surgeries.sort((a, b) => {
-            return (
-              new Date(b.dateCreated).getTime() -
-              new Date(a.dateCreated).getTime()
-            );
-          });
-        }
-        if (patient.evals && patient.evals.length > 0) {
-          patient.evals.sort((a, b) => {
-            return (
-              new Date(b.dateCreated).getTime() -
-              new Date(a.dateCreated).getTime()
-            );
-          });
-        }
+    if (referrer.surgeries && referrer.surgeries.length > 0) {
+      referrer.surgeries.sort((a, b) => {
+        return (
+          new Date(b.dateCreated).getTime() - new Date(a.dateCreated).getTime()
+        );
+      });
+    }
+
+    if (referrer.evals && referrer.evals.length > 0) {
+      referrer.evals.sort((a, b) => {
+        return (
+          new Date(b.dateCreated).getTime() - new Date(a.dateCreated).getTime()
+        );
       });
     }
 

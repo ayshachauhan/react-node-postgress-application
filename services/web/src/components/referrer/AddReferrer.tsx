@@ -41,6 +41,8 @@ const AddReferrerForm: React.FC<{
         lastName,
         referrerType,
         verified: true,
+        evals: [],
+        surgeries: [],
       };
       try {
         await withLoader(async () => {

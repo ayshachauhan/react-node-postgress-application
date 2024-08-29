@@ -104,7 +104,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
         setLastName(patientCheck.lastName);
         setEmail(patientCheck.email);
         setPhoneNumber(patientCheck.phoneNumber);
-        setReferrerId(patientCheck.referrer ? patientCheck?.referrer.id : '');
+        //setReferrerId(patientCheck.referrer ? patientCheck?.referrer.id : '');
       } else {
         setFirstName('');
         setLastName('');
