@@ -215,7 +215,7 @@ export class EmailHandlerService {
           entry.data = {
             ...entry.data,
             cataract_variable: cataract,
-            messageType: 'PREOP',
+            messageType: 'Preop',
           };
           surgeryDate.setDate(surgeryDate.getDate() + template.dateOffset);
           entry.expectedDate = surgeryDate;
@@ -235,7 +235,7 @@ export class EmailHandlerService {
           entry.data = {
             ...entry.data,
             cataract_variable: cataract,
-            messageType: 'POSTOP',
+            messageType: 'Postop',
           };
           surgeryDate.setDate(surgeryDate.getDate() + template.dateOffset);
           entry.expectedDate = surgeryDate;
@@ -639,6 +639,7 @@ export class EmailHandlerService {
         patientName: `${data.fname} ${data.lname}`,
         subject: 'Surgery Videos.',
         text: '',
+        messageType: 'Video Sent to Patient',
         pt_email_address: data.email,
         cc: ccAdminEmails,
       },
