@@ -192,6 +192,7 @@ export default function MessagesTable() {
     return dateObjB.getTime() - dateObjA.getTime();
   });
   const sortedMessagesByDate = Object.fromEntries(messagesArray);
+  console.log(messagesArray.length, 2);
 
   const resetFilters = (): void => {
     dispatch(setSearchMRNName(null));
@@ -545,6 +546,7 @@ export default function MessagesTable() {
                             {activeButton !== 'Texts' && (
                               <th className="">Email Status</th>
                             )}
+                            <th className="">Message Type</th>
                           </tr>
                           {records.map((row, index) => (
                             <tr
@@ -619,6 +621,7 @@ export default function MessagesTable() {
                                   )}
                                 </td>
                               )}
+                              <td className="">{row?.data?.messageType}</td>
                             </tr>
                           ))}
                         </React.Fragment>

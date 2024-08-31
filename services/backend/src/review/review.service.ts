@@ -276,6 +276,7 @@ export class ReviewService {
     mailData: ReviewMailData,
   ): Promise<void> {
     const practice = await this.practiceService.findOne(practiceId);
+    const messageType = 'Review';
     const systemGeneratedMailData = {
       subject: 'Practice Optimizer Dashboard - Rate your visit',
       text: '',
@@ -287,6 +288,7 @@ export class ReviewService {
         practice,
         mailData,
         systemGeneratedMailData,
+        messageType,
       );
     }
   }
