@@ -16,10 +16,20 @@ import { UpdateSurgeryDto } from '../surgery/dto/updateSurgery.dto';
 export const findChangedValues = (oldObj, newObj): EntityChanges => {
   const changedValues: Partial<EntityChanges> = {};
 
+  const formatDateString = (date: Date): string => {
+    const month = date.getMonth() + 1; // Months are zero-based
+    const day = date.getDate();
+    const year = date.getFullYear();
+    return `${month}/${day}/${year}`;
+  };
+
   const findChanges = (oldVal, newVal, path = '') => {
     if (oldVal instanceof Date && newVal instanceof Date) {
       if (oldVal.getTime() !== newVal.getTime()) {
-        changedValues[path] = { oldValue: oldVal, newValue: newVal };
+        changedValues[path] = {
+          oldValue: formatDateString(oldVal),
+          newValue: formatDateString(newVal),
+        };
       }
       return;
     }
