@@ -584,9 +584,6 @@ export class EmailHandlerService {
     data: Record<string, string>,
     practice: IPractice,
   ): Promise<void> {
-    const { adminEmails } = practice.emailData;
-    const ccAdminEmails: string =
-      adminEmails && adminEmails.length ? `${adminEmails}` : '';
     const entry: Partial<IEmailLog> = {
       practice,
       expectedDate: new Date(),
@@ -608,7 +605,6 @@ export class EmailHandlerService {
         subject: 'Surgery Videos.',
         text: '',
         pt_email_address: data.email,
-        cc: ccAdminEmails,
       },
     };
     await this.emailLogRepository.save(entry);
@@ -642,13 +638,22 @@ export class EmailHandlerService {
   async checkAndMakeSurgeryUpdateEmailContent(
     practice: IPractice,
     entity: ISurgery,
+    includeAdmin: boolean,
   ) {
+    console.log(
+      includeAdmin,
+      '8888888888888888888888888---------------------------------------------------------------------------------',
+    );
     const emailLogsEntries: Partial<IEmailLog>[] = [];
     const mailVariables = await this.makeEmailVariable(entity, practice);
 
-    const { staffEmails, operatingRoomEmails } = practice.emailData;
+    const { staffEmails, operatingRoomEmails, adminEmails } =
+      practice.emailData;
     if (staffEmails || operatingRoomEmails) {
-      const sendEmailArray: string[] = [...staffEmails, ...operatingRoomEmails];
+      let sendEmailArray: string[] = [...staffEmails, ...operatingRoomEmails];
+      if (includeAdmin) {
+        sendEmailArray = [...sendEmailArray, ...adminEmails];
+      }
       const systemTemplateName = SystemTemplates.NOTIFY_STAFF_SURGERY_UPDATED;
 
       const subject: string = `A surgery is updated

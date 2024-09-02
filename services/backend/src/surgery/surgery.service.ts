@@ -616,6 +616,32 @@ export class SurgeryService {
       createSurgeryDto.waitlist = waitlistEntity;
     }
 
+    console.log(createSurgeryDto);
+    console.log(
+      'helooo-----------------------------------------------------------------------------------',
+    );
+    console.log(surgeryToUpdate);
+    let sendUpdateMailAdmin = false;
+    if (
+      (createSurgeryDto.surgeryStatus === SurgeryStatus.CANCELLED &&
+        surgeryToUpdate?.surgeryStatus !== SurgeryStatus.CANCELLED) ||
+      (createSurgeryDto.surgeryStatus === SurgeryStatus.POSTPONE &&
+        surgeryToUpdate?.surgeryStatus !== SurgeryStatus.POSTPONE) ||
+      (createSurgeryDto.date &&
+        surgeryToUpdate?.date &&
+        createSurgeryDto.date !== surgeryToUpdate.date)
+    ) {
+      sendUpdateMailAdmin = true;
+    }
+    console.log(createSurgeryDto.surgeryStatus, 'statys');
+    console.log(surgeryToUpdate?.surgeryStatus, 'staddddtys');
+    console.log(createSurgeryDto.date, 'dateee');
+    console.log(surgeryToUpdate?.date, 'dddddddddddddddddateee');
+    console.log(
+      sendUpdateMailAdmin,
+      '------------------------------------------------------------------------------------------------',
+    );
+
     const dataToUpdate = {
       insuranceType: createSurgeryDto.insuranceType
         ? createSurgeryDto.insuranceType
@@ -746,9 +772,13 @@ export class SurgeryService {
     const updatedSurgery: ISurgery | null = await this.getSurgeryById(id);
 
     // initiating emails for updating surgeries
-    if (updatedSurgery)
-      await this.initiateUpdateSurgeryMail(updatedSurgery, practiceId);
-
+    if (updatedSurgery) {
+      if (sendUpdateMailAdmin) {
+        await this.initiateUpdateSurgeryMail(updatedSurgery, practiceId, true);
+      } else {
+        await this.initiateUpdateSurgeryMail(updatedSurgery, practiceId, false);
+      }
+    }
     return updatedSurgery;
   }
 
@@ -974,6 +1004,7 @@ export class SurgeryService {
   async initiateUpdateSurgeryMail(
     surgeryEntity: ISurgery,
     practiceId: string,
+    includeAdmin: boolean,
   ): Promise<void> {
     const practiceEntity: IPractice | null =
       await this.practiceService.findOne(practiceId);
@@ -982,6 +1013,7 @@ export class SurgeryService {
       await this.emailHandlerService.checkAndMakeSurgeryUpdateEmailContent(
         practiceEntity,
         surgeryEntity,
+        includeAdmin,
       );
     }
   }
