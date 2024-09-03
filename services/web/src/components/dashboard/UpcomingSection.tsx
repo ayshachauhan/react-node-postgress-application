@@ -58,11 +58,13 @@ const UpcomingSection: React.FC = () => {
   const { calendars, surgeryTypes, allCalendarData } = useAppSelector(
     (state) => ({
       calendars: Object.values(state.calendars?.filteredEntities).filter(
-        (calendar) => calendar?.user?.id === userId,
+        (calendar) =>
+          calendar?.user?.id === userId && calendar?.surgeryType !== null,
       ),
       surgeryTypes: Object.values(state.surgeryTypes?.entities),
       allCalendarData: Object.values(state.calendars?.entities).filter(
-        (calendar) => calendar?.user?.id === userId,
+        (calendar) =>
+          calendar?.user?.id === userId && calendar?.surgeryType !== null,
       ),
     }),
   );
