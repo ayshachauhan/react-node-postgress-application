@@ -644,10 +644,6 @@ export class EmailHandlerService {
     entity: ISurgery,
     includeAdmin: boolean,
   ) {
-    console.log(
-      includeAdmin,
-      '8888888888888888888888888---------------------------------------------------------------------------------',
-    );
     const emailLogsEntries: Partial<IEmailLog>[] = [];
     const mailVariables = await this.makeEmailVariable(entity, practice);
 
