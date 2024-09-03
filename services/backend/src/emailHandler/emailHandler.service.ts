@@ -584,6 +584,9 @@ export class EmailHandlerService {
     data: Record<string, string>,
     practice: IPractice,
   ): Promise<void> {
+    const { adminEmails } = practice.emailData;
+    const ccAdminEmails: string =
+      adminEmails && adminEmails.length ? `${adminEmails}` : '';
     const entry: Partial<IEmailLog> = {
       practice,
       expectedDate: new Date(),
@@ -605,6 +608,7 @@ export class EmailHandlerService {
         subject: 'Surgery Videos.',
         text: '',
         pt_email_address: data.email,
+        cc: ccAdminEmails,
       },
     };
     await this.emailLogRepository.save(entry);
