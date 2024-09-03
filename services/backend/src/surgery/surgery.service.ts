@@ -616,31 +616,21 @@ export class SurgeryService {
       createSurgeryDto.waitlist = waitlistEntity;
     }
 
-    console.log(createSurgeryDto);
-    console.log(
-      'helooo-----------------------------------------------------------------------------------',
-    );
-    console.log(surgeryToUpdate);
     let sendUpdateMailAdmin = false;
+    const newDate = new Date(createSurgeryDto.date);
+    const oldDate = surgeryToUpdate?.date
+      ? new Date(surgeryToUpdate.date)
+      : null;
+
     if (
       (createSurgeryDto.surgeryStatus === SurgeryStatus.CANCELLED &&
         surgeryToUpdate?.surgeryStatus !== SurgeryStatus.CANCELLED) ||
       (createSurgeryDto.surgeryStatus === SurgeryStatus.POSTPONE &&
         surgeryToUpdate?.surgeryStatus !== SurgeryStatus.POSTPONE) ||
-      (createSurgeryDto.date &&
-        surgeryToUpdate?.date &&
-        createSurgeryDto.date !== surgeryToUpdate.date)
+      (newDate && oldDate && newDate.getTime() !== oldDate.getTime()) // Compare timestamps
     ) {
       sendUpdateMailAdmin = true;
     }
-    console.log(createSurgeryDto.surgeryStatus, 'statys');
-    console.log(surgeryToUpdate?.surgeryStatus, 'staddddtys');
-    console.log(createSurgeryDto.date, 'dateee');
-    console.log(surgeryToUpdate?.date, 'dddddddddddddddddateee');
-    console.log(
-      sendUpdateMailAdmin,
-      '------------------------------------------------------------------------------------------------',
-    );
 
     const dataToUpdate = {
       insuranceType: createSurgeryDto.insuranceType
