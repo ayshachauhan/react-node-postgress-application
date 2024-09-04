@@ -35,11 +35,11 @@ const ReferedPatients = ({ referrerId, withLoader }) => {
         })),
         ...(referrerInfo?.pcpSurgeries ?? []).map((patient) => ({
           ...patient,
-          type: 'pcpSurgery',
+          type: 'surgery',
         })),
         ...(referrerInfo?.pcpEvals ?? []).map((patient) => ({
           ...patient,
-          type: 'pcpEval',
+          type: 'eval',
         })),
       ].map((patient) => [patient.id, patient]),
     ).values(),
@@ -95,7 +95,7 @@ const ReferedPatients = ({ referrerId, withLoader }) => {
       lastName: patientLastName,
     } = entity.patient;
 
-    if (entity.type === 'surgery' || entity.type === 'pcpSurgery') {
+    if (entity.type === 'surgery') {
       return {
         ...entity,
         type: 'surgery',
@@ -109,7 +109,7 @@ const ReferedPatients = ({ referrerId, withLoader }) => {
         totalHospitalPricing:
           'totalHospitalPricing' in entity ? entity.totalHospitalPricing : 0,
       };
-    } else if (entity.type === 'eval' || entity.type === 'pcpEval') {
+    } else if (entity.type === 'eval') {
       return {
         ...entity,
         type: 'eval',
