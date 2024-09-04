@@ -8,6 +8,8 @@ import {
   IEval,
   IPractice,
   PatientEntity,
+  ReferrerType,
+  ReferrersEntity,
 } from '@packages/entities';
 import { EmailHandlerService } from 'src/emailHandler/emailHandler.service';
 import { ENVIRONMENT_VARIABLES } from 'src/enums/environment.enums';
@@ -29,6 +31,7 @@ import {
   transformEvalObject,
   transformUpdateEvalDTO,
 } from '../history/utils';
+import { ReferrersService } from '../referrers/referrers.service';
 import { WaitlistService } from '../waitlist/waitlist.service';
 
 @Injectable()
@@ -55,6 +58,8 @@ export class EvalsService {
     private readonly configService: ConfigService,
     @Inject(forwardRef(() => HistoryService))
     private historyService: HistoryService,
+    @Inject(forwardRef(() => ReferrersService))
+    private referrerService: ReferrersService,
   ) {}
 
   getFrontEndBaseUrl() {
@@ -88,10 +93,10 @@ export class EvalsService {
         'surgeryConfiguration',
         'patient',
         'insuranceType',
-        'patient.referrer',
-        'patient.pcp',
         'doctor',
         'waitlist',
+        'referrer',
+        'pcp',
         'practice', //TO DO: make practice id not null in future
       ],
       order: {
@@ -125,10 +130,10 @@ export class EvalsService {
         'surgeryConfiguration',
         'patient',
         'insuranceType',
-        'patient.referrer',
-        'patient.pcp',
         'doctor',
         'waitlist',
+        'referrer',
+        'pcp',
         'practice', //TO DO: make practice id not null in future
       ],
     });
@@ -144,7 +149,8 @@ export class EvalsService {
       .leftJoinAndSelect('eval.surgeryConfiguration', 'surgeryConfiguration')
       .leftJoinAndSelect('eval.patient', 'patient')
       .leftJoinAndSelect('eval.insuranceType', 'insuranceType')
-      .leftJoinAndSelect('patient.referrer', 'referrer')
+      .leftJoinAndSelect('eval.referrer', 'referrer')
+      .leftJoinAndSelect('eval.pcp', 'pcp')
       .leftJoinAndSelect('eval.doctor', 'doctor')
       .leftJoinAndSelect('eval.waitlist', 'waitlist')
       .leftJoinAndSelect('eval.practice', 'evalPractice') //TO DO: make practice id not null in future
@@ -186,6 +192,69 @@ export class EvalsService {
       practiceId,
     );
 
+    const isValidUUID = (uuid: string): boolean => {
+      const uuidRegex =
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[4][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+      return uuidRegex.test(uuid);
+    };
+
+    let referrerEntity = new ReferrersEntity();
+    let pcpReferrerEntity = new ReferrersEntity();
+    if (createEvalDto.referrerId) {
+      if (isValidUUID(createEvalDto.referrerId)) {
+        referrerEntity = await this.referrerService.getReferrerById(
+          practiceId,
+          createEvalDto.referrerId,
+        );
+
+        if (!referrerEntity) {
+          referrerEntity = await this.referrerService.createReferrer(
+            practiceId,
+            {
+              firstName: createEvalDto.referrerId,
+              referrerType: ReferrerType.PCP,
+              verified: false,
+            },
+          );
+        }
+      } else {
+        referrerEntity = await this.referrerService.createReferrer(practiceId, {
+          firstName: createEvalDto.referrerId,
+          referrerType: ReferrerType.PCP,
+          verified: false,
+        });
+      }
+    }
+
+    if (createEvalDto.pcp) {
+      if (isValidUUID(createEvalDto.pcp)) {
+        pcpReferrerEntity = await this.referrerService.getReferrerById(
+          practiceId,
+          createEvalDto.pcp,
+        );
+
+        if (!pcpReferrerEntity) {
+          pcpReferrerEntity = await this.referrerService.createReferrer(
+            practiceId,
+            {
+              firstName: createEvalDto.pcp,
+              referrerType: ReferrerType.PCP,
+              verified: false,
+            },
+          );
+        }
+      } else {
+        pcpReferrerEntity = await this.referrerService.createReferrer(
+          practiceId,
+          {
+            firstName: createEvalDto.pcp,
+            referrerType: ReferrerType.PCP,
+            verified: false,
+          },
+        );
+      }
+    }
+
     const resultEval = await this.evalRepository.save({
       ...newEval,
       ...createEvalDto,
@@ -196,6 +265,8 @@ export class EvalsService {
       insuranceType: insuranceTypeEntity,
       doctor: doctorEntity,
       waitlist: waitlistEntity,
+      referrer: referrerEntity.dateCreated ? referrerEntity : undefined,
+      pcp: pcpReferrerEntity.dateCreated ? pcpReferrerEntity : undefined,
     });
 
     // create history entry after creating eval
@@ -254,6 +325,26 @@ export class EvalsService {
       );
     }
 
+    if (createEvalDto.referrerId) {
+      const refererEntity = await this.referrerService.getReferrerById(
+        practiceId,
+        createEvalDto.referrerId,
+      );
+
+      delete createEvalDto.referrerId;
+      createEvalDto.referrer = refererEntity;
+    }
+
+    if (createEvalDto.pcp) {
+      const refererEntity = await this.referrerService.getReferrerById(
+        practiceId,
+        createEvalDto.pcp,
+      );
+
+      delete createEvalDto.pcp;
+      createEvalDto.pcp = refererEntity;
+    }
+
     delete createEvalDto.practiceId;
     delete createEvalDto.insuranceTypeId;
     delete createEvalDto.waitlistId;
@@ -276,6 +367,8 @@ export class EvalsService {
       practiceHome: createEvalDto.practiceHome
         ? createEvalDto.practiceHome
         : evalToUpdate?.practiceHome,
+      referrer: createEvalDto.referrer ? createEvalDto.referrer : null,
+      pcp: createEvalDto.pcp ? createEvalDto.pcp : null,
     });
 
     if (evalToUpdate) {

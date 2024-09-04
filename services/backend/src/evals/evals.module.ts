@@ -14,6 +14,7 @@ import { TemplatesModule } from 'src/templates/templates.module';
 import { UsersModule } from 'src/users/users.module';
 import { WaitlistModule } from 'src/waitlist/waitlist.module';
 import { HistoryModule } from '../history/history.module';
+import { ReferrersModule } from '../referrers/referrers.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { HistoryModule } from '../history/history.module';
     forwardRef(() => EmailHandlerModule),
     forwardRef(() => HistoryModule),
     forwardRef(() => WaitlistModule),
+    forwardRef(() => ReferrersModule),
   ],
   providers: [
     practiceNotFoundInterceptor,

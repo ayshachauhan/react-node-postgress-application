@@ -112,8 +112,8 @@ const EditableRow: React.FC<EditableRowProps> = ({
       });
 
       setInsuranceTypeId(evalInfo?.insuranceType?.id);
-      setReferrerId(evalInfo.patient?.referrer?.id);
-      setPCP(evalInfo.patient?.pcp?.id);
+      setReferrerId(evalInfo.referrer?.id);
+      setPCP(evalInfo.pcp?.id);
       setWaitlistId(evalInfo?.waitlist?.id);
     }
   }, [evalInfo.id, evalInfo]);
@@ -411,8 +411,8 @@ const EditableRow: React.FC<EditableRowProps> = ({
               options={surgeryConfigurationsOptions}
               value={[
                 {
-                  id: evalInfo.surgeryConfiguration.name,
-                  label: evalInfo.surgeryConfiguration.name,
+                  id: evalInfo?.surgeryConfiguration?.name,
+                  label: evalInfo?.surgeryConfiguration?.name,
                 },
               ]}
               onChange={({ value }) =>
@@ -438,7 +438,7 @@ const EditableRow: React.FC<EditableRowProps> = ({
           <td rowSpan={1} className="min-w-20">
             <Select
               backspaceRemoves={false}
-              options={evalInfo.surgeryConfiguration.bodyPart.map((ele) => ({
+              options={evalInfo?.surgeryConfiguration?.bodyPart.map((ele) => ({
                 id: ele,
                 label: ele,
               }))}

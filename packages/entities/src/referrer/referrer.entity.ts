@@ -1,7 +1,8 @@
 import { Column, Entity, OneToMany } from 'typeorm';
 import { IReferrer } from '.';
 import { BaseEntity } from '../base.entity';
-import { IPatient, PatientEntity } from '../patient';
+import { EvalEntity, IEval } from '../eval';
+import { ISurgery, SurgeryEntity } from '../surgery';
 import { ReferrerType } from './referrer.interface';
 
 @Entity('referrers')
@@ -24,9 +25,15 @@ export class ReferrersEntity extends BaseEntity implements IReferrer {
   @Column({ type: 'boolean', default: false })
   verified: boolean;
 
-  @OneToMany(() => PatientEntity, (patient) => patient.referrer)
-  patients: IPatient[];
+  @OneToMany(() => SurgeryEntity, (s) => s.referrer)
+  surgeries: ISurgery[];
 
-  @OneToMany(() => PatientEntity, (patient) => patient.pcp)
-  patientsByPcp: IPatient[];
+  @OneToMany(() => EvalEntity, (e) => e.referrer)
+  evals: IEval[];
+
+  @OneToMany(() => SurgeryEntity, (surgery) => surgery.pcp)
+  pcpSurgeries: ISurgery[];
+
+  @OneToMany(() => EvalEntity, (e) => e.pcp)
+  pcpEvals: IEval[];
 }

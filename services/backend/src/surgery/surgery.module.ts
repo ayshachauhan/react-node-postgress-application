@@ -15,6 +15,7 @@ import { UsersModule } from 'src/users/users.module';
 import { WaitlistModule } from 'src/waitlist/waitlist.module';
 import { CalendarModule } from '../calendar/calendar.module';
 import { HistoryModule } from '../history/history.module';
+import { ReferrersModule } from '../referrers/referrers.module';
 import { SurgeryController } from './surgery.controller';
 import { SurgeryService } from './surgery.service';
 
@@ -34,6 +35,7 @@ import { SurgeryService } from './surgery.service';
     forwardRef(() => TemplatesModule),
     forwardRef(() => WaitlistModule),
     forwardRef(() => ReviewsModule),
+    forwardRef(() => ReferrersModule),
   ],
   providers: [
     practiceNotFoundInterceptor,

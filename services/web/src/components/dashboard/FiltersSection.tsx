@@ -314,8 +314,8 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
         home: ele?.practiceHome?.name,
         insuranceDetails: ele.insuranceDetails,
         insurance: ele.insuranceType ? ele.insuranceType?.name : '',
-        pcp: ele.patient.pcp ? toFullName(ele.patient.pcp) : '',
-        referrer: ele.patient.referrer ? toFullName(ele.patient.referrer) : '',
+        pcp: ele.pcp ? toFullName(ele.pcp) : '',
+        referrer: ele.referrer ? toFullName(ele.referrer) : '',
         notes: ele.notes ? ele.notes : '',
         bodyPart: ele.bodyPart,
         index: index + 1,
@@ -334,9 +334,8 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
         selectedChecklistOptions: ele.selectedCheckListOptions,
         selectedConditionalOptions: ele.selectedConditionalOptions,
         waitlist: ele?.waitlist?.name,
-        referrerVerified:
-          ele.patient.referrer && ele.patient.referrer.verified ? true : false,
-        pcpVerified: ele.patient.pcp && ele.patient.pcp.verified ? true : false,
+        referrerVerified: ele.referrer && ele.referrer.verified ? true : false,
+        pcpVerified: ele.pcp && ele.pcp.verified ? true : false,
       };
 
       const optionArr = Object.keys(ele.surgeryConfiguration.options);

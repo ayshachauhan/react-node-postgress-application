@@ -1,5 +1,10 @@
 import { IBaseEntity } from '../base.interface';
-import { IPractice, ISurgeryConfiguration, IWaitlist } from '../index.browser';
+import {
+  IPractice,
+  IReferrer,
+  ISurgeryConfiguration,
+  IWaitlist,
+} from '../index.browser';
 import { IInsuranceType } from '../insuranceType';
 import { IPatient } from '../patient';
 import { IPracticeHomes } from '../practiceHomes';
@@ -28,6 +33,8 @@ export interface ISurgery extends IBaseEntity {
   count?: number;
   initialProfPrice?: string;
   initialHospitalPrice?: string;
+  pcp?: IReferrer;
+  referrer?: IReferrer;
 }
 
 export interface CreateSurgeryPayload {
