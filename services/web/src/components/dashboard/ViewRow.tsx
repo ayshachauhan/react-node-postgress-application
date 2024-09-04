@@ -76,6 +76,33 @@ function ViewRow({ selectedSurgery, viewBillingColumn }) {
                 )}
               </span>
             </p>
+            <p className="flex items-center">
+              <span className="font-bold">PCP: </span>
+              <span>{selectedSurgery?.pcp}</span>
+              <span>
+                {selectedSurgery?.pcpVerified && (
+                  <Checkbox
+                    checked={true}
+                    overrides={{
+                      Checkmark: {
+                        style: ({ $checked }) => ({
+                          backgroundColor: $checked
+                            ? 'rgba(34, 197, 94, 1)'
+                            : 'white',
+                          borderColor: $checked
+                            ? 'rgba(34, 197, 94, 1)'
+                            : 'rgba(113, 113, 122, 1)',
+                          width: '12px',
+                          height: '12px',
+                          borderRadius: '2px',
+                          borderWidth: '2px',
+                        }),
+                      },
+                    }}
+                  />
+                )}
+              </span>
+            </p>
           </div>
           <div className="flex-1">
             <p>

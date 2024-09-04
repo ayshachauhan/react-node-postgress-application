@@ -44,11 +44,18 @@ export class ReferrersService {
     const referrer = await this.referrers.findOne({
       where: { id: referrerId, practiceId },
       relations: [
-        'patients',
         'surgeries',
         'evals',
+        'pcpSurgeries',
+        'pcpEvals',
         'surgeries.surgeryConfiguration',
         'evals.surgeryConfiguration',
+        'surgeries.patient',
+        'evals.patient',
+        'pcpSurgeries.patient',
+        'pcpEvals.patient',
+        'pcpSurgeries.surgeryConfiguration',
+        'pcpEvals.surgeryConfiguration',
       ],
     });
 
@@ -66,6 +73,22 @@ export class ReferrersService {
 
     if (referrer.evals && referrer.evals.length > 0) {
       referrer.evals.sort((a, b) => {
+        return (
+          new Date(b.dateCreated).getTime() - new Date(a.dateCreated).getTime()
+        );
+      });
+    }
+
+    if (referrer.pcpSurgeries && referrer.pcpSurgeries.length > 0) {
+      referrer.pcpSurgeries.sort((a, b) => {
+        return (
+          new Date(b.dateCreated).getTime() - new Date(a.dateCreated).getTime()
+        );
+      });
+    }
+
+    if (referrer.pcpEvals && referrer.pcpEvals.length > 0) {
+      referrer.pcpEvals.sort((a, b) => {
         return (
           new Date(b.dateCreated).getTime() - new Date(a.dateCreated).getTime()
         );
@@ -116,7 +139,16 @@ export class ReferrersService {
   async getReferrer(practiceId: string) {
     const referrers = await this.referrers.find({
       where: { practiceId },
-      relations: ['patients', 'patients.surgeries', 'patients.evals'],
+      relations: [
+        'surgeries',
+        'evals',
+        'pcpSurgeries',
+        'pcpEvals',
+        'surgeries.patient',
+        'evals.patient',
+        'pcpSurgeries.patient',
+        'pcpEvals.patient',
+      ],
     });
     return referrers;
   }

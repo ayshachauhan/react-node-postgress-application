@@ -105,7 +105,6 @@ export class PatientsService {
   async getPatientsByPractice(practiceId: string): Promise<PatientEntity[]> {
     return this.patientRepository.find({
       where: { practice: { id: practiceId } },
-      relations: ['referrer'],
     });
   }
 
@@ -115,12 +114,7 @@ export class PatientsService {
   ): Promise<PatientEntity | null> {
     return this.patientRepository.findOne({
       where: { practice: { id: practiceId }, mrn },
-      relations: [
-        'referrer',
-        'surgeries',
-        'evals',
-        'surgeries.surgeryConfiguration',
-      ],
+      relations: ['surgeries', 'evals', 'surgeries.surgeryConfiguration'],
     });
   }
 }

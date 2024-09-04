@@ -10,6 +10,8 @@ export interface IReferrer extends IBaseEntity {
   referrerType: ReferrerType | undefined;
   surgeries: ISurgery[];
   evals: IEval[];
+  pcpSurgeries: ISurgery[];
+  pcpEvals: IEval[];
   verified: boolean;
 }
 

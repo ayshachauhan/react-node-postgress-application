@@ -11,6 +11,7 @@ import {
   fetchFilteredCalendars,
 } from '@root/store/reducers/calendar';
 import { updateRecordAsync as updateEval } from '@root/store/reducers/evals';
+import { fetchListings as fetchReferrersList } from '@root/store/reducers/referrer';
 import {
   addRecordAsync as addSurgeryRecord,
   fetchAllSurgeries,
@@ -219,24 +220,24 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
       const selectedCataractSurgeryConfiguration =
         surgeryConfigurationsList[surgeryCataractNameId];
 
-      setBodyPart(selectedSurgeryConfiguration.bodyPart[0]);
+      setBodyPart(selectedSurgeryConfiguration?.bodyPart[0]);
       setCataractBodyPart(selectedCataractSurgeryConfiguration?.bodyPart[0]);
 
-      const selectedSurgeryOptions = Object.values(
-        selectedSurgeryConfiguration.options,
-      ).map((ele, i) => {
-        const allowedValues = ele.allowedValues.map(
-          (allowedValue, allowedValueIndex) => ({
-            id: allowedValueIndex,
-            label: allowedValue.name,
-            selected: allowedValueIndex === 0 ? true : false,
-            hospitalPricing: allowedValue.hospitalPricing,
-            professionalPricing: allowedValue.professionalPricing,
-          }),
-        );
+      const selectedSurgeryOptions = selectedSurgeryConfiguration?.options
+        ? Object.values(selectedSurgeryConfiguration.options).map((ele, i) => {
+            const allowedValues = ele.allowedValues.map(
+              (allowedValue, allowedValueIndex) => ({
+                id: allowedValueIndex,
+                label: allowedValue.name,
+                selected: allowedValueIndex === 0 ? true : false,
+                hospitalPricing: allowedValue.hospitalPricing,
+                professionalPricing: allowedValue.professionalPricing,
+              }),
+            );
 
-        return { id: i, label: ele.label, checked: false, allowedValues };
-      });
+            return { id: i, label: ele.label, checked: false, allowedValues };
+          })
+        : [];
 
       setSurgeryDropdownOptions([...selectedSurgeryOptions]);
     }
@@ -451,6 +452,8 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
             date,
             patient: { firstName, mrn, phoneNumber, email },
             bodyPart,
+            pcp,
+            referrer,
           } = evalAutoFillInfo;
           await dispatch(
             updateEval({
@@ -463,6 +466,8 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
                 phoneNumber,
                 firstName,
                 mrn,
+                pcp: pcp?.id,
+                referrerId: referrer?.id,
               },
               id,
             }),
@@ -479,6 +484,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
         );
 
         await dispatch(fetchCalendars({ practiceId, userId: doctorId }));
+        await dispatch(fetchReferrersList({ practiceId: practiceId }));
         dispatch(fetchUsersList({ practiceId }));
         dispatch(fetchAllSurgeries({ practiceId }));
 
@@ -974,9 +980,9 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
                     required
                     options={
                       surgeryNameId
-                        ? surgeryConfigurationsList[surgeryNameId].bodyPart.map(
-                            (ele) => ({ id: ele, label: ele }),
-                          )
+                        ? surgeryConfigurationsList[
+                            surgeryNameId
+                          ]?.bodyPart.map((ele) => ({ id: ele, label: ele }))
                         : []
                     }
                     onChange={handleBodyPartTypeChange}
@@ -1087,7 +1093,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
                         surgeryCataractNameId
                           ? surgeryConfigurationsList[
                               surgeryCataractNameId
-                            ].bodyPart.map((ele) => ({ id: ele, label: ele }))
+                            ]?.bodyPart.map((ele) => ({ id: ele, label: ele }))
                           : []
                       }
                       onChange={handleCataractBodyPartTypeChange}

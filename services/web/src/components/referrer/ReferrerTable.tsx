@@ -149,15 +149,30 @@ export default function ReferrerTable() {
             </tr>
             {!isLoading &&
               referrers.map((data, index) => {
-                const totalSurgeries = data.patients?.reduce(
-                  (sum, patient) => sum + (patient.surgeries?.length || 0),
-                  0,
-                );
-                const totalEvals = data.patients?.reduce(
-                  (sum, patient) => sum + (patient.evals?.length || 0),
-                  0,
-                );
-                const total = totalSurgeries + totalEvals;
+                const combinedPatients = [
+                  ...new Map(
+                    [
+                      ...(data?.surgeries ?? []).map((patient) => ({
+                        ...patient,
+                        type: 'surgery',
+                      })),
+                      ...(data?.evals ?? []).map((patient) => ({
+                        ...patient,
+                        type: 'eval',
+                      })),
+                      ...(data?.pcpSurgeries ?? []).map((patient) => ({
+                        ...patient,
+                        type: 'pcpSurgery',
+                      })),
+                      ...(data?.pcpEvals ?? []).map((patient) => ({
+                        ...patient,
+                        type: 'pcpEval',
+                      })),
+                    ].map((patient) => [patient.id, patient]),
+                  ).values(),
+                ];
+
+                const total = combinedPatients.length;
 
                 return (
                   <React.Fragment key={data.id}>

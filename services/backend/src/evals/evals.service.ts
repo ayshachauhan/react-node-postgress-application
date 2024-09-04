@@ -25,7 +25,6 @@ import { UsersService } from 'src/users/users.service';
 import { formatHeaderDate } from 'src/utils';
 import { PAGINATION_LIMIT } from 'src/utils/constants';
 import { In, IsNull, MoreThan, Repository } from 'typeorm';
-import { v4 as uuidv4 } from 'uuid';
 import {
   EvalChangesKeyValues,
   findChangedValues,
@@ -96,6 +95,8 @@ export class EvalsService {
         'insuranceType',
         'doctor',
         'waitlist',
+        'referrer',
+        'pcp',
         'practice', //TO DO: make practice id not null in future
       ],
       order: {
@@ -131,9 +132,29 @@ export class EvalsService {
         'insuranceType',
         'doctor',
         'waitlist',
+        'referrer',
+        'pcp',
         'practice', //TO DO: make practice id not null in future
       ],
     });
+  }
+
+  async getEvalByIdIncludeDeleted(id: string): Promise<EvalEntity | null> {
+    return await this.evalRepository
+      .createQueryBuilder('eval')
+      .where('eval.id = :id', { id })
+      .withDeleted() // Include soft-deleted entities
+      .addSelect('eval.dateDeleted') // Explicitly select dateDeleted column
+      .leftJoinAndSelect('eval.practiceHome', 'practiceHome')
+      .leftJoinAndSelect('eval.surgeryConfiguration', 'surgeryConfiguration')
+      .leftJoinAndSelect('eval.patient', 'patient')
+      .leftJoinAndSelect('eval.insuranceType', 'insuranceType')
+      .leftJoinAndSelect('eval.referrer', 'referrer')
+      .leftJoinAndSelect('eval.pcp', 'pcp')
+      .leftJoinAndSelect('eval.doctor', 'doctor')
+      .leftJoinAndSelect('eval.waitlist', 'waitlist')
+      .leftJoinAndSelect('eval.practice', 'evalPractice') //TO DO: make practice id not null in future
+      .getOne();
   }
 
   async create({ practiceId, createEvalDto, user }): Promise<EvalEntity> {
@@ -171,16 +192,32 @@ export class EvalsService {
       practiceId,
     );
 
+    const isValidUUID = (uuid: string): boolean => {
+      const uuidRegex =
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[4][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+      return uuidRegex.test(uuid);
+    };
+
     let referrerEntity = new ReferrersEntity();
     let pcpReferrerEntity = new ReferrersEntity();
     if (createEvalDto.referrerId) {
-      try {
-        uuidv4(createEvalDto.referrerId);
+      if (isValidUUID(createEvalDto.referrerId)) {
         referrerEntity = await this.referrerService.getReferrerById(
           practiceId,
           createEvalDto.referrerId,
         );
-      } catch (error) {
+
+        if (!referrerEntity) {
+          referrerEntity = await this.referrerService.createReferrer(
+            practiceId,
+            {
+              firstName: createEvalDto.referrerId,
+              referrerType: ReferrerType.PCP,
+              verified: false,
+            },
+          );
+        }
+      } else {
         referrerEntity = await this.referrerService.createReferrer(practiceId, {
           firstName: createEvalDto.referrerId,
           referrerType: ReferrerType.PCP,
@@ -190,13 +227,23 @@ export class EvalsService {
     }
 
     if (createEvalDto.pcp) {
-      try {
-        uuidv4(createEvalDto.pcp); // Validate the pcp
+      if (isValidUUID(createEvalDto.pcp)) {
         pcpReferrerEntity = await this.referrerService.getReferrerById(
           practiceId,
           createEvalDto.pcp,
         );
-      } catch (error) {
+
+        if (!pcpReferrerEntity) {
+          pcpReferrerEntity = await this.referrerService.createReferrer(
+            practiceId,
+            {
+              firstName: createEvalDto.pcp,
+              referrerType: ReferrerType.PCP,
+              verified: false,
+            },
+          );
+        }
+      } else {
         pcpReferrerEntity = await this.referrerService.createReferrer(
           practiceId,
           {
@@ -236,6 +283,7 @@ export class EvalsService {
       await this.initiateSendEmail(resultEval, practiceEntity);
       await this.initiateDoctorSendEmail(resultEval, practiceEntity);
       await this.initiateReferrerSendEmail(resultEval, practiceEntity);
+      await this.initiatePCPSendEmail(resultEval, practiceEntity);
     }
     return resultEval;
   }
@@ -262,16 +310,20 @@ export class EvalsService {
       data: createEvalDto,
     });
 
-    const practiceHomeEntity =
-      await this.practiceHomesService.getPracticeHomeById(
-        createEvalDto.practiceHomeId,
+    if (createEvalDto.practiceHomeId) {
+      createEvalDto.practiceHome =
+        await this.practiceHomesService.getPracticeHomeById(
+          createEvalDto.practiceHomeId,
+          practiceId,
+        );
+    }
+
+    if (createEvalDto.waitlistId) {
+      createEvalDto.waitlist = await this.waitlistService.getWaitlistById(
+        createEvalDto.waitlistId,
         practiceId,
       );
-
-    const waitlistEntity = await this.waitlistService.getWaitlistById(
-      createEvalDto.waitlistId,
-      practiceId,
-    );
+    }
 
     if (createEvalDto.referrerId) {
       const refererEntity = await this.referrerService.getReferrerById(
@@ -295,6 +347,8 @@ export class EvalsService {
 
     delete createEvalDto.practiceId;
     delete createEvalDto.insuranceTypeId;
+    delete createEvalDto.waitlistId;
+    delete createEvalDto.practiceHomeId;
 
     await this.evalRepository.update(id, {
       ...evalToUpdate,
@@ -307,9 +361,11 @@ export class EvalsService {
       notes: createEvalDto.notes,
       date: createEvalDto.date,
       insuranceDetails: createEvalDto.insuranceDetails,
-      waitlist: waitlistEntity ? waitlistEntity : evalToUpdate?.waitlist,
-      practiceHome: practiceHomeEntity
-        ? practiceHomeEntity
+      waitlist: createEvalDto.waitlist
+        ? createEvalDto.waitlist
+        : evalToUpdate?.waitlist,
+      practiceHome: createEvalDto.practiceHome
+        ? createEvalDto.practiceHome
         : evalToUpdate?.practiceHome,
       referrer: createEvalDto.referrer ? createEvalDto.referrer : null,
       pcp: createEvalDto.pcp ? createEvalDto.pcp : null,
@@ -323,6 +379,8 @@ export class EvalsService {
         transformUpdateEvalDTO({
           ...createEvalDto,
           insuranceName: createEvalDto?.insuranceType?.name,
+          practiceHomeName: createEvalDto?.practiceHome?.name,
+          waitlistName: createEvalDto?.waitlist?.name,
         });
 
       // create history logs for updated values in evals
@@ -424,6 +482,24 @@ export class EvalsService {
       systemTemplate: SystemTemplates.NOTIFY_REFERRER,
     };
     await this.emailHandlerService.checkAndMakeReferrerEmailContent(
+      practice,
+      evalEntity,
+      systemGeneratedMailData,
+      true,
+    );
+  }
+
+  async initiatePCPSendEmail(
+    evalEntity: IEval,
+    practice: IPractice,
+  ): Promise<void> {
+    const name = practice.name;
+    const systemGeneratedMailData = {
+      subject: `Thanks for sending your patient to me: ${name}`,
+      text: 'text message',
+      systemTemplate: SystemTemplates.NOTIFY_PCP,
+    };
+    await this.emailHandlerService.checkAndMakePCPEmailContent(
       practice,
       evalEntity,
       systemGeneratedMailData,

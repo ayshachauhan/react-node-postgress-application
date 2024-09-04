@@ -1,5 +1,4 @@
 'use client';
-import { IPatient } from '@packages/entities';
 import { USER_PERMISSIONS } from '@packages/entities/permission';
 import { useUserPermission } from '@root/hooks/userHasPermission';
 import { useAppDispatch, useAppSelector } from '@root/store';
@@ -22,12 +21,29 @@ const ReferedPatients = ({ referrerId, withLoader }) => {
       referrerInfo: state.referrers.referrerInfo,
     }),
   );
-  const referredPatients = referrerInfo?.patients ?? [];
-  const filteredReferredPatients = referredPatients.filter(
-    (patient: IPatient) =>
-      (patient.surgeries && patient.surgeries.length > 0) ||
-      (patient.evals && patient.evals.length > 0),
-  );
+
+  const referredPatients = [
+    ...new Map(
+      [
+        ...(referrerInfo?.surgeries ?? []).map((patient) => ({
+          ...patient,
+          type: 'surgery',
+        })),
+        ...(referrerInfo?.evals ?? []).map((patient) => ({
+          ...patient,
+          type: 'eval',
+        })),
+        ...(referrerInfo?.pcpSurgeries ?? []).map((patient) => ({
+          ...patient,
+          type: 'pcpSurgery',
+        })),
+        ...(referrerInfo?.pcpEvals ?? []).map((patient) => ({
+          ...patient,
+          type: 'pcpEval',
+        })),
+      ].map((patient) => [patient.id, patient]),
+    ).values(),
+  ];
 
   const dispatch = useAppDispatch();
   const userInfo = useAppSelector((state) => state.auth.user);
@@ -72,30 +88,40 @@ const ReferedPatients = ({ referrerId, withLoader }) => {
     };
   }, [successMessage, errorMessage, dispatch]);
 
-  const mixedEvalsSurgeries = filteredReferredPatients.flatMap((patient) => {
-    const surgeriesWithDetails =
-      patient.surgeries?.map((surgery) => ({
-        ...surgery,
-        type: 'surgery',
-        patientId: patient.id,
-        patientFirstName: patient.firstName,
-        patientLastName: patient.lastName,
-        totalProfessionalPricing: surgery?.totalProfessionalPricing,
-        totalHospitalPricing: surgery?.totalHospitalPricing,
-      })) ?? [];
+  const mixedEvalsSurgeries = referredPatients.flatMap((entity) => {
+    const {
+      id: patientId,
+      firstName: patientFirstName,
+      lastName: patientLastName,
+    } = entity.patient;
 
-    const evalsWithDetails =
-      patient.evals?.map((evalEntity) => ({
-        ...evalEntity,
+    if (entity.type === 'surgery' || entity.type === 'pcpSurgery') {
+      return {
+        ...entity,
+        type: 'surgery',
+        patientId: patientId,
+        patientFirstName: patientFirstName,
+        patientLastName: patientLastName,
+        totalProfessionalPricing:
+          'totalProfessionalPricing' in entity
+            ? entity.totalProfessionalPricing
+            : 0,
+        totalHospitalPricing:
+          'totalHospitalPricing' in entity ? entity.totalHospitalPricing : 0,
+      };
+    } else if (entity.type === 'eval' || entity.type === 'pcpEval') {
+      return {
+        ...entity,
         type: 'eval',
-        patientId: patient.id,
-        patientFirstName: patient.firstName,
-        patientLastName: patient.lastName,
+        patientId,
+        patientFirstName,
+        patientLastName,
         totalProfessionalPricing: undefined,
         totalHospitalPricing: undefined,
-      })) ?? [];
+      };
+    }
 
-    return [...surgeriesWithDetails, ...evalsWithDetails];
+    return [];
   });
 
   mixedEvalsSurgeries.sort((a, b) => {

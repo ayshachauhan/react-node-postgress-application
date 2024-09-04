@@ -16,7 +16,24 @@ import { UpdateSurgeryDto } from '../surgery/dto/updateSurgery.dto';
 export const findChangedValues = (oldObj, newObj): EntityChanges => {
   const changedValues: Partial<EntityChanges> = {};
 
+  const formatDateString = (date: Date): string => {
+    const month = date.getMonth() + 1; // Months are zero-based
+    const day = date.getDate();
+    const year = date.getFullYear();
+    return `${month}/${day}/${year}`;
+  };
+
   const findChanges = (oldVal, newVal, path = '') => {
+    if (oldVal instanceof Date && newVal instanceof Date) {
+      if (oldVal.getTime() !== newVal.getTime()) {
+        changedValues[path] = {
+          oldValue: formatDateString(oldVal),
+          newValue: formatDateString(newVal),
+        };
+      }
+      return;
+    }
+
     if (typeof oldVal !== 'object' && typeof newVal !== 'object') {
       if (oldVal !== newVal) {
         changedValues[path] = { oldValue: oldVal, newValue: newVal };
@@ -62,6 +79,10 @@ export type SurgeryChangesKeyValues = {
   totalHospitalPricing: string;
   totalProfessionalPricing: string;
   insuranceName: string;
+  waitlistName: string;
+  surgeryStatus: string;
+  practiceHomeName: string;
+  surgeryOrder: number;
 };
 
 export type EvalChangesKeyValues = {
@@ -73,6 +94,8 @@ export type EvalChangesKeyValues = {
   mrn: number;
   status: string;
   insuranceName: string;
+  waitlistName: string;
+  practiceHomeName: string;
 };
 
 export const transformSurgeryObject = (
@@ -90,6 +113,10 @@ export const transformSurgeryObject = (
     selectedSurgeryOptions: data.selectedSurgeryOptions,
     totalHospitalPricing: data.totalHospitalPricing,
     totalProfessionalPricing: data.totalProfessionalPricing,
+    waitlistName: data?.waitlist?.name,
+    practiceHomeName: data?.practiceHome?.name,
+    surgeryStatus: data?.surgeryStatus,
+    surgeryOrder: data?.surgeryOrder,
   };
 };
 
@@ -109,6 +136,12 @@ export const transformUpdateSurgeryDTO = (
     selectedSurgeryOptions: data.selectedSurgeryOptions,
     totalHospitalPricing: data.totalHospitalPricing,
     totalProfessionalPricing: data.totalProfessionalPricing,
+    // @ts-expect-error this will present in updatesurgerydto object
+    waitlistName: data?.waitlist?.name,
+    // @ts-expect-error this will present in updatesurgerydto object
+    practiceHomeName: data?.practiceHome?.name,
+    surgeryStatus: data?.surgeryStatus,
+    surgeryOrder: data?.surgeryOrder,
   };
 };
 
@@ -118,7 +151,11 @@ export const transformUpdateSurgeryDTO = (
  * @returns transformed udpateeval dto for finding changed values
  */
 export const transformUpdateEvalDTO = (
-  data: UpdateEvalDto & { insuranceName: string },
+  data: UpdateEvalDto & {
+    insuranceName: string;
+    waitlistName: string;
+    practiceHomeName: string;
+  },
 ): EvalChangesKeyValues => {
   return {
     bodyPart: data.bodyPart,
@@ -129,6 +166,8 @@ export const transformUpdateEvalDTO = (
     lastName: data.lastName,
     mrn: data.mrn,
     status: data.status,
+    waitlistName: data?.waitlistName,
+    practiceHomeName: data?.practiceHomeName,
   };
 };
 
@@ -147,5 +186,7 @@ export const transformEvalObject = (data: EvalEntity): EvalChangesKeyValues => {
     lastName: data.patient.lastName,
     mrn: data.patient.mrn,
     status: data.status,
+    waitlistName: data?.waitlist?.name,
+    practiceHomeName: data?.practiceHome?.name,
   };
 };

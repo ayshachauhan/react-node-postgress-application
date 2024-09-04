@@ -27,10 +27,7 @@ const AddReferrerForm: React.FC<{
     setReferrerType(value[0] ? value[0].label : null);
   };
 
-  type AddReferrerDto = Omit<
-    IReferrer,
-    'dateCreated' | 'dateUpdated' | 'id' | 'patients'
-  >;
+  type AddReferrerDto = Omit<IReferrer, 'dateCreated' | 'dateUpdated' | 'id'>;
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (practiceId) {
@@ -43,6 +40,8 @@ const AddReferrerForm: React.FC<{
         verified: true,
         evals: [],
         surgeries: [],
+        pcpEvals: [],
+        pcpSurgeries: [],
       };
       try {
         await withLoader(async () => {
