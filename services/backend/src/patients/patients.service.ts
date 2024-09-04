@@ -10,7 +10,6 @@ import { PatientEntity } from '@packages/entities/patient';
 import { PracticeEntity } from '@packages/entities/practice';
 import { EmailHandlerService } from 'src/emailHandler/emailHandler.service';
 import { CreatePatientDto } from 'src/patients/dto/createPatient.dto';
-//import { ReferrersService } from 'src/referrers/referrers.service';
 import { DataSource, Repository } from 'typeorm';
 
 @Injectable()
@@ -18,8 +17,6 @@ export class PatientsService {
   constructor(
     @InjectRepository(PatientEntity)
     private patientRepository: Repository<PatientEntity>,
-    //@Inject(forwardRef(() => ReferrersService))
-    //private referrerService: ReferrersService,
     @Inject(forwardRef(() => EmailHandlerService))
     private emailHandlerService: EmailHandlerService,
     private dataSource: DataSource,
