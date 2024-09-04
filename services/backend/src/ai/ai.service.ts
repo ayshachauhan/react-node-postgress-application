@@ -1,0 +1,34 @@
+import { Inject, Injectable } from '@nestjs/common';
+import { AIService } from './ai-service.interface';
+import { CustomGPTFactory } from './customGPT-factory';
+import { OpenAIFactory } from './openAI-factory';
+
+@Injectable()
+export class AIClientService {
+  private aiService: AIService;
+
+  constructor(
+    @Inject(OpenAIFactory)
+    private readonly openAIFactory: OpenAIFactory,
+    @Inject(CustomGPTFactory)
+    private readonly customGPTFactory: CustomGPTFactory,
+  ) {}
+
+  selectAIService(type: 'openai' | 'customgpt'): void {
+    if (type === 'openai') {
+      this.aiService = this.openAIFactory.createAIService();
+    } else if (type === 'customgpt') {
+      this.aiService = this.customGPTFactory.createAIService();
+    } else {
+      throw new Error('Invalid AI Service type');
+    }
+  }
+
+  async smsChat(type: 'openai' | 'customgpt', data: any): Promise<any> {
+    this.selectAIService(type);
+    if (!this.aiService) {
+      throw new Error('AI Service not selected');
+    }
+    return this.aiService.doSMSChat(data);
+  }
+}

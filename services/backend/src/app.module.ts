@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { SchedulerModule } from 'src/scheduler/scheduler.module';
+import { AIModule } from './ai/ai.module';
 import { AuthModule } from './auth/auth.module';
 import { CalendarModule } from './calendar/calendar.module';
 import { EmailHandlerModule } from './emailHandler/emailHandler.module';
@@ -51,6 +52,7 @@ import { WaitlistModule } from './waitlist/waitlist.module';
     SchedulerModule,
     MessagesModule,
     WaitlistModule,
+    AIModule,
   ],
 })
 export class AppModule {}

@@ -48,6 +48,10 @@ export const ENV_VARIABLES_SCHEMA: Record<ENVIRONMENT_VARIABLES, Joi.Schema> = {
   [ENVIRONMENT_VARIABLES.SAML_ISSUER]: Joi.string().optional(),
   [ENVIRONMENT_VARIABLES.SAML_CERT]: Joi.string().optional(),
   [ENVIRONMENT_VARIABLES.SAML_ENTRYPOINT]: Joi.string().optional(),
+  [ENVIRONMENT_VARIABLES.OPENAI_API_KEY]: Joi.string().optional(),
+  [ENVIRONMENT_VARIABLES.OPENAI_ORGANISATION]: Joi.string().optional(),
+  [ENVIRONMENT_VARIABLES.OPENAI_PROJECT]: Joi.string().optional(),
+  [ENVIRONMENT_VARIABLES.OPENAI_ASSISTANT_ID]: Joi.string().optional(),
 };
 
 export const ENV_VALIDATIONS = Joi.object(ENV_VARIABLES_SCHEMA);
