@@ -620,7 +620,7 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
     };
 
     const searchMRNNameStr = searchMRNName || '';
-    let selectedValueStr = selectedValue || '';
+    const selectedValueStr = selectedValue || '';
 
     const dispatchFetchFilteredCalendars = (
       practiceId: string,
