@@ -192,7 +192,6 @@ export default function MessagesTable() {
     return dateObjB.getTime() - dateObjA.getTime();
   });
   const sortedMessagesByDate = Object.fromEntries(messagesArray);
-  console.log(messagesArray.length, 2);
 
   const resetFilters = (): void => {
     dispatch(setSearchMRNName(null));
