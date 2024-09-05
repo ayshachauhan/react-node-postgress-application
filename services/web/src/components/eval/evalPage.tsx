@@ -330,8 +330,8 @@ const EvalPage: React.FC = () => {
       insuranceDetails: ele.insuranceDetails,
       insuranceTypeName: ele.insuranceType ? ele.insuranceType?.name : '',
       pcp: '',
-      referrer: ele.patient.referrer ? toFullName(ele.patient.referrer) : '',
-      pcpInfo: ele.patient.pcp ? toFullName(ele.patient.pcp) : '',
+      referrer: ele.referrer ? toFullName(ele.referrer) : '',
+      pcpInfo: ele.pcp ? toFullName(ele.pcp) : '',
       notes: ele.notes ? ele.notes : '',
       index: index + 1,
       id: ele.id,
@@ -342,9 +342,8 @@ const EvalPage: React.FC = () => {
       actionDate:
         usDateFormatter(ele.date) +
         ` (${getDifferenceInDays(new Date(ele.date), new Date())})`,
-      referrerVerified:
-        ele.patient.referrer && ele.patient.referrer.verified ? true : false,
-      pcpVerified: ele.patient.pcp && ele.patient.pcp.verified ? true : false,
+      referrerVerified: ele.referrer && ele.referrer.verified ? true : false,
+      pcpVerified: ele.pcp && ele.pcp.verified ? true : false,
     };
 
     return viewData;

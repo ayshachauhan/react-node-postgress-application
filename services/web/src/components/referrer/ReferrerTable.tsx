@@ -150,29 +150,29 @@ export default function ReferrerTable() {
             {!isLoading &&
               referrers.map((data, index) => {
                 const combinedPatients = [
-                  ...(data.patients || []),
-                  ...(data.patientsByPcp || []),
+                  ...new Map(
+                    [
+                      ...(data?.surgeries ?? []).map((patient) => ({
+                        ...patient,
+                        type: 'surgery',
+                      })),
+                      ...(data?.evals ?? []).map((patient) => ({
+                        ...patient,
+                        type: 'eval',
+                      })),
+                      ...(data?.pcpSurgeries ?? []).map((patient) => ({
+                        ...patient,
+                        type: 'pcpSurgery',
+                      })),
+                      ...(data?.pcpEvals ?? []).map((patient) => ({
+                        ...patient,
+                        type: 'pcpEval',
+                      })),
+                    ].map((patient) => [patient.id, patient]),
+                  ).values(),
                 ];
-                const uniqueReferredPatients = Array.from(
-                  combinedPatients
-                    .reduce((acc, patient) => {
-                      const uniqueKey = patient.id; // Assuming `id` uniquely identifies a patient
-                      if (!acc.has(uniqueKey)) {
-                        acc.set(uniqueKey, patient);
-                      }
-                      return acc;
-                    }, new Map())
-                    .values(),
-                );
-                const totalSurgeries = uniqueReferredPatients.reduce(
-                  (sum, patient) => sum + (patient.surgeries?.length || 0),
-                  0,
-                );
-                const totalEvals = uniqueReferredPatients.reduce(
-                  (sum, patient) => sum + (patient.evals?.length || 0),
-                  0,
-                );
-                const total = totalSurgeries + totalEvals;
+
+                const total = combinedPatients.length;
 
                 return (
                   <React.Fragment key={data.id}>

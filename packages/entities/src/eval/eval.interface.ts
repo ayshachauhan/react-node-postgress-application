@@ -3,6 +3,7 @@ import { IInsuranceType } from '../insuranceType';
 import { IPatient } from '../patient';
 import { IPractice } from '../practice';
 import { IPracticeHomes } from '../practiceHomes';
+import { IReferrer } from '../referrer';
 import { ISurgeryConfiguration } from '../surgeryConfiguration';
 import { ISanitizedUser } from '../user';
 import { IWaitlist } from '../waitlist';
@@ -19,6 +20,8 @@ export interface IEval extends IBaseEntity {
   doctor: ISanitizedUser;
   waitlist: IWaitlist;
   practice: IPractice; //TO DO: make practice id not null in future
+  pcp?: IReferrer;
+  referrer?: IReferrer;
 }
 
 export interface CreateEvalInterface {

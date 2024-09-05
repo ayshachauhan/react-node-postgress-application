@@ -8,6 +8,8 @@ import {
   IPractice,
   ISurgery,
   PermissionEntity,
+  ReferrerType,
+  ReferrersEntity,
   ReviewEntity,
   ReviewStatus,
   SelectedSurgeryOption,
@@ -62,6 +64,7 @@ import {
 } from 'typeorm';
 import { CalendarService } from '../calendar/calendar.service';
 import { HistoryService } from '../history/history.service';
+import { ReferrersService } from '../referrers/referrers.service';
 
 type DateCondition = {
   date: FindOperator<Date>;
@@ -117,6 +120,8 @@ export class SurgeryService {
     private emailHandlerService: EmailHandlerService,
     @Inject(forwardRef(() => ReviewService))
     private reviewService: ReviewService,
+    @Inject(forwardRef(() => ReferrersService))
+    private referrerService: ReferrersService,
   ) {}
 
   getFrontEndBaseUrl() {
@@ -175,10 +180,10 @@ export class SurgeryService {
         'surgeryConfiguration',
         'patient',
         'insuranceType',
-        'patient.referrer',
-        'patient.pcp',
         'doctor',
         'waitlist',
+        'referrer',
+        'pcp',
         'practice', //TO DO: make practice id not null in future
       ],
       skip,
@@ -413,8 +418,6 @@ export class SurgeryService {
         'surgeryConfiguration',
         'patient',
         'insuranceType',
-        'patient.referrer',
-        'patient.pcp',
         'doctor',
         'waitlist',
         'practice', //TO DO: make practice id not null in future
@@ -435,7 +438,8 @@ export class SurgeryService {
       .leftJoinAndSelect('surgery.surgeryConfiguration', 'surgeryConfiguration')
       .leftJoinAndSelect('surgery.patient', 'patient')
       .leftJoinAndSelect('surgery.insuranceType', 'insuranceType')
-      .leftJoinAndSelect('patient.referrer', 'referrer')
+      .leftJoinAndSelect('surgery.referrer', 'referrer')
+      .leftJoinAndSelect('surgery.pcp', 'pcp')
       .leftJoinAndSelect('surgery.doctor', 'doctor')
       .leftJoinAndSelect('surgery.waitlist', 'waitlist')
       .leftJoinAndSelect('surgery.practice', 'surgeryPractice') //TO DO: make practice id not null in future
@@ -500,6 +504,69 @@ export class SurgeryService {
     createSurgeryDto.initialHospitalPrice =
       createSurgeryDto.totalHospitalPricing;
 
+    const isValidUUID = (uuid: string): boolean => {
+      const uuidRegex =
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[4][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+      return uuidRegex.test(uuid);
+    };
+
+    let referrerEntity = new ReferrersEntity();
+    let pcpReferrerEntity = new ReferrersEntity();
+    if (createSurgeryDto.referrerId) {
+      if (isValidUUID(createSurgeryDto.referrerId)) {
+        referrerEntity = await this.referrerService.getReferrerById(
+          practiceId,
+          createSurgeryDto.referrerId,
+        );
+
+        if (!referrerEntity) {
+          referrerEntity = await this.referrerService.createReferrer(
+            practiceId,
+            {
+              firstName: createSurgeryDto.referrerId,
+              referrerType: ReferrerType.PCP,
+              verified: false,
+            },
+          );
+        }
+      } else {
+        referrerEntity = await this.referrerService.createReferrer(practiceId, {
+          firstName: createSurgeryDto.referrerId,
+          referrerType: ReferrerType.PCP,
+          verified: false,
+        });
+      }
+    }
+
+    if (createSurgeryDto.pcp) {
+      if (isValidUUID(createSurgeryDto.pcp)) {
+        pcpReferrerEntity = await this.referrerService.getReferrerById(
+          practiceId,
+          createSurgeryDto.pcp,
+        );
+
+        if (!pcpReferrerEntity) {
+          pcpReferrerEntity = await this.referrerService.createReferrer(
+            practiceId,
+            {
+              firstName: createSurgeryDto.pcp,
+              referrerType: ReferrerType.PCP,
+              verified: false,
+            },
+          );
+        }
+      } else {
+        pcpReferrerEntity = await this.referrerService.createReferrer(
+          practiceId,
+          {
+            firstName: createSurgeryDto.pcp,
+            referrerType: ReferrerType.PCP,
+            verified: false,
+          },
+        );
+      }
+    }
+
     const resultSurgery = await this.surgeryRepository.save({
       ...newSurgery,
       ...createSurgeryDto,
@@ -513,6 +580,8 @@ export class SurgeryService {
       surgeryStatus: SurgeryStatus.BOOK,
       waitlist: waitlistEntity,
       SelectedConditionsOptions: {},
+      referrer: referrerEntity.dateCreated ? referrerEntity : undefined,
+      pcp: pcpReferrerEntity.dateCreated ? pcpReferrerEntity : undefined,
     });
 
     // upsert calendar after creating surgery
@@ -616,6 +685,26 @@ export class SurgeryService {
       createSurgeryDto.waitlist = waitlistEntity;
     }
 
+    if (createSurgeryDto.referrerId) {
+      const refererEntity = await this.referrerService.getReferrerById(
+        practiceId,
+        createSurgeryDto.referrerId,
+      );
+
+      delete createSurgeryDto.referrerId;
+      createSurgeryDto.referrer = refererEntity;
+    }
+
+    if (createSurgeryDto.pcp) {
+      const refererEntity = await this.referrerService.getReferrerById(
+        practiceId,
+        createSurgeryDto.pcp,
+      );
+
+      delete createSurgeryDto.pcp;
+      createSurgeryDto.pcp = refererEntity;
+    }
+
     const dataToUpdate = {
       insuranceType: createSurgeryDto.insuranceType
         ? createSurgeryDto.insuranceType
@@ -638,6 +727,8 @@ export class SurgeryService {
         : null,
       waitlist: createSurgeryDto.waitlist ? createSurgeryDto.waitlist : null,
       selectedConditionalOptions: createSurgeryDto.selectedConditionalOptions,
+      referrer: createSurgeryDto.referrer ? createSurgeryDto.referrer : null,
+      pcp: createSurgeryDto.pcp ? createSurgeryDto.pcp : null,
     };
 
     await this.surgeryRepository.update(id, {
