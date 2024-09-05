@@ -1,4 +1,3 @@
-import { MediaConfigType } from '@packages/entities';
 import { MediaType } from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
@@ -38,6 +37,7 @@ const MediaPage: React.FC<{
   const dispatch = useAppDispatch();
   const [practiceForm, setPracticeForm] = useState({
     surgeryConfigurationId: '',
+    image: [{ title: '', file: null }],
     video: [{ title: '', url: '' }],
   });
 
@@ -74,7 +74,16 @@ const MediaPage: React.FC<{
 
       return areVideosFilled || areImagesFilled;
     } else {
-      return true;
+      const { video, image } = practiceForm;
+
+      const areVideosFilled = video.every(
+        (item) => item.title.trim() !== '' && item.url.trim() !== '',
+      );
+      const areImagesFilled = image.every(
+        (item) => item.title.trim() !== '' && item.file !== null,
+      );
+
+      return areVideosFilled || areImagesFilled;
     }
   };
 
@@ -90,17 +99,31 @@ const MediaPage: React.FC<{
   };
 
   const handleAddVideoField = () => {
-    if (patientForm.video.length < 5) {
-      setPatientForm({
-        ...patientForm,
-        video: [...patientForm.video, { title: '', url: '' }],
-      });
+    if (selectedMedia === MediaType.PRACTICE) {
+      if (practiceForm.video.length < 5) {
+        setPracticeForm({
+          ...practiceForm,
+          video: [...practiceForm.video, { title: '', url: '' }],
+        });
+      }
+    } else {
+      if (patientForm.video.length < 5) {
+        setPatientForm({
+          ...patientForm,
+          video: [...patientForm.video, { title: '', url: '' }],
+        });
+      }
     }
   };
 
   const handleRemoveVideoField = (index) => {
-    const newFields = patientForm.video.filter((_, idx) => idx !== index);
-    setPatientForm({ ...patientForm, video: newFields });
+    if (selectedMedia === MediaType.PRACTICE) {
+      const newFields = practiceForm.video.filter((_, idx) => idx !== index);
+      setPracticeForm({ ...practiceForm, video: newFields });
+    } else {
+      const newFields = patientForm.video.filter((_, idx) => idx !== index);
+      setPatientForm({ ...patientForm, video: newFields });
+    }
   };
 
   const handleVideoChangeInput = (index, value, field) => {
@@ -118,6 +141,7 @@ const MediaPage: React.FC<{
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (practiceId) {
+      const sanitizedPracticeForm = sanitizeStateValues(practiceForm);
       const sanitizedPatientForm = sanitizeStateValues(patientForm);
 
       const data: AddMediaDTO =
@@ -125,13 +149,7 @@ const MediaPage: React.FC<{
           ? {
               practiceId,
               mediaType: selectedMedia,
-              mediaConfig: [
-                {
-                  title: practiceForm.video[0].title,
-                  url: practiceForm.video[0].url,
-                  configType: MediaConfigType.VIDEO,
-                },
-              ],
+              mediaConfig: sanitizedPracticeForm,
               entityId: practiceForm.surgeryConfigurationId,
             }
           : {
@@ -150,6 +168,7 @@ const MediaPage: React.FC<{
         setPracticeForm({
           surgeryConfigurationId: '',
           video: [{ title: '', url: '' }],
+          image: [{ title: '', file: null }],
         });
         setPatientForm({
           patientId: '',
@@ -164,27 +183,51 @@ const MediaPage: React.FC<{
   };
 
   const handleAddImageField = () => {
-    if (patientForm.image.length < 5) {
-      setPatientForm({
-        ...patientForm,
-        image: [...patientForm.image, { title: '', file: null }],
-      });
+    if (selectedMedia === MediaType.PRACTICE) {
+      if (practiceForm.image.length < 5) {
+        setPracticeForm({
+          ...practiceForm,
+          image: [...practiceForm.image, { title: '', file: null }],
+        });
+      }
+    } else {
+      if (patientForm.image.length < 5) {
+        setPatientForm({
+          ...patientForm,
+          image: [...patientForm.image, { title: '', file: null }],
+        });
+      }
     }
   };
 
   const handleRemoveImageField = (index) => {
-    const newImageFields = patientForm.image.filter((_, i) => i !== index);
-    setPatientForm({ ...patientForm, image: newImageFields });
+    if (selectedMedia === MediaType.PRACTICE) {
+      const newImageFields = practiceForm.image.filter((_, i) => i !== index);
+      setPracticeForm({ ...practiceForm, image: newImageFields });
+    } else {
+      const newImageFields = patientForm.image.filter((_, i) => i !== index);
+      setPatientForm({ ...patientForm, image: newImageFields });
+    }
   };
 
   const handleImageChangeInput = (index, event, field) => {
-    const newImageFields = [...patientForm.image];
-    if (field === 'file') {
-      newImageFields[index][field] = event.target.files[0];
+    if (selectedMedia === MediaType.PRACTICE) {
+      const newImageFields = [...practiceForm.image];
+      if (field === 'file') {
+        newImageFields[index][field] = event.target.files[0];
+      } else {
+        newImageFields[index][field] = event.target.value;
+      }
+      setPracticeForm({ ...practiceForm, image: newImageFields });
     } else {
-      newImageFields[index][field] = event.target.value;
+      const newImageFields = [...patientForm.image];
+      if (field === 'file') {
+        newImageFields[index][field] = event.target.files[0];
+      } else {
+        newImageFields[index][field] = event.target.value;
+      }
+      setPatientForm({ ...patientForm, image: newImageFields });
     }
-    setPatientForm({ ...patientForm, image: newImageFields });
   };
 
   const handleSurgeryConfigurationChange = ({ value }) => {
@@ -229,34 +272,8 @@ const MediaPage: React.FC<{
           </Checkbox>
         </div>
         {selectedMedia === MediaType.PRACTICE ? (
-          <div>
+          <div className="flex gap- flex-col">
             <div className="space-y-2">
-              <label htmlFor="title" className="text-black text-sm font-normal">
-                <RequiredIndicator />
-                &nbsp;Title
-              </label>
-              <TextInput
-                name="name"
-                value={practiceForm.video[0].title}
-                onChange={(value) => handleVideoChangeInput(0, value, 'title')}
-                required
-              />
-              <div className="space-y-2"></div>
-            </div>
-            <div className="space-y-2  pt-4">
-              <label htmlFor="url" className="text-black text-sm font-normal">
-                <RequiredIndicator />
-                &nbsp;URL
-              </label>
-              <TextInput
-                name="url"
-                value={practiceForm.video[0].url}
-                onChange={(value) => handleVideoChangeInput(0, value, 'url')}
-                required
-              />
-              <div className="space-y-2"></div>
-            </div>
-            <div className="space-y-2 pt-4">
               <label
                 htmlFor="urlEmbed"
                 className="text-black text-sm font-normal"
@@ -291,6 +308,161 @@ const MediaPage: React.FC<{
                 }}
               />
               <div className="space-y-2"></div>
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center mb-1">
+                <div>
+                  <label htmlFor="lastName" className="">
+                    Video Media
+                  </label>
+                </div>
+                <div>
+                  <div className="ml-4">
+                    <Button
+                      type="button"
+                      kind="primary"
+                      title=""
+                      width={25}
+                      height={25}
+                      startEnhancer={() => (
+                        <AddIcon className="-mr-2"></AddIcon>
+                      )}
+                      onClick={handleAddVideoField}
+                    />
+                  </div>
+                </div>
+              </div>
+              <hr className="h-px bg-gray-100 border-1 dark:bg-gray-800"></hr>
+              {practiceForm.video.map((inputField, index, arr) => (
+                <>
+                  <div className="flex gap-5 mt-4">
+                    <div className="w-1/2">
+                      <label htmlFor="email" className="">
+                        Video Title
+                      </label>
+                      <div className="">
+                        <TextInput
+                          type="text"
+                          value={inputField.title}
+                          onChange={(value) =>
+                            handleVideoChangeInput(index, value, 'title')
+                          }
+                          endEnhancer={
+                            arr.length > 1 ? (
+                              <div
+                                className="rounded-md cursor-pointer items-center"
+                                onClick={() => handleRemoveVideoField(index)}
+                              >
+                                <CloseIcon className="" size={10} />
+                              </div>
+                            ) : null
+                          }
+                        />
+                      </div>
+                    </div>
+                    <div className="w-1/2">
+                      <label htmlFor="email" className="">
+                        Video Url
+                      </label>
+                      <div className="">
+                        <TextInput
+                          type="text"
+                          value={inputField.url}
+                          onChange={(value) =>
+                            handleVideoChangeInput(index, value, 'url')
+                          }
+                          endEnhancer={
+                            arr.length > 1 ? (
+                              <div
+                                className="rounded-md cursor-pointer"
+                                onClick={() => handleRemoveVideoField(index)}
+                              >
+                                <CloseIcon className="" size={10} />
+                              </div>
+                            ) : null
+                          }
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </>
+              ))}
+            </div>
+            <div className="space-y-2">
+              <div className="flex gap-4 items-center mb-1">
+                <div>
+                  <label htmlFor="imageMedia" className="">
+                    Image Media
+                  </label>
+                </div>
+                <div>
+                  <div className="">
+                    <Button
+                      title=""
+                      type="button"
+                      kind="primary"
+                      width={25}
+                      height={25}
+                      startEnhancer={() => (
+                        <AddIcon className="-mr-2"></AddIcon>
+                      )}
+                      onClick={handleAddImageField}
+                    />
+                  </div>
+                </div>
+              </div>
+              <hr className="h-px bg-gray-100 border-1 dark:bg-gray-800"></hr>
+              {practiceForm.image.map((inputField, index, arr) => (
+                <div key={index} className="flex gap-5 mt-4">
+                  <div className="w-1/2">
+                    <label htmlFor="imageTitle" className="">
+                      Image Title
+                    </label>
+                    <div className="">
+                      <TextInput
+                        type="text"
+                        value={inputField.title}
+                        onChange={(__value, event) =>
+                          handleImageChangeInput(index, event, 'title')
+                        }
+                        endEnhancer={
+                          arr.length > 1 ? (
+                            <div
+                              className="rounded-md cursor-pointer"
+                              onClick={() => handleRemoveImageField(index)}
+                            >
+                              <CloseIcon size={10} />
+                            </div>
+                          ) : null
+                        }
+                      />
+                    </div>
+                  </div>
+                  <div className="w-1/2">
+                    <label htmlFor="imageFile" className="">
+                      Image File
+                    </label>
+                    <div className="">
+                      <TextInput
+                        type="file"
+                        onChange={(__value, event) =>
+                          handleImageChangeInput(index, event, 'file')
+                        }
+                        endEnhancer={
+                          arr.length > 1 ? (
+                            <div
+                              className="rounded-md cursor-pointer"
+                              onClick={() => handleRemoveImageField(index)}
+                            >
+                              <CloseIcon size={10} />
+                            </div>
+                          ) : null
+                        }
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         ) : (
