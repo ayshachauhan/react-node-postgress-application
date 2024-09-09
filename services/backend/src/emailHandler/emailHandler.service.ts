@@ -642,13 +642,18 @@ export class EmailHandlerService {
   async checkAndMakeSurgeryUpdateEmailContent(
     practice: IPractice,
     entity: ISurgery,
+    includeAdmin: boolean,
   ) {
     const emailLogsEntries: Partial<IEmailLog>[] = [];
     const mailVariables = await this.makeEmailVariable(entity, practice);
 
-    const { staffEmails, operatingRoomEmails } = practice.emailData;
+    const { staffEmails, operatingRoomEmails, adminEmails } =
+      practice.emailData;
     if (staffEmails || operatingRoomEmails) {
-      const sendEmailArray: string[] = [...staffEmails, ...operatingRoomEmails];
+      let sendEmailArray: string[] = [...staffEmails, ...operatingRoomEmails];
+      if (includeAdmin) {
+        sendEmailArray = [...sendEmailArray, ...adminEmails];
+      }
       const systemTemplateName = SystemTemplates.NOTIFY_STAFF_SURGERY_UPDATED;
 
       const subject: string = `A surgery is updated

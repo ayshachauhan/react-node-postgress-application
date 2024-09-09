@@ -705,6 +705,22 @@ export class SurgeryService {
       createSurgeryDto.pcp = refererEntity;
     }
 
+    let sendUpdateMailAdmin = false;
+    const newDate = new Date(createSurgeryDto.date);
+    const oldDate = surgeryToUpdate?.date
+      ? new Date(surgeryToUpdate.date)
+      : null;
+
+    if (
+      (createSurgeryDto.surgeryStatus === SurgeryStatus.CANCELLED &&
+        surgeryToUpdate?.surgeryStatus !== SurgeryStatus.CANCELLED) ||
+      (createSurgeryDto.surgeryStatus === SurgeryStatus.POSTPONE &&
+        surgeryToUpdate?.surgeryStatus !== SurgeryStatus.POSTPONE) ||
+      (newDate && oldDate && newDate.getTime() !== oldDate.getTime()) // Compare timestamps
+    ) {
+      sendUpdateMailAdmin = true;
+    }
+
     const dataToUpdate = {
       insuranceType: createSurgeryDto.insuranceType
         ? createSurgeryDto.insuranceType
@@ -837,9 +853,13 @@ export class SurgeryService {
     const updatedSurgery: ISurgery | null = await this.getSurgeryById(id);
 
     // initiating emails for updating surgeries
-    if (updatedSurgery)
-      await this.initiateUpdateSurgeryMail(updatedSurgery, practiceId);
-
+    if (updatedSurgery) {
+      if (sendUpdateMailAdmin) {
+        await this.initiateUpdateSurgeryMail(updatedSurgery, practiceId, true);
+      } else {
+        await this.initiateUpdateSurgeryMail(updatedSurgery, practiceId, false);
+      }
+    }
     return updatedSurgery;
   }
 
@@ -1065,6 +1085,7 @@ export class SurgeryService {
   async initiateUpdateSurgeryMail(
     surgeryEntity: ISurgery,
     practiceId: string,
+    includeAdmin: boolean,
   ): Promise<void> {
     const practiceEntity: IPractice | null =
       await this.practiceService.findOne(practiceId);
@@ -1073,6 +1094,7 @@ export class SurgeryService {
       await this.emailHandlerService.checkAndMakeSurgeryUpdateEmailContent(
         practiceEntity,
         surgeryEntity,
+        includeAdmin,
       );
     }
   }
