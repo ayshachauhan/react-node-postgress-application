@@ -272,8 +272,8 @@ const MediaPage: React.FC<{
           </Checkbox>
         </div>
         {selectedMedia === MediaType.PRACTICE ? (
-          <div className="flex gap- flex-col">
-            <div className="space-y-2">
+          <div className="flex gap-5 flex-col">
+            <div className="mt-4">
               <label
                 htmlFor="urlEmbed"
                 className="text-black text-sm font-normal"
@@ -309,7 +309,7 @@ const MediaPage: React.FC<{
               />
               <div className="space-y-2"></div>
             </div>
-            <div className="space-y-2">
+            <div className="">
               <div className="flex items-center mb-1">
                 <div>
                   <label htmlFor="lastName" className="">
