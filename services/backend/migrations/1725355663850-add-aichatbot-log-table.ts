@@ -18,8 +18,20 @@ export class AddAichatbotLogTable1725355663850 implements MigrationInterface {
             type: 'varchar',
           },
           {
-            name: 'botReply',
+            name: 'assistantId',
             type: 'varchar',
+          },
+          {
+            name: 'userIdentifier',
+            type: 'varchar'
+          },
+          {
+            name: 'assistantChatThreadId',
+            type: 'varchar',
+          },
+          {
+            name: 'botQuestionAnswers',
+            type: 'jsonb',
             isNullable: true,
           },
           {

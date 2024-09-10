@@ -4,6 +4,7 @@ import { JwtModule, JwtService } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import {
   CalendarEntity,
+  ChatbotLogsEntity,
   EmailLogEntity,
   EvalEmailEntity,
   EvalEntity,
@@ -110,6 +111,7 @@ export const createInfraModuleProviders = (): Array<
           SurgeryEmailEntity,
           WaitlistEntity,
           MediaConfigEntity,
+          ChatbotLogsEntity,
         ],
         logging: false,
         // logger: new TypeOrmLogger(),

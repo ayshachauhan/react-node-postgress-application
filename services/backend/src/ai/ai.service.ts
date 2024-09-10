@@ -2,6 +2,9 @@ import { Inject, Injectable } from '@nestjs/common';
 import { AIService } from './ai-service.interface';
 import { CustomGPTFactory } from './customGPT-factory';
 import { OpenAIFactory } from './openAI-factory';
+// import { ChatbotLogsEntity } from '@packages/entities/*';
+// import { Repository } from 'typeorm';
+// import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class AIClientService {
@@ -12,6 +15,8 @@ export class AIClientService {
     private readonly openAIFactory: OpenAIFactory,
     @Inject(CustomGPTFactory)
     private readonly customGPTFactory: CustomGPTFactory,
+    // @InjectRepository(ChatbotLogsEntity)
+    // private chatbotRepository: Repository<ChatbotLogsEntity>,
   ) {}
 
   selectAIService(type: 'openai' | 'customgpt'): void {
