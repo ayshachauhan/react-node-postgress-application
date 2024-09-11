@@ -269,14 +269,14 @@ const EditableRow: React.FC<EditableRowProps> = ({
 
   if (surgeryInfo) {
     const { surgeryConfiguration } = surgeryInfo;
-    const surgeryName: string = surgeryConfiguration?.name;
+    const surgeryName: string = surgeryConfiguration?.name || '';
     const customOptionsHeaders: string[] =
-      customHeaders[surgeryName]?.surgeryOptionsHeaders;
+      customHeaders[surgeryName]?.surgeryOptionsHeaders || [];
     const customCheckListHeaders: string[] =
-      customHeaders[surgeryName]?.checkListHeaders;
+      customHeaders[surgeryName]?.checkListHeaders || [];
 
     const customConditionalHeaders: string[] =
-      customHeaders[surgeryName]?.conditionalHeaders;
+      customHeaders[surgeryName]?.conditionalHeaders || [];
 
     const selectedReferrer = referrerId
       ? referrersList.find((ele) => ele.id === referrerId)
@@ -451,10 +451,14 @@ const EditableRow: React.FC<EditableRowProps> = ({
           <td rowSpan={1} className="min-w-20">
             <Select
               backspaceRemoves={false}
-              options={surgeryConfiguration?.bodyPart.map((ele) => ({
-                id: ele,
-                label: ele,
-              }))}
+              options={
+                surgeryConfiguration?.bodyPart
+                  ? surgeryConfiguration.bodyPart.map((ele) => ({
+                      id: ele,
+                      label: ele,
+                    }))
+                  : []
+              }
               value={
                 obj.bodyPart
                   ? [{ id: obj.bodyPart, label: obj.bodyPart }]
