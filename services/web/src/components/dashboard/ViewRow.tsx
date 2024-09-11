@@ -47,7 +47,10 @@ function ViewRow({ selectedSurgery, viewBillingColumn }) {
             </p>
             <p>
               <span className="font-bold">Phone number: </span>
-              <span>{selectedSurgery.phoneNumber}</span>
+              <span>
+                {selectedSurgery.countryCode}
+                {selectedSurgery.phoneNumber}
+              </span>
             </p>
             <p className="flex items-center">
               <span className="font-bold">Referrer: </span>

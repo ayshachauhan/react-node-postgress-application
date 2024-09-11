@@ -491,12 +491,14 @@ export class EmailHandlerService {
         email: patientEmail,
         mrn,
         phoneNumber,
+        countryCode,
       },
       doctor: {
         firstName: doctorFirstName,
         lastName: doctorLastName,
         email: doctorEmail,
         contactNumber: doctorPhoneNumber,
+        countryCode: doctorCountryCode,
       },
       surgeryConfiguration: { name },
       date,
@@ -527,6 +529,7 @@ export class EmailHandlerService {
       all_cases: allCases.join(),
       all_cataract_dates: allCataractDates.join(),
       all_case_type: allCaseType.join(),
+      countryCode: countryCode,
       phoneNumber: phoneNumber,
       practiceName: practice.name,
       insuranceType: insuranceType ? insuranceType.name : '',
@@ -536,6 +539,7 @@ export class EmailHandlerService {
       pcpFname: entity?.pcp?.firstName,
       pcpLname: entity?.pcp?.lastName,
       pcpEmail: entity?.pcp?.email,
+      doctorCountryCode: doctorCountryCode,
       doctorPhoneNumber: doctorPhoneNumber,
     };
 
@@ -629,6 +633,7 @@ export class EmailHandlerService {
         await Promise.all(
           emailLogsByPatientEmail.map(async (log) => {
             log.data.pt_email_address = newPayload.email;
+            log.data.countryCode = newPayload.countryCode;
             log.data.phoneNumber = newPayload.phoneNumber;
             log.data.firstName = newPayload.firstName;
             log.data.lastName = newPayload.lastName;

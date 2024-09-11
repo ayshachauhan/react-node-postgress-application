@@ -309,6 +309,7 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
         mrn: ele.patient.mrn,
         email: ele.patient.email,
         phoneNumber: ele.patient.phoneNumber,
+        countryCode: ele.patient.countryCode,
         date: modifiedDate,
         surgery: ele.surgeryConfiguration?.name,
         home: ele?.practiceHome?.name,
@@ -1674,6 +1675,7 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
                                                     >
                                                       {row.email}
                                                       <br />
+                                                      {row.countryCode}
                                                       {row.phoneNumber}
                                                       <br />
                                                       <span

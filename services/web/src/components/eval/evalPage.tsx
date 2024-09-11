@@ -324,6 +324,7 @@ const EvalPage: React.FC = () => {
       mrn: ele.patient.mrn,
       email: ele.patient.email,
       phoneNumber: ele.patient.phoneNumber,
+      countryCode: ele.patient.countryCode,
       date: usDateFormatter(ele.date),
       surgeryConfigName: ele.surgeryConfiguration.name,
       practiceHomeName: ele?.practiceHome?.name,
@@ -544,7 +545,10 @@ const EvalPage: React.FC = () => {
                         >
                           {data.email}
                         </div>
-                        <div className="">{data.phoneNumber}</div>
+                        <div className="">
+                          {data.countryCode}
+                          {data.phoneNumber}
+                        </div>
                         <span
                           style={{
                             display: 'flex',

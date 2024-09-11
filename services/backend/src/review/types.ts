@@ -10,4 +10,5 @@ export type ReviewMailData = {
   to: string;
   pt_email_address: string;
   phoneNumber: string;
+  countryCode: string;
 };
