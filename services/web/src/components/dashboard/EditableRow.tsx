@@ -102,6 +102,7 @@ const EditableRow: React.FC<EditableRowProps> = ({
         lastName: surgeryInfo.patient.lastName,
         email: surgeryInfo.patient.email,
         phoneNumber: surgeryInfo.patient.phoneNumber,
+        countryCode: surgeryInfo.patient.countryCode,
         notes: surgeryInfo.notes ? surgeryInfo.notes : '',
         bodyPart: surgeryInfo.bodyPart,
         mrn: surgeryInfo.patient.mrn,
@@ -220,6 +221,7 @@ const EditableRow: React.FC<EditableRowProps> = ({
         lastName: '',
         email: '',
         phoneNumber: '',
+        countryCode: '',
         notes: '',
         bodyPart: '',
         surgeryStatus: SurgeryStatus.PENDING,
@@ -978,6 +980,12 @@ const EditableRow: React.FC<EditableRowProps> = ({
               />
             </div>
             <div className="text-black py-0.5 px-1 w-40 text-center">
+              <TextInput
+                name="hash"
+                value={obj.countryCode}
+                onChange={(value) => handleObjChange('countryCode', value)}
+                size={SIZE.mini}
+              />
               <TextInput
                 name="hash"
                 value={obj.phoneNumber}

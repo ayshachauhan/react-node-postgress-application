@@ -63,6 +63,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
+  const [countryCode, setCountryCode] = useState('');
   const [email, setEmail] = useState('');
   const [mrn, setMrn] = useState('');
   const [insuranceDetails, setInsuranceDetails] = useState('');
@@ -104,12 +105,14 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
         setLastName(patientCheck.lastName);
         setEmail(patientCheck.email);
         setPhoneNumber(patientCheck.phoneNumber);
+        setCountryCode(patientCheck.countryCode);
         //setReferrerId(patientCheck.referrer ? patientCheck?.referrer.id : '');
       } else {
         setFirstName('');
         setLastName('');
         setEmail('');
         setPhoneNumber('');
+        setCountryCode('');
         setReferrerId('');
       }
     }
@@ -270,6 +273,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
             email,
             date,
             phoneNumber,
+            countryCode,
             mrn: mrn ? Number(mrn) : 0,
             practiceHomeId,
             surgeryConfigurationId: surgeryNameId,
@@ -291,6 +295,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
         setLastName('');
         setMrn('');
         setPhoneNumber('');
+        setCountryCode('');
         setEmail('');
         setPracticeHomeId('');
         setInsuranceDetails('');
@@ -441,6 +446,15 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
                   <RequiredIndicator />
                   &nbsp;Phone Number
                 </label>
+                <TextInput
+                  size={SIZE.mini}
+                  name="countryCode"
+                  value={countryCode}
+                  onChange={(value) => {
+                    setCountryCode(value);
+                  }}
+                  required
+                />
                 <TextInput
                   size={SIZE.mini}
                   name="phoneNumber"

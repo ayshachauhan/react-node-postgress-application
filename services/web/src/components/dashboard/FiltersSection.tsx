@@ -310,7 +310,7 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
         email: ele.patient.email,
         phoneNumber: ele.patient.phoneNumber,
         date: modifiedDate,
-        surgery: ele.surgeryConfiguration.name,
+        surgery: ele.surgeryConfiguration?.name,
         home: ele?.practiceHome?.name,
         insuranceDetails: ele.insuranceDetails,
         insurance: ele.insuranceType ? ele.insuranceType?.name : '',
@@ -338,10 +338,14 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
         pcpVerified: ele.pcp && ele.pcp.verified ? true : false,
       };
 
-      const optionArr = Object.keys(ele.surgeryConfiguration.options);
-      const conditionalOptionsArr = Object.keys(
-        ele.surgeryConfiguration.conditionalOptions,
-      );
+      const optionArr = ele?.surgeryConfiguration?.options
+        ? Object.keys(ele.surgeryConfiguration.options)
+        : [];
+
+      const conditionalOptionsArr = ele?.surgeryConfiguration
+        ?.conditionalOptions
+        ? Object.keys(ele.surgeryConfiguration.conditionalOptions)
+        : [];
 
       optionArr.forEach((option) => {
         viewData[`${option}-count`] =

@@ -103,6 +103,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
+  const [countryCode, setCountryCode] = useState('');
   const [email, setEmail] = useState('');
   const [mrn, setMrn] = useState('');
   const [insuranceDetails, setInsuranceDetails] = useState('');
@@ -177,6 +178,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
         setLastName(row.patient.lastName);
         setEmail(row.patient.email);
         setPhoneNumber(row.patient.phoneNumber);
+        setCountryCode(row.patient.countryCode);
         setMrn(String(row.patient.mrn));
         setPracticeHomeId(row?.practiceHome?.id);
         setBodyPart(row.bodyPart);
@@ -204,11 +206,13 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
         setLastName(patientCheck.lastName);
         setEmail(patientCheck.email);
         setPhoneNumber(patientCheck.phoneNumber);
+        setCountryCode(patientCheck.countryCode);
       } else {
         setFirstName('');
         setLastName('');
         setEmail('');
         setPhoneNumber('');
+        setCountryCode('');
       }
     }
   }, [mrn]);
@@ -399,6 +403,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
       lastName,
       email,
       phoneNumber,
+      countryCode,
       mrn: mrn ? Number(mrn) : 0,
       practiceHomeId,
       insuranceDetails,
@@ -450,7 +455,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
           const {
             id,
             date,
-            patient: { firstName, mrn, phoneNumber, email },
+            patient: { firstName, mrn, phoneNumber, countryCode, email },
             bodyPart,
             pcp,
             referrer,
@@ -464,6 +469,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
                 email,
                 bodyPart,
                 phoneNumber,
+                countryCode,
                 firstName,
                 mrn,
                 pcp: pcp?.id,
@@ -492,6 +498,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
           setFirstName('');
           setLastName('');
           setMrn('');
+          setCountryCode('');
           setPhoneNumber('');
           setEmail('');
           setPracticeHomeId('');
@@ -668,6 +675,15 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
                 <RequiredIndicator />
                 &nbsp;Phone Number
               </label>
+              <TextInput
+                size={SIZE.mini}
+                name="countryCode"
+                value={countryCode}
+                onChange={(value) => {
+                  setCountryCode(value);
+                }}
+                required
+              />
               <TextInput
                 size={SIZE.mini}
                 name="phoneNumber"

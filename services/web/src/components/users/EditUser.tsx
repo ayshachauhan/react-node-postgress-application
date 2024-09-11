@@ -159,6 +159,7 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose, withLoader }) => {
         userName: updatedUserInfo.userName ?? '',
         firstName: updatedUserInfo.firstName ?? '',
         lastName: updatedUserInfo.lastName ?? '',
+        countryCode: updatedUserInfo.countryCode ?? '',
         contactNumber: updatedUserInfo.contactNumber ?? '',
         fullName: updatedPayloadData.fullName ?? '',
         email: updatedUserInfo.email ?? '',
@@ -274,6 +275,12 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose, withLoader }) => {
                 <RequiredIndicator />
                 &nbsp;Contact No.
               </label>
+              <TextInput
+                name="countryCode"
+                value={updatedUserInfo?.countryCode || ''}
+                onChange={(value) => handleInputChange('countryCode', value)}
+                required
+              />
               <TextInput
                 name="contactNumber"
                 value={updatedUserInfo?.contactNumber || ''}

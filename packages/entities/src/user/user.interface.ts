@@ -13,6 +13,7 @@ export interface IUser extends IBaseEntity {
   designation: string;
   status: UserStatus;
   type: UserType;
+  countryCode: string;
   contactNumber: string;
   practiceId?: string;
   practices: IPractice[];
