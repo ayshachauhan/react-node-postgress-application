@@ -269,7 +269,7 @@ const EditableRow: React.FC<EditableRowProps> = ({
 
   if (surgeryInfo) {
     const { surgeryConfiguration } = surgeryInfo;
-    const surgeryName: string = surgeryConfiguration.name;
+    const surgeryName: string = surgeryConfiguration?.name;
     const customOptionsHeaders: string[] =
       customHeaders[surgeryName]?.surgeryOptionsHeaders;
     const customCheckListHeaders: string[] =
@@ -451,7 +451,7 @@ const EditableRow: React.FC<EditableRowProps> = ({
           <td rowSpan={1} className="min-w-20">
             <Select
               backspaceRemoves={false}
-              options={surgeryConfiguration.bodyPart.map((ele) => ({
+              options={surgeryConfiguration?.bodyPart.map((ele) => ({
                 id: ele,
                 label: ele,
               }))}
