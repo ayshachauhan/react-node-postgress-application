@@ -311,7 +311,7 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
         phoneNumber: ele.patient.phoneNumber,
         countryCode: ele.patient.countryCode,
         date: modifiedDate,
-        surgery: ele.surgeryConfiguration?.name,
+        surgery: ele.surgeryConfiguration?.name || '',
         home: ele?.practiceHome?.name,
         insuranceDetails: ele.insuranceDetails,
         insurance: ele.insuranceType ? ele.insuranceType?.name : '',

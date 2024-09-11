@@ -326,7 +326,7 @@ const EvalPage: React.FC = () => {
       phoneNumber: ele.patient.phoneNumber,
       countryCode: ele.patient.countryCode,
       date: usDateFormatter(ele.date),
-      surgeryConfigName: ele.surgeryConfiguration.name,
+      surgeryConfigName: ele.surgeryConfiguration?.name || '',
       practiceHomeName: ele?.practiceHome?.name,
       insuranceDetails: ele.insuranceDetails,
       insuranceTypeName: ele.insuranceType ? ele.insuranceType?.name : '',
