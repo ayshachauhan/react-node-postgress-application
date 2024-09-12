@@ -155,7 +155,9 @@ export class SurgeryService {
     );
 
     if (!option && viewFutureCases) {
-      option = 'Upcoming View';
+      if (!searchMRNName) {
+        option = 'Upcoming View';
+      }
     }
 
     const validPracticeHomeIds = dbPracticeHomesByPractice.map((ele) => ele.id);
