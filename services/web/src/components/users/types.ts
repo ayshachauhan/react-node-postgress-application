@@ -6,6 +6,7 @@ export interface User {
   designation: string;
   firstName: string;
   contactNumber: string;
+  countryCode: string;
   lastName: string;
   fullName: string;
   url?: string;

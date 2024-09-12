@@ -18,6 +18,7 @@ const PracticePage: React.FC<{
   const [adminLastName, setAdminLastName] = useState('');
   const [adminEmail, setAdminEmail] = useState('');
   const [adminContactNumber, setAdminContactNumber] = useState('');
+  const [adminCountryCode, setAdminCountryCode] = useState('');
   const generateRandomCode = () => {
     const min = 100000; // Minimum value for a 6-digit code
     const max = 999999; // Maximum value for a 6-digit code
@@ -51,6 +52,11 @@ const PracticePage: React.FC<{
       return false;
     }
 
+    if (!adminCountryCode.trim() || !/^\d{10}$/.test(adminCountryCode)) {
+      setErrorMessage('Invalid contact number. Must be 10 digits.');
+      return false;
+    }
+
     setErrorMessage('');
     return true;
   };
@@ -64,6 +70,7 @@ const PracticePage: React.FC<{
       adminLastName: adminLastName.trim(),
       adminEmail: adminEmail.trim(),
       adminContactNumber: adminContactNumber.trim(),
+      adminCountryCode: adminCountryCode.trim(),
       code,
       practiceImg,
     };
@@ -78,6 +85,7 @@ const PracticePage: React.FC<{
         setAdminLastName('');
         setAdminEmail('');
         setAdminContactNumber('');
+        setAdminCountryCode('');
         setCode('');
         setPracticeImg(null);
         onClose();
@@ -163,6 +171,15 @@ const PracticePage: React.FC<{
                 <RequiredIndicator />
                 &nbsp;Admin Contact No.
               </label>
+              <TextInput
+                name="adminCountryCode"
+                value={adminCountryCode}
+                onChange={(value) => {
+                  setAdminCountryCode(value);
+                }}
+                required
+                maxLength={14}
+              />
               <TextInput
                 name="adminContactNumber"
                 value={adminContactNumber}

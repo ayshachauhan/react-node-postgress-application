@@ -265,6 +265,9 @@ export default function UserPage() {
                       {data.fullName}
                     </td>
                     <td rowSpan={1} className="">
+                      {data.countryCode}
+                    </td>
+                    <td rowSpan={1} className="">
                       {data.contactNumber}
                     </td>
                     <td rowSpan={1} className="">

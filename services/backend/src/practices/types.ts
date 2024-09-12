@@ -7,6 +7,7 @@ export interface PracticesGetInterface {
   adminLastName?: string;
   adminEmail?: string;
   adminContactNumber?: string;
+  adminCountryCode?: string;
   adminId?: string;
   status: string;
   code: string;

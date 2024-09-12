@@ -25,6 +25,9 @@ const PracticeEditModule: React.FC<{
   const [adminContactNumber, setAdminContactNumber] = useState(
     initialValues.adminContactNumber,
   );
+  const [adminCountryCode, setAdminCountryCode] = useState(
+    initialValues.adminCountryCode,
+  );
   const [status, setStatus] = useState(initialValues.status);
   const practiceStatusOptions = Object.keys(PracticeStatus).map((key) => ({
     label: PracticeStatus[key as keyof typeof PracticeStatus],
@@ -60,6 +63,7 @@ const PracticeEditModule: React.FC<{
       name !== initialValues.name ||
         status !== initialValues.status ||
         adminContactNumber !== initialValues.adminContactNumber ||
+        adminCountryCode !== initialValues.adminCountryCode ||
         adminLastName !== initialValues.adminLastName ||
         adminFirstName !== initialValues.adminFirstName ||
         status !== initialValues.status ||
@@ -70,6 +74,7 @@ const PracticeEditModule: React.FC<{
     status,
     practiceImg,
     adminContactNumber,
+    adminCountryCode,
     adminLastName,
     adminFirstName,
     initialValues,
@@ -190,6 +195,14 @@ const PracticeEditModule: React.FC<{
               <label htmlFor="adminContactNumber" className="">
                 Admin Contact No.
               </label>
+              <TextInput
+                name="adminCountryCode"
+                value={adminCountryCode}
+                onChange={(value) => {
+                  setAdminCountryCode(value);
+                }}
+                required
+              />
               <TextInput
                 name="adminContactNumber"
                 value={adminContactNumber}
