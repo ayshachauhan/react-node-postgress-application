@@ -1,3 +1,3 @@
 export interface AIService {
-  doSMSChat(data: any): Promise<any>;
+  doSMSChat(data: { phoneNumber: string; question: string }): Promise<string>;
 }

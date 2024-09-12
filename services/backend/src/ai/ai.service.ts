@@ -29,7 +29,10 @@ export class AIClientService {
     }
   }
 
-  async smsChat(type: 'openai' | 'customgpt', data: any): Promise<any> {
+  async smsChat(
+    type: 'openai' | 'customgpt',
+    data: { phoneNumber: string; question: string },
+  ): Promise<string> {
     this.selectAIService(type);
     if (!this.aiService) {
       throw new Error('AI Service not selected');

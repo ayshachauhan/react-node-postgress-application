@@ -14,20 +14,23 @@ export class AddAichatbotLogTable1725355663850 implements MigrationInterface {
             default: 'uuid_generate_v4()',
           },
           {
-            name: 'userQuestion',
-            type: 'varchar',
+            name: 'practiceId',
+            type: 'uuid',
+            isNullable: true,
           },
           {
             name: 'assistantId',
             type: 'varchar',
+            isNullable: true,
           },
           {
             name: 'userIdentifier',
-            type: 'varchar'
+            type: 'varchar',
           },
           {
             name: 'assistantChatThreadId',
             type: 'varchar',
+            isNullable: true,
           },
           {
             name: 'botQuestionAnswers',
@@ -47,8 +50,8 @@ export class AddAichatbotLogTable1725355663850 implements MigrationInterface {
           {
             name: 'dateUpdated',
             type: 'timestamp',
-            default: 'CURRENT_TIMESTAMP',
             onUpdate: 'CURRENT_TIMESTAMP',
+            isNullable: true,
           },
           {
             name: 'dateDeleted',

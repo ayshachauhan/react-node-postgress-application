@@ -116,12 +116,10 @@ export class PatientsService {
   }
 
   async getPatientsByPhoneNumber(
-    practiceId: string,
-    mrn: number,
-  ): Promise<PatientEntity | null> {
-    return this.patientRepository.findOne({
-      where: { practice: { id: practiceId }, mrn },
-      relations: ['surgeries', 'evals', 'surgeries.surgeryConfiguration'],
+    phoneNumber: string,
+  ): Promise<PatientEntity[] | null> {
+    return this.patientRepository.find({
+      where: { phoneNumber },
     });
   }
 }

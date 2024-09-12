@@ -4,14 +4,18 @@ import { ConfigService } from '@nestjs/config';
 // import { ChatbotLogsEntity } from '@packages/entities/ChatbotLogsEntity';
 // import { Repository } from 'typeorm';
 // import { PatientsService } from '../patients/patients.service';
-import OpenAI from 'openai';
-import { ENVIRONMENT_VARIABLES } from '../enums/environment.enums';
-import { AIService } from './ai-service.interface';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ChatbotLogsEntity, PracticeEntity } from '@packages/entities';
+import {
+  ChatbotLogsEntity,
+  PatientEntity,
+  PracticeEntity,
+} from '@packages/entities';
+import OpenAI from 'openai';
 import { Raw, Repository } from 'typeorm';
+import { ENVIRONMENT_VARIABLES } from '../enums/environment.enums';
 import { PatientsService } from '../patients/patients.service';
 import { PracticesService } from '../practices/practices.service';
+import { AIService } from './ai-service.interface';
 
 export type Role = 'system' | 'user' | 'assistant';
 // types/openai.types.ts
@@ -25,7 +29,10 @@ export class OpenAIService implements AIService {
   private openAI: OpenAI;
   private threadByUser: { [key: string]: string } = {}; // Store thread IDs by user
   private readonly openaiAssistantId: string;
-  private conversationHistory: { role: 'system' | 'user' | 'assistant'; content: string }[] = [];
+  private conversationHistory: {
+    role: 'system' | 'user' | 'assistant';
+    content: string;
+  }[] = [];
 
   constructor(
     private readonly configService: ConfigService,
@@ -66,62 +73,92 @@ export class OpenAIService implements AIService {
   }
 
   // Remove citation markers like [1], [2], [3], [4], etc.
-  removeCitationMarkers = (text: string): string => {    
-    return text.replace(/\[\d+\]/g, '').trim().replace(/【\d+:\d+†[^】]+】/g, '');
+  removeCitationMarkers = (text: string): string => {
+    return text
+      .replace(/\[\d+\]/g, '')
+      .trim()
+      .replace(/【\d+:\d+†[^】]+】/g, '');
   };
 
-  async doSMSChat(data: { phoneNumber: string; question: string }): Promise<any> {
+  async doSMSChat(data: {
+    phoneNumber: string;
+    question: string;
+  }): Promise<string> {
     try {
-      //const input = "MRN: 1234abcd5678, Practice: 9876xyz54321";
-      const regex = /MRN\s*([A-Za-z0-9]{10,16}),\s*Practice\s*([A-Za-z0-9]{10,16})/;
-      const match = data.question.match(regex);
-      let MRN; 
-      let practice;
-      let patientRecord;
-      if (match) {
-        MRN = match[1];
-        practice = match[2];
-        console.log(`MRN: ${MRN}, Practice: ${practice}`);
-        const practiceRecord: PracticeEntity | null = await this.practiceService.findPractice(practice);
-        if (practiceRecord) {
-          patientRecord = await this.patientService.getPatientsByMrn(practiceRecord.id, MRN);
-        }
-      }
+      let chatLogRecords: ChatbotLogsEntity | null =
+        await this.getTodayChatLogsByIdentifier(data.phoneNumber);
+      if (chatLogRecords) {
+        console.log('record: ', chatLogRecords);
+        // if (chatLogRecords && chatLogRecords.botQuestionAnswers.length > 0) {
+        //   const count = chatLogRecords.botQuestionAnswers.length + 1;
+        //   console.log('count: ', count);
+        //   if (count > 3 && !chatLogRecords.patient) {
+        //     return `Sorry, you didn't provide the required details. Please contact to your practice doctor.`;
+        //   }
+        //   chatLogRecords.botQuestionAnswers.push({ question: data.question, answer: '' });
+        // }
 
-      const chatLogRecords: any = await this.getTodayChatLogsByIdentifier(data.phoneNumber);
-      let updateRecord: ChatbotLogsEntity;
-      console.log('record: ', chatLogRecords);
-      if (chatLogRecords && chatLogRecords.assistantId === this.openaiAssistantId) {
-        updateRecord = { ...chatLogRecords };
-        if (chatLogRecords && chatLogRecords.botQuestionAnswers.length > 0) {
-          const count = chatLogRecords.botQuestionAnswers.length + 1;
-          if (count >= 3 && !chatLogRecords.patient) {
-            return [`Sorry, you didn't provide the required details. Please contact to your practice doctor.`];
-          } else {
-            //  TODO: Need to put some condition to send back this message.
-          }
-        }        
-        if (patientRecord && !chatLogRecords.patient)
-        {
-          updateRecord.patient = patientRecord;
+        // if (patientRecord && !chatLogRecords.patient)
+        // {
+        //   chatLogRecords.patient = patientRecord;
+        // }
+        // await this.updateChatLogs({ ...chatLogRecords, botQuestionAnswers: chatLogRecords.botQuestionAnswers });
+        if (!chatLogRecords.practice || !chatLogRecords.patient) {
+          //  TODO: Delete this chat record from the table.
+          await this.deleteChatLogs(chatLogRecords.id);
+          return `Sorry, we didn't know your practice. Please share your practice name with us to serve you better: PRACTICE Practice_Name_Example`;
         }
-        await this.updateChatLogs({ ...updateRecord, botQuestionAnswers: data.question });
       } else {
-        //  No records found, then save a new record.
-        const dataToSave: Partial<ChatbotLogsEntity> = {
-          userIdentifier: data.phoneNumber,
-          assistantId: this.openaiAssistantId,
-          botQuestionAnswers: [{ question: data.question, answer: '' }],
-          assistantChatThreadId: '',
-          patient: null,
-          id: '',
-        };
-        await this.saveChatLogs(dataToSave);
-        return [`Sorry, we didn't know your practice. Please share your practice details & MRN in following format to serve your better: MRN xxxx, Practice 123xxx789`];
+        const patientRecords: PatientEntity[] | null =
+          await this.patientService.getPatientsByPhoneNumber(data.phoneNumber);
+        if (patientRecords && patientRecords.length > 0) {
+          const regex = /\s*PRACTICE\s*([A-Za-z0-9]{10,30})/;
+          const match = data.question.match(regex);
+          const practice = match ? match[1] : '';
+          console.log(`Practice: ${practice}`);
+          const practiceRecord: PracticeEntity | null =
+            await this.practiceService.findPractice(practice);
+          if (practiceRecord) {
+            if (
+              (patientRecords.length === 1 &&
+                practiceRecord.id != patientRecords[0].practice.id) ||
+              (patientRecords.length > 1 &&
+                patientRecords.find((p) => p.practice.id != practiceRecord?.id))
+            ) {
+              return `Sorry, ${practice} doesn't belong to you as per records. Kindly check with your doctor OR re-enter practice name as in provided format.`;
+            }
+          }
+
+          if (patientRecords.length > 1 && !practiceRecord) {
+            return `Sorry, we didn't know your practice. Please share your practice name with us to serve you better: PRACTICE Practice_Name_Example`;
+          } else if (patientRecords.length === 1) {
+            //  No records found, then save a new record.
+            const newChatLog: ChatbotLogsEntity = new ChatbotLogsEntity();
+            const dataToSave = {
+              ...newChatLog,
+              practice: patientRecords[0].practice,
+              patients: patientRecords[0],
+              userIdentifier: data.phoneNumber,
+              assistantId: this.openaiAssistantId,
+              botQuestionAnswers: [],
+              assistantChatThreadId: '',
+            };
+            const savedChatLog = await this.saveChatLogs(dataToSave);
+            chatLogRecords = { ...savedChatLog };
+          }
+        } else {
+          return `Sorry, your number is not registered with us. Please contact at support@pod111.com for more details.`;
+        }
       }
 
-      this.threadByUser[`${data.phoneNumber}`] = updateRecord.assistantChatThreadId ?? null;
-      console.log('Thread id: ', this.threadByUser[`${data.phoneNumber}`], '  phone; ', data?.phoneNumber);
+      this.threadByUser[`${data.phoneNumber}`] =
+        chatLogRecords?.assistantChatThreadId ?? '';
+      console.log(
+        'Thread id: ',
+        this.threadByUser[`${data.phoneNumber}`],
+        '  phone; ',
+        data?.phoneNumber,
+      );
       // Create a new thread if it's the user's first message
       if (!this.threadByUser[`${data.phoneNumber}`]) {
         try {
@@ -158,7 +195,7 @@ export class OpenAIService implements AIService {
              without any reference numbers or citation styles. Your responses should be concise and informative, 
              and should not include any formatting or reference markers.`, // Your instructions here
           tools: [{ type: 'file_search' }],
-          response_format: { type: "text" },
+          response_format: { type: 'text' },
         },
       );
 
@@ -179,7 +216,7 @@ export class OpenAIService implements AIService {
             break;
           }
           //  To avoid rapid polling
-          await new Promise(resolve => setTimeout(resolve, 2000));
+          await new Promise((resolve) => setTimeout(resolve, 2000));
         }
       };
 
@@ -197,69 +234,84 @@ export class OpenAIService implements AIService {
         );
         if (assistantMessage) {
           console.log('Assistant: ', assistantMessage.content);
-          return assistantMessage.content.map(content => {
+          return assistantMessage.content.map((content) => {
             if (content.type === 'text') {
               return this.removeCitationMarkers(content.text.value);
             }
             return `I don't know.`;
-          });//.join(' ');
+          }); //.join(' ');
         } else {
           return [];
         }
       };
 
       const answer = await waitForAssistantMessage();
-      updateRecord.assistantId = this.openaiAssistantId;
-      updateRecord.assistantChatThreadId = updateRecord.assistantChatThreadId ?? this.threadByUser[`${data.phoneNumber}`];
-      await this.updateChatLogs({ ...chatLogRecords });
-      return answer;
+      if (chatLogRecords) {
+        chatLogRecords.assistantId = this.openaiAssistantId;
+        chatLogRecords.assistantChatThreadId =
+          chatLogRecords.assistantChatThreadId ??
+          this.threadByUser[`${data.phoneNumber}`];
+        await this.updateChatLogs({ ...chatLogRecords });
+      }
+      return answer[0];
     } catch (error) {
       console.error('Error generating response text:', error);
       throw new Error('Failed to generate text');
     }
   }
 
-  async performChat(data: any): Promise<any> { 
+  async performChat(data: {
+    phoneNumber: string;
+    question: string;
+  }): Promise<string> {
     this.conversationHistory.push({ role: 'user', content: data?.question });
 
-      const response = await this.openAI.chat.completions.create({
-        model: 'gpt-4o',
-        max_tokens: 300,
-        messages: this.conversationHistory,
-        temperature: 0.2,
-        user: data?.phoneNumber,  //  this must be a unique identifier / hashed value of user id or email or username.
-      });
-      console.log(response);
-      const answer = response.choices[0]?.message?.content?.trim() || '';
+    const response = await this.openAI.chat.completions.create({
+      model: 'gpt-4o',
+      max_tokens: 300,
+      messages: this.conversationHistory,
+      temperature: 0.2,
+      user: data?.phoneNumber, //  this must be a unique identifier / hashed value of user id or email or username.
+    });
+    console.log(response);
+    const answer = response.choices[0]?.message?.content?.trim() || '';
 
-      // Add assistant's response to conversation history
-      this.conversationHistory.push({ role: 'assistant', content: answer });
-      return answer;
+    // Add assistant's response to conversation history
+    this.conversationHistory.push({ role: 'assistant', content: answer });
+    return answer;
   }
 
   //  Gets today's chat summary against a user identifier (phone number/user id)
-  async getTodayChatLogsByIdentifier(identifier?: string): Promise<any> {
-    return await this.chatbotRepository.find({
+  async getTodayChatLogsByIdentifier(
+    identifier?: string,
+  ): Promise<ChatbotLogsEntity | null> {
+    return await this.chatbotRepository.findOne({
       where: {
-        userIdentifier: identifier, 
-        dateCreated: Raw(
-          (alias) => `DATE(${alias}) = CURRENT_DATE`
-        ),
+        userIdentifier: identifier,
+        dateCreated: Raw((alias) => `DATE(${alias}) = CURRENT_DATE`),
       },
       relations: ['patient'],
     });
   }
 
-  async saveChatLogs(dataToSave: ChatbotLogsEntity): Promise<any> {    
-    const resp = await this.chatbotRepository.create(dataToSave);
-    console.log(resp);
+  async saveChatLogs(
+    dataToSave: ChatbotLogsEntity,
+  ): Promise<ChatbotLogsEntity> {
+    return await this.chatbotRepository.save(dataToSave);
   }
 
-  async updateChatLogs(dataToUpdate: any): Promise<any> {
+  async updateChatLogs(dataToUpdate: ChatbotLogsEntity): Promise<void> {
     const existingChatRecord = (await this.chatbotRepository.findOne({
       where: { id: dataToUpdate.id },
     })) as ChatbotLogsEntity;
 
-    return await this.chatbotRepository.update(existingChatRecord.id, { ...dataToUpdate, dateUpdated: Date.now() });
+    await this.chatbotRepository.update(existingChatRecord.id, {
+      ...dataToUpdate,
+      dateUpdated: new Date(),
+    });
+  }
+
+  async deleteChatLogs(dataIdToDelete: string) {
+    await this.chatbotRepository.delete({ id: dataIdToDelete });
   }
 }

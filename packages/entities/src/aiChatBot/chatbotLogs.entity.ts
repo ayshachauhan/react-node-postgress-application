@@ -1,23 +1,28 @@
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { BaseEntity } from '../base.entity';
-import { IChatbot, QuestionAnswers } from './chatbotLogs.interface';
 import { IPatient, PatientEntity } from '../patient';
+import { PracticeEntity } from '../practice';
+import { IChatbot, QuestionAnswers } from './chatbotLogs.interface';
 
 @Entity('chatbotlogs')
 export class ChatbotLogsEntity extends BaseEntity implements IChatbot {
-    @Column({ type: 'jsonb', nullable: true })
-    botQuestionAnswers: QuestionAnswers[];
+  @Column({ type: 'jsonb', nullable: true })
+  botQuestionAnswers: QuestionAnswers[];
 
-    @ManyToOne(() => PatientEntity)
-    @JoinColumn({ name: 'patientId' })
-    patient: IPatient | null;
+  @ManyToOne(() => PatientEntity, { nullable: true })
+  @JoinColumn({ name: 'patientId' })
+  patient: IPatient | null;
 
-    @Column({ type: 'varchar' })
-    assistantChatThreadId: string;
+  @Column({ type: 'varchar' })
+  assistantChatThreadId: string;
 
-    @Column({ type: 'varchar' })
-    userIdentifier:string;
+  @Column({ type: 'varchar' })
+  userIdentifier: string;
 
-    @Column({ type: 'varchar' })
-    assistantId: string;
+  @Column({ type: 'varchar' })
+  assistantId: string;
+
+  @ManyToOne(() => PracticeEntity, { nullable: true })
+  @JoinColumn({ name: 'practiceId' })
+  practice: PracticeEntity | null;
 }
