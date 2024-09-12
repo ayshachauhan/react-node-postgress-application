@@ -310,7 +310,7 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
         email: ele.patient.email,
         phoneNumber: ele.patient.phoneNumber,
         date: modifiedDate,
-        surgery: ele.surgeryConfiguration.name,
+        surgery: ele.surgeryConfiguration?.name || '',
         home: ele?.practiceHome?.name,
         insuranceDetails: ele.insuranceDetails,
         insurance: ele.insuranceType ? ele.insuranceType?.name : '',
@@ -338,10 +338,14 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
         pcpVerified: ele.pcp && ele.pcp.verified ? true : false,
       };
 
-      const optionArr = Object.keys(ele.surgeryConfiguration.options);
-      const conditionalOptionsArr = Object.keys(
-        ele.surgeryConfiguration.conditionalOptions,
-      );
+      const optionArr = ele?.surgeryConfiguration?.options
+        ? Object.keys(ele.surgeryConfiguration.options)
+        : [];
+
+      const conditionalOptionsArr = ele?.surgeryConfiguration
+        ?.conditionalOptions
+        ? Object.keys(ele.surgeryConfiguration.conditionalOptions)
+        : [];
 
       optionArr.forEach((option) => {
         viewData[`${option}-count`] =
@@ -579,7 +583,7 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
     };
 
     const resetFilters = async (): Promise<void> => {
-      dispatch(setSelectedValue(viewFutureCases ? 'Upcoming View' : null));
+      dispatch(setSelectedValue(null));
       dispatch(setSelectedMonth([]));
       dispatch(setSearchMRNName(null));
       setIsWailistViewActive(false);
@@ -620,7 +624,7 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
     };
 
     const searchMRNNameStr = searchMRNName || '';
-    let selectedValueStr = selectedValue || '';
+    const selectedValueStr = selectedValue || '';
 
     const dispatchFetchFilteredCalendars = (
       practiceId: string,
@@ -655,7 +659,7 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
     useEffect(() => {
       dispatch(setSelectedMonth([]));
       dispatch(setSearchMRNName(''));
-      dispatch(setSelectedValue(viewFutureCases ? 'Upcoming View' : null));
+      dispatch(setSelectedValue(null));
       setIsFiltersApplied(false);
       setIsViewFutureCasesFinalized(false);
     }, [dispatch, viewFutureCases]);
@@ -669,11 +673,6 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
     }, [viewFutureCases]);
 
     const fetchSurgeryList = async (currentPage: number): Promise<void> => {
-      if (selectedValueStr === '') {
-        if (viewFutureCases) {
-          selectedValueStr = 'Upcoming View';
-        }
-      }
       if (
         isSurgeriesLoading ||
         !hasMore ||
