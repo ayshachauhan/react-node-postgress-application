@@ -278,7 +278,7 @@ export class ReviewService {
     const practice = await this.practiceService.findOne(practiceId);
     const systemGeneratedMailData = {
       subject: 'Practice Optimizer Dashboard - Rate your visit',
-      text: '',
+      text: `<p>Hi ${mailData.fname},\n hope you're well!\n Please share your feedback on recent surgery here: ${mailData.reviewLink}</p>`,
       systemTemplate: SystemTemplates.REVIEW_REQUEST,
     };
 
