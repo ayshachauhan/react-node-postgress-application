@@ -67,10 +67,6 @@ const Media: React.FC = () => {
     null,
   );
 
-  const [selectedSurgeryConfigId, setSelectedSurgeryConfigId] = useState<
-    string | null
-  >(null);
-
   const modalRef = useRef(null);
 
   const mediaTab: SelectedMedia[] = [
@@ -162,10 +158,6 @@ const Media: React.FC = () => {
 
   const handlePatientMediaClick = (patientId: string) => {
     setSelectedPatientId(patientId);
-  };
-
-  const handlePracticeMediaClick = (surgeryConfigId: string) => {
-    setSelectedSurgeryConfigId(surgeryConfigId);
   };
 
   const getSurgeryConfigById = (
@@ -280,178 +272,119 @@ const Media: React.FC = () => {
       <hr className="h-px my-2.5 bg-gray-100 border-1 border-gray-100" />
       {!isLoading && (
         <div className="flex flex-wrap gap-6">
-          {selectedMediaType === MediaType.PRACTICE &&
-            !selectedSurgeryConfigId &&
-            media
-              .filter(
-                (data: IMedia) =>
-                  data.mediaType === MediaType.PRACTICE &&
-                  data.mediaConfigs.length,
-              )
-              .map((data: IMedia) => {
-                const mediaConfigs: IMediaConfig[] = data.mediaConfigs;
-                const surgeryName: string | undefined = data.entityId
-                  ? getSurgeryConfigById(data.entityId)?.name
-                  : '';
-                return (
-                  <React.Fragment key={data.id}>
-                    <div className="rounded-lg shadow-md p-6 w-[298px] h-298 relative cursor-pointer">
-                      <div>
-                        <Image
-                          src={
-                            data.mediaConfigs[0].configType ===
-                            MediaConfigType.VIDEO
-                              ? getImageUrl(data.mediaConfigs[0].url)
-                              : data.mediaConfigs[0].url
-                          }
-                          className="rounded-lg"
-                          alt="External image description"
-                          width={265}
-                          height={208}
-                          style={{
-                            width: '265px',
-                            height: '208px',
-                          }}
-                          onClick={() =>
-                            handlePracticeMediaClick(data.entityId!)
-                          }
-                        />
-                        {surgeryName ? (
-                          <div className="bg-black text-white rounded text-xs leading-[18px] absolute text-center border top-14 right-9 border-black py-1 px-1.5">
-                            {surgeryName}
-                          </div>
-                        ) : (
-                          ''
-                        )}
-                        <div className="text-gray-900 pt-2 flex justify-between">
-                          <div>{mediaConfigs[0].title}</div>
+          {selectedMediaType === MediaType.PRACTICE && (
+            <div style={{ width: '100vw' }}>
+              <div className="flex flex-wrap gap-4">
+                {media
+                  .filter(
+                    (data: IMedia) =>
+                      data.mediaType === MediaType.PRACTICE &&
+                      data.mediaConfigs.length,
+                  )
+                  .flatMap((data: IMedia, index) => {
+                    const mediaConfigs: IMediaConfig[] = data.mediaConfigs;
+                    const surgeryName: string | undefined = data.entityId
+                      ? getSurgeryConfigById(data.entityId)?.name
+                      : '';
+                    // Combine video and image arrays with appropriate identifiers
 
-                          <DeleteIcon
+                    const videoElements = mediaConfigs
+                      .filter(
+                        (config) => config.configType === MediaConfigType.VIDEO,
+                      )
+                      .map((config: IMediaConfig, vidIndex) => (
+                        <React.Fragment key={`video-${index}-${vidIndex}`}>
+                          <div
+                            className="rounded-lg shadow-md p-6 w-[298px] h-[298px] relative"
                             style={{ cursor: 'pointer' }}
-                            onClick={() =>
-                              handleOpenDeleteModal({
-                                mediaId: data.id,
-                                type: DeleteMediaType.Media,
-                              })
-                            }
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </React.Fragment>
-                );
-              })}
-          {selectedMediaType === MediaType.PRACTICE &&
-            selectedSurgeryConfigId && (
-              <div style={{ width: '100vw' }}>
-                <div className="flex gap-4 items-center mb-4">
-                  <Button
-                    title="Back"
-                    kind="tertiary"
-                    padding="5px 8px"
-                    onClick={() => setSelectedSurgeryConfigId(null)}
-                  ></Button>
-                  <div className="flex">
-                    Surery Name:{' '}
-                    {getSurgeryConfigById(selectedSurgeryConfigId!)?.name}
-                  </div>
-                </div>
-                <div className="flex flex-wrap gap-4">
-                  {media
-                    .filter(
-                      (data: IMedia) =>
-                        data.entityId === selectedSurgeryConfigId,
-                    )
-                    .map((data: IMedia) => data.mediaConfigs)
-                    .flatMap((mediaConfigs: IMediaConfig[], index) => {
-                      // Combine video and image arrays with appropriate identifiers
-
-                      const videoElements = mediaConfigs
-                        .filter(
-                          (config) =>
-                            config.configType === MediaConfigType.VIDEO,
-                        )
-                        .map((config: IMediaConfig, vidIndex) => (
-                          <React.Fragment key={`video-${index}-${vidIndex}`}>
+                          >
+                            <Image
+                              src={getImageUrl(config.url)}
+                              className="rounded-lg"
+                              alt="Video thumbnail"
+                              width={265}
+                              height={208}
+                              style={{ width: '265px', height: '208px' }}
+                            />
                             <div
-                              className="rounded-lg shadow-md p-6 w-[298px] h-[298px] relative"
-                              style={{ cursor: 'pointer' }}
+                              className="bg-black absolute text-center transform -translate-x-1/2 -translate-y-1/2 border top-32 left-1/2 text-white rounded-full flex justify-center items-center p-2 border-black w-14 h-14 pointer"
+                              onClick={() =>
+                                handleOpenFirstModal(extractVideoId(config.url))
+                              }
                             >
-                              <Image
-                                src={getImageUrl(config.url)}
-                                className="rounded-lg"
-                                alt="Video thumbnail"
-                                width={265}
-                                height={208}
-                                style={{ width: '265px', height: '208px' }}
-                              />
-                              <div
-                                className="bg-black absolute text-center transform -translate-x-1/2 -translate-y-1/2 border top-32 left-1/2 text-white rounded-full flex justify-center items-center p-2 border-black w-14 h-14 pointer"
+                              <PlayIcon />
+                            </div>
+                            {surgeryName ? (
+                              <div className="bg-black text-white rounded text-xs leading-[18px] absolute text-center border top-14 right-9 border-black py-1 px-1.5">
+                                {surgeryName}
+                              </div>
+                            ) : (
+                              ''
+                            )}
+                            <div className="text-gray-900 pt-2 flex justify-between">
+                              {config.title}
+                              <DeleteIcon
+                                style={{ cursor: 'pointer' }}
                                 onClick={() =>
-                                  handleOpenFirstModal(
-                                    extractVideoId(config.url),
-                                  )
+                                  handleOpenDeleteModal({
+                                    type: DeleteMediaType.MediaConfig,
+                                    mediaConfigId: config.id,
+                                  })
                                 }
-                              >
-                                <PlayIcon />
-                              </div>
-                              <div className="text-gray-900 pt-2 flex justify-between">
-                                {config.title}
-                                <DeleteIcon
-                                  style={{ cursor: 'pointer' }}
-                                  onClick={() =>
-                                    handleOpenDeleteModal({
-                                      type: DeleteMediaType.MediaConfig,
-                                      mediaConfigId: config.id,
-                                    })
-                                  }
-                                />
-                              </div>
-                            </div>
-                          </React.Fragment>
-                        ));
-
-                      const imageElements = mediaConfigs
-                        ?.filter(
-                          (config: IMediaConfig) =>
-                            config.configType === MediaConfigType.IMAGE,
-                        )
-                        .map((data, imgIndex) => (
-                          <React.Fragment key={`image-${index}-${imgIndex}`}>
-                            <div
-                              className="rounded-lg shadow-md p-6 w-[298px] h-[298px] relative"
-                              style={{ cursor: 'pointer' }}
-                            >
-                              <Image
-                                src={data.url}
-                                className="rounded-lg"
-                                alt="Image description"
-                                width={265}
-                                height={208}
-                                style={{ width: '265px', height: '208px' }}
-                                onClick={() => handleOpenImageModal(data.url)}
                               />
-                              <div className="text-gray-900 pt-2 flex justify-between">
-                                {data.title}
-                                <DeleteIcon
-                                  style={{ cursor: 'pointer' }}
-                                  onClick={() =>
-                                    handleOpenDeleteModal({
-                                      type: DeleteMediaType.MediaConfig,
-                                      mediaConfigId: data.id,
-                                    })
-                                  }
-                                />
-                              </div>
                             </div>
-                          </React.Fragment>
-                        ));
+                          </div>
+                        </React.Fragment>
+                      ));
 
-                      return [...videoElements, ...imageElements];
-                    })}
-                </div>
+                    const imageElements = mediaConfigs
+                      ?.filter(
+                        (config: IMediaConfig) =>
+                          config.configType === MediaConfigType.IMAGE,
+                      )
+                      .map((data, imgIndex) => (
+                        <React.Fragment key={`image-${index}-${imgIndex}`}>
+                          <div
+                            className="rounded-lg shadow-md p-6 w-[298px] h-[298px] relative"
+                            style={{ cursor: 'pointer' }}
+                          >
+                            <Image
+                              src={data.url}
+                              className="rounded-lg"
+                              alt="Image description"
+                              width={265}
+                              height={208}
+                              style={{ width: '265px', height: '208px' }}
+                              onClick={() => handleOpenImageModal(data.url)}
+                            />
+                            {surgeryName ? (
+                              <div className="bg-black text-white rounded text-xs leading-[18px] absolute text-center border top-14 right-9 border-black py-1 px-1.5">
+                                {surgeryName}
+                              </div>
+                            ) : (
+                              ''
+                            )}
+                            <div className="text-gray-900 pt-2 flex justify-between">
+                              {data.title}
+                              <DeleteIcon
+                                style={{ cursor: 'pointer' }}
+                                onClick={() =>
+                                  handleOpenDeleteModal({
+                                    type: DeleteMediaType.MediaConfig,
+                                    mediaConfigId: data.id,
+                                  })
+                                }
+                              />
+                            </div>
+                          </div>
+                        </React.Fragment>
+                      ));
+
+                    return [...videoElements, ...imageElements];
+                  })}
               </div>
-            )}
+            </div>
+          )}
           {selectedMediaType === MediaType.PATIENT &&
             !selectedPatientId &&
             media
