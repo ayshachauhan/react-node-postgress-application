@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "Monorepo for surgery app",
   "repository": "https://github.com/anakshiant-thinksys/azentia",
-  "packageManager": "pnpm@8.10.5",
+  "packageManager": "pnpm@8.15.3",
   "private": true,
   "scripts": {
     "turbo": "node ./node_modules/turbo/bin/turbo",
@@ -42,6 +42,9 @@
       "prettier --write",
       "git add"
     ]
+  },
+  "engines": {
+    "pnpm": "8.15.3"
   },
   "dependencies": {
     "js-cookie": "^3.0.5"
