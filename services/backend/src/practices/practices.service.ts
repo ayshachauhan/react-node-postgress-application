@@ -186,7 +186,7 @@ export class PracticesService {
         userLastName: adminLastName,
         contactEmail: adminEmail,
         contactPhone: adminContactNumber,
-        contactCountryCode: adminCountryCode,
+        countryCode: adminCountryCode,
       };
 
       if (!sendUserCreationEmail) {

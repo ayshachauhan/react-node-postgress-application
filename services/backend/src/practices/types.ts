@@ -24,6 +24,7 @@ export type CreatePracticeInviteMailData = {
   userLastName: string;
   contactEmail: string;
   contactPhone: string;
+  countryCode: string;
 };
 
 export type UploadPracticeImgData = {

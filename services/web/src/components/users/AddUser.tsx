@@ -14,6 +14,8 @@ import { Checkbox } from 'baseui/checkbox';
 import { FileUploader } from 'baseui/file-uploader';
 import { Select } from 'baseui/select';
 import React, { useEffect, useState } from 'react';
+import { PhoneInput } from 'react-international-phone';
+import 'react-international-phone/style.css';
 import RequiredIndicator from '../RequiredIndicator';
 const AddUserPage: React.FC<{
   onClose: () => void;
@@ -39,7 +41,6 @@ const AddUserPage: React.FC<{
   const [designation, setDesignation] = useState('');
   const [email, setEmail] = useState('');
   const [firstName, setFirstName] = useState('');
-  const [countryCode, setCountryCode] = useState('');
   const [contactNumber, setcontactNumber] = useState('');
   const [lastName, setLastName] = useState('');
   const [url, setUrl] = useState('');
@@ -129,16 +130,6 @@ const AddUserPage: React.FC<{
     }
   };
 
-  const handleCountryCodeChange = (value: string) => {
-    setCountryCode(value);
-
-    if (value.trim() === '') {
-      setErrorMessage('Country Code cannot be empty');
-    } else {
-      setErrorMessage('');
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (
@@ -146,8 +137,7 @@ const AddUserPage: React.FC<{
       email.trim() === '' ||
       firstName.trim() === '' ||
       lastName.trim() === '' ||
-      contactNumber.trim() === '' ||
-      countryCode.trim() === ''
+      contactNumber.trim() === ''
     ) {
       return;
     }
@@ -166,7 +156,6 @@ const AddUserPage: React.FC<{
         type,
         status: UserStatus.ACTIVE,
         contactNumber,
-        countryCode,
         permissionIds: selectedUserPermissions,
         file: userImg,
       };
@@ -272,15 +261,7 @@ const AddUserPage: React.FC<{
                 <RequiredIndicator />
                 &nbsp;Contact No.
               </label>
-              <TextInput
-                name="countryCode"
-                value={countryCode}
-                onChange={(value) => {
-                  handleCountryCodeChange(value);
-                }}
-                required
-              />
-              <TextInput
+              <PhoneInput
                 name="contactNumber"
                 value={contactNumber}
                 onChange={(value) => {
