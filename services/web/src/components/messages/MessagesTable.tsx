@@ -545,6 +545,7 @@ export default function MessagesTable() {
                             {activeButton !== 'Texts' && (
                               <th className="">Email Status</th>
                             )}
+                            <th className="">Message Type</th>
                           </tr>
                           {records.map((row, index) => (
                             <tr
@@ -619,6 +620,7 @@ export default function MessagesTable() {
                                   )}
                                 </td>
                               )}
+                              <td className="">{row?.data?.messageType}</td>
                             </tr>
                           ))}
                         </React.Fragment>

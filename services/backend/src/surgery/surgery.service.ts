@@ -972,7 +972,7 @@ export class SurgeryService {
     practice: IPractice,
   ): Promise<void> {
     const { name } = surgery.surgeryConfiguration;
-
+    const messageType = 'Booking';
     const systemGeneratedMailData = {
       subject: `New Surgery Scheduled: ${name}`,
       text: `<p>Dear ${surgery?.patient.firstName},<p>
@@ -990,6 +990,7 @@ export class SurgeryService {
       surgery,
       systemGeneratedMailData,
       false,
+      messageType,
     );
   }
 
@@ -998,6 +999,7 @@ export class SurgeryService {
     practice: IPractice,
   ): Promise<void> {
     const name = practice.name;
+    const messageType = 'Booking';
 
     const systemGeneratedMailData = {
       subject: `A new surgery added to your practice ${name}`,
@@ -1013,6 +1015,7 @@ export class SurgeryService {
       surgery,
       systemGeneratedMailData,
       false,
+      messageType,
     );
   }
 
@@ -1021,7 +1024,7 @@ export class SurgeryService {
     practice: IPractice,
   ): Promise<void> {
     const name = practice.name;
-
+    const messageType = 'Referrer';
     const systemGeneratedMailData = {
       subject: `Thanks for sending your patient to me  ${name}`,
       text: 'text message',
@@ -1033,6 +1036,7 @@ export class SurgeryService {
       surgery,
       systemGeneratedMailData,
       false,
+      messageType,
     );
   }
 
@@ -1041,7 +1045,7 @@ export class SurgeryService {
     practice: IPractice,
   ): Promise<void> {
     const name = practice.name;
-
+    const messageType = 'PCP';
     const systemGeneratedMailData = {
       subject: `Thanks for sending your patient to me  ${name}`,
       text: 'text message',
@@ -1053,6 +1057,7 @@ export class SurgeryService {
       surgery,
       systemGeneratedMailData,
       false,
+      messageType,
     );
   }
 
@@ -1070,11 +1075,12 @@ export class SurgeryService {
   ): Promise<void> {
     const practiceEntity: IPractice | null =
       await this.practiceService.findOne(practiceId);
-
+    const messageType = 'Surgery Updated';
     if (practiceEntity) {
       await this.emailHandlerService.checkAndMakeSurgeryUpdateEmailContent(
         practiceEntity,
         surgeryEntity,
+        messageType,
       );
     }
   }
