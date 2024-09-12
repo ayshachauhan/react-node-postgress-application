@@ -16,6 +16,8 @@ import { Checkbox } from 'baseui/checkbox';
 import { FileUploader } from 'baseui/file-uploader';
 import { Select } from 'baseui/select';
 import React, { useEffect, useState } from 'react';
+import { PhoneInput } from 'react-international-phone';
+import 'react-international-phone/style.css';
 import RequiredIndicator from '../RequiredIndicator';
 interface Data {
   id: string;
@@ -275,11 +277,9 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose, withLoader }) => {
                 <RequiredIndicator />
                 &nbsp;Contact No.
               </label>
-              <TextInput
+              <PhoneInput
                 name="countryCode"
                 value={updatedUserInfo?.countryCode || ''}
-                onChange={(value) => handleInputChange('countryCode', value)}
-                required
               />
               <TextInput
                 name="contactNumber"

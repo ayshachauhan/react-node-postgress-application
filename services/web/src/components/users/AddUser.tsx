@@ -42,6 +42,7 @@ const AddUserPage: React.FC<{
   const [email, setEmail] = useState('');
   const [firstName, setFirstName] = useState('');
   const [contactNumber, setcontactNumber] = useState('');
+  const [countryCode, setCountryCode] = useState('');
   const [lastName, setLastName] = useState('');
   const [url, setUrl] = useState('');
   const [type, setType] = useState<UserType>(UserType.ADMIN);
@@ -130,6 +131,16 @@ const AddUserPage: React.FC<{
     }
   };
 
+  const handleCountryCodeChange = (value: string) => {
+    setCountryCode(value);
+
+    if (value.trim() === '') {
+      setErrorMessage('Country cannot be empty');
+    } else {
+      setErrorMessage('');
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (
@@ -137,7 +148,8 @@ const AddUserPage: React.FC<{
       email.trim() === '' ||
       firstName.trim() === '' ||
       lastName.trim() === '' ||
-      contactNumber.trim() === ''
+      contactNumber.trim() === '' ||
+      countryCode.trim() === ''
     ) {
       return;
     }
@@ -155,6 +167,7 @@ const AddUserPage: React.FC<{
         url,
         type,
         status: UserStatus.ACTIVE,
+        countryCode,
         contactNumber,
         permissionIds: selectedUserPermissions,
         file: userImg,
@@ -262,6 +275,13 @@ const AddUserPage: React.FC<{
                 &nbsp;Contact No.
               </label>
               <PhoneInput
+                defaultCountry="ua"
+                value={countryCode}
+                onChange={(value) => {
+                  handleCountryCodeChange(value);
+                }}
+              />
+              <TextInput
                 name="contactNumber"
                 value={contactNumber}
                 onChange={(value) => {
