@@ -266,8 +266,6 @@ export default function UserPage() {
                     </td>
                     <td rowSpan={1} className="">
                       {data.countryCode}
-                    </td>
-                    <td rowSpan={1} className="">
                       {data.contactNumber}
                     </td>
                     <td rowSpan={1} className="">

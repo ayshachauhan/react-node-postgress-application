@@ -277,16 +277,29 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose, withLoader }) => {
                 <RequiredIndicator />
                 &nbsp;Contact No.
               </label>
-              <PhoneInput
-                name="countryCode"
-                value={updatedUserInfo?.countryCode || ''}
-              />
-              <TextInput
-                name="contactNumber"
-                value={updatedUserInfo?.contactNumber || ''}
-                onChange={(value) => handleInputChange('contactNumber', value)}
-                required
-              />
+              <div className="flex gap-3">
+                <PhoneInput
+                  name="countryCode"
+                  value={updatedUserInfo?.countryCode || ''}
+                  preferredCountries={['us', 'in']} // Set preferred countries to US and India
+                  inputProps={{
+                    disabled: true, // Disable the input
+                    className: 'react-international-phone-input', // Set the class
+                    style: { width: '40px' }, // Set a smaller width
+                  }}
+                  onChange={(value) => handleInputChange('countryCode', value)}
+                />
+                <div className="flex-grow">
+                  <TextInput
+                    name="contactNumber"
+                    value={updatedUserInfo?.contactNumber || ''}
+                    onChange={(value) =>
+                      handleInputChange('contactNumber', value)
+                    }
+                    required
+                  />
+                </div>
+              </div>
               <div className="w-1/2 space-y-2"></div>
             </div>
             <div className="w-1/2 space-y-2">

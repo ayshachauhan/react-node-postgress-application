@@ -135,7 +135,7 @@ const AddUserPage: React.FC<{
     setCountryCode(value);
 
     if (value.trim() === '') {
-      setErrorMessage('Country cannot be empty');
+      setErrorMessage('Country code cannot be empty');
     } else {
       setErrorMessage('');
     }
@@ -274,21 +274,31 @@ const AddUserPage: React.FC<{
                 <RequiredIndicator />
                 &nbsp;Contact No.
               </label>
-              <PhoneInput
-                defaultCountry="ua"
-                value={countryCode}
-                onChange={(value) => {
-                  handleCountryCodeChange(value);
-                }}
-              />
-              <TextInput
-                name="contactNumber"
-                value={contactNumber}
-                onChange={(value) => {
-                  handleContactNumberChange(value);
-                }}
-                required
-              />
+              <div className="flex gap-3">
+                <PhoneInput
+                  defaultCountry="us"
+                  value={countryCode}
+                  onChange={(value) => {
+                    handleCountryCodeChange(value);
+                  }}
+                  preferredCountries={['us', 'in']} // Set preferred countries to US and India
+                  inputProps={{
+                    disabled: true, // Disable the input
+                    className: 'react-international-phone-input', // Set the class
+                    style: { width: '40px' }, // Set a smaller width
+                  }}
+                />
+                <div className="flex-grow">
+                  <TextInput
+                    name="contactNumber"
+                    value={contactNumber}
+                    onChange={(value) => {
+                      handleContactNumberChange(value);
+                    }}
+                    required
+                  />
+                </div>
+              </div>
             </div>
             <div className="w-1/2 space-y-2">
               <label htmlFor="url" className="text-black text-sm font-normal">

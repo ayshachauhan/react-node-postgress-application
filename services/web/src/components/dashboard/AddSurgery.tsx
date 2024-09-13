@@ -17,6 +17,8 @@ import {
   fetchAllSurgeries,
 } from '@root/store/reducers/surgery';
 import { fetchListings as fetchUsersList } from '@root/store/reducers/users';
+import { PhoneInput } from 'react-international-phone';
+import 'react-international-phone/style.css';
 
 import {
   getBackGroundColorCss,
@@ -103,7 +105,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
-  const [countryCode, setCountryCode] = useState('');
+  const [countryCode, setCountryCode] = useState('us'); // Default to 'us'
   const [email, setEmail] = useState('');
   const [mrn, setMrn] = useState('');
   const [insuranceDetails, setInsuranceDetails] = useState('');
@@ -418,6 +420,8 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
       totalProfessionalPricing: '0',
       waitlistId,
     };
+
+    console.log(surgeryData);
     const surgeryName = surgeryConfigurationsOptions.find(
       (s) => s?.id === surgeryCataractNameId,
     )?.label;
@@ -675,24 +679,32 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
                 <RequiredIndicator />
                 &nbsp;Phone Number
               </label>
-              <TextInput
-                size={SIZE.mini}
-                name="countryCode"
-                value={countryCode}
-                onChange={(value) => {
-                  setCountryCode(value);
-                }}
-                required
-              />
-              <TextInput
-                size={SIZE.mini}
-                name="phoneNumber"
-                value={phoneNumber}
-                onChange={(value) => {
-                  setPhoneNumber(value);
-                }}
-                required
-              />
+              <div className="flex gap-3 items-center">
+                <PhoneInput
+                  defaultCountry="us"
+                  value={countryCode}
+                  onChange={(value) => {
+                    setCountryCode(value);
+                  }}
+                  preferredCountries={['us', 'in']} // Set preferred countries to US and India
+                  inputProps={{
+                    disabled: true, // Disable the input
+                    className: 'react-international-phone-input', // Set the class
+                    style: { width: '40px' }, // Set a smaller width
+                  }}
+                />
+                <div className="flex-grow">
+                  <TextInput
+                    size={SIZE.mini}
+                    name="phoneNumber"
+                    value={phoneNumber}
+                    onChange={(value) => {
+                      setPhoneNumber(value);
+                    }}
+                    required
+                  />
+                </div>
+              </div>
               <div className="space-y-4"></div>
             </div>
             <div className="space-y-1 flex-1">

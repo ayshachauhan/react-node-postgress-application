@@ -62,13 +62,7 @@ export class TransporterService {
       ? this.compileTemplate(options.text.toString(), data)
       : '';
 
-    const phoneNumber = `${data.countryCode || ''}${data.phoneNumber || ''}`;
-
-    if (!phoneNumber.trim()) {
-      throw new Error('Invalid phone number');
-    }
-
-    const sms = await this.sendText(phoneNumber, text);
+    const sms = await this.sendText(data.phoneNumber, text);
     logger.info(`SMS sending response status: ${sms}`);
 
     if (data.links && typeof data.links == 'string') {
