@@ -51,4 +51,5 @@ export interface EmailVariables {
   pcpEmail?: string;
   doctorPhoneNumber?: string;
   doctorCountryCode?: string;
+  messageType?: string;
 }

@@ -66,6 +66,21 @@ export class MediaService {
   }
 
   /**
+   * @param surgeryConfigId
+   * @returns media for specific surgery configuration id
+   */
+  async getMediaBySurgeryConfigId(
+    surgeryConfigId: string,
+    practiceId: string,
+  ): Promise<MediaEntity | null> {
+    const media = await this.media.findOne({
+      where: { entityId: surgeryConfigId, practiceId },
+    });
+
+    return media;
+  }
+
+  /**
    * @param patientId
    * @returns media for specific patient id
    */
@@ -91,7 +106,9 @@ export class MediaService {
     const existingMedia =
       data.mediaType === MediaType.PATIENT
         ? await this.getMediaByPatientId(data.entityId!)
-        : null;
+        : data.mediaType === MediaType.PRACTICE
+          ? await this.getMediaBySurgeryConfigId(data.entityId!, practiceId)
+          : null;
 
     if (existingMedia) {
       return await this.createMediaConfig(existingMedia.id, data.mediaConfig);

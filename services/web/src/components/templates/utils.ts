@@ -90,5 +90,6 @@ export const formatSurgeryData = (surgery, allSurgeries, templateInfo) => {
     all_cases: allCases.join(),
     all_cataract_dates: allCataractDates.join(),
     all_case_type: allCaseType.join(),
+    messageType: 'test1',
   };
 };

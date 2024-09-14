@@ -62,8 +62,13 @@ export class EmailHandlerService {
     entity: IEval | ISurgery,
     systemGeneratedMailData?: SystemGeneratedMailData,
     fromEval?: boolean,
+    messageType?: string,
   ): Promise<void> {
-    const mailVariables = await this.makeEmailVariable(entity, practice);
+    const mailVariables = await this.makeEmailVariable(
+      entity,
+      practice,
+      messageType,
+    );
 
     const emailLogsEntries: Partial<IEmailLog>[] = [];
     if (systemGeneratedMailData) {
@@ -145,9 +150,14 @@ export class EmailHandlerService {
     entity: IEval | ISurgery,
     systemGeneratedMailData?: SystemGeneratedMailData,
     fromEval?: boolean,
+    messageType?: string,
   ): Promise<void> {
     let bookingTemplateFound: boolean = false;
-    const mailVariables = await this.makeEmailVariable(entity, practice);
+    const mailVariables = await this.makeEmailVariable(
+      entity,
+      practice,
+      messageType,
+    );
     const surgeryConfigId = entity.surgeryConfiguration.id;
     const filter = {
       surgeryConfigId,
@@ -205,6 +215,7 @@ export class EmailHandlerService {
           entry.data = {
             ...entry.data,
             cataract_variable: cataract,
+            messageType: 'Preop',
           };
           surgeryDate.setDate(surgeryDate.getDate() + template.dateOffset);
           entry.expectedDate = surgeryDate;
@@ -224,6 +235,7 @@ export class EmailHandlerService {
           entry.data = {
             ...entry.data,
             cataract_variable: cataract,
+            messageType: 'Postop',
           };
           surgeryDate.setDate(surgeryDate.getDate() + template.dateOffset);
           entry.expectedDate = surgeryDate;
@@ -236,6 +248,10 @@ export class EmailHandlerService {
           bookingTemplateFound = true;
           surgeryDate.setDate(surgeryDate.getDate() + template.dateOffset);
           entry.expectedDate = new Date();
+          entry.data = {
+            ...entry.data,
+            messageType: 'Booking',
+          };
           emailLogsEntries.push(entry);
         } else if (template.messageType === 'referrer') {
           //
@@ -245,6 +261,10 @@ export class EmailHandlerService {
           bookingTemplateFound = true;
           surgeryDate.setDate(surgeryDate.getDate() + template.dateOffset);
           entry.expectedDate = new Date();
+          entry.data = {
+            ...entry.data,
+            messageType: 'Evaluation',
+          };
           emailLogsEntries.push(entry);
         }
       });
@@ -294,9 +314,14 @@ export class EmailHandlerService {
     entity: IEval | ISurgery,
     systemGeneratedMailData?: SystemGeneratedMailData,
     fromEval?: boolean,
+    messageType?: string,
   ) {
     let referrerTemplateFound: boolean = false;
-    const mailVariables = await this.makeEmailVariable(entity, practice);
+    const mailVariables = await this.makeEmailVariable(
+      entity,
+      practice,
+      messageType,
+    );
     const surgeryConfigId = entity.surgeryConfiguration.id;
     const referrerTemplates = await this.templateService.getFilteredTemplates({
       surgeryConfigId,
@@ -376,9 +401,14 @@ export class EmailHandlerService {
     entity: IEval | ISurgery,
     systemGeneratedMailData?: SystemGeneratedMailData,
     fromEval?: boolean,
+    messageType?: string,
   ) {
     let pcpTemplateFound: boolean = false;
-    const mailVariables = await this.makeEmailVariable(entity, practice);
+    const mailVariables = await this.makeEmailVariable(
+      entity,
+      practice,
+      messageType,
+    );
     const surgeryConfigId = entity.surgeryConfiguration.id;
     const pcpTemplates = await this.templateService.getFilteredTemplates({
       surgeryConfigId,
@@ -483,6 +513,7 @@ export class EmailHandlerService {
   async makeEmailVariable(
     entity: IEval | ISurgery,
     practice: IPractice,
+    messageType,
   ): Promise<EmailVariables> {
     const {
       patient: {
@@ -541,6 +572,7 @@ export class EmailHandlerService {
       pcpEmail: entity?.pcp?.email,
       doctorCountryCode: doctorCountryCode,
       doctorPhoneNumber: doctorPhoneNumber,
+      messageType: messageType,
     };
 
     return mailVariables;
@@ -611,6 +643,7 @@ export class EmailHandlerService {
         patientName: `${data.fname} ${data.lname}`,
         subject: 'Surgery Videos.',
         text: '',
+        messageType: 'Video Sent to Patient',
         pt_email_address: data.email,
         cc: ccAdminEmails,
       },
@@ -647,9 +680,14 @@ export class EmailHandlerService {
   async checkAndMakeSurgeryUpdateEmailContent(
     practice: IPractice,
     entity: ISurgery,
+    messageType: string,
   ) {
     const emailLogsEntries: Partial<IEmailLog>[] = [];
-    const mailVariables = await this.makeEmailVariable(entity, practice);
+    const mailVariables = await this.makeEmailVariable(
+      entity,
+      practice,
+      messageType,
+    );
 
     const { staffEmails, operatingRoomEmails } = practice.emailData;
     if (staffEmails || operatingRoomEmails) {
@@ -704,6 +742,7 @@ export class EmailHandlerService {
     practice: IPractice,
     data: Record<string, string>,
     systemGeneratedMailData?: SystemGeneratedMailData,
+    messageType?: string,
   ): Promise<void> {
     const emailLogsEntries: Partial<IEmailLog>[] = [];
     if (systemGeneratedMailData) {
@@ -716,6 +755,7 @@ export class EmailHandlerService {
           body: this.transporterService.readTemplates(systemTemplateName),
           subject: systemGeneratedMailData.subject,
           text: systemGeneratedMailData.text,
+          messageType: messageType || '',
           ...data,
         },
       };
