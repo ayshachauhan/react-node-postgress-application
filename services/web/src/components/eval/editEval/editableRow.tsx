@@ -17,6 +17,8 @@ import { Checkbox } from 'baseui/checkbox';
 import { DatePicker } from 'baseui/datepicker';
 import { SIZE, Select } from 'baseui/select';
 import React, { useEffect, useState } from 'react';
+import { PhoneInput } from 'react-international-phone';
+import 'react-international-phone/style.css';
 interface EditableRowProps {
   handleCancelClick;
   evalInfo;
@@ -503,18 +505,27 @@ const EditableRow: React.FC<EditableRowProps> = ({
               />
             </div>
             <div className="mb-1">
-              <TextInput
-                name="countryCode"
-                value={obj.countryCode}
-                onChange={(value) => handleObjChange('countryCode', value)}
-                size={SIZE.mini}
-              />
-              <TextInput
-                name="hash"
-                value={obj.phoneNumber}
-                onChange={(value) => handleObjChange('phoneNumber', value)}
-                size={SIZE.mini}
-              />
+              <div className="flex gap-2 items-center">
+                <PhoneInput
+                  defaultCountry="us"
+                  value={obj.countryCode}
+                  onChange={(value) => handleObjChange('countryCode', value)}
+                  preferredCountries={['us', 'in']} // Set preferred countries to US and India
+                  inputProps={{
+                    disabled: true, // Disable the input
+                    className: 'react-international-phone-input', // Set the class
+                    style: { width: '40px' }, // Set a smaller width
+                  }}
+                />
+                <div className="flex-grow">
+                  <TextInput
+                    name="hash"
+                    value={obj.phoneNumber}
+                    onChange={(value) => handleObjChange('phoneNumber', value)}
+                    size={SIZE.mini}
+                  />
+                </div>
+              </div>
             </div>
             <div className="">
               <Select
