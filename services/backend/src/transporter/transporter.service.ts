@@ -132,7 +132,8 @@ export class TransporterService {
       try {
         const smsResponse = await this.twilioClient.messages.create({
           body: cleanMessage,
-          to: to.includes('+1') ? to : `+1${to}`,
+          // to: to.includes('+1') ? to : `+1${to}`,
+          to: to,
           from: typeof twilioPhoneNumber == 'string' ? twilioPhoneNumber : '',
         });
         console.log(
