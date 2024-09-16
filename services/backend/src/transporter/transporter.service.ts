@@ -61,7 +61,6 @@ export class TransporterService {
     const text: string = options.text
       ? this.compileTemplate(options.text.toString(), data)
       : '';
-
     const sms = await this.sendText(data.phoneNumber, text);
     logger.info(`SMS sending response status: ${sms}`);
 
