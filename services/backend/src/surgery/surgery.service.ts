@@ -707,6 +707,22 @@ export class SurgeryService {
       createSurgeryDto.pcp = refererEntity;
     }
 
+    let sendUpdateMailAdmin = false;
+    const newDate = new Date(createSurgeryDto.date);
+    const oldDate = surgeryToUpdate?.date
+      ? new Date(surgeryToUpdate.date)
+      : null;
+
+    if (
+      (createSurgeryDto.surgeryStatus === SurgeryStatus.CANCELLED &&
+        surgeryToUpdate?.surgeryStatus !== SurgeryStatus.CANCELLED) ||
+      (createSurgeryDto.surgeryStatus === SurgeryStatus.POSTPONE &&
+        surgeryToUpdate?.surgeryStatus !== SurgeryStatus.POSTPONE) ||
+      (newDate && oldDate && newDate.getTime() !== oldDate.getTime()) // Compare timestamps
+    ) {
+      sendUpdateMailAdmin = true;
+    }
+
     const dataToUpdate = {
       insuranceType: createSurgeryDto.insuranceType
         ? createSurgeryDto.insuranceType
@@ -839,9 +855,13 @@ export class SurgeryService {
     const updatedSurgery: ISurgery | null = await this.getSurgeryById(id);
 
     // initiating emails for updating surgeries
-    if (updatedSurgery)
-      await this.initiateUpdateSurgeryMail(updatedSurgery, practiceId);
-
+    if (updatedSurgery) {
+      if (sendUpdateMailAdmin) {
+        await this.initiateUpdateSurgeryMail(updatedSurgery, practiceId, true);
+      } else {
+        await this.initiateUpdateSurgeryMail(updatedSurgery, practiceId, false);
+      }
+    }
     return updatedSurgery;
   }
 
@@ -972,7 +992,7 @@ export class SurgeryService {
     practice: IPractice,
   ): Promise<void> {
     const { name } = surgery.surgeryConfiguration;
-
+    const messageType = 'Booking';
     const systemGeneratedMailData = {
       subject: `New Surgery Scheduled: ${name}`,
       text: `<p>Dear ${surgery?.patient.firstName},<p>
@@ -990,6 +1010,7 @@ export class SurgeryService {
       surgery,
       systemGeneratedMailData,
       false,
+      messageType,
     );
   }
 
@@ -998,6 +1019,7 @@ export class SurgeryService {
     practice: IPractice,
   ): Promise<void> {
     const name = practice.name;
+    const messageType = 'Booking';
 
     const systemGeneratedMailData = {
       subject: `A new surgery added to your practice ${name}`,
@@ -1013,6 +1035,7 @@ export class SurgeryService {
       surgery,
       systemGeneratedMailData,
       false,
+      messageType,
     );
   }
 
@@ -1021,7 +1044,7 @@ export class SurgeryService {
     practice: IPractice,
   ): Promise<void> {
     const name = practice.name;
-
+    const messageType = 'Referrer';
     const systemGeneratedMailData = {
       subject: `Thanks for sending your patient to me  ${name}`,
       text: 'text message',
@@ -1033,6 +1056,7 @@ export class SurgeryService {
       surgery,
       systemGeneratedMailData,
       false,
+      messageType,
     );
   }
 
@@ -1041,7 +1065,7 @@ export class SurgeryService {
     practice: IPractice,
   ): Promise<void> {
     const name = practice.name;
-
+    const messageType = 'PCP';
     const systemGeneratedMailData = {
       subject: `Thanks for sending your patient to me  ${name}`,
       text: 'text message',
@@ -1053,6 +1077,7 @@ export class SurgeryService {
       surgery,
       systemGeneratedMailData,
       false,
+      messageType,
     );
   }
 
@@ -1067,14 +1092,17 @@ export class SurgeryService {
   async initiateUpdateSurgeryMail(
     surgeryEntity: ISurgery,
     practiceId: string,
+    includeAdmin: boolean,
   ): Promise<void> {
     const practiceEntity: IPractice | null =
       await this.practiceService.findOne(practiceId);
-
+    const messageType = 'Surgery Updated';
     if (practiceEntity) {
       await this.emailHandlerService.checkAndMakeSurgeryUpdateEmailContent(
         practiceEntity,
         surgeryEntity,
+        includeAdmin,
+        messageType,
       );
     }
   }

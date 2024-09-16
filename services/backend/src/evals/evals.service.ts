@@ -426,6 +426,7 @@ export class EvalsService {
     practice: IPractice,
   ): Promise<void> {
     const { name } = evalEntity.surgeryConfiguration;
+    const messageType = 'Booking';
 
     const systemGeneratedMailData = {
       subject: `Eval Scheduled: ${name}`,
@@ -444,6 +445,7 @@ export class EvalsService {
       evalEntity,
       systemGeneratedMailData,
       true,
+      messageType,
     );
   }
 
@@ -452,6 +454,7 @@ export class EvalsService {
     practice: IPractice,
   ): Promise<void> {
     const name = practice.name;
+    const messageType = 'Booking';
 
     const systemGeneratedMailData = {
       subject: `A new evaluation added to your practice ${name}`,
@@ -468,6 +471,7 @@ export class EvalsService {
       evalEntity,
       systemGeneratedMailData,
       true,
+      messageType,
     );
   }
 
@@ -476,6 +480,7 @@ export class EvalsService {
     practice: IPractice,
   ): Promise<void> {
     const name = practice.name;
+    const messageType = 'Referrer';
     const systemGeneratedMailData = {
       subject: `Thanks for sending your patient to me: ${name}`,
       text: 'text message',
@@ -486,6 +491,7 @@ export class EvalsService {
       evalEntity,
       systemGeneratedMailData,
       true,
+      messageType,
     );
   }
 
@@ -494,6 +500,7 @@ export class EvalsService {
     practice: IPractice,
   ): Promise<void> {
     const name = practice.name;
+    const messageType = 'PCP';
     const systemGeneratedMailData = {
       subject: `Thanks for sending your patient to me: ${name}`,
       text: 'text message',
@@ -504,6 +511,7 @@ export class EvalsService {
       evalEntity,
       systemGeneratedMailData,
       true,
+      messageType,
     );
   }
 
