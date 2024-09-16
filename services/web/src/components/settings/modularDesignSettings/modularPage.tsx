@@ -1,7 +1,7 @@
 'use client';
 import { ModalCloseEvent } from '@root/components/BaseUiModal/BaseUiModal';
 import Button from '@root/components/Button';
-import { AddIcon, DeleteIcon, EditIcon } from '@root/components/Icons';
+import { AddIcon, EditIcon } from '@root/components/Icons';
 import Loader from '@root/components/loader';
 import AddForm from '@root/components/settings/modularDesignSettings/addModularField/addModularField';
 import EditForm from '@root/components/settings/modularDesignSettings/editModularFields/editModuleFields';
@@ -327,9 +327,7 @@ const Dashboard: React.FC = () => {
                           data.id && handleOpenDeleteModal(data.id);
                         }}
                         className="cursor-pointer"
-                      >
-                        <DeleteIcon></DeleteIcon>
-                      </div>
+                      ></div>
                     </td>
                   </tr>
                 </React.Fragment>
