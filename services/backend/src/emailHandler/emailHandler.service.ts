@@ -768,11 +768,14 @@ export class EmailHandlerService {
 
 const makeAllCaseArray = (dataArray: IEval[] | ISurgery[]) => {
   const caseArray: string[] = [];
-  dataArray.forEach((ele: IEval | ISurgery) =>
-    caseArray.push(
-      makeAllCaseString(ele.bodyPart, ele.surgeryConfiguration.name, ele.date),
-    ),
-  );
+  dataArray.forEach((ele: IEval | ISurgery) => {
+    const bodyPart = ele.bodyPart ?? '';
+    const surgeryName = ele?.surgeryConfiguration?.name ?? '';
+    const date = ele.date ?? '';
+
+    caseArray.push(makeAllCaseString(bodyPart, surgeryName, date));
+  });
+
   return caseArray;
 };
 
