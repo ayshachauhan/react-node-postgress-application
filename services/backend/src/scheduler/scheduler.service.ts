@@ -203,6 +203,7 @@ export class SchedulerService {
               ),
               subject: `Daily Summary Data: ${currentPractice.name}`,
               text: '',
+              messageType: 'Daily Summary',
               practiceName: currentPractice.name,
             },
           };

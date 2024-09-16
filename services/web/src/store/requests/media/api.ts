@@ -1,5 +1,5 @@
 import { MediaConfigType } from '@packages/entities';
-import { IMedia, MediaType } from '@packages/entities/index.browser';
+import { IMedia } from '@packages/entities/index.browser';
 import { ApiService } from '@root/services/apiclient';
 import {
   AddMediaDTO,
@@ -52,54 +52,33 @@ export const addMedia = async (
   { rejectWithValue },
 ): Promise<IMedia> => {
   try {
-    let response: Response;
+    const mediaConfig = payloadData.mediaConfig as PatientMediaConfig;
 
-    if (payloadData.mediaType === MediaType.PATIENT) {
-      const mediaConfig = payloadData.mediaConfig as PatientMediaConfig;
+    const videoData =
+      mediaConfig?.video?.map((data) => ({
+        title: data.title,
+        url: data.url,
+        configType: MediaConfigType.VIDEO,
+      })) ?? [];
 
-      const videoData =
-        mediaConfig?.video?.map((data) => ({
-          title: data.title,
-          url: data.url,
-          configType: MediaConfigType.VIDEO,
-        })) ?? [];
-
-      response = await apiClient.post(
-        `/practices/${payloadData.practiceId}/media`,
-        {
-          mediaType: payloadData.mediaType,
-          entityId: payloadData.entityId,
-          mediaConfig: videoData,
-        },
-      );
-      const data: IMedia = await response.json();
-
-      if (mediaConfig.image && data.id) {
-        return await uploadImg({
-          practiceId: payloadData.practiceId,
-          mediaId: data.id,
-          // @ts-expect-error fix type error
-          files: mediaConfig?.image,
-        });
-      }
-      return data;
-    }
-
-    response = await apiClient.post(
+    const response: Response = await apiClient.post(
       `/practices/${payloadData.practiceId}/media`,
       {
         mediaType: payloadData.mediaType,
-        mediaConfig: payloadData.mediaConfig,
         entityId: payloadData.entityId,
+        mediaConfig: videoData,
       },
     );
-    if (!response.ok) {
-      throw new Error('Failed to add media');
-    }
     const data: IMedia = await response.json();
 
-    console.log(data, 'datamedia');
-
+    if (mediaConfig.image && data.id) {
+      return await uploadImg({
+        practiceId: payloadData.practiceId,
+        mediaId: data.id,
+        // @ts-expect-error fix type error
+        files: mediaConfig?.image,
+      });
+    }
     return data;
   } catch (error) {
     if (error instanceof Error) {
