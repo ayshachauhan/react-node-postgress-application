@@ -65,7 +65,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
-  const [countryCode, setCountryCode] = useState('us'); // Default to 'us'
+  const [countryCode, setCountryCode] = useState('+1'); // Default to 'us'
   const [email, setEmail] = useState('');
   const [mrn, setMrn] = useState('');
   const [insuranceDetails, setInsuranceDetails] = useState('');
@@ -114,7 +114,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
         setLastName('');
         setEmail('');
         setPhoneNumber('');
-        setCountryCode('');
+        setCountryCode('+1');
         setReferrerId('');
       }
     }
@@ -297,7 +297,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
         setLastName('');
         setMrn('');
         setPhoneNumber('');
-        setCountryCode('');
+        setCountryCode('+1');
         setEmail('');
         setPracticeHomeId('');
         setInsuranceDetails('');

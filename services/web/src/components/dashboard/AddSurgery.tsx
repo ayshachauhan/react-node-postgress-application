@@ -105,7 +105,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
-  const [countryCode, setCountryCode] = useState('us'); // Default to 'us'
+  const [countryCode, setCountryCode] = useState('+1'); // Default to +1 for US
   const [email, setEmail] = useState('');
   const [mrn, setMrn] = useState('');
   const [insuranceDetails, setInsuranceDetails] = useState('');
@@ -214,7 +214,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
         setLastName('');
         setEmail('');
         setPhoneNumber('');
-        setCountryCode('');
+        setCountryCode('+1');
       }
     }
   }, [mrn]);
@@ -502,7 +502,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
           setFirstName('');
           setLastName('');
           setMrn('');
-          setCountryCode('');
+          setCountryCode('+1');
           setPhoneNumber('');
           setEmail('');
           setPracticeHomeId('');
@@ -689,7 +689,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
                   preferredCountries={['us', 'in']} // Set preferred countries to US and India
                   inputProps={{
                     disabled: true, // Disable the input
-                    className: 'react-international-phone-input', // Set the class
+                    className: 'react-international-phone-input h-10',
                     style: { width: '40px' }, // Set a smaller width
                   }}
                 />
