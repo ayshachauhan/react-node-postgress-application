@@ -1,15 +1,45 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty } from 'class-validator';
+import { IsOptional } from 'class-validator';
 
 export class smsChatDto {
-  @IsNotEmpty({ message: 'Phone number is required' })
   @ApiProperty()
-  phoneNumber: string;
+  From: string;
 
-  @IsNotEmpty({ message: 'Question is required' })
   @ApiProperty()
-  question: string;
+  Body: string;
 
-  @ApiProperty({ default: 'openai' })
-  type: 'openai' | 'customgpt';
+  @IsOptional()
+  @ApiProperty()
+  SmsMessageSid: string;
+
+  @IsOptional()
+  @ApiProperty()
+  NumMedia: string;
+
+  @IsOptional()
+  @ApiProperty()
+  SmsSid: string;
+
+  @IsOptional()
+  @ApiProperty()
+  SmsStatus: string;
+
+  @IsOptional()
+  @ApiProperty()
+  NumSegments: string;
+
+  @IsOptional()
+  @ApiProperty()
+  MessageSid: string;
+
+  @IsOptional()
+  @ApiProperty()
+  AccountSid: string;
+
+  @ApiProperty()
+  To: string;
+
+  @IsOptional()
+  @ApiProperty()
+  ApiVersion: string;
 }

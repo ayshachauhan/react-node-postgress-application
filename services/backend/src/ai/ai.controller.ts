@@ -1,19 +1,21 @@
-import { Body, Controller, Post } from '@nestjs/common';
-//import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Post, Query } from '@nestjs/common';
 import logger from '../logger';
 import { AIClientService } from './ai.service';
 import { smsChatDto } from './dto/smsChat.dto';
 
-// ApiTags('AI');
-// @ApiBearerAuth('normal')
 @Controller('/ai')
 export class AIController {
   constructor(private readonly aiClientService: AIClientService) {}
 
   @Post('/sms')
-  postQuestionToAIBot(@Body() chatDto: smsChatDto): Promise<string> {
+  postQuestionToAIBot(
+    @Body() chatDto: smsChatDto,
+    @Query() type: 'openai' | 'customgpt',
+  ): Promise<string> {
     logger.info(chatDto, 'Input chat data');
-    const { type } = chatDto;
-    return this.aiClientService.smsChat(type, { ...chatDto });
+    return this.aiClientService.smsChat(type, {
+      phoneNumber: chatDto.From,
+      question: chatDto.Body,
+    });
   }
 }
