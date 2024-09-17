@@ -5,7 +5,9 @@ import { useAppDispatch } from '@root/store';
 import { addRecordAsync } from '@root/store/reducers/practices';
 import { PracticeCreateInterface } from '@store/requests/practices';
 import { FileUploader } from 'baseui/file-uploader';
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { PhoneInput } from 'react-international-phone';
+import 'react-international-phone/style.css';
 import RequiredIndicator from '../RequiredIndicator';
 
 const PracticePage: React.FC<{
@@ -18,7 +20,7 @@ const PracticePage: React.FC<{
   const [adminLastName, setAdminLastName] = useState('');
   const [adminEmail, setAdminEmail] = useState('');
   const [adminContactNumber, setAdminContactNumber] = useState('');
-  const [adminCountryCode, setAdminCountryCode] = useState('');
+  const [adminCountryCode, setAdminCountryCode] = useState('+1');
   const generateRandomCode = () => {
     const min = 100000; // Minimum value for a 6-digit code
     const max = 999999; // Maximum value for a 6-digit code
@@ -48,11 +50,6 @@ const PracticePage: React.FC<{
       return false;
     }
     if (!adminContactNumber.trim() || !/^\d{10}$/.test(adminContactNumber)) {
-      setErrorMessage('Invalid contact number. Must be 10 digits.');
-      return false;
-    }
-
-    if (!adminCountryCode.trim() || !/^\d{10}$/.test(adminCountryCode)) {
       setErrorMessage('Invalid contact number. Must be 10 digits.');
       return false;
     }
@@ -94,6 +91,26 @@ const PracticePage: React.FC<{
       onClose();
     }
   };
+
+  const phoneInputRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (phoneInputRef.current) {
+      const button = phoneInputRef.current.querySelector(
+        '.react-international-phone-country-selector-button',
+      );
+      if (button) {
+        const buttonElement = button as HTMLElement;
+        buttonElement.style.borderTopRightRadius = '0';
+        buttonElement.style.borderBottomRightRadius = '0';
+        buttonElement.style.borderRight = '0';
+        buttonElement.style.border = '0';
+        buttonElement.style.backgroundColor = 'rgb(250, 250, 250)';
+        buttonElement.style.color = 'rgba(82, 82, 91, 1)';
+        buttonElement.style.fontSize = '0.75rem';
+      }
+    }
+  }, []);
 
   return (
     <div>
@@ -171,24 +188,44 @@ const PracticePage: React.FC<{
                 <RequiredIndicator />
                 &nbsp;Admin Contact No.
               </label>
-              <TextInput
-                name="adminCountryCode"
-                value={adminCountryCode}
-                onChange={(value) => {
-                  setAdminCountryCode(value);
-                }}
-                required
-                maxLength={14}
-              />
-              <TextInput
-                name="adminContactNumber"
-                value={adminContactNumber}
-                onChange={(value) => {
-                  setAdminContactNumber(value);
-                }}
-                required
-                maxLength={14}
-              />
+              <div className="flex gap-3 ">
+                <div ref={phoneInputRef}>
+                  <PhoneInput
+                    className="shadow-md"
+                    defaultCountry="us"
+                    value={adminCountryCode}
+                    onChange={(value) => {
+                      setAdminCountryCode(value);
+                    }}
+                    preferredCountries={['us', 'in']} // Set preferred countries to US and India
+                    inputProps={{
+                      disabled: true, // Disable the input
+                      className: 'react-international-phone-input',
+                      style: {
+                        width: '40px',
+                        borderTopRightRadius: '0',
+                        borderBottomRightRadius: '0',
+                        borderRight: '0',
+                        border: '0',
+                        backgroundColor: 'rgb(250, 250, 250)',
+                        color: 'rgba(82, 82, 91, 1)',
+                        fontSize: '0.75rem',
+                      },
+                    }}
+                  />
+                </div>
+                <div className="flex-grow">
+                  <TextInput
+                    name="adminContactNumber"
+                    value={adminContactNumber}
+                    onChange={(value) => {
+                      setAdminContactNumber(value);
+                    }}
+                    required
+                    maxLength={14}
+                  />
+                </div>
+              </div>
             </div>
           </div>
           <div className="justify-between">
