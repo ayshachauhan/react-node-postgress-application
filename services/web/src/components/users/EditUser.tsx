@@ -15,7 +15,7 @@ import { generateFullName, getPracticeId } from '@utils/index';
 import { Checkbox } from 'baseui/checkbox';
 import { FileUploader } from 'baseui/file-uploader';
 import { Select } from 'baseui/select';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { PhoneInput } from 'react-international-phone';
 import 'react-international-phone/style.css';
 import RequiredIndicator from '../RequiredIndicator';
@@ -85,6 +85,23 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose, withLoader }) => {
   const [errorMessage, setErrorMessage] = useState('');
   const [permissionsUpdated, setPermissionsUpdated] = useState(false);
   const [designation, setDesignation] = useState('');
+  const phoneInputRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (phoneInputRef.current) {
+      const button = phoneInputRef.current.querySelector(
+        '.react-international-phone-country-selector-button',
+      );
+      if (button) {
+        const buttonElement = button as HTMLElement;
+        buttonElement.style.borderTopRightRadius = '0';
+        buttonElement.style.borderBottomRightRadius = '0';
+        buttonElement.style.borderRight = '0';
+        buttonElement.style.border = '0';
+        buttonElement.style.backgroundColor = 'rgb(250, 250, 250)';
+      }
+    }
+  }, []);
 
   useEffect(() => {
     if (updatedUserInfo?.permissions) {
@@ -278,17 +295,29 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose, withLoader }) => {
                 &nbsp;Contact No.
               </label>
               <div className="flex gap-3">
-                <PhoneInput
-                  name="countryCode"
-                  value={updatedUserInfo?.countryCode || ''}
-                  preferredCountries={['us', 'in']} // Set preferred countries to US and India
-                  inputProps={{
-                    disabled: true, // Disable the input
-                    className: 'react-international-phone-input',
-                    style: { width: '40px' }, // Set a smaller width
-                  }}
-                  onChange={(value) => handleInputChange('countryCode', value)}
-                />
+                <div ref={phoneInputRef}>
+                  <PhoneInput
+                    className="shadow-md"
+                    name="countryCode"
+                    value={updatedUserInfo?.countryCode || ''}
+                    preferredCountries={['us', 'in']} // Set preferred countries to US and India
+                    inputProps={{
+                      disabled: true, // Disable the input
+                      className: 'react-international-phone-input',
+                      style: {
+                        width: '60px',
+                        borderTopRightRadius: '0',
+                        borderBottomRightRadius: '0',
+                        borderRight: '0',
+                        border: '0',
+                        backgroundColor: 'rgb(250, 250, 250)',
+                      },
+                    }}
+                    onChange={(value) =>
+                      handleInputChange('countryCode', value)
+                    }
+                  />
+                </div>
                 <div className="flex-grow">
                   <TextInput
                     name="contactNumber"
