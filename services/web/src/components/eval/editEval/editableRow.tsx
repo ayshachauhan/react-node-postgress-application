@@ -16,8 +16,8 @@ import {
 import { Checkbox } from 'baseui/checkbox';
 import { DatePicker } from 'baseui/datepicker';
 import { SIZE, Select } from 'baseui/select';
-import React, { useEffect, useState } from 'react';
-import { CountryData, PhoneInput } from 'react-international-phone';
+import React, { useEffect, useRef, useState } from 'react';
+import { PhoneInput } from 'react-international-phone';
 import 'react-international-phone/style.css';
 interface EditableRowProps {
   handleCancelClick;
@@ -73,11 +73,6 @@ const EditableRow: React.FC<EditableRowProps> = ({
     (state) => state.surgeryConfigurations.entities,
   );
 
-  const countries: CountryData[] = [
-    ['United States', 'us', '+1'],
-    ['India', 'in', '+91'],
-  ];
-
   const surgeryConfigurationsOptions = Object.values(
     surgeryConfigurationsList,
   ).map((key) => ({
@@ -99,6 +94,27 @@ const EditableRow: React.FC<EditableRowProps> = ({
   const handleMonthChange = ({ date }) => {
     setCurrentMonth(date.getMonth() + 1);
   };
+
+  const phoneInputRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (phoneInputRef.current) {
+      const button = phoneInputRef.current.querySelector(
+        '.react-international-phone-country-selector-button',
+      );
+      if (button) {
+        const buttonElement = button as HTMLElement;
+        buttonElement.style.height = '24px';
+        buttonElement.style.borderTopRightRadius = '0';
+        buttonElement.style.borderBottomRightRadius = '0';
+        buttonElement.style.borderRight = '0';
+        buttonElement.style.border = '0';
+        buttonElement.style.backgroundColor = 'rgb(250, 250, 250)';
+        buttonElement.style.color = 'rgba(82, 82, 91, 1)';
+        buttonElement.style.fontSize = '0.75rem';
+      }
+    }
+  }, []);
 
   useEffect(() => {
     if (evalInfo && evalInfo.id) {
@@ -500,7 +516,7 @@ const EditableRow: React.FC<EditableRowProps> = ({
             />
           </td>
 
-          <td rowSpan={2} className="">
+          <td rowSpan={2} className="min-w-60">
             <div className="mb-1">
               <TextInput
                 name="hash"
@@ -511,18 +527,30 @@ const EditableRow: React.FC<EditableRowProps> = ({
             </div>
             <div className="mb-1">
               <div className="flex gap-2 items-center">
-                <PhoneInput
-                  defaultCountry="us"
-                  value={obj.countryCode}
-                  onChange={(value) => handleObjChange('countryCode', value)}
-                  preferredCountries={['us', 'in']} // Set preferred countries to US and India
-                  countries={countries}
-                  inputProps={{
-                    disabled: true, // Disable the input
-                    className: 'react-international-phone-input', // Set the class
-                    style: { width: '40px' }, // Set a smaller width
-                  }}
-                />
+                <div ref={phoneInputRef}>
+                  <PhoneInput
+                    className="shadow-md"
+                    defaultCountry="us"
+                    value={obj.countryCode}
+                    onChange={(value) => handleObjChange('countryCode', value)}
+                    preferredCountries={['us', 'in']} // Set preferred countries to US and India
+                    inputProps={{
+                      disabled: true, // Disable the input
+                      className: 'react-international-phone-input',
+                      style: {
+                        width: '40px',
+                        height: '24px',
+                        borderTopRightRadius: '0',
+                        borderBottomRightRadius: '0',
+                        borderRight: '0',
+                        border: '0',
+                        backgroundColor: 'rgb(250, 250, 250)',
+                        color: 'rgba(82, 82, 91, 1)',
+                        fontSize: '0.75rem',
+                      },
+                    }}
+                  />
+                </div>
                 <div className="flex-grow">
                   <TextInput
                     name="hash"

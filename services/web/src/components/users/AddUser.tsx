@@ -13,8 +13,8 @@ import { generateFullName, getPracticeId } from '@utils/index';
 import { Checkbox } from 'baseui/checkbox';
 import { FileUploader } from 'baseui/file-uploader';
 import { Select } from 'baseui/select';
-import React, { useEffect, useState } from 'react';
-import { CountryData, PhoneInput } from 'react-international-phone';
+import React, { useEffect, useRef, useState } from 'react';
+import { PhoneInput } from 'react-international-phone';
 import 'react-international-phone/style.css';
 import RequiredIndicator from '../RequiredIndicator';
 const AddUserPage: React.FC<{
@@ -100,10 +100,6 @@ const AddUserPage: React.FC<{
       setErrorMessage('');
     }
   };
-  const countries: CountryData[] = [
-    ['United States', 'us', '+1'],
-    ['India', 'in', '+91'],
-  ];
 
   const handleFirstNameChange = (value: string) => {
     setFirstName(value);
@@ -186,6 +182,24 @@ const AddUserPage: React.FC<{
       }
     }
   };
+
+  const phoneInputRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (phoneInputRef.current) {
+      const button = phoneInputRef.current.querySelector(
+        '.react-international-phone-country-selector-button',
+      );
+      if (button) {
+        const buttonElement = button as HTMLElement;
+        buttonElement.style.borderTopRightRadius = '0';
+        buttonElement.style.borderBottomRightRadius = '0';
+        buttonElement.style.borderRight = '0';
+        buttonElement.style.border = '0';
+        buttonElement.style.backgroundColor = 'rgb(250, 250, 250)';
+      }
+    }
+  }, []);
 
   useEffect(() => {
     dispatch(fetchPermissions(undefined));
@@ -279,20 +293,29 @@ const AddUserPage: React.FC<{
                 &nbsp;Contact No.
               </label>
               <div className="flex gap-3">
-                <PhoneInput
-                  defaultCountry="us"
-                  value={countryCode}
-                  onChange={(value) => {
-                    handleCountryCodeChange(value);
-                  }}
-                  countries={countries}
-                  preferredCountries={['us', 'in']} // Set preferred countries to US and India
-                  inputProps={{
-                    disabled: true, // Disable the input
-                    className: 'react-international-phone-input', // Set the class
-                    style: { width: '40px' }, // Set a smaller width
-                  }}
-                />
+                <div ref={phoneInputRef}>
+                  <PhoneInput
+                    className="shadow-md"
+                    defaultCountry="us"
+                    value={countryCode}
+                    onChange={(value) => {
+                      handleCountryCodeChange(value);
+                    }}
+                    preferredCountries={['us', 'in']} // Set preferred countries to US and India
+                    inputProps={{
+                      disabled: true, // Disable the input
+                      className: 'react-international-phone-input',
+                      style: {
+                        width: '60px',
+                        borderTopRightRadius: '0',
+                        borderBottomRightRadius: '0',
+                        borderRight: '0',
+                        border: '0',
+                        backgroundColor: 'rgb(250, 250, 250)',
+                      },
+                    }}
+                  />
+                </div>
                 <div className="flex-grow">
                   <TextInput
                     name="contactNumber"
