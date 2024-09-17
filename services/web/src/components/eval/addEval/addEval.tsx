@@ -10,7 +10,7 @@ import { DatePicker } from 'baseui/datepicker';
 import { SIZE, Select } from 'baseui/select';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
-import { PhoneInput } from 'react-international-phone';
+import { CountryData, PhoneInput } from 'react-international-phone';
 import 'react-international-phone/style.css';
 
 interface SurgeryPageProps {
@@ -53,6 +53,10 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
     : null;
 
   const getSelectedUserId: string | null = selectedDoctorId;
+  const countries: CountryData[] = [
+    ['United States', 'us', '+1'],
+    ['India', 'in', '+91'],
+  ];
 
   const dispatch = useAppDispatch();
   const surgeryConfigurationsList = useAppSelector(
@@ -455,6 +459,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
                     onChange={(value) => {
                       setCountryCode(value);
                     }}
+                    countries={countries}
                     preferredCountries={['us', 'in']} // Set preferred countries to US and India
                     inputProps={{
                       disabled: true, // Disable the input

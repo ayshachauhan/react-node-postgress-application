@@ -17,7 +17,7 @@ import { Checkbox } from 'baseui/checkbox';
 import { DatePicker } from 'baseui/datepicker';
 import { SIZE, Select } from 'baseui/select';
 import React, { useEffect, useState } from 'react';
-import { PhoneInput } from 'react-international-phone';
+import { CountryData, PhoneInput } from 'react-international-phone';
 import 'react-international-phone/style.css';
 interface EditableRowProps {
   handleCancelClick;
@@ -72,6 +72,11 @@ const EditableRow: React.FC<EditableRowProps> = ({
   const surgeryConfigurationsList = useAppSelector(
     (state) => state.surgeryConfigurations.entities,
   );
+
+  const countries: CountryData[] = [
+    ['United States', 'us', '+1'],
+    ['India', 'in', '+91'],
+  ];
 
   const surgeryConfigurationsOptions = Object.values(
     surgeryConfigurationsList,
@@ -511,6 +516,7 @@ const EditableRow: React.FC<EditableRowProps> = ({
                   value={obj.countryCode}
                   onChange={(value) => handleObjChange('countryCode', value)}
                   preferredCountries={['us', 'in']} // Set preferred countries to US and India
+                  countries={countries}
                   inputProps={{
                     disabled: true, // Disable the input
                     className: 'react-international-phone-input', // Set the class

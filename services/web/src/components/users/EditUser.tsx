@@ -16,7 +16,7 @@ import { Checkbox } from 'baseui/checkbox';
 import { FileUploader } from 'baseui/file-uploader';
 import { Select } from 'baseui/select';
 import React, { useEffect, useState } from 'react';
-import { PhoneInput } from 'react-international-phone';
+import { CountryData, PhoneInput } from 'react-international-phone';
 import 'react-international-phone/style.css';
 import RequiredIndicator from '../RequiredIndicator';
 interface Data {
@@ -127,6 +127,11 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose, withLoader }) => {
     setCheckboxes(updatedCheckboxes);
     setPermissionsUpdated(true);
   };
+
+  const countries: CountryData[] = [
+    ['United States', 'us', '+1'],
+    ['India', 'in', '+91'],
+  ];
 
   useEffect(() => {
     if (data.id && userInfo) {
@@ -281,6 +286,7 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose, withLoader }) => {
                 <PhoneInput
                   name="countryCode"
                   value={updatedUserInfo?.countryCode || ''}
+                  countries={countries}
                   preferredCountries={['us', 'in']} // Set preferred countries to US and India
                   inputProps={{
                     disabled: true, // Disable the input

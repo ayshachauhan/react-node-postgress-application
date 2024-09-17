@@ -20,7 +20,7 @@ import { Checkbox } from 'baseui/checkbox';
 import { DatePicker } from 'baseui/datepicker';
 import { SIZE, Select } from 'baseui/select';
 import React, { useEffect, useState } from 'react';
-import { PhoneInput } from 'react-international-phone';
+import { CountryData, PhoneInput } from 'react-international-phone';
 import 'react-international-phone/style.css';
 
 interface EditableRowProps {
@@ -93,6 +93,10 @@ const EditableRow: React.FC<EditableRowProps> = ({
   const [waitlistId, setWaitlistId] = useState<string>('');
 
   const doctorId: string | null = getUserId();
+  const countries: CountryData[] = [
+    ['United States', 'us', '+1'],
+    ['India', 'in', '+91'],
+  ];
 
   useEffect(() => {
     if (surgeryInfo.id && surgeryInfo) {
@@ -988,6 +992,7 @@ const EditableRow: React.FC<EditableRowProps> = ({
             <div className="text-black py-0.5 px-1 w-40 text-center">
               <div className="flex gap-2 items-center">
                 <PhoneInput
+                  countries={countries}
                   defaultCountry="us"
                   value={obj.countryCode}
                   onChange={(value) => handleObjChange('countryCode', value)}

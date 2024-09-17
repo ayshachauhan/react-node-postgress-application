@@ -14,7 +14,7 @@ import { Checkbox } from 'baseui/checkbox';
 import { FileUploader } from 'baseui/file-uploader';
 import { Select } from 'baseui/select';
 import React, { useEffect, useState } from 'react';
-import { PhoneInput } from 'react-international-phone';
+import { CountryData, PhoneInput } from 'react-international-phone';
 import 'react-international-phone/style.css';
 import RequiredIndicator from '../RequiredIndicator';
 const AddUserPage: React.FC<{
@@ -100,6 +100,10 @@ const AddUserPage: React.FC<{
       setErrorMessage('');
     }
   };
+  const countries: CountryData[] = [
+    ['United States', 'us', '+1'],
+    ['India', 'in', '+91'],
+  ];
 
   const handleFirstNameChange = (value: string) => {
     setFirstName(value);
@@ -281,6 +285,7 @@ const AddUserPage: React.FC<{
                   onChange={(value) => {
                     handleCountryCodeChange(value);
                   }}
+                  countries={countries}
                   preferredCountries={['us', 'in']} // Set preferred countries to US and India
                   inputProps={{
                     disabled: true, // Disable the input

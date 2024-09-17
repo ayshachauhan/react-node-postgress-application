@@ -17,7 +17,7 @@ import {
   fetchAllSurgeries,
 } from '@root/store/reducers/surgery';
 import { fetchListings as fetchUsersList } from '@root/store/reducers/users';
-import { PhoneInput } from 'react-international-phone';
+import { CountryData, PhoneInput } from 'react-international-phone';
 import 'react-international-phone/style.css';
 
 import {
@@ -84,6 +84,11 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
   }));
 
   const SELECTED_DOCTOR_KEY: string = 'SELECTED_DOCTOR';
+  const countries: CountryData[] = [
+    ['United States', 'us', '+1'],
+    ['India', 'in', '+91'],
+  ];
+
   const userInfo = useAppSelector((state) => state.auth.user);
   const loggedInUserId = userInfo?.id;
   const { selectedMonth, selectedValue } = useAppSelector(
@@ -686,6 +691,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
                   onChange={(value) => {
                     setCountryCode(value);
                   }}
+                  countries={countries}
                   preferredCountries={['us', 'in']} // Set preferred countries to US and India
                   inputProps={{
                     disabled: true, // Disable the input
