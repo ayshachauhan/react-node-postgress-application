@@ -15,6 +15,7 @@ import { Raw, Repository } from 'typeorm';
 import { ENVIRONMENT_VARIABLES } from '../enums/environment.enums';
 import { PatientsService } from '../patients/patients.service';
 import { PracticesService } from '../practices/practices.service';
+import { TransporterService } from '../transporter';
 import { AIService } from './ai-service.interface';
 
 export type Role = 'system' | 'user' | 'assistant';
@@ -42,6 +43,8 @@ export class OpenAIService implements AIService {
     private patientService: PatientsService,
     @Inject(forwardRef(() => PracticesService))
     private practiceService: PracticesService,
+    @Inject(forwardRef(() => TransporterService))
+    private transporterService: TransporterService,
   ) {
     const { openAiKey, openAiOrg, openAiProjectId, assistantId } =
       this.getEnvVariables();
@@ -253,6 +256,7 @@ export class OpenAIService implements AIService {
           this.threadByUser[`${data.phoneNumber}`];
         await this.updateChatLogs({ ...chatLogRecords });
       }
+      await this.transporterService.sendText(data.phoneNumber, answer[0]);
       return answer[0];
     } catch (error) {
       console.error('Error generating response text:', error);

@@ -1,7 +1,8 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ChatbotLogsEntity } from '@packages/entities';
-import { PatientsModule } from 'src/patients/patients.module';
+import { TransporterModule } from 'src/transporter';
+import { PatientsModule } from '../patients/patients.module';
 import { PracticesModule } from '../practices/practices.module';
 import { AIController } from './ai.controller';
 import { AIClientService } from './ai.service';
@@ -13,6 +14,7 @@ import { OpenAIFactory } from './openAI-factory';
     TypeOrmModule.forFeature([ChatbotLogsEntity]),
     forwardRef(() => PatientsModule),
     forwardRef(() => PracticesModule),
+    forwardRef(() => TransporterModule),
   ],
   controllers: [AIController],
   providers: [OpenAIFactory, CustomGPTFactory, AIClientService],

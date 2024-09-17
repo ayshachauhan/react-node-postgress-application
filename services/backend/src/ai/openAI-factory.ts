@@ -5,6 +5,7 @@ import { ChatbotLogsEntity } from '@packages/entities';
 import { Repository } from 'typeorm';
 import { PatientsService } from '../patients/patients.service';
 import { PracticesService } from '../practices/practices.service';
+import { TransporterService } from '../transporter';
 import { AIFactory } from './ai-factory.interface';
 import { OpenAIService } from './openAI.service';
 
@@ -21,6 +22,8 @@ export class OpenAIFactory implements AIFactory {
     private patientService: PatientsService,
     @Inject(forwardRef(() => PracticesService))
     private practiceService: PracticesService,
+    @Inject(forwardRef(() => TransporterService))
+    private transporterService: TransporterService,
   ) {}
   createAIService(): OpenAIService {
     return new OpenAIService(
@@ -28,6 +31,7 @@ export class OpenAIFactory implements AIFactory {
       this.chatbotRepository,
       this.patientService,
       this.practiceService,
+      this.transporterService,
     );
   }
 }
