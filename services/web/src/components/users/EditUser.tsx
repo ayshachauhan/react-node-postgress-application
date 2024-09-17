@@ -99,6 +99,8 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose, withLoader }) => {
         buttonElement.style.borderRight = '0';
         buttonElement.style.border = '0';
         buttonElement.style.backgroundColor = 'rgb(250, 250, 250)';
+        buttonElement.style.color = 'rgba(82, 82, 91, 1)';
+        buttonElement.style.fontSize = '0.75rem';
       }
     }
   }, []);
@@ -311,6 +313,8 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose, withLoader }) => {
                         borderRight: '0',
                         border: '0',
                         backgroundColor: 'rgb(250, 250, 250)',
+                        color: 'rgba(82, 82, 91, 1)',
+                        fontSize: '0.75rem',
                       },
                     }}
                     onChange={(value) =>
