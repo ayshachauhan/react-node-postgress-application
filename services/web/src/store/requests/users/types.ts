@@ -5,6 +5,7 @@ export interface User {
   userName: string;
   firstName: string;
   lastName: string;
+  countryCode: string;
   contactNumber: string;
   fullName: string;
   email: string;
@@ -33,6 +34,7 @@ export interface AddUser {
   userName: string;
   firstName: string;
   lastName: string;
+  countryCode: string;
   contactNumber: string;
   fullName: string;
   email: string;
@@ -47,6 +49,7 @@ export interface EditUser {
   userName: string;
   firstName: string;
   lastName: string;
+  countryCode: string;
   contactNumber: string;
   designation: string;
   fullName: string;

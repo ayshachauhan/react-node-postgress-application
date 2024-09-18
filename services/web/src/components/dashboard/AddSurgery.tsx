@@ -17,6 +17,8 @@ import {
   fetchAllSurgeries,
 } from '@root/store/reducers/surgery';
 import { fetchListings as fetchUsersList } from '@root/store/reducers/users';
+import { PhoneInput } from 'react-international-phone';
+import 'react-international-phone/style.css';
 
 import {
   getBackGroundColorCss,
@@ -28,7 +30,7 @@ import { Checkbox } from 'baseui/checkbox';
 import { DatePicker } from 'baseui/datepicker';
 import { SIZE, Select } from 'baseui/select';
 import { useRouter } from 'next/navigation';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { AddIcon } from '../Icons';
 import RequiredIndicator from '../RequiredIndicator';
 
@@ -82,6 +84,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
   }));
 
   const SELECTED_DOCTOR_KEY: string = 'SELECTED_DOCTOR';
+
   const userInfo = useAppSelector((state) => state.auth.user);
   const loggedInUserId = userInfo?.id;
   const { selectedMonth, selectedValue } = useAppSelector(
@@ -103,6 +106,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
+  const [countryCode, setCountryCode] = useState('+1'); // Default to +1 for US
   const [email, setEmail] = useState('');
   const [mrn, setMrn] = useState('');
   const [insuranceDetails, setInsuranceDetails] = useState('');
@@ -163,6 +167,28 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
 
     setSurgeryDropdownOptions([...surgeryDropdownOptions]);
   };
+
+  const phoneInputRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (phoneInputRef.current) {
+      const button = phoneInputRef.current.querySelector(
+        '.react-international-phone-country-selector-button',
+      );
+      if (button) {
+        const buttonElement = button as HTMLElement;
+        buttonElement.style.height = '24px';
+        buttonElement.style.borderTopRightRadius = '0';
+        buttonElement.style.borderBottomRightRadius = '0';
+        buttonElement.style.borderRight = '0';
+        buttonElement.style.border = '0';
+        buttonElement.style.backgroundColor = 'rgb(250, 250, 250)';
+        buttonElement.style.color = 'rgba(82, 82, 91, 1)';
+        buttonElement.style.fontSize = '0.75rem';
+      }
+    }
+  }, []);
+
   useEffect(() => {
     setCataractSelected(surgeryTypeSelected?.toLowerCase() === 'cataract');
   }, [surgeryTypeSelected]);
@@ -177,6 +203,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
         setLastName(row.patient.lastName);
         setEmail(row.patient.email);
         setPhoneNumber(row.patient.phoneNumber);
+        setCountryCode(row.patient.countryCode);
         setMrn(String(row.patient.mrn));
         setPracticeHomeId(row?.practiceHome?.id);
         setBodyPart(row.bodyPart);
@@ -204,11 +231,13 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
         setLastName(patientCheck.lastName);
         setEmail(patientCheck.email);
         setPhoneNumber(patientCheck.phoneNumber);
+        setCountryCode(patientCheck.countryCode);
       } else {
         setFirstName('');
         setLastName('');
         setEmail('');
         setPhoneNumber('');
+        setCountryCode('+1');
       }
     }
   }, [mrn]);
@@ -399,6 +428,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
       lastName,
       email,
       phoneNumber,
+      countryCode,
       mrn: mrn ? Number(mrn) : 0,
       practiceHomeId,
       insuranceDetails,
@@ -413,6 +443,8 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
       totalProfessionalPricing: '0',
       waitlistId,
     };
+
+    console.log(surgeryData);
     const surgeryName = surgeryConfigurationsOptions.find(
       (s) => s?.id === surgeryCataractNameId,
     )?.label;
@@ -450,7 +482,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
           const {
             id,
             date,
-            patient: { firstName, mrn, phoneNumber, email },
+            patient: { firstName, mrn, phoneNumber, countryCode, email },
             bodyPart,
             pcp,
             referrer,
@@ -464,6 +496,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
                 email,
                 bodyPart,
                 phoneNumber,
+                countryCode,
                 firstName,
                 mrn,
                 pcp: pcp?.id,
@@ -492,6 +525,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
           setFirstName('');
           setLastName('');
           setMrn('');
+          setCountryCode('+1');
           setPhoneNumber('');
           setEmail('');
           setPracticeHomeId('');
@@ -668,15 +702,45 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
                 <RequiredIndicator />
                 &nbsp;Phone Number
               </label>
-              <TextInput
-                size={SIZE.mini}
-                name="phoneNumber"
-                value={phoneNumber}
-                onChange={(value) => {
-                  setPhoneNumber(value);
-                }}
-                required
-              />
+              <div className="flex gap-3 ">
+                <div ref={phoneInputRef}>
+                  <PhoneInput
+                    className="shadow-md"
+                    defaultCountry="us"
+                    value={countryCode}
+                    onChange={(value) => {
+                      setCountryCode(value);
+                    }}
+                    preferredCountries={['us', 'in']} // Set preferred countries to US and India
+                    inputProps={{
+                      disabled: true, // Disable the input
+                      className: 'react-international-phone-input',
+                      style: {
+                        width: '40px',
+                        height: '24px',
+                        borderTopRightRadius: '0',
+                        borderBottomRightRadius: '0',
+                        borderRight: '0',
+                        border: '0',
+                        backgroundColor: 'rgb(250, 250, 250)',
+                        color: 'rgba(82, 82, 91, 1)',
+                        fontSize: '0.75rem',
+                      },
+                    }}
+                  />
+                </div>
+                <div className="flex-grow">
+                  <TextInput
+                    size={SIZE.mini}
+                    name="phoneNumber"
+                    value={phoneNumber}
+                    onChange={(value) => {
+                      setPhoneNumber(value);
+                    }}
+                    required
+                  />
+                </div>
+              </div>
               <div className="space-y-4"></div>
             </div>
             <div className="space-y-1 flex-1">

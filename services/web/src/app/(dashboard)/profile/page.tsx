@@ -110,7 +110,9 @@ const Profile: React.FC = () => {
           <div>
             <p>
               <span className="font-bold">Contact No.</span>{' '}
-              <span>: {userInfo?.contactNumber}</span>
+              <span>
+                :{userInfo?.countryCode} {userInfo?.contactNumber}
+              </span>
             </p>
             <p className="mt-2">
               <span className="font-bold">User URL </span>

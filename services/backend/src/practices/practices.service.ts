@@ -86,6 +86,7 @@ export class PracticesService {
         finalPractice.adminLastName = adminUser.lastName;
         finalPractice.adminEmail = adminUser.email;
         finalPractice.adminContactNumber = adminUser.contactNumber;
+        finalPractice.adminCountryCode = adminUser.countryCode;
         finalPractice.adminId = adminUser.id;
       }
       resultArray.push(finalPractice);
@@ -109,6 +110,7 @@ export class PracticesService {
     name,
     adminEmail,
     adminContactNumber,
+    adminCountryCode,
     adminFirstName,
     adminLastName,
     code,
@@ -156,6 +158,7 @@ export class PracticesService {
           url: '',
           designation: '',
           contactNumber: adminContactNumber,
+          countryCode: adminCountryCode,
           permissionIds: [],
         },
         practice.id,
@@ -183,6 +186,7 @@ export class PracticesService {
         userLastName: adminLastName,
         contactEmail: adminEmail,
         contactPhone: adminContactNumber,
+        countryCode: adminCountryCode,
       };
 
       if (!sendUserCreationEmail) {
@@ -217,6 +221,7 @@ export class PracticesService {
       };
       const sanitizedUserPayload: Partial<UpdateUserDto> = {
         contactNumber: practicePatchDto.adminContactNumber,
+        countryCode: practicePatchDto.adminCountryCode,
         lastName: practicePatchDto.adminLastName,
         firstName: practicePatchDto.adminFirstName,
       };

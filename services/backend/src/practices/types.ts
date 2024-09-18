@@ -7,6 +7,7 @@ export interface PracticesGetInterface {
   adminLastName?: string;
   adminEmail?: string;
   adminContactNumber?: string;
+  adminCountryCode?: string;
   adminId?: string;
   status: string;
   code: string;
@@ -23,6 +24,7 @@ export type CreatePracticeInviteMailData = {
   userLastName: string;
   contactEmail: string;
   contactPhone: string;
+  countryCode: string;
 };
 
 export type UploadPracticeImgData = {

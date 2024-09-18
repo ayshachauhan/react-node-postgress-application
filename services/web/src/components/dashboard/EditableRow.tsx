@@ -19,7 +19,9 @@ import {
 import { Checkbox } from 'baseui/checkbox';
 import { DatePicker } from 'baseui/datepicker';
 import { SIZE, Select } from 'baseui/select';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { PhoneInput } from 'react-international-phone';
+import 'react-international-phone/style.css';
 
 interface EditableRowProps {
   rowId: string;
@@ -92,6 +94,27 @@ const EditableRow: React.FC<EditableRowProps> = ({
 
   const doctorId: string | null = getUserId();
 
+  const phoneInputRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (phoneInputRef.current) {
+      const button = phoneInputRef.current.querySelector(
+        '.react-international-phone-country-selector-button',
+      );
+      if (button) {
+        const buttonElement = button as HTMLElement;
+        buttonElement.style.height = '20px';
+        buttonElement.style.borderTopRightRadius = '0';
+        buttonElement.style.borderBottomRightRadius = '0';
+        buttonElement.style.borderRight = '0';
+        buttonElement.style.border = '0';
+        buttonElement.style.backgroundColor = 'rgb(250, 250, 250)';
+        buttonElement.style.color = 'rgba(82, 82, 91, 1)';
+        buttonElement.style.fontSize = '0.75rem';
+      }
+    }
+  }, []);
+
   useEffect(() => {
     if (surgeryInfo.id && surgeryInfo) {
       setObj({
@@ -102,6 +125,7 @@ const EditableRow: React.FC<EditableRowProps> = ({
         lastName: surgeryInfo.patient.lastName,
         email: surgeryInfo.patient.email,
         phoneNumber: surgeryInfo.patient.phoneNumber,
+        countryCode: surgeryInfo.patient.countryCode,
         notes: surgeryInfo.notes ? surgeryInfo.notes : '',
         bodyPart: surgeryInfo.bodyPart,
         mrn: surgeryInfo.patient.mrn,
@@ -220,6 +244,7 @@ const EditableRow: React.FC<EditableRowProps> = ({
         lastName: '',
         email: '',
         phoneNumber: '',
+        countryCode: '',
         notes: '',
         bodyPart: '',
         surgeryStatus: SurgeryStatus.PENDING,
@@ -981,13 +1006,43 @@ const EditableRow: React.FC<EditableRowProps> = ({
                 size={SIZE.mini}
               />
             </div>
-            <div className="text-black py-0.5 px-1 w-40 text-center">
-              <TextInput
-                name="hash"
-                value={obj.phoneNumber}
-                onChange={(value) => handleObjChange('phoneNumber', value)}
-                size={SIZE.mini}
-              />
+            <div className="text-black py-0.5 px-1 w-60 text-center">
+              <div className="flex gap-2 items-center">
+                <div ref={phoneInputRef}>
+                  <PhoneInput
+                    className="shadow-md"
+                    defaultCountry="us"
+                    value={obj.countryCode}
+                    onChange={(value) => {
+                      handleObjChange('countryCode', value);
+                    }}
+                    preferredCountries={['us', 'in']} // Set preferred countries to US and India
+                    inputProps={{
+                      disabled: true, // Disable the input
+                      className: 'react-international-phone-input',
+                      style: {
+                        width: '40px',
+                        height: '20px',
+                        borderTopRightRadius: '0',
+                        borderBottomRightRadius: '0',
+                        borderRight: '0',
+                        border: '0',
+                        backgroundColor: 'rgb(250, 250, 250)',
+                        color: 'rgba(82, 82, 91, 1)',
+                        fontSize: '0.75rem',
+                      },
+                    }}
+                  />
+                </div>
+                <div className="flex-grow">
+                  <TextInput
+                    name="hash"
+                    value={obj.phoneNumber}
+                    onChange={(value) => handleObjChange('phoneNumber', value)}
+                    size={SIZE.mini}
+                  />
+                </div>
+              </div>
             </div>
             <div className="text-black py-0.5 px-1 w-40 text-center">
               <Select

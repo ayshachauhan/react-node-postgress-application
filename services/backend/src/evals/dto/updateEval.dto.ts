@@ -38,6 +38,10 @@ export class UpdateEvalDto {
   @ApiProperty()
   phoneNumber: string;
 
+  @IsNotEmpty({ message: 'country code is required' })
+  @ApiProperty()
+  countryCode: string;
+
   @IsOptional()
   @ApiProperty()
   pcp: string;

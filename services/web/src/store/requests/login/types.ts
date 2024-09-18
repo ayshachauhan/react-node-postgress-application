@@ -7,6 +7,7 @@ export interface User {
   firstName: string;
   lastName: string;
   contactNumber: string;
+  countryCode: string;
   fullName: string;
   url: string;
   status: string;
@@ -25,6 +26,7 @@ export interface GetUserResponse {
   firstName: string;
   lastName: string;
   contactNumber: string;
+  countryCode: string;
   fullName: string;
   url: string;
   status: string;

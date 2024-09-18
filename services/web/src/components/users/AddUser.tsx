@@ -13,7 +13,9 @@ import { generateFullName, getPracticeId } from '@utils/index';
 import { Checkbox } from 'baseui/checkbox';
 import { FileUploader } from 'baseui/file-uploader';
 import { Select } from 'baseui/select';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { PhoneInput } from 'react-international-phone';
+import 'react-international-phone/style.css';
 import RequiredIndicator from '../RequiredIndicator';
 const AddUserPage: React.FC<{
   onClose: () => void;
@@ -40,6 +42,7 @@ const AddUserPage: React.FC<{
   const [email, setEmail] = useState('');
   const [firstName, setFirstName] = useState('');
   const [contactNumber, setcontactNumber] = useState('');
+  const [countryCode, setCountryCode] = useState('');
   const [lastName, setLastName] = useState('');
   const [url, setUrl] = useState('');
   const [type, setType] = useState<UserType>(UserType.ADMIN);
@@ -128,6 +131,16 @@ const AddUserPage: React.FC<{
     }
   };
 
+  const handleCountryCodeChange = (value: string) => {
+    setCountryCode(value);
+
+    if (value.trim() === '') {
+      setErrorMessage('Country code cannot be empty');
+    } else {
+      setErrorMessage('');
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (
@@ -135,7 +148,8 @@ const AddUserPage: React.FC<{
       email.trim() === '' ||
       firstName.trim() === '' ||
       lastName.trim() === '' ||
-      contactNumber.trim() === ''
+      contactNumber.trim() === '' ||
+      countryCode.trim() === ''
     ) {
       return;
     }
@@ -153,6 +167,7 @@ const AddUserPage: React.FC<{
         url,
         type,
         status: UserStatus.ACTIVE,
+        countryCode,
         contactNumber,
         permissionIds: selectedUserPermissions,
         file: userImg,
@@ -167,6 +182,24 @@ const AddUserPage: React.FC<{
       }
     }
   };
+
+  const phoneInputRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (phoneInputRef.current) {
+      const button = phoneInputRef.current.querySelector(
+        '.react-international-phone-country-selector-button',
+      );
+      if (button) {
+        const buttonElement = button as HTMLElement;
+        buttonElement.style.borderTopRightRadius = '0';
+        buttonElement.style.borderBottomRightRadius = '0';
+        buttonElement.style.borderRight = '0';
+        buttonElement.style.border = '0';
+        buttonElement.style.backgroundColor = 'rgb(250, 250, 250)';
+      }
+    }
+  }, []);
 
   useEffect(() => {
     dispatch(fetchPermissions(undefined));
@@ -259,14 +292,41 @@ const AddUserPage: React.FC<{
                 <RequiredIndicator />
                 &nbsp;Contact No.
               </label>
-              <TextInput
-                name="contactNumber"
-                value={contactNumber}
-                onChange={(value) => {
-                  handleContactNumberChange(value);
-                }}
-                required
-              />
+              <div className="flex gap-3">
+                <div ref={phoneInputRef}>
+                  <PhoneInput
+                    className="shadow-md"
+                    defaultCountry="us"
+                    value={countryCode}
+                    onChange={(value) => {
+                      handleCountryCodeChange(value);
+                    }}
+                    preferredCountries={['us', 'in']} // Set preferred countries to US and India
+                    inputProps={{
+                      disabled: true, // Disable the input
+                      className: 'react-international-phone-input',
+                      style: {
+                        width: '60px',
+                        borderTopRightRadius: '0',
+                        borderBottomRightRadius: '0',
+                        borderRight: '0',
+                        border: '0',
+                        backgroundColor: 'rgb(250, 250, 250)',
+                      },
+                    }}
+                  />
+                </div>
+                <div className="flex-grow">
+                  <TextInput
+                    name="contactNumber"
+                    value={contactNumber}
+                    onChange={(value) => {
+                      handleContactNumberChange(value);
+                    }}
+                    required
+                  />
+                </div>
+              </div>
             </div>
             <div className="w-1/2 space-y-2">
               <label htmlFor="url" className="text-black text-sm font-normal">

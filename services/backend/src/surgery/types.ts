@@ -4,6 +4,7 @@ export type PatientMailData = {
   email: string;
   mrn: number;
   phoneNumber: string;
+  countryCode: string;
   lastName: string;
   date: string;
   practiceHome?: string;

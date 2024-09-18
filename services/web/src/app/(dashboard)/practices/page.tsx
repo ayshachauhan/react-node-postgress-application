@@ -41,6 +41,7 @@ const Practice: React.FC = () => {
       adminFirstName: '',
       adminLastName: '',
       adminContactNumber: '',
+      adminCountryCode: '',
       adminId: '',
     });
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -315,7 +316,10 @@ const Practice: React.FC = () => {
                 <td className="">{data.adminFirstName}</td>
                 <td className="">{data.adminLastName}</td>
                 <td className="">{data.adminEmail}</td>
-                <td className="">{data.adminContactNumber}</td>
+                <td className="">
+                  {data.adminCountryCode}
+                  {data.adminContactNumber}
+                </td>
                 <td className="">
                   <div
                     className={`flex justify-center items-center rounded-md capitalize px-2 text-white ${
@@ -342,6 +346,7 @@ const Practice: React.FC = () => {
                           adminFirstName: data.adminFirstName,
                           adminLastName: data.adminLastName,
                           adminContactNumber: data.adminContactNumber,
+                          adminCountryCode: data.adminCountryCode,
                           adminId: data.adminId,
                         })
                       }

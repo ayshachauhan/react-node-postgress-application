@@ -237,6 +237,7 @@ export class MediaService {
         fname: patientData.firstName,
         lname: patientData.lastName,
         phoneNumber: patientData.phoneNumber,
+        countryCode: patientData.countryCode,
         mrn: String(patientData.mrn),
         links: payload.links.join(','),
         Laterality: surgery ? surgery.bodyPart : '',

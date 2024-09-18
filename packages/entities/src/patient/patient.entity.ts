@@ -25,6 +25,9 @@ export class PatientEntity extends BaseEntity {
   @Column({ type: 'varchar' })
   phoneNumber: string;
 
+  @Column({ type: 'varchar' })
+  countryCode: string;
+
   @Column({ type: 'boolean', default: false })
   active: boolean;
 

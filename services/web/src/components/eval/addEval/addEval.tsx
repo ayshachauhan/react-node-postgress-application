@@ -9,7 +9,9 @@ import { Checkbox } from 'baseui/checkbox';
 import { DatePicker } from 'baseui/datepicker';
 import { SIZE, Select } from 'baseui/select';
 import { useRouter } from 'next/navigation';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { PhoneInput } from 'react-international-phone';
+import 'react-international-phone/style.css';
 
 interface SurgeryPageProps {
   onClose: () => void;
@@ -63,6 +65,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
+  const [countryCode, setCountryCode] = useState('+1'); // Default to 'us'
   const [email, setEmail] = useState('');
   const [mrn, setMrn] = useState('');
   const [insuranceDetails, setInsuranceDetails] = useState('');
@@ -91,6 +94,25 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
     ),
   }));
 
+  const phoneInputRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (phoneInputRef.current) {
+      const button = phoneInputRef.current.querySelector(
+        '.react-international-phone-country-selector-button',
+      );
+      if (button) {
+        const buttonElement = button as HTMLElement;
+        buttonElement.style.height = '24px';
+        buttonElement.style.borderTopRightRadius = '0';
+        buttonElement.style.borderBottomRightRadius = '0';
+        buttonElement.style.borderRight = '0';
+        buttonElement.style.border = '0';
+        buttonElement.style.backgroundColor = 'rgb(250, 250, 250)';
+      }
+    }
+  }, []);
+
   useEffect(() => {
     setCheckboxChecked(false);
   }, []);
@@ -104,12 +126,14 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
         setLastName(patientCheck.lastName);
         setEmail(patientCheck.email);
         setPhoneNumber(patientCheck.phoneNumber);
+        setCountryCode(patientCheck.countryCode);
         //setReferrerId(patientCheck.referrer ? patientCheck?.referrer.id : '');
       } else {
         setFirstName('');
         setLastName('');
         setEmail('');
         setPhoneNumber('');
+        setCountryCode('+1');
         setReferrerId('');
       }
     }
@@ -270,6 +294,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
             email,
             date,
             phoneNumber,
+            countryCode,
             mrn: mrn ? Number(mrn) : 0,
             practiceHomeId,
             surgeryConfigurationId: surgeryNameId,
@@ -291,6 +316,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
         setLastName('');
         setMrn('');
         setPhoneNumber('');
+        setCountryCode('+1');
         setEmail('');
         setPracticeHomeId('');
         setInsuranceDetails('');
@@ -441,15 +467,43 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
                   <RequiredIndicator />
                   &nbsp;Phone Number
                 </label>
-                <TextInput
-                  size={SIZE.mini}
-                  name="phoneNumber"
-                  value={phoneNumber}
-                  onChange={(value) => {
-                    setPhoneNumber(value);
-                  }}
-                  required
-                />
+                <div className="flex gap-3 items-center">
+                  <div ref={phoneInputRef}>
+                    <PhoneInput
+                      className="shadow-md"
+                      defaultCountry="us"
+                      value={countryCode}
+                      onChange={(value) => {
+                        setCountryCode(value);
+                      }}
+                      preferredCountries={['us', 'in']} // Set preferred countries to US and India
+                      inputProps={{
+                        disabled: true, // Disable the input
+                        className: 'react-international-phone-input',
+                        style: {
+                          width: '60px',
+                          height: '24px',
+                          borderTopRightRadius: '0',
+                          borderBottomRightRadius: '0',
+                          borderRight: '0',
+                          border: '0',
+                          backgroundColor: 'rgb(250, 250, 250)',
+                        },
+                      }}
+                    />
+                  </div>
+                  <div className="flex-grow">
+                    <TextInput
+                      size={SIZE.mini}
+                      name="phoneNumber"
+                      value={phoneNumber}
+                      onChange={(value) => {
+                        setPhoneNumber(value);
+                      }}
+                      required
+                    />
+                  </div>
+                </div>
               </div>
               <div className="space-y-2 flex-1">
                 <label htmlFor="practiceHome" className="">

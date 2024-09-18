@@ -40,6 +40,7 @@ export interface EmailVariables {
   all_cataract_dates: string;
   all_case_type: string;
   phoneNumber: string;
+  countryCode: string;
   practiceName: string;
   insuranceType: string;
   referrerFname?: string;
@@ -49,5 +50,6 @@ export interface EmailVariables {
   pcpLname?: string;
   pcpEmail?: string;
   doctorPhoneNumber?: string;
+  doctorCountryCode?: string;
   messageType?: string;
 }
