@@ -88,8 +88,9 @@ export class EmailHandlerService {
       emailLogsEntries.push(entry);
     }
 
-    const { staffEmails } = practice.emailData;
-    if (staffEmails) {
+    const { staffEmails, adminEmails } = practice.emailData;
+    if (staffEmails || adminEmails) {
+      const sendEmailArray: string[] = [...staffEmails, ...adminEmails];
       const systemTemplateName = fromEval
         ? SystemTemplates.NOTIFY_STAFF_EVAL_BOOKED
         : SystemTemplates.NOTIFY_STAFF_SURGERY_BOOKED;
@@ -110,10 +111,10 @@ export class EmailHandlerService {
         },
       };
 
-      staffEmails.forEach((staffEmail: string) => {
+      sendEmailArray.forEach((recepientEmail: string) => {
         const staffMailEntry: Partial<IEmailLog> = {
           ...entry,
-          data: { ...entry.data, to: staffEmail },
+          data: { ...entry.data, to: recepientEmail },
         };
         emailLogsEntries.push(staffMailEntry);
       });
@@ -768,11 +769,13 @@ export class EmailHandlerService {
 
 const makeAllCaseArray = (dataArray: IEval[] | ISurgery[]) => {
   const caseArray: string[] = [];
-  dataArray.forEach((ele: IEval | ISurgery) =>
-    caseArray.push(
-      makeAllCaseString(ele.bodyPart, ele.surgeryConfiguration.name, ele.date),
-    ),
-  );
+  dataArray.forEach((ele: IEval | ISurgery) => {
+    const bodyPart = ele.bodyPart ?? '';
+    const surgeryName = ele?.surgeryConfiguration?.name ?? '';
+    const date = ele.date ?? '';
+
+    caseArray.push(makeAllCaseString(bodyPart, surgeryName, date));
+  });
   return caseArray;
 };
 
