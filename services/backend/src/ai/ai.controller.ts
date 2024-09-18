@@ -10,12 +10,12 @@ export class AIController {
   @Post('/sms')
   postQuestionToAIBot(
     @Body() chatDto: smsChatDto,
-    @Query() type: 'openai' | 'customgpt',
+    @Query('type') type: 'openai' | 'customgpt',
   ): Promise<string> {
     logger.info(chatDto, 'Input chat data');
     return this.aiClientService.smsChat(type, {
-      phoneNumber: chatDto.From,
-      question: chatDto.Body,
+      phoneNumber: chatDto.from,
+      question: chatDto.body,
     });
   }
 }

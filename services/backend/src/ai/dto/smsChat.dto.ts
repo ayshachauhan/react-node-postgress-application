@@ -3,43 +3,43 @@ import { IsOptional } from 'class-validator';
 
 export class smsChatDto {
   @ApiProperty()
-  From: string;
+  from: string;
 
   @ApiProperty()
-  Body: string;
-
-  @IsOptional()
-  @ApiProperty()
-  SmsMessageSid: string;
+  body: string;
 
   @IsOptional()
   @ApiProperty()
-  NumMedia: string;
+  smsMessageSid: string;
 
   @IsOptional()
   @ApiProperty()
-  SmsSid: string;
+  numMedia: string;
 
   @IsOptional()
   @ApiProperty()
-  SmsStatus: string;
+  smsSid: string;
 
   @IsOptional()
   @ApiProperty()
-  NumSegments: string;
+  smsStatus: string;
 
   @IsOptional()
   @ApiProperty()
-  MessageSid: string;
+  numSegments: string;
 
   @IsOptional()
   @ApiProperty()
-  AccountSid: string;
-
-  @ApiProperty()
-  To: string;
+  messageSid: string;
 
   @IsOptional()
   @ApiProperty()
-  ApiVersion: string;
+  accountSid: string;
+
+  @ApiProperty()
+  to: string;
+
+  @IsOptional()
+  @ApiProperty()
+  apiVersion: string;
 }

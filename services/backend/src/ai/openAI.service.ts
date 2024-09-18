@@ -11,6 +11,7 @@ import {
   PracticeEntity,
 } from '@packages/entities';
 import OpenAI from 'openai';
+import logger from 'src/logger';
 import { Raw, Repository } from 'typeorm';
 import { ENVIRONMENT_VARIABLES } from '../enums/environment.enums';
 import { PatientsService } from '../patients/patients.service';
@@ -118,9 +119,9 @@ export class OpenAIService implements AIService {
           const regex = /\s*PRACTICE\s*([A-Za-z0-9]{10,30})/;
           const match = data.question.match(regex);
           const practice = match ? match[1] : '';
-          console.log(`Practice: ${practice}`);
-          const practiceRecord: PracticeEntity | null =
-            await this.practiceService.findPractice(practice);
+          const practiceRecord: PracticeEntity | null = practice
+            ? await this.practiceService.findPractice(practice)
+            : null;
           if (practiceRecord) {
             if (
               (patientRecords.length === 1 &&
@@ -130,6 +131,8 @@ export class OpenAIService implements AIService {
             ) {
               return `Sorry, ${practice} doesn't belong to you as per records. Kindly check with your doctor OR re-enter practice name as in provided format.`;
             }
+          } else {
+            return `Sorry, we didn't know your practice. Please share your practice name with us to serve you better: PRACTICE Practice_Name_Example`;
           }
 
           if (patientRecords.length > 1 && !practiceRecord) {
@@ -256,7 +259,11 @@ export class OpenAIService implements AIService {
           this.threadByUser[`${data.phoneNumber}`];
         await this.updateChatLogs({ ...chatLogRecords });
       }
-      await this.transporterService.sendText(data.phoneNumber, answer[0]);
+      const smsResponse = await this.transporterService.sendText(
+        data.phoneNumber,
+        answer[0],
+      );
+      logger.info(`SMS delivery status for AI question: ${smsResponse}`);
       return answer[0];
     } catch (error) {
       console.error('Error generating response text:', error);
