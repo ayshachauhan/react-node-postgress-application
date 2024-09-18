@@ -620,7 +620,11 @@ export default function MessagesTable() {
                                     <span>Error; message not sent</span>
                                   ) : row?.status.toLowerCase() ===
                                     'completed' ? (
-                                    <span>Message sent</span>
+                                    row?.isRead ? (
+                                      <span>Message Read</span>
+                                    ) : (
+                                      <span>Message sent</span>
+                                    )
                                   ) : (
                                     <span>
                                       {row?.status.charAt(0).toUpperCase() +

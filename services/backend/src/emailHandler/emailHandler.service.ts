@@ -88,8 +88,9 @@ export class EmailHandlerService {
       emailLogsEntries.push(entry);
     }
 
-    const { staffEmails } = practice.emailData;
-    if (staffEmails) {
+    const { staffEmails, adminEmails } = practice.emailData;
+    if (staffEmails || adminEmails) {
+      const sendEmailArray: string[] = [...staffEmails, ...adminEmails];
       const systemTemplateName = fromEval
         ? SystemTemplates.NOTIFY_STAFF_EVAL_BOOKED
         : SystemTemplates.NOTIFY_STAFF_SURGERY_BOOKED;
@@ -110,10 +111,10 @@ export class EmailHandlerService {
         },
       };
 
-      staffEmails.forEach((staffEmail: string) => {
+      sendEmailArray.forEach((recepientEmail: string) => {
         const staffMailEntry: Partial<IEmailLog> = {
           ...entry,
-          data: { ...entry.data, to: staffEmail },
+          data: { ...entry.data, to: recepientEmail },
         };
         emailLogsEntries.push(staffMailEntry);
       });
@@ -680,6 +681,7 @@ export class EmailHandlerService {
   async checkAndMakeSurgeryUpdateEmailContent(
     practice: IPractice,
     entity: ISurgery,
+    includeAdmin: boolean,
     messageType: string,
   ) {
     const emailLogsEntries: Partial<IEmailLog>[] = [];
@@ -689,9 +691,13 @@ export class EmailHandlerService {
       messageType,
     );
 
-    const { staffEmails, operatingRoomEmails } = practice.emailData;
+    const { staffEmails, operatingRoomEmails, adminEmails } =
+      practice.emailData;
     if (staffEmails || operatingRoomEmails) {
-      const sendEmailArray: string[] = [...staffEmails, ...operatingRoomEmails];
+      let sendEmailArray: string[] = [...staffEmails, ...operatingRoomEmails];
+      if (includeAdmin) {
+        sendEmailArray = [...sendEmailArray, ...adminEmails];
+      }
       const systemTemplateName = SystemTemplates.NOTIFY_STAFF_SURGERY_UPDATED;
 
       const subject: string = `A surgery is updated

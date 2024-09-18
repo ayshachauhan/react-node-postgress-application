@@ -93,7 +93,7 @@ const Profile: React.FC = () => {
               <span> : {userInfo?.firstName}</span>
             </p>
             <p className="mt-2">
-              <span className="font-bold">Display Name</span>{' '}
+              <span className="font-bold">Username</span>{' '}
               <span>: {userInfo?.userName}</span>
             </p>
           </div>
@@ -103,8 +103,8 @@ const Profile: React.FC = () => {
               <span> :{userInfo?.lastName} </span>
             </p>
             <p className="mt-2">
-              <span className="font-bold">Type</span>
-              <span> : {userInfo?.type}</span>
+              <span className="font-bold">Display Name</span>
+              <span> : {userInfo?.fullName}</span>
             </p>
           </div>
           <div>
@@ -133,6 +133,10 @@ const Profile: React.FC = () => {
             <p>
               <span className="font-bold">Practice Name</span>{' '}
               <span>: {practiceName}</span>
+            </p>
+            <p className="mt-2">
+              <span className="font-bold">Type</span>
+              <span> : {userInfo?.type}</span>
             </p>
           </div>
         </div>

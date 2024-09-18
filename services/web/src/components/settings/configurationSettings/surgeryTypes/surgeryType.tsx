@@ -1,7 +1,7 @@
 'use client';
 import { ModalCloseEvent } from '@root/components/BaseUiModal/BaseUiModal';
 import Button from '@root/components/Button';
-import { AddIcon, DeleteIcon, EditIcon } from '@root/components/Icons';
+import { AddIcon, EditIcon } from '@root/components/Icons';
 import EditSurgeryLocationModal from '@root/components/settings/configurationSettings/surgeryTypes/EditSurgeryLocationModal';
 import AddSurgeryType from '@root/components/settings/configurationSettings/surgeryTypes/addSurgeryType';
 import { useAppDispatch, useAppSelector } from '@root/store';
@@ -246,9 +246,7 @@ export default function SurgeryTypePage() {
                           data.id && handleOpenDeleteModal(data.id)
                         }
                         className="cursor-pointer"
-                      >
-                        <DeleteIcon></DeleteIcon>
-                      </div>
+                      ></div>
                     </div>
                   </td>
                 </tr>
