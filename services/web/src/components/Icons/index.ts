@@ -2,6 +2,7 @@ export { default as AddIcon } from './Add';
 export { default as AddReferrerIcon } from './AddReferrerIcon';
 export { default as AddReviewIcon } from './AddReview';
 export { default as AvatarIcon } from './Avatar';
+export { default as ChatIcon } from './Chat';
 export { default as CloseIcon } from './Close';
 export { default as CollapseLeftIcon } from './CollapseLeftIcon';
 export { default as CollapseRightIcon } from './CollapseRightIcon';

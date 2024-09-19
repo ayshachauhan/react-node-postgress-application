@@ -1,7 +1,9 @@
-import { Body, Controller, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import { ChatbotLogsEntity } from '@packages/entities';
 import logger from '../logger';
 import { AIClientService } from './ai.service';
 import { smsChatDto } from './dto/smsChat.dto';
+import { GetChatParams } from './types';
 
 @Controller('/ai')
 export class AIController {
@@ -16,6 +18,16 @@ export class AIController {
     return this.aiClientService.smsChat(type, {
       phoneNumber: chatDto.from,
       question: chatDto.body,
+    });
+  }
+
+  @Get()
+  getAllHistory(@Query() query: GetChatParams): Promise<ChatbotLogsEntity[]> {
+    return this.aiClientService.getAllChatLogs({
+      practiceId: query.practiceId,
+      patientId: query.patientId,
+      mrn: query.mrn,
+      answer: query.answer,
     });
   }
 }
