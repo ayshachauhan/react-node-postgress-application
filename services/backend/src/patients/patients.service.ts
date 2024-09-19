@@ -120,6 +120,7 @@ export class PatientsService {
   ): Promise<PatientEntity[] | null> {
     return this.patientRepository.find({
       where: { phoneNumber },
+      relations: ['practice'],
     });
   }
 }

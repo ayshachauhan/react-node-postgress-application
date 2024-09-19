@@ -116,7 +116,7 @@ export class OpenAIService implements AIService {
         const patientRecords: PatientEntity[] | null =
           await this.patientService.getPatientsByPhoneNumber(data.phoneNumber);
         if (patientRecords && patientRecords.length > 0) {
-          const regex = /\s*PRACTICE\s*([A-Za-z0-9]{10,30})/;
+          const regex = /\s*PRACTICE\s*([\w\s]{10,30})/;
           const match = data.question.match(regex);
           const practice = match ? match[1] : '';
           const practiceRecord: PracticeEntity | null = practice
@@ -143,7 +143,7 @@ export class OpenAIService implements AIService {
             const dataToSave = {
               ...newChatLog,
               practice: patientRecords[0].practice,
-              patients: patientRecords[0],
+              patient: patientRecords[0],
               userIdentifier: data.phoneNumber,
               assistantId: this.openaiAssistantId,
               botQuestionAnswers: [],
@@ -301,7 +301,7 @@ export class OpenAIService implements AIService {
         userIdentifier: identifier,
         dateCreated: Raw((alias) => `DATE(${alias}) = CURRENT_DATE`),
       },
-      relations: ['patient'],
+      relations: ['patient', 'practice'],
     });
   }
 

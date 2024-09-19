@@ -1,6 +1,6 @@
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { BaseEntity } from '../base.entity';
-import { IPatient, PatientEntity } from '../patient';
+import { PatientEntity } from '../patient';
 import { PracticeEntity } from '../practice';
 import { IChatbot, QuestionAnswers } from './chatbotLogs.interface';
 
@@ -11,7 +11,7 @@ export class ChatbotLogsEntity extends BaseEntity implements IChatbot {
 
   @ManyToOne(() => PatientEntity, { nullable: true })
   @JoinColumn({ name: 'patientId' })
-  patient: IPatient | null;
+  patient: PatientEntity | null;
 
   @Column({ type: 'varchar' })
   assistantChatThreadId: string;
