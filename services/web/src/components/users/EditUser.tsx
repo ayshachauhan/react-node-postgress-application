@@ -190,7 +190,6 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose, withLoader }) => {
           ? value + prevState.contactNumber
           : prevState.countryCode + value;
 
-      // Validate the full phone number
       validatePhoneNumber(fullPhoneNumber);
 
       return updatedState;

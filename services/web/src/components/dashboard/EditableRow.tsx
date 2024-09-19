@@ -198,7 +198,6 @@ const EditableRow: React.FC<EditableRowProps> = ({
         [keyToUpdate]: newValue,
       };
 
-      // Construct full phone number and validate based on updated field
       const fullPhoneNumber =
         keyToUpdate === 'countryCode'
           ? newValue + prevState.phoneNumber
