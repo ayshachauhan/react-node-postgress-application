@@ -15,7 +15,7 @@ import { SystemTemplates } from 'src/transporter/transporter.types';
 import { UpdateUserDto } from 'src/users/dto/update.dto';
 import { UploadType } from 'src/users/types';
 import { getUploadFileKey } from 'src/users/utils';
-import { DataSource, Repository, UpdateResult } from 'typeorm';
+import { DataSource, ILike, Repository, UpdateResult } from 'typeorm';
 import { ENVIRONMENT_VARIABLES } from '../enums/environment.enums';
 import { TransporterService } from '../transporter';
 import { S3Service } from '../users/s3.service';
@@ -99,6 +99,12 @@ export class PracticesService {
     return await this.practicesRepository.findOne({
       where: { id },
       relations: ['users', 'users.permissions'],
+    });
+  }
+
+  async findPractice(name: string): Promise<PracticeEntity | null> {
+    return await this.practicesRepository.findOne({
+      where: [{ name: ILike(`%${name}%`) }],
     });
   }
 

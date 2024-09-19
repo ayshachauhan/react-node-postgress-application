@@ -19,3 +19,4 @@ export * from './surgeryType/surgeryType.interface';
 export * from './template/template.interface';
 export * from './user/user.interface';
 export * from './waitlist/waitlist.interface';
+export * from './aiChatBot/chatbotLogs.interface';

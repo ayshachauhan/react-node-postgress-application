@@ -20,3 +20,4 @@ export * from './surgeryType';
 export * from './template';
 export * from './user';
 export * from './waitlist';
+export * from './aiChatBot';

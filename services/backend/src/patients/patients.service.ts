@@ -117,4 +117,13 @@ export class PatientsService {
       relations: ['surgeries', 'evals', 'surgeries.surgeryConfiguration'],
     });
   }
+
+  async getPatientsByPhoneNumber(
+    phoneNumber: string,
+  ): Promise<PatientEntity[] | null> {
+    return this.patientRepository.find({
+      where: { phoneNumber },
+      relations: ['practice'],
+    });
+  }
 }
