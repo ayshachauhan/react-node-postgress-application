@@ -4,6 +4,7 @@ export interface PracticeCreateInterface {
   adminLastName: string;
   adminEmail: string;
   adminContactNumber: string;
+  adminCountryCode: string;
   code: string;
   practiceImg?: File | null;
 }
@@ -15,6 +16,7 @@ export interface PracticesGetInterface {
   adminLastName: string;
   adminEmail: string;
   adminContactNumber: string;
+  adminCountryCode: string;
   adminId: string;
   status: string;
   code: string;
@@ -32,6 +34,7 @@ export interface PracticesEditInterface {
   adminFirstName?: string;
   adminLastName?: string;
   adminContactNumber?: string;
+  adminCountryCode: string;
   adminId?: string;
   practiceImg?: File | null;
 }

@@ -61,7 +61,10 @@ export class TransporterService {
     const text: string = options.text
       ? this.compileTemplate(options.text.toString(), data)
       : '';
-    const sms = await this.sendText(data.phoneNumber, text);
+    const sms = await this.sendText(
+      `${data.countryCode ? data.countryCode : ''}${data.phoneNumber}`,
+      text,
+    );
     logger.info(`SMS sending response status: ${sms}`);
 
     if (data.links && typeof data.links == 'string') {
@@ -129,7 +132,8 @@ export class TransporterService {
       try {
         const smsResponse = await this.twilioClient.messages.create({
           body: cleanMessage,
-          to: to.includes('+1') ? to : `+1${to}`,
+          // to: to.includes('+1') ? to : `+1${to}`,
+          to: to,
           from: typeof twilioPhoneNumber == 'string' ? twilioPhoneNumber : '',
         });
         console.log(

@@ -49,6 +49,7 @@ export interface CreateSurgeryPayload {
   firstName: string;
   lastName: string;
   email: string;
+  countryCode: string;
   phoneNumber: string;
   pcp?: string;
   referrerId?: string;
@@ -92,6 +93,7 @@ export interface UpdateSurgeryPayload {
   firstName: string;
   lastName: string;
   email: string;
+  countryCode: string;
   phoneNumber: string;
   mrn: number;
   bodyPart: string;

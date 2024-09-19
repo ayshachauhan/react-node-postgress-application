@@ -35,6 +35,7 @@ export interface CreateEvalInterface {
   firstName: string;
   lastName: string;
   email: string;
+  countryCode: string;
   phoneNumber: string;
   pcp?: string;
   referrerId?: string;
@@ -56,6 +57,7 @@ export interface UpdateEValInterface {
   notes?: string;
   insuranceDetails?: string;
   email: string;
+  countryCode: string;
   phoneNumber: string;
   status: string;
   referrerId?: string;

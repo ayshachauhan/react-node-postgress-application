@@ -7,7 +7,9 @@ import { updateRecordAsync } from '@root/store/reducers/practices';
 import { PracticesEditInterface } from '@store/requests/practices';
 import { FileUploader } from 'baseui/file-uploader';
 import { Select } from 'baseui/select';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { PhoneInput } from 'react-international-phone';
+import 'react-international-phone/style.css';
 
 const PracticeEditModule: React.FC<{
   onClose: () => void;
@@ -24,6 +26,9 @@ const PracticeEditModule: React.FC<{
   );
   const [adminContactNumber, setAdminContactNumber] = useState(
     initialValues.adminContactNumber,
+  );
+  const [adminCountryCode, setAdminCountryCode] = useState(
+    initialValues.adminCountryCode,
   );
   const [status, setStatus] = useState(initialValues.status);
   const practiceStatusOptions = Object.keys(PracticeStatus).map((key) => ({
@@ -55,11 +60,32 @@ const PracticeEditModule: React.FC<{
     return true;
   };
 
+  const phoneInputRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (phoneInputRef.current) {
+      const button = phoneInputRef.current.querySelector(
+        '.react-international-phone-country-selector-button',
+      );
+      if (button) {
+        const buttonElement = button as HTMLElement;
+        buttonElement.style.borderTopRightRadius = '0';
+        buttonElement.style.borderBottomRightRadius = '0';
+        buttonElement.style.borderRight = '0';
+        buttonElement.style.border = '0';
+        buttonElement.style.backgroundColor = 'rgb(250, 250, 250)';
+        buttonElement.style.color = 'rgba(82, 82, 91, 1)';
+        buttonElement.style.fontSize = '0.75rem';
+      }
+    }
+  }, []);
+
   useEffect(() => {
     setFormChanged(
       name !== initialValues.name ||
         status !== initialValues.status ||
         adminContactNumber !== initialValues.adminContactNumber ||
+        adminCountryCode !== initialValues.adminCountryCode ||
         adminLastName !== initialValues.adminLastName ||
         adminFirstName !== initialValues.adminFirstName ||
         status !== initialValues.status ||
@@ -70,6 +96,7 @@ const PracticeEditModule: React.FC<{
     status,
     practiceImg,
     adminContactNumber,
+    adminCountryCode,
     adminLastName,
     adminFirstName,
     initialValues,
@@ -92,6 +119,7 @@ const PracticeEditModule: React.FC<{
       adminFirstName,
       adminLastName,
       adminContactNumber,
+      adminCountryCode,
       adminId: initialValues.adminId,
     };
     try {
@@ -190,14 +218,43 @@ const PracticeEditModule: React.FC<{
               <label htmlFor="adminContactNumber" className="">
                 Admin Contact No.
               </label>
-              <TextInput
-                name="adminContactNumber"
-                value={adminContactNumber}
-                onChange={(value) => {
-                  setAdminContactNumber(value);
-                }}
-                required
-              />
+              <div className="flex gap-3 ">
+                <div ref={phoneInputRef}>
+                  <PhoneInput
+                    className="shadow-md"
+                    defaultCountry="us"
+                    value={adminCountryCode}
+                    onChange={(value) => {
+                      setAdminCountryCode(value);
+                    }}
+                    preferredCountries={['us', 'in']} // Set preferred countries to US and India
+                    inputProps={{
+                      disabled: true, // Disable the input
+                      className: 'react-international-phone-input',
+                      style: {
+                        width: '40px',
+                        borderTopRightRadius: '0',
+                        borderBottomRightRadius: '0',
+                        borderRight: '0',
+                        border: '0',
+                        backgroundColor: 'rgb(250, 250, 250)',
+                        color: 'rgba(82, 82, 91, 1)',
+                        fontSize: '0.75rem',
+                      },
+                    }}
+                  />
+                </div>
+                <div className="flex-grow">
+                  <TextInput
+                    name="adminContactNumber"
+                    value={adminContactNumber}
+                    onChange={(value) => {
+                      setAdminContactNumber(value);
+                    }}
+                    required
+                  />
+                </div>
+              </div>
             </div>
           </div>
           <div className="w-full">

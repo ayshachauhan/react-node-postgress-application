@@ -48,6 +48,9 @@ export class UserEntity extends BaseEntity implements IUser {
   @Column({ type: 'varchar' })
   contactNumber: string;
 
+  @Column({ type: 'varchar' })
+  countryCode: string;
+
   @ManyToMany(() => PracticeEntity)
   @JoinTable({
     name: 'user_practices',

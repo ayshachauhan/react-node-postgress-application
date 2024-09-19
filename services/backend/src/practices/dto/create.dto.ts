@@ -26,6 +26,10 @@ export class PracticeCreateDto {
   @ApiProperty()
   adminContactNumber: string;
 
+  @IsNotEmpty({ message: 'country code  is required' })
+  @ApiProperty()
+  adminCountryCode: string;
+
   @IsOptional()
   @ApiProperty()
   photoUrl: string;

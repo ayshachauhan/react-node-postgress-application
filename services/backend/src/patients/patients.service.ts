@@ -44,7 +44,8 @@ export class PatientsService {
         mrnCheck.firstName !== createPatientDto.firstName ||
         mrnCheck.lastName !== createPatientDto.lastName ||
         mrnCheck.email !== createPatientDto.email ||
-        mrnCheck.phoneNumber !== createPatientDto.phoneNumber;
+        mrnCheck.phoneNumber !== createPatientDto.phoneNumber ||
+        mrnCheck.countryCode !== createPatientDto.countryCode;
 
       if (hasChanges) {
         await this.patientRepository.update(mrnCheck.id, {
@@ -52,6 +53,7 @@ export class PatientsService {
           lastName: createPatientDto.lastName,
           email: createPatientDto.email,
           phoneNumber: createPatientDto.phoneNumber,
+          countryCode: createPatientDto.countryCode,
         });
       }
       return mrnCheck;
@@ -79,6 +81,7 @@ export class PatientsService {
           lastName: data.lastName,
           email: data.email,
           phoneNumber: data.phoneNumber,
+          countryCode: data.countryCode,
           mrn: data.mrn,
         });
 

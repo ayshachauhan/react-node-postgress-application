@@ -29,4 +29,8 @@ export class PracticePatchDto {
   @IsOptional()
   @ApiProperty()
   adminContactNumber: string;
+
+  @IsOptional()
+  @ApiProperty()
+  adminCountryCode: string;
 }

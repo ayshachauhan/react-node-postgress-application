@@ -399,7 +399,10 @@ export default function MessagesTable() {
                 <div className="text-xl font-bold">
                   {toFullName(patientInfo)}
                 </div>
-                <div className="text-lg">Cell: {patientInfo.phoneNumber}</div>
+                <div className="text-lg">
+                  Cell: {patientInfo.countryCode}
+                  {patientInfo.phoneNumber}
+                </div>
                 <div className="text-lg">Email: {patientInfo.email}</div>
               </div>
             </div>
@@ -577,11 +580,17 @@ export default function MessagesTable() {
                                 <p>Email: {row?.data?.to}</p>
                                 {row?.data?.to ===
                                   row?.data?.pt_email_address && (
-                                  <p>Cell: {row?.data?.phoneNumber}</p>
+                                  <p>
+                                    Cell: {row?.data?.countryCode}{' '}
+                                    {row?.data?.phoneNumber}
+                                  </p>
                                 )}
                                 {row?.data?.to ===
                                   row?.data?.doc_email_address && (
-                                  <p>Cell: {row?.data?.doctorPhoneNumber}</p>
+                                  <p>
+                                    Cell: {row?.data?.doctorCountryCode}
+                                    {row?.data?.doctorPhoneNumber}
+                                  </p>
                                 )}
                                 {!(
                                   row?.data?.to ===

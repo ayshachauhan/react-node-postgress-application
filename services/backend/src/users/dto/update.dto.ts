@@ -53,5 +53,9 @@ export class UpdateUserDto {
 
   @IsOptional()
   @ApiProperty()
+  countryCode: string;
+
+  @IsOptional()
+  @ApiProperty()
   token: string;
 }

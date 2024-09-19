@@ -35,6 +35,10 @@ export class CreateUserDto {
   @ApiProperty()
   contactNumber: string;
 
+  @IsNotEmpty({ message: 'country code is required' })
+  @ApiProperty()
+  countryCode: string;
+
   @IsOptional()
   @ApiProperty()
   permissionIds: string[];

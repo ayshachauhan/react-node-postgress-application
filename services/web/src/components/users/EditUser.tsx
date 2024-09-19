@@ -15,7 +15,9 @@ import { generateFullName, getPracticeId } from '@utils/index';
 import { Checkbox } from 'baseui/checkbox';
 import { FileUploader } from 'baseui/file-uploader';
 import { Select } from 'baseui/select';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { PhoneInput } from 'react-international-phone';
+import 'react-international-phone/style.css';
 import RequiredIndicator from '../RequiredIndicator';
 interface Data {
   id: string;
@@ -83,6 +85,25 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose, withLoader }) => {
   const [errorMessage, setErrorMessage] = useState('');
   const [permissionsUpdated, setPermissionsUpdated] = useState(false);
   const [designation, setDesignation] = useState('');
+  const phoneInputRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (phoneInputRef.current) {
+      const button = phoneInputRef.current.querySelector(
+        '.react-international-phone-country-selector-button',
+      );
+      if (button) {
+        const buttonElement = button as HTMLElement;
+        buttonElement.style.borderTopRightRadius = '0';
+        buttonElement.style.borderBottomRightRadius = '0';
+        buttonElement.style.borderRight = '0';
+        buttonElement.style.border = '0';
+        buttonElement.style.backgroundColor = 'rgb(250, 250, 250)';
+        buttonElement.style.color = 'rgba(82, 82, 91, 1)';
+        buttonElement.style.fontSize = '0.75rem';
+      }
+    }
+  }, []);
 
   useEffect(() => {
     if (updatedUserInfo?.permissions) {
@@ -159,6 +180,7 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose, withLoader }) => {
         userName: updatedUserInfo.userName ?? '',
         firstName: updatedUserInfo.firstName ?? '',
         lastName: updatedUserInfo.lastName ?? '',
+        countryCode: updatedUserInfo.countryCode ?? '',
         contactNumber: updatedUserInfo.contactNumber ?? '',
         fullName: updatedPayloadData.fullName ?? '',
         email: updatedUserInfo.email ?? '',
@@ -274,12 +296,43 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose, withLoader }) => {
                 <RequiredIndicator />
                 &nbsp;Contact No.
               </label>
-              <TextInput
-                name="contactNumber"
-                value={updatedUserInfo?.contactNumber || ''}
-                onChange={(value) => handleInputChange('contactNumber', value)}
-                required
-              />
+              <div className="flex gap-3">
+                <div ref={phoneInputRef}>
+                  <PhoneInput
+                    className="shadow-md"
+                    name="countryCode"
+                    value={updatedUserInfo?.countryCode || ''}
+                    preferredCountries={['us', 'in']} // Set preferred countries to US and India
+                    inputProps={{
+                      disabled: true, // Disable the input
+                      className: 'react-international-phone-input',
+                      style: {
+                        width: '60px',
+                        borderTopRightRadius: '0',
+                        borderBottomRightRadius: '0',
+                        borderRight: '0',
+                        border: '0',
+                        backgroundColor: 'rgb(250, 250, 250)',
+                        color: 'rgba(82, 82, 91, 1)',
+                        fontSize: '0.75rem',
+                      },
+                    }}
+                    onChange={(value) =>
+                      handleInputChange('countryCode', value)
+                    }
+                  />
+                </div>
+                <div className="flex-grow">
+                  <TextInput
+                    name="contactNumber"
+                    value={updatedUserInfo?.contactNumber || ''}
+                    onChange={(value) =>
+                      handleInputChange('contactNumber', value)
+                    }
+                    required
+                  />
+                </div>
+              </div>
               <div className="w-1/2 space-y-2"></div>
             </div>
             <div className="w-1/2 space-y-2">

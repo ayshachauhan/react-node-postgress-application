@@ -88,8 +88,9 @@ export class EmailHandlerService {
       emailLogsEntries.push(entry);
     }
 
-    const { staffEmails } = practice.emailData;
-    if (staffEmails) {
+    const { staffEmails, adminEmails } = practice.emailData;
+    if (staffEmails || adminEmails) {
+      const sendEmailArray: string[] = [...staffEmails, ...adminEmails];
       const systemTemplateName = fromEval
         ? SystemTemplates.NOTIFY_STAFF_EVAL_BOOKED
         : SystemTemplates.NOTIFY_STAFF_SURGERY_BOOKED;
@@ -110,10 +111,10 @@ export class EmailHandlerService {
         },
       };
 
-      staffEmails.forEach((staffEmail: string) => {
+      sendEmailArray.forEach((recepientEmail: string) => {
         const staffMailEntry: Partial<IEmailLog> = {
           ...entry,
-          data: { ...entry.data, to: staffEmail },
+          data: { ...entry.data, to: recepientEmail },
         };
         emailLogsEntries.push(staffMailEntry);
       });
@@ -522,12 +523,14 @@ export class EmailHandlerService {
         email: patientEmail,
         mrn,
         phoneNumber,
+        countryCode,
       },
       doctor: {
         firstName: doctorFirstName,
         lastName: doctorLastName,
         email: doctorEmail,
         contactNumber: doctorPhoneNumber,
+        countryCode: doctorCountryCode,
       },
       surgeryConfiguration: { name },
       date,
@@ -558,6 +561,7 @@ export class EmailHandlerService {
       all_cases: allCases.join(),
       all_cataract_dates: allCataractDates.join(),
       all_case_type: allCaseType.join(),
+      countryCode: countryCode,
       phoneNumber: phoneNumber,
       practiceName: practice.name,
       insuranceType: insuranceType ? insuranceType.name : '',
@@ -567,6 +571,7 @@ export class EmailHandlerService {
       pcpFname: entity?.pcp?.firstName,
       pcpLname: entity?.pcp?.lastName,
       pcpEmail: entity?.pcp?.email,
+      doctorCountryCode: doctorCountryCode,
       doctorPhoneNumber: doctorPhoneNumber,
       messageType: messageType,
     };
@@ -662,6 +667,7 @@ export class EmailHandlerService {
         await Promise.all(
           emailLogsByPatientEmail.map(async (log) => {
             log.data.pt_email_address = newPayload.email;
+            log.data.countryCode = newPayload.countryCode;
             log.data.phoneNumber = newPayload.phoneNumber;
             log.data.firstName = newPayload.firstName;
             log.data.lastName = newPayload.lastName;
@@ -768,11 +774,14 @@ export class EmailHandlerService {
 
 const makeAllCaseArray = (dataArray: IEval[] | ISurgery[]) => {
   const caseArray: string[] = [];
-  dataArray.forEach((ele: IEval | ISurgery) =>
-    caseArray.push(
-      makeAllCaseString(ele.bodyPart, ele.surgeryConfiguration.name, ele.date),
-    ),
-  );
+  dataArray.forEach((ele: IEval | ISurgery) => {
+    const bodyPart = ele.bodyPart ?? '';
+    const surgeryName = ele?.surgeryConfiguration?.name ?? '';
+    const date = ele.date ?? '';
+
+    caseArray.push(makeAllCaseString(bodyPart, surgeryName, date));
+  });
+
   return caseArray;
 };
 

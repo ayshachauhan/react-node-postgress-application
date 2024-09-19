@@ -116,7 +116,7 @@ resource "aws_db_instance" "main" {
   parameter_group_name = aws_db_parameter_group.postgres16.name
   apply_immediately    = true
   engine               = "postgres"
-  engine_version       = "16.1"
+  engine_version       = "16.3"
   instance_class       = "db.t3.medium"
   storage_type         = "gp2"
 
