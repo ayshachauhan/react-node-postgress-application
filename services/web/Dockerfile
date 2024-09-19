@@ -8,7 +8,7 @@ ARG NEXT_PUBLIC_API_BASE_URL
 ARG ENVIRONMENT
 ENV ENVIRONMENT=${ENVIRONMENT}
 ENV NEXT_PUBLIC_API_BASE_URL=${NEXT_PUBLIC_API_BASE_URL}
-RUN npm install -g pnpm && \
+RUN npm install -g pnpm@8.15.3 && \
     pnpm install --frozen-lockfile && \
     pnpm turbo build --filter=web
 
