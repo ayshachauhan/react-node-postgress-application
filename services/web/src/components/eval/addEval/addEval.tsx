@@ -8,6 +8,7 @@ import { getBackGroundColorCss, getPracticeId, toFullName } from '@utils/index';
 import { Checkbox } from 'baseui/checkbox';
 import { DatePicker } from 'baseui/datepicker';
 import { SIZE, Select } from 'baseui/select';
+import { parsePhoneNumber } from 'libphonenumber-js';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useRef, useState } from 'react';
 import { PhoneInput } from 'react-international-phone';
@@ -53,6 +54,8 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
     : null;
 
   const getSelectedUserId: string | null = selectedDoctorId;
+  const [isValidPhnNo, setIsValidPhnNo] = useState(true);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const dispatch = useAppDispatch();
   const surgeryConfigurationsList = useAppSelector(
@@ -128,6 +131,10 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
         setPhoneNumber(patientCheck.phoneNumber);
         setCountryCode(patientCheck.countryCode);
         //setReferrerId(patientCheck.referrer ? patientCheck?.referrer.id : '');
+        const fullPhoneNumber =
+          (patientCheck.countryCode ? patientCheck.countryCode : '') +
+          (patientCheck.phoneNumber ? patientCheck.phoneNumber : '');
+        validatePhoneNumber(fullPhoneNumber);
       } else {
         setFirstName('');
         setLastName('');
@@ -174,6 +181,35 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
     label: waitlist[key].name,
     id: waitlist[key].id,
   }));
+
+  const handleCountryCodeChange = (value: string) => {
+    setCountryCode(value);
+    const fullPhoneNumber = value + phoneNumber;
+    validatePhoneNumber(fullPhoneNumber);
+  };
+
+  const handlePhoneNumberChange = (value: string) => {
+    setPhoneNumber(value);
+    const fullPhoneNumber = countryCode + value;
+    validatePhoneNumber(fullPhoneNumber);
+  };
+
+  const validatePhoneNumber = (fullNumber: string) => {
+    try {
+      const parsedPhoneNumber = parsePhoneNumber(fullNumber);
+
+      if (parsedPhoneNumber.isValid()) {
+        setIsValidPhnNo(true);
+        setErrorMessage('');
+      } else {
+        setIsValidPhnNo(false);
+        setErrorMessage('Invalid phone number');
+      }
+    } catch (error) {
+      setIsValidPhnNo(false);
+      setErrorMessage('Invalid phone number');
+    }
+  };
 
   const evalStatusOption = [
     {
@@ -285,58 +321,62 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (practiceId && doctorId) {
-      await withLoader(async () => {
-        await dispatch(
-          addEvalRecord({
-            firstName,
-            lastName,
-            email,
-            date,
-            phoneNumber,
-            countryCode,
-            mrn: mrn ? Number(mrn) : 0,
-            practiceHomeId,
-            surgeryConfigurationId: surgeryNameId,
-            insuranceDetails,
-            insuranceTypeId,
-            practiceId,
-            doctorId,
-            pcp,
-            referrerId,
-            notes,
-            status: evalStatus,
-            bodyPart,
-            waitlistId,
-          }),
-        );
-      });
-      try {
-        setFirstName('');
-        setLastName('');
-        setMrn('');
-        setPhoneNumber('');
-        setCountryCode('+1');
-        setEmail('');
-        setPracticeHomeId('');
-        setInsuranceDetails('');
-        setInsuranceTypeId('');
-        setPcp('');
-        setReferrerId('');
-        setNotes('');
-        setEvalStatus('');
-        setWaitlistId('');
-        if (onRecordAdded) {
-          onRecordAdded();
+    if (isValidPhnNo) {
+      if (practiceId && doctorId) {
+        await withLoader(async () => {
+          await dispatch(
+            addEvalRecord({
+              firstName,
+              lastName,
+              email,
+              date,
+              phoneNumber,
+              countryCode,
+              mrn: mrn ? Number(mrn) : 0,
+              practiceHomeId,
+              surgeryConfigurationId: surgeryNameId,
+              insuranceDetails,
+              insuranceTypeId,
+              practiceId,
+              doctorId,
+              pcp,
+              referrerId,
+              notes,
+              status: evalStatus,
+              bodyPart,
+              waitlistId,
+            }),
+          );
+        });
+        try {
+          setFirstName('');
+          setLastName('');
+          setMrn('');
+          setPhoneNumber('');
+          setCountryCode('+1');
+          setEmail('');
+          setPracticeHomeId('');
+          setInsuranceDetails('');
+          setInsuranceTypeId('');
+          setPcp('');
+          setReferrerId('');
+          setNotes('');
+          setEvalStatus('');
+          setWaitlistId('');
+          if (onRecordAdded) {
+            onRecordAdded();
+          }
+          onClose();
+        } catch (error) {
+          onClose();
         }
-        onClose();
-      } catch (error) {
-        onClose();
       }
-    }
 
-    router.refresh();
-    onClose();
+      router.refresh();
+      onClose();
+    } else {
+      setErrorMessage('Invalid phone number');
+    }
   };
 
   return (
@@ -376,6 +416,11 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
               />
             </div>
           </div>
+          {!isValidPhnNo && (
+            <div className="flex justify-center text-red-500 mt-2">
+              {errorMessage}
+            </div>
+          )}
           <div className="flex flex-col gap-4 mt-4">
             <div className="flex gap-4">
               <div className="space-y-2 flex-1">
@@ -474,11 +519,11 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
                       defaultCountry="us"
                       value={countryCode}
                       onChange={(value) => {
-                        setCountryCode(value);
+                        handleCountryCodeChange(value);
                       }}
                       preferredCountries={['us', 'in']} // Set preferred countries to US and India
                       inputProps={{
-                        disabled: true, // Disable the input
+                        disabled: true,
                         className: 'react-international-phone-input',
                         style: {
                           width: '60px',
@@ -498,7 +543,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
                       name="phoneNumber"
                       value={phoneNumber}
                       onChange={(value) => {
-                        setPhoneNumber(value);
+                        handlePhoneNumberChange(value);
                       }}
                       required
                     />

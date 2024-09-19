@@ -7,6 +7,7 @@ import { updateRecordAsync } from '@root/store/reducers/practices';
 import { PracticesEditInterface } from '@store/requests/practices';
 import { FileUploader } from 'baseui/file-uploader';
 import { Select } from 'baseui/select';
+import { isValidPhoneNumber, parsePhoneNumber } from 'libphonenumber-js';
 import React, { useEffect, useRef, useState } from 'react';
 import { PhoneInput } from 'react-international-phone';
 import 'react-international-phone/style.css';
@@ -30,6 +31,7 @@ const PracticeEditModule: React.FC<{
   const [adminCountryCode, setAdminCountryCode] = useState(
     initialValues.adminCountryCode,
   );
+
   const [status, setStatus] = useState(initialValues.status);
   const practiceStatusOptions = Object.keys(PracticeStatus).map((key) => ({
     label: PracticeStatus[key as keyof typeof PracticeStatus],
@@ -40,6 +42,19 @@ const PracticeEditModule: React.FC<{
   const [formChanged, setFormChanged] = useState(false);
 
   const [errorMessage, setErrorMessage] = useState('');
+  const [isValidPhnNo, setIsValidPhnNo] = useState(true);
+
+  const handleCountryCodeChange = (value: string) => {
+    setAdminCountryCode(value);
+    const fullPhoneNumber = value + adminContactNumber;
+    validatePhoneNumber(fullPhoneNumber);
+  };
+
+  const handlePhoneNumberChange = (value: string) => {
+    setAdminContactNumber(value);
+    const fullPhoneNumber = adminCountryCode + value;
+    validatePhoneNumber(fullPhoneNumber);
+  };
 
   const validateForm = (): boolean => {
     if (!name.trim()) {
@@ -62,6 +77,22 @@ const PracticeEditModule: React.FC<{
 
   const phoneInputRef = useRef<HTMLDivElement | null>(null);
 
+  const validatePhoneNumber = (fullNumber: string) => {
+    try {
+      const parsedPhoneNumber = parsePhoneNumber(fullNumber);
+      if (parsedPhoneNumber.isValid()) {
+        setIsValidPhnNo(true);
+        setErrorMessage('');
+      } else {
+        setIsValidPhnNo(false);
+        setErrorMessage('Invalid phone number');
+      }
+    } catch (error) {
+      setIsValidPhnNo(false);
+      setErrorMessage('Invalid phone number');
+    }
+  };
+
   useEffect(() => {
     if (phoneInputRef.current) {
       const button = phoneInputRef.current.querySelector(
@@ -81,6 +112,16 @@ const PracticeEditModule: React.FC<{
   }, []);
 
   useEffect(() => {
+    const fullPhoneNumber = adminCountryCode + adminContactNumber;
+
+    const isPhoneNumberValid = isValidPhoneNumber(fullPhoneNumber);
+
+    if (!isPhoneNumberValid) {
+      setErrorMessage('Invalid phone number');
+    } else {
+      setErrorMessage('');
+    }
+
     setFormChanged(
       name !== initialValues.name ||
         status !== initialValues.status ||
@@ -89,7 +130,8 @@ const PracticeEditModule: React.FC<{
         adminLastName !== initialValues.adminLastName ||
         adminFirstName !== initialValues.adminFirstName ||
         status !== initialValues.status ||
-        practiceImg !== null,
+        practiceImg !== null ||
+        !isPhoneNumberValid,
     );
   }, [
     name,
@@ -109,38 +151,46 @@ const PracticeEditModule: React.FC<{
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    const data: PracticesEditInterface = {
-      id: initialValues.id,
-      name,
-      status,
-      code: initialValues.code,
-      practiceImg,
-      adminFirstName,
-      adminLastName,
-      adminContactNumber,
-      adminCountryCode,
-      adminId: initialValues.adminId,
-    };
-    try {
-      if (validateForm()) {
-        await withLoader(async () => {
-          await dispatch(updateRecordAsync(data));
-        });
-        setName('');
-        setStatus('');
-        setPracticeImg(null);
+    if (isValidPhnNo) {
+      const data: PracticesEditInterface = {
+        id: initialValues.id,
+        name,
+        status,
+        code: initialValues.code,
+        practiceImg,
+        adminFirstName,
+        adminLastName,
+        adminContactNumber,
+        adminCountryCode,
+        adminId: initialValues.adminId,
+      };
+      try {
+        if (validateForm()) {
+          await withLoader(async () => {
+            await dispatch(updateRecordAsync(data));
+          });
+          setName('');
+          setStatus('');
+          setPracticeImg(null);
+          onClose();
+        }
+      } catch (error) {
         onClose();
       }
-    } catch (error) {
-      onClose();
+    } else {
+      setErrorMessage('Invalid phone number');
     }
   };
 
   return (
     <div>
-      {errorMessage && (
-        <div className="flex justify-center text-red-500 mt-2">
+      {errorMessage && isValidPhnNo && (
+        <div className="flex justify-center text-red-500 mt-2 mb-2">
+          {errorMessage}
+        </div>
+      )}
+      {!isValidPhnNo && (
+        <div className="flex justify-center text-red-500 mt-2 mb-2">
           {errorMessage}
         </div>
       )}
@@ -225,11 +275,11 @@ const PracticeEditModule: React.FC<{
                     defaultCountry="us"
                     value={adminCountryCode}
                     onChange={(value) => {
-                      setAdminCountryCode(value);
+                      handleCountryCodeChange(value);
                     }}
                     preferredCountries={['us', 'in']} // Set preferred countries to US and India
                     inputProps={{
-                      disabled: true, // Disable the input
+                      disabled: true,
                       className: 'react-international-phone-input',
                       style: {
                         width: '40px',
@@ -249,7 +299,7 @@ const PracticeEditModule: React.FC<{
                     name="adminContactNumber"
                     value={adminContactNumber}
                     onChange={(value) => {
-                      setAdminContactNumber(value);
+                      handlePhoneNumberChange(value);
                     }}
                     required
                   />

@@ -16,9 +16,11 @@ import {
 import { Checkbox } from 'baseui/checkbox';
 import { DatePicker } from 'baseui/datepicker';
 import { SIZE, Select } from 'baseui/select';
+import { parsePhoneNumber } from 'libphonenumber-js';
 import React, { useEffect, useRef, useState } from 'react';
 import { PhoneInput } from 'react-international-phone';
 import 'react-international-phone/style.css';
+
 interface EditableRowProps {
   handleCancelClick;
   evalInfo;
@@ -42,6 +44,8 @@ const EditableRow: React.FC<EditableRowProps> = ({
   const [referrerId, setReferrerId] = useState<string>('');
   const [pcp, setPCP] = useState<string>('');
   const [waitlistId, setWaitlistId] = useState<string>('');
+  const [isValidPhnNo, setIsValidPhnNo] = useState(true);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const {
     insuranceTypesList,
@@ -94,6 +98,22 @@ const EditableRow: React.FC<EditableRowProps> = ({
   const handleMonthChange = ({ date }) => {
     setCurrentMonth(date.getMonth() + 1);
   };
+  const validatePhoneNumber = (fullNumber: string) => {
+    try {
+      const parsedPhoneNumber = parsePhoneNumber(fullNumber);
+
+      if (parsedPhoneNumber.isValid()) {
+        setIsValidPhnNo(true);
+        setErrorMessage('');
+      } else {
+        setIsValidPhnNo(false);
+        setErrorMessage('Invalid phone number');
+      }
+    } catch (error) {
+      setIsValidPhnNo(false);
+      setErrorMessage('Invalid phone number');
+    }
+  };
 
   const phoneInputRef = useRef<HTMLDivElement | null>(null);
 
@@ -139,16 +159,30 @@ const EditableRow: React.FC<EditableRowProps> = ({
       setReferrerId(evalInfo.referrer?.id);
       setPCP(evalInfo.pcp?.id);
       setWaitlistId(evalInfo?.waitlist?.id);
+      const fullPhoneNumber =
+        (evalInfo.patient.countryCode || '') +
+        (evalInfo.patient.phoneNumber || '');
+      validatePhoneNumber(fullPhoneNumber);
     }
   }, [evalInfo.id, evalInfo]);
   if (evalInfo) {
     const handleObjChange = (keyToUpdate: string, newValue) => {
-      console.log(newValue);
+      setObj((prevState) => {
+        const updatedState = {
+          ...prevState,
+          [keyToUpdate]: newValue,
+        };
 
-      setObj((prevState) => ({
-        ...prevState,
-        [keyToUpdate]: newValue,
-      }));
+        // Construct full phone number and validate based on updated field
+        const fullPhoneNumber =
+          keyToUpdate === 'countryCode'
+            ? newValue + prevState.phoneNumber
+            : prevState.countryCode + newValue;
+
+        validatePhoneNumber(fullPhoneNumber);
+
+        return updatedState;
+      });
     };
     const handleInsuranceTypeChange = ({ value }) => {
       setInsuranceTypeId(value[0] ? value[0].id : null);
@@ -203,42 +237,45 @@ const EditableRow: React.FC<EditableRowProps> = ({
 
     const handleSubmit = async (e) => {
       e.preventDefault();
+      if (isValidPhnNo) {
+        if (practiceId) {
+          const payloadData: Partial<UpdateEValInterface> = {
+            practiceId,
+            ...obj,
+            insuranceTypeId,
+            referrerId,
+            pcp,
+            waitlistId,
+          };
+          await withLoader(async () => {
+            await dispatch(updateRecordAsync({ payloadData, id: evalInfo.id }));
+          });
 
-      if (practiceId) {
-        const payloadData: Partial<UpdateEValInterface> = {
-          practiceId,
-          ...obj,
-          insuranceTypeId,
-          referrerId,
-          pcp,
-          waitlistId,
-        };
-        await withLoader(async () => {
-          await dispatch(updateRecordAsync({ payloadData, id: evalInfo.id }));
-        });
-
-        setSelectedAction(null);
-        setInsuranceTypeId('');
-        setReferrerId('');
-        setPCP('');
-        setWaitlistId('');
-        setObj({
-          insuranceTypeId: '',
-          insuranceDetails: '',
-          date: new Date(),
-          firstName: '',
-          lastName: '',
-          email: '',
-          phoneNumber: '',
-          countryCode: '',
-          notes: '',
-          bodyPart: '',
-          mrn: 0,
-          status: '',
-        });
-        if (onRecordEdited) {
-          onRecordEdited();
+          setSelectedAction(null);
+          setInsuranceTypeId('');
+          setReferrerId('');
+          setPCP('');
+          setWaitlistId('');
+          setObj({
+            insuranceTypeId: '',
+            insuranceDetails: '',
+            date: new Date(),
+            firstName: '',
+            lastName: '',
+            email: '',
+            phoneNumber: '',
+            countryCode: '',
+            notes: '',
+            bodyPart: '',
+            mrn: 0,
+            status: '',
+          });
+          if (onRecordEdited) {
+            onRecordEdited();
+          }
         }
+      } else {
+        setErrorMessage('Invalid phone number');
       }
     };
 
@@ -535,7 +572,7 @@ const EditableRow: React.FC<EditableRowProps> = ({
                     onChange={(value) => handleObjChange('countryCode', value)}
                     preferredCountries={['us', 'in']} // Set preferred countries to US and India
                     inputProps={{
-                      disabled: true, // Disable the input
+                      disabled: true,
                       className: 'react-international-phone-input',
                       style: {
                         width: '40px',
@@ -560,6 +597,9 @@ const EditableRow: React.FC<EditableRowProps> = ({
                   />
                 </div>
               </div>
+              {!isValidPhnNo && (
+                <div className="text-red-500 mt-2">{errorMessage}</div>
+              )}
             </div>
             <div className="">
               <Select
