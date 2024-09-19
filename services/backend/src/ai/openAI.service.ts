@@ -257,6 +257,10 @@ export class OpenAIService implements AIService {
         chatLogRecords.assistantChatThreadId =
           chatLogRecords.assistantChatThreadId ??
           this.threadByUser[`${data.phoneNumber}`];
+        chatLogRecords.botQuestionAnswers.push({
+          question: data.question,
+          answer: answer[0],
+        });
         await this.updateChatLogs({ ...chatLogRecords });
       }
       const smsResponse = await this.transporterService.sendText(
