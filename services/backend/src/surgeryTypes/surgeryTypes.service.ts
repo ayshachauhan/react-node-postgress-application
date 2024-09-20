@@ -19,6 +19,7 @@ export class SurgeryTypesService {
   ): Promise<SurgeryTypeEntity[]> {
     return this.surgeryTypeRepository.find({
       where: { practice: { id: practiceId } },
+      order: { dateCreated: 'DESC' },
     });
   }
 
@@ -28,7 +29,6 @@ export class SurgeryTypesService {
   ): Promise<SurgeryTypeEntity | null> {
     return this.surgeryTypeRepository.findOne({
       where: { id, practice: { id: practiceId } },
-      order: { dateCreated: 'DESC' },
     });
   }
 
