@@ -287,15 +287,13 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
   };
 
   const handleMrnChange = ({ value }) => {
-    const newMrn = value[0] ? value[0].id : null;
-    const validationError = validateMRNLength(newMrn);
-
-    if (validationError) {
-      setMrnError(validationError);
-      setMrn('');
+    const newMrn = value[0] ? value[0].id : '';
+    setMrn(newMrn);
+    const error = validateMRNLength(newMrn);
+    if (error) {
+      setMrnError(error);
     } else {
       setMrnError('');
-      setMrn(newMrn);
     }
   };
 
@@ -476,9 +474,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
                   placeholder="Enter MRN"
                   onBlurResetsInput={false}
                   onBlur={handleMrnBlur}
-                  onChange={(value) => {
-                    handleMrnChange(value);
-                  }}
+                  onChange={handleMrnChange}
                   overrides={{
                     ControlContainer: {
                       style: {

@@ -12,6 +12,7 @@ import {
   getUserId,
   toFullName,
   usDateFormatter,
+  validateMRNLength,
 } from '@root/utils';
 import { Checkbox } from 'baseui/checkbox';
 import { DatePicker } from 'baseui/datepicker';
@@ -95,6 +96,7 @@ const EditableRow: React.FC<EditableRowProps> = ({
   }));
 
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth() + 1);
+  const [mrnError, setMrnError] = useState('');
   const handleMonthChange = ({ date }) => {
     setCurrentMonth(date.getMonth() + 1);
   };
@@ -173,12 +175,23 @@ const EditableRow: React.FC<EditableRowProps> = ({
           [keyToUpdate]: newValue,
         };
 
-        const fullPhoneNumber =
-          keyToUpdate === 'countryCode'
-            ? newValue + prevState.phoneNumber
-            : prevState.countryCode + newValue;
+        if (keyToUpdate === 'countryCode' || keyToUpdate === 'phoneNumber') {
+          const fullPhoneNumber =
+            keyToUpdate === 'countryCode'
+              ? newValue + prevState.phoneNumber
+              : prevState.countryCode + newValue;
 
-        validatePhoneNumber(fullPhoneNumber);
+          validatePhoneNumber(fullPhoneNumber);
+        }
+
+        if (keyToUpdate === 'mrn') {
+          const validationError = validateMRNLength(newValue);
+          if (validationError) {
+            setMrnError(validationError);
+          } else {
+            setMrnError('');
+          }
+        }
 
         return updatedState;
       });
@@ -236,6 +249,13 @@ const EditableRow: React.FC<EditableRowProps> = ({
 
     const handleSubmit = async (e) => {
       e.preventDefault();
+      const mrnErrorMessage = validateMRNLength(obj.mrn);
+      if (mrnErrorMessage) {
+        setMrnError(mrnErrorMessage);
+        return;
+      } else {
+        setMrnError('');
+      }
       if (isValidPhnNo) {
         if (practiceId) {
           const payloadData: Partial<UpdateEValInterface> = {
@@ -452,6 +472,11 @@ const EditableRow: React.FC<EditableRowProps> = ({
                 onChange={(value) => handleObjChange('mrn', value)}
                 size={SIZE.mini}
               />
+              {mrnError && (
+                <div className="flex justify-center text-red-500 mt-2">
+                  {mrnError}
+                </div>
+              )}
             </div>
           </td>
           <td rowSpan={1} className="min-w-20">

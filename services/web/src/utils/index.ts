@@ -381,9 +381,12 @@ export const isZeroPricing = (price) => {
 };
 
 export const validateMRNLength = (value) => {
-  console.log('>>>', value, '--');
+  if (value.startsWith('0')) {
+    return 'MRN should not start with 0';
+  }
+
   if (!value || value.trim().length < 1) {
-    return 'MRN should be at least 1 digit long';
+    return 'MRN should be at least 1 digit long and should not start with 0';
   }
 
   const isNumeric = /^\d+$/.test(value);

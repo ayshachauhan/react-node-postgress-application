@@ -250,6 +250,12 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
         const fullPhoneNumber =
           (row.patient.countryCode || '') + (row.patient.phoneNumber || '');
         validatePhoneNumber(fullPhoneNumber);
+        const error = validateMRNLength(String(row.patient.mrn));
+        if (error) {
+          setMrnError(error);
+        } else {
+          setMrnError('');
+        }
       }
     }
   }, [
@@ -422,15 +428,13 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
   };
 
   const handleMrnChange = ({ value }) => {
-    const newMrn = value[0] ? value[0].id : ''; // Use empty string for no selection
+    const newMrn = value[0] ? value[0].id : '';
     setMrn(newMrn);
-    console.log(newMrn, 23);
-    // Validate the MRN immediately after selection
     const error = validateMRNLength(newMrn);
     if (error) {
       setMrnError(error);
     } else {
-      setMrnError(''); // Clear any previous error
+      setMrnError('');
     }
   };
 
@@ -476,6 +480,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
     } else {
       setMrnError('');
     }
+
     if (isValidPhnNo) {
       const surgeryOptionObj: SelectedSurgeryOption = {};
       surgeryDropdownOptions.forEach((ele) => {
