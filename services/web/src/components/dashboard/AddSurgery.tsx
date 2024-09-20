@@ -26,6 +26,7 @@ import {
   getPracticeId,
   getSelectedMonths,
   toFullName,
+  validateMRNLength,
 } from '@utils/index';
 import { Checkbox } from 'baseui/checkbox';
 import { DatePicker } from 'baseui/datepicker';
@@ -157,6 +158,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
   const [notes, setNotes] = useState('');
   const [surgeryNameId, setSurgeryNameId] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState('');
+  const [mrnError, setMrnError] = useState('');
   const [surgeryCataractNameId, setSurgeryCataractNameId] =
     useState<string>('');
   const [errorMsgForCataract, setErrorMessageForCataract] = useState('');
@@ -420,13 +422,30 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
   };
 
   const handleMrnChange = ({ value }) => {
-    setMrn(value[0] ? value[0].id : null);
+    const newMrn = value[0] ? value[0].id : ''; // Use empty string for no selection
+    setMrn(newMrn);
+    console.log(newMrn, 23);
+    // Validate the MRN immediately after selection
+    const error = validateMRNLength(newMrn);
+    if (error) {
+      setMrnError(error);
+    } else {
+      setMrnError(''); // Clear any previous error
+    }
   };
 
   const handleMrnBlur = ({ target }) => {
     if (target.value) {
       const newValue: string = target.value;
-      setMrn(newValue);
+      const error = validateMRNLength(newValue);
+
+      if (error) {
+        setMrnError(error);
+        setMrn('');
+      } else {
+        setMrnError('');
+        setMrn(newValue);
+      }
     }
   };
 
@@ -450,6 +469,13 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const mrnErrorMessage = validateMRNLength(mrn);
+    if (mrnErrorMessage) {
+      setMrnError(mrnErrorMessage);
+      return;
+    } else {
+      setMrnError('');
+    }
     if (isValidPhnNo) {
       const surgeryOptionObj: SelectedSurgeryOption = {};
       surgeryDropdownOptions.forEach((ele) => {
@@ -655,6 +681,11 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
               {errorMsgForCataract}
             </div>
           )}
+          {mrnError && (
+            <div className="flex justify-center text-red-500 mt-2">
+              {mrnError}
+            </div>
+          )}
           {!isValidPhnNo && (
             <div className="flex justify-center text-red-500 mt-2">
               {errorMessage}
@@ -678,9 +709,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
                 placeholder="Enter MRN"
                 onBlurResetsInput={false}
                 onBlur={handleMrnBlur}
-                onChange={(value) => {
-                  handleMrnChange(value);
-                }}
+                onChange={handleMrnChange}
                 overrides={{
                   ControlContainer: {
                     style: {

@@ -379,3 +379,20 @@ export const customBackgroundColor = (
 export const isZeroPricing = (price) => {
   return !price || /^0(\D|$)/.test(price.trim());
 };
+
+export const validateMRNLength = (value) => {
+  console.log('>>>', value, '--');
+  if (!value || value.trim().length < 1) {
+    return 'MRN should be at least 1 digit long';
+  }
+
+  const isNumeric = /^\d+$/.test(value);
+  if (!isNumeric) {
+    return 'MRN should contain only digits';
+  }
+
+  if (value.length > 20) {
+    return 'MRN should be no more than 20 digits';
+  }
+  return '';
+};

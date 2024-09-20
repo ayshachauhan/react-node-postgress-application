@@ -15,6 +15,7 @@ import {
   getUserId,
   isZeroPricing,
   toFullName,
+  validateMRNLength,
 } from '@root/utils';
 import { Checkbox } from 'baseui/checkbox';
 import { DatePicker } from 'baseui/datepicker';
@@ -91,6 +92,7 @@ const EditableRow: React.FC<EditableRowProps> = ({
   const [insuranceTypeId, setInsuranceTypeId] = useState<string>('');
   const [referrerId, setReferrerId] = useState<string>('');
   const [pcp, setPcp] = useState<string>('');
+  const [mrnError, setMrnError] = useState('');
   const [isValidPhnNo, setIsValidPhnNo] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
   const [waitlistId, setWaitlistId] = useState<string>('');
@@ -198,12 +200,23 @@ const EditableRow: React.FC<EditableRowProps> = ({
         [keyToUpdate]: newValue,
       };
 
-      const fullPhoneNumber =
-        keyToUpdate === 'countryCode'
-          ? newValue + prevState.phoneNumber
-          : prevState.countryCode + newValue;
+      if (keyToUpdate === 'countryCode' || keyToUpdate === 'phoneNumber') {
+        const fullPhoneNumber =
+          keyToUpdate === 'countryCode'
+            ? newValue + prevState.phoneNumber
+            : prevState.countryCode + newValue;
 
-      validatePhoneNumber(fullPhoneNumber);
+        validatePhoneNumber(fullPhoneNumber);
+      }
+
+      if (keyToUpdate === 'mrn') {
+        const validationError = validateMRNLength(newValue);
+        if (validationError) {
+          setMrnError(validationError);
+        } else {
+          setMrnError('');
+        }
+      }
 
       return updatedState;
     });
@@ -233,6 +246,13 @@ const EditableRow: React.FC<EditableRowProps> = ({
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const mrnErrorMessage = validateMRNLength(obj.mrn);
+    if (mrnErrorMessage) {
+      setMrnError(mrnErrorMessage);
+      return;
+    } else {
+      setMrnError('');
+    }
     if (isValidPhnNo) {
       if (practiceId) {
         const payload: Partial<UpdateSurgeryPayload> = {
@@ -474,6 +494,11 @@ const EditableRow: React.FC<EditableRowProps> = ({
               onChange={(value) => handleObjChange('mrn', value)}
               size={SIZE.mini}
             />
+            {mrnError && (
+              <div className="flex justify-center text-red-500 mt-2">
+                {mrnError}
+              </div>
+            )}
           </td>
           <td rowSpan={1} className="min-w-20">
             <Select

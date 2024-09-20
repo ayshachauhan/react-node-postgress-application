@@ -4,7 +4,12 @@ import TextInput from '@root/components/TextInput';
 import { EVAL_STATUS } from '@root/enums/evalStatus.enum';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { addRecordAsync as addEvalRecord } from '@root/store/reducers/evals';
-import { getBackGroundColorCss, getPracticeId, toFullName } from '@utils/index';
+import {
+  getBackGroundColorCss,
+  getPracticeId,
+  toFullName,
+  validateMRNLength,
+} from '@utils/index';
 import { Checkbox } from 'baseui/checkbox';
 import { DatePicker } from 'baseui/datepicker';
 import { SIZE, Select } from 'baseui/select';
@@ -64,6 +69,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
   const surgeryConfigurations = Object.values(surgeryConfigurationsList);
   const practiceId = getPracticeId();
   const router = useRouter();
+  const [mrnError, setMrnError] = useState('');
   const defaultUser = usersList.find((ele) => ele.id === getSelectedUserId);
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -281,7 +287,16 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
   };
 
   const handleMrnChange = ({ value }) => {
-    setMrn(value[0] ? value[0].id : null);
+    const newMrn = value[0] ? value[0].id : null;
+    const validationError = validateMRNLength(newMrn);
+
+    if (validationError) {
+      setMrnError(validationError);
+      setMrn('');
+    } else {
+      setMrnError('');
+      setMrn(newMrn);
+    }
   };
 
   const handleWaitlistChange = ({ value }) => {
@@ -297,7 +312,15 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
   const handleMrnBlur = ({ target }) => {
     if (target.value) {
       const newValue: string = target.value;
-      setMrn(newValue);
+      const error = validateMRNLength(newValue);
+
+      if (error) {
+        setMrnError(error);
+        setMrn('');
+      } else {
+        setMrnError('');
+        setMrn(newValue);
+      }
     }
   };
 
@@ -321,6 +344,13 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const mrnErrorMessage = validateMRNLength(mrn);
+    if (mrnErrorMessage) {
+      setMrnError(mrnErrorMessage);
+      return;
+    } else {
+      setMrnError('');
+    }
     if (isValidPhnNo) {
       if (practiceId && doctorId) {
         await withLoader(async () => {
@@ -419,6 +449,11 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
           {!isValidPhnNo && (
             <div className="flex justify-center text-red-500 mt-2">
               {errorMessage}
+            </div>
+          )}
+          {mrnError && (
+            <div className="flex justify-center text-red-500 mt-2">
+              {mrnError}
             </div>
           )}
           <div className="flex flex-col gap-4 mt-4">
