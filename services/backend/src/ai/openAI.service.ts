@@ -116,11 +116,11 @@ export class OpenAIService implements AIService {
         const patientRecords: PatientEntity[] | null =
           await this.patientService.getPatientsByPhoneNumber(data.phoneNumber);
         if (patientRecords && patientRecords.length > 0) {
-          const regex = /\s*PRACTICE\s*([\w\s]{10,30})/;
+          const regex = /^\s*PRACTICE\s([A-Za-z\s]{2,50})$/;
           const match = data.question.match(regex);
           const practice = match ? match[1] : '';
           const practiceRecord: PracticeEntity | null = practice
-            ? await this.practiceService.findPractice(practice)
+            ? await this.practiceService.findPracticeByName(practice)
             : null;
           if (practiceRecord) {
             if (
