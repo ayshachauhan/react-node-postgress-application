@@ -93,24 +93,19 @@ export class OpenAIService implements AIService {
         await this.getTodayChatLogsByIdentifier(data.phoneNumber);
       if (chatLogRecords) {
         console.log('record: ', chatLogRecords);
-        // if (chatLogRecords && chatLogRecords.botQuestionAnswers.length > 0) {
-        //   const count = chatLogRecords.botQuestionAnswers.length + 1;
-        //   console.log('count: ', count);
-        //   if (count > 3 && !chatLogRecords.patient) {
-        //     return `Sorry, you didn't provide the required details. Please contact to your practice doctor.`;
-        //   }
-        //   chatLogRecords.botQuestionAnswers.push({ question: data.question, answer: '' });
-        // }
-
-        // if (patientRecord && !chatLogRecords.patient)
-        // {
-        //   chatLogRecords.patient = patientRecord;
-        // }
-        // await this.updateChatLogs({ ...chatLogRecords, botQuestionAnswers: chatLogRecords.botQuestionAnswers });
         if (!chatLogRecords.practice || !chatLogRecords.patient) {
-          //  TODO: Delete this chat record from the table.
           await this.deleteChatLogs(chatLogRecords.id);
           return `Sorry, we didn't know your practice. Please share your practice name with us to serve you better: PRACTICE Practice_Name_Example`;
+        }
+
+        const regex = /^\s*PRACTICE\s([A-Za-z\s]{2,50})$/;
+        const match = data.question.match(regex);
+        const practice = match ? match[1] : '';
+        const practiceRecord: PracticeEntity | null = practice
+          ? await this.practiceService.findPracticeByName(practice)
+          : null;
+        if (practiceRecord) {
+          return `${practice} already attached with your reocrds. Kindly ask question.`;
         }
       } else {
         const patientRecords: PatientEntity[] | null =
