@@ -154,20 +154,22 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapseChange }) => {
         }`}
       >
         <ul className="space-y-2 font-medium">
-          {filteredSidebarItems.map(({ Icon, ...item }) => (
+          {filteredSidebarItems.map(({ Icon, iconTitle, ...item }) => (
             <li
               key={item.id}
               className={`${collapsed && item.child ? '' : ''}`}
             >
               <Link
                 href={item.path}
-                onClick={() => handleSidebarItemClick({ ...item, Icon })}
+                onClick={() =>
+                  handleSidebarItemClick({ ...item, Icon, iconTitle })
+                }
                 className={clsx(
                   'flex items-center px-4 py-3 text-white ease-linear duration-200 hover:bg-[#ffffff33]',
                   { 'bg-[#ffffff33]': item.id === activeMenuItemId },
                 )}
               >
-                <Icon size={18} />
+                <Icon size={18} title={iconTitle} />
                 {!collapsed && <span className="ms-3">{item.title}</span>}
                 {!collapsed && item.child && (
                   <span className="ml-auto">
