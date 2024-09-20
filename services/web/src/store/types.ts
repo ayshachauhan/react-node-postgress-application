@@ -1,4 +1,4 @@
-import { IWaitlist } from '@packages/entities';
+import { IChatbot, IWaitlist } from '@packages/entities';
 import {
   GetTemplatesResponse,
   IEmailLog,
@@ -26,6 +26,11 @@ interface SurgeryFilters {
 
 interface MessageFilters {
   searchMRNName: string | null;
+}
+
+interface ChatFilters {
+  searchMRNName: string | null;
+  searchAnswer: string | null;
 }
 
 export enum EntityLoadingState {
@@ -107,6 +112,10 @@ export type PatientState = EntitiesState<IPatient> & {
 export type MessageState = EntitiesState<IEmailLog> & {
   messageInfo: IEmailLog | null;
   messageFilters: MessageFilters;
+};
+
+export type ChatState = EntitiesState<IChatbot> & {
+  chatFilters: ChatFilters;
 };
 
 export type WaitlistState = EntitiesState<IWaitlist> & {

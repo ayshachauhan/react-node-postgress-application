@@ -6,6 +6,7 @@ import {
 } from '@packages/entities';
 import Button from '@root/components/Button';
 import {
+  //ChatIcon,
   CopyIcon,
   DeleteIcon,
   DisplayIcon,
@@ -598,6 +599,13 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
       const url = `/history/?${queryString}`;
       window.location.href = url;
     };
+
+    // const handleViewChat = (id: string): void => {
+    //   const query = { id };
+    //   const queryString = new URLSearchParams(query).toString();
+    //   const url = `/ai/?${queryString}`;
+    //   window.location.href = url;
+    // };
 
     const handleEditClick = (rowId: string) => {
       setSelectedAction('edit');
@@ -1247,7 +1255,7 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
                                                           >
                                                             {row.mrn}
                                                           </div>
-                                                          <div>
+                                                          <div className="flex items-center gap-1">
                                                             <CopyIcon
                                                               style={{
                                                                 marginLeft:
@@ -1267,6 +1275,18 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
                                                                   : 'Copy'
                                                               }
                                                             />
+                                                            {/* <ChatIcon
+                                                              style={{
+                                                                cursor:
+                                                                  'pointer',
+                                                              }}
+                                                              onClick={() =>
+                                                                handleViewChat(
+                                                                  row.patientId,
+                                                                )
+                                                              }
+                                                              size={13}
+                                                            ></ChatIcon> */}
                                                           </div>
                                                         </div>
                                                       ) : (

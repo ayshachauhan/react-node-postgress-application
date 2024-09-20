@@ -3,6 +3,7 @@ import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
 import apiMiddleware from './apiMiddleware'; // Import the API middleware
 import authReducer from './reducers/auth';
 import calendarReducer from './reducers/calendar';
+import chatReducer from './reducers/chat';
 import evalsReducer from './reducers/evals';
 import historyReducer from './reducers/history';
 import insuranceTypesReducer from './reducers/insuranceTypes';
@@ -42,6 +43,7 @@ export const store = configureStore({
     patients: patientReducer,
     messages: messagesReducer,
     waitlist: waitlistReducer,
+    chat: chatReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(apiMiddleware),

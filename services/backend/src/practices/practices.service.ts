@@ -102,7 +102,7 @@ export class PracticesService {
     });
   }
 
-  async findPractice(name: string): Promise<PracticeEntity | null> {
+  async findPracticeByName(name: string): Promise<PracticeEntity | null> {
     return await this.practicesRepository.findOne({
       where: [{ name: ILike(`%${name}%`) }],
     });
