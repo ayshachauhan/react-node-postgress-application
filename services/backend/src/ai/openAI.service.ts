@@ -1,9 +1,5 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-// import { InjectRepository } from '@nestjs/typeorm';
-// import { ChatbotLogsEntity } from '@packages/entities/ChatbotLogsEntity';
-// import { Repository } from 'typeorm';
-// import { PatientsService } from '../patients/patients.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
   ChatbotLogsEntity,
@@ -16,7 +12,6 @@ import { Raw, Repository } from 'typeorm';
 import { ENVIRONMENT_VARIABLES } from '../enums/environment.enums';
 import { PatientsService } from '../patients/patients.service';
 import { PracticesService } from '../practices/practices.service';
-import { TransporterService } from '../transporter';
 import { AIService } from './ai-service.interface';
 
 export type Role = 'system' | 'user' | 'assistant';
@@ -44,8 +39,6 @@ export class OpenAIService implements AIService {
     private patientService: PatientsService,
     @Inject(forwardRef(() => PracticesService))
     private practiceService: PracticesService,
-    @Inject(forwardRef(() => TransporterService))
-    private transporterService: TransporterService,
   ) {
     const { openAiKey, openAiOrg, openAiProjectId, assistantId } =
       this.getEnvVariables();
@@ -92,7 +85,7 @@ export class OpenAIService implements AIService {
       let chatLogRecords: ChatbotLogsEntity | null =
         await this.getTodayChatLogsByIdentifier(data.phoneNumber);
       if (chatLogRecords) {
-        console.log('record: ', chatLogRecords);
+        console.log('Chat log record found: ', chatLogRecords.id);
         if (!chatLogRecords.practice || !chatLogRecords.patient) {
           await this.deleteChatLogs(chatLogRecords.id);
           return `Sorry, we didn't know your practice. Please share your practice name with us to serve you better: PRACTICE Practice_Name_Example`;
@@ -154,24 +147,23 @@ export class OpenAIService implements AIService {
 
       this.threadByUser[`${data.phoneNumber}`] =
         chatLogRecords?.assistantChatThreadId ?? '';
-      console.log(
-        'Thread id: ',
-        this.threadByUser[`${data.phoneNumber}`],
-        '  phone; ',
-        data?.phoneNumber,
-      );
       // Create a new thread if it's the user's first message
       if (!this.threadByUser[`${data.phoneNumber}`]) {
         try {
           const myThread = await this.openAI.beta.threads.create();
           console.log('New thread created with ID: ', myThread.id, '\n');
           this.threadByUser[`${data.phoneNumber}`] = myThread.id; // Store the thread ID for this user
+          if (chatLogRecords) {
+            chatLogRecords.assistantId = this.openaiAssistantId;
+            chatLogRecords.assistantChatThreadId = myThread.id;
+            await this.updateChatLogs({ ...chatLogRecords });
+          }
         } catch (error) {
           console.error('Error creating thread:', error);
           return 'Internal server error';
         }
       }
-
+      logger.info('Thread id: ', this.threadByUser[`${data.phoneNumber}`]);
       const myThreadMessage = await this.openAI.beta.threads.messages.create(
         this.threadByUser[`${data.phoneNumber}`], // Use the stored thread ID for this user
         {
@@ -179,7 +171,11 @@ export class OpenAIService implements AIService {
           content: data?.question,
         },
       );
-      console.log('This is the message object: ', myThreadMessage, '\n');
+      logger.info(
+        'This is the message object: ',
+        JSON.stringify(myThreadMessage),
+        '\n',
+      );
 
       // Run the Assistant
       const myRun = await this.openAI.beta.threads.runs.create(
@@ -210,7 +206,7 @@ export class OpenAIService implements AIService {
             myRun.id,
           );
 
-          console.log(`Run status: ${keepRetrievingRun.status}`);
+          logger.info(`Run status: ${JSON.stringify(keepRetrievingRun)}`);
 
           if (keepRetrievingRun.status === 'completed') {
             console.log('\n');
@@ -248,21 +244,12 @@ export class OpenAIService implements AIService {
 
       const answer = await waitForAssistantMessage();
       if (chatLogRecords) {
-        chatLogRecords.assistantId = this.openaiAssistantId;
-        chatLogRecords.assistantChatThreadId =
-          chatLogRecords.assistantChatThreadId ??
-          this.threadByUser[`${data.phoneNumber}`];
         chatLogRecords.botQuestionAnswers.push({
           question: data.question,
           answer: answer[0],
         });
         await this.updateChatLogs({ ...chatLogRecords });
       }
-      const smsResponse = await this.transporterService.sendText(
-        data.phoneNumber,
-        answer[0],
-      );
-      logger.info(`SMS delivery status for AI question: ${smsResponse}`);
       return answer[0];
     } catch (error) {
       console.error('Error generating response text:', error);
