@@ -249,7 +249,7 @@ const EditableRow: React.FC<EditableRowProps> = ({
 
     const handleSubmit = async (e) => {
       e.preventDefault();
-      const mrnErrorMessage = validateMRNLength(obj.mrn);
+      const mrnErrorMessage = validateMRNLength(String(obj.mrn));
       if (mrnErrorMessage) {
         setMrnError(mrnErrorMessage);
         return;
