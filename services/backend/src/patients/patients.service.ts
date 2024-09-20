@@ -10,7 +10,7 @@ import { PatientEntity } from '@packages/entities/patient';
 import { PracticeEntity } from '@packages/entities/practice';
 import { EmailHandlerService } from 'src/emailHandler/emailHandler.service';
 import { CreatePatientDto } from 'src/patients/dto/createPatient.dto';
-import { DataSource, Repository } from 'typeorm';
+import { Brackets, DataSource, Repository } from 'typeorm';
 
 @Injectable()
 export class PatientsService {
@@ -121,9 +121,17 @@ export class PatientsService {
   async getPatientsByPhoneNumber(
     phoneNumber: string,
   ): Promise<PatientEntity[] | null> {
-    return this.patientRepository.find({
-      where: { phoneNumber },
-      relations: ['practice'],
-    });
+    return this.patientRepository
+      .createQueryBuilder('patient')
+      .leftJoinAndSelect('patient.practice', 'practice')
+      .where(
+        new Brackets((qb) => {
+          qb.where(
+            'CONCAT(patient.countryCode, patient.phoneNumber) = :phoneNumber',
+            { phoneNumber },
+          );
+        }),
+      )
+      .getMany();
   }
 }
