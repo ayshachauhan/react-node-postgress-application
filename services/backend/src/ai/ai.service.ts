@@ -41,7 +41,7 @@ export class AIClientService {
     if (!this.aiService) {
       throw new Error('AI Service not selected');
     }
-    return this.aiService.doSMSChat(data);
+    return await this.aiService.doSMSChat(data);
   }
 
   /**
