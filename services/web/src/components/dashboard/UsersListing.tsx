@@ -25,9 +25,9 @@ const UsersListing: React.FC = () => {
   }
 
   const doctorsWithSurgeries = userData.map((doctor) => {
-    const doctorSurgeries = surgeryList.filter(
-      (surgery) => surgery.doctor.id === doctor.id,
-    );
+    const doctorSurgeries = surgeryList.filter((surgery) => {
+      return surgery.doctor && surgery.doctor.id === doctor.id;
+    });
     return { ...doctor, surgeries: doctorSurgeries };
   });
   const practiceId = getPracticeId();
