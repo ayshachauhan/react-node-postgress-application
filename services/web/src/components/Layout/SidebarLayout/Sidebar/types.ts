@@ -1,6 +1,6 @@
 import {
   AddReferrerIcon,
-  ChatIcon,
+  //ChatIcon,
   DashboardIcon,
   HistoryIcon,
   MediaIcon,
@@ -62,13 +62,13 @@ export const sidebarItems: SideBarItem[] = [
     userPermissions: [USER_PERMISSIONS.VIEW_HX],
     Icon: HistoryIcon,
   },
-  {
-    id: 'ai',
-    title: 'Chat History',
-    path: '/ai',
-    permissions: ['admin'],
-    Icon: ChatIcon,
-  },
+  // {
+  //   id: 'ai',
+  //   title: 'Chat History',
+  //   path: '/ai',
+  //   permissions: ['admin'],
+  //   Icon: ChatIcon,
+  // },
   {
     id: 'media',
     title: 'Media',

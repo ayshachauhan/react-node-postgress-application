@@ -6,7 +6,7 @@ import {
 } from '@packages/entities';
 import Button from '@root/components/Button';
 import {
-  ChatIcon,
+  //ChatIcon,
   CopyIcon,
   DeleteIcon,
   DisplayIcon,
@@ -600,12 +600,12 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
       window.location.href = url;
     };
 
-    const handleViewChat = (id: string): void => {
-      const query = { id };
-      const queryString = new URLSearchParams(query).toString();
-      const url = `/ai/?${queryString}`;
-      window.location.href = url;
-    };
+    // const handleViewChat = (id: string): void => {
+    //   const query = { id };
+    //   const queryString = new URLSearchParams(query).toString();
+    //   const url = `/ai/?${queryString}`;
+    //   window.location.href = url;
+    // };
 
     const handleEditClick = (rowId: string) => {
       setSelectedAction('edit');
@@ -1275,7 +1275,7 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
                                                                   : 'Copy'
                                                               }
                                                             />
-                                                            <ChatIcon
+                                                            {/* <ChatIcon
                                                               style={{
                                                                 cursor:
                                                                   'pointer',
@@ -1286,7 +1286,7 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
                                                                 )
                                                               }
                                                               size={13}
-                                                            ></ChatIcon>
+                                                            ></ChatIcon> */}
                                                           </div>
                                                         </div>
                                                       ) : (
