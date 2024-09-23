@@ -213,7 +213,7 @@ export default function HistoryTable() {
     const historyData = {
       id: entityData.id,
       date: history.dateCreated,
-      surgery: entityData.surgeryConfiguration.name,
+      surgery: entityData.surgeryConfiguration?.name || '',
       firstName: entityData.patient.firstName,
       lastName: entityData.patient.lastName,
       patientId: entityData.patient.id,
