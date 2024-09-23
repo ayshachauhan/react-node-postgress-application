@@ -16,6 +16,7 @@ import ReviewIcon from '@root/components/Icons/Review';
 export type SideBarItem = {
   id: string;
   title: string;
+  iconTitle?: string;
   path: string;
   permissions: string[];
   userPermissions?: string[];
@@ -29,6 +30,7 @@ export const sidebarItems: SideBarItem[] = [
     title: 'Dashboard',
     path: '/dashboard',
     permissions: ['admin'],
+    iconTitle: 'Dashboard',
     Icon: DashboardIcon,
   },
   {
@@ -37,6 +39,7 @@ export const sidebarItems: SideBarItem[] = [
     path: '/eval',
     permissions: ['admin'],
     userPermissions: [USER_PERMISSIONS.VIEW_NURTURE],
+    iconTitle: 'Evals',
     Icon: DashboardIcon,
   },
   {
