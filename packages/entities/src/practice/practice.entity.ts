@@ -36,4 +36,7 @@ export class PracticeEntity extends BaseEntity implements IPractice {
 
   @Column({ type: 'jsonb', nullable: true })
   emailData: PracticeEmailData;
+
+  @Column({ type: 'varchar', nullable: true, name: 'assistantId' })
+  assistantId: string;
 }
