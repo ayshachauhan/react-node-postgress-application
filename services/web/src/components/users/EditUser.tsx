@@ -15,6 +15,7 @@ import { generateFullName, getPracticeId } from '@utils/index';
 import { Checkbox } from 'baseui/checkbox';
 import { FileUploader } from 'baseui/file-uploader';
 import { Select } from 'baseui/select';
+import { parsePhoneNumber } from 'libphonenumber-js';
 import React, { useEffect, useRef, useState } from 'react';
 import { PhoneInput } from 'react-international-phone';
 import 'react-international-phone/style.css';
@@ -54,6 +55,23 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose, withLoader }) => {
     Array(permissions.length).fill(false),
   );
 
+  const validatePhoneNumber = (fullNumber: string) => {
+    try {
+      const parsedPhoneNumber = parsePhoneNumber(fullNumber);
+
+      if (parsedPhoneNumber.isValid()) {
+        setIsValidPhnNo(true);
+        setErrorMessage('');
+      } else {
+        setIsValidPhnNo(false);
+        setErrorMessage('Invalid phone number');
+      }
+    } catch (error) {
+      setIsValidPhnNo(false);
+      setErrorMessage('Invalid phone number');
+    }
+  };
+
   const [userImg, setUserImg] = useState<File | null>(null);
   const getSelectedItems = (): SelectedItems => {
     const selectedItems = permissions.reduce(
@@ -82,6 +100,7 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose, withLoader }) => {
   const loggedInUserInfo = useAppSelector((state) => state.auth.user);
   const loggedInUserId = loggedInUserInfo?.id;
   const isDisabled = loggedInUserId === userId;
+  const [isValidPhnNo, setIsValidPhnNo] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
   const [permissionsUpdated, setPermissionsUpdated] = useState(false);
   const [designation, setDesignation] = useState('');
@@ -151,71 +170,95 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose, withLoader }) => {
     if (data.id && userInfo) {
       setUserInfo(userInfo);
       setDesignation(userInfo?.designation);
+      const fullPhoneNumber =
+        (userInfo.countryCode || '') + (userInfo.contactNumber || '');
+      validatePhoneNumber(fullPhoneNumber);
     }
   }, [data.id, userInfo]);
   const selectedItems = getSelectedItems();
 
   const handleInputChange = (fieldName: keyof IUser, value: string) => {
-    setUserInfo((prevState) => ({
-      ...prevState,
-      [fieldName]: value.trim() === '' ? undefined : value,
-    }));
+    setUserInfo((prevState) => {
+      const updatedState = {
+        ...prevState,
+        [fieldName]: value.trim() === '' ? undefined : value,
+      };
+
+      // Construct fullPhoneNumber based on the field being updated
+      const fullPhoneNumber =
+        fieldName === 'countryCode'
+          ? value + prevState.contactNumber
+          : prevState.countryCode + value;
+
+      validatePhoneNumber(fullPhoneNumber);
+
+      return updatedState;
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const selectedUserPermissions = selectedItems.checkboxIds;
-    const newPermissions = selectedItems.permissions;
-    let updatedPayloadData = { ...updatedUserInfo };
-    if (updatedPayloadData.firstName && updatedPayloadData.lastName) {
-      const fullName = generateFullName(
-        updatedPayloadData.firstName,
-        updatedPayloadData.lastName,
-      );
-      updatedPayloadData = { ...updatedPayloadData, fullName };
-    }
-    if (userId && practiceId) {
-      const userPayloadData = {
-        ...updatedUserInfo,
-        userName: updatedUserInfo.userName ?? '',
-        firstName: updatedUserInfo.firstName ?? '',
-        lastName: updatedUserInfo.lastName ?? '',
-        countryCode: updatedUserInfo.countryCode ?? '',
-        contactNumber: updatedUserInfo.contactNumber ?? '',
-        fullName: updatedPayloadData.fullName ?? '',
-        email: updatedUserInfo.email ?? '',
-        url: updatedUserInfo.url ?? '',
-        designation: designation
-          ? designation
-          : updatedUserInfo.designation || '',
-        status: updatedUserInfo.status ?? UserStatus.INACTIVE,
-        type: updatedUserInfo.type ?? UserType.EMPLOYEE,
-        practiceId: practiceId,
-        id: userId,
-        permissionIds: selectedUserPermissions,
-        file: userImg,
-        permissionsUpdated,
-      };
-      if ('password' in userPayloadData) {
-        delete userPayloadData.password;
+    if (isValidPhnNo) {
+      const selectedUserPermissions = selectedItems.checkboxIds;
+      const newPermissions = selectedItems.permissions;
+      let updatedPayloadData = { ...updatedUserInfo };
+      if (updatedPayloadData.firstName && updatedPayloadData.lastName) {
+        const fullName = generateFullName(
+          updatedPayloadData.firstName,
+          updatedPayloadData.lastName,
+        );
+        updatedPayloadData = { ...updatedPayloadData, fullName };
       }
-      try {
-        await withLoader(async () => {
-          await dispatch(updateRecordAsync(userPayloadData));
-          if (loggedInUserId === userId) {
-            updateUserPermissions(newPermissions);
-          }
-        });
-        onClose();
-      } catch (error) {
-        onClose();
+      if (userId && practiceId) {
+        const userPayloadData = {
+          ...updatedUserInfo,
+          userName: updatedUserInfo.userName ?? '',
+          firstName: updatedUserInfo.firstName ?? '',
+          lastName: updatedUserInfo.lastName ?? '',
+          countryCode: updatedUserInfo.countryCode ?? '',
+          contactNumber: updatedUserInfo.contactNumber ?? '',
+          fullName: updatedPayloadData.fullName ?? '',
+          email: updatedUserInfo.email ?? '',
+          url: updatedUserInfo.url ?? '',
+          designation: designation
+            ? designation
+            : updatedUserInfo.designation || '',
+          status: updatedUserInfo.status ?? UserStatus.INACTIVE,
+          type: updatedUserInfo.type ?? UserType.EMPLOYEE,
+          practiceId: practiceId,
+          id: userId,
+          permissionIds: selectedUserPermissions,
+          file: userImg,
+          permissionsUpdated,
+        };
+        if ('password' in userPayloadData) {
+          delete userPayloadData.password;
+        }
+        try {
+          await withLoader(async () => {
+            await dispatch(updateRecordAsync(userPayloadData));
+            if (loggedInUserId === userId) {
+              updateUserPermissions(newPermissions);
+            }
+          });
+          onClose();
+        } catch (error) {
+          onClose();
+        }
       }
+    } else {
+      setErrorMessage('Invalid phone number');
     }
   };
 
   return (
     <div>
-      {errorMessage && (
+      {errorMessage && isValidPhnNo && (
+        <div className="flex justify-center text-red-500 mt-2">
+          {errorMessage}
+        </div>
+      )}
+      {!isValidPhnNo && (
         <div className="flex justify-center text-red-500 mt-2">
           {errorMessage}
         </div>
@@ -304,7 +347,7 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose, withLoader }) => {
                     value={updatedUserInfo?.countryCode || ''}
                     preferredCountries={['us', 'in']} // Set preferred countries to US and India
                     inputProps={{
-                      disabled: true, // Disable the input
+                      disabled: true,
                       className: 'react-international-phone-input',
                       style: {
                         width: '60px',
