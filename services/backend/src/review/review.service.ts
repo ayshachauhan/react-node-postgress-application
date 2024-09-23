@@ -82,7 +82,7 @@ export class ReviewService {
           countryCode: reviewPatient?.countryCode || '',
           mrn: reviewPatient ? String(reviewPatient?.mrn) : '',
           Laterality: surgery ? toPascalCase(surgery.bodyPart) : '',
-          surgery_type: surgery ? surgery.surgeryConfiguration.name : '',
+          surgery_type: surgery?.surgeryConfiguration?.name || '',
           patientName: reviewPatient?.firstName || '',
           practiceName: '',
           to: reviewPatient ? reviewPatient?.email : '',
