@@ -35,6 +35,10 @@ const ENV_KEYS = [
   'SAML_ISSUER',
   'SAML_CERT',
   'SAML_ENTRYPOINT',
+  'OPENAI_API_KEY',
+  'OPENAI_ORGANISATION',
+  'OPENAI_PROJECT',
+  'OPENAI_ASSISTANT_ID',
 ];
 
 const start = async () => {
