@@ -25,7 +25,7 @@ export type ChatCompletionMessage = {
 export class OpenAIService implements AIService {
   private openAI: OpenAI;
   private threadByUser: { [key: string]: string } = {}; // Store thread IDs by user
-  private readonly openaiAssistantId: string;
+  private openaiAssistantId: string;
   private conversationHistory: {
     role: 'system' | 'user' | 'assistant';
     content: string;
@@ -40,14 +40,12 @@ export class OpenAIService implements AIService {
     @Inject(forwardRef(() => PracticesService))
     private practiceService: PracticesService,
   ) {
-    const { openAiKey, openAiOrg, openAiProjectId, assistantId } =
-      this.getEnvVariables();
+    const { openAiKey, openAiOrg, openAiProjectId } = this.getEnvVariables();
     this.openAI = new OpenAI({
       apiKey: openAiKey,
       organization: openAiOrg,
       project: openAiProjectId,
     });
-    this.openaiAssistantId = assistantId;
   }
 
   getEnvVariables(): Record<string, string | ''> {
@@ -62,10 +60,6 @@ export class OpenAIService implements AIService {
       openAiProjectId:
         this.configService.get<string>(ENVIRONMENT_VARIABLES.OPENAI_PROJECT) ??
         '',
-      assistantId:
-        this.configService.get<string>(
-          ENVIRONMENT_VARIABLES.OPENAI_ASSISTANT_ID,
-        ) ?? '',
     };
   }
 
@@ -100,10 +94,12 @@ export class OpenAIService implements AIService {
         if (practiceRecord) {
           return `${practice} already attached with your reocrds. Kindly ask question.`;
         }
+        this.openaiAssistantId = chatLogRecords.assistantId;
       } else {
         const patientRecords: PatientEntity[] | null =
           await this.patientService.getPatientsByPhoneNumber(data.phoneNumber);
         if (patientRecords && patientRecords.length > 0) {
+          this.openaiAssistantId = patientRecords[0].practice?.assistantId;
           const regex = /^\s*PRACTICE\s([A-Za-z\s]{2,50})$/;
           const match = data.question.match(regex);
           const practice = match ? match[1] : '';
@@ -119,6 +115,7 @@ export class OpenAIService implements AIService {
             ) {
               return `Sorry, ${practice} doesn't belong to you as per records. Kindly check with your doctor OR re-enter practice name as in provided format.`;
             }
+            this.openaiAssistantId = practiceRecord?.assistantId;
           } else {
             return `Sorry, we didn't know your practice. Please share your practice name with us to serve you better: PRACTICE Practice_Name_Example`;
           }
@@ -126,7 +123,6 @@ export class OpenAIService implements AIService {
           if (patientRecords.length > 1 && !practiceRecord) {
             return `Sorry, we didn't know your practice. Please share your practice name with us to serve you better: PRACTICE Practice_Name_Example`;
           } else if (patientRecords.length === 1) {
-            //  No records found, then save a new record.
             const newChatLog: ChatbotLogsEntity = new ChatbotLogsEntity();
             const dataToSave = {
               ...newChatLog,
@@ -139,6 +135,7 @@ export class OpenAIService implements AIService {
             };
             const savedChatLog = await this.saveChatLogs(dataToSave);
             chatLogRecords = { ...savedChatLog };
+            return `Thank you for sharing your practice ${patientRecords[0].practice.name}. Kindly ask question.`;
           }
         } else {
           return `Sorry, your number is not registered with us. Please contact at support@pod111.com for more details.`;

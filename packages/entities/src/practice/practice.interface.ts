@@ -8,6 +8,7 @@ export interface IPractice extends IBaseEntity {
   imgUrl?: string;
   users: IUser[];
   emailData: PracticeEmailData;
+  assistantId: string;
 }
 
 export type PracticeEmailData = {
