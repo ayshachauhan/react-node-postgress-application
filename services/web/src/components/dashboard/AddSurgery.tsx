@@ -17,6 +17,7 @@ import {
   fetchAllSurgeries,
 } from '@root/store/reducers/surgery';
 import { fetchListings as fetchUsersList } from '@root/store/reducers/users';
+import { parsePhoneNumber } from 'libphonenumber-js';
 import { PhoneInput } from 'react-international-phone';
 import 'react-international-phone/style.css';
 
@@ -25,6 +26,7 @@ import {
   getPracticeId,
   getSelectedMonths,
   toFullName,
+  validateMRNLength,
 } from '@utils/index';
 import { Checkbox } from 'baseui/checkbox';
 import { DatePicker } from 'baseui/datepicker';
@@ -85,6 +87,35 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
 
   const SELECTED_DOCTOR_KEY: string = 'SELECTED_DOCTOR';
 
+  const handleCountryCodeChange = (value: string) => {
+    setCountryCode(value);
+    const fullPhoneNumber = value + phoneNumber;
+    validatePhoneNumber(fullPhoneNumber);
+  };
+
+  const handlePhoneNumberChange = (value: string) => {
+    setPhoneNumber(value);
+    const fullPhoneNumber = countryCode + value;
+    validatePhoneNumber(fullPhoneNumber);
+  };
+
+  const validatePhoneNumber = (fullNumber: string) => {
+    try {
+      const parsedPhoneNumber = parsePhoneNumber(fullNumber);
+
+      if (parsedPhoneNumber.isValid()) {
+        setIsValidPhnNo(true);
+        setErrorMessage('');
+      } else {
+        setIsValidPhnNo(false);
+        setErrorMessage('Invalid phone number');
+      }
+    } catch (error) {
+      setIsValidPhnNo(false);
+      setErrorMessage('Invalid phone number');
+    }
+  };
+
   const userInfo = useAppSelector((state) => state.auth.user);
   const loggedInUserId = userInfo?.id;
   const { selectedMonth, selectedValue } = useAppSelector(
@@ -106,6 +137,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
+  const [isValidPhnNo, setIsValidPhnNo] = useState(true);
   const [countryCode, setCountryCode] = useState('+1'); // Default to +1 for US
   const [email, setEmail] = useState('');
   const [mrn, setMrn] = useState('');
@@ -125,6 +157,8 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
   const [isPCPSameAsReferer, setIsPCPSameAsReferer] = useState<boolean>(false);
   const [notes, setNotes] = useState('');
   const [surgeryNameId, setSurgeryNameId] = useState<string>('');
+  const [errorMessage, setErrorMessage] = useState('');
+  const [mrnError, setMrnError] = useState('');
   const [surgeryCataractNameId, setSurgeryCataractNameId] =
     useState<string>('');
   const [errorMsgForCataract, setErrorMessageForCataract] = useState('');
@@ -213,6 +247,15 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
         if (row.pcp) setPcp(row.pcp.id);
         if (row.insuranceType) setInsuranceTypeId(row.insuranceType.id);
         if (row.insuranceDetails) setInsuranceDetails(row.insuranceDetails);
+        const fullPhoneNumber =
+          (row.patient.countryCode || '') + (row.patient.phoneNumber || '');
+        validatePhoneNumber(fullPhoneNumber);
+        const error = validateMRNLength(String(row.patient.mrn));
+        if (error) {
+          setMrnError(error);
+        } else {
+          setMrnError('');
+        }
       }
     }
   }, [
@@ -232,6 +275,10 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
         setEmail(patientCheck.email);
         setPhoneNumber(patientCheck.phoneNumber);
         setCountryCode(patientCheck.countryCode);
+        const fullPhoneNumber =
+          (patientCheck.countryCode ? patientCheck.countryCode : '') +
+          (patientCheck.phoneNumber ? patientCheck.phoneNumber : '');
+        validatePhoneNumber(fullPhoneNumber);
       } else {
         setFirstName('');
         setLastName('');
@@ -381,13 +428,28 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
   };
 
   const handleMrnChange = ({ value }) => {
-    setMrn(value[0] ? value[0].id : null);
+    const newMrn = value[0] ? value[0].id : '';
+    setMrn(newMrn);
+    const error = validateMRNLength(newMrn);
+    if (error) {
+      setMrnError(error);
+    } else {
+      setMrnError('');
+    }
   };
 
   const handleMrnBlur = ({ target }) => {
     if (target.value) {
       const newValue: string = target.value;
-      setMrn(newValue);
+      const error = validateMRNLength(newValue);
+
+      if (error) {
+        setMrnError(error);
+        setMrn('');
+      } else {
+        setMrnError('');
+        setMrn(newValue);
+      }
     }
   };
 
@@ -411,143 +473,158 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const surgeryOptionObj: SelectedSurgeryOption = {};
-    surgeryDropdownOptions.forEach((ele) => {
-      const allowedValue = ele.allowedValues.find((ele) => ele.selected);
-      if (ele.checked && allowedValue) {
-        surgeryOptionObj[`${ele.label}-0`] = {
-          professionalPricing: allowedValue.professionalPricing,
-          hospitalPricing: allowedValue.hospitalPricing,
-          value: allowedValue.label,
-        };
-      }
-    });
-    const surgeryData = {
-      identifier: String(Date.now()),
-      firstName,
-      lastName,
-      email,
-      phoneNumber,
-      countryCode,
-      mrn: mrn ? Number(mrn) : 0,
-      practiceHomeId,
-      insuranceDetails,
-      insuranceTypeId,
-      practiceId: practiceId ?? '',
-      doctorId: doctorId ?? '',
-      pcp,
-      referrerId,
-      notes: notes,
-      selectedSurgeryOptions: surgeryOptionObj,
-      totalHospitalPricing: '0',
-      totalProfessionalPricing: '0',
-      waitlistId,
-    };
-
-    console.log(surgeryData);
-    const surgeryName = surgeryConfigurationsOptions.find(
-      (s) => s?.id === surgeryCataractNameId,
-    )?.label;
-    if (surgeryName && surgeryName.toLowerCase() !== 'cataract') {
-      setErrorMessageForCataract(
-        'Only Cataract surgery needs to be selected as second surgery.',
-      );
+    const mrnErrorMessage = validateMRNLength(mrn);
+    if (mrnErrorMessage) {
+      setMrnError(mrnErrorMessage);
       return;
+    } else {
+      setMrnError('');
     }
-    await withLoader(async () => {
-      if (practiceId && doctorId) {
-        await dispatch(
-          addSurgeryRecord({
-            ...surgeryData,
-            date: surgeryDate ?? new Date(),
-            surgeryConfigurationId: surgeryNameId,
-            bodyPart,
-            count: 1,
-          }),
-        );
 
-        if (surgeryCataractDate && surgeryCataractNameId && cataractBodyPart) {
+    if (isValidPhnNo) {
+      const surgeryOptionObj: SelectedSurgeryOption = {};
+      surgeryDropdownOptions.forEach((ele) => {
+        const allowedValue = ele.allowedValues.find((ele) => ele.selected);
+        if (ele.checked && allowedValue) {
+          surgeryOptionObj[`${ele.label}-0`] = {
+            professionalPricing: allowedValue.professionalPricing,
+            hospitalPricing: allowedValue.hospitalPricing,
+            value: allowedValue.label,
+          };
+        }
+      });
+      const surgeryData = {
+        identifier: String(Date.now()),
+        firstName,
+        lastName,
+        email,
+        phoneNumber,
+        countryCode,
+        mrn: mrn ? Number(mrn) : 0,
+        practiceHomeId,
+        insuranceDetails,
+        insuranceTypeId,
+        practiceId: practiceId ?? '',
+        doctorId: doctorId ?? '',
+        pcp,
+        referrerId,
+        notes: notes,
+        selectedSurgeryOptions: surgeryOptionObj,
+        totalHospitalPricing: '0',
+        totalProfessionalPricing: '0',
+        waitlistId,
+      };
+
+      const surgeryName = surgeryConfigurationsOptions.find(
+        (s) => s?.id === surgeryCataractNameId,
+      )?.label;
+      if (surgeryName && surgeryName.toLowerCase() !== 'cataract') {
+        setErrorMessageForCataract(
+          'Only Cataract surgery needs to be selected as second surgery.',
+        );
+        return;
+      }
+      await withLoader(async () => {
+        if (practiceId && doctorId) {
           await dispatch(
             addSurgeryRecord({
               ...surgeryData,
-              date: surgeryCataractDate ?? new Date(),
-              surgeryConfigurationId: surgeryCataractNameId,
-              bodyPart: cataractBodyPart,
-              count: 2,
+              date: surgeryDate ?? new Date(),
+              surgeryConfigurationId: surgeryNameId,
+              bodyPart,
+              count: 1,
             }),
           );
-        }
 
-        if (autoFillFromEval && evalAutoFillInfo) {
-          const {
-            id,
-            date,
-            patient: { firstName, mrn, phoneNumber, countryCode, email },
-            bodyPart,
-            pcp,
-            referrer,
-          } = evalAutoFillInfo;
-          await dispatch(
-            updateEval({
-              payloadData: {
-                status: EVAL_STATUS.Book,
-                practiceId,
-                date,
-                email,
-                bodyPart,
-                phoneNumber,
-                countryCode,
-                firstName,
-                mrn,
-                pcp: pcp?.id,
-                referrerId: referrer?.id,
-              },
-              id,
-            }),
-          );
-        }
-        await dispatch(
-          fetchFilteredCalendars({
-            practiceId,
-            userId: doctorId,
-            month,
-            option: selectedValueStr,
-            loggedInUserId,
-          }),
-        );
-
-        await dispatch(fetchCalendars({ practiceId, userId: doctorId }));
-        await dispatch(fetchReferrersList({ practiceId: practiceId }));
-        dispatch(fetchUsersList({ practiceId }));
-        dispatch(fetchAllSurgeries({ practiceId }));
-
-        try {
-          setFirstName('');
-          setLastName('');
-          setMrn('');
-          setCountryCode('+1');
-          setPhoneNumber('');
-          setEmail('');
-          setPracticeHomeId('');
-          setInsuranceDetails('');
-          setInsuranceTypeId('');
-          setPcp('');
-          setReferrerId('');
-          setNotes('');
-          setBodyPart('');
-          setWaitlistId('');
-          if (onRecordAdded) {
-            onRecordAdded();
+          if (
+            surgeryCataractDate &&
+            surgeryCataractNameId &&
+            cataractBodyPart
+          ) {
+            await dispatch(
+              addSurgeryRecord({
+                ...surgeryData,
+                date: surgeryCataractDate ?? new Date(),
+                surgeryConfigurationId: surgeryCataractNameId,
+                bodyPart: cataractBodyPart,
+                count: 2,
+              }),
+            );
           }
-          onClose();
-        } catch (error) {
-          onClose();
-        }
-      }
-    });
 
-    router.refresh();
-    onClose();
+          if (autoFillFromEval && evalAutoFillInfo) {
+            const {
+              id,
+              date,
+              patient: { firstName, mrn, phoneNumber, countryCode, email },
+              bodyPart,
+              pcp,
+              referrer,
+            } = evalAutoFillInfo;
+            await dispatch(
+              updateEval({
+                payloadData: {
+                  status: EVAL_STATUS.Book,
+                  practiceId,
+                  date,
+                  email,
+                  bodyPart,
+                  phoneNumber,
+                  countryCode,
+                  firstName,
+                  mrn,
+                  pcp: pcp?.id,
+                  referrerId: referrer?.id,
+                },
+                id,
+              }),
+            );
+          }
+          await dispatch(
+            fetchFilteredCalendars({
+              practiceId,
+              userId: doctorId,
+              month,
+              option: selectedValueStr,
+              loggedInUserId,
+            }),
+          );
+
+          await dispatch(fetchCalendars({ practiceId, userId: doctorId }));
+          await dispatch(fetchReferrersList({ practiceId: practiceId }));
+          dispatch(fetchUsersList({ practiceId }));
+          dispatch(fetchAllSurgeries({ practiceId }));
+
+          try {
+            setFirstName('');
+            setLastName('');
+            setMrn('');
+            setCountryCode('+1');
+            setPhoneNumber('');
+            setEmail('');
+            setPracticeHomeId('');
+            setInsuranceDetails('');
+            setInsuranceTypeId('');
+            setPcp('');
+            setReferrerId('');
+            setNotes('');
+            setBodyPart('');
+            setWaitlistId('');
+            if (onRecordAdded) {
+              onRecordAdded();
+            }
+            onClose();
+          } catch (error) {
+            onClose();
+          }
+        }
+      });
+
+      router.refresh();
+      onClose();
+    } else {
+      setErrorMessage('Invalid phone number');
+    }
   };
 
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth() + 1);
@@ -574,11 +651,6 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
   return (
     <div>
       <div className="px-4">
-        {errorMsgForCataract && (
-          <div className="flex justify-center text-red-700">
-            {errorMsgForCataract}
-          </div>
-        )}
         <form onSubmit={handleSubmit} className="flex flex-col flex-wrap">
           <div className="flex mt-4 pb-2 border-b border-gray-100 items-center">
             <div className="text-xl font-bold text-black w-full">
@@ -609,6 +681,21 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
               />
             </div>
           </div>
+          {errorMsgForCataract && (
+            <div className="flex justify-center text-red-700">
+              {errorMsgForCataract}
+            </div>
+          )}
+          {mrnError && (
+            <div className="flex justify-center text-red-500 mt-2">
+              {mrnError}
+            </div>
+          )}
+          {!isValidPhnNo && (
+            <div className="flex justify-center text-red-500 mt-2">
+              {errorMessage}
+            </div>
+          )}
           <div className="flex gap-5 mt-4">
             <div className="space-y-1 flex-1">
               <label htmlFor="mrn" className="text-black text-xs">
@@ -627,9 +714,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
                 placeholder="Enter MRN"
                 onBlurResetsInput={false}
                 onBlur={handleMrnBlur}
-                onChange={(value) => {
-                  handleMrnChange(value);
-                }}
+                onChange={handleMrnChange}
                 overrides={{
                   ControlContainer: {
                     style: {
@@ -709,11 +794,11 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
                     defaultCountry="us"
                     value={countryCode}
                     onChange={(value) => {
-                      setCountryCode(value);
+                      handleCountryCodeChange(value);
                     }}
                     preferredCountries={['us', 'in']} // Set preferred countries to US and India
                     inputProps={{
-                      disabled: true, // Disable the input
+                      disabled: true,
                       className: 'react-international-phone-input',
                       style: {
                         width: '40px',
@@ -735,7 +820,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
                     name="phoneNumber"
                     value={phoneNumber}
                     onChange={(value) => {
-                      setPhoneNumber(value);
+                      handlePhoneNumberChange(value);
                     }}
                     required
                   />

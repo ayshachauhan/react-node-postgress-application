@@ -13,6 +13,7 @@ import { generateFullName, getPracticeId } from '@utils/index';
 import { Checkbox } from 'baseui/checkbox';
 import { FileUploader } from 'baseui/file-uploader';
 import { Select } from 'baseui/select';
+import { parsePhoneNumber } from 'libphonenumber-js';
 import React, { useEffect, useRef, useState } from 'react';
 import { PhoneInput } from 'react-international-phone';
 import 'react-international-phone/style.css';
@@ -42,12 +43,11 @@ const AddUserPage: React.FC<{
   const [email, setEmail] = useState('');
   const [firstName, setFirstName] = useState('');
   const [contactNumber, setcontactNumber] = useState('');
-  const [countryCode, setCountryCode] = useState('');
+  const [countryCode, setCountryCode] = useState('+1');
   const [lastName, setLastName] = useState('');
   const [url, setUrl] = useState('');
   const [type, setType] = useState<UserType>(UserType.ADMIN);
   const [userImg, setUserImg] = useState<File | null>(null);
-  const [errorMessage, setErrorMessage] = useState('');
 
   const practiceId = getPracticeId();
 
@@ -123,63 +123,79 @@ const AddUserPage: React.FC<{
 
   const handleContactNumberChange = (value: string) => {
     setcontactNumber(value);
-
-    if (value.trim() === '') {
-      setErrorMessage('Contact number cannot be empty');
-    } else {
-      setErrorMessage('');
-    }
+    const fullPhoneNumber = countryCode + value;
+    validatePhoneNumber(fullPhoneNumber);
   };
 
   const handleCountryCodeChange = (value: string) => {
     setCountryCode(value);
+    const fullPhoneNumber = value + contactNumber;
+    validatePhoneNumber(fullPhoneNumber);
+  };
 
-    if (value.trim() === '') {
-      setErrorMessage('Country code cannot be empty');
-    } else {
-      setErrorMessage('');
+  const [isValidPhnNo, setIsValidPhnNo] = useState(true);
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const validatePhoneNumber = (fullNumber: string) => {
+    try {
+      const parsedPhoneNumber = parsePhoneNumber(fullNumber);
+
+      if (parsedPhoneNumber.isValid()) {
+        setIsValidPhnNo(true);
+        setErrorMessage('');
+      } else {
+        setIsValidPhnNo(false);
+        setErrorMessage('Invalid phone number');
+      }
+    } catch (error) {
+      setIsValidPhnNo(false);
+      setErrorMessage('Invalid phone number');
     }
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (
-      userName.trim() === '' ||
-      email.trim() === '' ||
-      firstName.trim() === '' ||
-      lastName.trim() === '' ||
-      contactNumber.trim() === '' ||
-      countryCode.trim() === ''
-    ) {
-      return;
-    }
-    const selectedUserPermissions = getSelectedCheckboxIds();
-    const fullName = generateFullName(firstName, lastName);
-    if (practiceId) {
-      const userPayloadData: AddUserDto = {
-        practiceId,
-        email,
-        userName,
-        designation,
-        firstName,
-        lastName,
-        fullName,
-        url,
-        type,
-        status: UserStatus.ACTIVE,
-        countryCode,
-        contactNumber,
-        permissionIds: selectedUserPermissions,
-        file: userImg,
-      };
-      try {
-        await withLoader(async () => {
-          await dispatch(addRecordAsync(userPayloadData));
-        });
-        onClose();
-      } catch (error) {
-        onClose();
+    if (isValidPhnNo) {
+      if (
+        userName.trim() === '' ||
+        email.trim() === '' ||
+        firstName.trim() === '' ||
+        lastName.trim() === '' ||
+        contactNumber.trim() === '' ||
+        countryCode.trim() === ''
+      ) {
+        return;
       }
+      const selectedUserPermissions = getSelectedCheckboxIds();
+      const fullName = generateFullName(firstName, lastName);
+      if (practiceId) {
+        const userPayloadData: AddUserDto = {
+          practiceId,
+          email,
+          userName,
+          designation,
+          firstName,
+          lastName,
+          fullName,
+          url,
+          type,
+          status: UserStatus.ACTIVE,
+          countryCode,
+          contactNumber,
+          permissionIds: selectedUserPermissions,
+          file: userImg,
+        };
+        try {
+          await withLoader(async () => {
+            await dispatch(addRecordAsync(userPayloadData));
+          });
+          onClose();
+        } catch (error) {
+          onClose();
+        }
+      }
+    } else {
+      setErrorMessage('Invalid phone number');
     }
   };
 
@@ -207,7 +223,12 @@ const AddUserPage: React.FC<{
 
   return (
     <div>
-      {errorMessage && (
+      {!isValidPhnNo && (
+        <div className="flex justify-center text-red-500 mt-2">
+          {errorMessage}
+        </div>
+      )}
+      {errorMessage && isValidPhnNo && (
         <div className="flex justify-center text-red-500 mt-2">
           {errorMessage}
         </div>
@@ -303,7 +324,7 @@ const AddUserPage: React.FC<{
                     }}
                     preferredCountries={['us', 'in']} // Set preferred countries to US and India
                     inputProps={{
-                      disabled: true, // Disable the input
+                      disabled: true,
                       className: 'react-international-phone-input',
                       style: {
                         width: '60px',
