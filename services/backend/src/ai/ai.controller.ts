@@ -26,15 +26,15 @@ export class AIController {
     @Headers('x-twilio-signature') twilioHeader: string,
     @Res() res: Response,
   ) {
-    logger.info(chatDto, 'Input chat data');
-    logger.info(twilioHeader, 'Twilio Header');
+    logger.info(`Input chat data ${JSON.stringify(chatDto)}`);
+    logger.info(`Twilio Header: ${twilioHeader}`);
 
     const twiml = new MessagingResponse();
 
     try {
       const aibotReply = await this.aiClientService.smsChat(type, {
-        phoneNumber: chatDto.from,
-        question: chatDto.body,
+        phoneNumber: chatDto.From,
+        question: chatDto.Body,
       });
       twiml.message(aibotReply);
     } catch (error) {
