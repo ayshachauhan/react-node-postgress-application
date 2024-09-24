@@ -41,6 +41,11 @@ export class AIController {
       throw new InternalServerErrorException('Twilio Auth Token is not set');
     }
 
+    // const generatedSignature = twilio.getExpectedTwilioSignature(authToken, webhookUrl, chatDto);
+    // logger.info(generatedSignature, 'Generated Twilio Signature');
+
+    logger.info(twilioHeader, 'Incoming Twilio Signature');
+
     const isValid = twilio.validateRequest(
       authToken,
       twilioHeader,
