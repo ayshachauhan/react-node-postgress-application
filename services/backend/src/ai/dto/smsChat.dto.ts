@@ -3,79 +3,75 @@ import { IsOptional } from 'class-validator';
 
 export class smsChatDto {
   @ApiProperty()
-  From: string;
-
-  @ApiProperty()
-  Body: string;
-
   @IsOptional()
-  @ApiProperty()
-  SmsMessageSid: string;
-
-  @IsOptional()
-  @ApiProperty()
-  NumMedia: string;
-
-  @IsOptional()
-  @ApiProperty()
-  SmsSid: string;
-
-  @IsOptional()
-  @ApiProperty()
-  SmsStatus: string;
-
-  @IsOptional()
-  @ApiProperty()
-  NumSegments: string;
-
-  @IsOptional()
-  @ApiProperty()
-  MessageSid: string;
-
-  @IsOptional()
-  @ApiProperty()
-  AccountSid: string;
-
-  @ApiProperty()
-  To: string;
-
-  @IsOptional()
-  @ApiProperty()
-  ApiVersion: string;
-
-  @IsOptional()
-  @ApiProperty()
   ToCountry: string;
 
-  @IsOptional()
   @ApiProperty()
+  @IsOptional()
   ToState: string;
+
+  @ApiProperty()
+  @IsOptional()
+  SmsMessageSid: string;
+
+  @ApiProperty()
+  @IsOptional()
+  NumMedia: string;
 
   @IsOptional()
   @ApiProperty()
   ToCity: string;
 
-  @IsOptional()
   @ApiProperty()
+  @IsOptional()
   FromZip: string;
 
-  @IsOptional()
   @ApiProperty()
+  @IsOptional()
+  SmsSid: string;
+
+  @ApiProperty()
+  @IsOptional()
   FromState: string;
 
-  @IsOptional()
   @ApiProperty()
+  @IsOptional()
+  SmsStatus: string;
+
+  @ApiProperty()
+  @IsOptional()
   FromCity: string;
 
-  @IsOptional()
   @ApiProperty()
+  Body: string;
+
+  @ApiProperty()
+  @IsOptional()
   FromCountry: string;
 
-  @IsOptional()
+  @ApiProperty()
+  To: string;
+
   @ApiProperty()
   MessagingServiceSid: string;
 
   @IsOptional()
   @ApiProperty()
   ToZip: string;
+
+  @ApiProperty()
+  @IsOptional()
+  NumSegments: string;
+
+  @ApiProperty()
+  MessageSid: string;
+
+  @ApiProperty()
+  AccountSid: string;
+
+  @ApiProperty()
+  From: string;
+
+  @ApiProperty()
+  ApiVersion: string;
 }
