@@ -40,7 +40,7 @@ export default function ChatTable() {
     .map((botQuestion) => botQuestion.answer);
 
   const uniqueAnswers = Array.from(
-    new Set(answersList.filter((ans) => ans === "I don't know")),
+    new Set(answersList.filter((ans) => ans.includes("I don't know"))),
   );
 
   const options = uniqueAnswers.map((answer) => ({

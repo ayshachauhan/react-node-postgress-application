@@ -1,13 +1,16 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
   Headers,
+  InternalServerErrorException,
   Post,
   Query,
   Res,
 } from '@nestjs/common';
 import { ChatbotLogsEntity } from '@packages/entities';
+import * as crypto from 'crypto';
 import { Response } from 'express';
 import MessagingResponse from 'twilio/lib/twiml/MessagingResponse';
 import logger from '../logger';
@@ -29,7 +32,35 @@ export class AIController {
     logger.info(chatDto, 'Input chat data');
     logger.info(twilioHeader, 'Twilio Header');
 
+    const authToken = process.env.TWILIO_AUTH_TOKEN;
     const twiml = new MessagingResponse();
+    const url = 'https://app-qa.pod111.com/AI/sms?type=openai';
+
+    if (!authToken) {
+      logger.error('Twilio Auth Token is not set');
+      throw new InternalServerErrorException('Twilio Auth Token is not set');
+    }
+
+    const generateTwilioSignature = (
+      authToken: string,
+      url: string,
+      params: smsChatDto,
+    ) => {
+      const sortedParams = Object.keys(params)
+        .sort()
+        .reduce((acc, key) => acc + key + params[key], '');
+      const data = url + sortedParams;
+      const hmac = crypto.createHmac('sha1', authToken);
+      hmac.update(data);
+      return hmac.digest('base64');
+    };
+
+    const generatedSignature = generateTwilioSignature(authToken, url, chatDto);
+
+    if (generatedSignature !== twilioHeader) {
+      logger.error('Invalid Twilio request signature');
+      throw new BadRequestException('Invalid Twilio request signature');
+    }
 
     try {
       const aibotReply = await this.aiClientService.smsChat(type, {
