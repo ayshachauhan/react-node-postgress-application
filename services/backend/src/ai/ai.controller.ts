@@ -22,7 +22,7 @@ import { GetChatParams } from './types';
 export class AIController {
   constructor(private readonly aiClientService: AIClientService) {}
 
-  @Post('/sms')
+  @Post('sms')
   async postQuestionToAIBot(
     @Body() chatDto: smsChatDto,
     //@Query('type') type: 'openai' | 'customgpt',
@@ -79,5 +79,10 @@ export class AIController {
       mrn: query.mrn,
       answer: query.answer,
     });
+  }
+
+  @Post('test-sms')
+  async askFromAIBot() {
+    logger.info('Calling AI Bot');
   }
 }
