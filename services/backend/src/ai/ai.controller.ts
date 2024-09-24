@@ -25,7 +25,7 @@ export class AIController {
   @Post('/sms')
   async postQuestionToAIBot(
     @Body() chatDto: smsChatDto,
-    @Query('type') type: 'openai' | 'customgpt',
+    //@Query('type') type: 'openai' | 'customgpt',
     @Headers('x-twilio-signature') twilioHeader: string,
     @Res() res: Response,
   ) {
@@ -34,7 +34,7 @@ export class AIController {
 
     const authToken = process.env.TWILIO_AUTH_TOKEN;
     const twiml = new MessagingResponse();
-    const webhookUrl = 'https://app-qa.pod111.com/AI/sms?type=openai';
+    const webhookUrl = 'https://app-qa.pod111.com/AI/sms';
 
     if (!authToken) {
       logger.error('Twilio Auth Token is not set');
@@ -43,8 +43,6 @@ export class AIController {
 
     // const generatedSignature = twilio.getExpectedTwilioSignature(authToken, webhookUrl, chatDto);
     // logger.info(generatedSignature, 'Generated Twilio Signature');
-
-    logger.info(twilioHeader, 'Incoming Twilio Signature');
 
     const isValid = twilio.validateRequest(
       authToken,
@@ -60,7 +58,7 @@ export class AIController {
     console.log(`Twilio request verification: ${isValid}`);
 
     try {
-      const aibotReply = await this.aiClientService.smsChat(type, {
+      const aibotReply = await this.aiClientService.smsChat('openai', {
         phoneNumber: chatDto.From,
         question: chatDto.Body,
       });
