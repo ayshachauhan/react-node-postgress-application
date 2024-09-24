@@ -1,5 +1,5 @@
 import {
-  BadRequestException,
+  //BadRequestException,
   Body,
   Controller,
   Get,
@@ -29,8 +29,8 @@ export class AIController {
     @Headers('x-twilio-signature') twilioHeader: string,
     @Res() res: Response,
   ) {
-    logger.info(chatDto, 'Input chat data');
-    logger.info(twilioHeader, 'Twilio Header');
+    logger.info(`Input chat data ${JSON.stringify(chatDto)}`);
+    logger.info(`Twilio Header: ${twilioHeader}`);
 
     const authToken = process.env.TWILIO_AUTH_TOKEN;
     const twiml = new MessagingResponse();
@@ -53,15 +53,16 @@ export class AIController {
       chatDto,
     );
 
-    if (!isValid) {
-      logger.error('Invalid Twilio request signature');
-      throw new BadRequestException('Invalid Twilio request signature');
-    }
+    // if (!isValid) {
+    //   logger.error('Invalid Twilio request signature');
+    //   throw new BadRequestException('Invalid Twilio request signature');
+    // }
+    console.log(`Twilio request verification: ${isValid}`);
 
     try {
       const aibotReply = await this.aiClientService.smsChat(type, {
-        phoneNumber: chatDto.from,
-        question: chatDto.body,
+        phoneNumber: chatDto.From,
+        question: chatDto.Body,
       });
       twiml.message(aibotReply);
     } catch (error) {

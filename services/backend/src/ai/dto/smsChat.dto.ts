@@ -3,43 +3,79 @@ import { IsOptional } from 'class-validator';
 
 export class smsChatDto {
   @ApiProperty()
-  from: string;
+  From: string;
 
   @ApiProperty()
-  body: string;
-
-  @IsOptional()
-  @ApiProperty()
-  smsMessageSid: string;
+  Body: string;
 
   @IsOptional()
   @ApiProperty()
-  numMedia: string;
+  SmsMessageSid: string;
 
   @IsOptional()
   @ApiProperty()
-  smsSid: string;
+  NumMedia: string;
 
   @IsOptional()
   @ApiProperty()
-  smsStatus: string;
+  SmsSid: string;
 
   @IsOptional()
   @ApiProperty()
-  numSegments: string;
+  SmsStatus: string;
 
   @IsOptional()
   @ApiProperty()
-  messageSid: string;
+  NumSegments: string;
 
   @IsOptional()
   @ApiProperty()
-  accountSid: string;
-
-  @ApiProperty()
-  to: string;
+  MessageSid: string;
 
   @IsOptional()
   @ApiProperty()
-  apiVersion: string;
+  AccountSid: string;
+
+  @ApiProperty()
+  To: string;
+
+  @IsOptional()
+  @ApiProperty()
+  ApiVersion: string;
+
+  @IsOptional()
+  @ApiProperty()
+  ToCountry: string;
+
+  @IsOptional()
+  @ApiProperty()
+  ToState: string;
+
+  @IsOptional()
+  @ApiProperty()
+  ToCity: string;
+
+  @IsOptional()
+  @ApiProperty()
+  FromZip: string;
+
+  @IsOptional()
+  @ApiProperty()
+  FromState: string;
+
+  @IsOptional()
+  @ApiProperty()
+  FromCity: string;
+
+  @IsOptional()
+  @ApiProperty()
+  FromCountry: string;
+
+  @IsOptional()
+  @ApiProperty()
+  MessagingServiceSid: string;
+
+  @IsOptional()
+  @ApiProperty()
+  ToZip: string;
 }
