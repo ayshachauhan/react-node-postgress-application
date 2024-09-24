@@ -42,4 +42,40 @@ export class smsChatDto {
   @IsOptional()
   @ApiProperty()
   ApiVersion: string;
+
+  @IsOptional()
+  @ApiProperty()
+  ToCountry: string;
+
+  @IsOptional()
+  @ApiProperty()
+  ToState: string;
+
+  @IsOptional()
+  @ApiProperty()
+  ToCity: string;
+
+  @IsOptional()
+  @ApiProperty()
+  FromZip: string;
+
+  @IsOptional()
+  @ApiProperty()
+  FromState: string;
+
+  @IsOptional()
+  @ApiProperty()
+  FromCity: string;
+
+  @IsOptional()
+  @ApiProperty()
+  FromCountry: string;
+
+  @IsOptional()
+  @ApiProperty()
+  MessagingServiceSid: string;
+
+  @IsOptional()
+  @ApiProperty()
+  ToZip: string;
 }
