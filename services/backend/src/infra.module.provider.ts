@@ -68,6 +68,7 @@ export const createInfraModuleProviders = (): Array<
                     nodeEnv !== 'production'
                       ? { target: 'pino-pretty', options: { colorize: true } }
                       : undefined,
+                  autoLogging: true,
                 }
               : {},
         };
