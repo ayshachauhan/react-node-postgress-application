@@ -25,7 +25,7 @@ export class AIController {
   @Post('sms')
   async postQuestionToAIBot(
     @Body() chatDto: smsChatDto,
-    //@Query('type') type: 'openai' | 'customgpt',
+    @Query('type') type: 'openai' | 'customgpt',
     @Headers('x-twilio-signature') twilioHeader: string,
     @Res() res: Response,
   ) {
@@ -34,15 +34,19 @@ export class AIController {
 
     const authToken = process.env.TWILIO_AUTH_TOKEN;
     const twiml = new MessagingResponse();
-    const webhookUrl = 'https://app-qa.pod111.com/AI/sms';
+    const webhookUrl = 'https://app-qa.pod111.com/ai/sms?type=openai';
 
     if (!authToken) {
       logger.error('Twilio Auth Token is not set');
       throw new InternalServerErrorException('Twilio Auth Token is not set');
     }
 
-    // const generatedSignature = twilio.getExpectedTwilioSignature(authToken, webhookUrl, chatDto);
-    // logger.info(generatedSignature, 'Generated Twilio Signature');
+    const generatedSignature = twilio.getExpectedTwilioSignature(
+      authToken,
+      webhookUrl,
+      chatDto,
+    );
+    logger.info(`Generated Twilio Signature: ${generatedSignature}`);
 
     const isValid = twilio.validateRequest(
       authToken,
@@ -58,13 +62,14 @@ export class AIController {
     console.log(`Twilio request verification: ${isValid}`);
 
     try {
-      const aibotReply = await this.aiClientService.smsChat('openai', {
+      const aibotReply = await this.aiClientService.smsChat(type, {
         phoneNumber: chatDto.From,
         question: chatDto.Body,
       });
+      logger.info(`Bot reply: ${aibotReply}`);
       twiml.message(aibotReply);
     } catch (error) {
-      console.error(error);
+      logger.error(error);
       twiml.message("I'm sorry, I couldn't process that.");
     }
 
@@ -79,15 +84,5 @@ export class AIController {
       mrn: query.mrn,
       answer: query.answer,
     });
-  }
-
-  @Post('test-sms')
-  async askFromAIBot() {
-    logger.info('Calling AI Bot');
-  }
-
-  @Get('test')
-  async talkFromAIBot() {
-    logger.info('GET: Talking AI Bot');
   }
 }
