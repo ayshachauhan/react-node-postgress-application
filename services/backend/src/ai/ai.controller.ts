@@ -85,4 +85,9 @@ export class AIController {
   async askFromAIBot() {
     logger.info('Calling AI Bot');
   }
+
+  @Get('test')
+  async talkFromAIBot() {
+    logger.info('GET: Talking AI Bot');
+  }
 }
