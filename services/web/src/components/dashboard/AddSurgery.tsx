@@ -894,10 +894,10 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
             </div>
             <div className="space-y-1 flex-1">
               <label htmlFor="urlEmbed" className="text-black text-xs">
-                No Wait list
+                Waitlist
               </label>
               <Select
-                placeholder="Select Waitlist"
+                placeholder="No Waitlist"
                 backspaceClearsInputValue
                 size={SIZE.mini}
                 options={waitlistOptions}

@@ -648,12 +648,12 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
               </div>
               <div className="space-y-2 flex-1">
                 <label htmlFor="urlEmbed" className="">
-                  No Wait list
+                  Waitlist
                 </label>
                 <Select
                   backspaceClearsInputValue
                   size={SIZE.mini}
-                  placeholder="Select Waitlist"
+                  placeholder="No Waitlist"
                   options={waitlistOptions}
                   overrides={{
                     ControlContainer: {
