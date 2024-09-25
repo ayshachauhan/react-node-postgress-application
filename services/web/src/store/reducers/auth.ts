@@ -84,10 +84,23 @@ const authSlice = createSlice({
           localStorage.setItem('practiceId', '');
         }
       }
+      let selectedPracticeId = currentPracticeId;
       if (state.user && state.user.practices && state.user.practices.length) {
+        const practiceExists = state.user.practices.some(
+          (practice) => practice.id === currentPracticeId,
+        );
+        if (!practiceExists) {
+          selectedPracticeId = state.user.practices[0].id;
+          if (selectedPracticeId) {
+            localStorage.setItem('practiceId', selectedPracticeId);
+          } else {
+            localStorage.setItem('practiceId', '');
+          }
+        }
         state.azentiaSelectedPractice = state.user.practices[0].name;
       } else {
         state.azentiaSelectedPractice = '';
+        localStorage.setItem('practiceId', '');
       }
     });
 
