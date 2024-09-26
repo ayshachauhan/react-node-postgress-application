@@ -412,25 +412,21 @@ const EvalPage: React.FC = () => {
 
   return (
     <div id="__next" className="">
-      {isEvalsLoading && page == 1 && <Loader />}
-      <div className="flex justify-between border-gray-400 items-center ">
+      {isEvalsLoading && page == 1 && !isBookSurgeryOpenModal && <Loader />}
+      <div className="flex justify-between border-gray-400 ">
         <span className="text-xl font-bold">Evals</span>
-        <div className="flex  justify-between">
-          {showModal && (
-            <div className="text-green-700">{addEvalSuccessMessage}</div>
-          )}
-          <div className="flex">
-            {addCaseAllowed && (
-              <Button
-                kind="secondary"
-                title="Add"
-                padding="5px 8px"
-                onClick={handleOpenAddModal}
-                startEnhancer={() => <AddIcon></AddIcon>}
-              />
-            )}
-          </div>
-        </div>
+        {showModal && (
+          <div className="text-green-700">{addEvalSuccessMessage}</div>
+        )}
+        {addCaseAllowed && (
+          <Button
+            kind="secondary"
+            title="Add"
+            padding="5px 8px"
+            onClick={handleOpenAddModal}
+            startEnhancer={() => <AddIcon></AddIcon>}
+          />
+        )}
       </div>
       <hr className="h-px my-1 px-0 mx-0 bg-gray-100 border-1 border-gray-100" />
       <div className="table-responsive overflow-x-auto rounded-lg">
