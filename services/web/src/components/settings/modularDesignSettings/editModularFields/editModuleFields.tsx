@@ -418,13 +418,15 @@ const EditModularField: React.FC<{
           <div className="flex flex-col gap-1 mt-4">
             <div className="space-y-2 flex-1">
               <label htmlFor="bodyPart" className="">
-                Body Part
+                <RequiredIndicator />
+                &nbsp;Body Part
               </label>
               <div className="grid grid-cols-3 gap-3">
                 {bodyPartInputFields.map((inputField, index, bodyPartsArr) => (
                   <div key={index}>
                     <TextInput
                       size={SIZE.mini}
+                      required
                       type="text"
                       value={inputField.value}
                       onChange={(event) => handleChangeInput(index, event)}
