@@ -249,7 +249,10 @@ export class SchedulerService {
 
           if (to.length) {
             // entries for email log table
-            to.forEach((email: string) =>
+            to.forEach((email: string) => {
+              const filteredLinks = String(mailData.data)
+                .split(',')
+                .filter((link) => link.trim() !== ''); // Filters out empty or whitespace links
               emailLogEntries.push({
                 ...entry,
                 data: {
@@ -258,19 +261,19 @@ export class SchedulerService {
                     entry.data?.body || '',
                     {
                       mailDate,
-                      links: String(mailData.data).split(','),
+                      links: filteredLinks,
                       textCount: String(mailData.textCount),
                       emailCount: String(mailData.emailCount),
                     },
                   ),
                   mailDate,
-                  links: String(mailData.data),
+                  links: filteredLinks.join(','),
                   textCount: String(mailData.textCount),
                   emailCount: String(mailData.emailCount),
                   to: email,
                 },
-              }),
-            );
+              });
+            });
           }
         });
       }
