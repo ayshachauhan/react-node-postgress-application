@@ -113,6 +113,10 @@ function ViewRow({ selectedSurgery, viewBillingColumn }) {
               <span>{selectedSurgery.surgery}</span>
             </p>
             <p>
+              <span className="font-bold">Slot: </span>
+              <span>{selectedSurgery.slot}</span>
+            </p>
+            <p>
               <span className="font-bold">Body Part: </span>
               <span>{selectedSurgery.bodyPart}</span>
             </p>

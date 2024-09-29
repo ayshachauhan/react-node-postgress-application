@@ -135,6 +135,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
     defaultUser ? [{ label: toFullName(defaultUser), id: defaultUser.id }] : [],
   );
   const [firstName, setFirstName] = useState('');
+  const [slot, setSlot] = useState<string>(''); // Use string for user input
   const [lastName, setLastName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [isValidPhnNo, setIsValidPhnNo] = useState(true);
@@ -239,6 +240,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
         setPhoneNumber(row.patient.phoneNumber);
         setCountryCode(row.patient.countryCode);
         setMrn(String(row.patient.mrn));
+        setSlot(row.slot);
         setPracticeHomeId(row?.practiceHome?.id);
         setBodyPart(row.bodyPart);
         setSurgeryNameId(row.surgeryConfiguration.id);
@@ -396,6 +398,11 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
     }
   };
 
+  const isValidInput = (value: string) => {
+    const regex = /^(?:\d{1,2}(\.\d)?)?$/; // Matches 1-2 digits optionally followed by a decimal and 1 digit
+    return regex.test(value) || value === ''; // Allow empty input as well
+  };
+
   const handlePCPChange = ({ value }) => {
     setPcp(value[0] ? value[0].id : null);
   };
@@ -513,6 +520,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
         totalHospitalPricing: '0',
         totalProfessionalPricing: '0',
         waitlistId,
+        slot: slot,
       };
 
       const surgeryName = surgeryConfigurationsOptions.find(
@@ -533,6 +541,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
               surgeryConfigurationId: surgeryNameId,
               bodyPart,
               count: 1,
+              slot,
             }),
           );
 
@@ -548,6 +557,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
                 surgeryConfigurationId: surgeryCataractNameId,
                 bodyPart: cataractBodyPart,
                 count: 2,
+                slot,
               }),
             );
           }
@@ -1189,6 +1199,28 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
                       },
                     }}
                   />
+                </div>
+              </div>
+              <div className="flex mt-2 w-1/3">
+                <div className="space-y-1 flex-1">
+                  <label htmlFor="slot" className="text-black text-xs">
+                    <RequiredIndicator />
+                    &nbsp;Slot
+                  </label>
+                  <TextInput
+                    type="number" // Set input type to text
+                    size={SIZE.mini}
+                    name="slot"
+                    value={slot}
+                    onChange={(value) => {
+                      if (isValidInput(value)) {
+                        // Validate input
+                        setSlot(value); // Update state with valid input
+                      }
+                    }}
+                    required
+                  />
+                  <div className="space-y-4"></div>
                 </div>
               </div>
               {addNewCataractSurgery && (

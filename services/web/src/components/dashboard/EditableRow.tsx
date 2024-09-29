@@ -133,6 +133,7 @@ const EditableRow: React.FC<EditableRowProps> = ({
         countryCode: surgeryInfo.patient.countryCode,
         notes: surgeryInfo.notes ? surgeryInfo.notes : '',
         bodyPart: surgeryInfo.bodyPart,
+        slot: surgeryInfo.slot,
         mrn: surgeryInfo.patient.mrn,
         selectedSurgeryOptions: surgeryInfo.selectedSurgeryOptions,
         selectedCheckListOptions: surgeryInfo.selectedCheckListOptions,
@@ -163,6 +164,11 @@ const EditableRow: React.FC<EditableRowProps> = ({
     label: waitlist[key].name,
     id: waitlist[key].id,
   }));
+
+  const isValidInput = (value: string) => {
+    const regex = /^(?:\d{1,2}(\.\d)?)?$/; // Matches 1-2 digits optionally followed by a decimal and 1 digit
+    return regex.test(value) || value === ''; // Allow empty input as well
+  };
 
   const validatePhoneNumber = (fullNumber: string) => {
     try {
@@ -255,6 +261,7 @@ const EditableRow: React.FC<EditableRowProps> = ({
     }
     if (isValidPhnNo) {
       if (practiceId) {
+        console.log(obj);
         const payload: Partial<UpdateSurgeryPayload> = {
           practiceId,
           ...obj,
@@ -302,6 +309,7 @@ const EditableRow: React.FC<EditableRowProps> = ({
           countryCode: '',
           notes: '',
           bodyPart: '',
+          slot: '',
           surgeryStatus: SurgeryStatus.PENDING,
           mrn: 0,
           selectedSurgeryOptions: {},
@@ -465,6 +473,23 @@ const EditableRow: React.FC<EditableRowProps> = ({
                 handleObjChange('surgeryStatus', value[0].label)
               }
             />
+          </td>
+          <td rowSpan={2} className="">
+            <div className="">
+              <TextInput
+                type="number" // Set input type to text
+                size={SIZE.mini}
+                name="slot"
+                value={obj.slot}
+                onChange={(value) => {
+                  if (isValidInput(value)) {
+                    // Validate input
+                    handleObjChange('slot', value);
+                  }
+                }}
+                required
+              />
+            </div>
           </td>
           <td rowSpan={1} className="min-w-20">
             <div className="">

@@ -61,4 +61,7 @@ export class EvalEntity extends BaseEntity {
   @ManyToOne(() => ReferrersEntity)
   @JoinColumn({ name: 'referrerId' })
   referrer: ReferrersEntity;
+
+  @Column()
+  slot: string;
 }

@@ -728,6 +728,7 @@ export class SurgeryService {
         ? createSurgeryDto.insuranceType
         : null,
       date: createSurgeryDto.date,
+      slot: createSurgeryDto.slot,
       selectedSurgeryOptions: createSurgeryDto.selectedSurgeryOptions,
       totalHospitalPricing: createSurgeryDto.totalHospitalPricing,
       totalProfessionalPricing: createSurgeryDto.totalProfessionalPricing,

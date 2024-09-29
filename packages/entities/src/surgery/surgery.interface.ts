@@ -35,6 +35,7 @@ export interface ISurgery extends IBaseEntity {
   initialHospitalPrice?: string;
   pcp?: IReferrer;
   referrer?: IReferrer;
+  slot: string;
 }
 
 export interface CreateSurgeryPayload {
@@ -64,6 +65,7 @@ export interface CreateSurgeryPayload {
   count?: number;
   initialProfPrice?: string;
   initialHospitalPrice?: string;
+  slot: string;
 }
 
 export interface SelectedSurgeryOption {
@@ -111,6 +113,7 @@ export interface UpdateSurgeryPayload {
   selectedConditionalOptions?: SelectedConditionalOption;
   initialProfPrice?: string;
   initialHospitalPrice?: string;
+  slot: string;
 }
 
 export interface MonthOption {
