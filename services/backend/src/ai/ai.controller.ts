@@ -1,5 +1,5 @@
 import {
-  //BadRequestException,
+  BadRequestException,
   Body,
   Controller,
   Get,
@@ -34,11 +34,16 @@ export class AIController {
 
     const authToken = process.env.TWILIO_AUTH_TOKEN;
     const twiml = new MessagingResponse();
-    const webhookUrl = 'https://app-qa.pod111.com/ai/sms?type=openai';
+    const webhookUrl = process.env.TWILIO_WEBHOOK_URL;
 
     if (!authToken) {
       logger.error('Twilio Auth Token is not set');
       throw new InternalServerErrorException('Twilio Auth Token is not set');
+    }
+
+    if (!webhookUrl) {
+      logger.error('Twilio Webhook Url is not set');
+      throw new InternalServerErrorException('Twilio Webhook Url is not set');
     }
 
     const generatedSignature = twilio.getExpectedTwilioSignature(
@@ -55,11 +60,11 @@ export class AIController {
       chatDto,
     );
 
-    // if (!isValid) {
-    //   logger.error('Invalid Twilio request signature');
-    //   throw new BadRequestException('Invalid Twilio request signature');
-    // }
-    console.log(`Twilio request verification: ${isValid}`);
+    if (!isValid) {
+      logger.error('Invalid Twilio request signature');
+      throw new BadRequestException('Invalid Twilio request signature');
+    }
+    logger.info(`Twilio request verification: ${isValid}`);
 
     try {
       const aibotReply = await this.aiClientService.smsChat(type, {
