@@ -34,7 +34,7 @@ export class AIController {
 
     const authToken = process.env.TWILIO_AUTH_TOKEN;
     const twiml = new MessagingResponse();
-    const webhookUrl = process.env.TWILIO_WEBHOOK_URL;
+    const webhookUrl = process.env.TWILIO_AIMSG_WEBHOOK_URL;
 
     if (!authToken) {
       logger.error('Twilio Auth Token is not set');
