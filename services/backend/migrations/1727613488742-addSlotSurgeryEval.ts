@@ -10,7 +10,7 @@ export class AddSlotSurgeryEval1727613488742 implements MigrationInterface {
         precision: 3,
         scale: 1,
         isNullable: false,
-        default: 0.0,
+        default: 1,
       }),
     );
 
@@ -22,7 +22,7 @@ export class AddSlotSurgeryEval1727613488742 implements MigrationInterface {
         precision: 3,
         scale: 1,
         isNullable: false,
-        default: 0.0,
+        default: 1,
       }),
     );
   }

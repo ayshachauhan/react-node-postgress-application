@@ -373,7 +373,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
               status: evalStatus,
               bodyPart,
               waitlistId,
-              slot: '0.0',
+              slot: '1',
             }),
           );
         });

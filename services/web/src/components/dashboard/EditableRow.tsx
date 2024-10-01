@@ -13,6 +13,7 @@ import {
   getPracticeId,
   getSelectedMonths,
   getUserId,
+  isValidInput,
   isZeroPricing,
   toFullName,
   validateMRNLength,
@@ -164,11 +165,6 @@ const EditableRow: React.FC<EditableRowProps> = ({
     label: waitlist[key].name,
     id: waitlist[key].id,
   }));
-
-  const isValidInput = (value: string) => {
-    const regex = /^(?:\d{1,2}(\.\d)?)?$/; // Matches 1-2 digits optionally followed by a decimal and 1 digit
-    return regex.test(value) || value === ''; // Allow empty input as well
-  };
 
   const validatePhoneNumber = (fullNumber: string) => {
     try {

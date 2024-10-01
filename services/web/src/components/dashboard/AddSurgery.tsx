@@ -25,6 +25,7 @@ import {
   getBackGroundColorCss,
   getPracticeId,
   getSelectedMonths,
+  isValidInput,
   toFullName,
   validateMRNLength,
 } from '@utils/index';
@@ -135,7 +136,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
     defaultUser ? [{ label: toFullName(defaultUser), id: defaultUser.id }] : [],
   );
   const [firstName, setFirstName] = useState('');
-  const [slot, setSlot] = useState<string>(''); // Use string for user input
+  const [slot, setSlot] = useState<string>('');
   const [lastName, setLastName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [isValidPhnNo, setIsValidPhnNo] = useState(true);
@@ -396,11 +397,6 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
     if (isPCPSameAsReferer) {
       setPcp(value[0] ? value[0].id : null);
     }
-  };
-
-  const isValidInput = (value: string) => {
-    const regex = /^(?:\d{1,2}(\.\d)?)?$/; // Matches 1-2 digits optionally followed by a decimal and 1 digit
-    return regex.test(value) || value === ''; // Allow empty input as well
   };
 
   const handlePCPChange = ({ value }) => {
@@ -1201,28 +1197,6 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
                   />
                 </div>
               </div>
-              <div className="flex mt-2 w-1/3">
-                <div className="space-y-1 flex-1">
-                  <label htmlFor="slot" className="text-black text-xs">
-                    <RequiredIndicator />
-                    &nbsp;Slot
-                  </label>
-                  <TextInput
-                    type="number" // Set input type to text
-                    size={SIZE.mini}
-                    name="slot"
-                    value={slot}
-                    onChange={(value) => {
-                      if (isValidInput(value)) {
-                        // Validate input
-                        setSlot(value); // Update state with valid input
-                      }
-                    }}
-                    required
-                  />
-                  <div className="space-y-4"></div>
-                </div>
-              </div>
               {addNewCataractSurgery && (
                 <div className="flex gap-5 mt-2">
                   <div className="space-y-1 flex-1">
@@ -1399,6 +1373,27 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
                       </div>
                     </div>
                   ))}
+              </div>
+              <div className="flex mt-2 w-1/3">
+                <div className="space-y-1 flex-1">
+                  <label htmlFor="slot" className="text-black text-xs">
+                    <RequiredIndicator />
+                    &nbsp;Slot
+                  </label>
+                  <TextInput
+                    type="number"
+                    size={SIZE.mini}
+                    name="slot"
+                    value={slot}
+                    onChange={(value) => {
+                      if (isValidInput(value)) {
+                        setSlot(value);
+                      }
+                    }}
+                    required
+                  />
+                  <div className="space-y-4"></div>
+                </div>
               </div>
             </div>
           </div>

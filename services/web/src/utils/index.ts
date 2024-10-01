@@ -399,3 +399,16 @@ export const validateMRNLength = (value) => {
   }
   return '';
 };
+
+export const isValidInput = (value: string) => {
+  const regex = /^\d{1,2}(\.5|\.0)?$/;
+  const numValue = parseFloat(value);
+
+  if (
+    value === '' ||
+    (regex.test(value) && numValue >= 0.5 && numValue % 0.5 === 0)
+  ) {
+    return true;
+  }
+  return false;
+};
