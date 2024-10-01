@@ -25,9 +25,9 @@ import {
   getBackGroundColorCss,
   getPracticeId,
   getSelectedMonths,
-  isValidInput,
   toFullName,
   validateMRNLength,
+  validateSlot,
 } from '@utils/index';
 import { Checkbox } from 'baseui/checkbox';
 import { DatePicker } from 'baseui/datepicker';
@@ -136,7 +136,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
     defaultUser ? [{ label: toFullName(defaultUser), id: defaultUser.id }] : [],
   );
   const [firstName, setFirstName] = useState('');
-  const [slot, setSlot] = useState<string>('');
+  const [slot, setSlot] = useState('1');
   const [lastName, setLastName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [isValidPhnNo, setIsValidPhnNo] = useState(true);
@@ -161,6 +161,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
   const [surgeryNameId, setSurgeryNameId] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState('');
   const [mrnError, setMrnError] = useState('');
+  const [slotError, setSlotError] = useState('');
   const [surgeryCataractNameId, setSurgeryCataractNameId] =
     useState<string>('');
   const [errorMsgForCataract, setErrorMessageForCataract] = useState('');
@@ -258,6 +259,12 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
           setMrnError(error);
         } else {
           setMrnError('');
+        }
+        const slotError = validateSlot(row.slot);
+        if (slotError) {
+          setSlotError(slotError);
+        } else {
+          setSlotError('');
         }
       }
     }
@@ -441,6 +448,16 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
     }
   };
 
+  const handleSlotChange = (value) => {
+    setSlot(value);
+    const error = validateSlot(value);
+    if (error) {
+      setSlotError(error);
+    } else {
+      setSlotError('');
+    }
+  };
+
   const handleMrnBlur = ({ target }) => {
     if (target.value) {
       const newValue: string = target.value;
@@ -482,6 +499,14 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
       return;
     } else {
       setMrnError('');
+    }
+
+    const slotError = validateSlot(slot);
+    if (slotError) {
+      setSlotError(slotError);
+      return;
+    } else {
+      setSlotError('');
     }
 
     if (isValidPhnNo) {
@@ -615,6 +640,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
             setReferrerId('');
             setNotes('');
             setBodyPart('');
+            setSlot('1');
             setWaitlistId('');
             if (onRecordAdded) {
               onRecordAdded();
@@ -700,6 +726,11 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
           {!isValidPhnNo && (
             <div className="flex justify-center text-red-500 mt-2">
               {errorMessage}
+            </div>
+          )}
+          {slotError && (
+            <div className="flex justify-center text-red-500 mt-2">
+              {slotError}
             </div>
           )}
           <div className="flex gap-5 mt-4">
@@ -1385,11 +1416,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
                     size={SIZE.mini}
                     name="slot"
                     value={slot}
-                    onChange={(value) => {
-                      if (isValidInput(value)) {
-                        setSlot(value);
-                      }
-                    }}
+                    onChange={handleSlotChange}
                     required
                   />
                   <div className="space-y-4"></div>

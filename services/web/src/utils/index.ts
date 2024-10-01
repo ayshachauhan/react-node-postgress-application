@@ -412,3 +412,19 @@ export const isValidInput = (value: string) => {
   }
   return false;
 };
+
+export const validateSlot = (value) => {
+  const regex = /^\d{1,2}(\.5|\.0)?$/;
+  const numValue = parseFloat(value);
+
+  if (
+    value === '' ||
+    !regex.test(value) ||
+    numValue < 0.5 ||
+    numValue % 0.5 !== 0
+  ) {
+    return 'Slot should be a multiple of 0.5';
+  }
+
+  return '';
+};

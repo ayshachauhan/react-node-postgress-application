@@ -9,6 +9,7 @@ import {
   getPracticeId,
   toFullName,
   validateMRNLength,
+  validateSlot,
 } from '@utils/index';
 import { Checkbox } from 'baseui/checkbox';
 import { DatePicker } from 'baseui/datepicker';
@@ -52,6 +53,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
 
   const SELECTED_DOCTOR_KEY: string = 'SELECTED_DOCTOR';
   const selectedDoctorKey = localStorage.getItem(SELECTED_DOCTOR_KEY);
+  const [slot, setSlot] = useState('1');
   const selectedDoctorId = usersList.some(
     (user) => user?.id === selectedDoctorKey,
   )
@@ -77,6 +79,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
   const [countryCode, setCountryCode] = useState('+1'); // Default to 'us'
   const [email, setEmail] = useState('');
   const [mrn, setMrn] = useState('');
+  const [slotError, setSlotError] = useState('');
   const [insuranceDetails, setInsuranceDetails] = useState('');
   const [insuranceTypeId, setInsuranceTypeId] = useState<string>('');
   const [practiceHomeId, setPracticeHomeId] = useState<string>('');
@@ -297,6 +300,16 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
     }
   };
 
+  const handleSlotChange = (value) => {
+    setSlot(value);
+    const error = validateSlot(value);
+    if (error) {
+      setSlotError(error);
+    } else {
+      setSlotError('');
+    }
+  };
+
   const handleWaitlistChange = ({ value }) => {
     setWaitlistId(value[0] ? value[0].id : null);
   };
@@ -349,6 +362,13 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
     } else {
       setMrnError('');
     }
+    const slotError = validateSlot(slot);
+    if (slotError) {
+      setSlotError(slotError);
+      return;
+    } else {
+      setSlotError('');
+    }
     if (isValidPhnNo) {
       if (practiceId && doctorId) {
         await withLoader(async () => {
@@ -373,7 +393,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
               status: evalStatus,
               bodyPart,
               waitlistId,
-              slot: '1',
+              slot,
             }),
           );
         });
@@ -381,6 +401,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
           setFirstName('');
           setLastName('');
           setMrn('');
+          setSlot('1');
           setPhoneNumber('');
           setCountryCode('+1');
           setEmail('');
@@ -453,6 +474,11 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
           {mrnError && (
             <div className="flex justify-center text-red-500 mt-2">
               {mrnError}
+            </div>
+          )}
+          {slotError && (
+            <div className="flex justify-center text-red-500 mt-2">
+              {slotError}
             </div>
           )}
           <div className="flex flex-col gap-4 mt-4">
@@ -1004,6 +1030,23 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
                       onClick={() => handleQuickDateChange(12)}
                       title="+12"
                     />
+                  </div>
+                </div>
+                <div className="flex mt-2 w-1/3">
+                  <div className="space-y-1 flex-1">
+                    <label htmlFor="slot" className="text-black text-xs">
+                      <RequiredIndicator />
+                      &nbsp;Slot
+                    </label>
+                    <TextInput
+                      type="number"
+                      size={SIZE.mini}
+                      name="slot"
+                      value={slot}
+                      onChange={handleSlotChange}
+                      required
+                    />
+                    <div className="space-y-4"></div>
                   </div>
                 </div>
               </div>
