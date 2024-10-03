@@ -21,6 +21,10 @@ export class CreateCalendarDto {
   @IsNotEmpty()
   @ApiProperty()
   surgeryTypeId: string;
+
+  @IsNotEmpty()
+  @ApiProperty()
+  bookedHours: string;
 }
 
 export class UpdateCalendarDto {
@@ -33,6 +37,10 @@ export class UpdateCalendarDto {
   @Max(14)
   @Min(0)
   maxSlots?: number;
+
+  @IsOptional()
+  @ApiProperty()
+  bookedHours?: string;
 }
 
 export class UpdateCalendarsDto {
@@ -41,5 +49,6 @@ export class UpdateCalendarsDto {
     bookedSlots?: number;
     maxSlots?: number;
     surgeryTypeId?: string;
+    bookedHours?: string;
   }[];
 }

@@ -13,6 +13,7 @@ import {
   ReviewEntity,
   ReviewStatus,
   SelectedSurgeryOption,
+  SurgeryConfigurationEntity,
   SurgeryEntity,
   SurgeryStatus,
   WaitlistEntity,
@@ -122,6 +123,8 @@ export class SurgeryService {
     private reviewService: ReviewService,
     @Inject(forwardRef(() => ReferrersService))
     private referrerService: ReferrersService,
+    @InjectRepository(SurgeryConfigurationEntity)
+    private readonly surgeryConfigurationRepository: Repository<SurgeryConfigurationEntity>,
   ) {}
 
   getFrontEndBaseUrl() {
@@ -605,6 +608,10 @@ export class SurgeryService {
         await this.calendarService.updateCalendar({
           id: selectedCalendar.id,
           bookedSlots: selectedCalendar.bookedSlots + 1,
+          bookedHours: String(
+            parseFloat(selectedCalendar?.bookedHours) +
+              (parseFloat(createSurgeryDto.slot) || 0),
+          ),
         });
       } else {
         await this.calendarService.createCalendar(
@@ -615,6 +622,7 @@ export class SurgeryService {
           {
             date: createSurgeryDto.date,
             bookedSlots: 1,
+            bookedHours: createSurgeryDto.slot,
             maxSlots: 14,
             surgeryTypeId: surgeryConfigurationEntity.surgeryType.id,
           },
@@ -793,6 +801,10 @@ export class SurgeryService {
           await this.calendarService.updateCalendar({
             id: reomvedCalender?.id,
             bookedSlots: reomvedCalender?.bookedSlots - 1,
+            bookedHours: String(
+              parseFloat(reomvedCalender?.bookedHours) -
+                (parseFloat(createSurgeryDto.slot) || 0),
+            ),
           });
         }
 
@@ -804,6 +816,10 @@ export class SurgeryService {
           await this.calendarService.updateCalendar({
             id: selectedCalendar?.id,
             bookedSlots: selectedCalendar?.bookedSlots + 1,
+            bookedHours: String(
+              parseFloat(selectedCalendar?.bookedHours) +
+                (parseFloat(createSurgeryDto.slot) || 0),
+            ),
           });
         } else if (createSurgeryDto.surgeryStatus !== SurgeryStatus.COMPLETED) {
           if (
@@ -818,11 +834,54 @@ export class SurgeryService {
               {
                 date: createSurgeryDto?.date,
                 bookedSlots: 1,
+                bookedHours: surgeryToUpdate.slot,
                 maxSlots: 14,
                 surgeryTypeId: surgeryConfigurationEntity.surgeryType.id,
               },
             );
           }
+        }
+        if (
+          selectedCalendar &&
+          String(parseFloat(createSurgeryDto.slot)) !==
+            selectedCalendar.bookedHours
+        ) {
+          const surgeryConfigurations =
+            await this.surgeryConfigurationRepository.find({
+              where: { surgeryType: { id: selectedCalendar.surgeryType.id } },
+              relations: ['surgeryType'],
+            });
+
+          let totalBookedHours = 0;
+          const startOfDay = moment
+            .utc(createSurgeryDto.date)
+            .startOf('day')
+            .toDate();
+          const endOfDay = moment
+            .utc(createSurgeryDto.date)
+            .endOf('day')
+            .toDate();
+
+          for (const config of surgeryConfigurations) {
+            const surgeries = await this.surgeryRepository.find({
+              where: {
+                surgeryConfiguration: { id: config.id },
+                date: Between(startOfDay, endOfDay),
+                practice: { id: practiceId },
+              },
+              relations: ['surgeryConfiguration'],
+            });
+
+            surgeries.forEach((surgery) => {
+              totalBookedHours += parseFloat(surgery.slot) || 0;
+            });
+          }
+
+          await this.calendarService.updateCalendar({
+            id: selectedCalendar?.id,
+            bookedSlots: selectedCalendar?.bookedSlots,
+            bookedHours: String(totalBookedHours),
+          });
         }
       }
     } catch (ex) {
@@ -974,6 +1033,10 @@ export class SurgeryService {
         await this.calendarService.updateCalendar({
           id: reomvedCalender?.id,
           bookedSlots: reomvedCalender?.bookedSlots - 1,
+          bookedHours: String(
+            parseFloat(reomvedCalender?.bookedHours) -
+              (parseFloat(surgeryToUpdate.slot) || 0),
+          ),
         });
       }
 

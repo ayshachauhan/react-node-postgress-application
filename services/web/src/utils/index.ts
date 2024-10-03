@@ -300,8 +300,8 @@ export const isSlotsAvailable = (
   const sortedCalendars = matchingCalendars.sort((a, b) => {
     if (a.maxSlots !== b.maxSlots) {
       return b.maxSlots - a.maxSlots; // Descending order by maxSlots
-    } else if (a.bookedSlots !== b.bookedSlots) {
-      return b.bookedSlots - a.bookedSlots; // Descending order by bookedSlots
+    } else if (parseFloat(a.bookedHours) !== parseFloat(b.bookedHours)) {
+      return parseFloat(b.bookedHours) - parseFloat(a.bookedHours); // Descending order by bookedHours
     } else {
       return a.surgeryType?.name.localeCompare(b.surgeryType?.name); // Alphabetical order by surgeryType.name
     }
@@ -311,8 +311,8 @@ export const isSlotsAvailable = (
 
   const surgeryTypeColor =
     calendar.surgeryType?.color ?? DEFAULT_SURGERYLOCATION_COLOR;
-  //console.log(moment(calendar.date).format('YYYY-MM-DD'), '  --  ', calendar.maxSlots > calendar.bookedSlots);
-  return calendar.maxSlots > calendar.bookedSlots
+  //console.log(moment(calendar.date).format('YYYY-MM-DD'), '  --  ', calendar.maxSlots > calendar.bookedHours);
+  return calendar.maxSlots > parseFloat(calendar.bookedHours)
     ? {
         backgroundColor: surgeryTypeColor,
         borderTopColor: surgeryTypeColor,
@@ -359,8 +359,8 @@ export const customBackgroundColor = (
   const sortedCalendars = matchingCalendars.sort((a, b) => {
     if (a.maxSlots !== b.maxSlots) {
       return b.maxSlots - a.maxSlots; // Descending order by maxSlots
-    } else if (a.bookedSlots !== b.bookedSlots) {
-      return b.bookedSlots - a.bookedSlots; // Descending order by bookedSlots
+    } else if (parseFloat(a.bookedHours) !== parseFloat(b.bookedHours)) {
+      return parseFloat(b.bookedHours) - parseFloat(a.bookedHours); // Descending order by bookedHours
     } else {
       return a.surgeryType?.name.localeCompare(b.surgeryType?.name); // Alphabetical order by surgeryType.name
     }
@@ -371,7 +371,7 @@ export const customBackgroundColor = (
   const surgeryTypeColor =
     calendar.surgeryType?.color ?? DEFAULT_SURGERYLOCATION_COLOR;
 
-  return calendar.maxSlots > calendar.bookedSlots
+  return calendar.maxSlots > parseFloat(calendar.bookedHours)
     ? surgeryTypeColor
     : 'transparent';
 };
