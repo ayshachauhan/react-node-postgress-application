@@ -256,7 +256,6 @@ const EditableRow: React.FC<EditableRowProps> = ({
       } else {
         setMrnError('');
       }
-
       if (isValidPhnNo) {
         if (practiceId) {
           const payloadData: Partial<UpdateEValInterface> = {

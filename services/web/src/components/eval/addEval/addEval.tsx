@@ -349,7 +349,6 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
     } else {
       setMrnError('');
     }
-
     if (isValidPhnNo) {
       if (practiceId && doctorId) {
         await withLoader(async () => {
