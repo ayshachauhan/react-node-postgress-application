@@ -474,7 +474,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    let selectedDoctorId: string | null = getUserId();
+    const selectedDoctorId: string | null = getUserId();
     const mrnErrorMessage = validateMRNLength(mrn);
     if (mrnErrorMessage) {
       setMrnError(mrnErrorMessage);
