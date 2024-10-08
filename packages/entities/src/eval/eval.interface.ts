@@ -22,7 +22,6 @@ export interface IEval extends IBaseEntity {
   practice: IPractice; //TO DO: make practice id not null in future
   pcp?: IReferrer;
   referrer?: IReferrer;
-  slot: string;
 }
 
 export interface CreateEvalInterface {
@@ -45,7 +44,6 @@ export interface CreateEvalInterface {
   bodyPart: string;
   doctorId: string;
   waitlistId?: string;
-  slot: string;
 }
 
 export interface UpdateEValInterface {
@@ -66,5 +64,4 @@ export interface UpdateEValInterface {
   waitlistId?: string;
   practiceHomeId: string;
   pcp?: string;
-  slot: string;
 }

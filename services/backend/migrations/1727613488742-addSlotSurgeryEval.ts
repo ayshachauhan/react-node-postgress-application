@@ -13,18 +13,6 @@ export class AddSlotSurgeryEval1727613488742 implements MigrationInterface {
         default: 1,
       }),
     );
-
-    await queryRunner.addColumn(
-      'evals',
-      new TableColumn({
-        name: 'slot',
-        type: 'decimal',
-        precision: 3,
-        scale: 1,
-        isNullable: false,
-        default: 1,
-      }),
-    );
   }
 
   public async down(): Promise<void> {}

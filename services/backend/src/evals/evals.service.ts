@@ -358,7 +358,6 @@ export class EvalsService {
       patient: newPatient ? newPatient : evalToUpdate?.patient,
       status: createEvalDto.status,
       bodyPart: createEvalDto.bodyPart,
-      slot: createEvalDto.slot,
       notes: createEvalDto.notes,
       date: createEvalDto.date,
       insuranceDetails: createEvalDto.insuranceDetails,

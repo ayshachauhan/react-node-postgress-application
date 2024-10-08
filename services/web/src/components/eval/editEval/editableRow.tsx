@@ -13,7 +13,6 @@ import {
   toFullName,
   usDateFormatter,
   validateMRNLength,
-  validateSlot,
 } from '@root/utils';
 import { Checkbox } from 'baseui/checkbox';
 import { DatePicker } from 'baseui/datepicker';
@@ -98,7 +97,6 @@ const EditableRow: React.FC<EditableRowProps> = ({
 
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth() + 1);
   const [mrnError, setMrnError] = useState('');
-  const [slotError, setSlotError] = useState('');
   const handleMonthChange = ({ date }) => {
     setCurrentMonth(date.getMonth() + 1);
   };
@@ -116,26 +114,6 @@ const EditableRow: React.FC<EditableRowProps> = ({
     } catch (error) {
       setIsValidPhnNo(false);
       setErrorMessage('Invalid phone number');
-    }
-  };
-
-  const validateSlotValue = (value: string) => {
-    try {
-      const regex = /^\d{1,2}(\.5|\.0)?$/;
-      const numValue = parseFloat(value);
-
-      if (
-        value === '' ||
-        !regex.test(value) ||
-        numValue < 0.5 ||
-        numValue % 0.5 !== 0
-      ) {
-        setSlotError('Slot should be a multiple of 0.5');
-      } else {
-        setSlotError('');
-      }
-    } catch (error) {
-      setSlotError('Invalid slot value');
     }
   };
 
@@ -177,7 +155,6 @@ const EditableRow: React.FC<EditableRowProps> = ({
         status: evalInfo.status,
         waitlistId: evalInfo.waitlistId,
         practiceHomeId: evalInfo?.practiceHome?.id,
-        slot: evalInfo.slot,
       });
 
       setInsuranceTypeId(evalInfo?.insuranceType?.id);
@@ -188,7 +165,6 @@ const EditableRow: React.FC<EditableRowProps> = ({
         (evalInfo.patient.countryCode || '') +
         (evalInfo.patient.phoneNumber || '');
       validatePhoneNumber(fullPhoneNumber);
-      validateSlotValue(evalInfo.slot);
     }
   }, [evalInfo.id, evalInfo]);
   if (evalInfo) {
@@ -214,15 +190,6 @@ const EditableRow: React.FC<EditableRowProps> = ({
             setMrnError(validationError);
           } else {
             setMrnError('');
-          }
-        }
-
-        if (keyToUpdate === 'slot') {
-          const validationError = validateSlot(newValue);
-          if (validationError) {
-            setSlotError(validationError);
-          } else {
-            setSlotError('');
           }
         }
 
@@ -290,13 +257,6 @@ const EditableRow: React.FC<EditableRowProps> = ({
         setMrnError('');
       }
 
-      const slotError = validateSlot(String(obj.slot));
-      if (slotError) {
-        setSlotError(slotError);
-        return;
-      } else {
-        setSlotError('');
-      }
       if (isValidPhnNo) {
         if (practiceId) {
           const payloadData: Partial<UpdateEValInterface> = {
@@ -329,7 +289,6 @@ const EditableRow: React.FC<EditableRowProps> = ({
             bodyPart: '',
             mrn: 0,
             status: '',
-            slot: '1',
           });
           if (onRecordEdited) {
             onRecordEdited();
@@ -484,21 +443,6 @@ const EditableRow: React.FC<EditableRowProps> = ({
                 },
               }}
             />
-          </td>
-          <td className="min-w-20" rowSpan={1}>
-            <div className="">
-              <TextInput
-                size={SIZE.mini}
-                name="slot"
-                value={obj.slot}
-                onChange={(value) => handleObjChange('slot', value)}
-              />
-              {slotError && (
-                <div className="flex justify-center text-red-500 mt-2">
-                  {slotError}
-                </div>
-              )}
-            </div>
           </td>
           <td className="min-w-20" rowSpan={1}>
             <div className="">

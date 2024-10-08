@@ -345,7 +345,6 @@ const EvalPage: React.FC = () => {
         ` (${getDifferenceInDays(new Date(ele.date), new Date())})`,
       referrerVerified: ele.referrer && ele.referrer.verified ? true : false,
       pcpVerified: ele.pcp && ele.pcp.verified ? true : false,
-      slot: ele.slot,
     };
 
     return viewData;
@@ -440,7 +439,6 @@ const EvalPage: React.FC = () => {
                 <HomeIcon></HomeIcon>
               </th>
               <th className="">Status</th>
-              <th className="">Slot</th>
               <th className="">Last Name</th>
               <th className="">First Name</th>
               <th className="">MRN</th>
@@ -494,9 +492,6 @@ const EvalPage: React.FC = () => {
                         <div className="rounded-md text-white text-center py-1 px-2 bg-indigo-500">
                           {data.status}
                         </div>
-                      </td>
-                      <td rowSpan={1} className="">
-                        {data.slot}
                       </td>
                       <td rowSpan={1} className="">
                         {data.lastName}

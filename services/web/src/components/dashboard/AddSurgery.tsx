@@ -242,7 +242,11 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
         setPhoneNumber(row.patient.phoneNumber);
         setCountryCode(row.patient.countryCode);
         setMrn(String(row.patient.mrn));
-        setSlot(row.slot);
+        if (autoFillFromSurgery && 'slot' in row) {
+          setSlot(row.slot);
+        } else {
+          setSlot('1');
+        }
         setPracticeHomeId(row?.practiceHome?.id);
         setBodyPart(row.bodyPart);
         setSurgeryNameId(row.surgeryConfiguration.id);
@@ -260,11 +264,13 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
         } else {
           setMrnError('');
         }
-        const slotError = validateSlot(row.slot);
-        if (slotError) {
-          setSlotError(slotError);
-        } else {
-          setSlotError('');
+        if (autoFillFromSurgery && 'slot' in row) {
+          const slotError = validateSlot(row.slot);
+          if (slotError) {
+            setSlotError(slotError);
+          } else {
+            setSlotError('');
+          }
         }
       }
     }
