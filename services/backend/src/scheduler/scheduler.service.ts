@@ -46,10 +46,20 @@ export class SchedulerService {
       await this.emailLogRepository.manager.transaction(
         async (manager: EntityManager) => {
           const currentTime = new Date();
+          // const emailsToSend: EmailLogEntity[] = await manager.query(
+          //   `SELECT * FROM email_logs order by "dateCreated" desc FOR UPDATE LIMIT $1`,
+          //   [this.getMailLimit()],
+          // );
+
           const emailsToSend: EmailLogEntity[] = await manager.query(
-            `SELECT * FROM email_logs WHERE "expectedDate" <= $1 AND status='pending' FOR UPDATE LIMIT $2`,
+            `SELECT * FROM email_logs WHERE "expectedDate" <= $1  AND (status = 'pending' OR "smsStatus" = 'queued') FOR UPDATE LIMIT $2`,
             [currentTime, this.getMailLimit()],
           );
+
+          // const emailsToSend: EmailLogEntity[] = await manager.query(
+          //   `SELECT * FROM email_logs WHERE "expectedDate" <= $1 AND status='pending' FOR UPDATE LIMIT $2`,
+          //   [currentTime, this.getMailLimit()],
+          // );
 
           if (!emailsToSend.length) {
             logger.info(`No emails found to be sent.`);
@@ -83,6 +93,7 @@ export class SchedulerService {
                 const response = await this.transporterService.sendEmail(
                   mailOptions,
                   mailData.data,
+                  mailData.id,
                 );
 
                 return { id: mailData.id, response };

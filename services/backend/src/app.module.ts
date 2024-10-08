@@ -17,6 +17,7 @@ import { PracticeHomesModule } from './practiceHomes/practiceHomes.module';
 import { PracticesModule } from './practices/practices.module';
 import { ReferrersModule } from './referrers/referrers.module';
 import { ReviewsModule } from './review/review.module';
+import { SmsHandlerModule } from './smsHandler/smsHandler.module';
 import { SurgeryModule } from './surgery/surgery.module';
 import { SurgeryConfigurationsModule } from './surgeryConfiguration/surgeryConfiguration.module';
 import { SurgeryTypesModule } from './surgeryTypes/surgeryTypes.module';
@@ -53,6 +54,7 @@ import { WaitlistModule } from './waitlist/waitlist.module';
     MessagesModule,
     WaitlistModule,
     AIModule,
+    SmsHandlerModule,
   ],
 })
 export class AppModule {}

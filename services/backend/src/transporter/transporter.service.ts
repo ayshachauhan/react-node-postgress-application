@@ -55,6 +55,7 @@ export class TransporterService {
   async sendEmail(
     options: Mail.Options,
     data: Record<string, unknown>,
+    id?: string,
   ): Promise<EmailResponse | CustomError> {
     const { smtpEmail } = this.getEnvVariables();
 
@@ -64,6 +65,7 @@ export class TransporterService {
     const sms = await this.sendText(
       `${data.countryCode ? data.countryCode : ''}${data.phoneNumber}`,
       text,
+      id,
     );
     logger.info(`SMS sending response status: ${sms}`);
 
@@ -124,9 +126,13 @@ export class TransporterService {
   }
 
   // TODO implement twillio to send sms
-  async sendText(to, message: string): Promise<string | null> {
+  async sendText(
+    to,
+    message: string,
+    emailLogId?: string,
+  ): Promise<string | null> {
     const { twilioPhoneNumber, sendTextMessages } = this.getEnvVariables();
-
+    const statusCallbackUrl = `${process.env.TWILIO_DELIVERY_STATUS_WEBHOOK_URL}/${emailLogId}`;
     if (sendTextMessages && message) {
       const cleanMessage = message.replace(/<\/?p[^>]*>/g, '\n');
       try {
@@ -135,6 +141,7 @@ export class TransporterService {
           // to: to.includes('+1') ? to : `+1${to}`,
           to: to,
           from: typeof twilioPhoneNumber == 'string' ? twilioPhoneNumber : '',
+          statusCallback: statusCallbackUrl,
         });
         console.log(
           `SMS sent successfully with status ${smsResponse?.status}!`,
