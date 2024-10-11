@@ -267,7 +267,7 @@ export default function HistoryTable() {
       </div>
       <hr className="h-px my-2.5 bg-gray-100 border-1 dark:bg-gray-700"></hr>
       {!isHistoryLoading && historyLogs && historyLogs.length > 0 && (
-        <div className="table-responsive overflow-x-auto rounded-lg">
+        <div className="rounded-lg">
           <table className="">
             <tbody>
               <tr className="">

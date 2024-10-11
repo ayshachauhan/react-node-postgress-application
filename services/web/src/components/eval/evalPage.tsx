@@ -429,7 +429,7 @@ const EvalPage: React.FC = () => {
         )}
       </div>
       <hr className="h-px my-1 px-0 mx-0 bg-gray-100 border-1 border-gray-100" />
-      <div className="table-responsive overflow-x-auto rounded-lg">
+      <div className="rounded-lg">
         <table className=" rounded-lg">
           <tbody>
             <tr className="">

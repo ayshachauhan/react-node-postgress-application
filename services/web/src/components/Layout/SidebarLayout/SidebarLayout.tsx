@@ -7,9 +7,18 @@ const SidebarLayout: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  let style = {
+    overflow: 'auto',
+    maxWidth: isSidebarCollapsed ? 'calc(100vw - 60px)' : 'calc(100vw - 160px)',
+    maxHeight: 'calc(100vh - 93px)',
+  };
 
   const handleSidebarCollapseChange = (collapsed: boolean) => {
     setIsSidebarCollapsed(collapsed);
+    style = {
+      ...style,
+      maxWidth: collapsed ? 'calc(100vw - 60px)' : 'calc(100vw - 160px)',
+    };
   };
 
   return (
@@ -23,7 +32,9 @@ const SidebarLayout: React.FC<{ children: React.ReactNode }> = ({
           }}
         />
 
-        <div className="p-4 pb-12 mt-14">{children}</div>
+        <div className="p-4 pb-12 mt-14" style={style}>
+          {children}
+        </div>
         <Footer
           data={{
             collapsed: isSidebarCollapsed,

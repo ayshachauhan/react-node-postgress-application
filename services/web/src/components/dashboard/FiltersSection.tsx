@@ -1004,7 +1004,7 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
 
             {surgeryConfigList.length > 0 &&
             Object.keys(organizedObj).length > 0 ? (
-              <div className="table-responsive overflow-x-auto rounded-lg">
+              <div className="rounded-lg">
                 <table className="w-full dashboard-table">
                   <tbody>
                     {Object.keys(organizedObj).length > 0 &&
