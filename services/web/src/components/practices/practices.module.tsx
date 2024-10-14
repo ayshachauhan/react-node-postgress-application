@@ -129,6 +129,40 @@ const PracticePage: React.FC<{
   const phoneInputRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
+    const adjustDropdownWidth = () => {
+      const dropdown = document.querySelector(
+        '.react-international-phone-country-selector-dropdown',
+      );
+
+      if (dropdown) {
+        let parentElement = dropdown;
+        for (let i = 0; i < 4; i++) {
+          if (parentElement.parentElement) {
+            parentElement = parentElement.parentElement;
+          }
+        }
+
+        const parentWidth = parentElement.getBoundingClientRect().width;
+        const dropdownElement = dropdown as HTMLElement;
+        dropdownElement.style.width = `${parentWidth}px`;
+      }
+    };
+
+    adjustDropdownWidth();
+
+    // Throttle the resize event to improve performance
+    const handleResize = () => {
+      window.requestAnimationFrame(adjustDropdownWidth);
+    };
+
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+
+  useEffect(() => {
     if (phoneInputRef.current) {
       const button = phoneInputRef.current.querySelector(
         '.react-international-phone-country-selector-button',
