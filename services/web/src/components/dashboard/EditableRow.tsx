@@ -168,11 +168,11 @@ const EditableRow: React.FC<EditableRowProps> = ({
     id: waitlist[key].id,
   }));
 
-  const validateSlotValue = (value: string) => {
+  const validateSlotValue = (value: string): boolean => {
     try {
       const regex = /^\d{1,2}(\.5|\.0)?$/;
       const numValue = parseFloat(value);
-
+      console.log(numValue);
       if (
         value === '' ||
         !regex.test(value) ||
@@ -180,12 +180,16 @@ const EditableRow: React.FC<EditableRowProps> = ({
         numValue % 0.5 !== 0
       ) {
         setSlotError('Slot should be a multiple of 0.5');
+      } else if (numValue > 99) {
+        setSlotError('Slot cannot be more than max limit(99)');
       } else {
         setSlotError('');
+        return true;
       }
     } catch (error) {
       setSlotError('Invalid slot value');
     }
+    return false;
   };
 
   const validatePhoneNumber = (fullNumber: string) => {
@@ -243,12 +247,7 @@ const EditableRow: React.FC<EditableRowProps> = ({
       }
 
       if (keyToUpdate === 'slot') {
-        const validationError = validateSlot(newValue);
-        if (validationError) {
-          setSlotError(validationError);
-        } else {
-          setSlotError('');
-        }
+        validateSlotValue(newValue);
       }
 
       return updatedState;
@@ -287,12 +286,9 @@ const EditableRow: React.FC<EditableRowProps> = ({
       setMrnError('');
     }
 
-    const slotError = validateSlot(String(obj.slot));
-    if (slotError) {
-      setSlotError(slotError);
+    const slotError = validateSlotValue(String(obj.slot));
+    if (!slotError) {
       return;
-    } else {
-      setSlotError('');
     }
 
     if (isValidPhnNo) {

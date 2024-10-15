@@ -41,7 +41,7 @@ const UpsertCalendar: React.FC<{
   calendarMessageFunc,
   allDoctors,
 }) => {
-  const maxSlotsOptions = Array.from({ length: 14 }, (_, index) => index + 1);
+  const maxSlotsOptions = Array.from({ length: 99 }, (_, index) => index + 1);
   const dispatch = useAppDispatch();
   const { surgeryTypes } = useAppSelector((state) => ({
     surgeryTypes: Object.values(state.surgeryTypes.entities),

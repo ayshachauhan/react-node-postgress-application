@@ -42,7 +42,7 @@ export interface CalendarMessage {
   message: string;
 }
 
-export const DEFAULT_MAX_SLOTS: number = 14;
+export const DEFAULT_MAX_SLOTS: number = 99;
 
 export type SetMessageFunction = (messageObj: CalendarMessage) => void;
 

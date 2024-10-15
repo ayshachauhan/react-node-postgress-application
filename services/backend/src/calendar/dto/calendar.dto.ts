@@ -9,12 +9,12 @@ export class CreateCalendarDto {
   @IsOptional()
   @ApiProperty()
   @Min(0)
-  @Max(14)
+  @Max(99)
   bookedSlots: number;
 
   @IsNotEmpty()
   @ApiProperty()
-  @Max(14)
+  @Max(99)
   @Min(0)
   maxSlots: number;
 

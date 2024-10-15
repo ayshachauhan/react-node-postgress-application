@@ -412,14 +412,3 @@ export const isValidInput = (value: string) => {
   }
   return false;
 };
-
-export const validateSlot = (value) => {
-  const regex = /^\d{1,2}(\.\d+)?$/;
-  const numValue = parseFloat(value);
-
-  if (value === '' || !regex.test(value) || numValue <= 0) {
-    return 'Please enter a valid positive number';
-  }
-
-  return '';
-};
