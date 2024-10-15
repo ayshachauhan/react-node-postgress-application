@@ -107,8 +107,8 @@ export function getFullYearDateConditions(userPermissions: PermissionEntity[]) {
     (permission) => permission.name === USER_PERMISSIONS.VIEW_FUTURE_CASES,
   );
 
-  let startDate = new Date(Date.UTC(currentYear, 0, 1));
-  let endDate = new Date(Date.UTC(currentYear, 11, 31, 23, 59, 59, 999));
+  let startDate = new Date(Date.UTC(1900, 0, 1));
+  let endDate = new Date(Date.UTC(currentYear, 11, 31, 23, 59, 59, 999)); // End of the current year
 
   if (userPermissions.length) {
     if (!hasViewPastCasesPermission && !hasViewFutureCasesPermission) {
