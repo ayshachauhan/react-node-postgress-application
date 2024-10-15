@@ -149,8 +149,6 @@ const PracticePage: React.FC<{
     };
 
     adjustDropdownWidth();
-
-    // Throttle the resize event to improve performance
     const handleResize = () => {
       window.requestAnimationFrame(adjustDropdownWidth);
     };
