@@ -33,9 +33,8 @@ const ImageModal = ({ isModalOpen, handleCloseModal, imgUrl }) => {
           src={imgUrl}
           className="rounded-lg"
           alt="Image description"
-          width={800}
-          height={600}
-          style={{ width: '800px', height: '600px' }}
+          layout="fill"
+          objectFit="contain"
         />
       </div>
     </BaseUIModal>
