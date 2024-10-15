@@ -265,7 +265,7 @@ const EvalPage: React.FC = () => {
       }
     };
 
-    if (addEvalSuccessMessage) {
+    if (addEvalSuccessMessage && !isBookSurgeryOpenModal) {
       fetchAndReset();
     }
   }, [
@@ -412,7 +412,7 @@ const EvalPage: React.FC = () => {
 
   return (
     <div id="__next" className="">
-      {isEvalsLoading && page == 1 && !isBookSurgeryOpenModal && <Loader />}
+      {isEvalsLoading && page == 1 && <Loader />}
       <div className="flex justify-between border-gray-400 ">
         <span className="text-xl font-bold">Evals</span>
         {showModal && (

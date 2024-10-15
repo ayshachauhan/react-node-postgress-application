@@ -86,6 +86,7 @@ export class EvalsService {
         ],
         practice: { id: practiceId }, //TO DO: make practice id not null in future
         doctor: { id: doctorId },
+        patient: { practice: { id: practiceId } },
       },
       withDeleted: includeDeleted,
       relations: [

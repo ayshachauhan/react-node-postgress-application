@@ -168,6 +168,7 @@ export class SurgeryService {
         { id: IsNull() }, // Include surgeries where practiceHome is null
       ],
       practice: { id: practiceId }, //TO DO: make practice id not null in future
+      patient: { practice: { id: practiceId } },
     };
 
     if (doctorId) {
@@ -384,6 +385,7 @@ export class SurgeryService {
         { id: IsNull() }, // Include surgeries where practiceHome is null
       ],
       practice: { id: practiceId }, //TO DO: make practice id not null in future
+      patient: { practice: { id: practiceId } },
     };
 
     const searchConditions: FindManyOptions<SurgeryEntity> = {
@@ -797,7 +799,7 @@ export class SurgeryService {
 
         if (
           selectedCalendar &&
-          moment(createSurgeryDto.date).format('YYYY-MM-DD') !==
+          moment(createSurgeryDto.date).format('YYYY-MM-DD') ===
             moment(selectedCalendar.date).format('YYYY-MM-DD')
         ) {
           await this.calendarService.updateCalendar({
