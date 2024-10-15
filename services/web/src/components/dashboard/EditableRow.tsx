@@ -16,7 +16,6 @@ import {
   isZeroPricing,
   toFullName,
   validateMRNLength,
-  validateSlot,
 } from '@root/utils';
 import { Checkbox } from 'baseui/checkbox';
 import { DatePicker } from 'baseui/datepicker';
