@@ -16,6 +16,7 @@ import {
   isZeroPricing,
   toFullName,
   validateMRNLength,
+  validateSlotValue,
 } from '@root/utils';
 import { Checkbox } from 'baseui/checkbox';
 import { DatePicker } from 'baseui/datepicker';
@@ -158,7 +159,7 @@ const EditableRow: React.FC<EditableRowProps> = ({
         (surgeryInfo.patient.countryCode || '') +
         (surgeryInfo.patient.phoneNumber || '');
       validatePhoneNumber(fullPhoneNumber);
-      validateSlotValue(surgeryInfo.slot);
+      validateSlot(surgeryInfo.slot);
     }
   }, [surgeryInfo.id, surgeryInfo]);
 
@@ -166,30 +167,6 @@ const EditableRow: React.FC<EditableRowProps> = ({
     label: waitlist[key].name,
     id: waitlist[key].id,
   }));
-
-  const validateSlotValue = (value: string): boolean => {
-    try {
-      const regex = /^\d{1,2}(\.5|\.0)?$/;
-      const numValue = parseFloat(value);
-      console.log(numValue);
-      if (
-        value === '' ||
-        !regex.test(value) ||
-        numValue < 0.5 ||
-        numValue % 0.5 !== 0
-      ) {
-        setSlotError('Slot should be a multiple of 0.5');
-      } else if (numValue > 99) {
-        setSlotError('Slot cannot be more than max limit(99)');
-      } else {
-        setSlotError('');
-        return true;
-      }
-    } catch (error) {
-      setSlotError('Invalid slot value');
-    }
-    return false;
-  };
 
   const validatePhoneNumber = (fullNumber: string) => {
     try {
@@ -205,6 +182,15 @@ const EditableRow: React.FC<EditableRowProps> = ({
     } catch (error) {
       setIsValidPhnNo(false);
       setErrorMessage('Invalid phone number');
+    }
+  };
+
+  const validateSlot = (slotValue: string) => {
+    const slotError = validateSlotValue(slotValue);
+    if (slotError) {
+      setSlotError(slotError);
+    } else {
+      setSlotError('');
     }
   };
 
@@ -246,7 +232,12 @@ const EditableRow: React.FC<EditableRowProps> = ({
       }
 
       if (keyToUpdate === 'slot') {
-        validateSlotValue(newValue);
+        const slotError = validateSlotValue(newValue);
+        if (slotError) {
+          setSlotError(slotError);
+        } else {
+          setSlotError('');
+        }
       }
 
       return updatedState;
@@ -286,7 +277,7 @@ const EditableRow: React.FC<EditableRowProps> = ({
     }
 
     const slotError = validateSlotValue(String(obj.slot));
-    if (!slotError) {
+    if (slotError) {
       return;
     }
 

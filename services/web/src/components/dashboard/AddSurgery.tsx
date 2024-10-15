@@ -28,7 +28,7 @@ import {
   getSelectedMonths,
   toFullName,
   validateMRNLength,
-  validateSlot,
+  validateSlotValue,
 } from '@utils/index';
 import { Checkbox } from 'baseui/checkbox';
 import { DatePicker } from 'baseui/datepicker';
@@ -266,7 +266,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
           setMrnError('');
         }
         if (autoFillFromSurgery && 'slot' in row) {
-          const slotError = validateSlot(row.slot);
+          const slotError = validateSlotValue(row.slot);
           if (slotError) {
             setSlotError(slotError);
           } else {
@@ -457,7 +457,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
 
   const handleSlotChange = (value) => {
     setSlot(value);
-    const error = validateSlot(value);
+    const error = validateSlotValue(value);
     if (error) {
       setSlotError(error);
     } else {
@@ -509,7 +509,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
       setMrnError('');
     }
 
-    const slotError = validateSlot(slot);
+    const slotError = validateSlotValue(slot);
     if (slotError) {
       setSlotError(slotError);
       return;

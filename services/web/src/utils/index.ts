@@ -412,3 +412,25 @@ export const isValidInput = (value: string) => {
   }
   return false;
 };
+
+export const validateSlotValue = (value: string): string => {
+  try {
+    const regex = /^\d{1,2}(\.5|\.0)?$/;
+    const numValue = parseFloat(value);
+
+    if (
+      value === '' ||
+      !regex.test(value) ||
+      numValue < 0.5 ||
+      numValue % 0.5 !== 0
+    ) {
+      return 'Slot should be a multiple of 0.5';
+    } else if (numValue > 99) {
+      return 'Slot cannot be more than max limit(99)';
+    } else {
+      return '';
+    }
+  } catch (error) {
+    return 'Invalid slot value';
+  }
+};
