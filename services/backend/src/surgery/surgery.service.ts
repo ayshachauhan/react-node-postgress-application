@@ -810,7 +810,7 @@ export class SurgeryService {
 
         if (
           selectedCalendar &&
-          moment(createSurgeryDto.date).format('YYYY-MM-DD') !==
+          moment(createSurgeryDto.date).format('YYYY-MM-DD') ===
             moment(selectedCalendar.date).format('YYYY-MM-DD')
         ) {
           await this.calendarService.updateCalendar({

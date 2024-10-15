@@ -466,18 +466,33 @@ export default function MessagesTable() {
                 <div className="flex justify-around">
                   <React.Fragment key={selectedPreviewMediaConfig.id}>
                     <div className="rounded-lg shadow-sm p-1 h-190x` relative">
-                      <div style={{ cursor: 'pointer' }}>
-                        <Image
-                          src={getImageUrl(selectedPreviewMediaConfig?.url)}
-                          className="rounded-lg"
-                          alt="External image description"
-                          width={420}
-                          height={190}
-                        />
-                        <div className="text-gray-900 pt-2 flex justify-around">
-                          <div>{selectedPreviewMediaConfig.title}</div>
+                      {selectedPreviewMediaConfig.configType === 'video' ? (
+                        <div style={{ cursor: 'pointer' }}>
+                          <Image
+                            src={getImageUrl(selectedPreviewMediaConfig?.url)}
+                            className="rounded-lg"
+                            alt="External image description"
+                            width={420}
+                            height={190}
+                          />
+                          <div className="text-gray-900 pt-2 flex justify-around">
+                            <div>{selectedPreviewMediaConfig.title}</div>
+                          </div>
                         </div>
-                      </div>
+                      ) : (
+                        <div style={{ cursor: 'pointer' }}>
+                          <Image
+                            src={selectedPreviewMediaConfig?.url}
+                            className="rounded-lg"
+                            alt="External image description"
+                            width={420}
+                            height={190}
+                          />
+                          <div className="text-gray-900 pt-2 flex justify-around">
+                            <div>{selectedPreviewMediaConfig.title}</div>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </React.Fragment>
                 </div>

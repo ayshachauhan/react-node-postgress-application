@@ -142,7 +142,8 @@ export class TransporterService {
         return smsResponse?.status;
       } catch (error) {
         console.error('Error sending SMS:', error);
-        throw error;
+        logger.info('Error sending SMS:', error);
+        // throw error;
       }
     }
     return null;

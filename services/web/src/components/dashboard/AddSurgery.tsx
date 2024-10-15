@@ -17,6 +17,7 @@ import {
   fetchAllSurgeries,
 } from '@root/store/reducers/surgery';
 import { fetchListings as fetchUsersList } from '@root/store/reducers/users';
+import { getUserId } from '@root/utils';
 import { parsePhoneNumber } from 'libphonenumber-js';
 import { PhoneInput } from 'react-international-phone';
 import 'react-international-phone/style.css';
@@ -499,6 +500,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const selectedDoctorId: string | null = getUserId();
     const mrnErrorMessage = validateMRNLength(mrn);
     if (mrnErrorMessage) {
       setMrnError(mrnErrorMessage);
@@ -617,17 +619,23 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
               }),
             );
           }
-          await dispatch(
-            fetchFilteredCalendars({
-              practiceId,
-              userId: doctorId,
-              month,
-              option: selectedValueStr,
-              loggedInUserId,
-            }),
-          );
+          if (selectedDoctorId) {
+            await dispatch(
+              fetchFilteredCalendars({
+                practiceId,
+                userId: selectedDoctorId,
+                month,
+                option: selectedValueStr,
+                loggedInUserId,
+              }),
+            );
+          }
 
-          await dispatch(fetchCalendars({ practiceId, userId: doctorId }));
+          if (selectedDoctorId) {
+            await dispatch(
+              fetchCalendars({ practiceId, userId: selectedDoctorId }),
+            );
+          }
           await dispatch(fetchReferrersList({ practiceId: practiceId }));
           dispatch(fetchUsersList({ practiceId }));
           dispatch(fetchAllSurgeries({ practiceId }));
