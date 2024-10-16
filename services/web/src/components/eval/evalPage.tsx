@@ -216,21 +216,25 @@ const EvalPage: React.FC = () => {
   }, [isEvalsLoading, hasMore]);
 
   const handleScroll = useCallback(() => {
-    if (
-      window.innerHeight + document.documentElement.scrollTop !==
-        document.documentElement.offsetHeight ||
-      isEvalsLoading
-    )
-      return;
+    const div = document.querySelector('.table-container');
 
-    loadMore();
+    if (div && !isEvalsLoading) {
+      const { scrollTop, clientHeight, scrollHeight } = div;
+      if (scrollHeight - scrollTop === clientHeight) {
+        loadMore();
+      }
+    }
   }, [isEvalsLoading, loadMore]);
 
   useEffect(() => {
-    window.addEventListener('scroll', handleScroll);
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
+    const div = document.querySelector('.table-container');
+    if (div) {
+      div.addEventListener('scroll', handleScroll);
+      return () => {
+        div.removeEventListener('scroll', handleScroll);
+      };
+    }
+    return;
   }, [handleScroll]);
 
   useEffect(() => {

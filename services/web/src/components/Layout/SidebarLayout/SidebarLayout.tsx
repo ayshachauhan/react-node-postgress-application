@@ -32,7 +32,7 @@ const SidebarLayout: React.FC<{ children: React.ReactNode }> = ({
           }}
         />
 
-        <div className="p-4 pb-12 mt-14" style={style}>
+        <div className="p-4 pb-12 mt-14 table-container" style={style}>
           {children}
         </div>
         <Footer

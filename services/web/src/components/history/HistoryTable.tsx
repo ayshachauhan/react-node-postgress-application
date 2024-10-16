@@ -165,21 +165,25 @@ export default function HistoryTable() {
   }, [isHistoryLoading, hasMore]);
 
   const handleScroll = useCallback(() => {
-    if (
-      window.innerHeight + document.documentElement.scrollTop !==
-        document.documentElement.offsetHeight ||
-      isHistoryLoading
-    )
-      return;
+    const div = document.querySelector('.table-container');
 
-    loadMore();
+    if (div && !isHistoryLoading) {
+      const { scrollTop, clientHeight, scrollHeight } = div;
+      if (scrollHeight - scrollTop === clientHeight) {
+        loadMore();
+      }
+    }
   }, [isHistoryLoading, loadMore]);
 
   useEffect(() => {
-    window.addEventListener('scroll', handleScroll);
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
+    const div = document.querySelector('.table-container');
+    if (div) {
+      div.addEventListener('scroll', handleScroll);
+      return () => {
+        div.removeEventListener('scroll', handleScroll);
+      };
+    }
+    return;
   }, [handleScroll]);
 
   const resolvedHistoryChanges = (
