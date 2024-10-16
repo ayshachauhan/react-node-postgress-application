@@ -165,21 +165,25 @@ export default function HistoryTable() {
   }, [isHistoryLoading, hasMore]);
 
   const handleScroll = useCallback(() => {
-    if (
-      window.innerHeight + document.documentElement.scrollTop !==
-        document.documentElement.offsetHeight ||
-      isHistoryLoading
-    )
-      return;
+    const div = document.querySelector('.table-container');
 
-    loadMore();
+    if (div && !isHistoryLoading) {
+      const { scrollTop, clientHeight, scrollHeight } = div;
+      if (scrollHeight - scrollTop === clientHeight) {
+        loadMore();
+      }
+    }
   }, [isHistoryLoading, loadMore]);
 
   useEffect(() => {
-    window.addEventListener('scroll', handleScroll);
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
+    const div = document.querySelector('.table-container');
+    if (div) {
+      div.addEventListener('scroll', handleScroll);
+      return () => {
+        div.removeEventListener('scroll', handleScroll);
+      };
+    }
+    return;
   }, [handleScroll]);
 
   const resolvedHistoryChanges = (
@@ -267,7 +271,7 @@ export default function HistoryTable() {
       </div>
       <hr className="h-px my-2.5 bg-gray-100 border-1 dark:bg-gray-700"></hr>
       {!isHistoryLoading && historyLogs && historyLogs.length > 0 && (
-        <div className="table-responsive overflow-x-auto rounded-lg">
+        <div className="rounded-lg">
           <table className="">
             <tbody>
               <tr className="">

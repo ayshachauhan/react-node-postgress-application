@@ -171,6 +171,7 @@ export class SurgeryService {
         { id: IsNull() }, // Include surgeries where practiceHome is null
       ],
       practice: { id: practiceId }, //TO DO: make practice id not null in future
+      patient: { practice: { id: practiceId } },
     };
 
     if (doctorId) {
@@ -387,6 +388,7 @@ export class SurgeryService {
         { id: IsNull() }, // Include surgeries where practiceHome is null
       ],
       practice: { id: practiceId }, //TO DO: make practice id not null in future
+      patient: { practice: { id: practiceId } },
     };
 
     const searchConditions: FindManyOptions<SurgeryEntity> = {

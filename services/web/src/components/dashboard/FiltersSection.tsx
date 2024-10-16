@@ -834,21 +834,25 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
     };
 
     const handleScroll = useCallback(() => {
-      if (
-        window.innerHeight + document.documentElement.scrollTop !==
-          document.documentElement.offsetHeight ||
-        isSurgeriesLoading
-      )
-        return;
+      const div = document.querySelector('.table-container');
 
-      loadMore();
+      if (div && !isSurgeriesLoading) {
+        const { scrollTop, clientHeight, scrollHeight } = div;
+        if (scrollHeight - scrollTop === clientHeight) {
+          loadMore();
+        }
+      }
     }, [isSurgeriesLoading, loadMore]);
 
     useEffect(() => {
-      window.addEventListener('scroll', handleScroll);
-      return () => {
-        window.removeEventListener('scroll', handleScroll);
-      };
+      const div = document.querySelector('.table-container');
+      if (div) {
+        div.addEventListener('scroll', handleScroll);
+        return () => {
+          div.removeEventListener('scroll', handleScroll);
+        };
+      }
+      return;
     }, [handleScroll]);
 
     const waitlistShowFlag =
@@ -1005,7 +1009,7 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
 
             {surgeryConfigList.length > 0 &&
             Object.keys(organizedObj).length > 0 ? (
-              <div className="table-responsive overflow-x-auto rounded-lg">
+              <div className="rounded-lg">
                 <table className="w-full dashboard-table">
                   <tbody>
                     {Object.keys(organizedObj).length > 0 &&

@@ -107,8 +107,8 @@ export function getFullYearDateConditions(userPermissions: PermissionEntity[]) {
     (permission) => permission.name === USER_PERMISSIONS.VIEW_FUTURE_CASES,
   );
 
-  let startDate = new Date(Date.UTC(1900, 0, 1));
-  let endDate = new Date(Date.UTC(currentYear, 11, 31, 23, 59, 59, 999));
+  let startDate: Date;
+  let endDate: Date;
 
   if (userPermissions.length) {
     if (!hasViewPastCasesPermission && !hasViewFutureCasesPermission) {
@@ -121,11 +121,23 @@ export function getFullYearDateConditions(userPermissions: PermissionEntity[]) {
       );
     } else if (!hasViewPastCasesPermission) {
       startDate = new Date(Date.UTC(currentYear, currentMonth, currentDay - 1));
+      endDate = new Date(Date.UTC(2100, 11, 31, 23, 59, 59, 999)); // Arbitrary far future date
     } else if (!hasViewFutureCasesPermission) {
+      startDate = new Date(Date.UTC(1900, 0, 1));
       endDate = new Date(
         Date.UTC(currentYear, currentMonth, currentDay - 1, 23, 59, 59, 999),
       );
+    } else {
+      startDate = new Date(Date.UTC(1900, 0, 1)); // Start from a very early date
+      endDate = new Date(Date.UTC(2100, 11, 31, 23, 59, 59, 999)); // Arbitrary far future date
     }
+  } else {
+    startDate = new Date(
+      Date.UTC(currentYear, currentMonth, currentDay, 0, 0, 0, 0),
+    );
+    endDate = new Date(
+      Date.UTC(currentYear, currentMonth, currentDay, 23, 59, 59, 999),
+    );
   }
 
   return [{ date: Between(startDate, endDate) }];
