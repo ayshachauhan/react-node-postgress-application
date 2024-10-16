@@ -126,7 +126,7 @@ const ReviewDashboard: React.FC = () => {
         )}
       </div>
       <hr className="h-px my-2.5 bg-gray-100 border-1 dark:bg-gray-700"></hr>
-      <div className="table-responsive overflow-x-auto rounded-lg">
+      <div className="rounded-lg">
         <table>
           <tbody>
             <tr>

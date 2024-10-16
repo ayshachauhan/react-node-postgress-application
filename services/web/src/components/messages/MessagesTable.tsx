@@ -528,7 +528,7 @@ export default function MessagesTable() {
             </div>
           </div>
           {Object.keys(sortedMessagesByDate).length !== 0 && (
-            <div className="table-responsive overflow-x-auto rounded-lg mt-2">
+            <div className="rounded-lg mt-2">
               <table className="">
                 <tbody>
                   {Object.entries(sortedMessagesByDate).length > 0 &&

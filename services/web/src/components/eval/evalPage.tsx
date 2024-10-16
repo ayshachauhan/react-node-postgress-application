@@ -216,21 +216,25 @@ const EvalPage: React.FC = () => {
   }, [isEvalsLoading, hasMore]);
 
   const handleScroll = useCallback(() => {
-    if (
-      window.innerHeight + document.documentElement.scrollTop !==
-        document.documentElement.offsetHeight ||
-      isEvalsLoading
-    )
-      return;
+    const div = document.querySelector('.table-container');
 
-    loadMore();
+    if (div && !isEvalsLoading) {
+      const { scrollTop, clientHeight, scrollHeight } = div;
+      if (scrollHeight - scrollTop === clientHeight) {
+        loadMore();
+      }
+    }
   }, [isEvalsLoading, loadMore]);
 
   useEffect(() => {
-    window.addEventListener('scroll', handleScroll);
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
+    const div = document.querySelector('.table-container');
+    if (div) {
+      div.addEventListener('scroll', handleScroll);
+      return () => {
+        div.removeEventListener('scroll', handleScroll);
+      };
+    }
+    return;
   }, [handleScroll]);
 
   useEffect(() => {
@@ -429,7 +433,7 @@ const EvalPage: React.FC = () => {
         )}
       </div>
       <hr className="h-px my-1 px-0 mx-0 bg-gray-100 border-1 border-gray-100" />
-      <div className="table-responsive overflow-x-auto rounded-lg">
+      <div className="rounded-lg">
         <table className=" rounded-lg">
           <tbody>
             <tr className="">
