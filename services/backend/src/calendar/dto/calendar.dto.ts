@@ -34,7 +34,7 @@ export class UpdateCalendarDto {
 
   @IsOptional()
   @ApiProperty()
-  @Max(14)
+  @Max(99)
   @Min(0)
   maxSlots?: number;
 

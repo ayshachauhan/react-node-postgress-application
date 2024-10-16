@@ -283,7 +283,6 @@ const EditableRow: React.FC<EditableRowProps> = ({
 
     if (isValidPhnNo) {
       if (practiceId) {
-        console.log(obj);
         const payload: Partial<UpdateSurgeryPayload> = {
           practiceId,
           ...obj,

@@ -625,7 +625,7 @@ export class SurgeryService {
             date: createSurgeryDto.date,
             bookedSlots: 1,
             bookedHours: createSurgeryDto.slot,
-            maxSlots: 14,
+            maxSlots: 99,
             surgeryTypeId: surgeryConfigurationEntity.surgeryType.id,
           },
         );
@@ -837,7 +837,7 @@ export class SurgeryService {
                 date: createSurgeryDto?.date,
                 bookedSlots: 1,
                 bookedHours: surgeryToUpdate.slot,
-                maxSlots: 14,
+                maxSlots: 99,
                 surgeryTypeId: surgeryConfigurationEntity.surgeryType.id,
               },
             );
