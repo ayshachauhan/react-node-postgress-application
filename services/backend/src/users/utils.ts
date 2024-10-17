@@ -4,11 +4,12 @@ export const getUploadFileKey = (
   uploadType: UploadType,
   data: GetUploadFileKey,
 ): string => {
+  const timestamp = Date.now();
   switch (uploadType) {
     case UploadType.USER:
       return `upload/practice/${data.practiceId}/user/${data.userId}/${data.file.originalname}`;
     case UploadType.PRACTICE:
-      return `upload/practice/${data.practiceId}/${data.file.originalname}`;
+      return `upload/practice/${data.practiceId}/${data.file.originalname}${timestamp}`;
     case UploadType.TEMPLATES:
       return `upload/templates/${data.practiceId}/templates/${data.templateId}/${data.file.originalname}`;
   }
