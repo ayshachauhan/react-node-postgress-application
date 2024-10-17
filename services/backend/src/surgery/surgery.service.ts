@@ -800,13 +800,41 @@ export class SurgeryService {
           moment(createSurgeryDto.date).format('YYYY-MM-DD') !==
             moment(reomvedCalender.date).format('YYYY-MM-DD')
         ) {
+          const surgeryConfigurations =
+            await this.surgeryConfigurationRepository.find({
+              where: { surgeryType: { id: reomvedCalender.surgeryType.id } },
+              relations: ['surgeryType'],
+            });
+
+          let totalBookedHours = 0;
+          const startOfDay = moment
+            .utc(reomvedCalender.date)
+            .startOf('day')
+            .toDate();
+          const endOfDay = moment
+            .utc(reomvedCalender.date)
+            .endOf('day')
+            .toDate();
+
+          for (const config of surgeryConfigurations) {
+            const surgeries = await this.surgeryRepository.find({
+              where: {
+                surgeryConfiguration: { id: config.id },
+                date: Between(startOfDay, endOfDay),
+                practice: { id: practiceId },
+              },
+              relations: ['surgeryConfiguration'],
+            });
+
+            surgeries.forEach((surgery) => {
+              totalBookedHours += parseFloat(surgery.slot) || 0;
+            });
+          }
+
           await this.calendarService.updateCalendar({
             id: reomvedCalender?.id,
             bookedSlots: reomvedCalender?.bookedSlots - 1,
-            bookedHours: String(
-              parseFloat(reomvedCalender?.bookedHours) -
-                (parseFloat(createSurgeryDto.slot) || 0),
-            ),
+            bookedHours: String(totalBookedHours),
           });
         }
 

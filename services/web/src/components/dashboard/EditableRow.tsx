@@ -495,7 +495,7 @@ const EditableRow: React.FC<EditableRowProps> = ({
               }
             />
           </td>
-          <td rowSpan={2} className="">
+          <td rowSpan={2} className="min-w-[45px]">
             <div className="">
               <TextInput
                 type="number"
