@@ -93,6 +93,7 @@ const EditableRow: React.FC<EditableRowProps> = ({
   const [referrerId, setReferrerId] = useState<string>('');
   const [pcp, setPcp] = useState<string>('');
   const [mrnError, setMrnError] = useState('');
+  const [emailError, setEmailError] = useState('');
   const [isValidPhnNo, setIsValidPhnNo] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
   const [waitlistId, setWaitlistId] = useState<string>('');
@@ -100,6 +101,15 @@ const EditableRow: React.FC<EditableRowProps> = ({
   const doctorId: string | null = getUserId();
 
   const phoneInputRef = useRef<HTMLDivElement | null>(null);
+
+  const validateEmail = (value: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(value)) {
+      setEmailError('Invalid email address');
+    } else {
+      setEmailError('');
+    }
+  };
 
   useEffect(() => {
     if (phoneInputRef.current) {
@@ -156,6 +166,7 @@ const EditableRow: React.FC<EditableRowProps> = ({
         (surgeryInfo.patient.countryCode || '') +
         (surgeryInfo.patient.phoneNumber || '');
       validatePhoneNumber(fullPhoneNumber);
+      validateEmail(surgeryInfo.patient.email);
     }
   }, [surgeryInfo.id, surgeryInfo]);
 
@@ -218,6 +229,10 @@ const EditableRow: React.FC<EditableRowProps> = ({
         }
       }
 
+      if (keyToUpdate === 'email') {
+        validateEmail(newValue);
+      }
+
       return updatedState;
     });
   };
@@ -253,7 +268,7 @@ const EditableRow: React.FC<EditableRowProps> = ({
     } else {
       setMrnError('');
     }
-    if (isValidPhnNo) {
+    if (isValidPhnNo && !emailError) {
       if (practiceId) {
         const payload: Partial<UpdateSurgeryPayload> = {
           practiceId,
@@ -1068,6 +1083,11 @@ const EditableRow: React.FC<EditableRowProps> = ({
                 onChange={(value) => handleObjChange('email', value)}
                 size={SIZE.mini}
               />
+              {emailError && (
+                <div className="flex justify-center text-red-500 mt-2">
+                  {emailError}
+                </div>
+              )}
             </div>
             <div className="text-black py-0.5 px-1 w-60 text-center">
               <div className="flex gap-2 items-center">

@@ -70,6 +70,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
   const practiceId = getPracticeId();
   const router = useRouter();
   const [mrnError, setMrnError] = useState('');
+  const [emailError, setEmailError] = useState('');
   const defaultUser = usersList.find((ele) => ele.id === getSelectedUserId);
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -141,6 +142,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
           (patientCheck.countryCode ? patientCheck.countryCode : '') +
           (patientCheck.phoneNumber ? patientCheck.phoneNumber : '');
         validatePhoneNumber(fullPhoneNumber);
+        validateEmail(patientCheck.email);
       } else {
         setFirstName('');
         setLastName('');
@@ -340,6 +342,15 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
     }
   };
 
+  const validateEmail = (value: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(value)) {
+      setEmailError('Invalid email address');
+    } else {
+      setEmailError('');
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const mrnErrorMessage = validateMRNLength(mrn);
@@ -349,7 +360,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
     } else {
       setMrnError('');
     }
-    if (isValidPhnNo) {
+    if (isValidPhnNo && !emailError) {
       if (practiceId && doctorId) {
         await withLoader(async () => {
           await dispatch(
@@ -454,6 +465,11 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
               {mrnError}
             </div>
           )}
+          {emailError && (
+            <div className="flex justify-center text-red-500 mt-2">
+              {emailError}
+            </div>
+          )}
           <div className="flex flex-col gap-4 mt-4">
             <div className="flex gap-4">
               <div className="space-y-2 flex-1">
@@ -534,6 +550,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
                   value={email}
                   onChange={(value) => {
                     setEmail(value);
+                    validateEmail(value);
                   }}
                   required
                 />

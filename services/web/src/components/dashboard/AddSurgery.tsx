@@ -100,6 +100,15 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
     validatePhoneNumber(fullPhoneNumber);
   };
 
+  const validateEmail = (value: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(value)) {
+      setEmailError('Invalid email address');
+    } else {
+      setEmailError('');
+    }
+  };
+
   const validatePhoneNumber = (fullNumber: string) => {
     try {
       const parsedPhoneNumber = parsePhoneNumber(fullNumber);
@@ -160,6 +169,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
   const [surgeryNameId, setSurgeryNameId] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState('');
   const [mrnError, setMrnError] = useState('');
+  const [emailError, setEmailError] = useState('');
   const [surgeryCataractNameId, setSurgeryCataractNameId] =
     useState<string>('');
   const [errorMsgForCataract, setErrorMessageForCataract] = useState('');
@@ -257,6 +267,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
         } else {
           setMrnError('');
         }
+        validateEmail(row.patient.email);
       }
     }
   }, [
@@ -280,6 +291,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
           (patientCheck.countryCode ? patientCheck.countryCode : '') +
           (patientCheck.phoneNumber ? patientCheck.phoneNumber : '');
         validatePhoneNumber(fullPhoneNumber);
+        validateEmail(patientCheck.email);
       } else {
         setFirstName('');
         setLastName('');
@@ -483,7 +495,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
       setMrnError('');
     }
 
-    if (isValidPhnNo) {
+    if (isValidPhnNo && !emailError) {
       const surgeryOptionObj: SelectedSurgeryOption = {};
       surgeryDropdownOptions.forEach((ele) => {
         const allowedValue = ele.allowedValues.find((ele) => ele.selected);
@@ -704,6 +716,11 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
               {errorMessage}
             </div>
           )}
+          {emailError && (
+            <div className="flex justify-center text-red-500 mt-2">
+              {emailError}
+            </div>
+          )}
           <div className="flex gap-5 mt-4">
             <div className="space-y-1 flex-1">
               <label htmlFor="mrn" className="text-black text-xs">
@@ -785,6 +802,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
                 value={email}
                 onChange={(value) => {
                   setEmail(value);
+                  validateEmail(value);
                 }}
                 required
               />
