@@ -101,4 +101,7 @@ export class SurgeryEntity extends BaseEntity implements ISurgery {
   @ManyToOne(() => ReferrersEntity)
   @JoinColumn({ name: 'referrerId' })
   referrer: ReferrersEntity;
+
+  @Column()
+  slot: string;
 }

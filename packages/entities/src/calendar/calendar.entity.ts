@@ -21,7 +21,7 @@ export class CalendarEntity extends BaseEntity implements ICalendar {
   @Column({ type: 'integer' })
   bookedSlots: number;
 
-  @Column({ type: 'integer', default: 14 })
+  @Column({ type: 'integer', default: 99 })
   maxSlots: number;
 
   @ManyToOne(() => UserEntity)
@@ -31,4 +31,7 @@ export class CalendarEntity extends BaseEntity implements ICalendar {
   @ManyToOne(() => SurgeryConfigurationEntity, { nullable: true })
   @JoinColumn({ name: 'surgeryConfigurationId' })
   surgeryConfiguration: SurgeryConfigurationEntity;
+
+  @Column({ type: 'numeric' })
+  bookedHours: string;
 }

@@ -189,6 +189,7 @@ export class CalendarService {
     const calendar = this.calendarRepo.create({
       ...dto,
       bookedSlots: dto.bookedSlots ?? 0,
+      bookedHours: dto.bookedHours ?? 0,
       practice: practiceEntity!,
       surgeryType: surgeryTypeEntity,
       user: userEntity!,
@@ -206,10 +207,11 @@ export class CalendarService {
   async updateCalendar({
     maxSlots,
     bookedSlots,
+    bookedHours,
     id,
   }: UpdateCalendarDto & { id: string }): Promise<CalendarEntity | null> {
-    if (maxSlots && bookedSlots) {
-      if (maxSlots < bookedSlots) {
+    if (maxSlots && bookedHours) {
+      if (maxSlots < parseFloat(bookedHours)) {
         throw new HttpException(
           'MaxSlots should be greater than or equal to booked slots',
           HttpStatus.FORBIDDEN,
@@ -219,6 +221,7 @@ export class CalendarService {
     await this.calendarRepo.update(id, {
       maxSlots,
       bookedSlots,
+      bookedHours,
     });
 
     return await this.calendarRepo.findOne({
@@ -244,9 +247,9 @@ export class CalendarService {
 
     await Promise.all(
       data.map(async (data) => {
-        const { id, maxSlots, bookedSlots, surgeryTypeId } = data;
+        const { id, maxSlots, bookedSlots, surgeryTypeId, bookedHours } = data;
 
-        if (maxSlots && bookedSlots && maxSlots < bookedSlots) {
+        if (maxSlots && bookedHours && maxSlots < parseFloat(bookedHours)) {
           throw new HttpException(
             'MaxSlots should be greater than or equal to booked slots',
             HttpStatus.FORBIDDEN,
@@ -294,6 +297,7 @@ export class CalendarService {
         await this.calendarRepo.update(id, {
           maxSlots,
           bookedSlots,
+          bookedHours,
           ...(surgeryTypeEntity ? { surgeryType: surgeryTypeEntity } : {}),
         });
 
