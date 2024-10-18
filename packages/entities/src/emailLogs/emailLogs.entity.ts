@@ -1,7 +1,12 @@
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { BaseEntity } from '../base.entity';
 import { PracticeEntity } from '../practice';
-import { EmailData, EmailResponse, IEmailLog } from './emailLogs.interface';
+import {
+  EmailData,
+  EmailResponse,
+  IEmailLog,
+  SMSResponse,
+} from './emailLogs.interface';
 
 @Entity('email_logs')
 export class EmailLogEntity extends BaseEntity implements IEmailLog {
@@ -22,6 +27,9 @@ export class EmailLogEntity extends BaseEntity implements IEmailLog {
 
   @Column({ type: 'jsonb', nullable: true })
   response: EmailResponse;
+
+  @Column({ type: 'jsonb', nullable: true })
+  smsResponse: SMSResponse;
 
   @Column({ type: 'timestamp' })
   expectedDate: Date;

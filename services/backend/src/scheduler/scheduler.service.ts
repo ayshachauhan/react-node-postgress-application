@@ -3,7 +3,12 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Cron, Interval } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
-import { EmailLogEntity, EmailResponse, IEmailLog } from '@packages/entities';
+import {
+  EmailLogEntity,
+  EmailResponse,
+  IEmailLog,
+  SMSResponse,
+} from '@packages/entities';
 import Mail from 'nodemailer/lib/mailer';
 import { ENVIRONMENT_VARIABLES } from 'src/enums/environment.enums';
 import logger from 'src/logger';
@@ -16,6 +21,11 @@ import { EntityManager, Repository } from 'typeorm';
 type EmailLogResponse = {
   id: string;
   response: EmailResponse | CustomError;
+};
+
+type SMSLogResponse = {
+  id: string;
+  response: SMSResponse | CustomError;
 };
 
 @Injectable()
@@ -34,7 +44,7 @@ export class SchedulerService {
     return this.configService.get(ENVIRONMENT_VARIABLES.CRON_EMAIL_SENT_LIMIT);
   }
 
-  @Interval(15000) // This runs the task every 10 seconds
+  @Interval(20000)
   async handleCron() {
     if (this.isEmailLogCronRunning) {
       logger.info('Exiting early to avoid cron duplication');
@@ -46,27 +56,17 @@ export class SchedulerService {
       await this.emailLogRepository.manager.transaction(
         async (manager: EntityManager) => {
           const currentTime = new Date();
-          // const emailsToSend: EmailLogEntity[] = await manager.query(
-          //   `SELECT * FROM email_logs order by "dateCreated" desc FOR UPDATE LIMIT $1`,
-          //   [this.getMailLimit()],
-          // );
-
           const emailsToSend: EmailLogEntity[] = await manager.query(
             `SELECT * FROM email_logs WHERE "expectedDate" <= $1  AND (status = 'pending' OR "smsStatus" = 'queued') FOR UPDATE LIMIT $2`,
             [currentTime, this.getMailLimit()],
           );
-
-          // const emailsToSend: EmailLogEntity[] = await manager.query(
-          //   `SELECT * FROM email_logs WHERE "expectedDate" <= $1 AND status='pending' FOR UPDATE LIMIT $2`,
-          //   [currentTime, this.getMailLimit()],
-          // );
 
           if (!emailsToSend.length) {
             logger.info(`No emails found to be sent.`);
             return;
           }
 
-          logger.info(`Found ${emailsToSend.length} emails to send`);
+          logger.info(`Found ${emailsToSend.length} emails/SMS to send`);
 
           const promises = emailsToSend.map(
             async (mailData: EmailLogEntity) => {
@@ -89,16 +89,40 @@ export class SchedulerService {
                 };
                 mailOptions && mailOptions;
 
-                // sending mail here
-                const response = await this.transporterService.sendEmail(
-                  mailOptions,
-                  mailData.data,
-                  mailData.id,
-                );
-
-                return { id: mailData.id, response };
+                const emailResponse =
+                  mailData.status === 'pending'
+                    ? await this.transporterService.sendEmail(
+                        mailOptions,
+                        Object.assign(mailData.data, {
+                          emailAttempts: mailData.emailAttempts,
+                        }),
+                      )
+                    : {};
+                return {
+                  id: mailData.id,
+                  response: Object.assign(
+                    mailData.response ?? {},
+                    emailResponse,
+                  ),
+                };
               } catch (ex) {
-                logger.error(ex);
+                logger.error(`Error in scheduler to send emails: ${ex}`);
+                if (mailData?.emailAttempts < 1) {
+                  this.emailLogRepository.update(
+                    { id: mailData.id },
+                    {
+                      emailAttempts: () => 'emailAttempts + 1',
+                      status: 'pending',
+                    },
+                  );
+                } else {
+                  this.emailLogRepository.update(
+                    { id: mailData.id },
+                    {
+                      status: 'rejected',
+                    },
+                  );
+                }
                 throw ex;
               }
             },
@@ -117,22 +141,93 @@ export class SchedulerService {
           await Promise.all(
             filteredSuccessfullPromises.map((log) => {
               const { id, response } = log;
+              console.log(
+                'email log: ',
+                'status' in response && response.status == 'rejected',
+              );
               const status =
                 'status' in response && response.status == 'rejected'
                   ? 'rejected'
                   : 'completed';
               return manager.query(
-                `UPDATE email_logs SET status = $1, response=$2 WHERE id=$3`,
+                `UPDATE email_logs SET status=$1, response=$2 WHERE id=$3`,
                 [status, response, id],
               );
             }),
           );
           logger.info('Processed emails');
+
+          const smsPromises = emailsToSend.map(
+            async (smsLog: EmailLogEntity) => {
+              try {
+                const { countryCode, phoneNumber, text } = smsLog.data;
+                const sms =
+                  smsLog.smsStatus === 'queued'
+                    ? await this.transporterService.sendText(
+                        `${countryCode ? countryCode : ''}${phoneNumber}`,
+                        text,
+                        smsLog.id,
+                      )
+                    : {};
+                logger.info(
+                  `SMS sending response status: ${JSON.stringify(sms)}`,
+                );
+
+                return {
+                  id: smsLog.id,
+                  response: Object.assign(smsLog.smsResponse ?? {}, sms),
+                };
+              } catch (ex) {
+                console.log(ex);
+                logger.error(`Error in scheduler to send SMS: ${ex}`);
+                if (smsLog?.smsAttempts < 1) {
+                  this.emailLogRepository.update(
+                    { id: smsLog.id },
+                    {
+                      smsAttempts: () => 'smsAttempts + 1',
+                      smsStatus: 'queued',
+                    },
+                  );
+                } else {
+                  this.emailLogRepository.update(
+                    { id: smsLog.id },
+                    {
+                      smsStatus: 'failed',
+                    },
+                  );
+                }
+                throw ex;
+              }
+            },
+          );
+
+          const smsResponses: PromiseSettledResult<SMSLogResponse>[] =
+            await Promise.allSettled(smsPromises);
+
+          const smsSuccessfulPromises = smsResponses
+            .filter((item) => item.status === 'fulfilled')
+            .map(
+              (item) => (item as PromiseFulfilledResult<SMSLogResponse>).value,
+            );
+
+          await Promise.all(
+            smsSuccessfulPromises.map((log) => {
+              const { id, response } = log;
+              const status =
+                'status' in response && response.status == 'rejected'
+                  ? 'failed'
+                  : 'enqueued';
+              return manager.query(
+                `UPDATE email_logs SET "smsStatus"=$1, "smsResponse"=$2 WHERE id=$3`,
+                [status, response, id],
+              );
+            }),
+          );
+          logger.info('Processed SMS');
         },
       );
     } catch (error) {
-      logger.error(error);
-      logger.error('Error processing emails:');
+      logger.error(`Error processing scheduler: ${error}`);
     } finally {
       this.isEmailLogCronRunning = false;
     }

@@ -22,7 +22,7 @@ interface SmsStatusUpdateDto {
   ErrorCode?: string;
 }
 
-@Controller('smsHandler')
+@Controller('sms')
 export class SmsHandlerController {
   constructor(private readonly smsService: SmsHandlerService) {}
 
@@ -34,7 +34,7 @@ export class SmsHandlerController {
     @Headers('x-twilio-signature') twilioHeader: string,
   ) {
     const authToken = process.env.TWILIO_AUTH_TOKEN;
-    const webhookUrl = `${process.env.TWILIO_DELIVERY_STATUS_WEBHOOK_URL}/${recordId}`;
+    const webhookUrl = `${process.env.TWILIO_DELIVERY_STATUS_WEBHOOK_URL}/sms/status/${recordId}`;
 
     if (!authToken) {
       logger.error('Twilio Auth Token is not set');

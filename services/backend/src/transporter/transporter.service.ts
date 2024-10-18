@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import * as fs from 'fs';
 import * as path from 'path';
 
-import { EmailResponse } from '@packages/entities';
+import { EmailResponse, SMSResponse } from '@packages/entities';
 import { compile } from 'handlebars';
 import type { Transporter } from 'nodemailer';
 import Mail from 'nodemailer/lib/mailer';
@@ -55,19 +55,8 @@ export class TransporterService {
   async sendEmail(
     options: Mail.Options,
     data: Record<string, unknown>,
-    id?: string,
   ): Promise<EmailResponse | CustomError> {
     const { smtpEmail } = this.getEnvVariables();
-
-    const text: string = options.text
-      ? this.compileTemplate(options.text.toString(), data)
-      : '';
-    const sms = await this.sendText(
-      `${data.countryCode ? data.countryCode : ''}${data.phoneNumber}`,
-      text,
-      id,
-    );
-    logger.info(`SMS sending response status: ${sms}`);
 
     if (data.links && typeof data.links == 'string') {
       data.links = data.links.split(',');
@@ -77,7 +66,7 @@ export class TransporterService {
     const error = this.compileCheck(options, data);
     if (error) return error;
     let message = '';
-    if (options?.to) {
+    if (options?.to && ((data.emailAttempts as number) ?? 0) < 1) {
       const result = await this.emailTransporter.sendMail({
         ...options,
         from: typeof smtpEmail == 'string' ? smtpEmail : '',
@@ -88,7 +77,7 @@ export class TransporterService {
     } else {
       logger.error(`Email toAddress is missing ${JSON.stringify(options)}`);
       if ((!options?.html || options?.html === '') && options?.text) {
-        message = sms ?? '';
+        message = '';
       }
     }
     return { message };
@@ -130,15 +119,14 @@ export class TransporterService {
     to,
     message: string,
     emailLogId?: string,
-  ): Promise<string | null> {
+  ): Promise<SMSResponse> {
     const { twilioPhoneNumber, sendTextMessages } = this.getEnvVariables();
-    const statusCallbackUrl = `${process.env.TWILIO_DELIVERY_STATUS_WEBHOOK_URL}/${emailLogId}`;
+    const statusCallbackUrl = `${process.env.TWILIO_DELIVERY_STATUS_WEBHOOK_URL}/sms/status/${emailLogId}`;
     if (sendTextMessages && message) {
       const cleanMessage = message.replace(/<\/?p[^>]*>/g, '\n');
       try {
         const smsResponse = await this.twilioClient.messages.create({
           body: cleanMessage,
-          // to: to.includes('+1') ? to : `+1${to}`,
           to: to,
           from: typeof twilioPhoneNumber == 'string' ? twilioPhoneNumber : '',
           statusCallback: statusCallbackUrl,
@@ -146,14 +134,16 @@ export class TransporterService {
         console.log(
           `SMS sent successfully with status ${smsResponse?.status}!`,
         );
-        return smsResponse?.status;
+        return {
+          status: smsResponse?.status,
+          messageSid: smsResponse.sid,
+          errorMessage: smsResponse.errorMessage,
+        };
       } catch (error) {
-        console.error('Error sending SMS:', error);
-        logger.info('Error sending SMS:', error);
-        // throw error;
+        logger.info(`Error sending SMS: ${error}`);
       }
     }
-    return null;
+    return { status: 'rejected', errorMessage: 'error', messageSid: '' };
   }
 
   compileTemplate(text: string, data: Record<string, unknown>): string {

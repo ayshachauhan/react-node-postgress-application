@@ -53,3 +53,9 @@ export interface EmailVariables {
   doctorCountryCode?: string;
   messageType?: string;
 }
+
+export interface SMSResponse {
+  messageSid: string;
+  status?: string;
+  errorMessage: string;
+}

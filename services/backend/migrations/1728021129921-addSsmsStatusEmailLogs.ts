@@ -15,6 +15,15 @@ export class AddSsmsStatusEmailLogs1728021129921 implements MigrationInterface {
     await queryRunner.addColumn(
       'email_logs',
       new TableColumn({
+        name: 'smsResponse',
+        type: 'jsonb',
+        isNullable: true,
+      }),
+    );
+
+    await queryRunner.addColumn(
+      'email_logs',
+      new TableColumn({
         name: 'smsAttempts',
         isNullable: false,
         type: 'integer',
