@@ -300,8 +300,8 @@ export const isSlotsAvailable = (
   const sortedCalendars = matchingCalendars.sort((a, b) => {
     if (a.maxSlots !== b.maxSlots) {
       return b.maxSlots - a.maxSlots; // Descending order by maxSlots
-    } else if (a.bookedSlots !== b.bookedSlots) {
-      return b.bookedSlots - a.bookedSlots; // Descending order by bookedSlots
+    } else if (parseFloat(a.bookedHours) !== parseFloat(b.bookedHours)) {
+      return parseFloat(b.bookedHours) - parseFloat(a.bookedHours); // Descending order by bookedHours
     } else {
       return a.surgeryType?.name.localeCompare(b.surgeryType?.name); // Alphabetical order by surgeryType.name
     }
@@ -311,8 +311,8 @@ export const isSlotsAvailable = (
 
   const surgeryTypeColor =
     calendar.surgeryType?.color ?? DEFAULT_SURGERYLOCATION_COLOR;
-  //console.log(moment(calendar.date).format('YYYY-MM-DD'), '  --  ', calendar.maxSlots > calendar.bookedSlots);
-  return calendar.maxSlots > calendar.bookedSlots
+  //console.log(moment(calendar.date).format('YYYY-MM-DD'), '  --  ', calendar.maxSlots > calendar.bookedHours);
+  return calendar.maxSlots > parseFloat(calendar.bookedHours)
     ? {
         backgroundColor: surgeryTypeColor,
         borderTopColor: surgeryTypeColor,
@@ -322,6 +322,7 @@ export const isSlotsAvailable = (
       }
     : {
         backgroundColor: 'transparent',
+        color: `${surgeryTypeColor}`,
         border: `${surgeryTypeColor} solid 3px`,
         borderTopColor: surgeryTypeColor,
         borderBottomColor: surgeryTypeColor,
@@ -359,8 +360,8 @@ export const customBackgroundColor = (
   const sortedCalendars = matchingCalendars.sort((a, b) => {
     if (a.maxSlots !== b.maxSlots) {
       return b.maxSlots - a.maxSlots; // Descending order by maxSlots
-    } else if (a.bookedSlots !== b.bookedSlots) {
-      return b.bookedSlots - a.bookedSlots; // Descending order by bookedSlots
+    } else if (parseFloat(a.bookedHours) !== parseFloat(b.bookedHours)) {
+      return parseFloat(b.bookedHours) - parseFloat(a.bookedHours); // Descending order by bookedHours
     } else {
       return a.surgeryType?.name.localeCompare(b.surgeryType?.name); // Alphabetical order by surgeryType.name
     }
@@ -371,7 +372,7 @@ export const customBackgroundColor = (
   const surgeryTypeColor =
     calendar.surgeryType?.color ?? DEFAULT_SURGERYLOCATION_COLOR;
 
-  return calendar.maxSlots > calendar.bookedSlots
+  return calendar.maxSlots > parseFloat(calendar.bookedHours)
     ? surgeryTypeColor
     : 'transparent';
 };
@@ -398,4 +399,40 @@ export const validateMRNLength = (value) => {
     return 'MRN should be no more than 20 digits';
   }
   return '';
+};
+
+export const isValidInput = (value: string) => {
+  const regex = /^\d{1,2}(\.5|\.0)?$/;
+  const numValue = parseFloat(value);
+
+  if (
+    value === '' ||
+    (regex.test(value) && numValue >= 0.5 && numValue % 0.5 === 0)
+  ) {
+    return true;
+  }
+  return false;
+};
+
+export const validateSlotValue = (value: string): string => {
+  try {
+    const regex = /^\d{1,2}(\.5|\.0)?$/;
+    const numValue = parseFloat(value);
+
+    if (value === '') {
+      return 'Slot value cannot be empty';
+    }
+
+    if (numValue > 99) {
+      return 'Slot cannot be more than max limit (99)';
+    }
+
+    if (!regex.test(value) || numValue < 0.5 || numValue % 0.5 !== 0) {
+      return 'Slot should be a multiple of 0.5';
+    }
+
+    return '';
+  } catch (error) {
+    return 'Invalid slot value';
+  }
 };

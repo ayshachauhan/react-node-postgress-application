@@ -1,6 +1,6 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { SurgeryEntity } from '@packages/entities';
+import { SurgeryConfigurationEntity, SurgeryEntity } from '@packages/entities';
 import { EmailHandlerModule } from 'src/emailHandler/emailHandler.module';
 import { InsuranceTypesModule } from 'src/insuranceTypes/insuranceTypes.module';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
@@ -21,7 +21,7 @@ import { SurgeryService } from './surgery.service';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([SurgeryEntity]),
+    TypeOrmModule.forFeature([SurgeryEntity, SurgeryConfigurationEntity]),
     forwardRef(() => PracticesModule),
     forwardRef(() => PatientsModule),
     forwardRef(() => SurgeryTypesModule),

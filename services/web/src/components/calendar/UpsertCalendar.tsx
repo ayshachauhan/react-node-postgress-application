@@ -41,7 +41,7 @@ const UpsertCalendar: React.FC<{
   calendarMessageFunc,
   allDoctors,
 }) => {
-  const maxSlotsOptions = Array.from({ length: 14 }, (_, index) => index + 1);
+  const maxSlotsOptions = Array.from({ length: 99 }, (_, index) => index + 1);
   const dispatch = useAppDispatch();
   const { surgeryTypes } = useAppSelector((state) => ({
     surgeryTypes: Object.values(state.surgeryTypes.entities),
@@ -88,6 +88,7 @@ const UpsertCalendar: React.FC<{
           data: updatedData.map((data: CalendarData) => ({
             id: data.id,
             bookedSlots: data.bookedSlots,
+            bookedHours: data.bookedHours,
             maxSlots: data.maxSlots,
             surgeryTypeId: data?.selectedSurgery?.id,
           })),
@@ -146,6 +147,7 @@ const UpsertCalendar: React.FC<{
           surgeryTypeId: upsertCalendarData[0]?.selectedSurgery?.id,
           maxSlots: upsertCalendarData[0].maxSlots,
           bookedSlots: upsertCalendarData[0].bookedSlots,
+          bookedHours: upsertCalendarData[0].bookedHours,
           date: upsertCalendarData[0].date,
         };
 
@@ -309,7 +311,9 @@ const UpsertCalendar: React.FC<{
                   label: key,
                   id: key,
                   calendarId: calendar.id,
-                  disabled: isUpdating ? key < calendar.bookedSlots : false,
+                  disabled: isUpdating
+                    ? key < parseFloat(calendar.bookedHours)
+                    : false,
                 }))}
                 onChange={({ value }) => {
                   if (!value.length) {

@@ -331,6 +331,7 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
             : '',
         action: actionIcons,
         surgeryOrder: ele.surgeryOrder,
+        slot: ele.slot,
         surgeryStatus: ele.surgeryStatus,
         selectedSurgeryOptions: ele.selectedSurgeryOptions,
         selectedChecklistOptions: ele.selectedCheckListOptions,
@@ -1087,6 +1088,7 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
                                           <th className="w-[76px] text-center">
                                             Status
                                           </th>
+                                          <th className="w-[80px]">Slot</th>
                                           <th className="w-[80px]">
                                             Last Name
                                           </th>
@@ -1231,6 +1233,12 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
                                                         row.surgeryStatus,
                                                       )}
                                                     </div>
+                                                  </td>
+                                                  <td
+                                                    rowSpan={1}
+                                                    className="max-w-[70px] break-all"
+                                                  >
+                                                    {row.slot}
                                                   </td>
                                                   <td
                                                     rowSpan={1}

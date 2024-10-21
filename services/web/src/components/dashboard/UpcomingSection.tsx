@@ -31,6 +31,7 @@ export type CalendarData = {
   date: Date;
   maxSlots: number;
   bookedSlots: number;
+  bookedHours: string;
   surgeryName: string;
   surgeryNameColor: string;
   selectedSurgery: ISurgeryType;
@@ -41,7 +42,7 @@ export interface CalendarMessage {
   message: string;
 }
 
-export const DEFAULT_MAX_SLOTS: number = 14;
+export const DEFAULT_MAX_SLOTS: number = 99;
 
 export type SetMessageFunction = (messageObj: CalendarMessage) => void;
 
@@ -256,6 +257,7 @@ const UpcomingSection: React.FC = () => {
       date: data.date,
       maxSlots: data.maxSlots,
       bookedSlots: data.bookedSlots,
+      bookedHours: data.bookedHours,
       // using data from selectedsurgery here because calendar data doesn't contain surgerytype relation, for fallback using surgeryconfig name
       surgeryName:
         selectedSurgery?.name.charAt(0).toUpperCase() ??
@@ -365,6 +367,7 @@ const UpcomingSection: React.FC = () => {
                       id: '',
                       maxSlots: DEFAULT_MAX_SLOTS,
                       bookedSlots: 0,
+                      bookedHours: '0',
                       date: nextValidDate,
                       surgeryName: selectedSurgery?.name ?? 'N/A',
                       surgeryNameColor:
@@ -462,7 +465,7 @@ const UpcomingSection: React.FC = () => {
                 <tbody>
                   {calendar.map((data: CalendarData, index) => {
                     const availableSlots: number =
-                      data.maxSlots - data.bookedSlots;
+                      data.maxSlots - parseFloat(data.bookedHours);
                     return (
                       <React.Fragment key={data.id}>
                         <tr
@@ -486,7 +489,7 @@ const UpcomingSection: React.FC = () => {
                           <td className="whitespace-nowrap">
                             {moment(data.date).format('YYYY-MM-DD')}
                           </td>
-                          <td className="">{data.bookedSlots}</td>
+                          <td className="">{data.bookedHours}</td>
                           <td className="">{data.maxSlots}</td>
                           <td
                             className="text-center"
