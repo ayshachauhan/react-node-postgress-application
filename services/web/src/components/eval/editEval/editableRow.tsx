@@ -271,7 +271,15 @@ const EditableRow: React.FC<EditableRowProps> = ({
       } else {
         setMrnError('');
       }
-      if (isValidPhnNo && !emailError) {
+
+      if (emailError) {
+        setEmailError(emailError);
+        return;
+      } else {
+        setEmailError('');
+      }
+
+      if (isValidPhnNo) {
         if (practiceId) {
           const payloadData: Partial<UpdateEValInterface> = {
             practiceId,
@@ -495,21 +503,6 @@ const EditableRow: React.FC<EditableRowProps> = ({
             </div>
           </td>
           <td rowSpan={1} className="min-w-20">
-            <div>
-              <TextInput
-                size={SIZE.mini}
-                name="email"
-                value={obj.email}
-                onChange={(value) => handleObjChange('email', value)}
-              />
-              {emailError && (
-                <div className="flex justify-center text-red-500 mt-2">
-                  {emailError}
-                </div>
-              )}
-            </div>
-          </td>
-          <td rowSpan={1} className="min-w-20">
             <Select
               backspaceRemoves={false}
               escapeClearsValue={false}
@@ -605,6 +598,9 @@ const EditableRow: React.FC<EditableRowProps> = ({
                 onChange={(value) => handleObjChange('email', value)}
                 size={SIZE.mini}
               />
+              {emailError && (
+                <div className="flex text-red-500 mt-2 mb-2">{emailError}</div>
+              )}
             </div>
             <div className="mb-1">
               <div className="flex gap-2 items-center">

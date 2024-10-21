@@ -529,7 +529,14 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
       setSlotError('');
     }
 
-    if (isValidPhnNo && !emailError) {
+    if (emailError) {
+      setEmailError(emailError);
+      return;
+    } else {
+      setEmailError('');
+    }
+
+    if (isValidPhnNo) {
       const surgeryOptionObj: SelectedSurgeryOption = {};
       surgeryDropdownOptions.forEach((ele) => {
         const allowedValue = ele.allowedValues.find((ele) => ele.selected);

@@ -360,7 +360,15 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
     } else {
       setMrnError('');
     }
-    if (isValidPhnNo && !emailError) {
+
+    if (emailError) {
+      setEmailError(emailError);
+      return;
+    } else {
+      setEmailError('');
+    }
+
+    if (isValidPhnNo) {
       if (practiceId && doctorId) {
         await withLoader(async () => {
           await dispatch(

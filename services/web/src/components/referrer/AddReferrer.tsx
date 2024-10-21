@@ -22,14 +22,30 @@ const AddReferrerForm: React.FC<{
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
+  const [emailError, setEmailError] = useState('');
   const [referrerType, setReferrerType] = useState<ReferrerType>();
   const handlereferrerTypeChange = ({ value }) => {
     setReferrerType(value[0] ? value[0].label : null);
   };
 
+  const validateEmail = (value: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(value)) {
+      setEmailError('Invalid email address');
+    } else {
+      setEmailError('');
+    }
+  };
+
   type AddReferrerDto = Omit<IReferrer, 'dateCreated' | 'dateUpdated' | 'id'>;
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (emailError) {
+      setEmailError(emailError);
+      return;
+    } else {
+      setEmailError('');
+    }
     if (practiceId) {
       const referrerPayloadData: AddReferrerDto = {
         practiceId,
@@ -58,6 +74,11 @@ const AddReferrerForm: React.FC<{
     <>
       <div className="border-gray-400">
         <form onSubmit={handleSubmit}>
+          {emailError && (
+            <div className="flex justify-center text-red-500 mt-2">
+              {emailError}
+            </div>
+          )}
           <div className="pt-4">
             <div className="space-y-2">
               <label
@@ -133,7 +154,10 @@ const AddReferrerForm: React.FC<{
               <TextInput
                 name="email"
                 value={email}
-                onChange={(value) => setEmail(value)}
+                onChange={(value) => {
+                  setEmail(value);
+                  validateEmail(value);
+                }}
               />
             </div>
           </div>

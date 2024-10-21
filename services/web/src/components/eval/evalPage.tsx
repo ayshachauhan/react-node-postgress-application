@@ -446,7 +446,6 @@ const EvalPage: React.FC = () => {
               <th className="">Last Name</th>
               <th className="">First Name</th>
               <th className="">MRN</th>
-              <th className="">Email</th>
               <th className="">Surgery</th>
               <th className="">Body Part</th>
               <th className="">Insurance</th>
@@ -520,13 +519,6 @@ const EvalPage: React.FC = () => {
                             </div>
                           </div>
                         </div>
-                      </td>
-                      <td
-                        rowSpan={1}
-                        className=""
-                        style={{ textOverflow: 'ellipsis' }}
-                      >
-                        {data.email}
                       </td>
                       <td rowSpan={1} className="">
                         {data.surgeryConfigName}

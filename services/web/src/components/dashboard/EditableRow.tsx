@@ -296,7 +296,14 @@ const EditableRow: React.FC<EditableRowProps> = ({
       return;
     }
 
-    if (isValidPhnNo && !emailError) {
+    if (emailError) {
+      setEmailError(emailError);
+      return;
+    } else {
+      setEmailError('');
+    }
+
+    if (isValidPhnNo) {
       if (practiceId) {
         const payload: Partial<UpdateSurgeryPayload> = {
           practiceId,
@@ -1130,9 +1137,7 @@ const EditableRow: React.FC<EditableRowProps> = ({
                 size={SIZE.mini}
               />
               {emailError && (
-                <div className="flex justify-center text-red-500 mt-2">
-                  {emailError}
-                </div>
+                <div className="flex text-red-500 mt-2 mb-2">{emailError}</div>
               )}
             </div>
             <div className="text-black py-0.5 px-1 w-60 text-center">
