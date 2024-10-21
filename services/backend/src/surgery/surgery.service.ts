@@ -843,13 +843,39 @@ export class SurgeryService {
           moment(createSurgeryDto.date).format('YYYY-MM-DD') ===
             moment(selectedCalendar.date).format('YYYY-MM-DD')
         ) {
+          const surgeryConfigurations =
+            await this.surgeryConfigurationRepository.find({
+              where: { surgeryType: { id: selectedCalendar.surgeryType.id } },
+              relations: ['surgeryType'],
+            });
+          let totalBookedHours = 0;
+          const startOfDay = moment
+            .utc(selectedCalendar.date)
+            .startOf('day')
+            .toDate();
+          const endOfDay = moment
+            .utc(selectedCalendar.date)
+            .endOf('day')
+            .toDate();
+
+          for (const config of surgeryConfigurations) {
+            const surgeries = await this.surgeryRepository.find({
+              where: {
+                surgeryConfiguration: { id: config.id },
+                date: Between(startOfDay, endOfDay),
+                practice: { id: practiceId },
+              },
+              relations: ['surgeryConfiguration'],
+            });
+
+            surgeries.forEach((surgery) => {
+              totalBookedHours += parseFloat(surgery.slot) || 0;
+            });
+          }
           await this.calendarService.updateCalendar({
             id: selectedCalendar?.id,
             bookedSlots: selectedCalendar?.bookedSlots + 1,
-            bookedHours: String(
-              parseFloat(selectedCalendar?.bookedHours) +
-                (parseFloat(createSurgeryDto.slot) || 0),
-            ),
+            bookedHours: String(totalBookedHours),
           });
         } else if (createSurgeryDto.surgeryStatus !== SurgeryStatus.COMPLETED) {
           if (
