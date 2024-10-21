@@ -290,6 +290,12 @@ const EditableRow: React.FC<EditableRowProps> = ({
     } else {
       setMrnError('');
     }
+
+    const slotError = validateSlotValue(String(obj.slot));
+    if (slotError) {
+      return;
+    }
+
     if (isValidPhnNo && !emailError) {
       if (practiceId) {
         const payload: Partial<UpdateSurgeryPayload> = {
