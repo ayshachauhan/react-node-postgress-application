@@ -141,7 +141,7 @@ export class SchedulerService {
           await Promise.all(
             filteredSuccessfullPromises.map((log) => {
               const { id, response } = log;
-              console.log(
+              logger.info(
                 'email log: ',
                 'status' in response && response.status == 'rejected',
               );
