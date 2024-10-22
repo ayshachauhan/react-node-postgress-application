@@ -101,7 +101,7 @@ const EditReferrerForm: React.FC<ChildProps> = ({
 
   useEffect(() => {
     if (data.id && referrerInfo) {
-      if (!validateEmail(referrerInfo?.email)) {
+      if (referrerInfo?.email && !validateEmail(referrerInfo.email)) {
         setEmailError('Invalid email format');
       } else {
         setEmailError('');
