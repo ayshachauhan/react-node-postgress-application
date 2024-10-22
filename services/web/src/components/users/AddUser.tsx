@@ -42,6 +42,7 @@ const AddUserPage: React.FC<{
   const [designation, setDesignation] = useState('');
   const [email, setEmail] = useState('');
   const [firstName, setFirstName] = useState('');
+  const [emailError, setEmailError] = useState('');
   const [contactNumber, setcontactNumber] = useState('');
   const [countryCode, setCountryCode] = useState('+1');
   const [lastName, setLastName] = useState('');
@@ -93,6 +94,7 @@ const AddUserPage: React.FC<{
 
   const handleEmailChange = (value: string) => {
     setEmail(value);
+    validateEmail(value);
 
     if (value.trim() === '') {
       setErrorMessage('Email cannot be empty');
@@ -153,8 +155,25 @@ const AddUserPage: React.FC<{
     }
   };
 
+  const validateEmail = (value: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(value)) {
+      setEmailError('Invalid email address');
+    } else {
+      setEmailError('');
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    if (emailError) {
+      setEmailError(emailError);
+      return;
+    } else {
+      setEmailError('');
+    }
+
     if (isValidPhnNo) {
       if (
         userName.trim() === '' ||
@@ -231,6 +250,11 @@ const AddUserPage: React.FC<{
       {errorMessage && isValidPhnNo && (
         <div className="flex justify-center text-red-500 mt-2">
           {errorMessage}
+        </div>
+      )}
+      {emailError && (
+        <div className="flex justify-center text-red-500 mt-2">
+          {emailError}
         </div>
       )}
       <form onSubmit={handleSubmit}>

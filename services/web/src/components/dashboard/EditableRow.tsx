@@ -94,6 +94,7 @@ const EditableRow: React.FC<EditableRowProps> = ({
   const [referrerId, setReferrerId] = useState<string>('');
   const [pcp, setPcp] = useState<string>('');
   const [mrnError, setMrnError] = useState('');
+  const [emailError, setEmailError] = useState('');
   const [slotError, setSlotError] = useState('');
   const [isValidPhnNo, setIsValidPhnNo] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
@@ -102,6 +103,15 @@ const EditableRow: React.FC<EditableRowProps> = ({
   const doctorId: string | null = getUserId();
 
   const phoneInputRef = useRef<HTMLDivElement | null>(null);
+
+  const validateEmail = (value: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(value)) {
+      setEmailError('Invalid email address');
+    } else {
+      setEmailError('');
+    }
+  };
 
   useEffect(() => {
     if (phoneInputRef.current) {
@@ -159,6 +169,7 @@ const EditableRow: React.FC<EditableRowProps> = ({
         (surgeryInfo.patient.countryCode || '') +
         (surgeryInfo.patient.phoneNumber || '');
       validatePhoneNumber(fullPhoneNumber);
+      validateEmail(surgeryInfo.patient.email);
       validateSlot(surgeryInfo.slot);
     }
   }, [surgeryInfo.id, surgeryInfo]);
@@ -231,6 +242,10 @@ const EditableRow: React.FC<EditableRowProps> = ({
         }
       }
 
+      if (keyToUpdate === 'email') {
+        validateEmail(newValue);
+      }
+
       if (keyToUpdate === 'slot') {
         const slotError = validateSlotValue(newValue);
         if (slotError) {
@@ -279,6 +294,13 @@ const EditableRow: React.FC<EditableRowProps> = ({
     const slotError = validateSlotValue(String(obj.slot));
     if (slotError) {
       return;
+    }
+
+    if (emailError) {
+      setEmailError(emailError);
+      return;
+    } else {
+      setEmailError('');
     }
 
     if (isValidPhnNo) {
@@ -1114,6 +1136,9 @@ const EditableRow: React.FC<EditableRowProps> = ({
                 onChange={(value) => handleObjChange('email', value)}
                 size={SIZE.mini}
               />
+              {emailError && (
+                <div className="flex text-red-500 mt-2 mb-2">{emailError}</div>
+              )}
             </div>
             <div className="text-black py-0.5 px-1 w-60 text-center">
               <div className="flex gap-2 items-center">

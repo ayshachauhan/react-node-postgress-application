@@ -33,6 +33,7 @@ const EditReferrerForm: React.FC<ChildProps> = ({
   const [updatedReferrerInfo, setReferrerInfo] = useState<Partial<IReferrer>>(
     {},
   );
+  const [emailError, setEmailError] = useState('');
 
   const handlereferrerTypeChange = (params) => {
     const value = params.value;
@@ -50,8 +51,32 @@ const EditReferrerForm: React.FC<ChildProps> = ({
       : undefined,
   );
 
+  const validateEmail = (email: string) => {
+    if (email === '') {
+      return true;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const handleEmailChange = (value: string) => {
+    if (!validateEmail(value)) {
+      setEmailError('Invalid email format');
+    } else {
+      setEmailError('');
+    }
+
+    setReferrerInfo({ ...updatedReferrerInfo, email: value });
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (emailError) {
+      setEmailError(emailError);
+      return;
+    } else {
+      setEmailError('');
+    }
     if (practiceId && referrerId) {
       const referrerPayloadData = {
         ...updatedReferrerInfo,
@@ -76,6 +101,11 @@ const EditReferrerForm: React.FC<ChildProps> = ({
 
   useEffect(() => {
     if (data.id && referrerInfo) {
+      if (!validateEmail(referrerInfo?.email)) {
+        setEmailError('Invalid email format');
+      } else {
+        setEmailError('');
+      }
       setReferrerInfo(referrerInfo);
     }
   }, [data.id, referrerInfo]);
@@ -83,6 +113,11 @@ const EditReferrerForm: React.FC<ChildProps> = ({
   return (
     <>
       <div className="border-gray-400">
+        {emailError && (
+          <div className="flex text-red-500 justify-center mt-2">
+            {emailError}
+          </div>
+        )}
         <form onSubmit={handleSubmit}>
           <div className="pt-4">
             <div className="space-y-2">
@@ -168,9 +203,7 @@ const EditReferrerForm: React.FC<ChildProps> = ({
               <TextInput
                 name="email"
                 value={updatedReferrerInfo?.email || ''}
-                onChange={(value) => {
-                  setReferrerInfo({ ...updatedReferrerInfo, email: value });
-                }}
+                onChange={(value) => handleEmailChange(value)}
               />
             </div>
           </div>

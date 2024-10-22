@@ -38,6 +38,7 @@ const EditableRow: React.FC<EditableRowProps> = ({
   onRecordEdited,
 }) => {
   const practiceId = getPracticeId();
+  const [emailError, setEmailError] = useState('');
   const doctorId: string | null = getUserId();
   const dispatch = useAppDispatch();
   const [obj, setObj] = useState<Partial<UpdateEValInterface>>({});
@@ -99,6 +100,15 @@ const EditableRow: React.FC<EditableRowProps> = ({
   const [mrnError, setMrnError] = useState('');
   const handleMonthChange = ({ date }) => {
     setCurrentMonth(date.getMonth() + 1);
+  };
+
+  const validateEmail = (value: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(value)) {
+      setEmailError('Invalid email address');
+    } else {
+      setEmailError('');
+    }
   };
   const validatePhoneNumber = (fullNumber: string) => {
     try {
@@ -165,6 +175,7 @@ const EditableRow: React.FC<EditableRowProps> = ({
         (evalInfo.patient.countryCode || '') +
         (evalInfo.patient.phoneNumber || '');
       validatePhoneNumber(fullPhoneNumber);
+      validateEmail(evalInfo.patient.email);
     }
   }, [evalInfo.id, evalInfo]);
   if (evalInfo) {
@@ -191,6 +202,10 @@ const EditableRow: React.FC<EditableRowProps> = ({
           } else {
             setMrnError('');
           }
+        }
+
+        if (keyToUpdate === 'email') {
+          validateEmail(newValue);
         }
 
         return updatedState;
@@ -256,6 +271,14 @@ const EditableRow: React.FC<EditableRowProps> = ({
       } else {
         setMrnError('');
       }
+
+      if (emailError) {
+        setEmailError(emailError);
+        return;
+      } else {
+        setEmailError('');
+      }
+
       if (isValidPhnNo) {
         if (practiceId) {
           const payloadData: Partial<UpdateEValInterface> = {
@@ -480,16 +503,6 @@ const EditableRow: React.FC<EditableRowProps> = ({
             </div>
           </td>
           <td rowSpan={1} className="min-w-20">
-            <div>
-              <TextInput
-                size={SIZE.mini}
-                name="email"
-                value={obj.email}
-                onChange={(value) => handleObjChange('email', value)}
-              />
-            </div>
-          </td>
-          <td rowSpan={1} className="min-w-20">
             <Select
               backspaceRemoves={false}
               escapeClearsValue={false}
@@ -585,6 +598,9 @@ const EditableRow: React.FC<EditableRowProps> = ({
                 onChange={(value) => handleObjChange('email', value)}
                 size={SIZE.mini}
               />
+              {emailError && (
+                <div className="flex text-red-500 mt-2 mb-2">{emailError}</div>
+              )}
             </div>
             <div className="mb-1">
               <div className="flex gap-2 items-center">

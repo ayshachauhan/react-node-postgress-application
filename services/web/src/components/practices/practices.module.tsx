@@ -36,6 +36,7 @@ const PracticePage: React.FC<{
     const fullPhoneNumber = value + adminContactNumber;
     validatePhoneNumber(fullPhoneNumber);
   };
+  const [emailError, setEmailError] = useState('');
 
   const handlePhoneNumberChange = (value: string) => {
     setAdminContactNumber(value);
@@ -57,6 +58,15 @@ const PracticePage: React.FC<{
     } catch (error) {
       setIsValidPhnNo(false);
       setErrorMessage('Invalid phone number');
+    }
+  };
+
+  const validateEmail = (value: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(value)) {
+      setEmailError('Invalid email address');
+    } else {
+      setEmailError('');
     }
   };
 
@@ -91,6 +101,13 @@ const PracticePage: React.FC<{
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (emailError) {
+      setEmailError(emailError);
+      return;
+    } else {
+      setEmailError('');
+    }
+
     if (isValidPhnNo) {
       const data: PracticeCreateInterface = {
         name: name.trim(),
@@ -160,6 +177,12 @@ const PracticePage: React.FC<{
         </div>
       )}
 
+      {emailError && (
+        <div className="flex justify-center text-red-500 mt-2">
+          {emailError}
+        </div>
+      )}
+
       <form onSubmit={handleSubmit}>
         <div className="flex gap-4 flex-col">
           <div className="justify-between ">
@@ -219,6 +242,7 @@ const PracticePage: React.FC<{
                 value={adminEmail}
                 onChange={(value) => {
                   setAdminEmail(value);
+                  validateEmail(value);
                 }}
                 required
               />

@@ -101,6 +101,15 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
     validatePhoneNumber(fullPhoneNumber);
   };
 
+  const validateEmail = (value: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(value)) {
+      setEmailError('Invalid email address');
+    } else {
+      setEmailError('');
+    }
+  };
+
   const validatePhoneNumber = (fullNumber: string) => {
     try {
       const parsedPhoneNumber = parsePhoneNumber(fullNumber);
@@ -162,6 +171,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
   const [surgeryNameId, setSurgeryNameId] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState('');
   const [mrnError, setMrnError] = useState('');
+  const [emailError, setEmailError] = useState('');
   const [slotError, setSlotError] = useState('');
   const [surgeryCataractNameId, setSurgeryCataractNameId] =
     useState<string>('');
@@ -265,6 +275,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
         } else {
           setMrnError('');
         }
+        validateEmail(row.patient.email);
         if (autoFillFromSurgery && 'slot' in row) {
           const slotError = validateSlotValue(row.slot);
           if (slotError) {
@@ -296,6 +307,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
           (patientCheck.countryCode ? patientCheck.countryCode : '') +
           (patientCheck.phoneNumber ? patientCheck.phoneNumber : '');
         validatePhoneNumber(fullPhoneNumber);
+        validateEmail(patientCheck.email);
       } else {
         setFirstName('');
         setLastName('');
@@ -515,6 +527,13 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
       return;
     } else {
       setSlotError('');
+    }
+
+    if (emailError) {
+      setEmailError(emailError);
+      return;
+    } else {
+      setEmailError('');
     }
 
     if (isValidPhnNo) {
@@ -742,6 +761,11 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
               {errorMessage}
             </div>
           )}
+          {emailError && (
+            <div className="flex justify-center text-red-500 mt-2">
+              {emailError}
+            </div>
+          )}
           {slotError && (
             <div className="flex justify-center text-red-500 mt-2">
               {slotError}
@@ -828,6 +852,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
                 value={email}
                 onChange={(value) => {
                   setEmail(value);
+                  validateEmail(value);
                 }}
                 required
               />
