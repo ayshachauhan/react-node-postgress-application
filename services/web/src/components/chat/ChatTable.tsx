@@ -218,7 +218,6 @@ export default function ChatTable() {
                   <td className="">{row?.patient?.mrn}</td>
                   <td colSpan={2}>
                     {' '}
-                    {/* You can adjust the colspan as needed */}
                     {row.botQuestionAnswers &&
                     row.botQuestionAnswers.length > 0 ? (
                       row.botQuestionAnswers.map((item, index) => (
