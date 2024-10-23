@@ -34,7 +34,7 @@ export class SmsHandlerController {
     @Headers('x-twilio-signature') twilioHeader: string,
   ) {
     const authToken = process.env.TWILIO_AUTH_TOKEN;
-    const webhookUrl = `${process.env.TWILIO_DELIVERY_STATUS_WEBHOOK_URL}/sms/status/${recordId}`;
+    const webhookUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}/sms/status/${recordId}`;
 
     if (!authToken) {
       logger.error('Twilio Auth Token is not set');

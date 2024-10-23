@@ -121,7 +121,7 @@ export class TransporterService {
     emailLogId?: string,
   ): Promise<SMSResponse> {
     const { twilioPhoneNumber, sendTextMessages } = this.getEnvVariables();
-    const statusCallbackUrl = `${process.env.TWILIO_DELIVERY_STATUS_WEBHOOK_URL}/sms/status/${emailLogId}`;
+    const statusCallbackUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}/sms/status/${emailLogId}`;
     if (sendTextMessages && message) {
       const cleanMessage = message.replace(/<\/?p[^>]*>/g, '\n');
       try {
