@@ -322,7 +322,7 @@ export const isSlotsAvailable = (
       }
     : {
         backgroundColor: 'transparent',
-        color: `${surgeryTypeColor}`,
+        color: 'black',
         border: `${surgeryTypeColor} solid 3px`,
         borderTopColor: surgeryTypeColor,
         borderBottomColor: surgeryTypeColor,
