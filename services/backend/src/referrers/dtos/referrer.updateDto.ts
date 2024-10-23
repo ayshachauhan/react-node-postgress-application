@@ -21,7 +21,7 @@ export class updateReferrerDto {
 
   @ValidateIf((o) => o.email !== '')
   @IsEmail({}, { message: 'Invalid email format' })
-  @IsOptional() // Allows undefined or null values
+  @IsOptional()
   @ApiProperty()
   email?: string;
 
