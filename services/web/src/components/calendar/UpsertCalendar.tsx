@@ -312,7 +312,7 @@ const UpsertCalendar: React.FC<{
                   id: key,
                   calendarId: calendar.id,
                   disabled: isUpdating
-                    ? key < parseFloat(calendar.bookedHours)
+                    ? key <= parseFloat(calendar.bookedHours)
                     : false,
                 }))}
                 onChange={({ value }) => {
