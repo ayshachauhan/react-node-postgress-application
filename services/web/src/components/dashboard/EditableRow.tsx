@@ -5,7 +5,10 @@ import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
 import { useUserPermission } from '@root/hooks/userHasPermission';
 import { useAppDispatch, useAppSelector } from '@root/store';
-import { fetchFilteredCalendars } from '@root/store/reducers/calendar';
+import {
+  fetchCalendars,
+  fetchFilteredCalendars,
+} from '@root/store/reducers/calendar';
 import { fetchListings as fetchReviews } from '@root/store/reducers/review';
 import { updateRecordAsync } from '@root/store/reducers/surgery';
 import {
@@ -330,6 +333,9 @@ const EditableRow: React.FC<EditableRowProps> = ({
               loggedInUserId: userInfo?.id,
             }),
           );
+          if (doctorId) {
+            await dispatch(fetchCalendars({ practiceId, userId: doctorId }));
+          }
           if (payload?.surgeryStatus === SurgeryStatus.COMPLETED) {
             await dispatch(fetchReviews({ practiceId: practiceId }));
           }
