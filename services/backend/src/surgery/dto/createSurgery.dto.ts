@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { SelectedSurgeryOption } from '@packages/entities';
-import { IsNotEmpty, IsOptional } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsOptional } from 'class-validator';
 
 export class CreateSurgeryDto {
   @IsNotEmpty({ message: 'surgeryConfiguration is required' })
@@ -40,6 +40,7 @@ export class CreateSurgeryDto {
   lastName: string;
 
   @IsNotEmpty({ message: 'email is required' })
+  @IsEmail({}, { message: 'Invalid email format' })
   @ApiProperty()
   email: string;
 

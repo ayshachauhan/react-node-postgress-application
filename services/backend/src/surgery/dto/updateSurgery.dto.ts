@@ -4,7 +4,7 @@ import {
   SelectedSurgeryOption,
   SurgeryStatus,
 } from '@packages/entities';
-import { IsNotEmpty, IsOptional } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsOptional } from 'class-validator';
 
 export class UpdateSurgeryDto {
   @IsOptional()
@@ -34,6 +34,11 @@ export class UpdateSurgeryDto {
   @IsOptional()
   @ApiProperty()
   lastName: string;
+
+  @IsNotEmpty({ message: 'email is required' })
+  @IsEmail({}, { message: 'Invalid email format' })
+  @ApiProperty()
+  email: string;
 
   @IsNotEmpty()
   @ApiProperty()

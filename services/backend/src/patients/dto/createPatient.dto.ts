@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsOptional } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsOptional } from 'class-validator';
 
 export class CreatePatientDto {
   @IsNotEmpty({ message: 'MRN is required' })
@@ -14,7 +14,8 @@ export class CreatePatientDto {
   @ApiProperty()
   lastName: string;
 
-  @IsNotEmpty({ message: 'email name is required' })
+  @IsNotEmpty({ message: 'email is required' })
+  @IsEmail({}, { message: 'Invalid email format' })
   @ApiProperty()
   email: string;
 
