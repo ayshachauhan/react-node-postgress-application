@@ -192,7 +192,6 @@ export default function ChatTable() {
                 <th className="">Name</th>
                 <th className="">MRN</th>
                 <th className="">Question</th>
-                <th className="">Answer</th>
               </tr>
               {chatLogs.map((row, index) => (
                 <tr
@@ -217,24 +216,18 @@ export default function ChatTable() {
                       : null}
                   </td>
                   <td className="">{row?.patient?.mrn}</td>
-                  <td>
+                  <td colSpan={2}>
+                    {' '}
                     {row.botQuestionAnswers &&
                     row.botQuestionAnswers.length > 0 ? (
                       row.botQuestionAnswers.map((item, index) => (
-                        <div key={index}>{item.question}</div>
+                        <div key={index} style={{ marginBottom: '15px' }}>
+                          <strong>Q{index + 1}</strong>: {item.question} <br />
+                          <strong>A:</strong> {item.answer}
+                        </div>
                       ))
                     ) : (
-                      <div>No question available</div>
-                    )}
-                  </td>
-                  <td>
-                    {row.botQuestionAnswers &&
-                    row.botQuestionAnswers.length > 0 ? (
-                      row.botQuestionAnswers.map((item, index) => (
-                        <div key={index}>{item.answer}</div>
-                      ))
-                    ) : (
-                      <div>No answer available</div>
+                      <div>No question and answer available</div>
                     )}
                   </td>
                 </tr>
