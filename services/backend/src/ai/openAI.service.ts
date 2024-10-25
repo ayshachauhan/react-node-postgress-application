@@ -85,7 +85,7 @@ export class OpenAIService implements AIService {
           return `Sorry, we didn't know your practice. Please share your practice name with us to serve you better: PRACTICE Practice_Name_Example`;
         }
 
-        const regex = /^\s*PRACTICE\s([\w\s]{2,50})$/;
+        const regex = /^\s*PRACTICE\s(.*)$/;
         const match = data.question.match(regex);
         const practice = match ? match[1] : '';
         const practiceRecord: PracticeEntity | null = practice
@@ -100,7 +100,7 @@ export class OpenAIService implements AIService {
           await this.patientService.getPatientsByPhoneNumber(data.phoneNumber);
         if (patientRecords && patientRecords.length > 0) {
           this.openaiAssistantId = patientRecords[0].practice?.assistantId;
-          const regex = /^\s*PRACTICE\s([A-Za-z\s]{2,50})$/;
+          const regex = /^\s*PRACTICE\s(.*)$/;
           const match = data.question.match(regex);
           const practice = match ? match[1] : '';
           const practiceRecord: PracticeEntity | null = practice
