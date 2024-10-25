@@ -200,6 +200,7 @@ const UpsertCalendar: React.FC<{
                   id: config.id,
                   calendarId: calendar.id,
                 }))}
+                disabled={isUpdating}
                 onChange={({ value }) => {
                   if (!value.length) {
                     return;
