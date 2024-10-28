@@ -99,10 +99,15 @@ export class OpenAIService implements AIService {
         const patientRecords: PatientEntity[] | null =
           await this.patientService.getPatientsByPhoneNumber(data.phoneNumber);
         if (patientRecords && patientRecords.length > 0) {
+          let practice = '';
+          if (patientRecords.length == 1) {
+            practice = patientRecords[0].practice.name;
+          } else {
+            const regex = /^\s*PRACTICE\s(.*)$/;
+            const match = data.question.match(regex);
+            practice = match ? match[1] : '';
+          }
           this.openaiAssistantId = patientRecords[0].practice?.assistantId;
-          const regex = /^\s*PRACTICE\s(.*)$/;
-          const match = data.question.match(regex);
-          const practice = match ? match[1] : '';
           const practiceRecord: PracticeEntity | null = practice
             ? await this.practiceService.findPracticeByName(practice)
             : null;
