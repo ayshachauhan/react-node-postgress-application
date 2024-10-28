@@ -168,7 +168,8 @@ export class OpenAIService implements AIService {
             chatLogRecords = { ...savedChatLog };
           } else if (
             patientRecords.length > 1 &&
-            uniquePractices.length !== 1
+            uniquePractices.length !== 1 &&
+            practiceRecord
           ) {
             const newPatients: PatientEntity[] | null =
               await this.patientService.getPatientsByPhoneNumberinPractice(
