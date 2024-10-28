@@ -100,12 +100,20 @@ export class OpenAIService implements AIService {
           await this.patientService.getPatientsByPhoneNumber(data.phoneNumber);
         if (patientRecords && patientRecords.length > 0) {
           let practice = '';
+          const uniquePractices = Array.from(
+            new Set(patientRecords.map((p) => p.practice.name)),
+          );
+
           if (patientRecords.length == 1) {
             practice = patientRecords[0].practice.name;
           } else {
-            const regex = /^\s*PRACTICE\s(.*)$/;
-            const match = data.question.match(regex);
-            practice = match ? match[1] : '';
+            if (uniquePractices.length === 1) {
+              practice = uniquePractices[0]; // Only one unique practice
+            } else {
+              const regex = /^\s*PRACTICE\s(.*)$/;
+              const match = data.question.match(regex);
+              practice = match ? match[1] : '';
+            }
           }
           this.openaiAssistantId = patientRecords[0].practice?.assistantId;
           const practiceRecord: PracticeEntity | null = practice
@@ -116,7 +124,9 @@ export class OpenAIService implements AIService {
               (patientRecords.length === 1 &&
                 practiceRecord.id != patientRecords[0].practice.id) ||
               (patientRecords.length > 1 &&
-                patientRecords.find((p) => p.practice.id != practiceRecord?.id))
+                patientRecords.every(
+                  (p) => p.practice.id != practiceRecord?.id,
+                ))
             ) {
               return `Sorry, ${practice} doesn't belong to you as per records. Kindly check with your doctor OR re-enter practice name as in provided format.`;
             }
@@ -140,7 +150,46 @@ export class OpenAIService implements AIService {
             };
             const savedChatLog = await this.saveChatLogs(dataToSave);
             chatLogRecords = { ...savedChatLog };
-            return `Thank you for sharing your practice ${patientRecords[0].practice.name}. Kindly ask question.`;
+          } else if (
+            patientRecords.length > 1 &&
+            uniquePractices.length === 1
+          ) {
+            const newChatLog: ChatbotLogsEntity = new ChatbotLogsEntity();
+            const dataToSave = {
+              ...newChatLog,
+              practice: patientRecords[0].practice,
+              patient: patientRecords[0],
+              userIdentifier: data.phoneNumber,
+              assistantId: this.openaiAssistantId,
+              botQuestionAnswers: [],
+              assistantChatThreadId: '',
+            };
+            const savedChatLog = await this.saveChatLogs(dataToSave);
+            chatLogRecords = { ...savedChatLog };
+          } else if (
+            patientRecords.length > 1 &&
+            uniquePractices.length !== 1
+          ) {
+            const newPatients: PatientEntity[] | null =
+              await this.patientService.getPatientsByPhoneNumberinPractice(
+                data.phoneNumber,
+                practiceRecord.id,
+              );
+            if (newPatients) {
+              const newChatLog: ChatbotLogsEntity = new ChatbotLogsEntity();
+              const dataToSave = {
+                ...newChatLog,
+                practice: practiceRecord,
+                patient: newPatients[0],
+                userIdentifier: data.phoneNumber,
+                assistantId: this.openaiAssistantId,
+                botQuestionAnswers: [],
+                assistantChatThreadId: '',
+              };
+              const savedChatLog = await this.saveChatLogs(dataToSave);
+              chatLogRecords = { ...savedChatLog };
+              return `Thank you for sharing your practice ${practiceRecord.name}. Kindly ask question.`;
+            }
           }
         } else {
           return `Sorry, your number is not registered with us. Please contact at support@pod111.com for more details.`;
