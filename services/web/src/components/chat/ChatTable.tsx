@@ -43,6 +43,8 @@ export default function ChatTable() {
     new Set(answersList.filter((ans) => ans.includes("I don't know"))),
   );
 
+  const [loading, setLoading] = useState(true);
+
   const options = uniqueAnswers.map((answer) => ({
     id: answer,
     label: answer,
@@ -77,6 +79,7 @@ export default function ChatTable() {
   };
 
   useEffect(() => {
+    setLoading(true);
     dispatch(clearData());
     if (practiceId != null) {
       dispatch(fetchPatients({ practiceId }));
@@ -95,7 +98,9 @@ export default function ChatTable() {
         chatFetchParams.answer = answer;
       }
 
-      dispatch(fetchChat(chatFetchParams));
+      dispatch(fetchChat(chatFetchParams)).finally(() => {
+        setLoading(false);
+      });
     }
   }, [dispatch, practiceId, patientId, mrn, answer]);
 
@@ -182,69 +187,66 @@ export default function ChatTable() {
         </div>
       </div>
       <hr className="h-px my-2.5 bg-gray-100 border-1 dark:bg-gray-700"></hr>
-      {chatLogs ? (
-        chatLogs.length > 0 ? (
-          <div className="rounded-lg">
-            <table className="">
-              <tbody>
-                <tr className="">
-                  <th className="">S.No.</th>
-                  <th className="">Date</th>
-                  <th className="">Name</th>
-                  <th className="">MRN</th>
-                  <th className="">Question</th>
-                </tr>
-                {chatLogs.map((row, index) => (
-                  <tr
-                    key={row.id}
-                    id={row.id}
-                    className={`${
-                      index !== chatLogs.length - 1
-                        ? 'border-b border-gray-300'
-                        : ''
-                    }`}
-                  >
-                    <td>{index + 1}</td>
-                    <td className="">
-                      {formatColumnDate(new Date(row.dateCreated))}
-                    </td>
-                    <td className="">
-                      {row
-                        ? generateFullName(
-                            row.patient?.firstName ?? '',
-                            row.patient?.lastName ?? '',
-                          )
-                        : null}
-                    </td>
-                    <td className="">{row?.patient?.mrn}</td>
-                    <td colSpan={2}>
-                      {' '}
-                      {row.botQuestionAnswers &&
-                      row.botQuestionAnswers.length > 0 ? (
-                        row.botQuestionAnswers.map((item, index) => (
-                          <div key={index} style={{ marginBottom: '15px' }}>
-                            <strong>Q{index + 1}</strong>: {item.question}{' '}
-                            <br />
-                            <strong>A:</strong> {item.answer}
-                          </div>
-                        ))
-                      ) : (
-                        <div>No question and answer available</div>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ) : (
-          <div className="rounded-lg text-center">
-            <p>No data found</p>
-          </div>
-        )
-      ) : (
+      {loading ? (
         <div className="rounded-lg text-center">
           <p>Loading...</p>
+        </div>
+      ) : chatLogs.length > 0 ? (
+        <div className="rounded-lg">
+          <table className="">
+            <tbody>
+              <tr className="">
+                <th className="">S.No.</th>
+                <th className="">Date</th>
+                <th className="">Name</th>
+                <th className="">MRN</th>
+                <th className="">Question</th>
+              </tr>
+              {chatLogs.map((row, index) => (
+                <tr
+                  key={row.id}
+                  id={row.id}
+                  className={`${
+                    index !== chatLogs.length - 1
+                      ? 'border-b border-gray-300'
+                      : ''
+                  }`}
+                >
+                  <td>{index + 1}</td>
+                  <td className="">
+                    {formatColumnDate(new Date(row.dateCreated))}
+                  </td>
+                  <td className="">
+                    {row
+                      ? generateFullName(
+                          row.patient?.firstName ?? '',
+                          row.patient?.lastName ?? '',
+                        )
+                      : null}
+                  </td>
+                  <td className="">{row?.patient?.mrn}</td>
+                  <td colSpan={2}>
+                    {' '}
+                    {row.botQuestionAnswers &&
+                    row.botQuestionAnswers.length > 0 ? (
+                      row.botQuestionAnswers.map((item, index) => (
+                        <div key={index} style={{ marginBottom: '15px' }}>
+                          <strong>Q{index + 1}</strong>: {item.question} <br />
+                          <strong>A:</strong> {item.answer}
+                        </div>
+                      ))
+                    ) : (
+                      <div>No question and answer available</div>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <div className="rounded-lg text-center">
+          <p>No data found</p>
         </div>
       )}
     </div>
