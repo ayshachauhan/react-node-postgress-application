@@ -134,4 +134,22 @@ export class PatientsService {
       )
       .getMany();
   }
+
+  async getPatientsByPhoneNumberinPractice(
+    phoneNumber: string,
+    practiceId: string,
+  ): Promise<PatientEntity[] | null> {
+    return this.patientRepository
+      .createQueryBuilder('patient')
+      .leftJoinAndSelect('patient.practice', 'practice')
+      .where(
+        new Brackets((qb) => {
+          qb.where(
+            'CONCAT(patient.countryCode, patient.phoneNumber) = :phoneNumber',
+            { phoneNumber },
+          ).andWhere('practice.id = :practiceId', { practiceId });
+        }),
+      )
+      .getMany();
+  }
 }
