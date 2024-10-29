@@ -22,7 +22,7 @@ import React, { useEffect, useState } from 'react';
 export default function ChatTable() {
   const dispatch = useAppDispatch();
   const [mrn, setMrn] = useState<string>('');
-  const [answer, setAnswer] = useState<string>('');
+  const [iDontKnow, setIDontKnow] = useState<boolean>(false);
   const searchParams = useSearchParams();
 
   const practiceId = getPracticeId();
@@ -35,36 +35,18 @@ export default function ChatTable() {
   const patientId = searchParams.get('id') || undefined;
   const showCaseHistory = !!patientId;
 
-  const answersList = chatLogs
-    .flatMap((log) => log.botQuestionAnswers)
-    .map((botQuestion) => botQuestion.answer);
-
-  const uniqueAnswers = Array.from(
-    new Set(answersList.filter((ans) => ans.includes("I don't know"))),
-  );
-
   const [loading, setLoading] = useState(true);
-
-  const options = uniqueAnswers.map((answer) => ({
-    id: answer,
-    label: answer,
-  }));
 
   const resetFilters = (): void => {
     dispatch(setSearchMRNName(null));
     setMrn('');
     dispatch(setSearchAnswer(null));
-    setAnswer('');
+    setIDontKnow(false);
   };
 
-  const handleSearchAnswerChange = (value) => {
-    if (value) {
-      setAnswer(value);
-      dispatch(setSearchAnswer(value));
-    } else {
-      setAnswer('');
-      resetFilters();
-    }
+  const handleIDontKnowToggle = () => {
+    setIDontKnow((prev) => !prev);
+    dispatch(setSearchAnswer("I don't know"));
   };
 
   const handleSearchMRNNameChange = (value) => {
@@ -94,16 +76,15 @@ export default function ChatTable() {
         chatFetchParams.mrn = mrn;
       }
 
-      if (answer) {
-        chatFetchParams.answer = answer;
+      if (iDontKnow) {
+        chatFetchParams.answer = "I don't know";
       }
 
       dispatch(fetchChat(chatFetchParams)).finally(() => {
         setLoading(false);
       });
     }
-  }, [dispatch, practiceId, patientId, mrn, answer]);
-
+  }, [dispatch, practiceId, patientId, mrn, iDontKnow]);
   return (
     <div className="my-4">
       <div className="flex justify-between border-gray-400">
@@ -112,35 +93,7 @@ export default function ChatTable() {
         ) : (
           <span className="text-xl font-bold">All Chat History</span>
         )}
-        <div className="flex gap-10">
-          <div className="flex items-center min-w-96">
-            <Select
-              backspaceClearsInputValue
-              backspaceRemoves
-              value={answer ? [{ id: answer, label: answer }] : []}
-              onChange={({ value }) => handleSearchAnswerChange(value[0]?.id)}
-              options={options}
-              placeholder="Seach by answer"
-              overrides={{
-                ControlContainer: {
-                  style: {
-                    backgroundColor: 'rgba(250, 250, 250, 1)',
-                    border: 'none',
-                    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-                    color: '#52525B',
-                    borderTopRightRadius: '0',
-                    borderBottomRightRadius: '0',
-                  },
-                },
-                ClearIcon: {
-                  component: () => null,
-                },
-              }}
-            />
-            <div className="bg-gradient-to-br from-teal-600 to-green-500 text-white px-5 h-full items-center rounded-r-lg border-r border-gray-300 flex items-center">
-              <SearchIcon></SearchIcon>
-            </div>
-          </div>
+        <div className="flex gap-6">
           <div className="flex items-center min-w-96">
             <Select
               backspaceClearsInputValue
@@ -171,6 +124,16 @@ export default function ChatTable() {
             <div className="bg-gradient-to-br from-teal-600 to-green-500 text-white px-5 h-full items-center rounded-r-lg border-r border-gray-300 flex items-center">
               <SearchIcon></SearchIcon>
             </div>
+          </div>
+          <div className="flex items-center">
+            <input
+              type="checkbox"
+              checked={iDontKnow}
+              onChange={handleIDontKnowToggle}
+            />
+            &nbsp; I don&apos;t know
+          </div>
+          <div>
             <Button
               onClick={resetFilters}
               type="button"
@@ -193,14 +156,14 @@ export default function ChatTable() {
         </div>
       ) : chatLogs.length > 0 ? (
         <div className="rounded-lg">
-          <table className="">
+          <table className="table-fixed w-full">
             <tbody>
               <tr className="">
-                <th className="">S.No.</th>
-                <th className="">Date</th>
-                <th className="">Name</th>
-                <th className="">MRN</th>
-                <th className="">Question</th>
+                <th className="w-1/12">S.No.</th>
+                <th className="w-1/12">Date</th>
+                <th className="w-1/12">Name</th>
+                <th className="w-1/12">MRN</th>
+                <th className="w-1/2">Question</th>
               </tr>
               {chatLogs.map((row, index) => (
                 <tr
@@ -225,18 +188,25 @@ export default function ChatTable() {
                       : null}
                   </td>
                   <td className="">{row?.patient?.mrn}</td>
-                  <td colSpan={2}>
+                  <td>
                     {' '}
                     {row.botQuestionAnswers &&
                     row.botQuestionAnswers.length > 0 ? (
-                      row.botQuestionAnswers.map((item, index) => (
-                        <div key={index} style={{ marginBottom: '15px' }}>
-                          <strong>Q{index + 1}</strong>: {item.question} <br />
-                          <strong>A:</strong> {item.answer}
-                        </div>
-                      ))
+                      row.botQuestionAnswers
+                        .filter((item) =>
+                          iDontKnow
+                            ? item.answer.toLowerCase().includes("i don't know")
+                            : true,
+                        )
+                        .map((item, index) => (
+                          <div key={index} className="mb-4">
+                            <strong>Q{index + 1}</strong>: {item.question}{' '}
+                            <br />
+                            <strong>A:</strong> {item.answer}
+                          </div>
+                        ))
                     ) : (
-                      <div>No question and answer available</div>
+                      <div>No questions and answers available</div>
                     )}
                   </td>
                 </tr>

@@ -78,8 +78,11 @@ export class AIClientService {
       queryBuilder.andWhere(
         new Brackets((qb) => {
           qb.where(
-            "EXISTS (SELECT 1 FROM jsonb_array_elements(chatbotlogs.botQuestionAnswers) elem WHERE elem->>'answer' = :answer)",
-            { answer },
+            `EXISTS (
+              SELECT 1 FROM jsonb_array_elements(chatbotlogs.botQuestionAnswers) elem 
+              WHERE elem->>'answer' ILIKE :answer
+            )`,
+            { answer: `%${answer}%` },
           );
         }),
       );
