@@ -12,6 +12,7 @@ const apiClient = new ApiService();
 interface SurgerySearchResult {
   surgeries: SurgeryEntity[];
   restricted: boolean;
+  allSurgeries: SurgeryEntity[];
 }
 
 export const getSurgeries = async (
