@@ -85,9 +85,9 @@ export class OpenAIService implements AIService {
           return `Sorry, we didn't know your practice. Please share your practice name with us to serve you better: PRACTICE Practice_Name_Example`;
         }
 
-        const regex = /^\s*PRACTICE\s(.*)$/;
+        const regex = /(?:PRACTICE\s+)?(.*)$/i;
         const match = data.question.match(regex);
-        const practice = match ? match[1] : '';
+        const practice = match ? match[1].trim() : '';
         const practiceRecord: PracticeEntity | null = practice
           ? await this.practiceService.findPracticeByName(practice)
           : null;
@@ -110,9 +110,9 @@ export class OpenAIService implements AIService {
             if (uniquePractices.length === 1) {
               practice = uniquePractices[0]; // Only one unique practice
             } else {
-              const regex = /^\s*PRACTICE\s(.*)$/;
+              const regex = /(?:PRACTICE\s+)?(.*)$/i;
               const match = data.question.match(regex);
-              practice = match ? match[1] : '';
+              practice = match ? match[1].trim() : '';
             }
           }
           this.openaiAssistantId = patientRecords[0].practice?.assistantId;
