@@ -28,6 +28,7 @@ import { QueryDto } from './dto/getSurgery.dto';
 interface SurgerySearchResult {
   surgeries: SurgeryEntity[];
   restricted: boolean;
+  allSurgeries: SurgeryEntity[];
 }
 
 @ApiTags('Surgery')

@@ -74,6 +74,7 @@ type DateCondition = {
 interface SurgerySearchResult {
   surgeries: SurgeryEntity[];
   restricted: boolean;
+  allSurgeries: SurgeryEntity[];
 }
 
 type WhereClause = {
@@ -218,6 +219,7 @@ export class SurgeryService {
     }
 
     const searchConditionsWithoutPermissions = { ...searchConditions };
+    const searchConditionsWithoutDate = { ...searchConditions };
     const dateConditionsWithPermissions = getConditions(
       months,
       userPermissions,
@@ -261,6 +263,9 @@ export class SurgeryService {
       }
       if (searchMRNName) {
         updateWhereClauseWithSearchName(whereClause, searchMRNName);
+        const whereClauseWithoutDate = { ...whereClause };
+        delete whereClauseWithoutDate.date;
+        searchConditionsWithoutDate.where = whereClauseWithoutDate;
       }
       searchConditions.where = whereClause;
       searchConditionsWithoutPermissions.where = whereClause;
@@ -304,6 +309,9 @@ export class SurgeryService {
       }
       if (searchMRNName) {
         updateWhereClauseWithSearchName(whereClause, searchMRNName);
+        const whereClauseWithoutDate = { ...whereClause };
+        delete whereClauseWithoutDate.date;
+        searchConditionsWithoutDate.where = whereClauseWithoutDate;
       }
       searchConditions.where = whereClause;
       searchConditionsWithoutPermissions.where = whereClause;
@@ -326,6 +334,9 @@ export class SurgeryService {
       } else {
         if (searchMRNName) {
           updateWhereClauseWithSearchName(whereClause, searchMRNName);
+          const whereClauseWithoutDate = { ...whereClause };
+          delete whereClauseWithoutDate.date;
+          searchConditionsWithoutDate.where = whereClauseWithoutDate;
         }
 
         if (
@@ -346,11 +357,15 @@ export class SurgeryService {
       }
     }
 
-    const [dbSurgeryByPractice, dbSurgeryByPracticeWithoutPermission] =
-      await Promise.all([
-        this.surgeryRepository.find(searchConditions),
-        this.surgeryRepository.find(searchConditionsWithoutPermissions),
-      ]);
+    const [
+      dbSurgeryByPractice,
+      dbSurgeryByPracticeWithoutPermission,
+      dbSurgeryWithoutDate,
+    ] = await Promise.all([
+      this.surgeryRepository.find(searchConditions),
+      this.surgeryRepository.find(searchConditionsWithoutPermissions),
+      this.surgeryRepository.find(searchConditionsWithoutDate),
+    ]);
 
     dbSurgeryByPractice.forEach((ele) => {
       ele.doctor.password = '';
@@ -371,7 +386,11 @@ export class SurgeryService {
             (s) => s.date > new Date(),
           )));
 
-    return { surgeries: dbSurgeryByPractice, restricted };
+    return {
+      surgeries: dbSurgeryByPractice,
+      restricted,
+      allSurgeries: dbSurgeryWithoutDate,
+    };
   }
 
   async findAllSurgeries(practiceId: string, includeDelete: boolean = false) {
