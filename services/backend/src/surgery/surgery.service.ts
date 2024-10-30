@@ -356,6 +356,22 @@ export class SurgeryService {
         }
       }
     }
+    if (searchConditionsWithoutDate.where) {
+      if (
+        typeof searchConditionsWithoutDate.where === 'object' &&
+        !Array.isArray(searchConditionsWithoutDate.where)
+      ) {
+        if ('waitlist' in searchConditionsWithoutDate.where) {
+          delete searchConditionsWithoutDate.where.waitlist;
+        }
+      } else if (Array.isArray(searchConditionsWithoutDate.where)) {
+        for (const condition of searchConditionsWithoutDate.where) {
+          if ('waitlist' in condition) {
+            delete condition.waitlist;
+          }
+        }
+      }
+    }
 
     const [
       dbSurgeryByPractice,
