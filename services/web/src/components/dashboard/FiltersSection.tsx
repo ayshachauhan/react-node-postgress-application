@@ -298,6 +298,7 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
       [viewPastCases, viewFutureCases],
     );
     const [records, setRecords] = useState<SurgeryEntity[]>([]);
+    const [allRecords, setAllRecords] = useState<SurgeryEntity[]>([]);
 
     const modifiedObj = {};
     records.forEach((ele, index) => {
@@ -428,6 +429,7 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
       setPage(1);
       setHasMore(true);
       setRecords([]);
+      setAllRecords([]);
       fetchedPages.current.clear();
     }, []);
 
@@ -507,6 +509,19 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
         } finally {
           setIsReviewRequestLoading(false);
         }
+      }
+    };
+
+    const applyPatientSearch = (value) => {
+      resetFilters();
+      resetPagination();
+      if (value) {
+        const selectedMrn = value;
+        setSearchMRNName(selectedMrn);
+        dispatch(setSearchMRNName(selectedMrn));
+      } else {
+        setSearchMRNName('');
+        resetFilters();
       }
     };
 
@@ -729,6 +744,8 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
                 return prevRecords;
               }
             });
+
+            setAllRecords(data.allSurgeries);
 
             if (data.surgeries.length > limit) {
               setHasMore(data.surgeries.length === limit);
@@ -1865,9 +1882,37 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
                   </tbody>
                 </table>
               </div>
-            ) : (
-              <div className="text-center py-3 px-2.5">{errorMessage}</div>
-            )}
+            ) : errorMessage ? (
+              errorMessage === 'No surgeries found.' &&
+              searchMRNName &&
+              (selectedMonth.length > 0 || selectedValue) &&
+              allRecords.length > 0 ? (
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    padding: '12px',
+                  }}
+                >
+                  <div>{errorMessage}</div>
+                  <a
+                    title="Click here to reset!"
+                    style={{
+                      color: 'blue',
+                      cursor: 'pointer',
+                      textDecoration: 'underline',
+                    }}
+                    onClick={() => applyPatientSearch(searchMRNName)}
+                  >
+                    Click here to reset!
+                  </a>
+                </div>
+              ) : (
+                <div className="text-center py-3 px-2.5">{errorMessage}</div>
+              )
+            ) : null}
           </div>
         )}
       </div>
