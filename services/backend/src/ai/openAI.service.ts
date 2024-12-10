@@ -5,9 +5,11 @@ import {
   ChatbotLogsEntity,
   PatientEntity,
   PracticeEntity,
+  UserEntity,
 } from '@packages/entities';
 import OpenAI from 'openai';
 import logger from 'src/logger';
+import { UsersService } from 'src/users/users.service';
 import { Raw, Repository } from 'typeorm';
 import { ENVIRONMENT_VARIABLES } from '../enums/environment.enums';
 import { PatientsService } from '../patients/patients.service';
@@ -39,6 +41,8 @@ export class OpenAIService implements AIService {
     private patientService: PatientsService,
     @Inject(forwardRef(() => PracticesService))
     private practiceService: PracticesService,
+    @Inject(forwardRef(() => UsersService))
+    private usersService: UsersService,
   ) {
     const { openAiKey, openAiOrg, openAiProjectId } = this.getEnvVariables();
     this.openAI = new OpenAI({
@@ -96,6 +100,12 @@ export class OpenAIService implements AIService {
         }
         this.openaiAssistantId = chatLogRecords.assistantId;
       } else {
+        const userInfo: UserEntity[] | null =
+          await this.usersService.getUserByPhoneNumber(data.phoneNumber);
+
+        if (userInfo && userInfo.length > 0) {
+          return 'Apologies, only patients are allowed to raise questions to the AI.';
+        }
         const patientRecords: PatientEntity[] | null =
           await this.patientService.getPatientsByPhoneNumber(data.phoneNumber);
         if (patientRecords && patientRecords.length > 0) {
