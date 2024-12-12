@@ -12,6 +12,7 @@ import {
   DisplayIcon,
   EditIcon,
   HomeIcon,
+  MessageIcon,
   SearchIcon,
   StarIcon,
   ViewIcon,
@@ -620,6 +621,13 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
       const query = { id };
       const queryString = new URLSearchParams(query).toString();
       const url = `/ai/?${queryString}`;
+      window.location.href = url;
+    };
+
+    const handleViewMessages = (id: string, email: string): void => {
+      const query = { id, email };
+      const queryString = new URLSearchParams(query).toString();
+      const url = `/ai/logs?${queryString}`;
       window.location.href = url;
     };
 
@@ -1316,6 +1324,19 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
                                                               }
                                                               size={13}
                                                             ></ChatIcon>
+                                                            <MessageIcon
+                                                              style={{
+                                                                cursor:
+                                                                  'pointer',
+                                                              }}
+                                                              onClick={() =>
+                                                                handleViewMessages(
+                                                                  row.patientId,
+                                                                  row.email,
+                                                                )
+                                                              }
+                                                              size={13}
+                                                            ></MessageIcon>
                                                           </div>
                                                         </div>
                                                       ) : (

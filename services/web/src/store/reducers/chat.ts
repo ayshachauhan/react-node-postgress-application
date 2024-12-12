@@ -1,7 +1,7 @@
 import { IChatbot } from '@packages/entities';
 import { PayloadAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { indexBy } from '@root/utils/index';
-import { getChat } from '../requests/chat';
+import { getChat, getUnifiedChat } from '../requests/chat';
 import { ChatState, EntityLoadingState } from '../types';
 
 const initialState: ChatState = {
@@ -77,6 +77,10 @@ export const { addChatItem, clearSuccessMessage, clearErrorMessage } =
   chatSlice.actions;
 
 export const fetchChat = createAsyncThunk('calendar/fetchChat', getChat);
+export const fetchUnifiedChat = createAsyncThunk(
+  'calendar/fetchChat',
+  getUnifiedChat,
+);
 export const { clearData, setSearchMRNName, setSearchAnswer } =
   chatSlice.actions;
 export default chatSlice.reducer;

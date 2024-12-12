@@ -5,6 +5,10 @@ module.exports = {
   publicRuntimeConfig: {
     API_BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL,
   },
+  webpack: (config) => {
+    config.cache = false; // Disables caching
+    return config;
+  },
   images: {
     unoptimized: true,
     remotePatterns: [

@@ -23,6 +23,23 @@ export const getUrlPath = (params: FetchChatParams) => {
   return url;
 };
 
+export const getUnifiedUrlPath = (params: FetchChatParams) => {
+  const { practiceId, patientId, mrn } = params;
+  let url = `/ai?practiceId=${practiceId}`;
+
+  if (patientId) {
+    url += `&patientId=${patientId}`;
+  }
+
+  if (mrn) {
+    url += `&mrn=${mrn}`;
+  }
+
+  url += `&all=true`;
+
+  return url;
+};
+
 /**
  * @summary Get chat history by Practice
  * @param payloadData
@@ -40,6 +57,28 @@ export const getChat = async (
     }
 
     const data: IChatbot[] = await response.json();
+
+    return data;
+  } catch (error) {
+    if (error instanceof Error) {
+      return rejectWithValue(error.message);
+    }
+    return rejectWithValue('An unknown error occurred');
+  }
+};
+
+export const getUnifiedChat = async (
+  params: FetchChatParams,
+  { rejectWithValue },
+): Promise<IChatbot[]> => {
+  try {
+    const response: Response = await apiClient.get(getUnifiedUrlPath(params));
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch chat history');
+    }
+
+    const data = await response.json();
 
     return data;
   } catch (error) {
