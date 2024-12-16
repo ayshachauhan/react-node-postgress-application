@@ -12,7 +12,7 @@ import { GetChatParams, GetMessageParams } from './types';
 
 type LogEntity =
   | (ChatbotLogsEntity & { type: 'chatbot' })
-  | (EmailLogEntity & { type: 'email' });
+  | (EmailLogEntity & { type: 'sms' });
 
 @Injectable()
 export class AIClientService {
@@ -137,7 +137,10 @@ export class AIClientService {
       .createQueryBuilder('email_logs')
       .where('email_logs.data::jsonb @> :emailCondition', {
         emailCondition: JSON.stringify({ to: email }),
-      });
+      })
+      .andWhere(
+        "email_logs.data::jsonb ->> 'text' IS NOT NULL AND trim(email_logs.data::jsonb ->> 'text') != ''",
+      );
 
     const [chatbotLogs, emailLogs] = await Promise.all([
       chatbotQueryBuilder.getMany(),
@@ -151,7 +154,7 @@ export class AIClientService {
         ...log,
       })),
       ...emailLogs.map((log) => ({
-        type: 'email' as const, // Explicitly cast the type
+        type: 'sms' as const, // Explicitly cast the type
         ...log,
       })),
     ];

@@ -299,6 +299,7 @@ export class OpenAIService implements AIService {
         chatLogRecords.botQuestionAnswers.push({
           question: data.question,
           answer: answer[0],
+          dateCreated: new Date(),
         });
         await this.updateChatLogs({ ...chatLogRecords });
       }

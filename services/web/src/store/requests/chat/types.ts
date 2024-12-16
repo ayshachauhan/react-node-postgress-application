@@ -8,3 +8,9 @@ export type FetchChatParams = {
   mrn?: string;
   answer?: string;
 };
+
+export type FetchMessageParams = {
+  practiceId: string;
+  email?: string;
+  patientId?: string;
+};

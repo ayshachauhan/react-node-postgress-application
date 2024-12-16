@@ -20,7 +20,7 @@ import { GetChatParams, GetMessageParams } from './types';
 
 type LogEntity =
   | (ChatbotLogsEntity & { type: 'chatbot' })
-  | (EmailLogEntity & { type: 'email' });
+  | (EmailLogEntity & { type: 'sms' });
 
 @Controller('/ai')
 export class AIController {

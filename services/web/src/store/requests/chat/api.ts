@@ -1,6 +1,10 @@
-import { IChatbot } from '@packages/entities';
+import {
+  ChatbotLogsEntity,
+  EmailLogEntity,
+  IChatbot,
+} from '@packages/entities';
 import { ApiService } from '@root/services/apiclient';
-import { FetchChatParams } from './types';
+import { FetchChatParams, FetchMessageParams } from './types';
 
 const apiClient = new ApiService();
 
@@ -23,16 +27,16 @@ export const getUrlPath = (params: FetchChatParams) => {
   return url;
 };
 
-export const getUnifiedUrlPath = (params: FetchChatParams) => {
-  const { practiceId, patientId, mrn } = params;
-  let url = `/ai?practiceId=${practiceId}`;
+export const getUnifiedUrlPath = (params: FetchMessageParams) => {
+  const { practiceId, patientId, email } = params;
+  let url = `/ai/logs?practiceId=${practiceId}`;
 
   if (patientId) {
     url += `&patientId=${patientId}`;
   }
 
-  if (mrn) {
-    url += `&mrn=${mrn}`;
+  if (email) {
+    url += `&email=${email}`;
   }
 
   url += `&all=true`;
@@ -67,10 +71,14 @@ export const getChat = async (
   }
 };
 
+type LogEntity =
+  | (ChatbotLogsEntity & { type: 'chatbot' })
+  | (EmailLogEntity & { type: 'sms' });
+
 export const getUnifiedChat = async (
-  params: FetchChatParams,
+  params: FetchMessageParams,
   { rejectWithValue },
-): Promise<IChatbot[]> => {
+): Promise<LogEntity[]> => {
   try {
     const response: Response = await apiClient.get(getUnifiedUrlPath(params));
 
@@ -78,7 +86,7 @@ export const getUnifiedChat = async (
       throw new Error('Failed to fetch chat history');
     }
 
-    const data = await response.json();
+    const data: LogEntity[] = await response.json();
 
     return data;
   } catch (error) {
