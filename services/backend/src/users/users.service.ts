@@ -387,6 +387,17 @@ export class UsersService {
       relations: ['practices'],
     });
   }
+  async getUserByPhoneNumber(
+    contactNumber: string,
+  ): Promise<UserEntity[] | null> {
+    return await this.usersRepository
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.practices', 'practices')
+      .where('CONCAT(user.countryCode, user.contactNumber) = :contactNumber', {
+        contactNumber,
+      })
+      .getMany();
+  }
 
   async uploadUserImg({ id, practiceId, file }: UploadUserImgData) {
     const key: string = getUploadFileKey(UploadType.USER, {

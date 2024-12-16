@@ -2,6 +2,7 @@ import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ChatbotLogsEntity } from '@packages/entities';
+import { UsersService } from 'src/users/users.service';
 import { Repository } from 'typeorm';
 import { PatientsService } from '../patients/patients.service';
 import { PracticesService } from '../practices/practices.service';
@@ -21,6 +22,8 @@ export class OpenAIFactory implements AIFactory {
     private patientService: PatientsService,
     @Inject(forwardRef(() => PracticesService))
     private practiceService: PracticesService,
+    @Inject(forwardRef(() => UsersService))
+    private userService: UsersService,
   ) {}
   createAIService(): OpenAIService {
     return new OpenAIService(
@@ -28,6 +31,7 @@ export class OpenAIFactory implements AIFactory {
       this.chatbotRepository,
       this.patientService,
       this.practiceService,
+      this.userService,
     );
   }
 }
