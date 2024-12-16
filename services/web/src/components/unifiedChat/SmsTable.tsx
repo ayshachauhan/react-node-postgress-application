@@ -28,7 +28,7 @@ type GroupedMessages = {
   [date: string]: Message[];
 };
 
-export default function Table() {
+export default function SmsTable() {
   const dispatch = useAppDispatch();
   const searchParams = useSearchParams();
   const practiceId = getPracticeId();
