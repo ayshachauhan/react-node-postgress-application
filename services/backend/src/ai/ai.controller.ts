@@ -18,7 +18,7 @@ import { AIClientService } from './ai.service';
 import { smsChatDto } from './dto/smsChat.dto';
 import { GetChatParams, GetMessageParams } from './types';
 
-type LogEntity =
+type SmsLog =
   | (ChatbotLogsEntity & { type: 'chatbot' })
   | (EmailLogEntity & { type: 'sms' });
 
@@ -96,7 +96,7 @@ export class AIController {
   }
 
   @Get('logs')
-  getHistory(@Query() query: GetMessageParams): Promise<LogEntity[]> {
+  getHistory(@Query() query: GetMessageParams): Promise<SmsLog[]> {
     return this.aiClientService.getAllLogs({
       practiceId: query.practiceId,
       patientId: query.patientId,

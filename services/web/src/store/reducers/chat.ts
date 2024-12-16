@@ -1,7 +1,7 @@
 import { IChatbot } from '@packages/entities';
 import { PayloadAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { indexBy } from '@root/utils/index';
-import { getChat, getUnifiedChat } from '../requests/chat';
+import { getChat } from '../requests/chat';
 import { ChatState, EntityLoadingState } from '../types';
 
 const initialState: ChatState = {
@@ -70,32 +70,6 @@ const chatSlice = createSlice({
         state.errorMessage = 'Failed to fetch chat history.';
       }
     });
-    builder.addCase(fetchUnifiedChat.pending, (state) => {
-      state.processing = true;
-      state.status = EntityLoadingState.PENDING;
-    });
-
-    builder.addCase(fetchUnifiedChat.fulfilled, (state, action) => {
-      state.status = EntityLoadingState.SUCCEEDED;
-      if (action.payload.length === 0) {
-        state.errorMessage = 'No chat history found.';
-      }
-
-      state.entities = {
-        ...state.entities,
-        ...indexBy('id', action.payload),
-      };
-    });
-
-    builder.addCase(fetchUnifiedChat.rejected, (state, action) => {
-      state.status = EntityLoadingState.FAILED;
-      state.processing = false;
-      if (typeof action.payload === 'string') {
-        state.errorMessage = action.payload ?? 'Failed to fetch chat history.';
-      } else {
-        state.errorMessage = 'Failed to fetch chat history.';
-      }
-    });
   },
 });
 
@@ -103,10 +77,7 @@ export const { addChatItem, clearSuccessMessage, clearErrorMessage } =
   chatSlice.actions;
 
 export const fetchChat = createAsyncThunk('calendar/fetchChat', getChat);
-export const fetchUnifiedChat = createAsyncThunk(
-  'calendar/getUnifiedChat',
-  getUnifiedChat,
-);
+
 export const { clearData, setSearchMRNName, setSearchAnswer } =
   chatSlice.actions;
 export default chatSlice.reducer;

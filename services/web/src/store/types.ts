@@ -18,6 +18,8 @@ import {
 import { PracticesGetInterface } from 'src/store/requests/practices';
 import { GetUserResponse } from './requests/login/types';
 
+type SmsLog = (IChatbot & { type: 'chatbot' }) | (IEmailLog & { type: 'sms' });
+
 interface SurgeryFilters {
   selectedMonth: MonthOption[];
   searchMRNName: string | null;
@@ -117,6 +119,8 @@ export type MessageState = EntitiesState<IEmailLog> & {
 export type ChatState = EntitiesState<IChatbot> & {
   chatFilters: ChatFilters;
 };
+
+export type UnifiedChatState = EntitiesState<SmsLog>;
 
 export type WaitlistState = EntitiesState<IWaitlist> & {
   waitlistInfo: IWaitlist | null;
