@@ -1,5 +1,5 @@
 import {
-  // BadRequestException,
+  BadRequestException,
   Body,
   Controller,
   Get,
@@ -57,18 +57,18 @@ export class AIController {
     );
     logger.info(`Generated Twilio Signature: ${generatedSignature}`);
 
-    // const isValid = twilio.validateRequest(
-    //   authToken,
-    //   twilioHeader,
-    //   webhookUrl,
-    //   chatDto,
-    // );
+    const isValid = twilio.validateRequest(
+      authToken,
+      twilioHeader,
+      webhookUrl,
+      chatDto,
+    );
 
-    // if (!isValid) {
-    //   logger.error('Invalid Twilio request signature');
-    //   throw new BadRequestException('Invalid Twilio request signature');
-    // }
-    // logger.info(`Twilio request verification: ${isValid}`);
+    if (!isValid) {
+      logger.error('Invalid Twilio request signature');
+      throw new BadRequestException('Invalid Twilio request signature');
+    }
+    logger.info(`Twilio request verification: ${isValid}`);
 
     try {
       const aibotReply = await this.aiClientService.smsChat(type, {
