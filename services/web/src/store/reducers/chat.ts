@@ -77,7 +77,6 @@ export const { addChatItem, clearSuccessMessage, clearErrorMessage } =
   chatSlice.actions;
 
 export const fetchChat = createAsyncThunk('calendar/fetchChat', getChat);
-
 export const { clearData, setSearchMRNName, setSearchAnswer } =
   chatSlice.actions;
 export default chatSlice.reducer;
