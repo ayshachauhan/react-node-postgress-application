@@ -96,8 +96,8 @@ export class AIController {
   }
 
   @Get('logs')
-  getHistory(@Query() query: GetMessageParams): Promise<SmsLog[]> {
-    return this.aiClientService.getAllLogs({
+  getSmsHistory(@Query() query: GetMessageParams): Promise<SmsLog[]> {
+    return this.aiClientService.getAllSmsLogs({
       practiceId: query.practiceId,
       patientId: query.patientId,
       mrn: query.mrn,

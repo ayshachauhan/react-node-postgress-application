@@ -10,7 +10,7 @@ import { GetChatParams, GetMessageParams } from './types';
 // import { Repository } from 'typeorm';
 // import { InjectRepository } from '@nestjs/typeorm';
 
-type LogEntity =
+type SMSLog =
   | (ChatbotLogsEntity & { type: 'chatbot' })
   | (EmailLogEntity & { type: 'sms' });
 
@@ -100,16 +100,16 @@ export class AIClientService {
   }
 
   /**
-   * Get all chat history for a specific practice
+   * Get all sms history for a specific patient
    * @param param0
-   * @returns ChatbotLogsEntity[]
+   * @returns SMSLog[]
    */
-  async getAllLogs({
+  async getAllSmsLogs({
     practiceId,
     patientId,
     mrn,
     email,
-  }: GetMessageParams): Promise<LogEntity[]> {
+  }: GetMessageParams): Promise<SMSLog[]> {
     const chatbotQueryBuilder = this.chatbotRepository
       .createQueryBuilder('chatbotlogs')
       .where('chatbotlogs.practiceId = :practiceId', { practiceId });
@@ -148,13 +148,13 @@ export class AIClientService {
     ]);
 
     // Combine the results
-    const combinedLogs: LogEntity[] = [
+    const combinedLogs: SMSLog[] = [
       ...chatbotLogs.map((log) => ({
-        type: 'chatbot' as const, // Explicitly cast the type
+        type: 'chatbot' as const,
         ...log,
       })),
       ...emailLogs.map((log) => ({
-        type: 'sms' as const, // Explicitly cast the type
+        type: 'sms' as const,
         ...log,
       })),
     ];
