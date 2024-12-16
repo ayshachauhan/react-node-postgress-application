@@ -1,8 +1,8 @@
 'use client';
 import { PatientEntity } from '@packages/entities';
 import { useAppDispatch, useAppSelector } from '@root/store';
-import { clearData, fetchUnifiedChat } from '@root/store/reducers/chat';
-import { FetchMessageParams } from '@root/store/requests/chat';
+import { clearData, fetchUnifiedChat } from '@root/store/reducers/unifiedChat';
+import { FetchMessageParams } from '@root/store/requests/unifiedChat';
 import {
   formatColumnDate,
   generateFullName,
@@ -33,7 +33,7 @@ export default function Table() {
   const searchParams = useSearchParams();
   const practiceId = getPracticeId();
   const { chatLogs } = useAppSelector((state) => ({
-    chatLogs: Object.values(state.chat.entities),
+    chatLogs: Object.values(state.unifiedChat.entities),
   }));
   const email = searchParams.get('email') || '';
   const patientId = searchParams.get('id') || undefined;
