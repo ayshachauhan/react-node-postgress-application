@@ -1,5 +1,4 @@
-import { IChatbot } from '@packages/entities';
-import { IMessage } from '@packages/entities/message';
+import { IChatbot, IEmailLog } from '@packages/entities';
 import { ApiService } from '@root/services/apiclient';
 import { FetchMessageParams } from './types';
 
@@ -22,14 +21,12 @@ export const getUrlPath = (params: FetchMessageParams) => {
   return url;
 };
 
-type LogEntity =
-  | (IChatbot & { type: 'chatbot' })
-  | (IMessage & { type: 'sms' });
+type SmsLog = (IChatbot & { type: 'chatbot' }) | (IEmailLog & { type: 'sms' });
 
 export const getUnifiedChat = async (
   params: FetchMessageParams,
   { rejectWithValue },
-): Promise<LogEntity[]> => {
+): Promise<SmsLog[]> => {
   try {
     const response: Response = await apiClient.get(getUrlPath(params));
 
@@ -37,7 +34,7 @@ export const getUnifiedChat = async (
       throw new Error('Failed to fetch sms history');
     }
 
-    const data: LogEntity[] = await response.json();
+    const data: SmsLog[] = await response.json();
 
     return data;
   } catch (error) {
