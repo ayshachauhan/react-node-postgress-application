@@ -100,12 +100,6 @@ export class OpenAIService implements AIService {
         }
         this.openaiAssistantId = chatLogRecords.assistantId;
       } else {
-        const userInfo: UserEntity[] | null =
-          await this.usersService.getUserByPhoneNumber(data.phoneNumber);
-
-        if (userInfo && userInfo.length > 0) {
-          return 'Apologies, only patients are allowed to raise questions to the AI.';
-        }
         const patientRecords: PatientEntity[] | null =
           await this.patientService.getPatientsByPhoneNumber(data.phoneNumber);
         if (patientRecords && patientRecords.length > 0) {
@@ -203,6 +197,12 @@ export class OpenAIService implements AIService {
             }
           }
         } else {
+          const userInfo: UserEntity[] | null =
+            await this.usersService.getUserByPhoneNumber(data.phoneNumber);
+
+          if (userInfo && userInfo.length > 0) {
+            return 'Apologies, only patients are allowed to raise questions to the AI.';
+          }
           return `Sorry, your number is not registered with us. Please contact at support@pod111.com for more details.`;
         }
       }
