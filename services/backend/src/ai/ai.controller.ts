@@ -9,18 +9,14 @@ import {
   Query,
   Res,
 } from '@nestjs/common';
-import { ChatbotLogsEntity, EmailLogEntity } from '@packages/entities';
+import { ChatbotLogsEntity } from '@packages/entities';
 import { Response } from 'express';
 import * as twilio from 'twilio';
 import MessagingResponse from 'twilio/lib/twiml/MessagingResponse';
 import logger from '../logger';
 import { AIClientService } from './ai.service';
 import { smsChatDto } from './dto/smsChat.dto';
-import { GetChatParams, GetMessageParams } from './types';
-
-type SmsLog =
-  | (ChatbotLogsEntity & { type: 'chatbot' })
-  | (EmailLogEntity & { type: 'sms' });
+import { GetChatParams } from './types';
 
 @Controller('/ai')
 export class AIController {
@@ -92,16 +88,6 @@ export class AIController {
       patientId: query.patientId,
       mrn: query.mrn,
       answer: query.answer,
-    });
-  }
-
-  @Get('logs')
-  getSmsHistory(@Query() query: GetMessageParams): Promise<SmsLog[]> {
-    return this.aiClientService.getAllSmsLogs({
-      practiceId: query.practiceId,
-      patientId: query.patientId,
-      mrn: query.mrn,
-      email: query.email,
     });
   }
 }

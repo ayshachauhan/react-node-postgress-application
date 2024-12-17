@@ -627,7 +627,7 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
     const handleViewMessages = (id: string, email: string): void => {
       const query = { id, email };
       const queryString = new URLSearchParams(query).toString();
-      const url = `/ai/logs?${queryString}`;
+      const url = `/messages/sms?${queryString}`;
       window.location.href = url;
     };
 

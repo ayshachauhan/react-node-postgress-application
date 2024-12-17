@@ -6,10 +6,10 @@ const apiClient = new ApiService();
 
 export const getUrlPath = (params: FetchMessageParams) => {
   const { practiceId, patientId, email } = params;
-  let url = `/ai/logs?practiceId=${practiceId}`;
+  let url = `/practices/${practiceId}/messages/sms?`;
 
   if (patientId) {
-    url += `&patientId=${patientId}`;
+    url += `patientId=${patientId}`;
   }
 
   if (email) {
