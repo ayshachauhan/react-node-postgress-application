@@ -16,8 +16,6 @@ export const getUrlPath = (params: FetchMessageParams) => {
     url += `&email=${email}`;
   }
 
-  url += `&all=true`;
-
   return url;
 };
 
