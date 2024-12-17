@@ -1,7 +1,6 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ChatbotLogsEntity, EmailLogEntity } from '@packages/entities';
-import { EmailHandlerModule } from 'src/emailHandler/emailHandler.module';
+import { ChatbotLogsEntity } from '@packages/entities';
 import { TransporterModule } from 'src/transporter';
 import { PatientsModule } from '../patients/patients.module';
 import { PracticesModule } from '../practices/practices.module';
@@ -13,12 +12,11 @@ import { OpenAIFactory } from './openAI-factory';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([ChatbotLogsEntity, EmailLogEntity]),
+    TypeOrmModule.forFeature([ChatbotLogsEntity]),
     forwardRef(() => PatientsModule),
     forwardRef(() => PracticesModule),
     forwardRef(() => UsersModule),
     forwardRef(() => TransporterModule),
-    forwardRef(() => EmailHandlerModule),
   ],
   controllers: [AIController],
   providers: [OpenAIFactory, CustomGPTFactory, AIClientService],
