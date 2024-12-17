@@ -145,7 +145,7 @@ export default function SmsTable() {
                         <div>
                           <div className="mb-2">
                             {' '}
-                            <strong>Shawn</strong>{' '}
+                            <strong>POD</strong>{' '}
                             <span className=""> {time} </span>
                             <br />
                             {stripHtmlTags(row.answer)}
@@ -167,7 +167,7 @@ export default function SmsTable() {
                         </div>
                       ) : row.type === 'sms' ? (
                         <div>
-                          <strong>Shawn</strong>{' '}
+                          <strong>POD</strong>{' '}
                           <span className=""> {time} </span>
                           <br />
                           {stripHtmlTags(row?.data?.text)}
