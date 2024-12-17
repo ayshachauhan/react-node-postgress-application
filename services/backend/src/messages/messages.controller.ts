@@ -40,9 +40,12 @@ export class MessagesController {
   }
 
   @Get('sms')
-  async getSmsHistory(@Query() query: GetMessageParams): Promise<SmsLog[]> {
+  async getSmsHistory(
+    @Param('practiceId') practiceId: string,
+    @Query() query: GetMessageParams,
+  ): Promise<SmsLog[]> {
     return this.messagesService.getAllSmsLogs({
-      practiceId: query.practiceId,
+      practiceId: practiceId,
       patientId: query.patientId,
       mrn: query.mrn,
       email: query.email,

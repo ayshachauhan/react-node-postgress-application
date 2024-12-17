@@ -140,7 +140,7 @@ export default function SmsTable() {
                     })
                     .toUpperCase();
                   return (
-                    <div key={index} className="mb-4">
+                    <div key={index} className="mb-2">
                       {row.type === 'chatbot' ? (
                         <div>
                           <div className="mb-2">
