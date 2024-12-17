@@ -14,11 +14,9 @@ import React, { useEffect, useState } from 'react';
 type Message = {
   dateCreated: string;
   type: string;
-  botQuestionAnswers?: {
-    question: string;
-    answer: string;
-  }[];
-  data?: {
+  question: string;
+  answer: string;
+  data: {
     text: string;
   };
   patient: PatientEntity;
@@ -66,14 +64,17 @@ export default function SmsTable() {
     return [row];
   });
 
-  const groupedMessages = transformedChatLogs.reduce((acc, row) => {
-    const date = formatColumnDate(new Date(row.dateCreated)).split(' ')[0]; // Extract only the date
-    if (!acc[date]) {
-      acc[date] = [];
-    }
-    acc[date].push(row);
-    return acc;
-  }, {});
+  const groupedMessages: GroupedMessages = transformedChatLogs.reduce(
+    (acc, row) => {
+      const date = formatColumnDate(new Date(row.dateCreated)).split(' ')[0]; // Extract only the date
+      if (!acc[date]) {
+        acc[date] = [];
+      }
+      acc[date].push(row);
+      return acc;
+    },
+    {},
+  );
 
   const orderedGroupedMessages = Object.fromEntries(
     Object.entries(groupedMessages)
