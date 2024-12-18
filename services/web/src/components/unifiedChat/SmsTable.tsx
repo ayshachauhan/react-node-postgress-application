@@ -10,7 +10,6 @@ import {
 } from '@utils/index';
 import { useSearchParams } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
-
 type Message = {
   dateCreated: string;
   type: string;
@@ -21,12 +20,10 @@ type Message = {
   };
   patient: PatientEntity;
 };
-
 type GroupedMessages = {
   [date: string]: Message[];
 };
-
-export default function SmsTable() {
+export default function DummySmsTable() {
   const dispatch = useAppDispatch();
   const searchParams = useSearchParams();
   const practiceId = getPracticeId();
@@ -36,7 +33,9 @@ export default function SmsTable() {
   const email = searchParams.get('email') || '';
   const patientId = searchParams.get('id') || undefined;
   const [loading, setLoading] = useState(true);
-
+  const capitalizeFirstLetter = (str: string) => {
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+  };
   useEffect(() => {
     setLoading(true);
     dispatch(clearData());
@@ -51,7 +50,6 @@ export default function SmsTable() {
       });
     }
   }, [dispatch, practiceId, patientId, email]);
-
   const transformedChatLogs = chatLogs.flatMap((row) => {
     if (row.type === 'chatbot' && row.botQuestionAnswers?.length > 0) {
       return row.botQuestionAnswers.map((qa) => ({
@@ -63,7 +61,6 @@ export default function SmsTable() {
     }
     return [row];
   });
-
   const groupedMessages: GroupedMessages = transformedChatLogs.reduce(
     (acc, row) => {
       const date = formatColumnDate(new Date(row.dateCreated)).split(' ')[0]; // Extract only the date
@@ -75,7 +72,6 @@ export default function SmsTable() {
     },
     {},
   );
-
   const orderedGroupedMessages = Object.fromEntries(
     Object.entries(groupedMessages)
       .sort(
@@ -91,7 +87,6 @@ export default function SmsTable() {
         ),
       ]),
   );
-
   const formatDate = (date: Date) => {
     return date.toLocaleDateString('en-US', {
       weekday: 'long',
@@ -99,16 +94,14 @@ export default function SmsTable() {
       day: 'numeric',
     });
   };
-
   const stripHtmlTags = (inputText: string) => {
     const doc = new DOMParser().parseFromString(inputText, 'text/html');
     return doc.body.textContent || '';
   };
-
   return (
     <div className="my-4">
       <div className="flex justify-between border-gray-400">
-        <span className="text-xl font-bold">Message History</span>
+        <span className="text-xl font-bold">Chat History</span>
         <div className="flex gap-6">
           <div className="flex items-center min-w-96"></div>
         </div>
@@ -122,63 +115,128 @@ export default function SmsTable() {
         <div className="rounded-lg">
           {Object.entries(orderedGroupedMessages as GroupedMessages).map(
             ([date, messages]) => (
-              <div key={date} className="mb-6">
-                <div className="relative flex items-center justify-center my-4">
-                  <div className="absolute left-0 right-0 border-t border-gray-300"></div>
-                  <h2 className="text-lg font-semibold px-4 bg-white relative z-10">
-                    {' '}
-                    {formatDate(new Date(date))}{' '}
-                  </h2>
-                </div>
-                {messages.map((row, index) => {
-                  const dateObject = new Date(row.dateCreated);
-                  const time = dateObject
-                    .toLocaleTimeString([], {
-                      hour: '2-digit',
-                      minute: '2-digit',
-                      hour12: true,
-                    })
-                    .toUpperCase();
-                  return (
-                    <div key={index} className="mb-2">
-                      {row.type === 'chatbot' ? (
-                        <div>
-                          <div className="mb-2">
-                            {' '}
-                            <strong>POD</strong>{' '}
-                            <span className=""> {time} </span>
-                            <br />
-                            {stripHtmlTags(row.answer)}
-                          </div>
-                          <div className="mb-2">
-                            <strong>
-                              {' '}
-                              {row.patient
-                                ? generateFullName(
-                                    row.patient?.firstName ?? '',
-                                    row.patient?.lastName ?? '',
-                                  )
-                                : 'Patient'}{' '}
-                            </strong>{' '}
-                            <span className=""> {time} </span>
-                            <br />
-                            {stripHtmlTags(row.question)}
-                          </div>
+              <section key={date} className="">
+                <div className="text-center">
+                  <div className="flex-1 justify-between flex flex-col">
+                    <div
+                      id="messages"
+                      className="flex flex-col space-y-4 overflow-y-auto"
+                    >
+                      <div className="flex items-center justify-center my-2">
+                        <div className="bg-gray-300 text-gray-700 text-xs font-bold px-5 py-1 rounded-full">
+                          {formatDate(new Date(date))}{' '}
                         </div>
-                      ) : row.type === 'sms' ? (
-                        <div>
-                          <strong>POD</strong>{' '}
-                          <span className=""> {time} </span>
-                          <br />
-                          {stripHtmlTags(row?.data?.text)}
-                        </div>
-                      ) : (
-                        <div>Unsupported type</div>
-                      )}
+                      </div>
+                      {messages.map((row, index) => {
+                        const dateObject = new Date(row.dateCreated);
+                        const time = dateObject
+                          .toLocaleTimeString([], {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            hour12: true,
+                          })
+                          .toUpperCase();
+                        return (
+                          <div key={index} className="chat-message">
+                            {row.type === 'chatbot' ? (
+                              <div>
+                                <div className="flex items-end">
+                                  <div className="flex flex-col space-y-2 text-xs max-w-md mx-2 order-2 items-start">
+                                    <div>
+                                      <div className="flex text-left items-center">
+                                        <span className="text-sm font-bold text-gray-800 px-1">
+                                          POD
+                                        </span>
+                                        <span className="text-xs text-gray-500">
+                                          {time}
+                                        </span>
+                                      </div>
+                                      <span className="px-4 py-2 rounded-lg inline-block rounded-bl-none bg-gray-300 text-gray-600 text-left">
+                                        {' '}
+                                        {row.answer
+                                          ? stripHtmlTags(row.answer)
+                                          : 'Loading...'}
+                                      </span>
+                                    </div>
+                                  </div>
+                                  <img
+                                    src="/images/favicon-new.ico"
+                                    alt="My profile"
+                                    className="w-7 h-7 rounded-full order-1"
+                                  />
+                                </div>
+                                <div className="flex items-end mt-4">
+                                  <div className="flex-shrink-0 bg-gradient-to-b from-primary-dark to-primary-light text-white rounded-full w-7 h-7 flex items-center justify-center order-2">
+                                    {row.patient && row.patient?.firstName
+                                      ? row.patient.firstName
+                                          .charAt(0)
+                                          .toUpperCase()
+                                      : ''}
+                                  </div>
+                                  <div className="flex flex-col space-y-2 text-xs max-w-md mx-2 order-2 items-start">
+                                    <div className="flex flex-col">
+                                      <div className="flex text-left items-center">
+                                        <span className="text-sm font-bold text-gray-800 px-1">
+                                          {' '}
+                                          {row.patient
+                                            ? generateFullName(
+                                                capitalizeFirstLetter(
+                                                  row.patient?.firstName ?? '',
+                                                ),
+                                                capitalizeFirstLetter(
+                                                  row.patient?.lastName ?? '',
+                                                ),
+                                              )
+                                            : 'Patient'}
+                                        </span>
+                                        <span className="text-xs text-gray-500">
+                                          {time}
+                                        </span>
+                                      </div>
+                                      <span className="px-4 py-2 rounded-lg inline-block rounded-bl-none bg-gradient-to-b from-primary-dark to-primary-light text-white text-left">
+                                        {' '}
+                                        {row.question
+                                          ? stripHtmlTags(row.answer)
+                                          : 'Loading...'}
+                                      </span>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            ) : row.type === 'sms' ? (
+                              <div className="flex items-end">
+                                <div className="flex flex-col space-y-2 text-xs max-w-md mx-2 order-2 items-start">
+                                  <div>
+                                    <div className="flex text-left items-center">
+                                      <span className="text-sm font-bold text-gray-800 px-1">
+                                        POD
+                                      </span>
+                                      <span className="text-xs text-gray-500">
+                                        {time}
+                                      </span>
+                                    </div>
+                                    <span className="px-4 py-2 rounded-lg inline-block rounded-bl-none bg-gray-300 text-gray-600 text-left">
+                                      {' '}
+                                      {stripHtmlTags(row?.data?.text)}
+                                    </span>
+                                  </div>
+                                </div>
+                                <img
+                                  src="/images/favicon-new.ico"
+                                  alt="My profile"
+                                  className="w-7 h-7 rounded-full order-1"
+                                />
+                              </div>
+                            ) : (
+                              <div>Unsupported type</div>
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
-                  );
-                })}
-              </div>
+                  </div>
+                </div>
+              </section>
             ),
           )}
         </div>
