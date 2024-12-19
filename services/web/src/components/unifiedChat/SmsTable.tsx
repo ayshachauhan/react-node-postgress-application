@@ -196,7 +196,7 @@ export default function DummySmsTable() {
                                       <span className="px-4 py-2 rounded-lg inline-block rounded-bl-none bg-gradient-to-b from-primary-dark to-primary-light text-white text-left">
                                         {' '}
                                         {row.question
-                                          ? stripHtmlTags(row.answer)
+                                          ? stripHtmlTags(row.question)
                                           : 'Loading...'}
                                       </span>
                                     </div>
