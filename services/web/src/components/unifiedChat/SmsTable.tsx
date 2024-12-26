@@ -133,7 +133,8 @@ export default function DummySmsTable() {
                           .toLocaleTimeString([], {
                             hour: '2-digit',
                             minute: '2-digit',
-                            hour12: true,
+                            second: '2-digit',
+                            timeZone: 'UTC',
                           })
                           .toUpperCase();
                         return (
