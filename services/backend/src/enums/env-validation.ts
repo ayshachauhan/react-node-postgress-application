@@ -53,6 +53,7 @@ export const ENV_VARIABLES_SCHEMA: Record<ENVIRONMENT_VARIABLES, Joi.Schema> = {
   [ENVIRONMENT_VARIABLES.OPENAI_ORGANISATION]: Joi.string().optional(),
   [ENVIRONMENT_VARIABLES.OPENAI_PROJECT]: Joi.string().optional(),
   [ENVIRONMENT_VARIABLES.OPENAI_ASSISTANT_ID]: Joi.string().optional(),
+  [ENVIRONMENT_VARIABLES.ENABLE_AI_CHAT]: Joi.boolean().default(false),
 };
 
 export const ENV_VALIDATIONS = Joi.object(ENV_VARIABLES_SCHEMA);

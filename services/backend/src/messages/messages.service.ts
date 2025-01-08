@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ChatbotLogsEntity } from '@packages/entities';
 import { EmailLogEntity } from '@packages/entities/emailLogs';
@@ -10,6 +11,7 @@ import {
   Raw,
   Repository,
 } from 'typeorm';
+import { ENVIRONMENT_VARIABLES } from '../enums/environment.enums';
 
 type SmsLog =
   | (ChatbotLogsEntity & { type: 'chatbot' })
@@ -22,6 +24,7 @@ export class MessagesService {
     private messageRepository: Repository<EmailLogEntity>,
     @InjectRepository(ChatbotLogsEntity)
     private chatbotRepository: Repository<ChatbotLogsEntity>,
+    private configService: ConfigService,
   ) {}
 
   async getMessagesByPractice(
@@ -90,12 +93,15 @@ export class MessagesService {
         "email_logs.data::jsonb ->> 'text' IS NOT NULL AND trim(email_logs.data::jsonb ->> 'text') != ''",
       );
 
-    const [chatbotLogs, emailLogs] = await Promise.all([
-      chatbotQueryBuilder.getMany(),
-      emailLogsQueryBuilder.getMany(),
-    ]);
+    const showAIChat = await this.configService.get(
+      ENVIRONMENT_VARIABLES.SUPER_ADMIN_EMAIL,
+    );
 
-    // Combine the results
+    const chatbotLogs =
+      showAIChat === 'true' ? await chatbotQueryBuilder.getMany() : [];
+    const emailLogs = (await emailLogsQueryBuilder.getMany()) || [];
+
+    // Combine logs
     const combinedLogs: SmsLog[] = [
       ...chatbotLogs.map((log) => ({
         type: 'chatbot' as const,
