@@ -14,5 +14,5 @@ export interface IChatbot extends IBaseEntity {
 export type QuestionAnswers = {
   question: string;
   answer: string;
-  dateCreated: Date;
+  dateCreated: string;
 };

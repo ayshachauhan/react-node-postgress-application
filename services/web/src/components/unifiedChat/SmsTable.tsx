@@ -133,7 +133,7 @@ export default function DummySmsTable() {
                           .toLocaleTimeString([], {
                             hour: '2-digit',
                             minute: '2-digit',
-                            second: '2-digit',
+                            hour12: true, // This ensures the AM/PM format
                           })
                           .toUpperCase();
                         return (

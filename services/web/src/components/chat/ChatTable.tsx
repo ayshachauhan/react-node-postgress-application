@@ -59,6 +59,19 @@ export default function ChatTable() {
       resetFilters();
     }
   };
+  const formattedTime = (dateObject) => {
+    // Get hours, minutes, seconds, and milliseconds
+    const hours = dateObject.getHours();
+    const minutes = dateObject.getMinutes();
+
+    // Format hours in 12-hour format
+    const period = hours >= 12 ? 'PM' : 'AM';
+    const formattedHours = (hours % 12 || 12).toString().padStart(2, '0');
+    const formattedMinutes = minutes.toString().padStart(2, '0');
+
+    // Return the formatted string with AM/PM and the formatted time
+    return `${formattedHours}:${formattedMinutes} ${period}`;
+  };
 
   useEffect(() => {
     setLoading(true);
@@ -203,6 +216,9 @@ export default function ChatTable() {
                             <strong>Q{index + 1}</strong>: {item.question}{' '}
                             <br />
                             <strong>A:</strong> {item.answer}
+                            <br />
+                            <strong>Log Created At: </strong>{' '}
+                            {formattedTime(new Date(item.dateCreated))}
                           </div>
                         ))
                     ) : (

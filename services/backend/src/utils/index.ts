@@ -143,6 +143,30 @@ export function getFullYearDateConditions(userPermissions: PermissionEntity[]) {
   return [{ date: Between(startDate, endDate) }];
 }
 
+export function formatDateWithMicrosecondsUTC(dateObject) {
+  const formattedDate = `${dateObject.getUTCFullYear()}-${(
+    dateObject.getUTCMonth() + 1
+  )
+    .toString()
+    .padStart(2, '0')}-${dateObject.getUTCDate().toString().padStart(2, '0')}`;
+
+  const formattedTime = `${dateObject
+    .getUTCHours()
+    .toString()
+    .padStart(2, '0')}:${dateObject
+    .getUTCMinutes()
+    .toString()
+    .padStart(2, '0')}:${dateObject
+    .getUTCSeconds()
+    .toString()
+    .padStart(2, '0')}.${dateObject
+    .getMilliseconds()
+    .toString()
+    .padStart(3, '0')}000`; // Pad milliseconds for microseconds
+
+  return `${formattedDate} ${formattedTime}`;
+}
+
 export function formatHeaderDate(dateString: string) {
   const date = new Date(dateString);
   const formattedDate = new Intl.DateTimeFormat('en-US', {
