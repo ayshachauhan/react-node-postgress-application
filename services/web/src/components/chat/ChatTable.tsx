@@ -10,11 +10,7 @@ import {
 } from '@root/store/reducers/chat';
 import { fetchListings as fetchPatients } from '@root/store/reducers/patient';
 import { FetchChatParams } from '@root/store/requests/chat';
-import {
-  formatColumnDate,
-  generateFullName,
-  getPracticeId,
-} from '@utils/index';
+import { formatDate, generateFullName, getPracticeId } from '@utils/index';
 import { Select } from 'baseui/select';
 import { useSearchParams } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
@@ -189,9 +185,7 @@ export default function ChatTable() {
                   }`}
                 >
                   <td>{index + 1}</td>
-                  <td className="">
-                    {formatColumnDate(new Date(row.dateCreated))}
-                  </td>
+                  <td className="">{formatDate(new Date(row.dateCreated))}</td>
                   <td className="">
                     {row
                       ? generateFullName(

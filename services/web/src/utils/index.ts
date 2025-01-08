@@ -85,7 +85,13 @@ export function formatColumnDate(dateString: Date) {
     day: 'numeric',
     year: 'numeric',
   }).format(date);
-  const result = `${formattedDate}`;
+  const hours = date.getHours();
+  const minutes = date.getMinutes();
+  const ampm = hours >= 12 ? 'pm' : 'am';
+  const formattedTime = `${hours % 12 || 12}:${
+    minutes < 10 ? '0' : ''
+  }${minutes}${ampm}`;
+  const result = `${formattedDate} | ${formattedTime}`;
   return result;
 }
 
