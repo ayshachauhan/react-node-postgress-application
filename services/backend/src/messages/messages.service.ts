@@ -94,19 +94,22 @@ export class MessagesService {
       );
 
     const showAIChat = await this.configService.get(
-      ENVIRONMENT_VARIABLES.SUPER_ADMIN_EMAIL,
+      ENVIRONMENT_VARIABLES.NEXT_PUBLIC_ENABLE_AI_CHAT,
     );
 
-    const chatbotLogs =
-      showAIChat === 'true' ? await chatbotQueryBuilder.getMany() : [];
-    const emailLogs = (await emailLogsQueryBuilder.getMany()) || [];
+    const [chatbotLogs, emailLogs] = await Promise.all([
+      chatbotQueryBuilder.getMany(),
+      emailLogsQueryBuilder.getMany(),
+    ]);
 
     // Combine logs
     const combinedLogs: SmsLog[] = [
-      ...chatbotLogs.map((log) => ({
-        type: 'chatbot' as const,
-        ...log,
-      })),
+      ...(showAIChat === true
+        ? chatbotLogs.map((log) => ({
+            type: 'chatbot' as const,
+            ...log,
+          }))
+        : []),
       ...emailLogs.map((log) => ({
         type: 'sms' as const,
         ...log,

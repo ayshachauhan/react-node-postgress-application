@@ -102,6 +102,7 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
     const limit = PAGINATION_LIMIT;
+    const isAIChatEnabled = process.env.NEXT_PUBLIC_ENABLE_AI_CHAT === 'true';
     const {
       selectedMonth,
       searchMRNName,
@@ -1312,18 +1313,20 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
                                                                   : 'Copy'
                                                               }
                                                             />
-                                                            <ChatIcon
-                                                              style={{
-                                                                cursor:
-                                                                  'pointer',
-                                                              }}
-                                                              onClick={() =>
-                                                                handleViewChat(
-                                                                  row.patientId,
-                                                                )
-                                                              }
-                                                              size={13}
-                                                            ></ChatIcon>
+                                                            {isAIChatEnabled && (
+                                                              <ChatIcon
+                                                                style={{
+                                                                  cursor:
+                                                                    'pointer',
+                                                                }}
+                                                                onClick={() =>
+                                                                  handleViewChat(
+                                                                    row.patientId,
+                                                                  )
+                                                                }
+                                                                size={13}
+                                                              ></ChatIcon>
+                                                            )}
                                                             <MessageIcon
                                                               style={{
                                                                 cursor:

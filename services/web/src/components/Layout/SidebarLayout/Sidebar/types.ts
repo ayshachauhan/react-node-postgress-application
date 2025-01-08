@@ -65,13 +65,17 @@ export const sidebarItems: SideBarItem[] = [
     userPermissions: [USER_PERMISSIONS.VIEW_HX],
     Icon: HistoryIcon,
   },
-  {
-    id: 'ai',
-    title: 'Chat History',
-    path: '/ai',
-    permissions: ['admin'],
-    Icon: ChatIcon,
-  },
+  ...(process.env.NEXT_PUBLIC_ENABLE_AI_CHAT === 'true'
+    ? [
+        {
+          id: 'ai',
+          title: 'Chat History',
+          path: '/ai',
+          permissions: ['admin'],
+          Icon: ChatIcon,
+        },
+      ]
+    : []),
   {
     id: 'media',
     title: 'Media',
