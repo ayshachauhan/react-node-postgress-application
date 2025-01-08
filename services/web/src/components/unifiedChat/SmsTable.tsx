@@ -56,7 +56,7 @@ export default function DummySmsTable() {
         ...row,
         question: qa.question,
         answer: qa.answer,
-        dateCreated: qa.dateCreated,
+        dateCreated: new Date(qa.dateCreated),
       }));
     }
     return [row];
