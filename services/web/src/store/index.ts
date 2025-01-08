@@ -18,6 +18,7 @@ import surgeryReducer from './reducers/surgery';
 import surgeryConfigurationReducer from './reducers/surgeryConfigurations';
 import surgeryTypeReducer from './reducers/surgeryTypes';
 import templatesReducer from './reducers/templates';
+import unifiedChatReducer from './reducers/unifiedChat';
 import permissionsReducer from './reducers/userPermissions';
 import usersReducer from './reducers/users';
 import waitlistReducer from './reducers/waitlist';
@@ -44,6 +45,7 @@ export const store = configureStore({
     messages: messagesReducer,
     waitlist: waitlistReducer,
     chat: chatReducer,
+    unifiedChat: unifiedChatReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(apiMiddleware),

@@ -40,6 +40,7 @@ const ENV_KEYS = [
   'OPENAI_ORGANISATION',
   'OPENAI_PROJECT',
   'OPENAI_ASSISTANT_ID',
+  'NEXT_PUBLIC_ENABLE_AI_CHAT',
 ];
 
 const start = async () => {

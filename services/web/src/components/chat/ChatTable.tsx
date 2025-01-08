@@ -10,11 +10,7 @@ import {
 } from '@root/store/reducers/chat';
 import { fetchListings as fetchPatients } from '@root/store/reducers/patient';
 import { FetchChatParams } from '@root/store/requests/chat';
-import {
-  formatColumnDate,
-  generateFullName,
-  getPracticeId,
-} from '@utils/index';
+import { formatDate, generateFullName, getPracticeId } from '@utils/index';
 import { Select } from 'baseui/select';
 import { useSearchParams } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
@@ -58,6 +54,19 @@ export default function ChatTable() {
       setMrn('');
       resetFilters();
     }
+  };
+  const formattedTime = (dateObject) => {
+    // Get hours, minutes, seconds, and milliseconds
+    const hours = dateObject.getHours();
+    const minutes = dateObject.getMinutes();
+
+    // Format hours in 12-hour format
+    const period = hours >= 12 ? 'PM' : 'AM';
+    const formattedHours = (hours % 12 || 12).toString().padStart(2, '0');
+    const formattedMinutes = minutes.toString().padStart(2, '0');
+
+    // Return the formatted string with AM/PM and the formatted time
+    return `${formattedHours}:${formattedMinutes} ${period}`;
   };
 
   useEffect(() => {
@@ -176,9 +185,7 @@ export default function ChatTable() {
                   }`}
                 >
                   <td>{index + 1}</td>
-                  <td className="">
-                    {formatColumnDate(new Date(row.dateCreated))}
-                  </td>
+                  <td className="">{formatDate(new Date(row.dateCreated))}</td>
                   <td className="">
                     {row
                       ? generateFullName(
@@ -203,6 +210,9 @@ export default function ChatTable() {
                             <strong>Q{index + 1}</strong>: {item.question}{' '}
                             <br />
                             <strong>A:</strong> {item.answer}
+                            <br />
+                            <strong>Log Created At: </strong>{' '}
+                            {formattedTime(new Date(item.dateCreated))}
                           </div>
                         ))
                     ) : (

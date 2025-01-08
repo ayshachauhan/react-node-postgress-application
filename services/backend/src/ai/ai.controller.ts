@@ -8,16 +8,19 @@ import {
   Post,
   Query,
   Res,
+  UseGuards,
 } from '@nestjs/common';
 import { ChatbotLogsEntity } from '@packages/entities';
 import { Response } from 'express';
 import * as twilio from 'twilio';
 import MessagingResponse from 'twilio/lib/twiml/MessagingResponse';
 import logger from '../logger';
+import { AiFeatureGuard } from './ai-feature.guard';
 import { AIClientService } from './ai.service';
 import { smsChatDto } from './dto/smsChat.dto';
 import { GetChatParams } from './types';
 
+@UseGuards(AiFeatureGuard) // This ensures all routes in this controller are protected
 @Controller('/ai')
 export class AIController {
   constructor(private readonly aiClientService: AIClientService) {}

@@ -12,6 +12,7 @@ import {
   DisplayIcon,
   EditIcon,
   HomeIcon,
+  MessageIcon,
   SearchIcon,
   StarIcon,
   ViewIcon,
@@ -101,6 +102,7 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
     const limit = PAGINATION_LIMIT;
+    const isAIChatEnabled = process.env.NEXT_PUBLIC_ENABLE_AI_CHAT === 'true';
     const {
       selectedMonth,
       searchMRNName,
@@ -620,6 +622,13 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
       const query = { id };
       const queryString = new URLSearchParams(query).toString();
       const url = `/ai/?${queryString}`;
+      window.location.href = url;
+    };
+
+    const handleViewMessages = (id: string, email: string): void => {
+      const query = { id, email };
+      const queryString = new URLSearchParams(query).toString();
+      const url = `/messages/sms?${queryString}`;
       window.location.href = url;
     };
 
@@ -1304,18 +1313,33 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
                                                                   : 'Copy'
                                                               }
                                                             />
-                                                            <ChatIcon
+                                                            {isAIChatEnabled && (
+                                                              <ChatIcon
+                                                                style={{
+                                                                  cursor:
+                                                                    'pointer',
+                                                                }}
+                                                                onClick={() =>
+                                                                  handleViewChat(
+                                                                    row.patientId,
+                                                                  )
+                                                                }
+                                                                size={13}
+                                                              ></ChatIcon>
+                                                            )}
+                                                            <MessageIcon
                                                               style={{
                                                                 cursor:
                                                                   'pointer',
                                                               }}
                                                               onClick={() =>
-                                                                handleViewChat(
+                                                                handleViewMessages(
                                                                   row.patientId,
+                                                                  row.email,
                                                                 )
                                                               }
                                                               size={13}
-                                                            ></ChatIcon>
+                                                            ></MessageIcon>
                                                           </div>
                                                         </div>
                                                       ) : (

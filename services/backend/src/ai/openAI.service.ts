@@ -10,6 +10,7 @@ import {
 import OpenAI from 'openai';
 import logger from 'src/logger';
 import { UsersService } from 'src/users/users.service';
+import { formatDateWithMicrosecondsUTC } from 'src/utils';
 import { Raw, Repository } from 'typeorm';
 import { ENVIRONMENT_VARIABLES } from '../enums/environment.enums';
 import { PatientsService } from '../patients/patients.service';
@@ -309,6 +310,7 @@ export class OpenAIService implements AIService {
         chatLogRecords.botQuestionAnswers.push({
           question: data.question,
           answer: answer[0],
+          dateCreated: formatDateWithMicrosecondsUTC(new Date()),
         });
         await this.updateChatLogs({ ...chatLogRecords });
       }
