@@ -55,9 +55,9 @@ export default function ChatTable() {
       resetFilters();
     }
   };
-  const formattedTime = (dateObject) => {
-    const hours = dateObject.getHours();
-    const minutes = dateObject.getMinutes();
+  const formattedTimeUTC = (dateObject) => {
+    const hours = dateObject.getUTCHours();
+    const minutes = dateObject.getUTCMinutes();
     const ampm = hours >= 12 ? 'pm' : 'am';
     const time = `${hours % 12 || 12}:${
       minutes < 10 ? '0' : ''
@@ -208,7 +208,7 @@ export default function ChatTable() {
                             <strong>A:</strong> {item.answer}
                             <br />
                             <strong>Log Created At: </strong>{' '}
-                            {formattedTime(new Date(item.dateCreated))}
+                            {formattedTimeUTC(new Date(item.dateCreated))}
                           </div>
                         ))
                     ) : (

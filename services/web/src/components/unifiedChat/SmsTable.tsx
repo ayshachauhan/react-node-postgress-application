@@ -36,6 +36,15 @@ export default function DummySmsTable() {
   const capitalizeFirstLetter = (str: string) => {
     return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
   };
+
+  const formatTime = (dateString: string) => {
+    const dateObject = new Date(dateString);
+    const hours = dateObject.getHours();
+    const minutes = dateObject.getMinutes();
+    const ampm = hours >= 12 ? 'pm' : 'am';
+    return `${hours % 12 || 12}:${minutes < 10 ? '0' : ''}${minutes}${ampm}`;
+  };
+
   useEffect(() => {
     setLoading(true);
     dispatch(clearData());
@@ -50,17 +59,31 @@ export default function DummySmsTable() {
       });
     }
   }, [dispatch, practiceId, patientId, email]);
+
+  const parseDateToUTC = (dateString: string | Date) => {
+    const dateObject =
+      typeof dateString === 'string' && dateString.endsWith('Z')
+        ? new Date(dateString) // Already in UTC
+        : new Date(dateString.toString()); // Convert local to UTC
+
+    return dateObject.toISOString(); // Convert to ISO 8601 UTC format
+  };
+
   const transformedChatLogs = chatLogs.flatMap((row) => {
     if (row.type === 'chatbot' && row.botQuestionAnswers?.length > 0) {
       return row.botQuestionAnswers.map((qa) => ({
         ...row,
         question: qa.question,
         answer: qa.answer,
-        dateCreated: new Date(qa.dateCreated),
+        dateCreated: parseDateToUTC(qa.dateCreated), // Convert to UTC
       }));
     }
-    return [row];
+    return {
+      ...row,
+      dateCreated: parseDateToUTC(row.dateCreated), // Convert to UTC
+    };
   });
+
   const groupedMessages: GroupedMessages = transformedChatLogs.reduce(
     (acc, row) => {
       const date = formatColumnDate(new Date(row.dateCreated)).split(' ')[0]; // Extract only the date
@@ -128,13 +151,7 @@ export default function DummySmsTable() {
                         </div>
                       </div>
                       {messages.map((row, index) => {
-                        const dateObject = new Date(row.dateCreated);
-                        const hours = dateObject.getHours();
-                        const minutes = dateObject.getMinutes();
-                        const ampm = hours >= 12 ? 'pm' : 'am';
-                        const time = `${hours % 12 || 12}:${
-                          minutes < 10 ? '0' : ''
-                        }${minutes}${ampm}`;
+                        const time = formatTime(row.dateCreated);
                         return (
                           <div key={index} className="chat-message">
                             {row.type === 'chatbot' ? (
