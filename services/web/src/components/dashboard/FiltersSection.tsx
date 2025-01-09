@@ -56,6 +56,7 @@ import {
 import { PAGINATION_LIMIT, monthOptions } from '@root/utils/constants';
 import { Checkbox } from 'baseui/checkbox';
 import { Select } from 'baseui/select';
+import { publicRuntimeConfig } from 'next.config';
 import { useRouter } from 'next/navigation';
 import React, {
   forwardRef,
@@ -101,8 +102,10 @@ const FiltersSection = forwardRef<FiltersSectionRef, FiltersSectionProps>(
     const dispatch = useAppDispatch();
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
+    const { ENABLE_AI_CHAT } = publicRuntimeConfig;
+    console.log('testsxd', ENABLE_AI_CHAT, '--test');
     const limit = PAGINATION_LIMIT;
-    const isAIChatEnabled = process.env.NEXT_PUBLIC_ENABLE_AI_CHAT === 'true';
+    const isAIChatEnabled = ENABLE_AI_CHAT === 'true';
     const {
       selectedMonth,
       searchMRNName,
