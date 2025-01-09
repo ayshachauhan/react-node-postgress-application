@@ -121,6 +121,9 @@ export default function DummySmsTable() {
     const doc = new DOMParser().parseFromString(inputText, 'text/html');
     return doc.body.textContent || '';
   };
+
+  console.log(orderedGroupedMessages);
+
   return (
     <div className="my-4">
       <div className="flex justify-between border-gray-400">
