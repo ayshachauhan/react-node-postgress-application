@@ -4,6 +4,7 @@ module.exports = {
   },
   publicRuntimeConfig: {
     API_BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL,
+    ENABLE_AI_CHAT: process.env.NEXT_PUBLIC_ENABLE_AI_CHAT,
   },
   images: {
     unoptimized: true,

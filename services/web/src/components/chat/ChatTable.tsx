@@ -55,14 +55,12 @@ export default function ChatTable() {
       resetFilters();
     }
   };
-  const formattedTimeUTC = (dateObject) => {
-    const hours = dateObject.getUTCHours();
-    const minutes = dateObject.getUTCMinutes();
+  const formattedTimeUTC = (dateString) => {
+    const dateObject = new Date(dateString);
+    const hours = dateObject.getHours();
+    const minutes = dateObject.getMinutes();
     const ampm = hours >= 12 ? 'pm' : 'am';
-    const time = `${hours % 12 || 12}:${
-      minutes < 10 ? '0' : ''
-    }${minutes}${ampm}`;
-    return time;
+    return `${hours % 12 || 12}:${minutes < 10 ? '0' : ''}${minutes}${ampm}`;
   };
 
   useEffect(() => {
@@ -208,7 +206,7 @@ export default function ChatTable() {
                             <strong>A:</strong> {item.answer}
                             <br />
                             <strong>Log Created At: </strong>{' '}
-                            {formattedTimeUTC(new Date(item.dateCreated))}
+                            {formattedTimeUTC(item.dateCreated)}
                           </div>
                         ))
                     ) : (
