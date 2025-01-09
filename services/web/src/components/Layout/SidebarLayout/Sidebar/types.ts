@@ -24,6 +24,8 @@ export type SideBarItem = {
   child?: Omit<SideBarItem, 'child' | 'Icon'>[];
 };
 
+console.log(process.env.NEXT_PUBLIC_ENABLE_AI_CHAT, 'test----');
+console.log(process.env);
 export const sidebarItems: SideBarItem[] = [
   {
     id: 'dashboard',

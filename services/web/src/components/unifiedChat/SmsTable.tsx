@@ -129,13 +129,12 @@ export default function DummySmsTable() {
                       </div>
                       {messages.map((row, index) => {
                         const dateObject = new Date(row.dateCreated);
-                        const time = dateObject
-                          .toLocaleTimeString([], {
-                            hour: '2-digit',
-                            minute: '2-digit',
-                            hour12: true, // This ensures the AM/PM format
-                          })
-                          .toUpperCase();
+                        const hours = dateObject.getHours();
+                        const minutes = dateObject.getMinutes();
+                        const ampm = hours >= 12 ? 'pm' : 'am';
+                        const time = `${hours % 12 || 12}:${
+                          minutes < 10 ? '0' : ''
+                        }${minutes}${ampm}`;
                         return (
                           <div key={index} className="chat-message">
                             {row.type === 'chatbot' ? (

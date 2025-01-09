@@ -56,17 +56,13 @@ export default function ChatTable() {
     }
   };
   const formattedTime = (dateObject) => {
-    // Get hours, minutes, seconds, and milliseconds
     const hours = dateObject.getHours();
     const minutes = dateObject.getMinutes();
-
-    // Format hours in 12-hour format
-    const period = hours >= 12 ? 'PM' : 'AM';
-    const formattedHours = (hours % 12 || 12).toString().padStart(2, '0');
-    const formattedMinutes = minutes.toString().padStart(2, '0');
-
-    // Return the formatted string with AM/PM and the formatted time
-    return `${formattedHours}:${formattedMinutes} ${period}`;
+    const ampm = hours >= 12 ? 'pm' : 'am';
+    const time = `${hours % 12 || 12}:${
+      minutes < 10 ? '0' : ''
+    }${minutes}${ampm}`;
+    return time;
   };
 
   useEffect(() => {
