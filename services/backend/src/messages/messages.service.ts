@@ -86,9 +86,7 @@ export class MessagesService {
     // Fetch data from the email_logs table
     const emailLogsQueryBuilder = this.messageRepository
       .createQueryBuilder('email_logs')
-      .where('email_logs.data::jsonb @> :emailCondition', {
-        emailCondition: JSON.stringify({ to: email }),
-      })
+      .where("email_logs.data::jsonb ->> 'to' = :email", { email: email! })
       .andWhere(
         "email_logs.data::jsonb ->> 'text' IS NOT NULL AND trim(email_logs.data::jsonb ->> 'text') != ''",
       );
@@ -99,7 +97,7 @@ export class MessagesService {
 
     console.log(
       '-----------------------------Generated SQL Query:',
-      emailLogsQueryBuilder.getSql(),
+      emailLogsQueryBuilder.getQuery(),
     );
 
     const [chatbotLogs, emailLogs] = await Promise.all([
