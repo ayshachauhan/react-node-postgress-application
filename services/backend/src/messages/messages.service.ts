@@ -86,21 +86,15 @@ export class MessagesService {
     // Fetch data from the email_logs table
     const emailLogsQueryBuilder = this.messageRepository
       .createQueryBuilder('email_logs')
-      .where("email_logs.data::jsonb ->> 'to' = :email", { email: email! })
+      .where('email_logs.data::jsonb @> :emailCondition', {
+        emailCondition: JSON.stringify({ to: email }),
+      })
       .andWhere(
         "email_logs.data::jsonb ->> 'text' IS NOT NULL AND trim(email_logs.data::jsonb ->> 'text') != ''",
       );
 
     const showAIChat = await this.configService.get(
       ENVIRONMENT_VARIABLES.NEXT_PUBLIC_ENABLE_AI_CHAT,
-    );
-    // Get the raw SQL query
-    const rawQuery = emailLogsQueryBuilder.getQuery();
-
-    // Print the query with the actual values
-    console.log(
-      '-----------------------------Generated SQL Query:',
-      rawQuery.replace(':email', `'${email}'`),
     );
 
     const [chatbotLogs, emailLogs] = await Promise.all([
@@ -121,8 +115,6 @@ export class MessagesService {
         ...log,
       })),
     ];
-
-    console.log(combinedLogs);
 
     return combinedLogs.sort(
       (a, b) =>
