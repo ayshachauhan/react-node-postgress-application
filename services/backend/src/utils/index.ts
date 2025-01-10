@@ -144,27 +144,19 @@ export function getFullYearDateConditions(userPermissions: PermissionEntity[]) {
 }
 
 export function formatDateWithMicrosecondsUTC(dateObject) {
-  const formattedDate = `${dateObject.getUTCFullYear()}-${(
-    dateObject.getUTCMonth() + 1
-  )
+  const year = dateObject.getUTCFullYear();
+  const month = (dateObject.getUTCMonth() + 1).toString().padStart(2, '0');
+  const day = dateObject.getUTCDate().toString().padStart(2, '0');
+  const hours = dateObject.getUTCHours().toString().padStart(2, '0');
+  const minutes = dateObject.getUTCMinutes().toString().padStart(2, '0');
+  const seconds = dateObject.getUTCSeconds().toString().padStart(2, '0');
+  const milliseconds = dateObject
+    .getUTCMilliseconds()
     .toString()
-    .padStart(2, '0')}-${dateObject.getUTCDate().toString().padStart(2, '0')}`;
+    .padStart(3, '0');
 
-  const formattedTime = `${dateObject
-    .getUTCHours()
-    .toString()
-    .padStart(2, '0')}:${dateObject
-    .getUTCMinutes()
-    .toString()
-    .padStart(2, '0')}:${dateObject
-    .getUTCSeconds()
-    .toString()
-    .padStart(2, '0')}.${dateObject
-    .getMilliseconds()
-    .toString()
-    .padStart(3, '0')}000`; // Pad milliseconds for microseconds
-
-  return `${formattedDate} ${formattedTime}`;
+  // Format the date in ISO 8601 format with microseconds and 'Z'
+  return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}.${milliseconds}Z`;
 }
 
 export function formatHeaderDate(dateString: string) {
