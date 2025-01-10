@@ -94,21 +94,19 @@ export class MessagesService {
     const showAIChat = await this.configService.get(
       ENVIRONMENT_VARIABLES.NEXT_PUBLIC_ENABLE_AI_CHAT,
     );
+    // Get the raw SQL query
+    const rawQuery = emailLogsQueryBuilder.getQuery();
 
+    // Print the query with the actual values
     console.log(
       '-----------------------------Generated SQL Query:',
-      emailLogsQueryBuilder.getQuery(),
+      rawQuery.replace(':email', `'${email}'`),
     );
 
     const [chatbotLogs, emailLogs] = await Promise.all([
       chatbotQueryBuilder.getMany(),
       emailLogsQueryBuilder.getMany(),
     ]);
-
-    console.log(emailLogs);
-    console.log('---------------');
-    console.log(chatbotLogs);
-    console.log('--------------->>>>>>>>>');
 
     // Combine logs
     const combinedLogs: SmsLog[] = [
