@@ -97,10 +97,17 @@ export class MessagesService {
       ENVIRONMENT_VARIABLES.NEXT_PUBLIC_ENABLE_AI_CHAT,
     );
 
+    console.log('Generated SQL Query:', emailLogsQueryBuilder.getSql());
+
     const [chatbotLogs, emailLogs] = await Promise.all([
       chatbotQueryBuilder.getMany(),
       emailLogsQueryBuilder.getMany(),
     ]);
+
+    console.log(emailLogs);
+    console.log('---------------');
+    console.log(chatbotLogs);
+    console.log('--------------->>>>>>>>>');
 
     // Combine logs
     const combinedLogs: SmsLog[] = [
@@ -115,6 +122,8 @@ export class MessagesService {
         ...log,
       })),
     ];
+
+    console.log(combinedLogs);
 
     return combinedLogs.sort(
       (a, b) =>
