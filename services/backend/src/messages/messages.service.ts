@@ -97,7 +97,10 @@ export class MessagesService {
       ENVIRONMENT_VARIABLES.NEXT_PUBLIC_ENABLE_AI_CHAT,
     );
 
-    console.log('Generated SQL Query:', emailLogsQueryBuilder.getSql());
+    console.log(
+      '-----------------------------Generated SQL Query:',
+      emailLogsQueryBuilder.getSql(),
+    );
 
     const [chatbotLogs, emailLogs] = await Promise.all([
       chatbotQueryBuilder.getMany(),
