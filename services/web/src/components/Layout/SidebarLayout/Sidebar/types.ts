@@ -12,7 +12,6 @@ import { IPermission } from '@packages/entities/index.browser';
 import { USER_PERMISSIONS } from '@packages/entities/permission';
 
 import ReviewIcon from '@root/components/Icons/Review';
-import { publicRuntimeConfig } from 'next.config';
 
 export type SideBarItem = {
   id: string;
@@ -24,9 +23,6 @@ export type SideBarItem = {
   Icon: React.ElementType;
   child?: Omit<SideBarItem, 'child' | 'Icon'>[];
 };
-const { ENABLE_AI_CHAT } = publicRuntimeConfig;
-
-console.log('hello', ENABLE_AI_CHAT, 'test----');
 
 export const sidebarItems: SideBarItem[] = [
   {
@@ -69,7 +65,7 @@ export const sidebarItems: SideBarItem[] = [
     userPermissions: [USER_PERMISSIONS.VIEW_HX],
     Icon: HistoryIcon,
   },
-  ...(ENABLE_AI_CHAT === 'true'
+  ...(process.env.NEXT_PUBLIC_ENABLE_AI_CHAT === 'true'
     ? [
         {
           id: 'ai',
