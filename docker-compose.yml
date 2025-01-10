@@ -8,12 +8,14 @@ services:
       args:
         - ENVIRONMENT=${ENVIRONMENT:-qa}
         - NEXT_PUBLIC_API_BASE_URL=${NEXT_PUBLIC_API_BASE_URL:-http://localhost:1600}
+        - NEXT_PUBLIC_ENABLE_AI_CHAT=${NEXT_PUBLIC_ENABLE_AI_CHAT:-true}
     restart: always
     env_file: .env
     environment:
       - NODE_ENV=production
       - WEB_PORT=8081
       - NEXT_PUBLIC_API_BASE_URL=${NEXT_PUBLIC_API_BASE_URL:-http://localhost:1600}
+      - NEXT_PUBLIC_ENABLE_AI_CHAT=${NEXT_PUBLIC_ENABLE_AI_CHAT:-true}
     ports:
       - ${WEB_PORT:-1611}:${WEB_PORT:-1611}
     networks:
