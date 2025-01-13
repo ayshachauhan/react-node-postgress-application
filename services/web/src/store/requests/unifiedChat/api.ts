@@ -13,7 +13,7 @@ export const getUrlPath = (params: FetchMessageParams) => {
   }
 
   if (email) {
-    url += `&email=${email}`;
+    url += `&email=${encodeURIComponent(email)}`;
   }
 
   return url;
