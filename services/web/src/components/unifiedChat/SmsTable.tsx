@@ -99,14 +99,14 @@ export default function DummySmsTable() {
     Object.entries(groupedMessages)
       .sort(
         ([dateA], [dateB]) =>
-          new Date(dateB).getTime() - new Date(dateA).getTime(),
+          new Date(dateA).getTime() - new Date(dateB).getTime(), // Oldest date first
       )
       .map(([date, messages]) => [
         date,
         messages.sort(
           (a, b) =>
-            new Date(b.dateCreated).getTime() -
-            new Date(a.dateCreated).getTime(),
+            new Date(a.dateCreated).getTime() -
+            new Date(b.dateCreated).getTime(), // Oldest message first
         ),
       ]),
   );
@@ -159,32 +159,7 @@ export default function DummySmsTable() {
                           <div key={index} className="chat-message">
                             {row.type === 'chatbot' ? (
                               <div>
-                                <div className="flex items-end">
-                                  <div className="flex flex-col space-y-2 text-xs max-w-md mx-2 order-2 items-start">
-                                    <div>
-                                      <div className="flex text-left items-center">
-                                        <span className="text-sm font-bold text-gray-800 px-1">
-                                          POD
-                                        </span>
-                                        <span className="text-xs text-gray-500">
-                                          {time}
-                                        </span>
-                                      </div>
-                                      <span className="px-4 py-2 rounded-lg inline-block rounded-bl-none bg-gray-300 text-gray-600 text-left">
-                                        {' '}
-                                        {row.answer
-                                          ? stripHtmlTags(row.answer)
-                                          : 'Loading...'}
-                                      </span>
-                                    </div>
-                                  </div>
-                                  <img
-                                    src="/images/favicon-new.ico"
-                                    alt="My profile"
-                                    className="w-7 h-7 rounded-full order-1"
-                                  />
-                                </div>
-                                <div className="flex items-end mt-4">
+                                <div className="flex items-end mb-4">
                                   <div className="flex-shrink-0 bg-gradient-to-b from-primary-dark to-primary-light text-white rounded-full w-7 h-7 flex items-center justify-center order-2">
                                     {row.patient && row.patient?.firstName
                                       ? row.patient.firstName
@@ -220,6 +195,31 @@ export default function DummySmsTable() {
                                       </span>
                                     </div>
                                   </div>
+                                </div>
+                                <div className="flex items-end">
+                                  <div className="flex flex-col space-y-2 text-xs max-w-md mx-2 order-2 items-start">
+                                    <div>
+                                      <div className="flex text-left items-center">
+                                        <span className="text-sm font-bold text-gray-800 px-1">
+                                          POD
+                                        </span>
+                                        <span className="text-xs text-gray-500">
+                                          {time}
+                                        </span>
+                                      </div>
+                                      <span className="px-4 py-2 rounded-lg inline-block rounded-bl-none bg-gray-300 text-gray-600 text-left">
+                                        {' '}
+                                        {row.answer
+                                          ? stripHtmlTags(row.answer)
+                                          : 'Loading...'}
+                                      </span>
+                                    </div>
+                                  </div>
+                                  <img
+                                    src="/images/favicon-new.ico"
+                                    alt="My profile"
+                                    className="w-7 h-7 rounded-full order-1"
+                                  />
                                 </div>
                               </div>
                             ) : row.type === 'sms' ? (
