@@ -187,7 +187,7 @@ export default function DummySmsTable() {
                                           {time}
                                         </span>
                                       </div>
-                                      <span className="px-4 py-2 rounded-lg inline-block rounded-bl-none bg-gradient-to-b from-primary-dark to-primary-light text-white text-left">
+                                      <span className="px-4 py-2 rounded-lg inline-block rounded-bl-none bg-gradient-to-b from-primary-dark to-primary-light text-white text-left flex items-center">
                                         {' '}
                                         {row.question
                                           ? stripHtmlTags(row.question)
@@ -207,7 +207,7 @@ export default function DummySmsTable() {
                                           {time}
                                         </span>
                                       </div>
-                                      <span className="px-4 py-2 rounded-lg inline-block rounded-bl-none bg-gray-300 text-gray-600 text-left">
+                                      <span className="px-4 py-2 rounded-lg inline-block rounded-bl-none bg-gray-300 text-gray-600 text-left flex items-center">
                                         {' '}
                                         {row.answer
                                           ? stripHtmlTags(row.answer)
@@ -234,8 +234,7 @@ export default function DummySmsTable() {
                                         {time}
                                       </span>
                                     </div>
-                                    <span className="px-4 py-2 rounded-lg inline-block rounded-bl-none bg-gray-300 text-gray-600 text-left">
-                                      {' '}
+                                    <span className="px-4 py-2 rounded-lg inline-block rounded-bl-none bg-gray-300 text-gray-600 text-left flex items-center">
                                       {stripHtmlTags(row?.data?.text)}
                                     </span>
                                   </div>
