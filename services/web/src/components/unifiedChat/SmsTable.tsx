@@ -140,8 +140,11 @@ export default function DummySmsTable() {
       ) : Object.keys(orderedGroupedMessages).length > 0 ? (
         <div className="rounded-lg">
           {Object.entries(orderedGroupedMessages as GroupedMessages).map(
-            ([date, messages]) => (
+            ([date, messages], index) => (
               <section key={date} className="">
+                {index !== 0 && (
+                  <div className="border-t border-gray-300 w-full my-4"></div>
+                )}
                 <div className="text-center">
                   <div className="flex-1 justify-between flex flex-col">
                     <div
@@ -201,7 +204,7 @@ export default function DummySmsTable() {
                                     <div>
                                       <div className="flex text-left items-center">
                                         <span className="text-sm font-bold text-gray-800 px-1">
-                                          POD
+                                          POD - AI
                                         </span>
                                         <span className="text-xs text-gray-500">
                                           {time}
@@ -228,7 +231,7 @@ export default function DummySmsTable() {
                                   <div>
                                     <div className="flex text-left items-center">
                                       <span className="text-sm font-bold text-gray-800 px-1">
-                                        POD
+                                        POD - System
                                       </span>
                                       <span className="text-xs text-gray-500">
                                         {time}
