@@ -4,6 +4,7 @@ import {
   IEmailLog,
   IMediaConfig,
   IPatient,
+  IPractice,
   MediaType,
 } from '@packages/entities';
 import Button from '@root/components/Button';
@@ -13,6 +14,7 @@ import MessageWithReadMore from '@root/components/messages/MessageWithReadMore';
 import { useLoader } from '@root/hooks/useLoader';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { fetchLoggedInUser } from '@root/store/reducers/auth';
+import { fetchChat } from '@root/store/reducers/chat';
 import { fetchListings as fetchMedia } from '@root/store/reducers/media';
 import {
   clearData,
@@ -23,6 +25,7 @@ import {
   setSearchMRNName,
 } from '@root/store/reducers/messages';
 import { fetchListings as fetchPatients } from '@root/store/reducers/patient';
+import { FetchChatParams } from '@root/store/requests/chat';
 import {
   formatColumnDate,
   formatHeaderDate,
@@ -36,6 +39,24 @@ import { Select } from 'baseui/select';
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+
+export interface IChatbotWithData {
+  status: string;
+  isRead: boolean;
+  expectedDate: Date;
+  data: {
+    text: string;
+    messageType: string;
+    body: string;
+  };
+  dateCreated: Date;
+  patient: IPatient | null;
+  practice: IPractice | null;
+  id: string;
+  dateUpdated: Date;
+}
+
+type MessageData = IEmailLog | IChatbotWithData;
 
 export interface customerMediaConfig extends IMediaConfig {
   isChecked?: boolean;
@@ -64,11 +85,13 @@ export default function MessagesTable() {
   const {
     filteredMrn: { searchMRNName },
     patientsList,
+    chatLogs,
     messagesData,
     mediaList,
   } = useAppSelector((state) => ({
     filteredMrn: state.messages.messageFilters,
     patientsList: Object.values(state.patients.entities),
+    chatLogs: Object.values(state.chat.entities),
     messagesData: Object.values(state.messages.entities).filter(
       (ele) => ele.status === 'completed',
     ),
@@ -111,29 +134,61 @@ export default function MessagesTable() {
     }
   }, [practiceId, dispatch]);
 
-  const [filteredData, setFilteredData] = useState<IEmailLog[]>([]);
+  const [filteredData, setFilteredData] = useState<MessageData[]>([]);
   const { isLoading, withLoader } = useLoader();
+  const chatLogsWithMessages: IChatbotWithData[] = chatLogs
+    .filter(
+      (chat) =>
+        Array.isArray(chat.botQuestionAnswers) &&
+        chat.botQuestionAnswers.length > 0,
+    )
+    .flatMap((chat) =>
+      chat.botQuestionAnswers.flatMap((qa) => [
+        {
+          status: 'completed',
+          isRead: false,
+          expectedDate: new Date(qa.dateCreated),
+          data: {
+            text: `${qa.question}<br/>${qa.answer}`,
+            messageType: 'AI',
+            body: '',
+          },
+          dateCreated: new Date(qa.dateCreated),
+          dateUpdated: new Date(qa.dateCreated),
+          patient: chat.patient,
+          practice: chat.practice,
+          id: `${chat.assistantChatThreadId}-${qa.question}-answer`,
+        },
+      ]),
+    );
   const filterMessagesByType = useCallback(async () => {
     if (!messagesData) return [];
 
-    let filtered = [...messagesData];
+    let filtered: MessageData[] = [...messagesData];
 
     if (activeButton === 'Referrers') {
       filtered = filtered.filter(
-        (row) => row.data?.to === row.data?.referrerEmail,
+        (row) => isSystemLog(row) && row.data?.to === row.data?.referrerEmail,
       );
     } else if (activeButton === 'Emails') {
       filtered = filtered.filter(
-        (row) => row.data?.body && row.data.body.trim() !== '',
+        (row) =>
+          isSystemLog(row) && row.data?.body && row.data.body.trim() !== '',
       );
     } else if (activeButton === 'Texts') {
-      filtered = filtered.filter(
-        (row) => row.data?.text && row.data.text.trim() !== '',
+      const systemSMSLogs = filtered.filter(
+        (row) =>
+          isSystemLog(row) && row.data?.text && row.data.text.trim() !== '',
       );
+
+      filtered = [...systemSMSLogs, ...chatLogsWithMessages];
+    } else if (activeButton === 'All') {
+      // Include AI chat logs in the 'All' filter
+      filtered = [...filtered, ...chatLogsWithMessages];
     }
 
     return filtered;
-  }, [messagesData, activeButton]);
+  }, [messagesData, activeButton, chatLogs]);
 
   const filteredDataRef = useRef<IEmailLog[]>([]);
 
@@ -142,13 +197,30 @@ export default function MessagesTable() {
   }, [dispatch]);
 
   useEffect(() => {
+    dispatch(clearData());
+    if (practiceId != null) {
+      const chatFetchParams: FetchChatParams = { practiceId };
+
+      dispatch(fetchChat(chatFetchParams)).finally(() => {});
+    }
+  }, [dispatch, practiceId]);
+
+  function isIEmailLogRecord(data: MessageData): data is IEmailLog {
+    return (data as IEmailLog).practice !== null;
+  }
+
+  useEffect(() => {
     const updateFilteredData = async () => {
       const filteredData = await filterMessagesByType();
+
+      const emailLogsOnly = filteredData.filter(isIEmailLogRecord);
+
       if (
-        JSON.stringify(filteredData) !== JSON.stringify(filteredDataRef.current)
+        JSON.stringify(emailLogsOnly) !==
+        JSON.stringify(filteredDataRef.current)
       ) {
-        setFilteredData(filteredData);
-        filteredDataRef.current = filteredData;
+        setFilteredData(emailLogsOnly);
+        filteredDataRef.current = emailLogsOnly;
       }
     };
 
@@ -156,12 +228,20 @@ export default function MessagesTable() {
   }, [messagesData, filterMessagesByType, filteredDataRef]);
 
   const [groupedMessagesByDate, setGroupedMessagesByDate] = useState<{
-    [date: string]: IEmailLog[];
+    [date: string]: MessageData[];
   }>({});
 
-  const generateMessageDataByDate = (data: IEmailLog[]) => {
+  function isAIlog(row: MessageData): row is IChatbotWithData {
+    return row?.data?.messageType === 'AI';
+  }
+
+  function isSystemLog(row: MessageData): row is IEmailLog {
+    return row?.data?.messageType !== 'AI';
+  }
+
+  const generateMessageDataByDate = (data: MessageData[]) => {
     return data.reduce(
-      (acc: { [date: string]: IEmailLog[] }, curr: IEmailLog) => {
+      (acc: { [date: string]: MessageData[] }, curr: MessageData) => {
         const currentDate = new Date(curr.dateCreated)
           .toISOString()
           .split('T')[0];
@@ -342,7 +422,7 @@ export default function MessagesTable() {
       {isLoading && <Loader />}
       <div className="flex justify-between border-gray-400">
         <span className="text-xl font-bold">
-          All Messages({messagesData.length})
+          All Messages({filteredData.length})
         </span>
         {showModal && <div className="text-green-700">{successMessage}</div>}
         {showErrorMessage && <div className="text-red-700">{errorMessage}</div>}
@@ -579,39 +659,83 @@ export default function MessagesTable() {
                                 {formatColumnDate(row.dateCreated)}
                               </td>
                               <td className="">
-                                {row?.data?.Laterality}{' '}
-                                {row?.data?.surgery_type}
+                                {isSystemLog(row) && row?.data ? (
+                                  <>
+                                    {row?.data?.Laterality}{' '}
+                                    {row?.data?.surgery_type}
+                                  </>
+                                ) : (
+                                  'N/A'
+                                )}
                               </td>
                               <td className="">
                                 {row
-                                  ? generateFullName(
-                                      row?.data?.fname ?? '',
-                                      row?.data?.lname ?? '',
-                                    )
-                                  : null}
+                                  ? isAIlog(row) &&
+                                    row.patient?.firstName &&
+                                    row.patient?.lastName
+                                    ? generateFullName(
+                                        row.patient.firstName,
+                                        row.patient.lastName,
+                                      )
+                                    : isSystemLog(row) &&
+                                        row.data?.fname &&
+                                        row.data?.lname
+                                      ? generateFullName(
+                                          row.data.fname,
+                                          row.data.lname,
+                                        )
+                                      : 'N/A'
+                                  : 'N/A'}
                               </td>
-                              <td className="">{row?.data?.mrn}</td>
                               <td className="">
-                                <p>Email: {row?.data?.to}</p>
-                                {row?.data?.to ===
-                                  row?.data?.pt_email_address && (
+                                {row
+                                  ? isAIlog(row) && row.patient?.mrn
+                                    ? row.patient.mrn
+                                    : isSystemLog(row) && row.data?.mrn
+                                      ? row.data.mrn
+                                      : 'N/A'
+                                  : 'N/A'}
+                              </td>
+                              <td className="">
+                                <p>
+                                  Email:{' '}
+                                  {row
+                                    ? isAIlog(row) && row.patient?.email
+                                      ? row.patient.email
+                                      : isSystemLog(row) && row.data?.to
+                                        ? row.data.to
+                                        : 'N/A'
+                                    : 'N/A'}
+                                </p>
+                                {isAIlog(row) && row.patient && (
                                   <p>
-                                    Cell: {row?.data?.countryCode}{' '}
-                                    {row?.data?.phoneNumber}
+                                    Cell: {row?.patient?.countryCode}{' '}
+                                    {row?.patient?.phoneNumber}
                                   </p>
                                 )}
-                                {row?.data?.to ===
-                                  row?.data?.doc_email_address && (
-                                  <p>
-                                    Cell: {row?.data?.doctorCountryCode}
-                                    {row?.data?.doctorPhoneNumber}
-                                  </p>
-                                )}
-                                {!(
+                                {isSystemLog(row) &&
                                   row?.data?.to ===
-                                    row?.data?.pt_email_address ||
-                                  row?.data?.to === row?.data?.doc_email_address
-                                ) && <p>Cell: </p>}
+                                    row?.data?.pt_email_address && (
+                                    <p>
+                                      Cell: {row?.data?.countryCode}{' '}
+                                      {row?.data?.phoneNumber}
+                                    </p>
+                                  )}
+                                {isSystemLog(row) &&
+                                  row?.data?.to ===
+                                    row?.data?.doc_email_address && (
+                                    <p>
+                                      Cell: {row?.data?.doctorCountryCode}
+                                      {row?.data?.doctorPhoneNumber}
+                                    </p>
+                                  )}
+                                {isSystemLog(row) &&
+                                  !(
+                                    row?.data?.to ===
+                                      row?.data?.pt_email_address ||
+                                    row?.data?.to ===
+                                      row?.data?.doc_email_address
+                                  ) && <p>Cell: </p>}
                               </td>
                               {activeButton !== 'Texts' && (
                                 <MessageWithReadMore
