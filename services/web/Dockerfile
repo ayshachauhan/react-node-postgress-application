@@ -10,7 +10,7 @@ ARG NEXT_PUBLIC_ENABLE_AI_CHAT
 ENV ENVIRONMENT=${ENVIRONMENT}
 ENV NEXT_PUBLIC_API_BASE_URL=${NEXT_PUBLIC_API_BASE_URL}
 ENV NEXT_PUBLIC_ENABLE_AI_CHAT=${NEXT_PUBLIC_ENABLE_AI_CHAT}
-RUN npm install -g pnpm@8.15.3 && \
+RUN npm install -g pnpm && \
     pnpm install --frozen-lockfile && \
     pnpm turbo build --filter=web
 
