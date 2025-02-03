@@ -187,6 +187,20 @@ export default function MessagesTable() {
       filtered = [...filtered, ...chatLogsWithMessages];
     }
 
+    if (searchMRNName) {
+      filtered = filtered.filter((data) => {
+        if (isSystemLog(data)) {
+          return String(data.data?.mrn) === String(searchMRNName);
+        }
+
+        if (isAIlog(data)) {
+          return String(data.patient?.mrn) === String(searchMRNName);
+        }
+
+        return true;
+      });
+    }
+
     return filtered;
   }, [messagesData, activeButton, chatLogs]);
 
