@@ -196,15 +196,6 @@ export default function MessagesTable() {
     dispatch(fetchLoggedInUser());
   }, [dispatch]);
 
-  useEffect(() => {
-    dispatch(clearData());
-    if (practiceId != null) {
-      const chatFetchParams: FetchChatParams = { practiceId };
-
-      dispatch(fetchChat(chatFetchParams)).finally(() => {});
-    }
-  }, [dispatch, practiceId]);
-
   function isIEmailLogRecord(data: MessageData): data is IEmailLog {
     return (data as IEmailLog).practice !== null;
   }
@@ -336,6 +327,19 @@ export default function MessagesTable() {
   useEffect(() => {
     if (practiceId != null) {
       dispatchFetchMessages(searchMRNNameStr);
+    }
+  }, [dispatch, practiceId, searchMRNNameStr]);
+
+  useEffect(() => {
+    dispatch(clearData());
+    if (practiceId != null) {
+      const chatFetchParams: FetchChatParams = { practiceId };
+
+      if (searchMRNNameStr) {
+        chatFetchParams.mrn = searchMRNNameStr;
+      }
+
+      dispatch(fetchChat(chatFetchParams)).finally(() => {});
     }
   }, [dispatch, practiceId, searchMRNNameStr]);
 

@@ -51,6 +51,7 @@ const chatSlice = createSlice({
 
     builder.addCase(fetchChat.fulfilled, (state, action) => {
       state.status = EntityLoadingState.SUCCEEDED;
+      state.entities = {};
       if (action.payload.length === 0) {
         state.errorMessage = 'No chat history found.';
       }
