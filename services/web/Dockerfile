@@ -2,8 +2,11 @@ FROM node:20-alpine AS base
 WORKDIR /app
 COPY . .
 
-# Enable Corepack and install pnpm explicitly
-RUN corepack enable && corepack prepare pnpm@8.15.3 --activate || npm install -g pnpm@8.15.3
+# Fix Corepack key issue
+RUN corepack disable && rm -rf ~/.cache/corepack && corepack enable
+
+# Install pnpm explicitly to avoid signature issues
+RUN corepack prepare pnpm@8.15.3 --activate || npm install -g pnpm@8.15.3
 
 # Create build image for building the web
 FROM base AS build
