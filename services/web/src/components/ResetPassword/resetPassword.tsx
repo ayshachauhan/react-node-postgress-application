@@ -10,7 +10,7 @@ import {
   clearSuccessMessage,
 } from '@root/store/reducers/users';
 import { ChangePasswordInterface } from '@root/store/requests/users/types';
-import { getPracticeId } from '@root/utils';
+import { getPracticeId, validatePassword } from '@root/utils';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { LogoWrapper } from '../LogoWrapper/logoWrapper';
@@ -33,6 +33,7 @@ export const ResetPassword: React.FC<Props> = ({
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordErrorMessage, setPasswordErrorMessage] = useState('');
   const [tokenExpired, setTokenExpired] = useState(false);
   const { successMessage, errorMessage } = useAppSelector((state) => ({
     successMessage: state.users.successMessage,
@@ -79,6 +80,22 @@ export const ResetPassword: React.FC<Props> = ({
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    const passwordErrorMessage = validatePassword(newPassword);
+    if (passwordErrorMessage) {
+      setPasswordErrorMessage(passwordErrorMessage);
+      return;
+    } else {
+      setPasswordErrorMessage('');
+    }
+
+    if (newPassword !== confirmPassword) {
+      setPasswordErrorMessage(
+        'New password and confirm password do not match.',
+      );
+      return;
+    }
+
     if (userInfo && userInfo.practices) {
       setTokenExpired(false);
       const payload: ChangePasswordInterface = {
@@ -151,6 +168,11 @@ export const ResetPassword: React.FC<Props> = ({
               <div className="mt-11 mx-11">
                 <form className="w-full" onSubmit={handleSubmit}>
                   <input type="hidden" name="remember" defaultValue="true" />
+                  {passwordErrorMessage && (
+                    <div className="flex justify-center text-red-500 mt-2 mb-2">
+                      {passwordErrorMessage}
+                    </div>
+                  )}
                   {!isAlreadyOnboared && isOnboarding ? (
                     <div className="mb-4">
                       <div className="mb-1">

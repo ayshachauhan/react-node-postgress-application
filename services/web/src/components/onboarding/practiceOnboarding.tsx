@@ -12,7 +12,7 @@ import {
 import { setLoginCookie } from '@root/store/requests/login';
 import { ChangePasswordInterface } from '@root/store/requests/users';
 import { AzentiaLogo } from '@utils/constants';
-import { getPracticeId } from '@utils/index';
+import { getPracticeId, validatePassword } from '@utils/index';
 import { useRouter, useSearchParams } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import RequiredIndicator from '../RequiredIndicator';
@@ -23,6 +23,7 @@ export default function PracticeOnboardPage() {
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordErrorMessage, setPasswordErrorMessage] = useState('');
   const { successMessage, errorMessage } = useAppSelector((state) => ({
     successMessage: state.users.successMessage,
     errorMessage: state.users.errorMessage,
@@ -54,6 +55,22 @@ export default function PracticeOnboardPage() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    const passwordErrorMessage = validatePassword(newPassword);
+    if (passwordErrorMessage) {
+      setPasswordErrorMessage(passwordErrorMessage);
+      return;
+    } else {
+      setPasswordErrorMessage('');
+    }
+
+    if (newPassword !== confirmPassword) {
+      setPasswordErrorMessage(
+        'New password and confirm password do not match.',
+      );
+      return;
+    }
+
     if (userInfo && userInfo.practices) {
       const payload: ChangePasswordInterface = {
         practiceId: userInfo.practices[0].id,
@@ -113,6 +130,11 @@ export default function PracticeOnboardPage() {
             <div className="mt-11 mx-11">
               <form className="w-full" onSubmit={handleSubmit}>
                 <input type="hidden" name="remember" defaultValue="true" />
+                {passwordErrorMessage && (
+                  <div className="flex justify-center text-red-500 mt-2 mb-2">
+                    {passwordErrorMessage}
+                  </div>
+                )}
                 <div className="mb-4">
                   <div className="mb-1">
                     {' '}

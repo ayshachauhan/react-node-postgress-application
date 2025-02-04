@@ -223,6 +223,17 @@ export class UsersService {
   }): Promise<SanitizedUser> {
     const { email, newPassword, confirmPassword, oldPassword, token } =
       changePasswordDto;
+
+    const passwordRegex =
+      /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*()_+={}:;"'<>,.?/-])[A-Za-z\d!@#$%^&*()_+={}:;"'<>,.?/-]{8,20}$/;
+
+    if (!passwordRegex.test(newPassword)) {
+      throw new HttpException(
+        'Password must be 8-20 characters long, containing at least one uppercase, one lowercase, one numeric & one special character.',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
     if (confirmPassword !== newPassword) {
       throw new HttpException(
         'Password does not match',

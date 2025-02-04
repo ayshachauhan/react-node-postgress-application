@@ -436,3 +436,13 @@ export const validateSlotValue = (value: string): string => {
     return 'Invalid slot value';
   }
 };
+
+export const validatePassword = (password: string): string | null => {
+  const passwordRegex =
+    /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*()_+={}:;"'<>,.?/-])[A-Za-z\d!@#$%^&*()_+={}:;"'<>,.?/-]{8,20}$/;
+
+  if (!passwordRegex.test(password)) {
+    return 'Password must be 8-20 characters long, containing at least one uppercase, one lowercase, one numeric & one special character.';
+  }
+  return null; // No error if it matches the pattern
+};
