@@ -2,6 +2,9 @@ FROM node:20-alpine AS base
 WORKDIR /app
 COPY . .
 
+# Enable Corepack and install pnpm explicitly
+RUN corepack enable && corepack prepare pnpm@8.15.3 --activate || npm install -g pnpm@8.15.3
+
 # Create build image for building the web
 FROM base AS build
 ARG NEXT_PUBLIC_API_BASE_URL
@@ -10,7 +13,7 @@ ARG NEXT_PUBLIC_ENABLE_AI_CHAT
 ENV ENVIRONMENT=${ENVIRONMENT}
 ENV NEXT_PUBLIC_API_BASE_URL=${NEXT_PUBLIC_API_BASE_URL}
 ENV NEXT_PUBLIC_ENABLE_AI_CHAT=${NEXT_PUBLIC_ENABLE_AI_CHAT}
-RUN apt update -y npm install -g pnpm@8.15.3 && \
+RUN apk add --no-cache bash && \
     pnpm install --frozen-lockfile && \
     pnpm turbo build --filter=web
 
