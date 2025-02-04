@@ -187,6 +187,20 @@ export default function MessagesTable() {
       filtered = [...filtered, ...chatLogsWithMessages];
     }
 
+    if (searchMRNName) {
+      filtered = filtered.filter((data) => {
+        if (isSystemLog(data)) {
+          return String(data.data?.mrn) === String(searchMRNName);
+        }
+
+        if (isAIlog(data)) {
+          return String(data.patient?.mrn) === String(searchMRNName);
+        }
+
+        return true;
+      });
+    }
+
     return filtered;
   }, [messagesData, activeButton, chatLogs]);
 
@@ -669,7 +683,7 @@ export default function MessagesTable() {
                                     {row?.data?.surgery_type}
                                   </>
                                 ) : (
-                                  'N/A'
+                                  ''
                                 )}
                               </td>
                               <td className="">
@@ -688,8 +702,8 @@ export default function MessagesTable() {
                                           row.data.fname,
                                           row.data.lname,
                                         )
-                                      : 'N/A'
-                                  : 'N/A'}
+                                      : ''
+                                  : ''}
                               </td>
                               <td className="">
                                 {row
@@ -697,8 +711,8 @@ export default function MessagesTable() {
                                     ? row.patient.mrn
                                     : isSystemLog(row) && row.data?.mrn
                                       ? row.data.mrn
-                                      : 'N/A'
-                                  : 'N/A'}
+                                      : ''
+                                  : ''}
                               </td>
                               <td className="">
                                 <p>
@@ -708,8 +722,8 @@ export default function MessagesTable() {
                                       ? row.patient.email
                                       : isSystemLog(row) && row.data?.to
                                         ? row.data.to
-                                        : 'N/A'
-                                    : 'N/A'}
+                                        : ''
+                                    : ''}
                                 </p>
                                 {isAIlog(row) && row.patient && (
                                   <p>
