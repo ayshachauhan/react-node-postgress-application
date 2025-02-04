@@ -442,7 +442,7 @@ export const validatePassword = (password: string): string | null => {
     /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*()_+={}:;"'<>,.?/-])[A-Za-z\d!@#$%^&*()_+={}:;"'<>,.?/-]{8,20}$/;
 
   if (!passwordRegex.test(password)) {
-    return 'Password must be between 8 and 20 characters, containing at least one uppercase letter, one lowercase letter, one numeric character, and one special charcter.';
+    return 'Password must be 8-20 characters long, containing at least one uppercase, one lowercase, one numeric & one special character.';
   }
   return null; // No error if it matches the pattern
 };

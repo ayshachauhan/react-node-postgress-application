@@ -229,7 +229,7 @@ export class UsersService {
 
     if (!passwordRegex.test(newPassword)) {
       throw new HttpException(
-        'Password must be between 8 and 20 characters, containing at least one uppercase letter, one lowercase letter, one numeric character, and one special charcter.',
+        'Password must be 8-20 characters long, containing at least one uppercase, one lowercase, one numeric & one special character.',
         HttpStatus.BAD_REQUEST,
       );
     }
