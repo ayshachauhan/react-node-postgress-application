@@ -105,13 +105,13 @@ jobs:
           SECRET_NAME: ${{ github.event.inputs.environment }}
           OUTPUT_PATH: '.env' # optional
 
-      #- name: Notify Google Chat
-      #  id: notify_google_chat
-      #  uses: SimonScholz/google-chat-action@main
-      #  with:
-      #    webhookUrl: ${{ secrets.WEBHOOK_URL }}
-      #    title: Deploying
-      #    subtitle: App might behave weird
+      - name: Notify Google Chat
+        id: notify_google_chat
+        uses: SimonScholz/google-chat-action@main
+        with:
+          webhookUrl: ${{ secrets.WEBHOOK_URL }}
+          title: Deploying
+          subtitle: App might behave weird
 
       - name: Login to Amazon ECR
         id: login-ecr
