@@ -1,7 +1,13 @@
 FROM node:20-slim AS base
-RUN corepack enable
+#RUN corepack enable
 COPY . /app
 WORKDIR /app
+
+# Fix Corepack issue
+RUN corepack disable && rm -rf ~/.cache/corepack && corepack enable
+
+# Install pnpm explicitly to avoid key verification issues
+RUN corepack prepare pnpm@8.15.3 --activate || npm install -g pnpm@8.15.3
 
 # Create build image for building the web
 FROM base AS build
