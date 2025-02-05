@@ -51,6 +51,7 @@ const Header: React.FC<ChildProps> = ({ data }) => {
 
   const { entities } = useAppSelector((state: State) => state.users);
   const practiceId = getPracticeId();
+  const isQueryPresent = new URLSearchParams(window.location.search).has('id');
 
   const users: SanitizedUser[] = useMemo(() => {
     if (userInfo?.type === UserType.DOCTOR) {
@@ -163,6 +164,7 @@ const Header: React.FC<ChildProps> = ({ data }) => {
   };
 
   useEffect(() => {
+    if (isQueryPresent) return; // If `id` query is present, do nothing
     if (practiceId && users?.length && !isDoctorChange) {
       const selectedDoctor = localStorage.getItem('SELECTED_DOCTOR');
       const userIds = users?.map((user) => user?.id);
@@ -174,7 +176,7 @@ const Header: React.FC<ChildProps> = ({ data }) => {
     if (!users?.length) {
       localStorage.removeItem('SELECTED_DOCTOR');
     }
-  }, [practiceId, users]);
+  }, [practiceId, users, isQueryPresent]);
 
   const selectedDoctorName = useMemo(
     () =>
