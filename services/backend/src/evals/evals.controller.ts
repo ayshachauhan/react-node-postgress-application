@@ -20,6 +20,7 @@ import { PermissionGuard } from 'src/auth/userPermissions.guard';
 import { CreateEvalDto } from 'src/evals/dto/createEval.dto';
 import { EvalsService } from 'src/evals/evals.service';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
+import { PracticeGuard } from 'src/practices/practice.guard';
 import { PAGINATION_LIMIT } from 'src/utils/constants';
 import { ParseStringToBooleanPipe } from 'src/utils/pipes/stringToBoolean.pipes';
 import { UpdateEvalDto } from './dto/updateEval.dto';
@@ -33,7 +34,7 @@ export class EvalsController {
   constructor(private readonly evalService: EvalsService) {}
 
   @Get()
-  @UseGuards(PermissionGuard(USER_PERMISSIONS.VIEW_NURTURE))
+  @UseGuards(PermissionGuard(USER_PERMISSIONS.VIEW_NURTURE), PracticeGuard)
   @UseInterceptors(practiceNotFoundInterceptor)
   async findAll(
     @Param() { practiceId }: { practiceId: string },
@@ -53,14 +54,14 @@ export class EvalsController {
   }
 
   @Get(':id')
-  @UseGuards(PermissionGuard(USER_PERMISSIONS.VIEW_NURTURE))
+  @UseGuards(PermissionGuard(USER_PERMISSIONS.VIEW_NURTURE), PracticeGuard)
   @UseInterceptors(practiceNotFoundInterceptor)
   async getEvalById(@Param('id') id: string): Promise<EvalEntity | null> {
     return await this.evalService.getEvalById(id);
   }
 
   @Post()
-  @UseGuards(PermissionGuard(USER_PERMISSIONS.ADD_CASE))
+  @UseGuards(PermissionGuard(USER_PERMISSIONS.ADD_CASE), PracticeGuard)
   @UseInterceptors(practiceNotFoundInterceptor)
   async create(
     @Body(new ValidationPipe()) createEvalDto: CreateEvalDto,
@@ -75,7 +76,7 @@ export class EvalsController {
   }
 
   @Patch(':id')
-  @UseGuards(PermissionGuard(USER_PERMISSIONS.EDIT_CASE))
+  @UseGuards(PermissionGuard(USER_PERMISSIONS.EDIT_CASE), PracticeGuard)
   @UseInterceptors(practiceNotFoundInterceptor)
   async update(
     @Body(new ValidationPipe()) createEvalDto: UpdateEvalDto,
@@ -92,7 +93,7 @@ export class EvalsController {
   }
 
   @Delete(':id')
-  @UseGuards(PermissionGuard(USER_PERMISSIONS.DELETE_CASE))
+  @UseGuards(PermissionGuard(USER_PERMISSIONS.DELETE_CASE), PracticeGuard)
   async remove(
     @Param()
     { id, practiceId }: { id: string; practiceId: string },

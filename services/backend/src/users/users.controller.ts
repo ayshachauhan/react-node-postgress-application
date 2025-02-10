@@ -22,6 +22,7 @@ import { FileInterceptor } from '@nestjs/platform-express/multer';
 import { AuthGuard, RequestWithUser } from 'src/auth/auth.guard';
 import { Roles } from 'src/auth/role.decorator';
 import { RolesGuard } from 'src/auth/roles.gaurd';
+import { PracticeGuard } from '../practices/practice.guard';
 import { ChangePasswordDto } from './dto/changePassword.dto';
 import { CreateUserDto } from './dto/create.dto';
 import { UpdateUserDto } from './dto/update.dto';
@@ -38,6 +39,7 @@ export class UsersController {
   @Post()
   @UseInterceptors(practiceNotFoundInterceptor)
   @Roles(UserType.ADMIN, UserType.DOCTOR)
+  @UseGuards(PracticeGuard)
   create(
     @Body(new ValidationPipe()) createUserDto: CreateUserDto,
     @Param() { practiceId }: { practiceId: string },
@@ -46,12 +48,14 @@ export class UsersController {
   }
 
   @Get()
+  @UseGuards(PracticeGuard)
   @UseInterceptors(practiceNotFoundInterceptor)
   async getUsersByPractice(@Param('practiceId') practiceId: string) {
     return this.usersService.getUsersByPractice(practiceId);
   }
 
   @Get(':id')
+  @UseGuards(PracticeGuard)
   async getUserById(
     @Param() { id }: { id: string },
   ): Promise<UserEntity | null> {
@@ -60,6 +64,7 @@ export class UsersController {
 
   @Delete(':id')
   @UseInterceptors(practiceNotFoundInterceptor)
+  @UseGuards(PracticeGuard)
   @Roles(UserType.ADMIN)
   async deleteUser(
     @Param() { id }: { id: string },
@@ -72,6 +77,7 @@ export class UsersController {
   }
 
   @Patch('change-password')
+  @UseGuards(PracticeGuard)
   async changePassword(
     @Body(new ValidationPipe()) changePasswordDto: ChangePasswordDto,
     @Param('practiceId') practiceId: string,
@@ -81,6 +87,7 @@ export class UsersController {
 
   @Patch(':id')
   @Roles(UserType.ADMIN)
+  @UseGuards(PracticeGuard)
   async updateUser(
     @Param('id') id: string,
     @Body(new ValidationPipe()) patchUserDto: UpdateUserDto,
@@ -89,6 +96,7 @@ export class UsersController {
   }
 
   @Patch(':id/upload')
+  @UseGuards(PracticeGuard)
   @UseInterceptors(FileInterceptor('file'))
   async uploadUserImg(
     @Param() params: { id: string; practiceId: string },

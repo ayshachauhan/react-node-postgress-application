@@ -18,6 +18,7 @@ import { USER_PERMISSIONS } from '@packages/entities/permission';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { PermissionGuard } from 'src/auth/userPermissions.guard';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
+import { PracticeGuard } from 'src/practices/practice.guard';
 import { PAGINATION_LIMIT } from 'src/utils/constants';
 import { SanitizedUser } from '../auth/types';
 import { CreateSurgeryDto } from '../surgery/dto/createSurgery.dto';
@@ -39,6 +40,7 @@ export class SurgeryController {
   constructor(private readonly surgeryService: SurgeryService) {}
 
   @Get('all')
+  @UseGuards(PracticeGuard)
   async getAllSurgeries(
     @Param('practiceId') practiceId: string,
     @Query('includeDeleted') includeDeleted: boolean = false,
@@ -52,6 +54,7 @@ export class SurgeryController {
 
   @Get()
   @UseInterceptors(practiceNotFoundInterceptor)
+  @UseGuards(PracticeGuard)
   async searchSurgeries(
     @Param('practiceId') practiceId: string,
     @Query(new ValidationPipe()) query: QueryDto,
@@ -82,12 +85,13 @@ export class SurgeryController {
 
   @Get(':id')
   @UseInterceptors(practiceNotFoundInterceptor)
+  @UseGuards(PracticeGuard)
   async getEvalById(@Param('id') id: string): Promise<SurgeryEntity | null> {
     return await this.surgeryService.getSurgeryById(id);
   }
 
   @Post()
-  @UseGuards(PermissionGuard(USER_PERMISSIONS.ADD_CASE))
+  @UseGuards(PermissionGuard(USER_PERMISSIONS.ADD_CASE), PracticeGuard)
   @UseInterceptors(practiceNotFoundInterceptor)
   async create(
     @Body(new ValidationPipe()) createSurgeryDto: CreateSurgeryDto,
@@ -104,7 +108,7 @@ export class SurgeryController {
   }
 
   @Patch(':id')
-  @UseGuards(PermissionGuard(USER_PERMISSIONS.EDIT_CASE))
+  @UseGuards(PermissionGuard(USER_PERMISSIONS.EDIT_CASE), PracticeGuard)
   @UseInterceptors(practiceNotFoundInterceptor)
   async update(
     @Body(new ValidationPipe()) createSurgeryDto: UpdateSurgeryDto,
@@ -123,7 +127,7 @@ export class SurgeryController {
   }
 
   @Delete(':id')
-  @UseGuards(PermissionGuard(USER_PERMISSIONS.DELETE_CASE))
+  @UseGuards(PermissionGuard(USER_PERMISSIONS.DELETE_CASE), PracticeGuard)
   async remove(
     @Param()
     { id, practiceId }: { id: string; practiceId: string },
