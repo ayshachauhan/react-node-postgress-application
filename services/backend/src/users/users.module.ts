@@ -7,6 +7,7 @@ import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundIn
 import { PermissionsModule } from 'src/permissions/permissions.module';
 import { PracticesModule } from 'src/practices/practices.module';
 import { SurgeryModule } from 'src/surgery/surgery.module';
+import { TemplatesModule } from 'src/templates/templates.module';
 import { S3Service } from './s3.service';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
@@ -19,6 +20,7 @@ import { UsersService } from './users.service';
     forwardRef(() => EvalsModule),
     forwardRef(() => SurgeryModule),
     forwardRef(() => CalendarModule),
+    forwardRef(() => TemplatesModule),
   ],
   providers: [UsersService, practiceNotFoundInterceptor, S3Service],
   controllers: [UsersController],

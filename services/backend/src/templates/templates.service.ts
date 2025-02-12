@@ -32,7 +32,10 @@ export class TemplatesService {
   }
 
   async getTemplateById(id: string): Promise<TemplateEntity | null> {
-    return await this.templateRepository.findOneBy({ id });
+    return await this.templateRepository.findOne({
+      where: { id },
+      relations: ['practice'],
+    });
   }
 
   async create({

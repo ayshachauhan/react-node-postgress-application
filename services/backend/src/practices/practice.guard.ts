@@ -10,6 +10,7 @@ import {
 import { CalendarService } from 'src/calendar/calendar.service';
 import { EvalsService } from 'src/evals/evals.service';
 import { SurgeryService } from 'src/surgery/surgery.service';
+import { TemplatesService } from 'src/templates/templates.service';
 import { RequestWithUser } from '../auth/auth.guard';
 import { UsersService } from '../users/users.service';
 
@@ -23,6 +24,8 @@ export class PracticeGuard implements CanActivate {
     private readonly surgeryService: SurgeryService,
     @Inject(forwardRef(() => CalendarService))
     private readonly calendarService: CalendarService,
+    @Inject(forwardRef(() => TemplatesService))
+    private readonly templatesService: TemplatesService,
   ) {}
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<RequestWithUser>();
@@ -68,7 +71,7 @@ export class PracticeGuard implements CanActivate {
         practiceId,
       });
     } else if (path.includes('templates')) {
-      entity = await this.usersService.getUserById(id);
+      entity = await this.templatesService.getTemplateById(id);
     } else if (path.includes('users')) {
       entity = await this.usersService.getUserById(id);
     } else {
@@ -79,7 +82,7 @@ export class PracticeGuard implements CanActivate {
       throw new NotFoundException('Entity not found.');
     }
 
-    if (path.includes('users')) {
+    if (path.includes('users') && !path.includes('template')) {
       const targetUserPracticeIds = entity.practices.map((p) => p.id);
       if (!targetUserPracticeIds.includes(practiceId)) {
         throw new ForbiddenException(
