@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { TemplateEntity } from '@packages/entities/template';
 import { CalendarModule } from 'src/calendar/calendar.module';
 import { EvalsModule } from 'src/evals/evals.module';
+import { HistoryModule } from 'src/history/history.module';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
 import { PracticesModule } from 'src/practices/practices.module';
 import { SurgeryModule } from 'src/surgery/surgery.module';
@@ -21,6 +22,7 @@ import { TemplatesService } from './templates.service';
     forwardRef(() => EvalsModule),
     forwardRef(() => SurgeryModule),
     forwardRef(() => CalendarModule),
+    forwardRef(() => HistoryModule),
   ],
   providers: [TemplatesService, practiceNotFoundInterceptor, S3Service],
   controllers: [TemplatesController],

@@ -4,6 +4,7 @@ import { CalendarController } from './calendar.controller';
 
 import { CalendarEntity } from '@packages/entities';
 import { EvalsModule } from 'src/evals/evals.module';
+import { HistoryModule } from 'src/history/history.module';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
 import { SurgeryModule } from 'src/surgery/surgery.module';
 import { TemplatesModule } from 'src/templates/templates.module';
@@ -21,6 +22,7 @@ import { CalendarService } from './calendar.service';
     forwardRef(() => EvalsModule),
     forwardRef(() => SurgeryModule),
     forwardRef(() => TemplatesModule),
+    forwardRef(() => HistoryModule),
   ],
   controllers: [CalendarController],
   providers: [practiceNotFoundInterceptor, CalendarService],

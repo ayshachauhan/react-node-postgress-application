@@ -12,6 +12,7 @@ import { EvalsService } from 'src/evals/evals.service';
 import { SurgeryService } from 'src/surgery/surgery.service';
 import { TemplatesService } from 'src/templates/templates.service';
 import { RequestWithUser } from '../auth/auth.guard';
+import { HistoryService } from '../history/history.service';
 import { UsersService } from '../users/users.service';
 
 @Injectable()
@@ -26,6 +27,8 @@ export class PracticeGuard implements CanActivate {
     private readonly calendarService: CalendarService,
     @Inject(forwardRef(() => TemplatesService))
     private readonly templatesService: TemplatesService,
+    @Inject(forwardRef(() => HistoryService))
+    private readonly historyService: HistoryService,
   ) {}
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<RequestWithUser>();
@@ -62,6 +65,8 @@ export class PracticeGuard implements CanActivate {
     let entity;
     if (path.includes('evals')) {
       entity = await this.evalsService.getEvalById(id);
+    } else if (path.includes('history')) {
+      entity = await this.historyService.getHistoryById({ practiceId, id });
     } else if (path.includes('surgery')) {
       entity = await this.surgeryService.getSurgeryById(id);
     } else if (path.includes('calendar')) {

@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserEntity } from '@packages/entities/user';
 import { CalendarModule } from 'src/calendar/calendar.module';
 import { EvalsModule } from 'src/evals/evals.module';
+import { HistoryModule } from 'src/history/history.module';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
 import { PermissionsModule } from 'src/permissions/permissions.module';
 import { PracticesModule } from 'src/practices/practices.module';
@@ -21,6 +22,7 @@ import { UsersService } from './users.service';
     forwardRef(() => SurgeryModule),
     forwardRef(() => CalendarModule),
     forwardRef(() => TemplatesModule),
+    forwardRef(() => HistoryModule),
   ],
   providers: [UsersService, practiceNotFoundInterceptor, S3Service],
   controllers: [UsersController],

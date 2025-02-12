@@ -2,7 +2,9 @@ import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { HistoryEntity } from '@packages/entities';
+import { CalendarModule } from 'src/calendar/calendar.module';
 import { practiceNotFoundInterceptor as PracticeNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
+import { TemplatesModule } from 'src/templates/templates.module';
 import { UsersModule } from 'src/users/users.module';
 import { EvalsModule } from '../evals/evals.module';
 import { PracticesModule } from '../practices/practices.module';
@@ -17,6 +19,8 @@ import { HistoryService } from './history.service';
     forwardRef(() => SurgeryModule),
     forwardRef(() => UsersModule),
     forwardRef(() => EvalsModule),
+    forwardRef(() => CalendarModule),
+    forwardRef(() => TemplatesModule),
   ],
   controllers: [HistoryController],
   providers: [PracticeNotFoundInterceptor, HistoryService],
