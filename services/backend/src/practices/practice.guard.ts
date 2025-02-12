@@ -13,12 +13,14 @@ import { SurgeryService } from 'src/surgery/surgery.service';
 import { TemplatesService } from 'src/templates/templates.service';
 import { RequestWithUser } from '../auth/auth.guard';
 import { HistoryService } from '../history/history.service';
+import { InsuranceTypesService } from '../insuranceTypes/insuranceTypes.service';
 import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class PracticeGuard implements CanActivate {
   constructor(
-    private readonly usersService: UsersService,
+    @Inject(forwardRef(() => UsersService))
+    private readonly usersService: UsersService, // ✅ Use forwardRef
     @Inject(forwardRef(() => EvalsService))
     private readonly evalsService: EvalsService,
     @Inject(forwardRef(() => SurgeryService))
@@ -29,6 +31,8 @@ export class PracticeGuard implements CanActivate {
     private readonly templatesService: TemplatesService,
     @Inject(forwardRef(() => HistoryService))
     private readonly historyService: HistoryService,
+    @Inject(forwardRef(() => InsuranceTypesService))
+    private readonly insuranceTypesService: InsuranceTypesService,
   ) {}
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<RequestWithUser>();
@@ -77,6 +81,11 @@ export class PracticeGuard implements CanActivate {
       });
     } else if (path.includes('templates')) {
       entity = await this.templatesService.getTemplateById(id);
+    } else if (path.includes('insurance-types')) {
+      entity = await this.insuranceTypesService.getInsuranceTypeById(
+        id,
+        practiceId,
+      );
     } else if (path.includes('users')) {
       entity = await this.usersService.getUserById(id);
     } else {

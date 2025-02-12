@@ -4,6 +4,7 @@ import { TemplateEntity } from '@packages/entities/template';
 import { CalendarModule } from 'src/calendar/calendar.module';
 import { EvalsModule } from 'src/evals/evals.module';
 import { HistoryModule } from 'src/history/history.module';
+import { InsuranceTypesModule } from 'src/insuranceTypes/insuranceTypes.module';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
 import { PracticesModule } from 'src/practices/practices.module';
 import { SurgeryModule } from 'src/surgery/surgery.module';
@@ -23,6 +24,7 @@ import { TemplatesService } from './templates.service';
     forwardRef(() => SurgeryModule),
     forwardRef(() => CalendarModule),
     forwardRef(() => HistoryModule),
+    forwardRef(() => InsuranceTypesModule),
   ],
   providers: [TemplatesService, practiceNotFoundInterceptor, S3Service],
   controllers: [TemplatesController],

@@ -10,6 +10,7 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { InsuranceTypeEntity } from '@packages/entities/insuranceType';
+import { PracticeGuard } from 'src/practices/practice.guard';
 import { AuthGuard } from '../auth/auth.guard';
 import { CreateInsuranceTypeDto } from './dto/createInsuranceType.dto';
 import { InsuranceTypesService } from './insuranceTypes.service';
@@ -22,6 +23,7 @@ export class InsuranceTypesController {
   constructor(private readonly insuranceTypeService: InsuranceTypesService) {}
 
   @Get()
+  @UseGuards(PracticeGuard)
   async getPracticeHomesByPractice(
     @Param('practiceId') practiceId: string,
   ): Promise<InsuranceTypeEntity[]> {
@@ -29,6 +31,7 @@ export class InsuranceTypesController {
   }
 
   @Get(':id')
+  @UseGuards(PracticeGuard)
   async getPracticeHomeById(
     @Param() { practiceId, id }: { practiceId: string; id: string },
   ): Promise<InsuranceTypeEntity | null> {
@@ -36,6 +39,7 @@ export class InsuranceTypesController {
   }
 
   @Delete(':id')
+  @UseGuards(PracticeGuard)
   async remove(
     @Param() { practiceId, id }: { practiceId: string; id: string },
   ): Promise<void> {
@@ -43,6 +47,7 @@ export class InsuranceTypesController {
   }
 
   @Post()
+  @UseGuards(PracticeGuard)
   async create(
     @Param('practiceId') practiceId: string,
     @Body(new ValidationPipe()) createInsuranceTypeDto: CreateInsuranceTypeDto,

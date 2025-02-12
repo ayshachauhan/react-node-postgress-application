@@ -35,6 +35,7 @@ export class InsuranceTypesService {
     if (id) {
       return this.insuranceTypeRepository.findOne({
         where: { id, practice: { id: practiceId } },
+        relations: ['practice'],
       });
     }
     return null;
