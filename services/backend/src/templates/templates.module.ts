@@ -18,7 +18,7 @@ import { TemplatesService } from './templates.service';
 @Module({
   imports: [
     TypeOrmModule.forFeature([TemplateEntity]),
-    PracticesModule,
+    forwardRef(() => PracticesModule),
     forwardRef(() => UsersModule),
     SurgeryConfigurationsModule,
     forwardRef(() => EvalsModule),

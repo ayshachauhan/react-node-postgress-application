@@ -12,6 +12,7 @@ import { USER_PERMISSIONS } from '@packages/entities/permission';
 import { PermissionGuard } from 'src/auth/userPermissions.guard';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
 import { GetMessageParams } from 'src/messages/types';
+import { PracticeGuard } from 'src/practices/practice.guard';
 import { AuthGuard } from '../auth/auth.guard';
 import { MessagesService } from './messages.service';
 
@@ -28,7 +29,7 @@ export class MessagesController {
   constructor(private readonly messagesService: MessagesService) {}
 
   @Get('search')
-  @UseGuards(PermissionGuard(USER_PERMISSIONS.VIEW_MSG))
+  @UseGuards(PermissionGuard(USER_PERMISSIONS.VIEW_MSG), PracticeGuard)
   async getPracticeHomesByPractice(
     @Param('practiceId') practiceId: string,
     @Query('searchMRNName') searchMRNName?: string,
@@ -40,6 +41,7 @@ export class MessagesController {
   }
 
   @Get('sms')
+  @UseGuards(PracticeGuard)
   async getSmsHistory(
     @Param('practiceId') practiceId: string,
     @Query() query: GetMessageParams,
