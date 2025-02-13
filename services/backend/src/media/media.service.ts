@@ -51,6 +51,7 @@ export class MediaService {
     practiceId: string,
     mediaId: string,
   ): Promise<MediaEntity> {
+    console.log('pr', practiceId, 'media', mediaId);
     const media = await this.media.findOne({
       where: { id: mediaId, practiceId },
       relations: ['mediaConfigs'],
@@ -60,6 +61,26 @@ export class MediaService {
       throw new NotFoundException(
         'Media not exists for the provided patient Id.',
       );
+    }
+
+    return media;
+  }
+
+  async getMediaByMediaConfigId(
+    practiceId: string,
+    mediaConfigId: string,
+  ): Promise<MediaEntity | null> {
+    console.log('pr', practiceId, 'media', mediaConfigId);
+
+    const media = await this.media
+      .createQueryBuilder('media')
+      .innerJoinAndSelect('media.mediaConfigs', 'mediaConfig')
+      .where('media.practiceId = :practiceId', { practiceId })
+      .andWhere('mediaConfig.id = :mediaConfigId', { mediaConfigId })
+      .getOne();
+
+    if (!media) {
+      throw new NotFoundException('Media not exists.');
     }
 
     return media;

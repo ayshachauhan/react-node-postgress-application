@@ -5,6 +5,7 @@ import { HistoryEntity } from '@packages/entities';
 import { CalendarModule } from 'src/calendar/calendar.module';
 import { InsuranceTypesModule } from 'src/insuranceTypes/insuranceTypes.module';
 import { practiceNotFoundInterceptor as PracticeNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
+import { MediaModule } from 'src/media/media.module';
 import { TemplatesModule } from 'src/templates/templates.module';
 import { UsersModule } from 'src/users/users.module';
 import { EvalsModule } from '../evals/evals.module';
@@ -23,6 +24,7 @@ import { HistoryService } from './history.service';
     forwardRef(() => CalendarModule),
     forwardRef(() => TemplatesModule),
     forwardRef(() => InsuranceTypesModule),
+    forwardRef(() => MediaModule),
   ],
   controllers: [HistoryController],
   providers: [PracticeNotFoundInterceptor, HistoryService],

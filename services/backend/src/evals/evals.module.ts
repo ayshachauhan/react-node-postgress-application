@@ -7,6 +7,7 @@ import { EvalsController } from 'src/evals/evals.controller';
 import { EvalsService } from 'src/evals/evals.service';
 import { InsuranceTypesModule } from 'src/insuranceTypes/insuranceTypes.module';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
+import { MediaModule } from 'src/media/media.module';
 import { PatientsModule } from 'src/patients/patients.module';
 import { PracticeHomesModule } from 'src/practiceHomes/practiceHomes.module';
 import { PracticesModule } from 'src/practices/practices.module';
@@ -34,6 +35,7 @@ import { ReferrersModule } from '../referrers/referrers.module';
     forwardRef(() => ReferrersModule),
     forwardRef(() => SurgeryModule),
     forwardRef(() => CalendarModule),
+    forwardRef(() => MediaModule),
   ],
   providers: [
     practiceNotFoundInterceptor,

@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 import { CalendarService } from 'src/calendar/calendar.service';
 import { EvalsService } from 'src/evals/evals.service';
+import { MediaService } from 'src/media/media.service';
 import { SurgeryService } from 'src/surgery/surgery.service';
 import { TemplatesService } from 'src/templates/templates.service';
 import { RequestWithUser } from '../auth/auth.guard';
@@ -33,6 +34,8 @@ export class PracticeGuard implements CanActivate {
     private readonly historyService: HistoryService,
     @Inject(forwardRef(() => InsuranceTypesService))
     private readonly insuranceTypesService: InsuranceTypesService,
+    @Inject(forwardRef(() => MediaService))
+    private readonly mediaService: MediaService,
   ) {}
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<RequestWithUser>();
@@ -75,12 +78,16 @@ export class PracticeGuard implements CanActivate {
       entity = await this.surgeryService.getSurgeryById(id);
     } else if (path.includes('calendar')) {
       entity = await this.calendarService.getCalendarById({
-        id,
-        userId,
         practiceId,
+        userId,
+        id,
       });
     } else if (path.includes('templates')) {
       entity = await this.templatesService.getTemplateById(id);
+    } else if (path.includes('mediaconfig')) {
+      entity = await this.mediaService.getMediaByMediaConfigId(practiceId, id);
+    } else if (path.includes('media')) {
+      entity = await this.mediaService.getMediaById(practiceId, id);
     } else if (path.includes('insurance-types')) {
       entity = await this.insuranceTypesService.getInsuranceTypeById(
         id,
@@ -101,6 +108,12 @@ export class PracticeGuard implements CanActivate {
       if (!targetUserPracticeIds.includes(practiceId)) {
         throw new ForbiddenException(
           'You do not have permission to modify this user.',
+        );
+      }
+    } else if (path.includes('media')) {
+      if (entity.practiceId !== practiceId) {
+        throw new ForbiddenException(
+          'You do not have permission to access this entity.',
         );
       }
     } else {

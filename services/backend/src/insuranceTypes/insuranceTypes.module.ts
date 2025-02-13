@@ -4,6 +4,7 @@ import { InsuranceTypeEntity } from '@packages/entities/insuranceType';
 import { CalendarModule } from 'src/calendar/calendar.module';
 import { EvalsModule } from 'src/evals/evals.module';
 import { HistoryModule } from 'src/history/history.module';
+import { MediaModule } from 'src/media/media.module';
 import { SurgeryModule } from 'src/surgery/surgery.module';
 import { TemplatesModule } from 'src/templates/templates.module';
 import { UsersModule } from 'src/users/users.module';
@@ -20,6 +21,7 @@ import { InsuranceTypesService } from './insuranceTypes.service';
     forwardRef(() => CalendarModule),
     forwardRef(() => TemplatesModule),
     forwardRef(() => HistoryModule),
+    forwardRef(() => MediaModule),
   ],
   providers: [InsuranceTypesService],
   controllers: [InsuranceTypesController],

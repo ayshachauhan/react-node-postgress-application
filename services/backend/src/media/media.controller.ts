@@ -19,6 +19,7 @@ import { USER_PERMISSIONS } from '@packages/entities/permission';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { PermissionGuard } from 'src/auth/userPermissions.guard';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
+import { PracticeGuard } from 'src/practices/practice.guard';
 import { CreateMediaDto, SendVideoDto } from './dtos/createMedia.dto';
 import { MediaService } from './media.service';
 
@@ -31,19 +32,20 @@ export class MediaController {
   constructor(private mediaService: MediaService) {}
 
   @Get()
-  @UseGuards(PermissionGuard(USER_PERMISSIONS.VIEW_VIDEOS))
+  @UseGuards(PermissionGuard(USER_PERMISSIONS.VIEW_VIDEOS), PracticeGuard)
   getVideosByPractice(@Param('practiceId') practiceId: string) {
     return this.mediaService.getMediaByPracticeId(practiceId);
   }
 
   @Get(':id')
-  @UseGuards(PermissionGuard(USER_PERMISSIONS.VIEW_VIDEOS))
+  @UseGuards(PermissionGuard(USER_PERMISSIONS.VIEW_VIDEOS), PracticeGuard)
   getVideoById(@Param() params: { practiceId: string; id: string }) {
     const { practiceId, id } = params;
     return this.mediaService.getMediaById(practiceId, id);
   }
 
   @Post()
+  @UseGuards(PracticeGuard)
   createOne(
     @Param('practiceId') practiceId: string,
     @Body(new ValidationPipe()) data: CreateMediaDto,
@@ -52,6 +54,7 @@ export class MediaController {
   }
 
   @Delete(':id')
+  @UseGuards(PracticeGuard)
   deleteMediaById(
     @Param('practiceId') practiceId: string,
     @Param('id') id: string,
@@ -60,6 +63,7 @@ export class MediaController {
   }
 
   @Delete('mediaconfig/:id')
+  @UseGuards(PracticeGuard)
   deleteMediaConfigById(
     @Param('practiceId') practiceId: string,
     @Param('id') id: string,
@@ -68,6 +72,7 @@ export class MediaController {
   }
 
   @Patch(':id/upload')
+  @UseGuards(PracticeGuard)
   @UseInterceptors(FileFieldsInterceptor([{ name: 'files', maxCount: 5 }]))
   async uploadUserImg(
     @Param() { id, practiceId }: { id: string; practiceId: string },
@@ -81,6 +86,7 @@ export class MediaController {
   }
 
   @Post('send-video-to-patient')
+  @UseGuards(PracticeGuard)
   sendVideo(
     @Req() request: Request,
     @Body(new ValidationPipe()) data: SendVideoDto,
