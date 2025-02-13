@@ -1,10 +1,18 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PatientEntity } from '@packages/entities/patient';
+import { CalendarModule } from 'src/calendar/calendar.module';
 import { EmailHandlerModule } from 'src/emailHandler/emailHandler.module';
+import { EvalsModule } from 'src/evals/evals.module';
+import { HistoryModule } from 'src/history/history.module';
+import { InsuranceTypesModule } from 'src/insuranceTypes/insuranceTypes.module';
+import { MediaModule } from 'src/media/media.module';
 import { PatientsService } from 'src/patients/patients.service';
 import { PracticesModule } from 'src/practices/practices.module';
 import { ReferrersModule } from 'src/referrers/referrers.module';
+import { SurgeryModule } from 'src/surgery/surgery.module';
+import { TemplatesModule } from 'src/templates/templates.module';
+import { UsersModule } from 'src/users/users.module';
 import { PatientsController } from './patients.controller';
 
 @Module({
@@ -13,6 +21,14 @@ import { PatientsController } from './patients.controller';
     forwardRef(() => PracticesModule),
     forwardRef(() => ReferrersModule),
     forwardRef(() => EmailHandlerModule),
+    forwardRef(() => UsersModule),
+    forwardRef(() => EvalsModule),
+    forwardRef(() => SurgeryModule),
+    forwardRef(() => CalendarModule),
+    forwardRef(() => TemplatesModule),
+    forwardRef(() => HistoryModule),
+    forwardRef(() => InsuranceTypesModule),
+    forwardRef(() => MediaModule),
   ],
   providers: [PatientsService],
   exports: [PatientsService],
