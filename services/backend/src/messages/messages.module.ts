@@ -7,6 +7,7 @@ import { EvalsModule } from 'src/evals/evals.module';
 import { HistoryModule } from 'src/history/history.module';
 import { InsuranceTypesModule } from 'src/insuranceTypes/insuranceTypes.module';
 import { MediaModule } from 'src/media/media.module';
+import { PracticeHomesModule } from 'src/practiceHomes/practiceHomes.module';
 import { SurgeryModule } from 'src/surgery/surgery.module';
 import { TemplatesModule } from 'src/templates/templates.module';
 import { UsersModule } from 'src/users/users.module';
@@ -28,6 +29,7 @@ import { MessagesService } from './messages.service';
     forwardRef(() => HistoryModule),
     forwardRef(() => InsuranceTypesModule),
     forwardRef(() => MediaModule),
+    forwardRef(() => PracticeHomesModule),
   ],
   providers: [MessagesService],
   controllers: [MessagesController],

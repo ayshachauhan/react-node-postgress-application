@@ -15,8 +15,8 @@ import { TemplatesService } from 'src/templates/templates.service';
 import { RequestWithUser } from '../auth/auth.guard';
 import { HistoryService } from '../history/history.service';
 import { InsuranceTypesService } from '../insuranceTypes/insuranceTypes.service';
+import { PracticeHomesService } from '../practiceHomes/practiceHomes.service';
 import { UsersService } from '../users/users.service';
-
 @Injectable()
 export class PracticeGuard implements CanActivate {
   constructor(
@@ -36,6 +36,8 @@ export class PracticeGuard implements CanActivate {
     private readonly insuranceTypesService: InsuranceTypesService,
     @Inject(forwardRef(() => MediaService))
     private readonly mediaService: MediaService,
+    @Inject(forwardRef(() => PracticeHomesService))
+    private readonly practiceHomesService: PracticeHomesService,
   ) {}
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<RequestWithUser>();
@@ -88,6 +90,11 @@ export class PracticeGuard implements CanActivate {
       entity = await this.mediaService.getMediaByMediaConfigId(practiceId, id);
     } else if (path.includes('media')) {
       entity = await this.mediaService.getMediaById(practiceId, id);
+    } else if (path.includes('homes')) {
+      entity = await this.practiceHomesService.getPracticeHomeById(
+        id,
+        practiceId,
+      );
     } else if (path.includes('insurance-types')) {
       entity = await this.insuranceTypesService.getInsuranceTypeById(
         id,

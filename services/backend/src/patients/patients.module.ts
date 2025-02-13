@@ -8,6 +8,7 @@ import { HistoryModule } from 'src/history/history.module';
 import { InsuranceTypesModule } from 'src/insuranceTypes/insuranceTypes.module';
 import { MediaModule } from 'src/media/media.module';
 import { PatientsService } from 'src/patients/patients.service';
+import { PracticeHomesModule } from 'src/practiceHomes/practiceHomes.module';
 import { PracticesModule } from 'src/practices/practices.module';
 import { ReferrersModule } from 'src/referrers/referrers.module';
 import { SurgeryModule } from 'src/surgery/surgery.module';
@@ -29,6 +30,7 @@ import { PatientsController } from './patients.controller';
     forwardRef(() => HistoryModule),
     forwardRef(() => InsuranceTypesModule),
     forwardRef(() => MediaModule),
+    forwardRef(() => PracticeHomesModule),
   ],
   providers: [PatientsService],
   exports: [PatientsService],

@@ -8,6 +8,7 @@ import { HistoryModule } from 'src/history/history.module';
 import { InsuranceTypesModule } from 'src/insuranceTypes/insuranceTypes.module';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
 import { MediaModule } from 'src/media/media.module';
+import { PracticeHomesModule } from 'src/practiceHomes/practiceHomes.module';
 import { SurgeryModule } from 'src/surgery/surgery.module';
 import { TemplatesModule } from 'src/templates/templates.module';
 import { UsersModule } from 'src/users/users.module';
@@ -27,6 +28,7 @@ import { CalendarService } from './calendar.service';
     forwardRef(() => HistoryModule),
     forwardRef(() => InsuranceTypesModule),
     forwardRef(() => MediaModule),
+    forwardRef(() => PracticeHomesModule),
   ],
   controllers: [CalendarController],
   providers: [practiceNotFoundInterceptor, CalendarService],

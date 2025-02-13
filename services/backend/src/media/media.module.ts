@@ -11,6 +11,7 @@ import { HistoryModule } from 'src/history/history.module';
 import { InsuranceTypesModule } from 'src/insuranceTypes/insuranceTypes.module';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
 import { PatientsModule } from 'src/patients/patients.module';
+import { PracticeHomesModule } from 'src/practiceHomes/practiceHomes.module';
 import { PracticesModule } from 'src/practices/practices.module';
 import { SurgeryModule } from 'src/surgery/surgery.module';
 import { TemplatesModule } from 'src/templates/templates.module';
@@ -37,6 +38,7 @@ import { MediaService } from './media.service';
     forwardRef(() => TemplatesModule),
     forwardRef(() => HistoryModule),
     forwardRef(() => InsuranceTypesModule),
+    forwardRef(() => PracticeHomesModule),
   ],
   controllers: [MediaController],
   providers: [MediaService, practiceNotFoundInterceptor, S3Service],
