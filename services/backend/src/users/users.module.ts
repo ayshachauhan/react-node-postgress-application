@@ -10,6 +10,7 @@ import { MediaModule } from 'src/media/media.module';
 import { PermissionsModule } from 'src/permissions/permissions.module';
 import { PracticeHomesModule } from 'src/practiceHomes/practiceHomes.module';
 import { PracticesModule } from 'src/practices/practices.module';
+import { ReferrersModule } from 'src/referrers/referrers.module';
 import { SurgeryModule } from 'src/surgery/surgery.module';
 import { TemplatesModule } from 'src/templates/templates.module';
 import { S3Service } from './s3.service';
@@ -29,6 +30,7 @@ import { UsersService } from './users.service';
     forwardRef(() => InsuranceTypesModule),
     forwardRef(() => MediaModule),
     forwardRef(() => PracticeHomesModule),
+    forwardRef(() => ReferrersModule),
   ],
   providers: [UsersService, practiceNotFoundInterceptor, S3Service],
   controllers: [UsersController],

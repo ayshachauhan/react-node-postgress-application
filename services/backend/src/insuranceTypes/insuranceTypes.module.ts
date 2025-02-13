@@ -6,6 +6,7 @@ import { EvalsModule } from 'src/evals/evals.module';
 import { HistoryModule } from 'src/history/history.module';
 import { MediaModule } from 'src/media/media.module';
 import { PracticeHomesModule } from 'src/practiceHomes/practiceHomes.module';
+import { ReferrersModule } from 'src/referrers/referrers.module';
 import { SurgeryModule } from 'src/surgery/surgery.module';
 import { TemplatesModule } from 'src/templates/templates.module';
 import { UsersModule } from 'src/users/users.module';
@@ -24,6 +25,7 @@ import { InsuranceTypesService } from './insuranceTypes.service';
     forwardRef(() => HistoryModule),
     forwardRef(() => MediaModule),
     forwardRef(() => PracticeHomesModule),
+    forwardRef(() => ReferrersModule),
   ],
   providers: [InsuranceTypesService],
   controllers: [InsuranceTypesController],

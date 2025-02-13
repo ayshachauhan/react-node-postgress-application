@@ -9,6 +9,7 @@ import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundIn
 import { MediaModule } from 'src/media/media.module';
 import { PracticeHomesModule } from 'src/practiceHomes/practiceHomes.module';
 import { PracticesModule } from 'src/practices/practices.module';
+import { ReferrersModule } from 'src/referrers/referrers.module';
 import { SurgeryModule } from 'src/surgery/surgery.module';
 import { SurgeryConfigurationsModule } from 'src/surgeryConfiguration/surgeryConfiguration.module';
 import { S3Service } from 'src/users/s3.service';
@@ -29,6 +30,7 @@ import { TemplatesService } from './templates.service';
     forwardRef(() => InsuranceTypesModule),
     forwardRef(() => MediaModule),
     forwardRef(() => PracticeHomesModule),
+    forwardRef(() => ReferrersModule),
   ],
   providers: [TemplatesService, practiceNotFoundInterceptor, S3Service],
   controllers: [TemplatesController],

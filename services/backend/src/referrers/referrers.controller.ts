@@ -18,6 +18,7 @@ import { USER_PERMISSIONS } from '@packages/entities/permission';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { PermissionGuard } from 'src/auth/userPermissions.guard';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
+import { PracticeGuard } from 'src/practices/practice.guard';
 import { CreateReferrerDto } from './dtos/referrer.createDto';
 import { updateReferrerDto } from './dtos/referrer.updateDto';
 import { ReferrersService } from './referrers.service';
@@ -30,6 +31,7 @@ export class ReferrersController {
   constructor(private referrerService: ReferrersService) {}
 
   @Post()
+  @UseGuards(PracticeGuard)
   @UseInterceptors(practiceNotFoundInterceptor)
   createReferrer(
     @Param('practiceId') practiceId: string,
@@ -39,6 +41,7 @@ export class ReferrersController {
   }
 
   @Delete('/:id')
+  @UseGuards(PracticeGuard)
   deleteReferrerById(
     @Param('practiceId') practiceId: string,
     @Param('id') id: string,
@@ -47,6 +50,7 @@ export class ReferrersController {
   }
 
   @Patch(':id')
+  @UseGuards(PracticeGuard)
   updateReferrerById(
     @Param('practiceId') practiceId: string,
     @Param('id') id: string,
@@ -56,13 +60,13 @@ export class ReferrersController {
   }
 
   @Get()
-  @UseGuards(PermissionGuard(USER_PERMISSIONS.VIEW_REFERRERS))
+  @UseGuards(PermissionGuard(USER_PERMISSIONS.VIEW_REFERRERS), PracticeGuard)
   getReferrer(@Param('practiceId') practiceId: string) {
     return this.referrerService.getReferrer(practiceId);
   }
 
   @Get('search')
-  @UseGuards(PermissionGuard(USER_PERMISSIONS.VIEW_REFERRERS))
+  @UseGuards(PermissionGuard(USER_PERMISSIONS.VIEW_REFERRERS), PracticeGuard)
   async searchReferrers(
     @Param('practiceId') practiceId: string,
     @Query('keyword') keyword: string,
@@ -82,7 +86,7 @@ export class ReferrersController {
   }
 
   @Get(':id')
-  @UseGuards(PermissionGuard(USER_PERMISSIONS.VIEW_REFERRERS))
+  @UseGuards(PermissionGuard(USER_PERMISSIONS.VIEW_REFERRERS), PracticeGuard)
   async getReferrerById(
     @Param()
     { practiceId, id }: { practiceId: string; id: string },

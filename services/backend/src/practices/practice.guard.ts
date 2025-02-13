@@ -16,12 +16,13 @@ import { RequestWithUser } from '../auth/auth.guard';
 import { HistoryService } from '../history/history.service';
 import { InsuranceTypesService } from '../insuranceTypes/insuranceTypes.service';
 import { PracticeHomesService } from '../practiceHomes/practiceHomes.service';
+import { ReferrersService } from '../referrers/referrers.service';
 import { UsersService } from '../users/users.service';
 @Injectable()
 export class PracticeGuard implements CanActivate {
   constructor(
     @Inject(forwardRef(() => UsersService))
-    private readonly usersService: UsersService, // ✅ Use forwardRef
+    private readonly usersService: UsersService,
     @Inject(forwardRef(() => EvalsService))
     private readonly evalsService: EvalsService,
     @Inject(forwardRef(() => SurgeryService))
@@ -38,6 +39,8 @@ export class PracticeGuard implements CanActivate {
     private readonly mediaService: MediaService,
     @Inject(forwardRef(() => PracticeHomesService))
     private readonly practiceHomesService: PracticeHomesService,
+    @Inject(forwardRef(() => ReferrersService))
+    private readonly referrersService: ReferrersService,
   ) {}
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<RequestWithUser>();
@@ -90,6 +93,8 @@ export class PracticeGuard implements CanActivate {
       entity = await this.mediaService.getMediaByMediaConfigId(practiceId, id);
     } else if (path.includes('media')) {
       entity = await this.mediaService.getMediaById(practiceId, id);
+    } else if (path.includes('referrer')) {
+      entity = await this.referrersService.getReferrerById(practiceId, id);
     } else if (path.includes('homes')) {
       entity = await this.practiceHomesService.getPracticeHomeById(
         id,
@@ -118,6 +123,12 @@ export class PracticeGuard implements CanActivate {
         );
       }
     } else if (path.includes('media')) {
+      if (entity.practiceId !== practiceId) {
+        throw new ForbiddenException(
+          'You do not have permission to access this entity.',
+        );
+      }
+    } else if (path.includes('referrer')) {
       if (entity.practiceId !== practiceId) {
         throw new ForbiddenException(
           'You do not have permission to access this entity.',
