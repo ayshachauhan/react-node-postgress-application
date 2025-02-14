@@ -17,6 +17,7 @@ import { HistoryService } from '../history/history.service';
 import { InsuranceTypesService } from '../insuranceTypes/insuranceTypes.service';
 import { PracticeHomesService } from '../practiceHomes/practiceHomes.service';
 import { ReferrersService } from '../referrers/referrers.service';
+import { SurgeryTypesService } from '../surgeryTypes/surgeryTypes.service';
 import { UsersService } from '../users/users.service';
 import { WaitlistService } from '../waitlist/waitlist.service';
 @Injectable()
@@ -44,6 +45,8 @@ export class PracticeGuard implements CanActivate {
     private readonly referrersService: ReferrersService,
     @Inject(forwardRef(() => WaitlistService))
     private readonly waitlistService: WaitlistService,
+    @Inject(forwardRef(() => SurgeryTypesService))
+    private readonly surgeryTypesService: SurgeryTypesService,
   ) {}
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<RequestWithUser>();
@@ -82,6 +85,11 @@ export class PracticeGuard implements CanActivate {
       entity = await this.evalsService.getEvalById(id);
     } else if (path.includes('history')) {
       entity = await this.historyService.getHistoryById({ practiceId, id });
+    } else if (path.includes('surgery-types')) {
+      entity = await this.surgeryTypesService.getSurgeryTypeById(
+        id,
+        practiceId,
+      );
     } else if (path.includes('surgery')) {
       entity = await this.surgeryService.getSurgeryById(id);
     } else if (path.includes('calendar')) {

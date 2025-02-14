@@ -13,6 +13,7 @@ import { PracticeHomesModule } from 'src/practiceHomes/practiceHomes.module';
 import { PracticesModule } from 'src/practices/practices.module';
 import { SurgeryModule } from 'src/surgery/surgery.module';
 import { SurgeryConfigurationsModule } from 'src/surgeryConfiguration/surgeryConfiguration.module';
+import { SurgeryTypesModule } from 'src/surgeryTypes/surgeryTypes.module';
 import { TemplatesModule } from 'src/templates/templates.module';
 import { UsersModule } from 'src/users/users.module';
 import { WaitlistModule } from 'src/waitlist/waitlist.module';
@@ -36,6 +37,7 @@ import { ReferrersModule } from '../referrers/referrers.module';
     forwardRef(() => SurgeryModule),
     forwardRef(() => CalendarModule),
     forwardRef(() => MediaModule),
+    forwardRef(() => SurgeryTypesModule),
   ],
   providers: [
     practiceNotFoundInterceptor,

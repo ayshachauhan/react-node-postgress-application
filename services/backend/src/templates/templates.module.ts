@@ -12,6 +12,7 @@ import { PracticesModule } from 'src/practices/practices.module';
 import { ReferrersModule } from 'src/referrers/referrers.module';
 import { SurgeryModule } from 'src/surgery/surgery.module';
 import { SurgeryConfigurationsModule } from 'src/surgeryConfiguration/surgeryConfiguration.module';
+import { SurgeryTypesModule } from 'src/surgeryTypes/surgeryTypes.module';
 import { S3Service } from 'src/users/s3.service';
 import { UsersModule } from 'src/users/users.module';
 import { WaitlistModule } from 'src/waitlist/waitlist.module';
@@ -33,6 +34,7 @@ import { TemplatesService } from './templates.service';
     forwardRef(() => PracticeHomesModule),
     forwardRef(() => ReferrersModule),
     forwardRef(() => WaitlistModule),
+    forwardRef(() => SurgeryTypesModule),
   ],
   providers: [TemplatesService, practiceNotFoundInterceptor, S3Service],
   controllers: [TemplatesController],

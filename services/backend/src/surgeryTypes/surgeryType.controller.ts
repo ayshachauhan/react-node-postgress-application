@@ -13,6 +13,7 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { SurgeryTypeEntity } from '@packages/entities';
+import { PracticeGuard } from 'src/practices/practice.guard';
 import { AuthGuard } from '../auth/auth.guard';
 import { practiceNotFoundInterceptor } from '../interceptors/practiceNotFoundInterceptor';
 import {
@@ -30,6 +31,7 @@ export class SurgeryTypesController {
   constructor(private readonly surgeryTypesService: SurgeryTypesService) {}
 
   @Get()
+  @UseGuards(PracticeGuard)
   async getSurgeryTypeByPractice(
     @Param('practiceId') practiceId: string,
   ): Promise<SurgeryTypeEntity[]> {
@@ -37,14 +39,17 @@ export class SurgeryTypesController {
   }
 
   @Get(':id')
+  @UseGuards(PracticeGuard)
   async getSurgeryTypeById(
     @Param('practiceId') practiceId: string,
     @Param('id') id: string,
   ): Promise<SurgeryTypeEntity | null> {
+    console.log(id, '--id', practiceId, 'practiceid');
     return this.surgeryTypesService.getSurgeryTypeById(id, practiceId);
   }
 
   @Delete(':id')
+  @UseGuards(PracticeGuard)
   async remove(
     @Param('practiceId') practiceId: string,
     @Param('id') id: string,
@@ -53,6 +58,7 @@ export class SurgeryTypesController {
   }
 
   @Post()
+  @UseGuards(PracticeGuard)
   async create(
     @Req() request: Request,
     @Body(new ValidationPipe()) dto: CreateSurgeryTypeDto,
@@ -63,6 +69,7 @@ export class SurgeryTypesController {
   }
 
   @Patch(':id')
+  @UseGuards(PracticeGuard)
   async update(
     @Param('id') id: string,
     @Body(new ValidationPipe()) dto: UpdateSurgeryTypeDto,
