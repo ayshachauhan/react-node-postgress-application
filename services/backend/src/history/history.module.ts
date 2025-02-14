@@ -8,6 +8,7 @@ import { practiceNotFoundInterceptor as PracticeNotFoundInterceptor } from 'src/
 import { MediaModule } from 'src/media/media.module';
 import { PracticeHomesModule } from 'src/practiceHomes/practiceHomes.module';
 import { ReferrersModule } from 'src/referrers/referrers.module';
+import { SurgeryConfigurationsModule } from 'src/surgeryConfiguration/surgeryConfiguration.module';
 import { SurgeryTypesModule } from 'src/surgeryTypes/surgeryTypes.module';
 import { TemplatesModule } from 'src/templates/templates.module';
 import { UsersModule } from 'src/users/users.module';
@@ -33,6 +34,7 @@ import { HistoryService } from './history.service';
     forwardRef(() => ReferrersModule),
     forwardRef(() => WaitlistModule),
     forwardRef(() => SurgeryTypesModule),
+    forwardRef(() => SurgeryConfigurationsModule),
   ],
   controllers: [HistoryController],
   providers: [PracticeNotFoundInterceptor, HistoryService],

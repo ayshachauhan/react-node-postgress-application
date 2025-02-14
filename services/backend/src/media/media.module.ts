@@ -15,6 +15,7 @@ import { PracticeHomesModule } from 'src/practiceHomes/practiceHomes.module';
 import { PracticesModule } from 'src/practices/practices.module';
 import { ReferrersModule } from 'src/referrers/referrers.module';
 import { SurgeryModule } from 'src/surgery/surgery.module';
+import { SurgeryConfigurationsModule } from 'src/surgeryConfiguration/surgeryConfiguration.module';
 import { SurgeryTypesModule } from 'src/surgeryTypes/surgeryTypes.module';
 import { TemplatesModule } from 'src/templates/templates.module';
 import { UsersModule } from 'src/users/users.module';
@@ -45,6 +46,7 @@ import { MediaService } from './media.service';
     forwardRef(() => ReferrersModule),
     forwardRef(() => WaitlistModule),
     forwardRef(() => SurgeryTypesModule),
+    forwardRef(() => SurgeryConfigurationsModule),
   ],
   controllers: [MediaController],
   providers: [MediaService, practiceNotFoundInterceptor, S3Service],

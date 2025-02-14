@@ -9,6 +9,7 @@ import { MediaModule } from 'src/media/media.module';
 import { PracticeHomesModule } from 'src/practiceHomes/practiceHomes.module';
 import { ReferrersModule } from 'src/referrers/referrers.module';
 import { SurgeryModule } from 'src/surgery/surgery.module';
+import { SurgeryConfigurationsModule } from 'src/surgeryConfiguration/surgeryConfiguration.module';
 import { SurgeryTypesModule } from 'src/surgeryTypes/surgeryTypes.module';
 import { TemplatesModule } from 'src/templates/templates.module';
 import { UsersModule } from 'src/users/users.module';
@@ -32,6 +33,7 @@ import { WaitlistService } from './waitlist.service';
     forwardRef(() => ReferrersModule),
     forwardRef(() => InsuranceTypesModule),
     forwardRef(() => SurgeryTypesModule),
+    forwardRef(() => SurgeryConfigurationsModule),
   ],
   providers: [WaitlistService, practiceNotFoundInterceptor],
   controllers: [WaitlistController],

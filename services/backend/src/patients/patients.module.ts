@@ -12,6 +12,7 @@ import { PracticeHomesModule } from 'src/practiceHomes/practiceHomes.module';
 import { PracticesModule } from 'src/practices/practices.module';
 import { ReferrersModule } from 'src/referrers/referrers.module';
 import { SurgeryModule } from 'src/surgery/surgery.module';
+import { SurgeryConfigurationsModule } from 'src/surgeryConfiguration/surgeryConfiguration.module';
 import { SurgeryTypesModule } from 'src/surgeryTypes/surgeryTypes.module';
 import { TemplatesModule } from 'src/templates/templates.module';
 import { UsersModule } from 'src/users/users.module';
@@ -35,6 +36,7 @@ import { PatientsController } from './patients.controller';
     forwardRef(() => PracticeHomesModule),
     forwardRef(() => WaitlistModule),
     forwardRef(() => SurgeryTypesModule),
+    forwardRef(() => SurgeryConfigurationsModule),
   ],
   providers: [PatientsService],
   exports: [PatientsService],

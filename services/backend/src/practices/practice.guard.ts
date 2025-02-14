@@ -11,6 +11,7 @@ import { CalendarService } from 'src/calendar/calendar.service';
 import { EvalsService } from 'src/evals/evals.service';
 import { MediaService } from 'src/media/media.service';
 import { SurgeryService } from 'src/surgery/surgery.service';
+import { SurgeryConfigurationsService } from 'src/surgeryConfiguration/surgeryConfiguration.service';
 import { TemplatesService } from 'src/templates/templates.service';
 import { RequestWithUser } from '../auth/auth.guard';
 import { HistoryService } from '../history/history.service';
@@ -47,6 +48,8 @@ export class PracticeGuard implements CanActivate {
     private readonly waitlistService: WaitlistService,
     @Inject(forwardRef(() => SurgeryTypesService))
     private readonly surgeryTypesService: SurgeryTypesService,
+    @Inject(forwardRef(() => SurgeryConfigurationsService))
+    private readonly surgeryConfigurationsService: SurgeryConfigurationsService,
   ) {}
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<RequestWithUser>();
@@ -85,6 +88,9 @@ export class PracticeGuard implements CanActivate {
       entity = await this.evalsService.getEvalById(id);
     } else if (path.includes('history')) {
       entity = await this.historyService.getHistoryById({ practiceId, id });
+    } else if (path.includes('configurations')) {
+      entity =
+        await this.surgeryConfigurationsService.getSurgeryConfigurationById(id);
     } else if (path.includes('surgery-types')) {
       entity = await this.surgeryTypesService.getSurgeryTypeById(
         id,
@@ -143,6 +149,12 @@ export class PracticeGuard implements CanActivate {
       }
     } else if (path.includes('referrer')) {
       if (entity.practiceId !== practiceId) {
+        throw new ForbiddenException(
+          'You do not have permission to access this entity.',
+        );
+      }
+    } else if (path.includes('configurations')) {
+      if (entity?.surgeryType?.practice?.id !== practiceId) {
         throw new ForbiddenException(
           'You do not have permission to access this entity.',
         );
