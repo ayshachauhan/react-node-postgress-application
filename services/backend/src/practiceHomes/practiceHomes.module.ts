@@ -13,6 +13,7 @@ import { ReferrersModule } from 'src/referrers/referrers.module';
 import { SurgeryModule } from 'src/surgery/surgery.module';
 import { TemplatesModule } from 'src/templates/templates.module';
 import { UsersModule } from 'src/users/users.module';
+import { WaitlistModule } from 'src/waitlist/waitlist.module';
 import { PracticeHomesController } from './practiceHomes.controller';
 import { PracticeHomesService } from './practiceHomes.service';
 
@@ -29,6 +30,7 @@ import { PracticeHomesService } from './practiceHomes.service';
     forwardRef(() => MediaModule),
     forwardRef(() => InsuranceTypesModule),
     forwardRef(() => ReferrersModule),
+    forwardRef(() => WaitlistModule),
   ],
   providers: [PracticeHomesService, practiceNotFoundInterceptor],
   controllers: [PracticeHomesController],

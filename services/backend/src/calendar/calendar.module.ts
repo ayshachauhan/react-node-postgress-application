@@ -13,6 +13,7 @@ import { ReferrersModule } from 'src/referrers/referrers.module';
 import { SurgeryModule } from 'src/surgery/surgery.module';
 import { TemplatesModule } from 'src/templates/templates.module';
 import { UsersModule } from 'src/users/users.module';
+import { WaitlistModule } from 'src/waitlist/waitlist.module';
 import { PracticesModule } from '../practices/practices.module';
 import { SurgeryTypesModule } from '../surgeryTypes/surgeryTypes.module';
 import { CalendarService } from './calendar.service';
@@ -31,6 +32,7 @@ import { CalendarService } from './calendar.service';
     forwardRef(() => MediaModule),
     forwardRef(() => PracticeHomesModule),
     forwardRef(() => ReferrersModule),
+    forwardRef(() => WaitlistModule),
   ],
   controllers: [CalendarController],
   providers: [practiceNotFoundInterceptor, CalendarService],

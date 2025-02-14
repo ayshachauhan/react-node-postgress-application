@@ -13,6 +13,7 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { WaitlistEntity } from '@packages/entities';
+import { PracticeGuard } from 'src/practices/practice.guard';
 import { AuthGuard } from '../auth/auth.guard';
 import { practiceNotFoundInterceptor } from '../interceptors/practiceNotFoundInterceptor';
 import { WaitlistCreateDto } from './dto/create.dto';
@@ -27,6 +28,7 @@ export class WaitlistController {
   constructor(private readonly waitlistService: WaitlistService) {}
 
   @Get()
+  @UseGuards(PracticeGuard)
   async getWaitlistByPractice(
     @Param('practiceId') practiceId: string,
   ): Promise<WaitlistEntity[]> {
@@ -34,6 +36,7 @@ export class WaitlistController {
   }
 
   @Get(':id')
+  @UseGuards(PracticeGuard)
   async getWaitlistById(
     @Param() { practiceId, id }: { practiceId: string; id: string },
   ): Promise<WaitlistEntity | null> {
@@ -41,6 +44,7 @@ export class WaitlistController {
   }
 
   @Delete(':id')
+  @UseGuards(PracticeGuard)
   async remove(
     @Param() { practiceId, id }: { practiceId: string; id: string },
   ): Promise<void> {
@@ -48,6 +52,7 @@ export class WaitlistController {
   }
 
   @Post()
+  @UseGuards(PracticeGuard)
   @UseInterceptors(practiceNotFoundInterceptor)
   async create(
     @Req() request: Request,
@@ -61,6 +66,7 @@ export class WaitlistController {
   }
 
   @Patch(':id')
+  @UseGuards(PracticeGuard)
   async update(
     @Param() { practiceId, id }: { practiceId: string; id: string },
     @Body() waitlistPatchDto: WaitlistPatchDto,

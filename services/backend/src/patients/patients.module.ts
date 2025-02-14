@@ -14,6 +14,7 @@ import { ReferrersModule } from 'src/referrers/referrers.module';
 import { SurgeryModule } from 'src/surgery/surgery.module';
 import { TemplatesModule } from 'src/templates/templates.module';
 import { UsersModule } from 'src/users/users.module';
+import { WaitlistModule } from 'src/waitlist/waitlist.module';
 import { PatientsController } from './patients.controller';
 
 @Module({
@@ -31,6 +32,7 @@ import { PatientsController } from './patients.controller';
     forwardRef(() => InsuranceTypesModule),
     forwardRef(() => MediaModule),
     forwardRef(() => PracticeHomesModule),
+    forwardRef(() => WaitlistModule),
   ],
   providers: [PatientsService],
   exports: [PatientsService],

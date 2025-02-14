@@ -12,6 +12,7 @@ import { ReferrersModule } from 'src/referrers/referrers.module';
 import { SurgeryModule } from 'src/surgery/surgery.module';
 import { TemplatesModule } from 'src/templates/templates.module';
 import { UsersModule } from 'src/users/users.module';
+import { WaitlistModule } from 'src/waitlist/waitlist.module';
 import { AIModule } from '../ai/ai.module';
 import { PracticesModule } from '../practices/practices.module';
 import { MessagesController } from './messages.controller';
@@ -32,6 +33,7 @@ import { MessagesService } from './messages.service';
     forwardRef(() => MediaModule),
     forwardRef(() => PracticeHomesModule),
     forwardRef(() => ReferrersModule),
+    forwardRef(() => WaitlistModule),
   ],
   providers: [MessagesService],
   controllers: [MessagesController],

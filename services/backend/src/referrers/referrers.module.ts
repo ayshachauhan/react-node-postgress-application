@@ -15,6 +15,7 @@ import { PracticesModule } from 'src/practices/practices.module';
 import { SurgeryModule } from 'src/surgery/surgery.module';
 import { TemplatesModule } from 'src/templates/templates.module';
 import { UsersModule } from 'src/users/users.module';
+import { WaitlistModule } from 'src/waitlist/waitlist.module';
 import { ReferrersController } from './referrers.controller';
 import { ReferrersService } from './referrers.service';
 
@@ -32,6 +33,7 @@ import { ReferrersService } from './referrers.service';
     forwardRef(() => InsuranceTypesModule),
     forwardRef(() => MediaModule),
     forwardRef(() => PracticeHomesModule),
+    forwardRef(() => WaitlistModule),
   ],
   controllers: [ReferrersController],
   providers: [ReferrersService, practiceNotFoundInterceptor],

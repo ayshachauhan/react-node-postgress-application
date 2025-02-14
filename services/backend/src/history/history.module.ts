@@ -10,6 +10,7 @@ import { PracticeHomesModule } from 'src/practiceHomes/practiceHomes.module';
 import { ReferrersModule } from 'src/referrers/referrers.module';
 import { TemplatesModule } from 'src/templates/templates.module';
 import { UsersModule } from 'src/users/users.module';
+import { WaitlistModule } from 'src/waitlist/waitlist.module';
 import { EvalsModule } from '../evals/evals.module';
 import { PracticesModule } from '../practices/practices.module';
 import { SurgeryModule } from '../surgery/surgery.module';
@@ -29,6 +30,7 @@ import { HistoryService } from './history.service';
     forwardRef(() => MediaModule),
     forwardRef(() => PracticeHomesModule),
     forwardRef(() => ReferrersModule),
+    forwardRef(() => WaitlistModule),
   ],
   controllers: [HistoryController],
   providers: [PracticeNotFoundInterceptor, HistoryService],

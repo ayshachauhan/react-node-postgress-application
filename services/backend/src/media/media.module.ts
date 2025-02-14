@@ -17,6 +17,7 @@ import { ReferrersModule } from 'src/referrers/referrers.module';
 import { SurgeryModule } from 'src/surgery/surgery.module';
 import { TemplatesModule } from 'src/templates/templates.module';
 import { UsersModule } from 'src/users/users.module';
+import { WaitlistModule } from 'src/waitlist/waitlist.module';
 import { S3Service } from '../users/s3.service';
 import { MediaController } from './media.controller';
 import { MediaService } from './media.service';
@@ -41,6 +42,7 @@ import { MediaService } from './media.service';
     forwardRef(() => InsuranceTypesModule),
     forwardRef(() => PracticeHomesModule),
     forwardRef(() => ReferrersModule),
+    forwardRef(() => WaitlistModule),
   ],
   controllers: [MediaController],
   providers: [MediaService, practiceNotFoundInterceptor, S3Service],

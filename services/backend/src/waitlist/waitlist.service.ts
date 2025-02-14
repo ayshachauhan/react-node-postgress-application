@@ -25,6 +25,7 @@ export class WaitlistService {
     if (id) {
       return this.waitlistRepository.findOne({
         where: { id, practice: { id: practiceId } },
+        relations: ['practice'],
       });
     } else return null;
   }

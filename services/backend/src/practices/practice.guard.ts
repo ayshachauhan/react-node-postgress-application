@@ -18,6 +18,7 @@ import { InsuranceTypesService } from '../insuranceTypes/insuranceTypes.service'
 import { PracticeHomesService } from '../practiceHomes/practiceHomes.service';
 import { ReferrersService } from '../referrers/referrers.service';
 import { UsersService } from '../users/users.service';
+import { WaitlistService } from '../waitlist/waitlist.service';
 @Injectable()
 export class PracticeGuard implements CanActivate {
   constructor(
@@ -41,6 +42,8 @@ export class PracticeGuard implements CanActivate {
     private readonly practiceHomesService: PracticeHomesService,
     @Inject(forwardRef(() => ReferrersService))
     private readonly referrersService: ReferrersService,
+    @Inject(forwardRef(() => WaitlistService))
+    private readonly waitlistService: WaitlistService,
   ) {}
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<RequestWithUser>();
@@ -95,6 +98,8 @@ export class PracticeGuard implements CanActivate {
       entity = await this.mediaService.getMediaById(practiceId, id);
     } else if (path.includes('referrer')) {
       entity = await this.referrersService.getReferrerById(practiceId, id);
+    } else if (path.includes('waitlist')) {
+      entity = await this.waitlistService.getWaitlistById(id, practiceId);
     } else if (path.includes('homes')) {
       entity = await this.practiceHomesService.getPracticeHomeById(
         id,

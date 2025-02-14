@@ -10,6 +10,7 @@ import { ReferrersModule } from 'src/referrers/referrers.module';
 import { SurgeryModule } from 'src/surgery/surgery.module';
 import { TemplatesModule } from 'src/templates/templates.module';
 import { UsersModule } from 'src/users/users.module';
+import { WaitlistModule } from 'src/waitlist/waitlist.module';
 import { PracticesModule } from '../practices/practices.module';
 import { InsuranceTypesController } from './insuranceTypes.controller';
 import { InsuranceTypesService } from './insuranceTypes.service';
@@ -26,6 +27,7 @@ import { InsuranceTypesService } from './insuranceTypes.service';
     forwardRef(() => MediaModule),
     forwardRef(() => PracticeHomesModule),
     forwardRef(() => ReferrersModule),
+    forwardRef(() => WaitlistModule),
   ],
   providers: [InsuranceTypesService],
   controllers: [InsuranceTypesController],
