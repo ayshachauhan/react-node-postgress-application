@@ -24,7 +24,7 @@ import { TemplatesService } from './templates.service';
     TypeOrmModule.forFeature([TemplateEntity]),
     forwardRef(() => PracticesModule),
     forwardRef(() => UsersModule),
-    SurgeryConfigurationsModule,
+    forwardRef(() => SurgeryConfigurationsModule),
     forwardRef(() => EvalsModule),
     forwardRef(() => SurgeryModule),
     forwardRef(() => CalendarModule),
