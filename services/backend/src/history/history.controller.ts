@@ -23,12 +23,12 @@ import type { GetHistoryByIdParams, GetHistoryParams } from './types';
 @ApiTags('History')
 @ApiBearerAuth('normal')
 @Controller('/practices/:practiceId/history')
-@UseGuards(AuthGuard)
+@UseGuards(AuthGuard, PracticeGuard)
 export class HistoryController {
   constructor(private historyService: HistoryService) {}
 
   @Get()
-  @UseGuards(PermissionGuard(USER_PERMISSIONS.VIEW_HX), PracticeGuard)
+  @UseGuards(PermissionGuard(USER_PERMISSIONS.VIEW_HX))
   getAllHistory(
     @Param()
     params: GetHistoryParams,
@@ -49,7 +49,7 @@ export class HistoryController {
   }
 
   @Get(':id')
-  @UseGuards(PermissionGuard(USER_PERMISSIONS.VIEW_HX), PracticeGuard)
+  @UseGuards(PermissionGuard(USER_PERMISSIONS.VIEW_HX))
   getHistoryById(
     @Param() params: GetHistoryByIdParams,
   ): Promise<HistoryEntity> {
