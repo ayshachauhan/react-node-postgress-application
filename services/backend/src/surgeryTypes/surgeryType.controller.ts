@@ -42,7 +42,6 @@ export class SurgeryTypesController {
     @Param('practiceId') practiceId: string,
     @Param('id') id: string,
   ): Promise<SurgeryTypeEntity | null> {
-    console.log(id, '--id', practiceId, 'practiceid');
     return this.surgeryTypesService.getSurgeryTypeById(id, practiceId);
   }
 
