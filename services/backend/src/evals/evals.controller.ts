@@ -29,12 +29,12 @@ import { AuthenticatedRequest } from './types';
 @ApiTags('Evals')
 @ApiBearerAuth('normal')
 @Controller('practices/:practiceId/evals')
-@UseGuards(AuthGuard)
+@UseGuards(AuthGuard, PracticeGuard)
 export class EvalsController {
   constructor(private readonly evalService: EvalsService) {}
 
   @Get()
-  @UseGuards(PermissionGuard(USER_PERMISSIONS.VIEW_NURTURE), PracticeGuard)
+  @UseGuards(PermissionGuard(USER_PERMISSIONS.VIEW_NURTURE))
   @UseInterceptors(practiceNotFoundInterceptor)
   async findAll(
     @Param() { practiceId }: { practiceId: string },
@@ -54,14 +54,14 @@ export class EvalsController {
   }
 
   @Get(':id')
-  @UseGuards(PermissionGuard(USER_PERMISSIONS.VIEW_NURTURE), PracticeGuard)
+  @UseGuards(PermissionGuard(USER_PERMISSIONS.VIEW_NURTURE))
   @UseInterceptors(practiceNotFoundInterceptor)
   async getEvalById(@Param('id') id: string): Promise<EvalEntity | null> {
     return await this.evalService.getEvalById(id);
   }
 
   @Post()
-  @UseGuards(PermissionGuard(USER_PERMISSIONS.ADD_CASE), PracticeGuard)
+  @UseGuards(PermissionGuard(USER_PERMISSIONS.ADD_CASE))
   @UseInterceptors(practiceNotFoundInterceptor)
   async create(
     @Body(new ValidationPipe()) createEvalDto: CreateEvalDto,
@@ -76,7 +76,7 @@ export class EvalsController {
   }
 
   @Patch(':id')
-  @UseGuards(PermissionGuard(USER_PERMISSIONS.EDIT_CASE), PracticeGuard)
+  @UseGuards(PermissionGuard(USER_PERMISSIONS.EDIT_CASE))
   @UseInterceptors(practiceNotFoundInterceptor)
   async update(
     @Body(new ValidationPipe()) createEvalDto: UpdateEvalDto,
@@ -93,7 +93,7 @@ export class EvalsController {
   }
 
   @Delete(':id')
-  @UseGuards(PermissionGuard(USER_PERMISSIONS.DELETE_CASE), PracticeGuard)
+  @UseGuards(PermissionGuard(USER_PERMISSIONS.DELETE_CASE))
   async remove(
     @Param()
     { id, practiceId }: { id: string; practiceId: string },
