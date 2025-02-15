@@ -16,9 +16,17 @@ export class PracticeGuard implements CanActivate {
   ) {}
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<RequestWithUser>();
+    const controller = context.getClass();
+    const isAiController = controller.name === 'AIController';
+
+    const practiceId = isAiController
+      ? (request.query.practiceId as string)
+      : request.params.practiceId;
+
+    if (!practiceId) {
+      throw new ForbiddenException('Practice ID is required.');
+    }
     const currentUser = request.user;
-    console.log(currentUser);
-    const { practiceId, id } = request.params;
 
     if (!currentUser) {
       throw new ForbiddenException('User not authenticated.');
@@ -40,10 +48,6 @@ export class PracticeGuard implements CanActivate {
       throw new ForbiddenException(
         'You do not have permission to do any action in this practice.',
       );
-    }
-
-    if (!id) {
-      return true;
     }
 
     return true;
