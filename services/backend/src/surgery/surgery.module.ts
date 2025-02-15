@@ -2,10 +2,8 @@ import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { SurgeryConfigurationEntity, SurgeryEntity } from '@packages/entities';
 import { EmailHandlerModule } from 'src/emailHandler/emailHandler.module';
-import { EvalsModule } from 'src/evals/evals.module';
 import { InsuranceTypesModule } from 'src/insuranceTypes/insuranceTypes.module';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
-import { MediaModule } from 'src/media/media.module';
 import { PatientsModule } from 'src/patients/patients.module';
 import { PracticeHomesModule } from 'src/practiceHomes/practiceHomes.module';
 import { PracticesModule } from 'src/practices/practices.module';
@@ -38,8 +36,6 @@ import { SurgeryService } from './surgery.service';
     forwardRef(() => WaitlistModule),
     forwardRef(() => ReviewsModule),
     forwardRef(() => ReferrersModule),
-    forwardRef(() => EvalsModule),
-    forwardRef(() => MediaModule),
   ],
   providers: [
     practiceNotFoundInterceptor,

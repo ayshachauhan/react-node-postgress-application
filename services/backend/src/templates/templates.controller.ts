@@ -26,12 +26,12 @@ import { TemplatesService } from './templates.service';
 @ApiTags('Templates')
 @ApiBearerAuth('normal')
 @Controller('practices/:practiceId/users/:userId/templates')
-@UseGuards(AuthGuard)
+@UseGuards(AuthGuard, PracticeGuard)
 export class TemplatesController {
   constructor(private readonly templateService: TemplatesService) {}
 
   @Get()
-  @UseGuards(PermissionGuard(USER_PERMISSIONS.VIEW_TEMPLATES), PracticeGuard)
+  @UseGuards(PermissionGuard(USER_PERMISSIONS.VIEW_TEMPLATES))
   @UseInterceptors(practiceNotFoundInterceptor)
   async findAll(
     @Param() { practiceId }: { practiceId: string; userId: string },
@@ -40,7 +40,6 @@ export class TemplatesController {
   }
 
   @Post()
-  @UseGuards(PracticeGuard)
   @UseInterceptors(practiceNotFoundInterceptor)
   async create(
     @Body(new ValidationPipe()) templateCreateDto: TemplateCreateDto,
@@ -54,7 +53,7 @@ export class TemplatesController {
   }
 
   @Patch(':id')
-  @UseGuards(PermissionGuard(USER_PERMISSIONS.EDIT_TEMPLATES), PracticeGuard)
+  @UseGuards(PermissionGuard(USER_PERMISSIONS.EDIT_TEMPLATES))
   @UseInterceptors(practiceNotFoundInterceptor)
   async update(
     @Body(new ValidationPipe()) templatePatchDto: TemplatePatchDto,
@@ -74,13 +73,12 @@ export class TemplatesController {
   }
 
   @Delete(':id')
-  @UseGuards(PermissionGuard(USER_PERMISSIONS.DELETE_TEMPLATE), PracticeGuard)
+  @UseGuards(PermissionGuard(USER_PERMISSIONS.DELETE_TEMPLATE))
   async remove(@Param('id') id: string): Promise<void> {
     return await this.templateService.remove(id);
   }
 
   @Patch(':id/upload')
-  @UseGuards(PracticeGuard)
   @UseInterceptors(FileInterceptor('file'))
   async uploadUserImg(
     @Param() params: { id: string; practiceId: string },

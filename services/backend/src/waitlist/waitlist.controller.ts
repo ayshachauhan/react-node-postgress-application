@@ -23,12 +23,11 @@ import { WaitlistService } from './waitlist.service';
 @ApiTags('Waitlist')
 @ApiBearerAuth('normal')
 @Controller('practices/:practiceId/waitlist')
-@UseGuards(AuthGuard)
+@UseGuards(AuthGuard, PracticeGuard)
 export class WaitlistController {
   constructor(private readonly waitlistService: WaitlistService) {}
 
   @Get()
-  @UseGuards(PracticeGuard)
   async getWaitlistByPractice(
     @Param('practiceId') practiceId: string,
   ): Promise<WaitlistEntity[]> {
@@ -36,7 +35,6 @@ export class WaitlistController {
   }
 
   @Get(':id')
-  @UseGuards(PracticeGuard)
   async getWaitlistById(
     @Param() { practiceId, id }: { practiceId: string; id: string },
   ): Promise<WaitlistEntity | null> {
@@ -44,7 +42,6 @@ export class WaitlistController {
   }
 
   @Delete(':id')
-  @UseGuards(PracticeGuard)
   async remove(
     @Param() { practiceId, id }: { practiceId: string; id: string },
   ): Promise<void> {
@@ -52,7 +49,6 @@ export class WaitlistController {
   }
 
   @Post()
-  @UseGuards(PracticeGuard)
   @UseInterceptors(practiceNotFoundInterceptor)
   async create(
     @Req() request: Request,
@@ -66,7 +62,6 @@ export class WaitlistController {
   }
 
   @Patch(':id')
-  @UseGuards(PracticeGuard)
   async update(
     @Param() { practiceId, id }: { practiceId: string; id: string },
     @Body() waitlistPatchDto: WaitlistPatchDto,

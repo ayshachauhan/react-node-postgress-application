@@ -25,13 +25,12 @@ import { SurgeryTypesService } from './surgeryTypes.service';
 @ApiTags('SurgeryTypes')
 @ApiBearerAuth('normal')
 @Controller('practices/:practiceId/surgery-types')
-@UseGuards(AuthGuard)
+@UseGuards(AuthGuard, PracticeGuard)
 @UseInterceptors(practiceNotFoundInterceptor)
 export class SurgeryTypesController {
   constructor(private readonly surgeryTypesService: SurgeryTypesService) {}
 
   @Get()
-  @UseGuards(PracticeGuard)
   async getSurgeryTypeByPractice(
     @Param('practiceId') practiceId: string,
   ): Promise<SurgeryTypeEntity[]> {
@@ -39,7 +38,6 @@ export class SurgeryTypesController {
   }
 
   @Get(':id')
-  @UseGuards(PracticeGuard)
   async getSurgeryTypeById(
     @Param('practiceId') practiceId: string,
     @Param('id') id: string,
@@ -49,7 +47,6 @@ export class SurgeryTypesController {
   }
 
   @Delete(':id')
-  @UseGuards(PracticeGuard)
   async remove(
     @Param('practiceId') practiceId: string,
     @Param('id') id: string,
@@ -58,7 +55,6 @@ export class SurgeryTypesController {
   }
 
   @Post()
-  @UseGuards(PracticeGuard)
   async create(
     @Req() request: Request,
     @Body(new ValidationPipe()) dto: CreateSurgeryTypeDto,
@@ -69,7 +65,6 @@ export class SurgeryTypesController {
   }
 
   @Patch(':id')
-  @UseGuards(PracticeGuard)
   async update(
     @Param('id') id: string,
     @Body(new ValidationPipe()) dto: UpdateSurgeryTypeDto,

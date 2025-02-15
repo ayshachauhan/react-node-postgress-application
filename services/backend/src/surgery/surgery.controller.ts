@@ -35,12 +35,11 @@ interface SurgerySearchResult {
 @ApiTags('Surgery')
 @ApiBearerAuth('normal')
 @Controller('practices/:practiceId/surgery')
-@UseGuards(AuthGuard)
+@UseGuards(AuthGuard, PracticeGuard)
 export class SurgeryController {
   constructor(private readonly surgeryService: SurgeryService) {}
 
   @Get('all')
-  @UseGuards(PracticeGuard)
   async getAllSurgeries(
     @Param('practiceId') practiceId: string,
     @Query('includeDeleted') includeDeleted: boolean = false,
@@ -54,7 +53,6 @@ export class SurgeryController {
 
   @Get()
   @UseInterceptors(practiceNotFoundInterceptor)
-  @UseGuards(PracticeGuard)
   async searchSurgeries(
     @Param('practiceId') practiceId: string,
     @Query(new ValidationPipe()) query: QueryDto,
@@ -85,13 +83,12 @@ export class SurgeryController {
 
   @Get(':id')
   @UseInterceptors(practiceNotFoundInterceptor)
-  @UseGuards(PracticeGuard)
   async getEvalById(@Param('id') id: string): Promise<SurgeryEntity | null> {
     return await this.surgeryService.getSurgeryById(id);
   }
 
   @Post()
-  @UseGuards(PermissionGuard(USER_PERMISSIONS.ADD_CASE), PracticeGuard)
+  @UseGuards(PermissionGuard(USER_PERMISSIONS.ADD_CASE))
   @UseInterceptors(practiceNotFoundInterceptor)
   async create(
     @Body(new ValidationPipe()) createSurgeryDto: CreateSurgeryDto,
@@ -108,7 +105,7 @@ export class SurgeryController {
   }
 
   @Patch(':id')
-  @UseGuards(PermissionGuard(USER_PERMISSIONS.EDIT_CASE), PracticeGuard)
+  @UseGuards(PermissionGuard(USER_PERMISSIONS.EDIT_CASE))
   @UseInterceptors(practiceNotFoundInterceptor)
   async update(
     @Body(new ValidationPipe()) createSurgeryDto: UpdateSurgeryDto,
@@ -127,7 +124,7 @@ export class SurgeryController {
   }
 
   @Delete(':id')
-  @UseGuards(PermissionGuard(USER_PERMISSIONS.DELETE_CASE), PracticeGuard)
+  @UseGuards(PermissionGuard(USER_PERMISSIONS.DELETE_CASE))
   async remove(
     @Param()
     { id, practiceId }: { id: string; practiceId: string },

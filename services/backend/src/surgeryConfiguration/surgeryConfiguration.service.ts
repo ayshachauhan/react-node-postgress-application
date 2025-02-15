@@ -22,7 +22,7 @@ export class SurgeryConfigurationsService {
   ): Promise<SurgeryConfigurationEntity[]> {
     return this.surgeryConfigurationRepository.find({
       where: { surgeryType: { practice: { id: practiceId } } },
-      relations: ['surgeryType', 'surgeryType.practice'],
+      relations: ['surgeryType'],
     });
   }
 
@@ -31,7 +31,7 @@ export class SurgeryConfigurationsService {
   ): Promise<SurgeryConfigurationEntity | null> {
     return this.surgeryConfigurationRepository.findOne({
       where: { id },
-      relations: ['surgeryType', 'surgeryType.practice'],
+      relations: ['surgeryType'],
     });
   }
 
