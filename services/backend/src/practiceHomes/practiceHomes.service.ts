@@ -36,7 +36,6 @@ export class PracticeHomesService {
     if (id) {
       return this.practiceHomesRepository.findOne({
         where: { id, practice: { id: practiceId } },
-        relations: ['practice'],
       });
     }
     return null;

@@ -24,12 +24,12 @@ type SmsLog =
 @ApiTags('Messages')
 @ApiBearerAuth('normal')
 @Controller('practices/:practiceId/messages')
-@UseGuards(AuthGuard)
+@UseGuards(AuthGuard, PracticeGuard)
 export class MessagesController {
   constructor(private readonly messagesService: MessagesService) {}
 
   @Get('search')
-  @UseGuards(PermissionGuard(USER_PERMISSIONS.VIEW_MSG), PracticeGuard)
+  @UseGuards(PermissionGuard(USER_PERMISSIONS.VIEW_MSG))
   async getPracticeHomesByPractice(
     @Param('practiceId') practiceId: string,
     @Query('searchMRNName') searchMRNName?: string,
@@ -41,7 +41,6 @@ export class MessagesController {
   }
 
   @Get('sms')
-  @UseGuards(PracticeGuard)
   async getSmsHistory(
     @Param('practiceId') practiceId: string,
     @Query() query: GetMessageParams,

@@ -15,12 +15,11 @@ import { PracticeGuard } from 'src/practices/practice.guard';
 @ApiTags('Patients')
 @ApiBearerAuth('normal')
 @Controller('practices/:practiceId/patients')
-@UseGuards(AuthGuard)
+@UseGuards(AuthGuard, PracticeGuard)
 export class PatientsController {
   constructor(private readonly patientService: PatientsService) {}
 
   @Get()
-  @UseGuards(PracticeGuard)
   @UseInterceptors(practiceNotFoundInterceptor)
   async findAll(
     @Param() { practiceId }: { practiceId: string },

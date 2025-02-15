@@ -65,24 +65,6 @@ export class MediaService {
     return media;
   }
 
-  async getMediaByMediaConfigId(
-    practiceId: string,
-    mediaConfigId: string,
-  ): Promise<MediaEntity | null> {
-    const media = await this.media
-      .createQueryBuilder('media')
-      .innerJoinAndSelect('media.mediaConfigs', 'mediaConfig')
-      .where('media.practiceId = :practiceId', { practiceId })
-      .andWhere('mediaConfig.id = :mediaConfigId', { mediaConfigId })
-      .getOne();
-
-    if (!media) {
-      throw new NotFoundException('Media not exists.');
-    }
-
-    return media;
-  }
-
   /**
    * @param patientId
    * @returns media for specific patient id

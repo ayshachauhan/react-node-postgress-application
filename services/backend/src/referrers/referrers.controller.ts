@@ -26,12 +26,11 @@ import { ReferrersService } from './referrers.service';
 @ApiTags('referrers')
 @ApiBearerAuth('normal')
 @Controller('/practices/:practiceId/referrer')
-@UseGuards(AuthGuard)
+@UseGuards(AuthGuard, PracticeGuard)
 export class ReferrersController {
   constructor(private referrerService: ReferrersService) {}
 
   @Post()
-  @UseGuards(PracticeGuard)
   @UseInterceptors(practiceNotFoundInterceptor)
   createReferrer(
     @Param('practiceId') practiceId: string,
@@ -41,7 +40,6 @@ export class ReferrersController {
   }
 
   @Delete('/:id')
-  @UseGuards(PracticeGuard)
   deleteReferrerById(
     @Param('practiceId') practiceId: string,
     @Param('id') id: string,
@@ -50,7 +48,6 @@ export class ReferrersController {
   }
 
   @Patch(':id')
-  @UseGuards(PracticeGuard)
   updateReferrerById(
     @Param('practiceId') practiceId: string,
     @Param('id') id: string,
@@ -60,13 +57,13 @@ export class ReferrersController {
   }
 
   @Get()
-  @UseGuards(PermissionGuard(USER_PERMISSIONS.VIEW_REFERRERS), PracticeGuard)
+  @UseGuards(PermissionGuard(USER_PERMISSIONS.VIEW_REFERRERS))
   getReferrer(@Param('practiceId') practiceId: string) {
     return this.referrerService.getReferrer(practiceId);
   }
 
   @Get('search')
-  @UseGuards(PermissionGuard(USER_PERMISSIONS.VIEW_REFERRERS), PracticeGuard)
+  @UseGuards(PermissionGuard(USER_PERMISSIONS.VIEW_REFERRERS))
   async searchReferrers(
     @Param('practiceId') practiceId: string,
     @Query('keyword') keyword: string,
@@ -86,7 +83,7 @@ export class ReferrersController {
   }
 
   @Get(':id')
-  @UseGuards(PermissionGuard(USER_PERMISSIONS.VIEW_REFERRERS), PracticeGuard)
+  @UseGuards(PermissionGuard(USER_PERMISSIONS.VIEW_REFERRERS))
   async getReferrerById(
     @Param()
     { practiceId, id }: { practiceId: string; id: string },

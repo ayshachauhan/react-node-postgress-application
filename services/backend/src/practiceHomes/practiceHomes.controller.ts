@@ -23,12 +23,11 @@ import { PracticeHomesService } from './practiceHomes.service';
 @ApiTags('PracticeHomes')
 @ApiBearerAuth('normal')
 @Controller('practices/:practiceId/homes')
-@UseGuards(AuthGuard)
+@UseGuards(AuthGuard, PracticeGuard)
 export class PracticeHomesController {
   constructor(private readonly practiceHomesService: PracticeHomesService) {}
 
   @Get()
-  @UseGuards(PracticeGuard)
   async getPracticeHomesByPractice(
     @Param('practiceId') practiceId: string,
   ): Promise<PracticeHomesEntity[]> {
@@ -36,7 +35,6 @@ export class PracticeHomesController {
   }
 
   @Get(':id')
-  @UseGuards(PracticeGuard)
   async getPracticeHomeById(
     @Param() { practiceId, id }: { practiceId: string; id: string },
   ): Promise<PracticeHomesEntity | null> {
@@ -44,7 +42,6 @@ export class PracticeHomesController {
   }
 
   @Delete(':id')
-  @UseGuards(PracticeGuard)
   async remove(
     @Param() { practiceId, id }: { practiceId: string; id: string },
   ): Promise<void> {
@@ -53,7 +50,6 @@ export class PracticeHomesController {
 
   @Post()
   @UseInterceptors(practiceNotFoundInterceptor)
-  @UseGuards(PracticeGuard)
   async create(
     @Req() request: Request,
     @Body(new ValidationPipe()) practiceHomeCreateDto: PracticeHomeCreateDto,
@@ -66,7 +62,6 @@ export class PracticeHomesController {
   }
 
   @Patch(':id')
-  @UseGuards(PracticeGuard)
   async update(
     @Param() { practiceId, id }: { practiceId: string; id: string },
     @Body() practiceHomePatchDto: PracticeHomePatchDto,
