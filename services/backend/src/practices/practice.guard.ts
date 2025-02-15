@@ -5,57 +5,20 @@ import {
   forwardRef,
   Inject,
   Injectable,
-  NotFoundException,
 } from '@nestjs/common';
-import { CalendarService } from 'src/calendar/calendar.service';
-import { EvalsService } from 'src/evals/evals.service';
-import { MediaService } from 'src/media/media.service';
-import { SurgeryService } from 'src/surgery/surgery.service';
-import { SurgeryConfigurationsService } from 'src/surgeryConfiguration/surgeryConfiguration.service';
-import { TemplatesService } from 'src/templates/templates.service';
 import { RequestWithUser } from '../auth/auth.guard';
-import { HistoryService } from '../history/history.service';
-import { InsuranceTypesService } from '../insuranceTypes/insuranceTypes.service';
-import { PracticeHomesService } from '../practiceHomes/practiceHomes.service';
-import { ReferrersService } from '../referrers/referrers.service';
-import { SurgeryTypesService } from '../surgeryTypes/surgeryTypes.service';
 import { UsersService } from '../users/users.service';
-import { WaitlistService } from '../waitlist/waitlist.service';
 @Injectable()
 export class PracticeGuard implements CanActivate {
   constructor(
     @Inject(forwardRef(() => UsersService))
     private readonly usersService: UsersService,
-    @Inject(forwardRef(() => EvalsService))
-    private readonly evalsService: EvalsService,
-    @Inject(forwardRef(() => SurgeryService))
-    private readonly surgeryService: SurgeryService,
-    @Inject(forwardRef(() => CalendarService))
-    private readonly calendarService: CalendarService,
-    @Inject(forwardRef(() => TemplatesService))
-    private readonly templatesService: TemplatesService,
-    @Inject(forwardRef(() => HistoryService))
-    private readonly historyService: HistoryService,
-    @Inject(forwardRef(() => InsuranceTypesService))
-    private readonly insuranceTypesService: InsuranceTypesService,
-    @Inject(forwardRef(() => MediaService))
-    private readonly mediaService: MediaService,
-    @Inject(forwardRef(() => PracticeHomesService))
-    private readonly practiceHomesService: PracticeHomesService,
-    @Inject(forwardRef(() => ReferrersService))
-    private readonly referrersService: ReferrersService,
-    @Inject(forwardRef(() => WaitlistService))
-    private readonly waitlistService: WaitlistService,
-    @Inject(forwardRef(() => SurgeryTypesService))
-    private readonly surgeryTypesService: SurgeryTypesService,
-    @Inject(forwardRef(() => SurgeryConfigurationsService))
-    private readonly surgeryConfigurationsService: SurgeryConfigurationsService,
   ) {}
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<RequestWithUser>();
     const currentUser = request.user;
-    const { practiceId, id, userId } = request.params;
-    const path = request.route.path;
+    console.log(currentUser);
+    const { practiceId, id } = request.params;
 
     if (!currentUser) {
       throw new ForbiddenException('User not authenticated.');
@@ -81,90 +44,6 @@ export class PracticeGuard implements CanActivate {
 
     if (!id) {
       return true;
-    }
-
-    let entity;
-    if (path.includes('evals')) {
-      entity = await this.evalsService.getEvalById(id);
-    } else if (path.includes('history')) {
-      entity = await this.historyService.getHistoryById({ practiceId, id });
-    } else if (path.includes('configurations')) {
-      entity =
-        await this.surgeryConfigurationsService.getSurgeryConfigurationById(id);
-    } else if (path.includes('surgery-types')) {
-      entity = await this.surgeryTypesService.getSurgeryTypeById(
-        id,
-        practiceId,
-      );
-    } else if (path.includes('surgery')) {
-      entity = await this.surgeryService.getSurgeryById(id);
-    } else if (path.includes('calendar')) {
-      entity = await this.calendarService.getCalendarById({
-        practiceId,
-        userId,
-        id,
-      });
-    } else if (path.includes('templates')) {
-      entity = await this.templatesService.getTemplateById(id);
-    } else if (path.includes('mediaconfig')) {
-      entity = await this.mediaService.getMediaByMediaConfigId(practiceId, id);
-    } else if (path.includes('media')) {
-      entity = await this.mediaService.getMediaById(practiceId, id);
-    } else if (path.includes('referrer')) {
-      entity = await this.referrersService.getReferrerById(practiceId, id);
-    } else if (path.includes('waitlist')) {
-      entity = await this.waitlistService.getWaitlistById(id, practiceId);
-    } else if (path.includes('homes')) {
-      entity = await this.practiceHomesService.getPracticeHomeById(
-        id,
-        practiceId,
-      );
-    } else if (path.includes('insurance-types')) {
-      entity = await this.insuranceTypesService.getInsuranceTypeById(
-        id,
-        practiceId,
-      );
-    } else if (path.includes('users')) {
-      entity = await this.usersService.getUserById(id);
-    } else {
-      throw new NotFoundException('Invalid entity type.');
-    }
-
-    if (!entity) {
-      throw new NotFoundException('Entity not found.');
-    }
-
-    if (path.includes('users') && !path.includes('template')) {
-      const targetUserPracticeIds = entity.practices.map((p) => p.id);
-      if (!targetUserPracticeIds.includes(practiceId)) {
-        throw new ForbiddenException(
-          'You do not have permission to modify this user.',
-        );
-      }
-    } else if (path.includes('media')) {
-      if (entity.practiceId !== practiceId) {
-        throw new ForbiddenException(
-          'You do not have permission to access this entity.',
-        );
-      }
-    } else if (path.includes('referrer')) {
-      if (entity.practiceId !== practiceId) {
-        throw new ForbiddenException(
-          'You do not have permission to access this entity.',
-        );
-      }
-    } else if (path.includes('configurations')) {
-      if (entity?.surgeryType?.practice?.id !== practiceId) {
-        throw new ForbiddenException(
-          'You do not have permission to access this entity.',
-        );
-      }
-    } else {
-      if (entity.practice.id !== practiceId) {
-        throw new ForbiddenException(
-          'You do not have permission to access this entity.',
-        );
-      }
     }
 
     return true;

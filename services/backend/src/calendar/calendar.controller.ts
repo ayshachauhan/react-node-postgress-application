@@ -39,12 +39,11 @@ interface CalendarSearchResult {
 @ApiTags('Calendar')
 @ApiBearerAuth('normal')
 @Controller('/practices/:practiceId/users/:userId/calendar')
-@UseGuards(AuthGuard)
+@UseGuards(AuthGuard, PracticeGuard)
 export class CalendarController {
   constructor(private calendarService: CalendarService) {}
 
   @Get()
-  @UseGuards(PracticeGuard)
   getCalendars(
     @Param()
     params: GetCalendarsParams,
@@ -53,7 +52,6 @@ export class CalendarController {
   }
 
   @Get('search')
-  @UseGuards(PracticeGuard)
   async getFilteredCalendars(
     @Param() params: GetCalendarsParams,
     @Query('month') monthQueryParam: string,
@@ -75,7 +73,6 @@ export class CalendarController {
   }
 
   @Get(':id')
-  @UseGuards(PracticeGuard)
   getCalendarById(
     @Param() params: GetCalendarByIdParams,
   ): Promise<CalendarEntity> {
@@ -83,7 +80,6 @@ export class CalendarController {
   }
 
   @Get('/surgery/:surgeryTypeId')
-  @UseGuards(PracticeGuard)
   getCalendarBySurgeryType(
     @Param() params: GetCalendarBySurgeryTypeIdParams,
   ): Promise<CalendarEntity[]> {
@@ -91,7 +87,6 @@ export class CalendarController {
   }
 
   @Post()
-  @UseGuards(PracticeGuard)
   createCalendar(
     @Param() params: CreateCalendarParams,
     @Body(new ValidationPipe()) calendarDTO: CreateCalendarDto,
@@ -100,7 +95,6 @@ export class CalendarController {
   }
 
   @Patch(':id')
-  @UseGuards(PracticeGuard)
   updateCalendarByPracticeId(
     @Param() params: UpdateCalendarParams,
     @Body(new ValidationPipe()) updateDTO: UpdateCalendarDto,
@@ -109,7 +103,6 @@ export class CalendarController {
   }
 
   @Patch('')
-  @UseGuards(PracticeGuard)
   updateCalendars(
     @Body(new ValidationPipe()) updateDTO: UpdateCalendarsDto,
     @Param() params: UpdateCalendarParams,
