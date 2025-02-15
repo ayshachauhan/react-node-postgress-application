@@ -32,14 +32,13 @@ import { UsersService } from './users.service';
 @ApiTags('Users')
 @Controller('practices/:practiceId/users')
 @ApiBearerAuth('normal')
-@UseGuards(AuthGuard, RolesGuard)
+@UseGuards(AuthGuard, RolesGuard, PracticeGuard)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
   @UseInterceptors(practiceNotFoundInterceptor)
   @Roles(UserType.ADMIN, UserType.DOCTOR)
-  @UseGuards(PracticeGuard)
   create(
     @Body(new ValidationPipe()) createUserDto: CreateUserDto,
     @Param() { practiceId }: { practiceId: string },
@@ -48,14 +47,12 @@ export class UsersController {
   }
 
   @Get()
-  @UseGuards(PracticeGuard)
   @UseInterceptors(practiceNotFoundInterceptor)
   async getUsersByPractice(@Param('practiceId') practiceId: string) {
     return this.usersService.getUsersByPractice(practiceId);
   }
 
   @Get(':id')
-  @UseGuards(PracticeGuard)
   async getUserById(
     @Param() { id }: { id: string },
   ): Promise<UserEntity | null> {
@@ -64,7 +61,6 @@ export class UsersController {
 
   @Delete(':id')
   @UseInterceptors(practiceNotFoundInterceptor)
-  @UseGuards(PracticeGuard)
   @Roles(UserType.ADMIN)
   async deleteUser(
     @Param() { id }: { id: string },
@@ -77,7 +73,6 @@ export class UsersController {
   }
 
   @Patch('change-password')
-  @UseGuards(PracticeGuard)
   async changePassword(
     @Body(new ValidationPipe()) changePasswordDto: ChangePasswordDto,
     @Param('practiceId') practiceId: string,
@@ -87,7 +82,6 @@ export class UsersController {
 
   @Patch(':id')
   @Roles(UserType.ADMIN)
-  @UseGuards(PracticeGuard)
   async updateUser(
     @Param('id') id: string,
     @Body(new ValidationPipe()) patchUserDto: UpdateUserDto,
@@ -96,7 +90,6 @@ export class UsersController {
   }
 
   @Patch(':id/upload')
-  @UseGuards(PracticeGuard)
   @UseInterceptors(FileInterceptor('file'))
   async uploadUserImg(
     @Param() params: { id: string; practiceId: string },
