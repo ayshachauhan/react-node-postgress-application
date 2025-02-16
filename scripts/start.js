@@ -41,6 +41,7 @@ const ENV_KEYS = [
   'OPENAI_PROJECT',
   'OPENAI_ASSISTANT_ID',
   'NEXT_PUBLIC_ENABLE_AI_CHAT',
+  'NEXT_PUBLIC_ENCRYPTION_KEY',
 ];
 
 const start = async () => {
