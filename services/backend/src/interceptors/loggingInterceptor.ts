@@ -12,11 +12,17 @@ export class LoggingInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
     const req = context.switchToHttp().getRequest();
 
+    // Clone and filter sensitive data
+    const filteredBody = { ...req.body };
+    if (filteredBody.password) filteredBody.password = '******';
+    if (filteredBody.token) filteredBody.token = '******';
+
     logger.info({
       message: 'API Request',
       method: req.method,
       url: req.url,
       ip: req.ip,
+      body: filteredBody, // Log the sanitized body
       userAgent: req.headers['user-agent'],
     });
 
