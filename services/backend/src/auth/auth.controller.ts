@@ -18,6 +18,7 @@ import { ENVIRONMENT_VARIABLES } from 'src/enums/environment.enums';
 import { AuthGuard } from './auth.guard';
 import { AuthService } from './auth.service';
 import { LoginUserDto } from './dto/login.dto';
+import { FailedLoginGuard } from './failedLogin.guard';
 import { SamlAuthGuard } from './strategy/saml.guard';
 import { SamlStrategy } from './strategy/saml.strategy';
 import { SanitizedUser } from './types';
@@ -64,6 +65,7 @@ export class AuthController {
     }
   }
 
+  @UseGuards(FailedLoginGuard)
   @Post('login')
   async login(@Body() { email, password }: LoginUserDto) {
     const user = await this.authService.validateUser(email, password);
