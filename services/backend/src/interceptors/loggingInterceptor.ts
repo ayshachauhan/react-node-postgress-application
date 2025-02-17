@@ -53,6 +53,7 @@ export class LoggingInterceptor implements NestInterceptor {
           url: request.url,
           status: statusCode,
           error: err.message,
+          stack: err.stack, // Log the stack trace
         });
 
         return throwError(() => err);
