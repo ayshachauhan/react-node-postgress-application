@@ -18,6 +18,7 @@ import { TemplateEntity } from '@packages/entities/template';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { PermissionGuard } from 'src/auth/userPermissions.guard';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
+import { PracticeGuard } from 'src/practices/practice.guard';
 import { TemplateCreateDto } from './dto/template.createDto';
 import { TemplatePatchDto } from './dto/template.patchDto';
 import { TemplatesService } from './templates.service';
@@ -25,7 +26,7 @@ import { TemplatesService } from './templates.service';
 @ApiTags('Templates')
 @ApiBearerAuth('normal')
 @Controller('practices/:practiceId/users/:userId/templates')
-@UseGuards(AuthGuard)
+@UseGuards(AuthGuard, PracticeGuard)
 export class TemplatesController {
   constructor(private readonly templateService: TemplatesService) {}
 

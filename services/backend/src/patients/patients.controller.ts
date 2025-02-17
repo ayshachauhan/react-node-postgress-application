@@ -10,11 +10,12 @@ import { PatientEntity } from '@packages/entities';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
 import { PatientsService } from 'src/patients/patients.service';
+import { PracticeGuard } from 'src/practices/practice.guard';
 
 @ApiTags('Patients')
 @ApiBearerAuth('normal')
 @Controller('practices/:practiceId/patients')
-@UseGuards(AuthGuard)
+@UseGuards(AuthGuard, PracticeGuard)
 export class PatientsController {
   constructor(private readonly patientService: PatientsService) {}
 

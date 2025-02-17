@@ -11,6 +11,7 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { HistoryEntity } from '@packages/entities';
 import { USER_PERMISSIONS } from '@packages/entities/permission';
 import { PermissionGuard } from 'src/auth/userPermissions.guard';
+import { PracticeGuard } from 'src/practices/practice.guard';
 import { PAGINATION_LIMIT } from 'src/utils/constants';
 import { AuthGuard } from '../auth/auth.guard';
 import { SanitizedUser } from '../auth/types';
@@ -22,7 +23,7 @@ import type { GetHistoryByIdParams, GetHistoryParams } from './types';
 @ApiTags('History')
 @ApiBearerAuth('normal')
 @Controller('/practices/:practiceId/history')
-@UseGuards(AuthGuard)
+@UseGuards(AuthGuard, PracticeGuard)
 export class HistoryController {
   constructor(private historyService: HistoryService) {}
 

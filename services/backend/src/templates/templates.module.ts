@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TemplateEntity } from '@packages/entities/template';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
@@ -13,8 +13,8 @@ import { TemplatesService } from './templates.service';
   imports: [
     TypeOrmModule.forFeature([TemplateEntity]),
     PracticesModule,
-    UsersModule,
-    SurgeryConfigurationsModule,
+    forwardRef(() => UsersModule),
+    forwardRef(() => SurgeryConfigurationsModule),
   ],
   providers: [TemplatesService, practiceNotFoundInterceptor, S3Service],
   controllers: [TemplatesController],

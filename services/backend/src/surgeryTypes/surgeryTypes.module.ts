@@ -1,6 +1,7 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { SurgeryTypeEntity } from '@packages/entities/surgeryType';
+import { UsersModule } from 'src/users/users.module';
 import { PracticesModule } from '../practices/practices.module';
 import { SurgeryTypesController } from './surgeryType.controller';
 import { SurgeryTypesService } from './surgeryTypes.service';
@@ -9,6 +10,7 @@ import { SurgeryTypesService } from './surgeryTypes.service';
   imports: [
     TypeOrmModule.forFeature([SurgeryTypeEntity]),
     forwardRef(() => PracticesModule),
+    forwardRef(() => UsersModule),
   ],
   providers: [SurgeryTypesService],
   controllers: [SurgeryTypesController],

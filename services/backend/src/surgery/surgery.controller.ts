@@ -18,6 +18,7 @@ import { USER_PERMISSIONS } from '@packages/entities/permission';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { PermissionGuard } from 'src/auth/userPermissions.guard';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
+import { PracticeGuard } from 'src/practices/practice.guard';
 import { PAGINATION_LIMIT } from 'src/utils/constants';
 import { SanitizedUser } from '../auth/types';
 import { CreateSurgeryDto } from '../surgery/dto/createSurgery.dto';
@@ -34,7 +35,7 @@ interface SurgerySearchResult {
 @ApiTags('Surgery')
 @ApiBearerAuth('normal')
 @Controller('practices/:practiceId/surgery')
-@UseGuards(AuthGuard)
+@UseGuards(AuthGuard, PracticeGuard)
 export class SurgeryController {
   constructor(private readonly surgeryService: SurgeryService) {}
 

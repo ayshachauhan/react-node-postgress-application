@@ -13,6 +13,7 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { SurgeryTypeEntity } from '@packages/entities';
+import { PracticeGuard } from 'src/practices/practice.guard';
 import { AuthGuard } from '../auth/auth.guard';
 import { practiceNotFoundInterceptor } from '../interceptors/practiceNotFoundInterceptor';
 import {
@@ -24,7 +25,7 @@ import { SurgeryTypesService } from './surgeryTypes.service';
 @ApiTags('SurgeryTypes')
 @ApiBearerAuth('normal')
 @Controller('practices/:practiceId/surgery-types')
-@UseGuards(AuthGuard)
+@UseGuards(AuthGuard, PracticeGuard)
 @UseInterceptors(practiceNotFoundInterceptor)
 export class SurgeryTypesController {
   constructor(private readonly surgeryTypesService: SurgeryTypesService) {}

@@ -13,6 +13,7 @@ import {
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CalendarEntity } from '@packages/entities';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { PracticeGuard } from 'src/practices/practice.guard';
 import { practiceNotFoundInterceptor } from '../interceptors/practiceNotFoundInterceptor';
 import { CalendarService } from './calendar.service';
 import {
@@ -38,7 +39,7 @@ interface CalendarSearchResult {
 @ApiTags('Calendar')
 @ApiBearerAuth('normal')
 @Controller('/practices/:practiceId/users/:userId/calendar')
-@UseGuards(AuthGuard)
+@UseGuards(AuthGuard, PracticeGuard)
 export class CalendarController {
   constructor(private calendarService: CalendarService) {}
 
