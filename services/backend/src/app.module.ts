@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { APP_INTERCEPTOR } from '@nestjs/core';
 import { SchedulerModule } from 'src/scheduler/scheduler.module';
 import { AIModule } from './ai/ai.module';
 import { AuthModule } from './auth/auth.module';
@@ -10,7 +9,6 @@ import { HealthModule } from './healthz/health.module';
 import { HistoryModule } from './history/history.module';
 import { createInfraModuleProviders } from './infra.module.provider';
 import { InsuranceTypesModule } from './insuranceTypes/insuranceTypes.module';
-import { LoggingInterceptor } from './interceptors/loggingInterceptor';
 import { MediaModule } from './media/media.module';
 import { MessagesModule } from './messages/messages.module';
 import { PatientsModule } from './patients/patients.module';
@@ -31,12 +29,6 @@ import { WaitlistModule } from './waitlist/waitlist.module';
  * All the application related to app logic should be added here
  */
 @Module({
-  providers: [
-    {
-      provide: APP_INTERCEPTOR,
-      useClass: LoggingInterceptor,
-    },
-  ],
   imports: [
     ...createInfraModuleProviders(),
     UsersModule,

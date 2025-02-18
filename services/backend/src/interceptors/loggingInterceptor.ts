@@ -17,17 +17,16 @@ export class LoggingInterceptor implements NestInterceptor {
     if (filteredBody.password) filteredBody.password = '******';
     if (filteredBody.token) filteredBody.token = '******';
 
-    logger.info({
-      message: 'API Request',
-      method: req.method,
-      url: req.url,
-      ip: req.ip,
-      body: filteredBody, // Log the sanitized body
-      userAgent: req.headers['user-agent'],
-    });
-
     return next.handle().pipe(
       tap(() => {
+        logger.info({
+          message: 'API Request',
+          method: req.method,
+          url: req.url,
+          ip: req.ip,
+          body: filteredBody, // Log the sanitized body
+          userAgent: req.headers['user-agent'],
+        });
         const httpContext = context.switchToHttp();
         const request = httpContext.getRequest();
         const statusCode = httpContext.getResponse().statusCode;

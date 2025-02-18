@@ -358,10 +358,18 @@ export class OpenAIService implements AIService {
   async saveChatLogs(
     dataToSave: ChatbotLogsEntity,
   ): Promise<ChatbotLogsEntity> {
-    return await this.chatbotRepository.save(dataToSave);
+    logger.info(
+      `Creating new AI chat log of patient ${dataToSave?.patient?.firstName} ${dataToSave?.patient?.lastName}`,
+    );
+    const savedChatLog = await this.chatbotRepository.save(dataToSave);
+    logger.info(
+      `New AI chat log created with ID ${savedChatLog?.id} for patient ${dataToSave?.patient?.firstName} ${dataToSave?.patient?.lastName}`,
+    );
+    return savedChatLog;
   }
 
   async updateChatLogs(dataToUpdate: ChatbotLogsEntity): Promise<void> {
+    logger.info(`Updating AI chat log with ID: ${dataToUpdate?.id}}`);
     const existingChatRecord = (await this.chatbotRepository.findOne({
       where: { id: dataToUpdate.id },
     })) as ChatbotLogsEntity;
@@ -370,9 +378,14 @@ export class OpenAIService implements AIService {
       ...dataToUpdate,
       dateUpdated: new Date(),
     });
+    logger.info(
+      `AI chat log with ID: ${dataToUpdate?.id}} updated successfully`,
+    );
   }
 
   async deleteChatLogs(dataIdToDelete: string) {
+    logger.info(`Deleting AI chat log with ID: ${dataIdToDelete}}`);
     await this.chatbotRepository.delete({ id: dataIdToDelete });
+    logger.info(`AI chat log with ID: ${dataIdToDelete}} deleted successfully`);
   }
 }

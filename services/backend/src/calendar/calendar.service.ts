@@ -149,6 +149,9 @@ export class CalendarService {
     { practiceId, userId }: CreateCalendarParams,
     dto: CreateCalendarDto,
   ): Promise<CalendarEntity> {
+    logger.info(
+      `Creating new calendar entry for practice ID: ${practiceId}, user ID: ${userId} with details ${dto}`,
+    );
     const practiceEntity = await this.practiceService.findOne(practiceId);
 
     const userEntity = practiceEntity?.users.find(
@@ -195,7 +198,9 @@ export class CalendarService {
       user: userEntity!,
     });
 
-    return this.calendarRepo.save(calendar);
+    const savedCalendar = await this.calendarRepo.save(calendar);
+    logger.info(`Calendar created successfully with ID: ${savedCalendar?.id}`);
+    return savedCalendar;
   }
 
   /**
@@ -210,6 +215,7 @@ export class CalendarService {
     bookedHours,
     id,
   }: UpdateCalendarDto & { id: string }): Promise<CalendarEntity | null> {
+    logger.info(`Updating calendar with ID: ${id}`);
     if (maxSlots && bookedHours) {
       if (maxSlots < parseFloat(bookedHours)) {
         throw new HttpException(
@@ -223,6 +229,8 @@ export class CalendarService {
       bookedSlots,
       bookedHours,
     });
+
+    logger.info(`Calendar with ID: ${id} updated successfully`);
 
     return await this.calendarRepo.findOne({
       where: { id },
@@ -294,12 +302,14 @@ export class CalendarService {
           }
         }
 
+        logger.info(`Updating calendar with ID: ${id}`);
         await this.calendarRepo.update(id, {
           maxSlots,
           bookedSlots,
           bookedHours,
           ...(surgeryTypeEntity ? { surgeryType: surgeryTypeEntity } : {}),
         });
+        logger.info(`Calendar with ID: ${id} updated successfully`);
 
         const updatedCalendar = (await this.calendarRepo.findOne({
           where: { id },

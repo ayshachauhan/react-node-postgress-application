@@ -16,6 +16,7 @@ import { ENVIRONMENT_VARIABLES } from 'src/enums/environment.enums';
 import { DeleteEvalData } from 'src/evals/types';
 import { HistoryService } from 'src/history/history.service';
 import { InsuranceTypesService } from 'src/insuranceTypes/insuranceTypes.service';
+import logger from 'src/logger';
 import { PatientsService } from 'src/patients/patients.service';
 import { PracticeHomesService } from 'src/practiceHomes/practiceHomes.service';
 import { PracticesService } from 'src/practices/practices.service';
@@ -159,6 +160,9 @@ export class EvalsService {
   }
 
   async create({ practiceId, createEvalDto, user }): Promise<EvalEntity> {
+    logger.info(
+      `Creating new eval for patient ${createEvalDto?.firstName} ${createEvalDto?.lastName} , Date ${createEvalDto.date}`,
+    );
     const newEval: EvalEntity = new EvalEntity();
 
     const practiceEntity = await this.practiceService.findOne(practiceId);
@@ -269,6 +273,7 @@ export class EvalsService {
       referrer: referrerEntity.dateCreated ? referrerEntity : undefined,
       pcp: pcpReferrerEntity.dateCreated ? pcpReferrerEntity : undefined,
     });
+    logger.info(`New eval created with ID: ${resultEval?.id}`);
 
     // create history entry after creating eval
     await this.historyService.createHistory({
@@ -295,6 +300,7 @@ export class EvalsService {
     user,
     practiceId,
   }): Promise<EvalEntity | null> {
+    logger.info(`Updating eval ID: ${id}`);
     const evalToUpdate = await this.getEvalById(id);
 
     if (createEvalDto.insuranceTypeId) {
@@ -371,6 +377,7 @@ export class EvalsService {
       referrer: createEvalDto.referrer ? createEvalDto.referrer : null,
       pcp: createEvalDto.pcp ? createEvalDto.pcp : null,
     });
+    logger.info(`Eval update successful for ID: ${id}`);
 
     if (evalToUpdate) {
       // depends on dto values, make sure to update the obj values if dto changes
@@ -410,7 +417,9 @@ export class EvalsService {
     user,
     ipAddress,
   }: DeleteEvalData): Promise<void> {
+    logger.info(`Deleting eval with ID: ${id}`);
     await this.evalRepository.softDelete(id);
+    logger.info(`Eval with ID: ${id} deleted successfully.`);
 
     await this.historyService.createHistory({
       practiceId,

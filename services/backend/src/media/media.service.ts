@@ -17,6 +17,7 @@ import {
 } from '@packages/entities';
 import { IMedia, MediaEntity, MediaType } from '@packages/entities/media';
 import { EmailHandlerService } from 'src/emailHandler/emailHandler.service';
+import logger from 'src/logger';
 import { PatientsService } from 'src/patients/patients.service';
 import { SystemTemplates } from 'src/transporter/transporter.types';
 import { UploadType } from 'src/users/types';
@@ -96,12 +97,14 @@ export class MediaService {
     if (existingMedia) {
       return await this.createMediaConfig(existingMedia.id, data.mediaConfig);
     } else {
+      logger.info(`Creating media with details ${data} `);
       const media = this.media.create({
         practiceId,
         mediaType: data.mediaType,
         ...(data.entityId ? { entityId: data.entityId } : {}),
       });
       const newMedia = await this.media.save(media);
+      logger.info(`Media created sucessfully with ID: ${newMedia?.id}`);
 
       return await this.createMediaConfig(newMedia.id, data.mediaConfig);
     }
@@ -112,6 +115,9 @@ export class MediaService {
     mediaConfig: MediaConfigDTO[],
   ): Promise<MediaEntity | null> {
     if (mediaConfig.length) {
+      logger.info(
+        `Creating ${mediaConfig.length} media config entries for media ID: ${mediaId}`,
+      );
       const mediaConfigEntities: MediaConfigEntity[] = mediaConfig.map(
         (config: MediaConfigDTO) =>
           this.mediaConfigRepo.create({
@@ -122,6 +128,9 @@ export class MediaService {
           }),
       );
       await this.mediaConfigRepo.save(mediaConfigEntities);
+      logger.info(
+        `Successfully created ${mediaConfig.length} media config entries for media ID: ${mediaId}`,
+      );
     }
     return await this.media.findOne({
       where: {
@@ -136,6 +145,7 @@ export class MediaService {
     mediaId: string,
     videoData: Partial<MediaEntity>,
   ): Promise<MediaEntity | undefined> {
+    logger.info(`Updating media with ID: ${mediaId}`);
     const media = await this.getMediaById(practiceId, mediaId);
 
     if (!media) {
@@ -146,7 +156,9 @@ export class MediaService {
     }
 
     const updatedVideo = this.media.merge(media, videoData);
-    return this.media.save(updatedVideo);
+    const savedVideo = this.media.save(updatedVideo);
+    logger.info(`Media with ID: ${mediaId} updated successfully`);
+    return savedVideo;
   }
 
   /**
@@ -155,7 +167,9 @@ export class MediaService {
    * @param mediaId
    */
   async deleteMedia(practiceId: string, mediaId: string): Promise<IMedia[]> {
+    logger.info(`Deleting media record with ID: ${mediaId}`);
     await this.media.softDelete({ id: mediaId, practiceId });
+    logger.info(`Media record with ID: ${mediaId} deleted successfully`);
     return await this.media.find({
       where: { practiceId },
       relations: ['mediaConfigs'],
@@ -171,7 +185,9 @@ export class MediaService {
     practiceId: string,
     id: string,
   ): Promise<IMedia[]> {
+    logger.info(`Deleting media config record with ID: ${id}`);
     await this.mediaConfigRepo.softDelete({ id });
+    logger.info(`Media config record with ID: ${id} deleted successfully`);
     return await this.getMediaByPracticeId(practiceId);
   }
 
