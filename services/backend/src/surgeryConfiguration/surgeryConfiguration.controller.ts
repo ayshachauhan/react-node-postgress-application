@@ -16,6 +16,7 @@ import { SurgeryConfigurationEntity } from '@packages/entities';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
 import { surgeryTypeNotFoundInterceptor } from 'src/interceptors/surgeryTypeInterceptor';
+import { PracticeGuard } from 'src/practices/practice.guard';
 import { SurgeryConfigurationsService } from 'src/surgeryConfiguration/surgeryConfiguration.service';
 import {
   AddSurgeryConfigurationDto,
@@ -25,7 +26,7 @@ import {
 @ApiTags('SurgeryTypes')
 @ApiBearerAuth('normal')
 @Controller('practices/:practiceId/surgeryTypes/configurations')
-@UseGuards(AuthGuard)
+@UseGuards(AuthGuard, PracticeGuard)
 @UseInterceptors(practiceNotFoundInterceptor)
 export class SurgeryConfigurationsController {
   constructor(

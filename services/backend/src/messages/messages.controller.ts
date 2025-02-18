@@ -12,6 +12,7 @@ import { USER_PERMISSIONS } from '@packages/entities/permission';
 import { PermissionGuard } from 'src/auth/userPermissions.guard';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
 import { GetMessageParams } from 'src/messages/types';
+import { PracticeGuard } from 'src/practices/practice.guard';
 import { AuthGuard } from '../auth/auth.guard';
 import { MessagesService } from './messages.service';
 
@@ -23,7 +24,7 @@ type SmsLog =
 @ApiTags('Messages')
 @ApiBearerAuth('normal')
 @Controller('practices/:practiceId/messages')
-@UseGuards(AuthGuard)
+@UseGuards(AuthGuard, PracticeGuard)
 export class MessagesController {
   constructor(private readonly messagesService: MessagesService) {}
 

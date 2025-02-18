@@ -13,6 +13,7 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { WaitlistEntity } from '@packages/entities';
+import { PracticeGuard } from 'src/practices/practice.guard';
 import { AuthGuard } from '../auth/auth.guard';
 import { practiceNotFoundInterceptor } from '../interceptors/practiceNotFoundInterceptor';
 import { WaitlistCreateDto } from './dto/create.dto';
@@ -22,7 +23,7 @@ import { WaitlistService } from './waitlist.service';
 @ApiTags('Waitlist')
 @ApiBearerAuth('normal')
 @Controller('practices/:practiceId/waitlist')
-@UseGuards(AuthGuard)
+@UseGuards(AuthGuard, PracticeGuard)
 export class WaitlistController {
   constructor(private readonly waitlistService: WaitlistService) {}
 

@@ -4,6 +4,7 @@ import { SurgeryConfigurationEntity } from '@packages/entities';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
 import { surgeryTypeNotFoundInterceptor } from 'src/interceptors/surgeryTypeInterceptor';
 import { SurgeryTypesModule } from 'src/surgeryTypes/surgeryTypes.module';
+import { UsersModule } from 'src/users/users.module';
 import { PracticesModule } from '../practices/practices.module';
 import { SurgeryConfigurationsController } from './surgeryConfiguration.controller';
 import { SurgeryConfigurationsService } from './surgeryConfiguration.service';
@@ -13,6 +14,7 @@ import { SurgeryConfigurationsService } from './surgeryConfiguration.service';
     TypeOrmModule.forFeature([SurgeryConfigurationEntity]),
     forwardRef(() => PracticesModule),
     forwardRef(() => SurgeryTypesModule),
+    forwardRef(() => UsersModule),
   ],
   providers: [
     SurgeryConfigurationsService,

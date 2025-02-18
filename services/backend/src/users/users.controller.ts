@@ -22,6 +22,7 @@ import { FileInterceptor } from '@nestjs/platform-express/multer';
 import { AuthGuard, RequestWithUser } from 'src/auth/auth.guard';
 import { Roles } from 'src/auth/role.decorator';
 import { RolesGuard } from 'src/auth/roles.gaurd';
+import { PracticeGuard } from '../practices/practice.guard';
 import { ChangePasswordDto } from './dto/changePassword.dto';
 import { CreateUserDto } from './dto/create.dto';
 import { UpdateUserDto } from './dto/update.dto';
@@ -31,7 +32,7 @@ import { UsersService } from './users.service';
 @ApiTags('Users')
 @Controller('practices/:practiceId/users')
 @ApiBearerAuth('normal')
-@UseGuards(AuthGuard, RolesGuard)
+@UseGuards(AuthGuard, RolesGuard, PracticeGuard)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 

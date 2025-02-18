@@ -18,6 +18,7 @@ import { USER_PERMISSIONS } from '@packages/entities/permission';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { PermissionGuard } from 'src/auth/userPermissions.guard';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
+import { PracticeGuard } from 'src/practices/practice.guard';
 import { CreateReferrerDto } from './dtos/referrer.createDto';
 import { updateReferrerDto } from './dtos/referrer.updateDto';
 import { ReferrersService } from './referrers.service';
@@ -25,7 +26,7 @@ import { ReferrersService } from './referrers.service';
 @ApiTags('referrers')
 @ApiBearerAuth('normal')
 @Controller('/practices/:practiceId/referrer')
-@UseGuards(AuthGuard)
+@UseGuards(AuthGuard, PracticeGuard)
 export class ReferrersController {
   constructor(private referrerService: ReferrersService) {}
 

@@ -19,6 +19,7 @@ import { USER_PERMISSIONS } from '@packages/entities/permission';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { PermissionGuard } from 'src/auth/userPermissions.guard';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
+import { PracticeGuard } from 'src/practices/practice.guard';
 import { CreateMediaDto, SendVideoDto } from './dtos/createMedia.dto';
 import { MediaService } from './media.service';
 
@@ -26,7 +27,7 @@ import { MediaService } from './media.service';
 @ApiBearerAuth('normal')
 @Controller('/practices/:practiceId/media')
 @UseInterceptors(practiceNotFoundInterceptor)
-@UseGuards(AuthGuard)
+@UseGuards(AuthGuard, PracticeGuard)
 export class MediaController {
   constructor(private mediaService: MediaService) {}
 

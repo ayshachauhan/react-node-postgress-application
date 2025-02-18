@@ -12,6 +12,8 @@ import {
 } from '@nestjs/common';
 import { ChatbotLogsEntity } from '@packages/entities';
 import { Response } from 'express';
+import { AuthGuard } from 'src/auth/auth.guard';
+import { PracticeGuard } from 'src/practices/practice.guard';
 import * as twilio from 'twilio';
 import MessagingResponse from 'twilio/lib/twiml/MessagingResponse';
 import logger from '../logger';
@@ -85,6 +87,7 @@ export class AIController {
   }
 
   @Get()
+  @UseGuards(AuthGuard, PracticeGuard)
   getAllHistory(@Query() query: GetChatParams): Promise<ChatbotLogsEntity[]> {
     return this.aiClientService.getAllChatLogs({
       practiceId: query.practiceId,

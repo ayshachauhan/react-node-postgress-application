@@ -14,6 +14,7 @@ import {
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { PracticeHomesEntity } from '@packages/entities/practiceHomes';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
+import { PracticeGuard } from 'src/practices/practice.guard';
 import { AuthGuard } from '../auth/auth.guard';
 import { PracticeHomeCreateDto } from './dto/create.dto';
 import { PracticeHomePatchDto } from './dto/patch.dto';
@@ -22,7 +23,7 @@ import { PracticeHomesService } from './practiceHomes.service';
 @ApiTags('PracticeHomes')
 @ApiBearerAuth('normal')
 @Controller('practices/:practiceId/homes')
-@UseGuards(AuthGuard)
+@UseGuards(AuthGuard, PracticeGuard)
 export class PracticeHomesController {
   constructor(private readonly practiceHomesService: PracticeHomesService) {}
 

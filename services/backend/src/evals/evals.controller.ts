@@ -20,6 +20,7 @@ import { PermissionGuard } from 'src/auth/userPermissions.guard';
 import { CreateEvalDto } from 'src/evals/dto/createEval.dto';
 import { EvalsService } from 'src/evals/evals.service';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
+import { PracticeGuard } from 'src/practices/practice.guard';
 import { PAGINATION_LIMIT } from 'src/utils/constants';
 import { ParseStringToBooleanPipe } from 'src/utils/pipes/stringToBoolean.pipes';
 import { UpdateEvalDto } from './dto/updateEval.dto';
@@ -28,7 +29,7 @@ import { AuthenticatedRequest } from './types';
 @ApiTags('Evals')
 @ApiBearerAuth('normal')
 @Controller('practices/:practiceId/evals')
-@UseGuards(AuthGuard)
+@UseGuards(AuthGuard, PracticeGuard)
 export class EvalsController {
   constructor(private readonly evalService: EvalsService) {}
 

@@ -10,6 +10,7 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { InsuranceTypeEntity } from '@packages/entities/insuranceType';
+import { PracticeGuard } from 'src/practices/practice.guard';
 import { AuthGuard } from '../auth/auth.guard';
 import { CreateInsuranceTypeDto } from './dto/createInsuranceType.dto';
 import { InsuranceTypesService } from './insuranceTypes.service';
@@ -17,7 +18,7 @@ import { InsuranceTypesService } from './insuranceTypes.service';
 @ApiTags('InsuranceTypes')
 @ApiBearerAuth('normal')
 @Controller('practices/:practiceId/insurance-types')
-@UseGuards(AuthGuard)
+@UseGuards(AuthGuard, PracticeGuard)
 export class InsuranceTypesController {
   constructor(private readonly insuranceTypeService: InsuranceTypesService) {}
 

@@ -16,6 +16,7 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { USER_PERMISSIONS } from '@packages/entities/permission';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { PermissionGuard } from 'src/auth/userPermissions.guard';
+import { PracticeGuard } from 'src/practices/practice.guard';
 import { practiceNotFoundInterceptor } from '../interceptors/practiceNotFoundInterceptor';
 import { reviewRequestDto } from './dtos/review.sendrequest';
 import { updateReviewDto } from './dtos/review.updateDto';
@@ -24,7 +25,7 @@ import { ReviewService } from './review.service';
 @ApiTags('Review')
 @ApiBearerAuth('normal')
 @Controller('/practices/:practiceId/review')
-@UseGuards(AuthGuard)
+@UseGuards(AuthGuard, PracticeGuard)
 export class ReviewController {
   constructor(private reviewService: ReviewService) {}
 
