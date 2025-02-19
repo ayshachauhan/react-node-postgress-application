@@ -94,11 +94,11 @@ export class UsersService {
       );
 
       let newUser: UserEntity = new UserEntity();
-      logger.info(
-        `Creating new user with name ${createUserDto?.firstName} ${createUserDto?.lastName} `,
-      );
 
       if (!existingUser) {
+        logger.info(
+          `Creating new user with name ${createUserDto?.firstName} ${createUserDto?.lastName} `,
+        );
         newUser = await this.usersRepository.save({
           ...newUser,
           ...createUserDto,
