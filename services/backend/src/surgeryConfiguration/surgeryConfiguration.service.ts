@@ -37,14 +37,12 @@ export class SurgeryConfigurationsService {
   }
 
   async remove(id: string, surgeryTypeId: string): Promise<void> {
-    logger.info(`Deleting surgery configuration record with ID: ${id}`);
+    logger.info(`Deleting surgery configuration with ID: ${id}`);
     await this.surgeryConfigurationRepository.softDelete({
       id,
       surgeryType: { id: surgeryTypeId },
     });
-    logger.info(
-      `Surgery configuration record with ID: ${id} deleted successfully`,
-    );
+    logger.info(`Surgery configuration with ID: ${id} deleted successfully`);
   }
 
   async create(
@@ -52,7 +50,7 @@ export class SurgeryConfigurationsService {
     surgeryType: SurgeryTypeEntity,
   ): Promise<SurgeryConfigurationEntity> {
     logger.info(
-      `Starting the creation of new surgery configuration record with name ${dto?.name} under surgery type ${surgeryType?.name}`,
+      `Starting the creation of new surgery configuration with name ${dto?.name} under surgery type ${surgeryType?.name}`,
     );
     const sameSurgeryTypeCheck =
       await this.surgeryConfigurationRepository.findOne({
@@ -68,7 +66,7 @@ export class SurgeryConfigurationsService {
       );
     }
     logger.info(
-      `Creating new surgery configuration record with name ${dto?.name} under surgery type ${surgeryType?.name}`,
+      `Creating new surgery configuration with name ${dto?.name} under surgery type ${surgeryType?.name}`,
     );
     const savedSurgeryConfiguration =
       await this.surgeryConfigurationRepository.save({
@@ -76,7 +74,7 @@ export class SurgeryConfigurationsService {
         ...dto,
       });
     logger.info(
-      `New surgery configuration record added with ID ${savedSurgeryConfiguration?.id}`,
+      `New surgery configuration added with ID ${savedSurgeryConfiguration?.id}`,
     );
     return savedSurgeryConfiguration;
   }
@@ -86,9 +84,7 @@ export class SurgeryConfigurationsService {
     dto: UpdateSurgeryConfigurationDto,
     surgeryTypeEntity: SurgeryTypeEntity,
   ): Promise<SurgeryConfigurationEntity | null> {
-    logger.info(
-      `Starting update for surgery configuration record with ID ${id}`,
-    );
+    logger.info(`Starting update for surgery configuration with ID ${id}`);
     logger.info(`Updating surgery configuration with ID ${id}`);
     await this.surgeryConfigurationRepository.update(id, {
       ...dto,
