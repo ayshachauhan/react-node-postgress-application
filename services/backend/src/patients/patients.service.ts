@@ -33,6 +33,9 @@ export class PatientsService {
     createPatientDto: CreatePatientDto,
     practiceEntity: PracticeEntity | null,
   ): Promise<PatientEntity> {
+    logger.info(
+      `Starting the creation of patient with name ${createPatientDto?.firstName} ${createPatientDto?.lastName}`,
+    );
     if (!practiceEntity) {
       throw new HttpException('practice not found', HttpStatus.NOT_FOUND);
     }
@@ -77,7 +80,7 @@ export class PatientsService {
   }
 
   async update({ id, practiceId, data }): Promise<PatientEntity | null> {
-    logger.info(`Updating patient with ID: ${id}`);
+    logger.info(`Starting update for patient with ID: ${id}`);
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
@@ -87,6 +90,7 @@ export class PatientsService {
       });
 
       if (patientEntity) {
+        logger.info(`Updating patient with ID: ${id}`);
         await this.patientRepository.update(id, {
           firstName: data.firstName,
           lastName: data.lastName,

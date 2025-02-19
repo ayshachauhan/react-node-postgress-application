@@ -44,6 +44,9 @@ export class ReviewService {
   async createReview(
     reviewData: Partial<ReviewEntity>[],
   ): Promise<ReviewEntity[]> {
+    logger.info(`Starting creation of new reviews`, {
+      count: reviewData.length,
+    });
     logger.info(`Creating new reviews`, { count: reviewData.length });
     const newReviews = await this.reviews.save(reviewData);
     logger.info(`New reviews created successfully`, {
@@ -251,9 +254,10 @@ export class ReviewService {
     reviewId: string,
     reviewData: Partial<ReviewEntity>,
   ): Promise<ReviewEntity | undefined> {
-    logger.info(`Updating review with ID: ${reviewId}`);
+    logger.info(`Starting update for review with ID: ${reviewId}`);
     const review = await this.getReviewById(reviewId);
     const updatedReview = this.reviews.merge(review, reviewData);
+    logger.info(`Updating review with ID: ${reviewId}`);
     const savedReview = this.reviews.save(updatedReview);
     logger.info(`Review with ID: ${reviewId} updated successfully`);
     return savedReview;

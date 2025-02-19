@@ -66,7 +66,7 @@ export class UsersService {
     isCallingFromPractice: boolean = false,
   ): Promise<SanitizedUser> {
     logger.info(
-      `Creating new user with name ${createUserDto?.firstName} ${createUserDto?.lastName} `,
+      `Starting creation of new user with name ${createUserDto?.firstName} ${createUserDto?.lastName} `,
     );
     const { firstName, lastName } = createUserDto;
     const { permissionIds } = createUserDto;
@@ -94,6 +94,9 @@ export class UsersService {
       );
 
       let newUser: UserEntity = new UserEntity();
+      logger.info(
+        `Creating new user with name ${createUserDto?.firstName} ${createUserDto?.lastName} `,
+      );
 
       if (!existingUser) {
         newUser = await this.usersRepository.save({
@@ -192,9 +195,10 @@ export class UsersService {
     id: string,
     updateUserDto: UpdateUserDto,
   ): Promise<SanitizedUser | null> {
-    logger.info(`Updating user with ID: ${id}`);
+    logger.info(`Starting update for user with ID: ${id}`);
     const userToUpdate = await this.getUserById(id);
     if (!userToUpdate) {
+      logger.info(`User with id ${id} not found`);
       throw new HttpException(
         `User with id ${id} not found`,
         HttpStatus.NOT_FOUND,
@@ -213,6 +217,7 @@ export class UsersService {
       }
       updatedUser.permissions = permissionEntities;
     }
+    logger.info(`Updating user with ID: ${id}`);
 
     const savedUser = await this.usersRepository.save(updatedUser);
 
@@ -235,6 +240,9 @@ export class UsersService {
     changePasswordDto,
     practiceId,
   }): Promise<SanitizedUser> {
+    logger.info(
+      `Starting change password process for user with email ${changePasswordDto?.email}`,
+    );
     const { email, newPassword, confirmPassword, oldPassword, token } =
       changePasswordDto;
 

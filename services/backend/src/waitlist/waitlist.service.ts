@@ -43,6 +43,7 @@ export class WaitlistService {
     { name }: WaitlistCreateDto,
     practiceEntity: PracticeEntity,
   ): Promise<WaitlistEntity> {
+    logger.info(`Starting creation of new waitlist with name ${name}`);
     logger.info(`Creating new waitlist with name ${name}`);
     const newPracticeHome: WaitlistEntity = this.waitlistRepository.create({
       practice: practiceEntity,
@@ -61,13 +62,13 @@ export class WaitlistService {
     waitlistPatchDto: WaitlistPatchDto,
     practiceId: string,
   ): Promise<WaitlistEntity | null> {
-    logger.info(`Updating waitlist with ID ${id}`);
+    logger.info(`Starting update for waitlist with ID ${id}`);
     const practiceHomeToUpdate = await this.getWaitlistById(id, practiceId);
 
     if (!practiceHomeToUpdate) {
       throw new HttpException(`Waitlist  not found`, HttpStatus.NOT_FOUND);
     }
-
+    logger.info(`Updating waitlist with ID ${id}`);
     await this.waitlistRepository.update(id, {
       ...waitlistPatchDto,
       practice: { id: practiceId },

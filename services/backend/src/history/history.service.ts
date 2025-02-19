@@ -131,14 +131,16 @@ export class HistoryService {
     dto: CreateHistoryParams & { userId: string },
   ): Promise<HistoryEntity> {
     logger.info(
-      `Creating new history record for Entity: ${dto?.entityType}, Action: ${dto?.action}, EntityID: ${dto?.entityId}`,
+      `Starting creation of new history record for Entity: ${dto?.entityType}, Action: ${dto?.action}, EntityID: ${dto?.entityId}`,
     );
     const practiceEntity = await this.practiceService.findOne(dto.practiceId);
 
     const userEntity = practiceEntity?.users.find(
       (user: UserEntity) => user.id === dto.userId,
     );
-
+    logger.info(
+      `Creating new history record for Entity: ${dto?.entityType}, Action: ${dto?.action}, EntityID: ${dto?.entityId}`,
+    );
     const history = this.historyRepo.create({
       practice: practiceEntity!,
       user: userEntity,

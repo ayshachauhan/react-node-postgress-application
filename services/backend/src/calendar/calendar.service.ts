@@ -150,7 +150,9 @@ export class CalendarService {
     dto: CreateCalendarDto,
   ): Promise<CalendarEntity> {
     logger.info(
-      `Creating new calendar entry with details ${JSON.stringify(dto)}`,
+      `Starting creation of new calendar entry with details ${JSON.stringify(
+        dto,
+      )}`,
     );
     const practiceEntity = await this.practiceService.findOne(practiceId);
 
@@ -189,6 +191,9 @@ export class CalendarService {
     }
 
     //TODO: need to check why we need to add the ! operator here, giving typeerror whithout them about DeepPartialEntity
+    logger.info(
+      `Creating new calendar entry with details ${JSON.stringify(dto)}`,
+    );
     const calendar = this.calendarRepo.create({
       ...dto,
       bookedSlots: dto.bookedSlots ?? 0,
@@ -215,7 +220,7 @@ export class CalendarService {
     bookedHours,
     id,
   }: UpdateCalendarDto & { id: string }): Promise<CalendarEntity | null> {
-    logger.info(`Updating calendar with ID: ${id}`);
+    logger.info(`Starting update for calendar with ID: ${id}`);
     if (maxSlots && bookedHours) {
       if (maxSlots < parseFloat(bookedHours)) {
         throw new HttpException(
@@ -224,6 +229,7 @@ export class CalendarService {
         );
       }
     }
+    logger.info(`Updating calendar with ID: ${id}`);
     await this.calendarRepo.update(id, {
       maxSlots,
       bookedSlots,
@@ -250,6 +256,17 @@ export class CalendarService {
   }: UpdateCalendarsDto & { practiceId: string }): Promise<
     CalendarEntity[] | null
   > {
+    logger.info(
+      `Starting update for calendars ${JSON.stringify(
+        data.map((item) => ({
+          id: item.id,
+          bookedSlots: item.bookedSlots,
+          maxSlots: item.maxSlots,
+          surgeryTypeId: item.surgeryTypeId,
+          bookedHours: item.bookedHours,
+        })),
+      )}`,
+    );
     const updatedCalendars: CalendarEntity[] = [];
     let surgeryTypeEntity: SurgeryTypeEntity | null;
 

@@ -87,6 +87,11 @@ export class MediaService {
     practiceId: string,
     data: CreateMediaDto,
   ): Promise<MediaEntity | null> {
+    logger.info(
+      `Starting the creation of new media with details: ${JSON.stringify(
+        data,
+      )}`,
+    );
     // const mediaConfig: MediaConfig = await this.getMediaConfig(data);
 
     const existingMedia =
@@ -97,7 +102,7 @@ export class MediaService {
     if (existingMedia) {
       return await this.createMediaConfig(existingMedia.id, data.mediaConfig);
     } else {
-      logger.info(`Creating media with details ${data} `);
+      logger.info(`Creating media with details: ${JSON.stringify(data)}`);
       const media = this.media.create({
         practiceId,
         mediaType: data.mediaType,
@@ -114,6 +119,9 @@ export class MediaService {
     mediaId: string,
     mediaConfig: MediaConfigDTO[],
   ): Promise<MediaEntity | null> {
+    logger.info(
+      `Starting the creation of new media config entries for media ID: ${mediaId}`,
+    );
     if (mediaConfig.length) {
       logger.info(
         `Creating ${mediaConfig.length} media config entries for media ID: ${mediaId}`,

@@ -55,6 +55,9 @@ export class PracticeHomesService {
     { name }: PracticeHomeCreateDto,
     practiceEntity: PracticeEntity,
   ): Promise<PracticeHomesEntity> {
+    logger.info(
+      `Starting the creation of new practice home record with name ${name}`,
+    );
     logger.info(`Creating new practice home record with name ${name}`);
     const newPracticeHome: PracticeHomesEntity =
       this.practiceHomesRepository.create({
@@ -75,13 +78,13 @@ export class PracticeHomesService {
     practiceHomePatchDto: PracticeHomePatchDto,
     practiceId: string,
   ): Promise<PracticeHomesEntity | null> {
-    logger.info(`Updating practice home record with ID: ${id}`);
+    logger.info(`Starting update for practice home record with ID: ${id}`);
     const practiceHomeToUpdate = await this.getPracticeHomeById(id, practiceId);
 
     if (!practiceHomeToUpdate) {
       throw new HttpException(`PracticeHome  not found`, HttpStatus.NOT_FOUND);
     }
-
+    logger.info(`Updating practice home record with ID: ${id}`);
     await this.practiceHomesRepository.update(id, {
       ...practiceHomePatchDto,
       practice: { id: practiceId },

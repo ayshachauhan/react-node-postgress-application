@@ -28,6 +28,9 @@ export class ReferrersService {
     referrerData: Partial<ReferrersEntity>,
   ): Promise<ReferrersEntity> {
     logger.info(
+      `Starting the creation of new referrer with name ${referrerData?.firstName} ${referrerData?.lastName}`,
+    );
+    logger.info(
       `Creating new referrer with name ${referrerData?.firstName} ${referrerData?.lastName}`,
     );
     const referrer = this.referrers.create({ ...referrerData, practiceId });
@@ -113,11 +116,12 @@ export class ReferrersService {
     referrerId: string,
     referrerData: Partial<ReferrersEntity>,
   ): Promise<ReferrersEntity | undefined> {
-    logger.info(`Updating referrer with ID: ${referrerId}`);
+    logger.info(`Starting update for referrer with ID: ${referrerId}`);
     const referrer = await this.getReferrerById(practiceId, referrerId);
     const { email: userEmail } = referrerData;
     const { email: dbEmail } = referrer;
     const updatedReferrer = this.referrers.merge(referrer, referrerData);
+    logger.info(`Updating referrer with ID: ${referrerId}`);
     const result = await this.referrers.save(updatedReferrer);
     logger.info(`Referrer with ID: ${referrerId} updated successfully`);
     if (!dbEmail && userEmail) {

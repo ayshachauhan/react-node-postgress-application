@@ -161,7 +161,7 @@ export class EvalsService {
 
   async create({ practiceId, createEvalDto, user }): Promise<EvalEntity> {
     logger.info(
-      `Creating new eval for patient ${createEvalDto?.firstName} ${createEvalDto?.lastName}, Date ${createEvalDto.date}`,
+      `Starting creation of new eval for patient ${createEvalDto?.firstName} ${createEvalDto?.lastName}, Date ${createEvalDto.date}`,
     );
     const newEval: EvalEntity = new EvalEntity();
 
@@ -259,7 +259,9 @@ export class EvalsService {
         );
       }
     }
-
+    logger.info(
+      `Creating new eval for patient ${createEvalDto?.firstName} ${createEvalDto?.lastName}, Date ${createEvalDto.date}`,
+    );
     const resultEval = await this.evalRepository.save({
       ...newEval,
       ...createEvalDto,
@@ -300,7 +302,7 @@ export class EvalsService {
     user,
     practiceId,
   }): Promise<EvalEntity | null> {
-    logger.info(`Updating eval ID: ${id}`);
+    logger.info(`Starting update for eval with ID: ${id}`);
     const evalToUpdate = await this.getEvalById(id);
 
     if (createEvalDto.insuranceTypeId) {
@@ -356,7 +358,7 @@ export class EvalsService {
     delete createEvalDto.insuranceTypeId;
     delete createEvalDto.waitlistId;
     delete createEvalDto.practiceHomeId;
-
+    logger.info(`Updating eval with ID: ${id}`);
     await this.evalRepository.update(id, {
       ...evalToUpdate,
       insuranceType: createEvalDto.insuranceType

@@ -46,9 +46,9 @@ export class SurgeryTypesService {
     { name, color }: CreateSurgeryTypeDto,
     practice: PracticeEntity,
   ): Promise<SurgeryTypeEntity> {
-    logger.info(`Creating new surgery type with name ${name}`);
+    logger.info(`Starting the creation of new surgery type with name ${name}`);
     const newPracticeHome: SurgeryTypeEntity = new SurgeryTypeEntity();
-
+    logger.info(`Creating new surgery type with name ${name}`);
     const savedSurgerType = await this.surgeryTypeRepository.save({
       ...newPracticeHome,
       practice,
@@ -65,6 +65,7 @@ export class SurgeryTypesService {
     updateDto: UpdateSurgeryTypeDto,
     id: string,
   ): Promise<SurgeryTypeEntity | null> {
+    logger.info(`Starting update for surgery type with ID: ${id}`);
     logger.info(`Updating surgery type with ID: ${id}`);
     await this.surgeryTypeRepository.update(id, updateDto);
     logger.info(`Surgery type with ID: ${id} updated successfully`);

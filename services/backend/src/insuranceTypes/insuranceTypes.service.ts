@@ -42,7 +42,7 @@ export class InsuranceTypesService {
   }
 
   async remove(id: string, practiceId: string): Promise<void> {
-    logger.info(`Removing insurance type with ID: ${id}`);
+    logger.info(`Deleting insurance type with ID: ${id}`);
     await this.insuranceTypeRepository.softDelete({
       id,
       practice: { id: practiceId },
@@ -54,21 +54,21 @@ export class InsuranceTypesService {
     { name }: CreateInsuranceTypeDto,
     practiceId: string,
   ): Promise<InsuranceTypeEntity> {
-    logger.info(`Creating new insurance type with name ${name}`);
+    logger.info(`Starting creation of new insurance type with name ${name}`);
     const newInsuranceType: InsuranceTypeEntity = new InsuranceTypeEntity();
 
     const practiceEntity = await this.practicesService.findOne(practiceId);
     if (!practiceEntity) {
       throw new HttpException('Practice not found', HttpStatus.NOT_FOUND);
     }
-
+    logger.info(`Creating new insurance type with name ${name}`);
     const savedInsuranceType = await this.insuranceTypeRepository.save({
       ...newInsuranceType,
       practice: practiceEntity,
       name,
     });
     logger.info(
-      `New insurance type created with ID: ${savedInsuranceType?.id}`,
+      `New insurance type created successfully with ID: ${savedInsuranceType?.id}`,
     );
     return savedInsuranceType;
   }

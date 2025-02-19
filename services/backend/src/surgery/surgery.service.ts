@@ -493,7 +493,7 @@ export class SurgeryService {
     request: Request & { user: SanitizedUser },
   ): Promise<SurgeryEntity> {
     logger.info(
-      `Creating new surgery for patient ${createSurgeryDto?.firstName} ${createSurgeryDto?.lastName} , Date ${createSurgeryDto.date}`,
+      `Starting the creation of new surgery for patient ${createSurgeryDto?.firstName} ${createSurgeryDto?.lastName} , Date ${createSurgeryDto.date}`,
     );
     const newSurgery: SurgeryEntity = new SurgeryEntity();
 
@@ -611,7 +611,9 @@ export class SurgeryService {
         );
       }
     }
-
+    logger.info(
+      `Creating new surgery for patient ${createSurgeryDto?.firstName} ${createSurgeryDto?.lastName} , Date ${createSurgeryDto.date}`,
+    );
     const resultSurgery = await this.surgeryRepository.save({
       ...newSurgery,
       ...createSurgeryDto,
@@ -695,7 +697,7 @@ export class SurgeryService {
     { createSurgeryDto, id, practiceId },
     request: Request & { user: SanitizedUser },
   ): Promise<ISurgery | null> {
-    logger.info(`Updating surgery ID: ${id}`);
+    logger.info(`Starting update for surgery with ID: ${id}`);
     const surgeryToUpdate = await this.getSurgeryById(id);
 
     if (createSurgeryDto.insuranceTypeId) {
@@ -799,7 +801,7 @@ export class SurgeryService {
       referrer: createSurgeryDto.referrer ? createSurgeryDto.referrer : null,
       pcp: createSurgeryDto.pcp ? createSurgeryDto.pcp : null,
     };
-
+    logger.info(`Updating surgery ID: ${id}`);
     await this.surgeryRepository.update(id, {
       ...surgeryToUpdate,
       ...dataToUpdate,
@@ -1023,8 +1025,11 @@ export class SurgeryService {
   }
 
   async autoCompleteSurgeries(surgeryId: string = '') {
+    logger.info(
+      `Starting process of autocompleting surgeries for surgery with ID: ${surgeryId}`,
+    );
     if (surgeryId) {
-      logger.info(`Updating surgery ID: ${surgeryId}`);
+      logger.info(`Updating surgery with ID: ${surgeryId}`);
       const surgeryResponse = await this.surgeryRepository.update(
         {
           id: surgeryId,
@@ -1034,7 +1039,7 @@ export class SurgeryService {
         },
       );
       if (surgeryResponse.affected) {
-        logger.info(`Surgery update successful for ID: ${surgeryId}`);
+        logger.info(`Surgery with ID: ${surgeryId} updated successfully`);
         const surgeryData = await this.getSurgeryById(surgeryId);
         if (surgeryData && surgeryData?.practiceHome?.practice) {
           await this.createReviewEntity([

@@ -52,7 +52,7 @@ export class SurgeryConfigurationsService {
     surgeryType: SurgeryTypeEntity,
   ): Promise<SurgeryConfigurationEntity> {
     logger.info(
-      `Creating new surgery configuration record with name ${dto?.name} under surgery type ${surgeryType?.name}`,
+      `Starting the creation of new surgery configuration record with name ${dto?.name} under surgery type ${surgeryType?.name}`,
     );
     const sameSurgeryTypeCheck =
       await this.surgeryConfigurationRepository.findOne({
@@ -67,6 +67,9 @@ export class SurgeryConfigurationsService {
         HttpStatus.NOT_ACCEPTABLE,
       );
     }
+    logger.info(
+      `Creating new surgery configuration record with name ${dto?.name} under surgery type ${surgeryType?.name}`,
+    );
     const savedSurgeryConfiguration =
       await this.surgeryConfigurationRepository.save({
         surgeryType,
@@ -83,6 +86,9 @@ export class SurgeryConfigurationsService {
     dto: UpdateSurgeryConfigurationDto,
     surgeryTypeEntity: SurgeryTypeEntity,
   ): Promise<SurgeryConfigurationEntity | null> {
+    logger.info(
+      `Starting update for surgery configuration record with ID ${id}`,
+    );
     logger.info(`Updating surgery configuration with ID ${id}`);
     await this.surgeryConfigurationRepository.update(id, {
       ...dto,

@@ -124,7 +124,7 @@ export class PracticesService {
     adminLastName,
     code,
   }: PracticeCreateDto): Promise<PracticeEntity> {
-    logger.info(`Creating practice with name: ${name}`);
+    logger.info(`Starting the creation of practice with name: ${name}`);
     // initiating transaction as multiple table operations are in queue
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
@@ -144,7 +144,7 @@ export class PracticesService {
           HttpStatus.BAD_REQUEST,
         );
       }
-
+      logger.info(`Creating practice with name: ${name}`);
       const newPractice: PracticeEntity = this.practicesRepository.create({
         name,
         code,
@@ -220,7 +220,7 @@ export class PracticesService {
   }
 
   async update(id: string, practicePatchDto): Promise<PracticeEntity | null> {
-    logger.info(`Updating practice with ID: ${id}`);
+    logger.info(`Starting update for practice with ID: ${id}`);
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
@@ -238,6 +238,7 @@ export class PracticesService {
         lastName: practicePatchDto.adminLastName,
         firstName: practicePatchDto.adminFirstName,
       };
+      logger.info(`Updating practice with ID: ${id}`);
 
       const practiceUpdateResult: UpdateResult =
         await this.practicesRepository.update(id, sanitizedPracticePayload);
