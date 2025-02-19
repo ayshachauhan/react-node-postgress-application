@@ -289,7 +289,7 @@ export class UsersService {
               HttpStatus.NOT_MODIFIED,
             );
           } else {
-            logger.info(`Password update successful for user ID ${user.id}`);
+            logger.info(`Password updated successfully for user ID ${user.id}`);
           }
         } else {
           throw new HttpException(

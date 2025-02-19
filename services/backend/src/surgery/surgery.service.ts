@@ -806,7 +806,7 @@ export class SurgeryService {
       ...surgeryToUpdate,
       ...dataToUpdate,
     });
-    logger.info(`Surgery update successful for ID: ${id}`);
+    logger.info(`Surgery with ID: ${id} updated successfully`);
 
     // upsert calendar after updating surgery
     try {
@@ -1071,7 +1071,13 @@ export class SurgeryService {
         ],
       });
 
-      logger.info(`Updating surgeries ${surgeryCompletedEntries}`);
+      logger.info(
+        `Updating ${
+          surgeryCompletedEntries.length
+        } surgeries: ${surgeryCompletedEntries
+          .map((entry) => entry.id)
+          .join(', ')}`,
+      );
       const surgeryData = await this.surgeryRepository.update(
         {
           date: LessThan(new Date(Date.now())),
@@ -1088,7 +1094,9 @@ export class SurgeryService {
       );
 
       if (surgeryData.affected && surgeryCompletedEntries.length) {
-        logger.info('Surgeries update successful');
+        logger.info(
+          `Successfully updated ${surgeryData.affected} surgeries to COMPLETED status.`,
+        );
         const reviewEntries = surgeryCompletedEntries.map((entry) => ({
           reviewStatus: ReviewStatus.PENDING,
           practice: entry.practiceHome.practice,
