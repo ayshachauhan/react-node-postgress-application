@@ -33,9 +33,6 @@ export class PatientsService {
     createPatientDto: CreatePatientDto,
     practiceEntity: PracticeEntity | null,
   ): Promise<PatientEntity> {
-    logger.info(
-      `Creating new patient with name ${createPatientDto?.firstName} ${createPatientDto?.lastName}`,
-    );
     if (!practiceEntity) {
       throw new HttpException('practice not found', HttpStatus.NOT_FOUND);
     }
@@ -66,6 +63,9 @@ export class PatientsService {
       }
       return mrnCheck;
     } else {
+      logger.info(
+        `Creating new patient with name ${createPatientDto?.firstName} ${createPatientDto?.lastName}`,
+      );
       const newPatient = this.patientRepository.create({
         practice: practiceEntity,
         ...createPatientDto,

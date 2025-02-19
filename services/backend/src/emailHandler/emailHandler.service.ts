@@ -139,7 +139,7 @@ export class EmailHandlerService {
       const evalEmailLogEntries =
         await this.evalEmailRepository.save(evalEmailEntries);
       logger.info(
-        `Created ${evalEmailLogEntries.length} entries successfully in eval email table.`,
+        `Created ${evalEmailLogEntries.length} eval email entries successfully`,
       );
     } else {
       // creating entries in surgery email log table
@@ -153,7 +153,7 @@ export class EmailHandlerService {
       const surgeryEmailLogEntries =
         await this.surgeryEmailRepository.save(surgeryEmailEntries);
       logger.info(
-        `Created ${surgeryEmailLogEntries.length} entries successfully in surgery email table.`,
+        `Created ${surgeryEmailLogEntries.length} surgery email entries successfully`,
       );
     }
   }
@@ -730,11 +730,11 @@ export class EmailHandlerService {
             log.data.firstName = newPayload.firstName;
             log.data.lastName = newPayload.lastName;
             logger.info(
-              `Saving email log for patient: ${log?.data?.firstName} ${log?.data?.lastName}}`,
+              `Saving email log for patient: ${log?.data?.firstName} ${log?.data?.lastName}`,
             );
             await this.emailLogRepository.save(log);
             logger.info(
-              `Successfully saved email log for patient: ${log?.data?.firstName} ${log?.data?.lastName}}`,
+              `Successfully saved email log for patient: ${log?.data?.firstName} ${log?.data?.lastName}`,
             );
           }),
         );
@@ -788,13 +788,11 @@ export class EmailHandlerService {
       });
 
       // creating entries for cron job
-      logger.info(
-        `Creating ${emailLogsEntries.length} entries in email log table.`,
-      );
+      logger.info(`Creating ${emailLogsEntries.length} email log entries`);
       const dbEmailLogEntries =
         await this.emailLogRepository.save(emailLogsEntries);
       logger.info(
-        `Created ${dbEmailLogEntries.length} entries in email log table successfully.`,
+        `Created ${dbEmailLogEntries.length} email log entries successfully.`,
       );
 
       const surgeryEmailEntries = dbEmailLogEntries.map((ele) => ({
@@ -802,12 +800,12 @@ export class EmailHandlerService {
         emailLog: ele,
       }));
       logger.info(
-        `Creating ${surgeryEmailEntries.length} entries in surgery email table.`,
+        `Creating ${surgeryEmailEntries.length} surgery email entries`,
       );
       const surgeryEmailLogEntries =
         await this.surgeryEmailRepository.save(surgeryEmailEntries);
       logger.info(
-        `Created ${surgeryEmailLogEntries.length} entries in surgery email table successfully.`,
+        `Created ${surgeryEmailLogEntries.length} surgery email entries`,
       );
     }
   }

@@ -161,7 +161,7 @@ export class EvalsService {
 
   async create({ practiceId, createEvalDto, user }): Promise<EvalEntity> {
     logger.info(
-      `Creating new eval for patient ${createEvalDto?.firstName} ${createEvalDto?.lastName} , Date ${createEvalDto.date}`,
+      `Creating new eval for patient ${createEvalDto?.firstName} ${createEvalDto?.lastName}, Date ${createEvalDto.date}`,
     );
     const newEval: EvalEntity = new EvalEntity();
 
@@ -377,7 +377,7 @@ export class EvalsService {
       referrer: createEvalDto.referrer ? createEvalDto.referrer : null,
       pcp: createEvalDto.pcp ? createEvalDto.pcp : null,
     });
-    logger.info(`Eval update successful for ID: ${id}`);
+    logger.info(`Eval with ID: ${id} updated successfully`);
 
     if (evalToUpdate) {
       // depends on dto values, make sure to update the obj values if dto changes

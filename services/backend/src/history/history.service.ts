@@ -131,7 +131,7 @@ export class HistoryService {
     dto: CreateHistoryParams & { userId: string },
   ): Promise<HistoryEntity> {
     logger.info(
-      `Creating new history record for entity ${dto?.entityType} action ${dto?.action} ID ${dto?.entityId}`,
+      `Creating new history record for Entity: ${dto?.entityType}, Action: ${dto?.action}, EntityID: ${dto?.entityId}`,
     );
     const practiceEntity = await this.practiceService.findOne(dto.practiceId);
 
@@ -151,7 +151,7 @@ export class HistoryService {
 
     const savedHistory = await this.historyRepo.save(history);
     logger.info(
-      `New history record created successfully ID: ${savedHistory?.id}`,
+      `New history record created successfully with ID: ${savedHistory?.id}`,
     );
     return savedHistory;
   }
