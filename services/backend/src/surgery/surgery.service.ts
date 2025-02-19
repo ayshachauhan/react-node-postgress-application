@@ -492,6 +492,9 @@ export class SurgeryService {
     { practiceId, createSurgeryDto },
     request: Request & { user: SanitizedUser },
   ): Promise<SurgeryEntity> {
+    logger.info(
+      `Creating new surgery for patient ${createSurgeryDto?.firstName} ${createSurgeryDto?.lastName} , Date ${createSurgeryDto.date}`,
+    );
     const newSurgery: SurgeryEntity = new SurgeryEntity();
 
     const practiceEntity = await this.practiceService.findOne(practiceId);
@@ -625,6 +628,7 @@ export class SurgeryService {
       referrer: referrerEntity.dateCreated ? referrerEntity : undefined,
       pcp: pcpReferrerEntity.dateCreated ? pcpReferrerEntity : undefined,
     });
+    logger.info(`New surgery created with ID: ${resultSurgery?.id}`);
 
     // upsert calendar after creating surgery
     if (surgeryConfigurationEntity && practiceEntity && doctorEntity) {
@@ -691,6 +695,7 @@ export class SurgeryService {
     { createSurgeryDto, id, practiceId },
     request: Request & { user: SanitizedUser },
   ): Promise<ISurgery | null> {
+    logger.info(`Updating surgery ID: ${id}`);
     const surgeryToUpdate = await this.getSurgeryById(id);
 
     if (createSurgeryDto.insuranceTypeId) {
@@ -799,6 +804,7 @@ export class SurgeryService {
       ...surgeryToUpdate,
       ...dataToUpdate,
     });
+    logger.info(`Surgery update successful for ID: ${id}`);
 
     // upsert calendar after updating surgery
     try {
@@ -1018,6 +1024,7 @@ export class SurgeryService {
 
   async autoCompleteSurgeries(surgeryId: string = '') {
     if (surgeryId) {
+      logger.info(`Updating surgery ID: ${surgeryId}`);
       const surgeryResponse = await this.surgeryRepository.update(
         {
           id: surgeryId,
@@ -1027,6 +1034,7 @@ export class SurgeryService {
         },
       );
       if (surgeryResponse.affected) {
+        logger.info(`Surgery update successful for ID: ${surgeryId}`);
         const surgeryData = await this.getSurgeryById(surgeryId);
         if (surgeryData && surgeryData?.practiceHome?.practice) {
           await this.createReviewEntity([
@@ -1058,6 +1066,7 @@ export class SurgeryService {
         ],
       });
 
+      logger.info(`Updating surgeries ${surgeryCompletedEntries}`);
       const surgeryData = await this.surgeryRepository.update(
         {
           date: LessThan(new Date(Date.now())),
@@ -1074,6 +1083,7 @@ export class SurgeryService {
       );
 
       if (surgeryData.affected && surgeryCompletedEntries.length) {
+        logger.info('Surgeries update successful');
         const reviewEntries = surgeryCompletedEntries.map((entry) => ({
           reviewStatus: ReviewStatus.PENDING,
           practice: entry.practiceHome.practice,
@@ -1096,6 +1106,7 @@ export class SurgeryService {
     request: Request & { user: SanitizedUser },
     ipAddress: string,
   ): Promise<void> {
+    logger.info(`Deleting surgery with ID: ${id}`);
     const surgeryToUpdate = await this.getSurgeryById(id);
     const surgeryConfigurationEntity =
       surgeryToUpdate &&
@@ -1108,7 +1119,7 @@ export class SurgeryService {
         userId: surgeryToUpdate?.doctor?.id,
       });
       await this.surgeryRepository.softDelete(id);
-
+      logger.info(`Surgery with ID: ${id} deleted successfully`);
       const reomvedCalender = calendars.find(
         (calendar: ICalendar) =>
           moment(calendar.date).format('YYYY-MM-DD') ===

@@ -149,6 +149,7 @@ export class SchedulerService {
                 'status' in response && response.status == 'rejected'
                   ? 'rejected'
                   : 'completed';
+              logger.info(`Updating email log ID: ${id} to status: ${status}`);
               return manager.query(
                 `UPDATE email_logs SET status=$1, response=$2 WHERE id=$3`,
                 [status, response, id],
@@ -217,6 +218,7 @@ export class SchedulerService {
                 'status' in response && response.status == 'rejected'
                   ? 'failed'
                   : 'enqueued';
+              logger.info(`Updating SMS log ID: ${id} to status: ${status}`);
               return manager.query(
                 `UPDATE email_logs SET "smsStatus"=$1, "smsResponse"=$2 WHERE id=$3`,
                 [status, response, id],
@@ -388,7 +390,10 @@ export class SchedulerService {
         logger.info(
           `${emailLogEntries.length} summary email(s) to be processed`,
         );
-        await this.emailLogRepository.save(emailLogEntries);
+        const savedLogs = await this.emailLogRepository.save(emailLogEntries);
+        logger.info(`Email log entries saved successfully`, {
+          logIds: savedLogs.map((log) => log.id),
+        });
       }
     } catch (ex) {
       logger.error(ex);

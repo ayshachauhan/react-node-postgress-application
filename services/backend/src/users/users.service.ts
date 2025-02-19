@@ -20,6 +20,7 @@ import {
 import * as bcrypt from 'bcrypt';
 import Mail from 'nodemailer/lib/mailer';
 import { ENVIRONMENT_VARIABLES } from 'src/enums/environment.enums';
+import logger from 'src/logger';
 import { PermissionsService } from 'src/permissions/permissions.service';
 import { PracticesService } from 'src/practices/practices.service';
 import { TransporterService } from 'src/transporter';
@@ -64,6 +65,9 @@ export class UsersService {
     sendUserCreationEmail: boolean,
     isCallingFromPractice: boolean = false,
   ): Promise<SanitizedUser> {
+    logger.info(
+      `Creating new user with name ${createUserDto?.firstName} ${createUserDto?.lastName} `,
+    );
     const { firstName, lastName } = createUserDto;
     const { permissionIds } = createUserDto;
     const fullName = `${firstName} ${lastName}`;
@@ -101,6 +105,7 @@ export class UsersService {
           practices: [practiceEntity],
           permissions: permissionEntities || [],
         });
+        logger.info(`New user created successfully with ID: ${newUser?.id} `);
 
         if (sendUserCreationEmail || !isCallingFromPractice) {
           await this.sendNewUserMail({ newUser, fullName, practiceEntity });
@@ -120,6 +125,9 @@ export class UsersService {
         await this.usersRepository.save({
           ...existingUser,
         });
+        logger.info(
+          `Existing user with ID: ${existingUser?.id} updated successfully`,
+        );
 
         newUser = existingUser;
         if (sendUserCreationEmail) {
@@ -132,6 +140,9 @@ export class UsersService {
           await this.practicesService.update(practiceId, {
             status: PracticeStatus.ACTIVE,
           });
+          logger.info(
+            `Existing practice with ID: ${practiceId} updated successfully`,
+          );
         }
       }
 
@@ -172,14 +183,16 @@ export class UsersService {
     if (!userEntity) {
       throw new HttpException('user not found', HttpStatus.NOT_FOUND);
     }
-
+    logger.info(`Deleting user with ID ${id}`);
     await this.usersRepository.softDelete(id);
+    logger.info(`User with ID ${id} deleted successfully`);
   }
 
   async updateUser(
     id: string,
     updateUserDto: UpdateUserDto,
   ): Promise<SanitizedUser | null> {
+    logger.info(`Updating user with ID: ${id}`);
     const userToUpdate = await this.getUserById(id);
     if (!userToUpdate) {
       throw new HttpException(
@@ -204,6 +217,7 @@ export class UsersService {
     const savedUser = await this.usersRepository.save(updatedUser);
 
     if (savedUser) {
+      logger.info(`User with ID: ${id} updated successfully`);
       return this.sanitizeUser(savedUser);
     }
     return null;
@@ -253,15 +267,21 @@ export class UsersService {
           );
         }
         if (user.status == UserStatus.ACTIVE && (user?.token || !token)) {
+          logger.info(`Updating user with ID ${user.id}`);
           const updatedResult = await this.usersRepository.update(user.id, {
             password: newHashedPassword,
             token: '',
           });
           if (updatedResult.affected === 0) {
+            logger.info(
+              `Password update failed due to some error for user ID ${user.id}`,
+            );
             throw new HttpException(
               `Password update failed due to some error`,
               HttpStatus.NOT_MODIFIED,
             );
+          } else {
+            logger.info(`Password update successful for user ID ${user.id}`);
           }
         } else {
           throw new HttpException(
@@ -277,6 +297,7 @@ export class UsersService {
       );
 
       if (isPasswordMatched) {
+        logger.info(`Updating user with ID ${user.id}`);
         const updatedResult = await this.usersRepository.update(user.id, {
           password: newHashedPassword,
           status: UserStatus.ACTIVE,
@@ -287,16 +308,23 @@ export class UsersService {
           user.type == UserType.ADMIN &&
           oldPassword == this.defaultUserPassword()
         ) {
+          logger.info(`Updating practice with ID ${practiceId}`);
           await this.practicesService.update(practiceId, {
             status: PracticeStatus.ACTIVE,
           });
+          logger.info(`Practice with ID ${practiceId} updated successfully`);
         }
 
         if (updatedResult.affected === 0) {
+          logger.info(
+            `Password update failed due to some error for user with ID ${user.id}`,
+          );
           throw new HttpException(
             `Password update failed due to some error`,
             HttpStatus.NOT_MODIFIED,
           );
+        } else {
+          logger.info(`User with ID ${user.id} updated successfully`);
         }
       }
 

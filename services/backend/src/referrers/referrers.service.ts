@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ReferrersEntity } from '@packages/entities/referrer';
+import logger from 'src/logger';
 import { PracticesService } from 'src/practices/practices.service';
 import { SurgeryService } from 'src/surgery/surgery.service';
 import { filterUpcomingSurgeries } from 'src/utils';
@@ -26,15 +27,24 @@ export class ReferrersService {
     practiceId: string,
     referrerData: Partial<ReferrersEntity>,
   ): Promise<ReferrersEntity> {
+    logger.info(
+      `Creating new referrer with name ${referrerData?.firstName} ${referrerData?.lastName}`,
+    );
     const referrer = this.referrers.create({ ...referrerData, practiceId });
-    return await this.referrers.save(referrer);
+    const savedReferrer = await this.referrers.save(referrer);
+    logger.info(
+      `New referrer created successfully with ID ${savedReferrer?.id}`,
+    );
+    return savedReferrer;
   }
 
   async deleteReferrer(practiceId: string, id: string): Promise<void> {
+    logger.info(`Deleting referrer with ID: ${id}`);
     await this.referrers.softDelete({
       id,
       practiceId,
     });
+    logger.info(`Referrer with ID: ${id} deleted successfully`);
   }
 
   async getReferrerById(
@@ -103,11 +113,13 @@ export class ReferrersService {
     referrerId: string,
     referrerData: Partial<ReferrersEntity>,
   ): Promise<ReferrersEntity | undefined> {
+    logger.info(`Updating referrer with ID: ${referrerId}`);
     const referrer = await this.getReferrerById(practiceId, referrerId);
     const { email: userEmail } = referrerData;
     const { email: dbEmail } = referrer;
     const updatedReferrer = this.referrers.merge(referrer, referrerData);
     const result = await this.referrers.save(updatedReferrer);
+    logger.info(`Referrer with ID: ${referrerId} updated successfully`);
     if (!dbEmail && userEmail) {
       const { surgeries } = await this.surgeryService.findAll(
         practiceId,
