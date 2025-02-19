@@ -65,6 +65,7 @@ export class EmailHandlerService {
     fromEval?: boolean,
     messageType?: string,
   ): Promise<void> {
+    logger.info('Initiating the creation of doctor email content');
     const mailVariables = await this.makeEmailVariable(
       entity,
       practice,
@@ -748,6 +749,7 @@ export class EmailHandlerService {
     includeAdmin: boolean,
     messageType: string,
   ) {
+    logger.info('Initiating the creation of surgery update email content');
     const emailLogsEntries: Partial<IEmailLog>[] = [];
     const mailVariables = await this.makeEmailVariable(
       entity,
@@ -811,6 +813,9 @@ export class EmailHandlerService {
   }
 
   async fetchAndMarkMailAsRead(id: string, token: string): Promise<void> {
+    logger.info(
+      `Starting process of marking email as read for email log ID: ${id}`,
+    );
     const jwtResponse = await this.jwtService.verify(token);
     if (jwtResponse) {
       logger.info(`Updating email log ID: ${id}`);
@@ -827,6 +832,7 @@ export class EmailHandlerService {
     systemGeneratedMailData?: SystemGeneratedMailData,
     messageType?: string,
   ): Promise<void> {
+    logger.info('Initiating the creation of review email content');
     const emailLogsEntries: Partial<IEmailLog>[] = [];
     if (systemGeneratedMailData) {
       const systemTemplateName = systemGeneratedMailData.systemTemplate;
