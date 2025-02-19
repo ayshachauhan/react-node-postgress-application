@@ -44,14 +44,14 @@ export class ReviewService {
   async createReview(
     reviewData: Partial<ReviewEntity>[],
   ): Promise<ReviewEntity[]> {
-    logger.info(`Starting creation of new reviews`, {
-      count: reviewData.length,
-    });
-    logger.info(`Creating new reviews`, { count: reviewData.length });
+    logger.info(`Starting creation of ${reviewData.length} reviews`);
+    logger.info(`Creating ${reviewData.length} new reviews`);
     const newReviews = await this.reviews.save(reviewData);
-    logger.info(`New reviews created successfully`, {
-      reviewIds: newReviews.map((review) => review.id),
-    });
+    logger.info(
+      `New ${newReviews.length} reviews created successfully: ${newReviews
+        .map((review) => review.id)
+        .join(', ')}`,
+    );
 
     return newReviews;
   }

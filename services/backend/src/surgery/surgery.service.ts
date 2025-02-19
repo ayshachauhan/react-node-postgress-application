@@ -801,7 +801,7 @@ export class SurgeryService {
       referrer: createSurgeryDto.referrer ? createSurgeryDto.referrer : null,
       pcp: createSurgeryDto.pcp ? createSurgeryDto.pcp : null,
     };
-    logger.info(`Updating surgery ID: ${id}`);
+    logger.info(`Updating surgery with ID: ${id}`);
     await this.surgeryRepository.update(id, {
       ...surgeryToUpdate,
       ...dataToUpdate,

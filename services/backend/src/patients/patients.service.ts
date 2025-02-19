@@ -74,7 +74,9 @@ export class PatientsService {
         ...createPatientDto,
       });
       const newPatientSaved = await this.patientRepository.save(newPatient);
-      logger.info(`Created new patient with ID: ${newPatientSaved.id}`);
+      logger.info(
+        `Created new patient successfully with ID: ${newPatientSaved.id}`,
+      );
       return newPatientSaved;
     }
   }

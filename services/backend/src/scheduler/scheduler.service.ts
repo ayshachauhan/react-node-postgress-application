@@ -391,9 +391,13 @@ export class SchedulerService {
           `${emailLogEntries.length} summary email(s) to be processed`,
         );
         const savedLogs = await this.emailLogRepository.save(emailLogEntries);
-        logger.info(`Email log entries saved successfully`, {
-          logIds: savedLogs.map((log) => log.id),
-        });
+        logger.info(
+          `${
+            savedLogs.length
+          } summary email log entries saved successfully: ${savedLogs
+            .map((summaryLog) => summaryLog.id)
+            .join(', ')}`,
+        );
       }
     } catch (ex) {
       logger.error(ex);
