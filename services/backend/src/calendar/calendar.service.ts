@@ -150,7 +150,7 @@ export class CalendarService {
     dto: CreateCalendarDto,
   ): Promise<CalendarEntity> {
     logger.info(
-      `Creating new calendar entry for practice ID: ${practiceId}, user ID: ${userId} with details ${dto}`,
+      `Creating new calendar entry with details ${JSON.stringify(dto)}`,
     );
     const practiceEntity = await this.practiceService.findOne(practiceId);
 
