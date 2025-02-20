@@ -11,7 +11,7 @@ import { UserEntity } from '@packages/entities/*';
 import * as bcrypt from 'bcrypt';
 import Mail from 'nodemailer/lib/mailer';
 import { UpdateUserDto } from 'src/users/dto/update.dto';
-import { decryptPassword } from 'src/utils';
+// import { decryptPassword } from 'src/utils';
 import { ENVIRONMENT_VARIABLES } from '../enums/environment.enums';
 import { TransporterService } from '../transporter/transporter.service';
 import { SystemTemplates } from '../transporter/transporter.types';
@@ -31,9 +31,9 @@ export class AuthService {
     email: string,
     password: string,
   ): Promise<SanitizedUser | SuperAdminUser | null> {
-    const decryptedPassword = decryptPassword(password);
+    //const decryptedPassword = decryptPassword(password);
 
-    const superAdmin = await this.checkSuperAdmin(email, decryptedPassword);
+    const superAdmin = await this.checkSuperAdmin(email, password);
 
     if (superAdmin) return superAdmin;
     else {
@@ -45,13 +45,15 @@ export class AuthService {
       }
 
       if (user) {
-        const isPasswordMatched = await bcrypt.compare(
-          decryptedPassword,
-          user.password,
-        );
+        // const isPasswordMatched = await bcrypt.compare(
+        //   decryptedPassword,
+        //   user.password,
+        // );
+        const isPasswordMatched = await bcrypt.compare(password, user.password);
         if (isPasswordMatched) {
           const { password, ...result } = user;
-          decryptedPassword && password;
+          password && password;
+          // decryptedPassword && password;
           return {
             ...result,
             isSuperAdmin: false,
