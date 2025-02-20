@@ -44,7 +44,16 @@ export class ReviewService {
   async createReview(
     reviewData: Partial<ReviewEntity>[],
   ): Promise<ReviewEntity[]> {
-    return await this.reviews.save(reviewData);
+    logger.info(`Starting creation of ${reviewData.length} reviews`);
+    logger.info(`Creating ${reviewData.length} new reviews`);
+    const newReviews = await this.reviews.save(reviewData);
+    logger.info(
+      `New ${newReviews.length} reviews created successfully: ${newReviews
+        .map((review) => review.id)
+        .join(', ')}`,
+    );
+
+    return newReviews;
   }
 
   async sendReviewRequest(practiceId: string, reviewId: string) {
@@ -223,9 +232,11 @@ export class ReviewService {
   }
 
   async deleteReview(id: string): Promise<void> {
+    logger.info(`Deleting review with ID: ${id}`);
     await this.reviews.softDelete({
       id,
     });
+    logger.info(`Review with ID: ${id} deleted successfully`);
   }
 
   private async getReviewById(reviewId: string): Promise<ReviewEntity> {
@@ -243,9 +254,13 @@ export class ReviewService {
     reviewId: string,
     reviewData: Partial<ReviewEntity>,
   ): Promise<ReviewEntity | undefined> {
+    logger.info(`Starting update for review with ID: ${reviewId}`);
     const review = await this.getReviewById(reviewId);
     const updatedReview = this.reviews.merge(review, reviewData);
-    return this.reviews.save(updatedReview);
+    logger.info(`Updating review with ID: ${reviewId}`);
+    const savedReview = this.reviews.save(updatedReview);
+    logger.info(`Review with ID: ${reviewId} updated successfully`);
+    return savedReview;
   }
 
   async getReviews(practiceId: string) {

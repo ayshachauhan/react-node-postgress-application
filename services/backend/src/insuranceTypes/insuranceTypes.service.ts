@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { InsuranceTypeEntity } from '@packages/entities/insuranceType';
+import logger from 'src/logger';
 import { Repository } from 'typeorm';
 import { PracticesService } from '../practices/practices.service';
 import { CreateInsuranceTypeDto } from './dto/createInsuranceType.dto';
@@ -41,27 +42,34 @@ export class InsuranceTypesService {
   }
 
   async remove(id: string, practiceId: string): Promise<void> {
+    logger.info(`Deleting insurance type with ID: ${id}`);
     await this.insuranceTypeRepository.softDelete({
       id,
       practice: { id: practiceId },
     });
+    logger.info(`Insurance type with ID: ${id} deleted successfully`);
   }
 
   async create(
     { name }: CreateInsuranceTypeDto,
     practiceId: string,
   ): Promise<InsuranceTypeEntity> {
+    logger.info(`Starting creation of new insurance type with name ${name}`);
     const newInsuranceType: InsuranceTypeEntity = new InsuranceTypeEntity();
 
     const practiceEntity = await this.practicesService.findOne(practiceId);
     if (!practiceEntity) {
       throw new HttpException('Practice not found', HttpStatus.NOT_FOUND);
     }
-
-    return await this.insuranceTypeRepository.save({
+    logger.info(`Creating new insurance type with name ${name}`);
+    const savedInsuranceType = await this.insuranceTypeRepository.save({
       ...newInsuranceType,
       practice: practiceEntity,
       name,
     });
+    logger.info(
+      `New insurance type created successfully with ID: ${savedInsuranceType?.id}`,
+    );
+    return savedInsuranceType;
   }
 }

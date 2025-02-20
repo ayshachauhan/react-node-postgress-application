@@ -11,6 +11,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { PracticeEntity } from '@packages/entities/practice';
 import { UserEntity, UserType } from '@packages/entities/user';
 import Mail from 'nodemailer/lib/mailer';
+import logger from 'src/logger';
 import { SystemTemplates } from 'src/transporter/transporter.types';
 import { UpdateUserDto } from 'src/users/dto/update.dto';
 import { UploadType } from 'src/users/types';
@@ -109,7 +110,9 @@ export class PracticesService {
   }
 
   async remove(id: string): Promise<void> {
+    logger.info(`Deleting practice with ID: ${id}`);
     await this.practicesRepository.softDelete(id);
+    logger.info(`Practice with ID: ${id} deleted successfully`);
   }
 
   async create({
@@ -121,6 +124,7 @@ export class PracticesService {
     adminLastName,
     code,
   }: PracticeCreateDto): Promise<PracticeEntity> {
+    logger.info(`Starting the creation of practice with name: ${name}`);
     // initiating transaction as multiple table operations are in queue
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
@@ -140,7 +144,7 @@ export class PracticesService {
           HttpStatus.BAD_REQUEST,
         );
       }
-
+      logger.info(`Creating practice with name: ${name}`);
       const newPractice: PracticeEntity = this.practicesRepository.create({
         name,
         code,
@@ -148,6 +152,8 @@ export class PracticesService {
 
       const practice: PracticeEntity =
         await this.practicesRepository.save(newPractice);
+
+      logger.info(`New practice created successfully with id: ${practice?.id}`);
 
       // creating admin user
       let sendUserCreationEmail: boolean = true;
@@ -214,6 +220,7 @@ export class PracticesService {
   }
 
   async update(id: string, practicePatchDto): Promise<PracticeEntity | null> {
+    logger.info(`Starting update for practice with ID: ${id}`);
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
@@ -231,6 +238,7 @@ export class PracticesService {
         lastName: practicePatchDto.adminLastName,
         firstName: practicePatchDto.adminFirstName,
       };
+      logger.info(`Updating practice with ID: ${id}`);
 
       const practiceUpdateResult: UpdateResult =
         await this.practicesRepository.update(id, sanitizedPracticePayload);
@@ -241,6 +249,8 @@ export class PracticesService {
           HttpStatus.NOT_FOUND,
         );
       }
+
+      logger.info(`Practice with ID: ${id} updated successfully`);
 
       const adminUser = practicePatchDto.adminId;
       const userToUpdate = await this.userService.getUserById(adminUser);

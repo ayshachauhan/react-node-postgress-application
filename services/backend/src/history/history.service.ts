@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { HistoryEntity, UserEntity } from '@packages/entities';
+import logger from 'src/logger';
 import { PAGINATION_LIMIT } from 'src/utils/constants';
 import { Brackets, Repository } from 'typeorm';
 import { PracticesService } from '../practices/practices.service';
@@ -129,12 +130,17 @@ export class HistoryService {
   async createHistory(
     dto: CreateHistoryParams & { userId: string },
   ): Promise<HistoryEntity> {
+    logger.info(
+      `Starting creation of new history record for Entity: ${dto?.entityType}, Action: ${dto?.action}, EntityID: ${dto?.entityId}`,
+    );
     const practiceEntity = await this.practiceService.findOne(dto.practiceId);
 
     const userEntity = practiceEntity?.users.find(
       (user: UserEntity) => user.id === dto.userId,
     );
-
+    logger.info(
+      `Creating new history record for Entity: ${dto?.entityType}, Action: ${dto?.action}, EntityID: ${dto?.entityId}`,
+    );
     const history = this.historyRepo.create({
       practice: practiceEntity!,
       user: userEntity,
@@ -145,6 +151,10 @@ export class HistoryService {
       ipAddress: dto.ipAddress,
     });
 
-    return await this.historyRepo.save(history);
+    const savedHistory = await this.historyRepo.save(history);
+    logger.info(
+      `New history record created successfully with ID: ${savedHistory?.id}`,
+    );
+    return savedHistory;
   }
 }

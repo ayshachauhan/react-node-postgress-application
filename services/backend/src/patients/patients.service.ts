@@ -9,6 +9,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { PatientEntity } from '@packages/entities/patient';
 import { PracticeEntity } from '@packages/entities/practice';
 import { EmailHandlerService } from 'src/emailHandler/emailHandler.service';
+import logger from 'src/logger';
 import { CreatePatientDto } from 'src/patients/dto/createPatient.dto';
 import { Brackets, DataSource, Repository } from 'typeorm';
 
@@ -23,13 +24,18 @@ export class PatientsService {
   ) {}
 
   async remove(patientId: string): Promise<void> {
+    logger.info(`Deleting patient with ID: ${patientId}`);
     await this.patientRepository.softDelete(patientId);
+    logger.info(`Patient with ID: ${patientId} deleted successfully`);
   }
 
   async create(
     createPatientDto: CreatePatientDto,
     practiceEntity: PracticeEntity | null,
   ): Promise<PatientEntity> {
+    logger.info(
+      `Starting the creation of patient with name ${createPatientDto?.firstName} ${createPatientDto?.lastName}`,
+    );
     if (!practiceEntity) {
       throw new HttpException('practice not found', HttpStatus.NOT_FOUND);
     }
@@ -48,6 +54,7 @@ export class PatientsService {
         mrnCheck.countryCode !== createPatientDto.countryCode;
 
       if (hasChanges) {
+        logger.info(`Updating patient with ID: ${mrnCheck.id}`);
         await this.patientRepository.update(mrnCheck.id, {
           firstName: createPatientDto.firstName,
           lastName: createPatientDto.lastName,
@@ -55,18 +62,27 @@ export class PatientsService {
           phoneNumber: createPatientDto.phoneNumber,
           countryCode: createPatientDto.countryCode,
         });
+        logger.info(`Updated patient with ID: ${mrnCheck.id}`);
       }
       return mrnCheck;
     } else {
+      logger.info(
+        `Creating new patient with name ${createPatientDto?.firstName} ${createPatientDto?.lastName}`,
+      );
       const newPatient = this.patientRepository.create({
         practice: practiceEntity,
         ...createPatientDto,
       });
-      return await this.patientRepository.save(newPatient);
+      const newPatientSaved = await this.patientRepository.save(newPatient);
+      logger.info(
+        `Created new patient successfully with ID: ${newPatientSaved.id}`,
+      );
+      return newPatientSaved;
     }
   }
 
   async update({ id, practiceId, data }): Promise<PatientEntity | null> {
+    logger.info(`Starting update for patient with ID: ${id}`);
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
@@ -76,6 +92,7 @@ export class PatientsService {
       });
 
       if (patientEntity) {
+        logger.info(`Updating patient with ID: ${id}`);
         await this.patientRepository.update(id, {
           firstName: data.firstName,
           lastName: data.lastName,
@@ -84,6 +101,8 @@ export class PatientsService {
           countryCode: data.countryCode,
           mrn: data.mrn,
         });
+
+        logger.info(`Patient with ID: ${id} updated successfully`);
 
         await this.emailHandlerService.updateEmailLogsByPatientMrn(
           patientEntity?.mrn,

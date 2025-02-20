@@ -1,6 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PracticeEntity, PracticeHomesEntity } from '@packages/entities';
+import logger from 'src/logger';
 import { Repository } from 'typeorm';
 import { PracticeHomeCreateDto } from './dto/create.dto';
 import { PracticeHomePatchDto } from './dto/patch.dto';
@@ -42,23 +43,34 @@ export class PracticeHomesService {
   }
 
   async remove(id: string, practiceId: string): Promise<void> {
+    logger.info(`Deleting practice home with ID: ${id}`);
     await this.practiceHomesRepository.softDelete({
       id,
       practice: { id: practiceId },
     });
+    logger.info(`Practice home with ID: ${id} deleted successfully`);
   }
 
   async create(
     { name }: PracticeHomeCreateDto,
     practiceEntity: PracticeEntity,
   ): Promise<PracticeHomesEntity> {
+    logger.info(
+      `Starting the creation of new practice home record with name ${name}`,
+    );
+    logger.info(`Creating new practice home record with name ${name}`);
     const newPracticeHome: PracticeHomesEntity =
       this.practiceHomesRepository.create({
         practice: practiceEntity,
         name,
       });
 
-    return await this.practiceHomesRepository.save(newPracticeHome);
+    const createdPracticeHome =
+      await this.practiceHomesRepository.save(newPracticeHome);
+    logger.info(
+      `New practice home created successfully with ID: ${createdPracticeHome?.id}`,
+    );
+    return createdPracticeHome;
   }
 
   async update(
@@ -66,16 +78,18 @@ export class PracticeHomesService {
     practiceHomePatchDto: PracticeHomePatchDto,
     practiceId: string,
   ): Promise<PracticeHomesEntity | null> {
+    logger.info(`Starting update for practice home record with ID: ${id}`);
     const practiceHomeToUpdate = await this.getPracticeHomeById(id, practiceId);
 
     if (!practiceHomeToUpdate) {
       throw new HttpException(`PracticeHome  not found`, HttpStatus.NOT_FOUND);
     }
-
+    logger.info(`Updating practice home record with ID: ${id}`);
     await this.practiceHomesRepository.update(id, {
       ...practiceHomePatchDto,
       practice: { id: practiceId },
     });
+    logger.info(`Practice home record with ID: ${id} updated successfully`);
 
     return await this.practiceHomesRepository.findOne({
       where: { id, practice: { id: practiceId } },

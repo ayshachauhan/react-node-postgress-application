@@ -5,6 +5,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { ENVIRONMENT_VARIABLES } from './enums/environment.enums';
+import { LoggingInterceptor } from './interceptors/loggingInterceptor';
 import logger from './logger';
 
 async function bootstrap() {
@@ -14,6 +15,7 @@ async function bootstrap() {
       transform: true, // This ensures that transformation takes place
     }),
   );
+  app.useGlobalInterceptors(new LoggingInterceptor());
 
   const configService = await app.resolve(ConfigService);
 

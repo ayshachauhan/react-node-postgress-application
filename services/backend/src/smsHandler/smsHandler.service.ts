@@ -44,6 +44,7 @@ export class SmsHandlerService {
           message?.smsAttempts < 1 &&
           (messageStatus === 'failed' || messageStatus === 'undelivered')
         ) {
+          logger.warn(`Retrying SMS for log ID: ${emailLogId}`);
           await this.messageRepository.update(
             { id: emailLogId },
             {
@@ -51,12 +52,19 @@ export class SmsHandlerService {
               smsStatus: 'queued',
             },
           );
+          logger.info(`Updating SMS log ID: ${emailLogId} to status: queued`);
         } else {
+          logger.warn(
+            `Updating SMS log ID: ${emailLogId} to status: ${messageStatus}`,
+          );
           await this.messageRepository.update(
             { id: emailLogId },
             {
               smsStatus: messageStatus,
             },
+          );
+          logger.info(
+            `Updated SMS log ID: ${emailLogId} to status: ${messageStatus}`,
           );
         }
       }
