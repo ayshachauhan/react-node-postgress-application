@@ -4,6 +4,7 @@ import * as CryptoJS from 'crypto-js';
 import { Between } from 'typeorm';
 
 const secretKey = process.env.NEXT_PUBLIC_ENCRYPTION_KEY;
+console.log(secretKey, 34, 67);
 
 export function getStartEndDate(
   months: string[] = [],
