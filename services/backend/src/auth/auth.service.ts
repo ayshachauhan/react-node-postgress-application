@@ -31,9 +31,7 @@ export class AuthService {
     email: string,
     password: string,
   ): Promise<SanitizedUser | SuperAdminUser | null> {
-    console.log('-------------inside');
     const decryptedPassword = decryptPassword(password);
-    console.log('-------------decryptedPassword', decryptedPassword);
 
     const superAdmin = await this.checkSuperAdmin(email, decryptedPassword);
 
@@ -51,7 +49,6 @@ export class AuthService {
           decryptedPassword,
           user.password,
         );
-        console.log(decryptedPassword, 'eferfre------', user.password);
         if (isPasswordMatched) {
           const { password, ...result } = user;
           decryptedPassword && password;
