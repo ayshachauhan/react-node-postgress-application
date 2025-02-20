@@ -452,5 +452,6 @@ export const validatePassword = (password: string): string | null => {
 };
 
 export function encryptPassword(password: string): string {
+  console.log('encrypting');
   return CryptoJS.AES.encrypt(password, secretKey).toString();
 }

@@ -31,7 +31,9 @@ export class AuthService {
     email: string,
     password: string,
   ): Promise<SanitizedUser | SuperAdminUser | null> {
+    console.log('-------------inside');
     const decryptedPassword = decryptPassword(password);
+    console.log('-------------decryptedPassword', decryptedPassword);
 
     const superAdmin = await this.checkSuperAdmin(email, decryptedPassword);
 

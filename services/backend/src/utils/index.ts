@@ -1,6 +1,6 @@
 import { PermissionEntity } from '@packages/entities/*';
 import { USER_PERMISSIONS } from '@packages/entities/permission';
-import * as CryptoJS from 'crypto-js';
+import CryptoJS from 'crypto-js';
 import { Between } from 'typeorm';
 
 const secretKey = process.env.NEXT_PUBLIC_ENCRYPTION_KEY;
@@ -221,6 +221,7 @@ export const getDateDiffInDays = (date1: Date, date2: Date): number => {
 };
 
 export function decryptPassword(encryptedPassword: string): string {
+  console.log('decrypting');
   const bytes = CryptoJS.AES.decrypt(encryptedPassword, secretKey);
   return bytes.toString(CryptoJS.enc.Utf8);
 }
