@@ -1,7 +1,10 @@
 import { SurgeryStatus } from '@packages/entities';
 import { ICalendar, MonthOption } from '@packages/entities/index.browser';
 import { DEFAULT_SURGERYLOCATION_COLOR } from '@root/utils/constants';
+import CryptoJS from 'crypto-js';
 import moment from 'moment';
+
+const secretKey = process.env.NEXT_PUBLIC_ENCRYPTION_KEY;
 
 export function indexBy<K extends keyof T, T>(
   key: K,
@@ -446,3 +449,7 @@ export const validatePassword = (password: string): string | null => {
   }
   return null; // No error if it matches the pattern
 };
+
+export function encryptPassword(password: string): string {
+  return CryptoJS.AES.encrypt(password, secretKey).toString();
+}

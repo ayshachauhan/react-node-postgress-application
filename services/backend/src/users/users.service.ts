@@ -31,6 +31,7 @@ import {
   UploadType,
   UploadUserImgData,
 } from 'src/users/types';
+import { decryptPassword } from 'src/utils';
 import { DataSource, Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create.dto';
 import { UpdateUserDto } from './dto/update.dto';
@@ -246,17 +247,20 @@ export class UsersService {
     const { email, newPassword, confirmPassword, oldPassword, token } =
       changePasswordDto;
 
+    const decryptedNewPassword = decryptPassword(newPassword);
+    const decryptedConfirmPassword = decryptPassword(confirmPassword);
+
     const passwordRegex =
       /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*()_+={}:;"'<>,.?/-])[A-Za-z\d!@#$%^&*()_+={}:;"'<>,.?/-]{8,20}$/;
 
-    if (!passwordRegex.test(newPassword)) {
+    if (!passwordRegex.test(decryptedNewPassword)) {
       throw new HttpException(
         'Password must be 8-20 characters long, containing at least one uppercase, one lowercase, one numeric & one special character.',
         HttpStatus.BAD_REQUEST,
       );
     }
 
-    if (confirmPassword !== newPassword) {
+    if (decryptedConfirmPassword !== decryptedNewPassword) {
       throw new HttpException(
         'Password does not match',
         HttpStatus.PRECONDITION_FAILED,
@@ -265,7 +269,7 @@ export class UsersService {
 
     const user = await this.findUserByEmail(email);
     if (user) {
-      const newHashedPassword = await bcrypt.hash(newPassword, 10);
+      const newHashedPassword = await bcrypt.hash(decryptedNewPassword, 10);
       if (!oldPassword) {
         // meaning that user is reseting own password only.
         if (!user?.token && token) {

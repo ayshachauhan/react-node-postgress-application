@@ -9,6 +9,7 @@ import {
   selectError,
   selectSuccessMessage,
 } from '@root/store/reducers/auth';
+import { encryptPassword } from '@root/utils';
 import { AzentiaLogo } from '@utils/constants';
 import { publicRuntimeConfig } from 'next.config';
 import { useRouter } from 'next/navigation';
@@ -39,8 +40,13 @@ export default function LoginPage() {
       setValidationError(error);
       return;
     }
+
+    const encryptedPassword = encryptPassword(password);
+
     try {
-      const user = await dispatch(loginUser({ email, password }));
+      const user = await dispatch(
+        loginUser({ email, password: encryptedPassword }),
+      );
       if (user.payload?.access_token) {
         if (user.payload?.is_super_admin) {
           router.push('/practices');
