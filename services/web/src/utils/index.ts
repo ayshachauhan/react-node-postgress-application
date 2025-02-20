@@ -5,6 +5,7 @@ import CryptoJS from 'crypto-js';
 import moment from 'moment';
 
 const secretKey = process.env.NEXT_PUBLIC_ENCRYPTION_KEY;
+console.log(secretKey, 634, 617);
 
 export function indexBy<K extends keyof T, T>(
   key: K,
