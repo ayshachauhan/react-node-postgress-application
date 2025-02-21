@@ -98,6 +98,7 @@ export const ResetPassword: React.FC<Props> = ({
 
     const encryptedNewPassword = encryptPassword(newPassword);
     const encryptedConfirmPassword = encryptPassword(confirmPassword);
+    const encryptedOldPassword = encryptPassword(oldPassword);
 
     if (userInfo && userInfo.practices) {
       setTokenExpired(false);
@@ -105,7 +106,7 @@ export const ResetPassword: React.FC<Props> = ({
         practiceId: userInfo.practices[0].id,
         email: userInfo?.email,
         confirmPassword: encryptedConfirmPassword,
-        oldPassword,
+        oldPassword: encryptedOldPassword,
         newPassword: encryptedNewPassword,
         token,
       };
