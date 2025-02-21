@@ -73,13 +73,14 @@ export default function PracticeOnboardPage() {
 
     const encryptedNewPassword = encryptPassword(newPassword);
     const encryptedConfirmPassword = encryptPassword(confirmPassword);
+    const encryptedOldPassword = encryptPassword(oldPassword);
 
     if (userInfo && userInfo.practices) {
       const payload: ChangePasswordInterface = {
         practiceId: userInfo.practices[0].id,
         email: userInfo?.email,
         confirmPassword: encryptedConfirmPassword,
-        oldPassword,
+        oldPassword: encryptedOldPassword,
         newPassword: encryptedNewPassword,
       };
       try {

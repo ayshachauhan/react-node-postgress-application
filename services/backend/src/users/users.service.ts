@@ -249,6 +249,7 @@ export class UsersService {
 
     const decryptedNewPassword = decryptPassword(newPassword);
     const decryptedConfirmPassword = decryptPassword(confirmPassword);
+    const decryptedOldPassword = decryptPassword(oldPassword);
 
     const passwordRegex =
       /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*()_+={}:;"'<>,.?/-])[A-Za-z\d!@#$%^&*()_+={}:;"'<>,.?/-]{8,20}$/;
@@ -271,7 +272,7 @@ export class UsersService {
     if (user) {
       const newHashedPassword = await bcrypt.hash(decryptedNewPassword, 10);
 
-      if (!oldPassword) {
+      if (!decryptedOldPassword) {
         // meaning that user is reseting own password only.
         if (!user?.token && token) {
           throw new HttpException(
@@ -305,7 +306,7 @@ export class UsersService {
       }
 
       const isPasswordMatched = await bcrypt.compare(
-        oldPassword,
+        decryptedOldPassword,
         user.password,
       );
 
@@ -319,7 +320,7 @@ export class UsersService {
         // if admin is changing password and the password is default. then setting practice status as active
         if (
           user.type == UserType.ADMIN &&
-          oldPassword == this.defaultUserPassword()
+          decryptedOldPassword == this.defaultUserPassword()
         ) {
           logger.info(`Updating practice with ID ${practiceId}`);
           await this.practicesService.update(practiceId, {
