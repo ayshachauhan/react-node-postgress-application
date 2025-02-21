@@ -12,8 +12,7 @@ import {
 import { setLoginCookie } from '@root/store/requests/login';
 import { ChangePasswordInterface } from '@root/store/requests/users';
 import { AzentiaLogo } from '@utils/constants';
-//import { encryptPassword, getPracticeId, validatePassword } from '@utils/index';
-import { getPracticeId, validatePassword } from '@utils/index';
+import { encryptPassword, getPracticeId, validatePassword } from '@utils/index';
 import { useRouter, useSearchParams } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import RequiredIndicator from '../RequiredIndicator';
@@ -72,18 +71,16 @@ export default function PracticeOnboardPage() {
       return;
     }
 
-    // const encryptedNewPassword = encryptPassword(newPassword);
-    // const encryptedConfirmPassword = encryptPassword(confirmPassword);
+    const encryptedNewPassword = encryptPassword(newPassword);
+    const encryptedConfirmPassword = encryptPassword(confirmPassword);
 
     if (userInfo && userInfo.practices) {
       const payload: ChangePasswordInterface = {
         practiceId: userInfo.practices[0].id,
         email: userInfo?.email,
-        confirmPassword,
-        //confirmPassword: encryptedConfirmPassword,
+        confirmPassword: encryptedConfirmPassword,
         oldPassword,
-        newPassword,
-        //newPassword: encryptedNewPassword,
+        newPassword: encryptedNewPassword,
       };
       try {
         const response = await dispatch(changePasswordAsync(payload));

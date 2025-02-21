@@ -10,8 +10,7 @@ import {
   clearSuccessMessage,
 } from '@root/store/reducers/users';
 import { ChangePasswordInterface } from '@root/store/requests/users/types';
-// import { encryptPassword, getPracticeId, validatePassword } from '@root/utils';
-import { getPracticeId, validatePassword } from '@root/utils';
+import { encryptPassword, getPracticeId, validatePassword } from '@root/utils';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { LogoWrapper } from '../LogoWrapper/logoWrapper';
@@ -97,19 +96,17 @@ export const ResetPassword: React.FC<Props> = ({
       return;
     }
 
-    // const encryptedNewPassword = encryptPassword(newPassword);
-    // const encryptedConfirmPassword = encryptPassword(confirmPassword);
+    const encryptedNewPassword = encryptPassword(newPassword);
+    const encryptedConfirmPassword = encryptPassword(confirmPassword);
 
     if (userInfo && userInfo.practices) {
       setTokenExpired(false);
       const payload: ChangePasswordInterface = {
         practiceId: userInfo.practices[0].id,
         email: userInfo?.email,
-        confirmPassword,
-        //confirmPassword: encryptedConfirmPassword,
+        confirmPassword: encryptedConfirmPassword,
         oldPassword,
-        newPassword,
-        //newPassword: encryptedNewPassword,
+        newPassword: encryptedNewPassword,
         token,
       };
       try {
