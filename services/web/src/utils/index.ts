@@ -453,3 +453,23 @@ export const validatePassword = (password: string): string | null => {
 export function encryptPassword(password: string): string {
   return CryptoJS.AES.encrypt(password, secretKey).toString();
 }
+
+export function checkPasswordStrength(password: string): string {
+  const lengthCheck = password.length >= 8;
+  const hasUpperCase = /[A-Z]/.test(password);
+  const hasLowerCase = /[a-z]/.test(password);
+  const hasNumber = /\d/.test(password);
+  const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+
+  const strengthScore = [
+    lengthCheck,
+    hasUpperCase,
+    hasLowerCase,
+    hasNumber,
+    hasSpecialChar,
+  ].filter(Boolean).length;
+
+  if (strengthScore === 5) return 'Strong';
+  if (strengthScore >= 3) return 'Medium';
+  return 'Weak';
+}

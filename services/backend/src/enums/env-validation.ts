@@ -33,7 +33,7 @@ export const ENV_VARIABLES_SCHEMA: Record<ENVIRONMENT_VARIABLES, Joi.Schema> = {
     .default('$2b$10$9P8VN5pQGFovE7DhgpicB.OlfT7UFe6RQ.wHEQ7ao9ree.HEKTiea'), //admin,
   [ENVIRONMENT_VARIABLES.DEFAULT_USER_PASSWORD]: Joi.string()
     .optional()
-    .default('Pod@12345'),
+    .default('U2FsdGVkX19ucGbrtl+6ZsNofh8zrA4iQAbBcv8CMBk='),
   [ENVIRONMENT_VARIABLES.FRONT_END_BASE_URL]: Joi.string(),
   [ENVIRONMENT_VARIABLES.NEXT_PUBLIC_API_BASE_URL]: Joi.string(),
   [ENVIRONMENT_VARIABLES.AWS_ACCESS_KEY_ID]: Joi.string().optional(),

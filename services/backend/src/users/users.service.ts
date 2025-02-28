@@ -54,7 +54,10 @@ export class UsersService {
   ) {}
 
   defaultUserPassword() {
-    return this.configService.get(ENVIRONMENT_VARIABLES.DEFAULT_USER_PASSWORD);
+    const defaultPassword = this.configService.get(
+      ENVIRONMENT_VARIABLES.DEFAULT_USER_PASSWORD,
+    );
+    return defaultPassword;
   }
   getFrontEndBaseUrl() {
     return this.configService.get(ENVIRONMENT_VARIABLES.FRONT_END_BASE_URL);
@@ -72,10 +75,6 @@ export class UsersService {
     const { firstName, lastName } = createUserDto;
     const { permissionIds } = createUserDto;
     const fullName = `${firstName} ${lastName}`;
-    const hashedDefaultPassword = await bcrypt.hash(
-      this.defaultUserPassword(),
-      10,
-    );
 
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
@@ -105,7 +104,7 @@ export class UsersService {
           ...createUserDto,
           status: UserStatus.PENDING,
           fullName,
-          password: hashedDefaultPassword,
+          password: this.defaultUserPassword(),
           practices: [practiceEntity],
           permissions: permissionEntities || [],
         });
@@ -250,6 +249,9 @@ export class UsersService {
     const decryptedNewPassword = decryptPassword(newPassword);
     const decryptedConfirmPassword = decryptPassword(confirmPassword);
     const decryptedOldPassword = decryptPassword(oldPassword);
+    const decryptedDefaultPassword = decryptPassword(
+      this.defaultUserPassword(),
+    );
 
     const passwordRegex =
       /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*()_+={}:;"'<>,.?/-])[A-Za-z\d!@#$%^&*()_+={}:;"'<>,.?/-]{8,20}$/;
@@ -320,7 +322,7 @@ export class UsersService {
         // if admin is changing password and the password is default. then setting practice status as active
         if (
           user.type == UserType.ADMIN &&
-          decryptedOldPassword == this.defaultUserPassword()
+          decryptedOldPassword == decryptedDefaultPassword
         ) {
           logger.info(`Updating practice with ID ${practiceId}`);
           await this.practicesService.update(practiceId, {
@@ -387,11 +389,15 @@ export class UsersService {
       text: 'text message',
     };
 
+    const decryptedDefaultPassword = decryptPassword(
+      this.defaultUserPassword(),
+    );
+
     const mailData: NewUserMailData = {
       signUpLink: frontendBaseUrl + `/onboarding/user?token=${token}`,
       practiceName: practiceEntity.name,
       fullName,
-      defaultUserPassword: this.defaultUserPassword(),
+      defaultUserPassword: decryptedDefaultPassword,
       contactEmail: newSanitizedUser.email,
     };
 
@@ -413,6 +419,10 @@ export class UsersService {
   }): Promise<void> {
     const frontendBaseUrl: string = this.getFrontEndBaseUrl();
 
+    const decryptedDefaultPassword = decryptPassword(
+      this.defaultUserPassword(),
+    );
+
     const mailOptions: Mail.Options = {
       to: newUser.email,
       subject: 'Welcome to Practice Optimization Dashboard',
@@ -423,7 +433,7 @@ export class UsersService {
       signUpLink: frontendBaseUrl + `/login`,
       practiceName: practiceEntity.name,
       fullName,
-      defaultUserPassword: this.defaultUserPassword(),
+      defaultUserPassword: decryptedDefaultPassword,
       contactEmail: newUser.email,
     };
 
