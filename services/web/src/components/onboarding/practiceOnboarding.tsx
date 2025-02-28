@@ -12,7 +12,12 @@ import {
 import { setLoginCookie } from '@root/store/requests/login';
 import { ChangePasswordInterface } from '@root/store/requests/users';
 import { AzentiaLogo } from '@utils/constants';
-import { encryptPassword, getPracticeId, validatePassword } from '@utils/index';
+import {
+  checkPasswordStrength,
+  encryptPassword,
+  getPracticeId,
+  validatePassword,
+} from '@utils/index';
 import { useRouter, useSearchParams } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import RequiredIndicator from '../RequiredIndicator';
@@ -35,6 +40,12 @@ export default function PracticeOnboardPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token: string | null = searchParams.get('token');
+  const [passwordStrength, setPasswordStrength] = useState('');
+
+  const handlePasswordChange = (value: string) => {
+    setNewPassword(value);
+    setPasswordStrength(checkPasswordStrength(value));
+  };
 
   useEffect(() => {
     if (token) {
@@ -168,10 +179,23 @@ export default function PracticeOnboardPage() {
                   <TextInput
                     name="newPassword"
                     value={newPassword}
-                    onChange={(value) => setNewPassword(value)}
+                    onChange={(value) => handlePasswordChange(value)}
                     required
                     type="password"
                   />
+                  {newPassword && (
+                    <p
+                      className={`text-sm ${
+                        passwordStrength === 'Strong'
+                          ? 'text-green-600'
+                          : passwordStrength === 'Medium'
+                            ? 'text-yellow-600'
+                            : 'text-red-600'
+                      }`}
+                    >
+                      Strength: {passwordStrength}
+                    </p>
+                  )}
                   <div className="space-y-4"></div>
                 </div>
                 <div className="">
