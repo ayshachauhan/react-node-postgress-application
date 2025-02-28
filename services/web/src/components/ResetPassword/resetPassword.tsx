@@ -10,7 +10,12 @@ import {
   clearSuccessMessage,
 } from '@root/store/reducers/users';
 import { ChangePasswordInterface } from '@root/store/requests/users/types';
-import { encryptPassword, getPracticeId, validatePassword } from '@root/utils';
+import {
+  checkPasswordStrength,
+  encryptPassword,
+  getPracticeId,
+  validatePassword,
+} from '@root/utils';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { LogoWrapper } from '../LogoWrapper/logoWrapper';
@@ -45,6 +50,12 @@ export const ResetPassword: React.FC<Props> = ({
   const userInfo = useAppSelector((state) => state.auth.user);
   const searchParams = useSearchParams();
   const token: string | null = searchParams.get('token');
+  const [passwordStrength, setPasswordStrength] = useState('');
+
+  const handlePasswordChange = (value: string) => {
+    setNewPassword(value);
+    setPasswordStrength(checkPasswordStrength(value));
+  };
 
   useEffect(() => {
     if (token) {
@@ -212,10 +223,23 @@ export const ResetPassword: React.FC<Props> = ({
                     <TextInput
                       name="newPassword"
                       value={newPassword}
-                      onChange={(value) => setNewPassword(value)}
+                      onChange={(value) => handlePasswordChange(value)}
                       required
                       type="password"
                     />
+                    {newPassword && (
+                      <p
+                        className={`text-sm ${
+                          passwordStrength === 'Strong'
+                            ? 'text-green-600'
+                            : passwordStrength === 'Medium'
+                              ? 'text-yellow-600'
+                              : 'text-red-600'
+                        }`}
+                      >
+                        Strength: {passwordStrength}
+                      </p>
+                    )}
                     <div className="space-y-4"></div>
                   </div>
                   <div className="">
