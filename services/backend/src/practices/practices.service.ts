@@ -16,7 +16,6 @@ import { SystemTemplates } from 'src/transporter/transporter.types';
 import { UpdateUserDto } from 'src/users/dto/update.dto';
 import { UploadType } from 'src/users/types';
 import { getUploadFileKey } from 'src/users/utils';
-import { decryptPassword } from 'src/utils';
 import { DataSource, ILike, Repository, UpdateResult } from 'typeorm';
 import { ENVIRONMENT_VARIABLES } from '../enums/environment.enums';
 import { TransporterService } from '../transporter';
@@ -49,10 +48,7 @@ export class PracticesService {
   }
 
   defaultUserPassword() {
-    const defaultPassword = this.configService.get(
-      ENVIRONMENT_VARIABLES.DEFAULT_USER_PASSWORD,
-    );
-    return defaultPassword;
+    return this.configService.get(ENVIRONMENT_VARIABLES.DEFAULT_USER_PASSWORD);
   }
 
   async findAll(): Promise<PracticesGetInterface[]> {
@@ -198,9 +194,6 @@ export class PracticesService {
       };
 
       const frontendBaseUrl: string | undefined = this.getFrontEndBaseUrl();
-      const encryptedPassword = this.defaultUserPassword();
-
-      const decryptedDefaultPassword = decryptPassword(encryptedPassword);
 
       const mailData: CreatePracticeInviteMailData & {
         password: string;
@@ -212,7 +205,7 @@ export class PracticesService {
         contactEmail: adminEmail,
         contactPhone: adminContactNumber,
         countryCode: adminCountryCode,
-        password: decryptedDefaultPassword,
+        password: this.defaultUserPassword(),
       };
 
       if (!sendUserCreationEmail) {
