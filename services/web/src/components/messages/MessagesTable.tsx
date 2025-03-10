@@ -357,7 +357,7 @@ export default function MessagesTable() {
         dispatch(fetchChat(chatFetchParams)).finally(() => {});
       }
     }
-  }, [dispatch, practiceId, searchMRNNameStr, isAIChatEnabled]);
+  }, [dispatch, practiceId, searchMRNNameStr]);
 
   const dispatchFetchMessages = (searchMRNName: string) => {
     if (practiceId != null) {
