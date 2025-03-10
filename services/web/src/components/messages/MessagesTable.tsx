@@ -353,6 +353,7 @@ export default function MessagesTable() {
       if (searchMRNNameStr) {
         chatFetchParams.mrn = searchMRNNameStr;
       }
+
       if (isAIChatEnabled) {
         dispatch(fetchChat(chatFetchParams)).finally(() => {});
       }
