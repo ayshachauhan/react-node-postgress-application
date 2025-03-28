@@ -246,3 +246,14 @@ export async function checkFileType(buffer: Buffer) {
 
   return { ext, mime };
 }
+
+export async function validatePDFContent(
+  file: Express.Multer.File,
+): Promise<boolean> {
+  try {
+    const header = file.buffer.toString('utf-8', 0, 5);
+    return header === '%PDF-';
+  } catch (error) {
+    throw new BadRequestException('Failed to validate PDF content');
+  }
+}

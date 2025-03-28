@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -19,6 +20,8 @@ import { AuthGuard } from 'src/auth/auth.guard';
 import { PermissionGuard } from 'src/auth/userPermissions.guard';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
 import { PracticeGuard } from 'src/practices/practice.guard';
+import { validatePDFContent } from 'src/utils';
+import { MAX_FILE_SIZE } from 'src/utils/constants';
 import { TemplateCreateDto } from './dto/template.createDto';
 import { TemplatePatchDto } from './dto/template.patchDto';
 import { TemplatesService } from './templates.service';
@@ -84,6 +87,28 @@ export class TemplatesController {
     @Param() params: { id: string; practiceId: string },
     @UploadedFile() file: Express.Multer.File,
   ) {
+    const allowedType = 'application/pdf';
+
+    if (!file) {
+      throw new BadRequestException('No file uploaded');
+    }
+
+    if (file.mimetype !== allowedType) {
+      throw new BadRequestException('Only PDF files are allowed');
+    }
+
+    if (file.size > MAX_FILE_SIZE * 1024 * 1024) {
+      throw new BadRequestException(
+        `File size must be less than ${MAX_FILE_SIZE} MB`,
+      );
+    }
+
+    const isValidPDF = await validatePDFContent(file);
+    if (!isValidPDF) {
+      throw new BadRequestException(
+        'Invalid PDF file. Please upload a valid PDF',
+      );
+    }
     return this.templateService.uploadTemplateAttachment({
       practiceId: params.practiceId,
       id: params.id,

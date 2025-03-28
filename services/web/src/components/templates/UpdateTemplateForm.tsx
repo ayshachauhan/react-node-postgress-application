@@ -11,6 +11,7 @@ import {
   fetchListings,
   updateRecordAsync,
 } from '@root/store/reducers/templates';
+import { MAX_FILE_SIZE } from '@root/utils/constants';
 import { TEMPLATE_VARIABLES } from '@root/utils/enums';
 import { getPracticeId } from '@utils/index';
 import { Checkbox, STYLE_TYPE } from 'baseui/checkbox';
@@ -147,12 +148,53 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({
     }
   }, [templateId, templateInfo]);
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const allowedType = 'application/pdf';
+
     const file = event.target.files?.[0];
 
-    if (file) {
-      setAttachment(file);
+    if (!file) {
+      alert('No file uploaded.');
+      return;
     }
+
+    if (file.type !== allowedType) {
+      alert('Only PDF files are allowed.');
+      return;
+    }
+
+    if (file.size > MAX_FILE_SIZE * 1024 * 1024) {
+      alert(`File size must be less than ${MAX_FILE_SIZE} MB.`);
+      return;
+    }
+
+    try {
+      const isValidPDF = await validatePDFContent(file);
+      if (!isValidPDF) {
+        alert('Invalid PDF file. Please upload a valid PDF.');
+        return;
+      }
+
+      setAttachment(file);
+      console.log('Valid PDF uploaded:', file);
+    } catch (error) {
+      alert('Failed to validate PDF content.');
+    }
+  };
+
+  const validatePDFContent = (file: File): Promise<boolean> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const content = new Uint8Array(reader.result as ArrayBuffer);
+        const header = new TextDecoder().decode(content.slice(0, 5));
+        resolve(header === '%PDF-');
+      };
+      reader.onerror = () => reject('Error reading file');
+      reader.readAsArrayBuffer(file);
+    });
   };
 
   const handleHtmlChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
