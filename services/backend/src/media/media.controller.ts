@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -20,6 +21,8 @@ import { AuthGuard } from 'src/auth/auth.guard';
 import { PermissionGuard } from 'src/auth/userPermissions.guard';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
 import { PracticeGuard } from 'src/practices/practice.guard';
+import { checkFileType } from 'src/utils';
+import { MAX_FILE_SIZE } from 'src/utils/constants';
 import { CreateMediaDto, SendVideoDto } from './dtos/createMedia.dto';
 import { MediaService } from './media.service';
 
@@ -74,6 +77,25 @@ export class MediaController {
     @Param() { id, practiceId }: { id: string; practiceId: string },
     @UploadedFiles() files: { files?: Express.Multer.File[] },
   ) {
+    const maxFileSize = MAX_FILE_SIZE * 1024 * 1024;
+
+    if (files?.files?.length) {
+      // Loop through all files
+      for (const file of files.files) {
+        if (!file) {
+          throw new BadRequestException('File is required.');
+        }
+
+        if (file.size > maxFileSize) {
+          throw new BadRequestException(
+            `File size exceeds the limit of ${maxFileSize / (1024 * 1024)}MB.`,
+          );
+        }
+
+        await checkFileType(file.buffer);
+      }
+    }
+
     return this.mediaService.uploadUserImg({
       id,
       practiceId,
