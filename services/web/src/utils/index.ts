@@ -473,3 +473,34 @@ export function checkPasswordStrength(password: string): string {
   if (strengthScore >= 3) return 'Medium';
   return 'Weak';
 }
+
+export const validateFileSignature = (
+  file: File,
+  onSuccess: (file: File) => void,
+  onError: (message: string) => void,
+) => {
+  const reader = new FileReader();
+  reader.onloadend = () => {
+    const arrayBuffer = reader.result as ArrayBuffer;
+    const byteArray = new Uint8Array(arrayBuffer);
+
+    // Signature validation
+    const jpgSignature = [0xff, 0xd8, 0xff]; // JPEG/JPG signature
+    const pngSignature = [0x89, 0x50, 0x4e, 0x47]; // PNG signature
+
+    const isValidSignature =
+      byteArray.slice(0, 3).join() === jpgSignature.join() ||
+      byteArray.slice(0, 4).join() === pngSignature.join();
+
+    if (!isValidSignature) {
+      onError('Invalid file type. File signature mismatch detected.');
+      return;
+    }
+
+    onSuccess(file);
+  };
+  reader.onerror = () => {
+    onError('Error reading file.');
+  };
+  reader.readAsArrayBuffer(file);
+};

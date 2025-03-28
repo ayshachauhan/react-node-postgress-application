@@ -12,7 +12,11 @@ import { useAppDispatch, useAppSelector } from '@root/store';
 import { updateRecordAsync } from '@root/store/reducers/users';
 import { SanitizedUser } from '@root/store/types';
 import { MAX_FILE_SIZE } from '@root/utils/constants';
-import { generateFullName, getPracticeId } from '@utils/index';
+import {
+  generateFullName,
+  getPracticeId,
+  validateFileSignature,
+} from '@utils/index';
 import { Checkbox } from 'baseui/checkbox';
 import { FileUploader } from 'baseui/file-uploader';
 import { Select } from 'baseui/select';
@@ -534,33 +538,16 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose, withLoader }) => {
                     return;
                   }
 
-                  const validateFileSignature = (file: File) => {
-                    const reader = new FileReader();
-                    reader.onloadend = () => {
-                      const arrayBuffer = reader.result as ArrayBuffer;
-                      const byteArray = new Uint8Array(arrayBuffer);
-
-                      const jpgSignature = [0xff, 0xd8, 0xff];
-                      const pngSignature = [0x89, 0x50, 0x4e, 0x47];
-
-                      const isValidSignature =
-                        byteArray.slice(0, 3).join() === jpgSignature.join() ||
-                        byteArray.slice(0, 4).join() === pngSignature.join();
-
-                      if (!isValidSignature) {
-                        setErrorMessage(
-                          'Invalid file type. File signature mismatch detected.',
-                        );
-                        return;
-                      }
-
+                  validateFileSignature(
+                    file,
+                    (validatedFile) => {
                       setErrorMessage('');
-                      setUserImg(file);
-                    };
-                    reader.readAsArrayBuffer(file);
-                  };
-
-                  validateFileSignature(file);
+                      setUserImg(validatedFile);
+                    },
+                    (errorMessage) => {
+                      setErrorMessage(errorMessage);
+                    },
+                  );
 
                   setErrorMessage('');
                   setUserImg(file);
