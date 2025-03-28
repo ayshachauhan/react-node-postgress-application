@@ -22,6 +22,7 @@ import { FileInterceptor } from '@nestjs/platform-express/multer';
 import { AuthGuard, RequestWithUser } from 'src/auth/auth.guard';
 import { Roles } from 'src/auth/role.decorator';
 import { RolesGuard } from 'src/auth/roles.gaurd';
+import { checkFileType } from 'src/utils';
 import { PracticeGuard } from '../practices/practice.guard';
 import { ChangePasswordDto } from './dto/changePassword.dto';
 import { CreateUserDto } from './dto/create.dto';
@@ -95,6 +96,27 @@ export class UsersController {
     @Param() params: { id: string; practiceId: string },
     @UploadedFile() file: Express.Multer.File,
   ) {
+    const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+    const MAX_FILE_SIZE = 8 * 1024 * 1024; // 5MB
+
+    if (!file) {
+      throw new BadRequestException('File is required.');
+    }
+
+    if (file.size > MAX_FILE_SIZE) {
+      throw new BadRequestException(
+        `File size exceeds the limit of ${MAX_FILE_SIZE / (1024 * 1024)}MB.`,
+      );
+    }
+
+    if (!allowedMimeTypes.includes(file.mimetype)) {
+      throw new BadRequestException(
+        'Invalid file type. Only images are allowed.',
+      );
+    }
+
+    await checkFileType(file.buffer);
+
     return this.usersService.uploadUserImg({
       practiceId: params.practiceId,
       id: params.id,

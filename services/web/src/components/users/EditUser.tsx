@@ -511,13 +511,41 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose, withLoader }) => {
               <FileUploader
                 errorMessage={''}
                 onDrop={(acceptedFiles: File[]) => {
-                  setUserImg(acceptedFiles[0]);
+                  if (!acceptedFiles || acceptedFiles.length === 0) {
+                    setErrorMessage('No file uploaded.');
+                    return;
+                  }
+
+                  const MAX_SIZE_MB = 8;
+                  const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+                  const file = acceptedFiles[0];
+
+                  if (!allowedTypes.includes(file.type)) {
+                    setErrorMessage(
+                      'Only PNG, JPG, and JPEG images are allowed.',
+                    );
+                    return;
+                  }
+
+                  if (file.size > MAX_SIZE_MB * 1024 * 1024) {
+                    setErrorMessage(
+                      `File size must be less than ${MAX_SIZE_MB} MB`,
+                    );
+                    return;
+                  }
+
+                  setErrorMessage('');
+                  setUserImg(file);
                 }}
                 onDropRejected={(file: File[]) => {
-                  if (!file[0].type.startsWith('image'))
-                    setErrorMessage('Only Image type Files are allowed.');
+                  if (!file || file.length === 0) {
+                    setErrorMessage('No file uploaded.');
+                    return;
+                  }
+
+                  setErrorMessage('Invalid file type or size.');
                 }}
-                accept="image/*"
+                accept=".jpeg, .jpg, .png"
                 overrides={{
                   ContentMessage: {
                     component: () => (
