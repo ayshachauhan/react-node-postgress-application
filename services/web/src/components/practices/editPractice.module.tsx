@@ -4,6 +4,8 @@ import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
 import { useAppDispatch } from '@root/store';
 import { updateRecordAsync } from '@root/store/reducers/practices';
+import { validateFileSignature } from '@root/utils';
+import { MAX_FILE_SIZE } from '@root/utils/constants';
 import { PracticesEditInterface } from '@store/requests/practices';
 import { FileUploader } from 'baseui/file-uploader';
 import { Select } from 'baseui/select';
@@ -314,13 +316,51 @@ const PracticeEditModule: React.FC<{
               </label>
               <FileUploader
                 onDrop={(acceptedFiles: File[]) => {
-                  setPracticeImg(acceptedFiles[0]);
+                  if (!acceptedFiles || acceptedFiles.length === 0) {
+                    setErrorMessage('No file uploaded.');
+                    return;
+                  }
+
+                  const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+                  const file = acceptedFiles[0];
+
+                  if (!allowedTypes.includes(file.type)) {
+                    setErrorMessage(
+                      'Only PNG, JPG, and JPEG images are allowed.',
+                    );
+                    return;
+                  }
+
+                  if (file.size > MAX_FILE_SIZE * 1024 * 1024) {
+                    setErrorMessage(
+                      `File size must be less than ${MAX_FILE_SIZE} MB`,
+                    );
+                    return;
+                  }
+
+                  validateFileSignature(
+                    file,
+                    (validatedFile) => {
+                      setErrorMessage('');
+                      setPracticeImg(validatedFile);
+                    },
+                    (errorMessage) => {
+                      setErrorMessage(errorMessage);
+                    },
+                  );
+
+                  setErrorMessage('');
+                  setPracticeImg(file);
                 }}
                 onDropRejected={(file: File[]) => {
-                  if (!file[0].type.startsWith('image'))
-                    setErrorMessage('Only Image type Files are allowed.');
+                  if (!file || file.length === 0) {
+                    setErrorMessage('No file uploaded.');
+                    return;
+                  }
+
+                  setErrorMessage('Invalid file type or size.');
                 }}
-                accept="image/*"
+                accept=".jpeg, .jpg, .png"
                 overrides={{
                   ContentMessage: {
                     component: () => (
