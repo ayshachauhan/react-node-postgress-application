@@ -1,3 +1,4 @@
+import { BadRequestException } from '@nestjs/common';
 import { PermissionEntity } from '@packages/entities/*';
 import { USER_PERMISSIONS } from '@packages/entities/permission';
 import * as CryptoJS from 'crypto-js';
@@ -226,8 +227,22 @@ export function decryptPassword(encryptedPassword: string): string {
 }
 
 export async function checkFileType(buffer: Buffer) {
-  const detectedType = await fromBuffer(buffer);
-  if (!detectedType) {
-    throw new Error('Unable to determine file type');
+  const fileType = await fromBuffer(buffer);
+
+  if (!fileType) {
+    throw new BadRequestException('Unsupported or invalid file type.');
   }
+
+  const { ext, mime } = fileType;
+
+  const allowedExtensions = ['jpeg', 'jpg', 'png'];
+  const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+
+  if (!allowedExtensions.includes(ext) || !allowedMimeTypes.includes(mime)) {
+    throw new BadRequestException(
+      'Invalid file type. Only images are allowed.',
+    );
+  }
+
+  return { ext, mime };
 }

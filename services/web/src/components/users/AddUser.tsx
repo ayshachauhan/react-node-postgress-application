@@ -454,13 +454,69 @@ const AddUserPage: React.FC<{
               <FileUploader
                 errorMessage={''}
                 onDrop={(acceptedFiles: File[]) => {
-                  setUserImg(acceptedFiles[0]);
+                  if (!acceptedFiles || acceptedFiles.length === 0) {
+                    setErrorMessage('No file uploaded.');
+                    return;
+                  }
+
+                  const MAX_SIZE_MB = 8;
+                  const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+                  const file = acceptedFiles[0];
+
+                  if (!allowedTypes.includes(file.type)) {
+                    setErrorMessage(
+                      'Only PNG, JPG, and JPEG images are allowed.',
+                    );
+                    return;
+                  }
+
+                  if (file.size > MAX_SIZE_MB * 1024 * 1024) {
+                    setErrorMessage(
+                      `File size must be less than ${MAX_SIZE_MB} MB`,
+                    );
+                    return;
+                  }
+
+                  const validateFileSignature = (file: File) => {
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                      const arrayBuffer = reader.result as ArrayBuffer;
+                      const byteArray = new Uint8Array(arrayBuffer);
+
+                      const jpgSignature = [0xff, 0xd8, 0xff];
+                      const pngSignature = [0x89, 0x50, 0x4e, 0x47];
+
+                      const isValidSignature =
+                        byteArray.slice(0, 3).join() === jpgSignature.join() ||
+                        byteArray.slice(0, 4).join() === pngSignature.join();
+
+                      if (!isValidSignature) {
+                        setErrorMessage(
+                          'Invalid file type. File signature mismatch detected.',
+                        );
+                        return;
+                      }
+
+                      setErrorMessage('');
+                      setUserImg(file);
+                    };
+                    reader.readAsArrayBuffer(file);
+                  };
+
+                  validateFileSignature(file);
+
+                  setErrorMessage('');
+                  setUserImg(file);
                 }}
                 onDropRejected={(file: File[]) => {
-                  if (!file[0].type.startsWith('image'))
-                    setErrorMessage('Only Image type Files are allowed.');
+                  if (!file || file.length === 0) {
+                    setErrorMessage('No file uploaded.');
+                    return;
+                  }
+
+                  setErrorMessage('Invalid file type or size.');
                 }}
-                accept="image/*"
+                accept=".jpeg, .jpg, .png"
                 overrides={{
                   ContentMessage: {
                     component: () => (

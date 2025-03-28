@@ -96,7 +96,6 @@ export class UsersController {
     @Param() params: { id: string; practiceId: string },
     @UploadedFile() file: Express.Multer.File,
   ) {
-    const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/jpg'];
     const MAX_FILE_SIZE = 8 * 1024 * 1024; // 5MB
 
     if (!file) {
@@ -106,12 +105,6 @@ export class UsersController {
     if (file.size > MAX_FILE_SIZE) {
       throw new BadRequestException(
         `File size exceeds the limit of ${MAX_FILE_SIZE / (1024 * 1024)}MB.`,
-      );
-    }
-
-    if (!allowedMimeTypes.includes(file.mimetype)) {
-      throw new BadRequestException(
-        'Invalid file type. Only images are allowed.',
       );
     }
 
