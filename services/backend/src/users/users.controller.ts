@@ -23,6 +23,7 @@ import { AuthGuard, RequestWithUser } from 'src/auth/auth.guard';
 import { Roles } from 'src/auth/role.decorator';
 import { RolesGuard } from 'src/auth/roles.gaurd';
 import { checkFileType } from 'src/utils';
+import { MAX_FILE_SIZE } from 'src/utils/constants';
 import { PracticeGuard } from '../practices/practice.guard';
 import { ChangePasswordDto } from './dto/changePassword.dto';
 import { CreateUserDto } from './dto/create.dto';
@@ -96,15 +97,15 @@ export class UsersController {
     @Param() params: { id: string; practiceId: string },
     @UploadedFile() file: Express.Multer.File,
   ) {
-    const MAX_FILE_SIZE = 8 * 1024 * 1024; // 5MB
+    const maxFileSize = MAX_FILE_SIZE * 1024 * 1024;
 
     if (!file) {
       throw new BadRequestException('File is required.');
     }
 
-    if (file.size > MAX_FILE_SIZE) {
+    if (file.size > maxFileSize) {
       throw new BadRequestException(
-        `File size exceeds the limit of ${MAX_FILE_SIZE / (1024 * 1024)}MB.`,
+        `File size exceeds the limit of ${maxFileSize / (1024 * 1024)}MB.`,
       );
     }
 

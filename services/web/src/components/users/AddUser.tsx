@@ -9,6 +9,7 @@ import { useAppDispatch, useAppSelector } from '@root/store';
 import { fetchListings as fetchPermissions } from '@root/store/reducers/userPermissions';
 import { addRecordAsync } from '@root/store/reducers/users';
 import { AddUserDto } from '@root/store/requests/users/types';
+import { MAX_FILE_SIZE } from '@root/utils/constants';
 import { generateFullName, getPracticeId } from '@utils/index';
 import { Checkbox } from 'baseui/checkbox';
 import { FileUploader } from 'baseui/file-uploader';
@@ -459,7 +460,6 @@ const AddUserPage: React.FC<{
                     return;
                   }
 
-                  const MAX_SIZE_MB = 8;
                   const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
                   const file = acceptedFiles[0];
 
@@ -470,9 +470,9 @@ const AddUserPage: React.FC<{
                     return;
                   }
 
-                  if (file.size > MAX_SIZE_MB * 1024 * 1024) {
+                  if (file.size > MAX_FILE_SIZE * 1024 * 1024) {
                     setErrorMessage(
-                      `File size must be less than ${MAX_SIZE_MB} MB`,
+                      `File size must be less than ${MAX_FILE_SIZE} MB`,
                     );
                     return;
                   }
