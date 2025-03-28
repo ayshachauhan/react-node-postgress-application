@@ -326,37 +326,45 @@ export default function UserPage() {
                     <td colSpan={8} className="">
                       <div className="grid grid-cols-9 text-[10px] bg-white px-1">
                         {data?.permissions && data?.permissions.length
-                          ? data?.permissions.map((label, index) => (
-                              <Checkbox
-                                key={index}
-                                checked={true}
-                                overrides={{
-                                  Checkmark: {
-                                    style: ({ $checked }) => ({
-                                      backgroundColor: $checked
-                                        ? 'rgba(34, 197, 94, 1)'
-                                        : 'white',
-                                      borderColor: $checked
-                                        ? 'rgba(34, 197, 94, 1)'
-                                        : 'rgba(113, 113, 122, 1)',
-                                      width: '10px',
-                                      height: '10px',
-                                      marginTop: '7px',
-                                      marginRight: '0px',
-                                      borderRadius: '2px',
-                                      borderWidth: '2px',
-                                    }),
-                                  },
-                                }}
-                              >
-                                <label
-                                  htmlFor={`checkbox-${index}`}
-                                  className=""
+                          ? data?.permissions
+                              .filter(() => {
+                                const isAdmin =
+                                  loggedInUserInfo?.type === UserType.ADMIN;
+                                return (
+                                  isAdmin || data.id === loggedInUserInfo?.id
+                                );
+                              })
+                              .map((label, index) => (
+                                <Checkbox
+                                  key={index}
+                                  checked={true}
+                                  overrides={{
+                                    Checkmark: {
+                                      style: ({ $checked }) => ({
+                                        backgroundColor: $checked
+                                          ? 'rgba(34, 197, 94, 1)'
+                                          : 'white',
+                                        borderColor: $checked
+                                          ? 'rgba(34, 197, 94, 1)'
+                                          : 'rgba(113, 113, 122, 1)',
+                                        width: '10px',
+                                        height: '10px',
+                                        marginTop: '7px',
+                                        marginRight: '0px',
+                                        borderRadius: '2px',
+                                        borderWidth: '2px',
+                                      }),
+                                    },
+                                  }}
                                 >
-                                  <span className="">{label.name}</span>
-                                </label>
-                              </Checkbox>
-                            ))
+                                  <label
+                                    htmlFor={`checkbox-${index}`}
+                                    className=""
+                                  >
+                                    <span className="">{label.name}</span>
+                                  </label>
+                                </Checkbox>
+                              ))
                           : null}
                       </div>
                     </td>
