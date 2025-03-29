@@ -330,9 +330,11 @@ export default function UserPage() {
                               .filter(() => {
                                 const isAdmin =
                                   loggedInUserInfo?.type === UserType.ADMIN;
-                                return (
-                                  isAdmin || data.id === loggedInUserInfo?.id
-                                );
+                                const isProduction =
+                                  process.env.NODE_ENV === 'production';
+                                return isProduction
+                                  ? isAdmin || data.id === loggedInUserInfo?.id
+                                  : true;
                               })
                               .map((label, index) => (
                                 <Checkbox
