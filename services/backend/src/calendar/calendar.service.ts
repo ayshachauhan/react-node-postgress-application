@@ -96,7 +96,6 @@ export class CalendarService {
       },
       relations: ['practice', 'surgeryType', 'user'],
     });
-
     return sanitizeCalendars(calendars);
   }
 
