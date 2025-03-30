@@ -72,6 +72,7 @@ export default function MessagesTable() {
     });
   };
   const dispatch = useAppDispatch();
+  const isAIChatEnabled = process.env.NEXT_PUBLIC_ENABLE_AI_CHAT === 'true';
   const practiceId = getPracticeId();
   const [mrn, setMrn] = useState<string>('');
   const [patientInfo, setPatientInfo] = useState<IPatient>();
@@ -353,7 +354,9 @@ export default function MessagesTable() {
         chatFetchParams.mrn = searchMRNNameStr;
       }
 
-      dispatch(fetchChat(chatFetchParams)).finally(() => {});
+      if (isAIChatEnabled) {
+        dispatch(fetchChat(chatFetchParams)).finally(() => {});
+      }
     }
   }, [dispatch, practiceId, searchMRNNameStr]);
 
