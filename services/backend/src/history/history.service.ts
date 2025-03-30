@@ -100,7 +100,19 @@ export class HistoryService {
 
     const response = await queryBuilder.getMany();
 
-    return response;
+    const santizeHistory = (historyLogs: HistoryEntity[]): HistoryEntity[] => {
+      return historyLogs.map((history) => {
+        const { password, token, ...userWithoutPassword } = history.user;
+        password && password;
+        token && token;
+        return {
+          ...history,
+          user: userWithoutPassword as UserEntity,
+        };
+      });
+    };
+    const santizedHistory = santizeHistory(response);
+    return santizedHistory;
   }
 
   /**
@@ -118,6 +130,15 @@ export class HistoryService {
         `History log does not exists for ${params?.id}`,
       );
     }
+    if (response.user) {
+      const { password, token, ...userWithoutSensitiveData } = response.user;
+
+      password && password;
+      token && token;
+
+      response.user = userWithoutSensitiveData as UserEntity;
+    }
+
     return response;
   }
 
