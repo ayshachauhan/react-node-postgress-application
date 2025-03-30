@@ -1,4 +1,8 @@
-import { PermissionEntity, UserEntity } from '@packages/entities/*';
+import {
+  CalendarEntity,
+  PermissionEntity,
+  UserEntity,
+} from '@packages/entities/*';
 import { USER_PERMISSIONS } from '@packages/entities/permission';
 import * as CryptoJS from 'crypto-js';
 import { Between } from 'typeorm';
@@ -218,7 +222,6 @@ export const getDateDiffInDays = (date1: Date, date2: Date): number => {
 
   return diffInDays;
 };
-
 export function decryptPassword(encryptedPassword: string): string {
   const bytes = CryptoJS.AES.decrypt(encryptedPassword, secretKey);
   return bytes.toString(CryptoJS.enc.Utf8);
@@ -232,6 +235,20 @@ export function sanitizedSurgeriesEvals(surgeryEvals) {
     return {
       ...surgeryEval,
       doctor: userWithoutPassword as UserEntity,
+    };
+  });
+}
+
+export function sanitizeCalendars(
+  calendars: CalendarEntity[],
+): CalendarEntity[] {
+  return calendars.map((calendar) => {
+    const { password, token, ...userWithoutPassword } = calendar.user;
+    password && password;
+    token && token;
+    return {
+      ...calendar,
+      user: userWithoutPassword as UserEntity,
     };
   });
 }

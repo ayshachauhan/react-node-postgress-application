@@ -20,6 +20,7 @@ import {
   getDateDiffInDays,
   getFullYearDateConditions,
   getStartEndDate,
+  sanitizeCalendars,
 } from 'src/utils';
 import {
   Between,
@@ -96,18 +97,7 @@ export class CalendarService {
       relations: ['practice', 'surgeryType', 'user'],
     });
 
-    return calendars.map((calendar) => {
-      const { password, token, ...userWithoutPassword } = calendar.user;
-      password && password;
-      token && token;
-
-      return {
-        ...calendar,
-        user: {
-          ...userWithoutPassword,
-        } as UserEntity,
-      };
-    });
+    return sanitizeCalendars(calendars);
   }
 
   /**
@@ -159,18 +149,7 @@ export class CalendarService {
         'Calendar does not exists for this surgerytype',
       );
     }
-    return response.map((calendar) => {
-      const { password, token, ...userWithoutPassword } = calendar.user;
-      password && password;
-      token && token;
-
-      return {
-        ...calendar,
-        user: {
-          ...userWithoutPassword,
-        } as UserEntity,
-      };
-    });
+    return sanitizeCalendars(response);
   }
 
   /**
@@ -541,19 +520,6 @@ export class CalendarService {
         ) &&
           dbCalendarsWithoutPermission.some((s) => s.date > new Date())));
 
-    const sanitizeCalendars = (
-      calendars: CalendarEntity[],
-    ): CalendarEntity[] => {
-      return calendars.map((calendar) => {
-        const { password, token, ...userWithoutPassword } = calendar.user;
-        password && password;
-        token && token;
-        return {
-          ...calendar,
-          user: userWithoutPassword as UserEntity,
-        };
-      });
-    };
     const sanitizedCalendars = sanitizeCalendars(dbCalendars);
     const sanitizedCalendarsWithoutPermission = sanitizeCalendars(
       dbCalendarsWithoutPermission,
