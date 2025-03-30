@@ -122,7 +122,6 @@ export class EvalsService {
       const status2 = eval2.status.toLowerCase();
       return statusOrder[status1] - statusOrder[status2];
     });
-
     return sanitizedSurgeriesEvals(dbEvalsByPractice);
   }
 
