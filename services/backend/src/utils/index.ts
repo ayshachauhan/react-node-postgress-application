@@ -222,6 +222,7 @@ export const getDateDiffInDays = (date1: Date, date2: Date): number => {
 
   return diffInDays;
 };
+
 export function decryptPassword(encryptedPassword: string): string {
   const bytes = CryptoJS.AES.decrypt(encryptedPassword, secretKey);
   return bytes.toString(CryptoJS.enc.Utf8);
