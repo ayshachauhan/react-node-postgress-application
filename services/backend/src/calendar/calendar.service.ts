@@ -114,7 +114,6 @@ export class CalendarService {
     if (!response) {
       throw new NotFoundException('Calendar does not exists');
     }
-
     const { password, token, ...userWithoutPassword } = response.user;
     password && password;
     token && token;
