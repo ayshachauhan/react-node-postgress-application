@@ -92,6 +92,6 @@ export class AuthController {
   @Get('/resetLink/:email')
   async sendPasswordResetEmail(@Param('email') email: string): Promise<string> {
     await this.authService.sendPasswordResetEmail(email);
-    return 'Mail sent Successfully';
+    return 'If the email exists, a reset link will be sent shortly.';
   }
 }
