@@ -207,6 +207,19 @@ export class UsersService {
       );
     }
 
+    if (updateUserDto.email) {
+      const existingUser = await this.usersRepository.findOne({
+        where: { email: updateUserDto.email },
+      });
+
+      if (existingUser && existingUser.id !== id) {
+        throw new HttpException(
+          `Email ${updateUserDto.email} is already in use`,
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+    }
+
     const updatedUser = this.usersRepository.merge(userToUpdate, updateUserDto);
 
     if (updateUserDto.permissionIds) {
