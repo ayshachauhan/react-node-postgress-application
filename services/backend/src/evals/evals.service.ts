@@ -10,6 +10,7 @@ import {
   PatientEntity,
   ReferrerType,
   ReferrersEntity,
+  UserEntity,
 } from '@packages/entities';
 import { EmailHandlerService } from 'src/emailHandler/emailHandler.service';
 import { ENVIRONMENT_VARIABLES } from 'src/enums/environment.enums';
@@ -23,7 +24,7 @@ import { PracticesService } from 'src/practices/practices.service';
 import { SurgeryConfigurationsService } from 'src/surgeryConfiguration/surgeryConfiguration.service';
 import { SystemTemplates } from 'src/transporter/transporter.types';
 import { UsersService } from 'src/users/users.service';
-import { formatHeaderDate } from 'src/utils';
+import { formatHeaderDate, sanitizedSurgeriesEvals } from 'src/utils';
 import { PAGINATION_LIMIT } from 'src/utils/constants';
 import { In, IsNull, MoreThan, Repository } from 'typeorm';
 import {
@@ -121,11 +122,11 @@ export class EvalsService {
       const status2 = eval2.status.toLowerCase();
       return statusOrder[status1] - statusOrder[status2];
     });
-    return dbEvalsByPractice;
+    return sanitizedSurgeriesEvals(dbEvalsByPractice);
   }
 
   async getEvalById(id: string): Promise<EvalEntity | null> {
-    return await this.evalRepository.findOne({
+    const evalInfo = await this.evalRepository.findOne({
       where: { id },
       relations: [
         'practiceHome',
@@ -139,6 +140,18 @@ export class EvalsService {
         'practice', //TO DO: make practice id not null in future
       ],
     });
+
+    if (evalInfo?.doctor) {
+      const { password, token, ...doctorWithoutSensitiveData } =
+        evalInfo.doctor;
+
+      password && password;
+      token && token;
+
+      evalInfo.doctor = doctorWithoutSensitiveData as UserEntity;
+    }
+
+    return evalInfo;
   }
 
   async getEvalByIdIncludeDeleted(id: string): Promise<EvalEntity | null> {
