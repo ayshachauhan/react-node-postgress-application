@@ -16,7 +16,7 @@ import { FileInterceptor } from '@nestjs/platform-express/multer';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { PracticeEntity } from '@packages/entities/practice';
 import { checkFileType } from 'src/utils';
-import { MAX_FILE_SIZE } from 'src/utils/constants';
+import { MAX_FILE_SIZE, MAX_FILE_SIZE_BYTES } from 'src/utils/constants';
 import { AuthGuard } from '../auth/auth.guard';
 import { SuperAdminGuard } from '../auth/superAdmin.guard';
 import { PracticeCreateDto } from './dto/create.dto';
@@ -75,15 +75,13 @@ export class PracticesController {
     @Param() params: { id: string },
     @UploadedFile() file: Express.Multer.File,
   ) {
-    const maxFileSize = MAX_FILE_SIZE * 1024 * 1024;
-
     if (!file) {
       throw new BadRequestException('File is required.');
     }
 
-    if (file.size > maxFileSize) {
+    if (file.size > MAX_FILE_SIZE_BYTES) {
       throw new BadRequestException(
-        `File size exceeds the limit of ${maxFileSize / (1024 * 1024)}MB.`,
+        `File size exceeds the limit of ${MAX_FILE_SIZE}MB.`,
       );
     }
 

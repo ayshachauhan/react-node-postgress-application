@@ -4,6 +4,7 @@ import { USER_PERMISSIONS } from '@packages/entities/permission';
 import * as CryptoJS from 'crypto-js';
 import { fromBuffer } from 'file-type';
 import { Between } from 'typeorm';
+import { allowedExtensions, allowedMimeTypes } from './constants';
 
 const secretKey = process.env.NEXT_PUBLIC_ENCRYPTION_KEY;
 
@@ -234,9 +235,6 @@ export async function checkFileType(buffer: Buffer) {
   }
 
   const { ext, mime } = fileType;
-
-  const allowedExtensions = ['jpeg', 'jpg', 'png'];
-  const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/jpg'];
 
   if (!allowedExtensions.includes(ext) || !allowedMimeTypes.includes(mime)) {
     throw new BadRequestException(

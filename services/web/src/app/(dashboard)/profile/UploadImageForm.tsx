@@ -2,8 +2,14 @@ import Button from '@root/components/Button';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { uploadImage } from '@root/store/reducers/auth';
 import { UploadImgPayload } from '@root/store/requests/users';
-import { MAX_FILE_SIZE } from '@root/utils/constants';
-import { getPracticeId, getUserId, validateFileSignature } from '@utils/index';
+import { allowedExtensions } from '@root/utils/constants';
+import {
+  getPracticeId,
+  getUserId,
+  validateFileSignature,
+  validateFileSize,
+  validateFileType,
+} from '@utils/index';
 import { FileUploader } from 'baseui/file-uploader';
 import React, { useState } from 'react';
 const UploadImageForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
@@ -31,6 +37,7 @@ const UploadImageForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       }
     }
   };
+  const acceptAttribute = allowedExtensions.join(', ');
 
   return (
     <div>
@@ -53,20 +60,17 @@ const UploadImageForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                   return;
                 }
 
-                const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
                 const file = acceptedFiles[0];
 
-                if (!allowedTypes.includes(file.type)) {
-                  setErrorMessage(
-                    'Only PNG, JPG, and JPEG images are allowed.',
-                  );
+                const typeError = validateFileType(file);
+                if (typeError) {
+                  setErrorMessage(typeError);
                   return;
                 }
 
-                if (file.size > MAX_FILE_SIZE * 1024 * 1024) {
-                  setErrorMessage(
-                    `File size must be less than ${MAX_FILE_SIZE} MB`,
-                  );
+                const sizeError = validateFileSize(file);
+                if (sizeError) {
+                  setErrorMessage(sizeError);
                   return;
                 }
 
@@ -92,7 +96,7 @@ const UploadImageForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
 
                 setErrorMessage('Invalid file type or size.');
               }}
-              accept=".jpeg, .jpg, .png"
+              accept={acceptAttribute}
               overrides={{
                 ContentMessage: {
                   component: () => (

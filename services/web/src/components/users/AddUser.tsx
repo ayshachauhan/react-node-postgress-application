@@ -9,11 +9,13 @@ import { useAppDispatch, useAppSelector } from '@root/store';
 import { fetchListings as fetchPermissions } from '@root/store/reducers/userPermissions';
 import { addRecordAsync } from '@root/store/reducers/users';
 import { AddUserDto } from '@root/store/requests/users/types';
-import { MAX_FILE_SIZE } from '@root/utils/constants';
+import { allowedExtensions } from '@root/utils/constants';
 import {
   generateFullName,
   getPracticeId,
   validateFileSignature,
+  validateFileSize,
+  validateFileType,
 } from '@utils/index';
 import { Checkbox } from 'baseui/checkbox';
 import { FileUploader } from 'baseui/file-uploader';
@@ -245,6 +247,8 @@ const AddUserPage: React.FC<{
     dispatch(fetchPermissions(undefined));
   }, []);
 
+  const acceptAttribute = allowedExtensions.join(', ');
+
   return (
     <div>
       {!isValidPhnNo && (
@@ -464,20 +468,17 @@ const AddUserPage: React.FC<{
                     return;
                   }
 
-                  const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
                   const file = acceptedFiles[0];
 
-                  if (!allowedTypes.includes(file.type)) {
-                    setErrorMessage(
-                      'Only PNG, JPG, and JPEG images are allowed.',
-                    );
+                  const typeError = validateFileType(file);
+                  if (typeError) {
+                    setErrorMessage(typeError);
                     return;
                   }
 
-                  if (file.size > MAX_FILE_SIZE * 1024 * 1024) {
-                    setErrorMessage(
-                      `File size must be less than ${MAX_FILE_SIZE} MB`,
-                    );
+                  const sizeError = validateFileSize(file);
+                  if (sizeError) {
+                    setErrorMessage(sizeError);
                     return;
                   }
 
@@ -503,7 +504,7 @@ const AddUserPage: React.FC<{
 
                   setErrorMessage('Invalid file type or size.');
                 }}
-                accept=".jpeg, .jpg, .png"
+                accept={acceptAttribute}
                 overrides={{
                   ContentMessage: {
                     component: () => (

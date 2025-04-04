@@ -5,8 +5,12 @@ import { useAppDispatch, useAppSelector } from '@root/store';
 import { addRecordAsync } from '@root/store/reducers/media';
 import { fetchListings as fetchsurgeryConfigurations } from '@root/store/reducers/surgeryConfigurations';
 import { AddMediaDTO } from '@root/store/requests/media/types';
-import { MAX_FILE_SIZE } from '@root/utils/constants';
-import { getPracticeId, validateFileSignature } from '@utils/index';
+import {
+  getPracticeId,
+  validateFileSignature,
+  validateFileSize,
+  validateFileType,
+} from '@utils/index';
 import { Checkbox, LABEL_PLACEMENT } from 'baseui/checkbox';
 import { Select } from 'baseui/select';
 import React, { useEffect, useState } from 'react';
@@ -212,8 +216,6 @@ const MediaPage: React.FC<{
   };
 
   const handleImageChangeInput = async (index, event, field) => {
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
-
     const file = event.target.files?.[0];
 
     if (field === 'file') {
@@ -222,13 +224,15 @@ const MediaPage: React.FC<{
         return;
       }
 
-      if (!allowedTypes.includes(file.type)) {
-        alert('Only PNG, JPG, and JPEG images are allowed.');
+      const typeError = validateFileType(file);
+      if (typeError) {
+        alert(typeError);
         return;
       }
 
-      if (file.size > MAX_FILE_SIZE * 1024 * 1024) {
-        alert(`File size must be less than ${MAX_FILE_SIZE} MB.`);
+      const sizeError = validateFileSize(file);
+      if (sizeError) {
+        alert(sizeError);
         return;
       }
 

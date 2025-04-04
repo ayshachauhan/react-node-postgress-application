@@ -1,6 +1,12 @@
 import { SurgeryStatus } from '@packages/entities';
 import { ICalendar, MonthOption } from '@packages/entities/index.browser';
-import { DEFAULT_SURGERYLOCATION_COLOR } from '@root/utils/constants';
+import {
+  DEFAULT_SURGERYLOCATION_COLOR,
+  MAX_FILE_SIZE,
+  MAX_FILE_SIZE_BYTES,
+  allowedExtensions,
+  allowedTypes,
+} from '@root/utils/constants';
 import CryptoJS from 'crypto-js';
 import moment from 'moment';
 
@@ -503,4 +509,27 @@ export const validateFileSignature = (
     onError('Error reading file.');
   };
   reader.readAsArrayBuffer(file);
+};
+
+export const validateFileType = (file: File) => {
+  const fileType = file.type;
+  const fileExtension = file.name
+    .substring(file.name.lastIndexOf('.'))
+    .toLowerCase();
+
+  if (
+    !allowedTypes.includes(fileType) ||
+    !allowedExtensions.includes(fileExtension)
+  ) {
+    return 'Unsupported file type. Only JPEG and PNG are allowed.';
+  }
+
+  return null;
+};
+
+export const validateFileSize = (file: File) => {
+  if (file.size > MAX_FILE_SIZE_BYTES) {
+    return `File size must be less than ${MAX_FILE_SIZE} MB`;
+  }
+  return null;
 };

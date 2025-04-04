@@ -21,7 +21,7 @@ import { PermissionGuard } from 'src/auth/userPermissions.guard';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
 import { PracticeGuard } from 'src/practices/practice.guard';
 import { validatePDFContent } from 'src/utils';
-import { MAX_FILE_SIZE } from 'src/utils/constants';
+import { MAX_FILE_SIZE, MAX_FILE_SIZE_BYTES } from 'src/utils/constants';
 import { TemplateCreateDto } from './dto/template.createDto';
 import { TemplatePatchDto } from './dto/template.patchDto';
 import { TemplatesService } from './templates.service';
@@ -97,7 +97,7 @@ export class TemplatesController {
       throw new BadRequestException('Only PDF files are allowed');
     }
 
-    if (file.size > MAX_FILE_SIZE * 1024 * 1024) {
+    if (file.size > MAX_FILE_SIZE_BYTES) {
       throw new BadRequestException(
         `File size must be less than ${MAX_FILE_SIZE} MB`,
       );

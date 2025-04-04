@@ -284,6 +284,9 @@ importers:
       express:
         specifier: ^4.18.3
         version: 4.18.3
+      file-type:
+        specifier: 16.5.4
+        version: 16.5.4
       joi:
         specifier: ^17.12.2
         version: 17.12.2

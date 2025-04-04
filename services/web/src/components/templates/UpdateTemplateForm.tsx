@@ -11,7 +11,7 @@ import {
   fetchListings,
   updateRecordAsync,
 } from '@root/store/reducers/templates';
-import { MAX_FILE_SIZE } from '@root/utils/constants';
+import { MAX_FILE_SIZE, MAX_FILE_SIZE_BYTES } from '@root/utils/constants';
 import { TEMPLATE_VARIABLES } from '@root/utils/enums';
 import { getPracticeId } from '@utils/index';
 import { Checkbox, STYLE_TYPE } from 'baseui/checkbox';
@@ -165,7 +165,7 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({
       return;
     }
 
-    if (file.size > MAX_FILE_SIZE * 1024 * 1024) {
+    if (file.size > MAX_FILE_SIZE_BYTES) {
       alert(`File size must be less than ${MAX_FILE_SIZE} MB.`);
       return;
     }

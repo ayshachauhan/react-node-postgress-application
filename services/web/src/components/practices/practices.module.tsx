@@ -3,8 +3,12 @@ import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
 import { useAppDispatch } from '@root/store';
 import { addRecordAsync } from '@root/store/reducers/practices';
-import { validateFileSignature } from '@root/utils';
-import { MAX_FILE_SIZE } from '@root/utils/constants';
+import {
+  validateFileSignature,
+  validateFileSize,
+  validateFileType,
+} from '@root/utils';
+import { allowedExtensions } from '@root/utils/constants';
 import { PracticeCreateInterface } from '@store/requests/practices';
 import { FileUploader } from 'baseui/file-uploader';
 import { parsePhoneNumber } from 'libphonenumber-js';
@@ -197,6 +201,8 @@ const PracticePage: React.FC<{
     }
   }, []);
 
+  const acceptAttribute = allowedExtensions.join(', ');
+
   return (
     <div>
       {errorMessage && isValidPhnNo && (
@@ -333,27 +339,24 @@ const PracticePage: React.FC<{
               </label>
               <FileUploader
                 errorMessage={''}
-                accept=".jpeg, .jpg, .png"
+                accept={acceptAttribute}
                 onDrop={(acceptedFiles: File[]) => {
                   if (!acceptedFiles || acceptedFiles.length === 0) {
                     setErrorMessage('No file uploaded.');
                     return;
                   }
 
-                  const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
                   const file = acceptedFiles[0];
 
-                  if (!allowedTypes.includes(file.type)) {
-                    setErrorMessage(
-                      'Only PNG, JPG, and JPEG images are allowed.',
-                    );
+                  const typeError = validateFileType(file);
+                  if (typeError) {
+                    setErrorMessage(typeError);
                     return;
                   }
 
-                  if (file.size > MAX_FILE_SIZE * 1024 * 1024) {
-                    setErrorMessage(
-                      `File size must be less than ${MAX_FILE_SIZE} MB`,
-                    );
+                  const sizeError = validateFileSize(file);
+                  if (sizeError) {
+                    setErrorMessage(sizeError);
                     return;
                   }
 
