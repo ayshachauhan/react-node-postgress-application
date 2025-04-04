@@ -237,3 +237,26 @@ export const uploadImg = async (
     throw new Error();
   }
 };
+
+/**
+ * @param email
+ * @returns boolean - true if email exists, false otherwise
+ */
+export const checkEmail = async (
+  email: string,
+  { rejectWithValue }: { rejectWithValue: (value: string) => void },
+): Promise<boolean> => {
+  try {
+    const response = await apiClient.get(
+      `/users-public/check-email?email=${email}`,
+    );
+    if (!response.ok) throw new Error('Failed to check email');
+
+    const data = await response.json();
+    return data.exists; // Ensure API returns `{ exists: boolean }`
+  } catch (error) {
+    console.error('Error checking email:', error);
+    rejectWithValue(error instanceof Error ? error.message : 'Unknown error');
+    return false; // Return `false` when an error occurs
+  }
+};

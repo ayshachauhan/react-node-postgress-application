@@ -7,13 +7,17 @@ import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { fetchListings as fetchPermissions } from '@root/store/reducers/userPermissions';
-import { addRecordAsync } from '@root/store/reducers/users';
+import {
+  addRecordAsync,
+  checkEmailExistence,
+} from '@root/store/reducers/users';
 import { AddUserDto } from '@root/store/requests/users/types';
 import { generateFullName, getPracticeId } from '@utils/index';
 import { Checkbox } from 'baseui/checkbox';
 import { FileUploader } from 'baseui/file-uploader';
 import { Select } from 'baseui/select';
 import { parsePhoneNumber } from 'libphonenumber-js';
+import { debounce } from 'lodash';
 import React, { useEffect, useRef, useState } from 'react';
 import { PhoneInput } from 'react-international-phone';
 import 'react-international-phone/style.css';
@@ -103,6 +107,18 @@ const AddUserPage: React.FC<{
     }
   };
 
+  const checkEmailExists = debounce(async (email: string) => {
+    console.log('Checking email:', email);
+    if (!email) return;
+
+    dispatch(checkEmailExistence({ email })) // Pass { email } instead of just email
+      .unwrap()
+      .then((exists) => {
+        setErrorMessage(exists ? 'Email already exists' : '');
+      })
+      .catch((error) => console.error('Error checking email:', error));
+  }, 500);
+
   const handleFirstNameChange = (value: string) => {
     setFirstName(value);
 
@@ -159,9 +175,11 @@ const AddUserPage: React.FC<{
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(value)) {
       setEmailError('Invalid email address');
-    } else {
-      setEmailError('');
+      return;
     }
+
+    setEmailError('');
+    checkEmailExists(value); // Call checkEmailExists only if the email is valid
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
