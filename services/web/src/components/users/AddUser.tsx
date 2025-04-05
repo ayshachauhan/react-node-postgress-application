@@ -181,7 +181,7 @@ const AddUserPage: React.FC<{
     }
 
     setEmailError('');
-    checkEmailExists(value); // Call checkEmailExists only if the email is valid
+    checkEmailExists(value);
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
