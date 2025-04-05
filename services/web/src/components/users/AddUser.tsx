@@ -112,11 +112,19 @@ const AddUserPage: React.FC<{
   const checkEmailExists = debounce(async (email: string) => {
     if (!email) return;
     setIsCheckingEmail(true);
-
+    const encodedEmail = encodeURIComponent(email);
     try {
-      const exists = await dispatch(checkEmailExistence({ email })).unwrap();
+      const { exists } = await dispatch(
+        checkEmailExistence({ email: encodedEmail }),
+      ).unwrap();
+
       setEmailExists(exists);
-      setEmailError(exists ? 'Email already exists' : '');
+
+      if (exists) {
+        setEmailError('Email already exists');
+      } else {
+        setEmailError('');
+      }
     } catch (error) {
       console.error('Error checking email:', error);
     } finally {

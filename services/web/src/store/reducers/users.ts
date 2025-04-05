@@ -181,12 +181,12 @@ export const { clearSuccessMessage, clearErrorMessage } = userSlice.actions;
 
 export const fetchListings = createAsyncThunk('users/fetchListings', getUsers);
 
-export const checkEmailExistence = createAsyncThunk<boolean, { email: string }>(
-  'users/checkEmailExistence',
-  async ({ email }, { rejectWithValue }) => {
-    return checkEmail(email, { rejectWithValue });
-  },
-);
+export const checkEmailExistence = createAsyncThunk<
+  { exists: boolean; type?: string },
+  { email: string }
+>('users/checkEmailExistence', async ({ email }, { rejectWithValue }) => {
+  return checkEmail(email, { rejectWithValue });
+});
 
 export const fetchUserInfo = createAsyncThunk(
   'users/fetchUserInfo',

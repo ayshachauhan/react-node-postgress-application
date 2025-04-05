@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   HttpException,
   HttpStatus,
   Inject,
@@ -60,7 +61,12 @@ export class PracticesService {
       },
     });
 
-    dbPractices.forEach((element: PracticeEntity) => {
+    const adminUsers = dbPractices.filter(
+      (practice) =>
+        practice.users?.some((user) => user.type === UserType.ADMIN),
+    );
+
+    adminUsers.forEach((element: PracticeEntity) => {
       const { id, name, code, status, imgUrl, emailData } = element;
       const dbUsersByPractice: UserEntity[] = element.users.sort((a, b) => {
         // sorting on the basis of createdAt to get oldest admin in the for the practice. considering it the actual practice admin
@@ -146,6 +152,13 @@ export class PracticesService {
 
     try {
       const existingUser = await this.userService.getUserByEmail(adminEmail);
+      if (existingUser) {
+        if (existingUser.type !== UserType.ADMIN) {
+          throw new BadRequestException(
+            'This email is already in use by a non-admin user.',
+          );
+        }
+      }
 
       const existingPractice: PracticeEntity | undefined =
         existingUser?.practices.find(
