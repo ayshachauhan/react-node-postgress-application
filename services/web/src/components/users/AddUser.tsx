@@ -48,6 +48,7 @@ const AddUserPage: React.FC<{
   const [firstName, setFirstName] = useState('');
   const [emailError, setEmailError] = useState('');
   const [emailExists, setEmailExists] = useState(false);
+  const [isCheckingEmail, setIsCheckingEmail] = useState(false);
   const [contactNumber, setcontactNumber] = useState('');
   const [countryCode, setCountryCode] = useState('+1');
   const [lastName, setLastName] = useState('');
@@ -110,14 +111,17 @@ const AddUserPage: React.FC<{
 
   const checkEmailExists = debounce(async (email: string) => {
     if (!email) return;
+    setIsCheckingEmail(true);
 
-    dispatch(checkEmailExistence({ email }))
-      .unwrap()
-      .then((exists) => {
-        setEmailExists(exists);
-        setEmailError(exists ? 'Email already exists' : '');
-      })
-      .catch((error) => console.error('Error checking email:', error));
+    try {
+      const exists = await dispatch(checkEmailExistence({ email })).unwrap();
+      setEmailExists(exists);
+      setEmailError(exists ? 'Email already exists' : '');
+    } catch (error) {
+      console.error('Error checking email:', error);
+    } finally {
+      setIsCheckingEmail(false);
+    }
   }, 500);
 
   const handleFirstNameChange = (value: string) => {
@@ -187,11 +191,16 @@ const AddUserPage: React.FC<{
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (emailError) {
-      setEmailError(emailError);
+    if (isCheckingEmail) {
+      setEmailError('Checking email, please wait...');
       return;
-    } else {
-      setEmailError('');
+    }
+
+    if (emailError || emailExists) {
+      if (!emailError && emailExists) {
+        setEmailError('Email already exists');
+      }
+      return;
     }
 
     if (isValidPhnNo) {
@@ -552,11 +561,7 @@ const AddUserPage: React.FC<{
           </div>
         </div>
         <div className="text-right pt-4">
-          <Button
-            kind="primary"
-            title="Add New User"
-            disabled={!!emailError || emailExists}
-          />
+          <Button kind="primary" title="Add New User" />
         </div>
       </form>
     </div>
