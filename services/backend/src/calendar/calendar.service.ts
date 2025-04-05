@@ -20,6 +20,7 @@ import {
   getDateDiffInDays,
   getFullYearDateConditions,
   getStartEndDate,
+  sanitizeCalendars,
 } from 'src/utils';
 import {
   Between,
@@ -86,7 +87,7 @@ export class CalendarService {
     practiceId,
     userId,
   }: GetCalendarsParams): Promise<CalendarEntity[]> {
-    return await this.calendarRepo.find({
+    const calendars = await this.calendarRepo.find({
       where: {
         practice: { id: practiceId },
         user: {
@@ -95,6 +96,7 @@ export class CalendarService {
       },
       relations: ['practice', 'surgeryType', 'user'],
     });
+    return sanitizeCalendars(calendars);
   }
 
   /**
@@ -112,7 +114,17 @@ export class CalendarService {
     if (!response) {
       throw new NotFoundException('Calendar does not exists');
     }
-    return response;
+
+    const { password, token, ...userWithoutPassword } = response.user;
+    password && password;
+    token && token;
+
+    return {
+      ...response,
+      user: {
+        ...userWithoutPassword,
+      } as UserEntity,
+    };
   }
 
   /**
@@ -136,7 +148,7 @@ export class CalendarService {
         'Calendar does not exists for this surgerytype',
       );
     }
-    return response;
+    return sanitizeCalendars(response);
   }
 
   /**
@@ -333,6 +345,14 @@ export class CalendarService {
           relations: ['practice', 'surgeryType', 'user'],
         })) as CalendarEntity;
 
+        if (updatedCalendar?.user) {
+          const { password, token, ...userWithoutPassword } =
+            updatedCalendar.user; //remove password and token from response
+          password && password;
+          token && token;
+          updatedCalendar.user = userWithoutPassword as UserEntity;
+        }
+
         updatedCalendars.push(updatedCalendar);
       }),
     );
@@ -499,10 +519,15 @@ export class CalendarService {
         ) &&
           dbCalendarsWithoutPermission.some((s) => s.date > new Date())));
 
+    const sanitizedCalendars = sanitizeCalendars(dbCalendars);
+    const sanitizedCalendarsWithoutPermission = sanitizeCalendars(
+      dbCalendarsWithoutPermission,
+    );
+
     return {
-      calendars: dbCalendars,
+      calendars: sanitizedCalendars,
       restricted,
-      calendarsWithoutPermission: dbCalendarsWithoutPermission,
+      calendarsWithoutPermission: sanitizedCalendarsWithoutPermission,
     };
   }
 }

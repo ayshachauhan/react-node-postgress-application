@@ -85,7 +85,7 @@ export class MediaController {
 
         if (file.size > MAX_FILE_SIZE_BYTES) {
           throw new BadRequestException(
-            `File size exceeds the limit of ${MAX_FILE_SIZE}MB.`,
+            `File size exceeds the limit of ${MAX_FILE_SIZE} MB.`,
           );
         }
 

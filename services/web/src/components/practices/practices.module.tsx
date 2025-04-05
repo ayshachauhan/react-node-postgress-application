@@ -368,11 +368,9 @@ const PracticePage: React.FC<{
                     },
                     (errorMessage) => {
                       setErrorMessage(errorMessage);
+                      setPracticeImg(null);
                     },
                   );
-
-                  setErrorMessage('');
-                  setPracticeImg(file);
                 }}
                 onDropRejected={(file: File[]) => {
                   if (!file || file.length === 0) {

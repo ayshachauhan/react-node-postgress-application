@@ -110,8 +110,8 @@ jobs:
         uses: SimonScholz/google-chat-action@main
         with:
           webhookUrl: ${{ secrets.WEBHOOK_URL }}
-          title: Deploying
-          subtitle: App might behave weird
+          title: "🚀 Deployment Initiated 🚀"
+          subtitle: "Deployment triggered by:\n*${{ github.actor }}*\n\nThe App might behave weird during the process."
 
       - name: Login to Amazon ECR
         id: login-ecr
@@ -230,6 +230,6 @@ jobs:
         uses: SimonScholz/google-chat-action@main
         with:
           webhookUrl: ${{ secrets.WEBHOOK_URL }}
-          title: Deployment Finished
-          subtitle: Use the app
+          title: "🚀 Deployment Finished 🚀"
+          subtitle: Deployment has been completed now, Use the app.
 

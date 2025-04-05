@@ -101,10 +101,20 @@ export class PracticesService {
   }
 
   async findOne(id: string): Promise<PracticeEntity | null> {
-    return await this.practicesRepository.findOne({
+    const practice = await this.practicesRepository.findOne({
       where: { id },
       relations: ['users', 'users.permissions'],
     });
+
+    if (practice) {
+      practice.users = practice.users.map(({ password, token, ...user }) => {
+        password && password;
+        token && token;
+        return { ...user };
+      }) as UserEntity[];
+    }
+
+    return practice;
   }
 
   async findPracticeByName(name: string): Promise<PracticeEntity | null> {

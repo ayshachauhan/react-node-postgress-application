@@ -547,11 +547,9 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose, withLoader }) => {
                     },
                     (errorMessage) => {
                       setErrorMessage(errorMessage);
+                      setUserImg(null);
                     },
                   );
-
-                  setErrorMessage('');
-                  setUserImg(file);
                 }}
                 onDropRejected={(file: File[]) => {
                   if (!file || file.length === 0) {

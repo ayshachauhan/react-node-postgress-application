@@ -82,11 +82,11 @@ const UploadImageForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                   },
                   (errorMessage) => {
                     setErrorMessage(errorMessage);
+                    setUserImg(null);
                   },
                 );
 
                 setErrorMessage('');
-                setUserImg(file);
               }}
               onDropRejected={(file: File[]) => {
                 if (!file || file.length === 0) {

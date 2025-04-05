@@ -16,6 +16,7 @@ import {
   SurgeryConfigurationEntity,
   SurgeryEntity,
   SurgeryStatus,
+  UserEntity,
   WaitlistEntity,
 } from '@packages/entities';
 import { PatientEntity } from '@packages/entities/patient';
@@ -44,6 +45,7 @@ import {
   formatHeaderDate,
   getFullYearDateConditions,
   getStartEndDate,
+  sanitizedSurgeriesEvals,
 } from 'src/utils';
 import { PAGINATION_LIMIT } from 'src/utils/constants';
 import { WaitlistService } from 'src/waitlist/waitlist.service';
@@ -403,9 +405,9 @@ export class SurgeryService {
           )));
 
     return {
-      surgeries: dbSurgeryByPractice,
+      surgeries: sanitizedSurgeriesEvals(dbSurgeryByPractice),
       restricted,
-      allSurgeries: dbSurgeryWithoutDate,
+      allSurgeries: sanitizedSurgeriesEvals(dbSurgeryWithoutDate),
     };
   }
 
@@ -448,11 +450,11 @@ export class SurgeryService {
       );
     });
 
-    return { surgeries: dbSurgeryByPractice };
+    return { surgeries: sanitizedSurgeriesEvals(dbSurgeryByPractice) };
   }
 
   async getSurgeryById(id: string): Promise<SurgeryEntity | null> {
-    return await this.surgeryRepository.findOne({
+    const surgeryInfo = await this.surgeryRepository.findOne({
       where: { id },
       relations: [
         'practiceHome',
@@ -465,6 +467,18 @@ export class SurgeryService {
         'practice', //TO DO: make practice id not null in future
       ],
     });
+
+    if (surgeryInfo?.doctor) {
+      const { password, token, ...doctorWithoutSensitiveData } =
+        surgeryInfo.doctor;
+
+      password && password;
+      token && token;
+
+      surgeryInfo.doctor = doctorWithoutSensitiveData as UserEntity;
+    }
+
+    return surgeryInfo;
   }
 
   async getSurgeryByIdIncludeDeleted(
