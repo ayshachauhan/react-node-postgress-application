@@ -12,12 +12,14 @@ export type Props = Partial<ButtonProps> & {
   style?: React.CSSProperties;
   backgroundColor?: string;
   color?: string;
+  disabled?: boolean;
 };
 
 const Button: React.FC<Props> = ({
   title,
   width,
   height,
+  disabled,
   padding,
   fontSize,
   style,
@@ -36,8 +38,12 @@ const Button: React.FC<Props> = ({
             height: height ? `${height}px` : '',
             padding: padding || '',
             fontSize: fontSize || '',
-            backgroundColor: backgroundColor || $theme.colors.buttonPrimaryFill,
-            color: color || $theme.colors.buttonPrimaryText,
+            backgroundColor: disabled
+              ? '#ccc'
+              : backgroundColor || $theme.colors.buttonPrimaryFill,
+            color: disabled ? '#666' : color || $theme.colors.buttonPrimaryText,
+            cursor: disabled ? 'not-allowed' : 'pointer',
+            opacity: disabled ? 0.6 : 1,
           }),
           props: {
             className: clsx({

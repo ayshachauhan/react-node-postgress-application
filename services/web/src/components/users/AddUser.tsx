@@ -47,6 +47,7 @@ const AddUserPage: React.FC<{
   const [email, setEmail] = useState('');
   const [firstName, setFirstName] = useState('');
   const [emailError, setEmailError] = useState('');
+  const [emailExists, setEmailExists] = useState(false);
   const [contactNumber, setcontactNumber] = useState('');
   const [countryCode, setCountryCode] = useState('+1');
   const [lastName, setLastName] = useState('');
@@ -108,13 +109,13 @@ const AddUserPage: React.FC<{
   };
 
   const checkEmailExists = debounce(async (email: string) => {
-    console.log('Checking email:', email);
     if (!email) return;
 
-    dispatch(checkEmailExistence({ email })) // Pass { email } instead of just email
+    dispatch(checkEmailExistence({ email }))
       .unwrap()
       .then((exists) => {
-        setErrorMessage(exists ? 'Email already exists' : '');
+        setEmailExists(exists);
+        setEmailError(exists ? 'Email already exists' : '');
       })
       .catch((error) => console.error('Error checking email:', error));
   }, 500);
@@ -175,6 +176,7 @@ const AddUserPage: React.FC<{
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(value)) {
       setEmailError('Invalid email address');
+      setEmailExists(false);
       return;
     }
 
@@ -550,7 +552,11 @@ const AddUserPage: React.FC<{
           </div>
         </div>
         <div className="text-right pt-4">
-          <Button kind="primary" title="Add New User" />
+          <Button
+            kind="primary"
+            title="Add New User"
+            disabled={!!emailError || emailExists}
+          />
         </div>
       </form>
     </div>

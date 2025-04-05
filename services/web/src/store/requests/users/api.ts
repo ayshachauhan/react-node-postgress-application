@@ -247,9 +247,7 @@ export const checkEmail = async (
   { rejectWithValue }: { rejectWithValue: (value: string) => void },
 ): Promise<boolean> => {
   try {
-    const response = await apiClient.get(
-      `/users-public/check-email?email=${email}`,
-    );
+    const response = await apiClient.get(`/users/check-email?email=${email}`);
     if (!response.ok) throw new Error('Failed to check email');
 
     const data = await response.json();
