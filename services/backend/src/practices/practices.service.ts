@@ -182,7 +182,7 @@ export class PracticesService {
           userName: `${adminEmail}`,
           type: UserType.ADMIN,
           url: '',
-          designation: '',
+          designation: undefined,
           contactNumber: adminContactNumber,
           countryCode: adminCountryCode,
           permissionIds: [],
