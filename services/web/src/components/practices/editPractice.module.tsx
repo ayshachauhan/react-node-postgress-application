@@ -2,16 +2,11 @@
 import { PracticeStatus } from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
+import { ValidatedFileUploader } from '@root/components/shared/ValidatedFileUploader';
 import { useAppDispatch } from '@root/store';
 import { updateRecordAsync } from '@root/store/reducers/practices';
-import {
-  validateFileSignature,
-  validateFileSize,
-  validateFileType,
-} from '@root/utils';
 import { allowedExtensions } from '@root/utils/constants';
 import { PracticesEditInterface } from '@store/requests/practices';
-import { FileUploader } from 'baseui/file-uploader';
 import { Select } from 'baseui/select';
 import { isValidPhoneNumber, parsePhoneNumber } from 'libphonenumber-js';
 import React, { useEffect, useRef, useState } from 'react';
@@ -320,70 +315,13 @@ const PracticeEditModule: React.FC<{
               <label htmlFor="imgUrl" className="">
                 Practice Photo
               </label>
-              <FileUploader
-                onDrop={(acceptedFiles: File[]) => {
-                  if (!acceptedFiles || acceptedFiles.length === 0) {
-                    setErrorMessage('No file uploaded.');
-                    return;
-                  }
-
-                  const file = acceptedFiles[0];
-
-                  const typeError = validateFileType(file);
-                  if (typeError) {
-                    setErrorMessage(typeError);
-                    return;
-                  }
-
-                  const sizeError = validateFileSize(file);
-                  if (sizeError) {
-                    setErrorMessage(sizeError);
-                    return;
-                  }
-
-                  validateFileSignature(
-                    file,
-                    (validatedFile) => {
-                      setErrorMessage('');
-                      setPracticeImg(validatedFile);
-                    },
-                    (errorMessage) => {
-                      setErrorMessage(errorMessage);
-                      setPracticeImg(null);
-                    },
-                  );
-                }}
-                onDropRejected={(file: File[]) => {
-                  if (!file || file.length === 0) {
-                    setErrorMessage('No file uploaded.');
-                    return;
-                  }
-
-                  setErrorMessage('Invalid file type or size.');
-                }}
+              <ValidatedFileUploader
                 accept={acceptAttribute}
-                overrides={{
-                  ContentMessage: {
-                    component: () => (
-                      <div>
-                        {practiceImg ? (
-                          <div>
-                            <p>{practiceImg?.name}</p>
-                          </div>
-                        ) : (
-                          <span>Drag and drop or click to upload</span>
-                        )}
-                      </div>
-                    ),
-                  },
-                  FileDragAndDrop: {
-                    style: {
-                      marginBottom: '16px',
-                      borderColor: '#22C55E',
-                      color: '##F0FDF4',
-                    },
-                  },
+                onSuccess={(file) => {
+                  setPracticeImg(file);
+                  setErrorMessage('');
                 }}
+                onError={setErrorMessage}
               />
             </div>
           </div>

@@ -7,20 +7,14 @@ import {
 } from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
+import { ValidatedFileUploader } from '@root/components/shared/ValidatedFileUploader';
 import { useUserPermissions } from '@root/context/UserPermissionsContext';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { updateRecordAsync } from '@root/store/reducers/users';
 import { SanitizedUser } from '@root/store/types';
 import { allowedExtensions } from '@root/utils/constants';
-import {
-  generateFullName,
-  getPracticeId,
-  validateFileSignature,
-  validateFileSize,
-  validateFileType,
-} from '@utils/index';
+import { generateFullName, getPracticeId } from '@utils/index';
 import { Checkbox } from 'baseui/checkbox';
-import { FileUploader } from 'baseui/file-uploader';
 import { Select } from 'baseui/select';
 import { parsePhoneNumber } from 'libphonenumber-js';
 import React, { useEffect, useRef, useState } from 'react';
@@ -517,71 +511,13 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose, withLoader }) => {
               <label htmlFor="type" className="text-black text-sm font-normal">
                 User Photo
               </label>
-              <FileUploader
-                errorMessage={''}
-                onDrop={(acceptedFiles: File[]) => {
-                  if (!acceptedFiles || acceptedFiles.length === 0) {
-                    setErrorMessage('No file uploaded.');
-                    return;
-                  }
-
-                  const file = acceptedFiles[0];
-
-                  const typeError = validateFileType(file);
-                  if (typeError) {
-                    setErrorMessage(typeError);
-                    return;
-                  }
-
-                  const sizeError = validateFileSize(file);
-                  if (sizeError) {
-                    setErrorMessage(sizeError);
-                    return;
-                  }
-
-                  validateFileSignature(
-                    file,
-                    (validatedFile) => {
-                      setErrorMessage('');
-                      setUserImg(validatedFile);
-                    },
-                    (errorMessage) => {
-                      setErrorMessage(errorMessage);
-                      setUserImg(null);
-                    },
-                  );
-                }}
-                onDropRejected={(file: File[]) => {
-                  if (!file || file.length === 0) {
-                    setErrorMessage('No file uploaded.');
-                    return;
-                  }
-
-                  setErrorMessage('Invalid file type or size.');
-                }}
+              <ValidatedFileUploader
                 accept={acceptAttribute}
-                overrides={{
-                  ContentMessage: {
-                    component: () => (
-                      <div>
-                        {userImg ? (
-                          <div>
-                            <p>{userImg.name}</p>
-                          </div>
-                        ) : (
-                          <span>Drag and drop or click to upload</span>
-                        )}
-                      </div>
-                    ),
-                  },
-                  FileDragAndDrop: {
-                    style: {
-                      marginBottom: '16px',
-                      borderColor: '#22C55E',
-                      color: '##F0FDF4',
-                    },
-                  },
+                onSuccess={(file) => {
+                  setUserImg(file);
+                  setErrorMessage('');
                 }}
+                onError={setErrorMessage}
               />
             </div>
             <div className="w-1/2 space-y-2 flex flex-col">

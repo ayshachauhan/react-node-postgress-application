@@ -1,16 +1,10 @@
 import Button from '@root/components/Button';
+import { ValidatedFileUploader } from '@root/components/shared/ValidatedFileUploader';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { uploadImage } from '@root/store/reducers/auth';
 import { UploadImgPayload } from '@root/store/requests/users';
 import { allowedExtensions } from '@root/utils/constants';
-import {
-  getPracticeId,
-  getUserId,
-  validateFileSignature,
-  validateFileSize,
-  validateFileType,
-} from '@utils/index';
-import { FileUploader } from 'baseui/file-uploader';
+import { getPracticeId, getUserId } from '@utils/index';
 import React, { useState } from 'react';
 const UploadImageForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const dispatch = useAppDispatch();
@@ -52,71 +46,13 @@ const UploadImageForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             <label htmlFor="adminEmail" className="text-black text-sm">
               User Photo
             </label>
-            <FileUploader
-              errorMessage={''}
-              onDrop={(acceptedFiles: File[]) => {
-                if (!acceptedFiles || acceptedFiles.length === 0) {
-                  setErrorMessage('No file uploaded.');
-                  return;
-                }
-
-                const file = acceptedFiles[0];
-
-                const typeError = validateFileType(file);
-                if (typeError) {
-                  setErrorMessage(typeError);
-                  return;
-                }
-
-                const sizeError = validateFileSize(file);
-                if (sizeError) {
-                  setErrorMessage(sizeError);
-                  return;
-                }
-
-                validateFileSignature(
-                  file,
-                  (validatedFile) => {
-                    setErrorMessage('');
-                    setUserImg(validatedFile);
-                  },
-                  (errorMessage) => {
-                    setErrorMessage(errorMessage);
-                    setUserImg(null);
-                  },
-                );
-              }}
-              onDropRejected={(file: File[]) => {
-                if (!file || file.length === 0) {
-                  setErrorMessage('No file uploaded.');
-                  return;
-                }
-
-                setErrorMessage('Invalid file type or size.');
-              }}
+            <ValidatedFileUploader
               accept={acceptAttribute}
-              overrides={{
-                ContentMessage: {
-                  component: () => (
-                    <div>
-                      {userImg ? (
-                        <div>
-                          <p>{userImg?.name}</p>
-                        </div>
-                      ) : (
-                        <span>Drag and drop or click to upload</span>
-                      )}
-                    </div>
-                  ),
-                },
-                FileDragAndDrop: {
-                  style: {
-                    marginBottom: '16px',
-                    borderColor: '#22C55E',
-                    color: '##F0FDF4',
-                  },
-                },
+              onSuccess={(file) => {
+                setUserImg(file);
+                setErrorMessage('');
               }}
+              onError={setErrorMessage}
             />
           </div>
         </div>
