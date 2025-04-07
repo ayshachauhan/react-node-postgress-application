@@ -3,9 +3,11 @@ import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
 import { useAppDispatch } from '@root/store';
 import { addRecordAsync } from '@root/store/reducers/practices';
+import { checkEmailExistence } from '@root/store/reducers/users';
 import { PracticeCreateInterface } from '@store/requests/practices';
 import { FileUploader } from 'baseui/file-uploader';
 import { parsePhoneNumber } from 'libphonenumber-js';
+import { debounce } from 'lodash';
 import React, { useEffect, useRef, useState } from 'react';
 import { PhoneInput } from 'react-international-phone';
 import 'react-international-phone/style.css';
@@ -37,12 +39,34 @@ const PracticePage: React.FC<{
     validatePhoneNumber(fullPhoneNumber);
   };
   const [emailError, setEmailError] = useState('');
+  const [isCheckingEmail, setIsCheckingEmail] = useState(false);
 
   const handlePhoneNumberChange = (value: string) => {
     setAdminContactNumber(value);
     const fullPhoneNumber = adminCountryCode + value;
     validatePhoneNumber(fullPhoneNumber);
   };
+
+  const checkEmailExists = debounce(async (email: string) => {
+    if (!email) return;
+    setIsCheckingEmail(true);
+    const encodedEmail = encodeURIComponent(email);
+    try {
+      const { exists, type } = await dispatch(
+        checkEmailExistence({ email: encodedEmail }),
+      ).unwrap();
+
+      if (exists && type !== 'admin') {
+        setEmailError(`Email already exists and is registered as a ${type}`);
+      } else {
+        setEmailError('');
+      }
+    } catch (error) {
+      console.error('Error checking email:', error);
+    } finally {
+      setIsCheckingEmail(false);
+    }
+  }, 500);
 
   const validatePhoneNumber = (fullNumber: string) => {
     try {
@@ -63,11 +87,14 @@ const PracticePage: React.FC<{
 
   const validateEmail = (value: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(value)) {
+    const trimmed = value.trim().toLowerCase();
+    if (!emailRegex.test(trimmed)) {
       setEmailError('Invalid email address');
-    } else {
-      setEmailError('');
+      return;
     }
+
+    setEmailError('');
+    checkEmailExists(trimmed);
   };
 
   const [errorMessage, setErrorMessage] = useState('');
@@ -101,6 +128,11 @@ const PracticePage: React.FC<{
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (isCheckingEmail) {
+      setEmailError('Checking email, please wait...');
+      return;
+    }
+
     if (emailError) {
       setEmailError(emailError);
       return;
