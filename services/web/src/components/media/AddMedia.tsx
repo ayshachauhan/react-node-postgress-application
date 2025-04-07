@@ -102,74 +102,62 @@ const MediaPage: React.FC<{
   const handleAddVideoField = () => {
     if (selectedMedia === MediaType.PRACTICE) {
       if (practiceForm.video.length < 5) {
-        setPracticeForm((prev) => ({
-          ...prev,
-          video: [...prev.video, { title: '', url: '' }],
-        }));
-        setVideoErrors((prev) => [...prev, '']);
+        setPracticeForm({
+          ...practiceForm,
+          video: [...practiceForm.video, { title: '', url: '' }],
+        });
+        setVideoErrors((practiceForm) => [...practiceForm, '']);
       }
     } else {
       if (patientForm.video.length < 5) {
-        setPatientForm((prev) => ({
-          ...prev,
-          video: [...prev.video, { title: '', url: '' }],
-        }));
-        setVideoErrors((prev) => [...prev, '']);
+        setPatientForm({
+          ...patientForm,
+          video: [...patientForm.video, { title: '', url: '' }],
+        });
+        setVideoErrors((patientForm) => [...patientForm, '']);
       }
     }
   };
 
   const handleRemoveVideoField = (index) => {
     if (selectedMedia === MediaType.PRACTICE) {
-      const updated = [...practiceForm.video];
-      updated.splice(index, 1);
-      setPracticeForm((prev) => ({ ...prev, video: updated }));
+      const newFields = practiceForm.video.filter((_, idx) => idx !== index);
+      setPracticeForm({ ...practiceForm, video: newFields });
+      setVideoErrors((practiceForm) =>
+        practiceForm.filter((_, i) => i !== index),
+      );
     } else {
-      const updated = [...patientForm.video];
-      updated.splice(index, 1);
-      setPatientForm((prev) => ({ ...prev, video: updated }));
+      const newFields = patientForm.video.filter((_, idx) => idx !== index);
+      setPatientForm({ ...patientForm, video: newFields });
+      setVideoErrors((patientForm) =>
+        patientForm.filter((_, i) => i !== index),
+      );
     }
-
-    setVideoErrors((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleVideoChangeInput = (index, value, field) => {
     const isVideoUrlField = field === 'url';
     const updatedErrors = [...videoErrors];
 
-    let shouldValidate = false;
+    const updateForm = (form, setForm) => {
+      const newFields = [...form.video];
+      newFields[index][field] = value;
 
+      if (isVideoUrlField && newFields[index].title) {
+        const isValid = isValidYouTubeUrl(value);
+        updatedErrors[index] = isValid ? '' : 'Invalid YouTube URL';
+      } else if (isVideoUrlField) {
+        updatedErrors[index] = '';
+      }
+
+      setForm({ ...form, video: newFields });
+    };
     if (selectedMedia === MediaType.PRACTICE) {
-      const newFields = [...practiceForm.video];
-      newFields[index][field] = value;
-
-      if (isVideoUrlField && newFields[index].title) {
-        shouldValidate = true;
-        const isValid = isValidYouTubeUrl(value);
-        updatedErrors[index] = isValid ? '' : 'Invalid YouTube URL';
-      } else if (isVideoUrlField) {
-        updatedErrors[index] = '';
-      }
-
-      setPracticeForm({ ...practiceForm, video: newFields });
+      updateForm(practiceForm, setPracticeForm);
     } else {
-      const newFields = [...patientForm.video];
-      newFields[index][field] = value;
-
-      if (isVideoUrlField && newFields[index].title) {
-        shouldValidate = true;
-        const isValid = isValidYouTubeUrl(value);
-        updatedErrors[index] = isValid ? '' : 'Invalid YouTube URL';
-      } else if (isVideoUrlField) {
-        updatedErrors[index] = '';
-      }
-
-      setPatientForm({ ...patientForm, video: newFields });
+      updateForm(patientForm, setPatientForm);
     }
-
-    if (isVideoUrlField && shouldValidate) {
-      setVideoErrors(updatedErrors);
-    }
+    setVideoErrors(updatedErrors);
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
