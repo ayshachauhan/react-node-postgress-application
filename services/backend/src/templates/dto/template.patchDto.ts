@@ -1,10 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsOptional } from 'class-validator';
+import { TemplateMessageType } from '@packages/entities/template';
+import { IsEnum, IsOptional } from 'class-validator';
 
 export class TemplatePatchDto {
   @IsOptional()
+  @IsEnum(TemplateMessageType, { message: 'Invalid message type' })
   @ApiProperty()
-  messageType: string;
+  messageType: TemplateMessageType;
 
   @IsOptional()
   @ApiProperty()

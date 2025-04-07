@@ -219,8 +219,22 @@ export class UsersService {
         );
       }
     }
+    const { designation, firstName, lastName, ...rest } = updateUserDto;
 
-    const updatedUser = this.usersRepository.merge(userToUpdate, updateUserDto);
+    const fullName =
+      (firstName ?? userToUpdate.firstName ?? '') +
+      ' ' +
+      (lastName ?? userToUpdate.lastName ?? '');
+
+    const cleanedDto = {
+      ...rest,
+      ...(firstName !== undefined ? { firstName } : {}),
+      ...(lastName !== undefined ? { lastName } : {}),
+      fullName: fullName.trim(),
+      ...(designation !== null ? { designation } : {}),
+    };
+
+    const updatedUser = this.usersRepository.merge(userToUpdate, cleanedDto);
 
     if (updateUserDto.permissionIds) {
       const permissionEntities =
