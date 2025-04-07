@@ -428,11 +428,10 @@ const MediaPage: React.FC<{
                           onChange={(value) =>
                             handleVideoChangeInput(index, value, 'url')
                           }
-                          error={!!videoErrors[index]}
                           endEnhancer={
                             arr.length > 1 ? (
                               <div
-                                className="rounded-md cursor-pointer items-center"
+                                className="rounded-md cursor-pointer"
                                 onClick={() => handleRemoveVideoField(index)}
                               >
                                 <CloseIcon className="" size={10} />
