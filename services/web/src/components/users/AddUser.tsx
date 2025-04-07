@@ -7,7 +7,10 @@ import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { fetchListings as fetchPermissions } from '@root/store/reducers/userPermissions';
-import { addRecordAsync } from '@root/store/reducers/users';
+import {
+  addRecordAsync,
+  checkEmailExistence,
+} from '@root/store/reducers/users';
 import { AddUserDto } from '@root/store/requests/users/types';
 import { allowedExtensions } from '@root/utils/constants';
 import {
@@ -21,6 +24,7 @@ import { Checkbox } from 'baseui/checkbox';
 import { FileUploader } from 'baseui/file-uploader';
 import { Select } from 'baseui/select';
 import { parsePhoneNumber } from 'libphonenumber-js';
+import { debounce } from 'lodash';
 import React, { useEffect, useRef, useState } from 'react';
 import { PhoneInput } from 'react-international-phone';
 import 'react-international-phone/style.css';
@@ -50,6 +54,8 @@ const AddUserPage: React.FC<{
   const [email, setEmail] = useState('');
   const [firstName, setFirstName] = useState('');
   const [emailError, setEmailError] = useState('');
+  const [emailExists, setEmailExists] = useState(false);
+  const [isCheckingEmail, setIsCheckingEmail] = useState(false);
   const [contactNumber, setcontactNumber] = useState('');
   const [countryCode, setCountryCode] = useState('+1');
   const [lastName, setLastName] = useState('');
@@ -110,6 +116,29 @@ const AddUserPage: React.FC<{
     }
   };
 
+  const checkEmailExists = debounce(async (email: string) => {
+    if (!email) return;
+    setIsCheckingEmail(true);
+    const encodedEmail = encodeURIComponent(email);
+    try {
+      const { exists } = await dispatch(
+        checkEmailExistence({ email: encodedEmail }),
+      ).unwrap();
+
+      setEmailExists(exists);
+
+      if (exists) {
+        setEmailError('Email already exists');
+      } else {
+        setEmailError('');
+      }
+    } catch (error) {
+      console.error('Error checking email:', error);
+    } finally {
+      setIsCheckingEmail(false);
+    }
+  }, 500);
+
   const handleFirstNameChange = (value: string) => {
     setFirstName(value);
 
@@ -166,19 +195,27 @@ const AddUserPage: React.FC<{
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(value)) {
       setEmailError('Invalid email address');
-    } else {
-      setEmailError('');
+      setEmailExists(false);
+      return;
     }
+
+    setEmailError('');
+    checkEmailExists(value);
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (emailError) {
-      setEmailError(emailError);
+    if (isCheckingEmail) {
+      setEmailError('Checking email, please wait...');
       return;
-    } else {
-      setEmailError('');
+    }
+
+    if (emailError || emailExists) {
+      if (!emailError && emailExists) {
+        setEmailError('Email already exists');
+      }
+      return;
     }
 
     if (isValidPhnNo) {

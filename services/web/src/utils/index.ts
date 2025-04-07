@@ -511,6 +511,60 @@ export const validateFileSignature = (
   reader.readAsArrayBuffer(file);
 };
 
+export const validateTemplateFileSignature = (
+  file: File,
+  onSuccess: (file: File) => void,
+  onError: (message: string) => void,
+) => {
+  const reader = new FileReader();
+
+  reader.onloadend = () => {
+    const arrayBuffer = reader.result as ArrayBuffer;
+    const byteArray = new Uint8Array(arrayBuffer);
+
+    const signatures: { [key: string]: number[] } = {
+      jpg: [0xff, 0xd8, 0xff],
+      png: [0x89, 0x50, 0x4e, 0x47],
+      pdf: [0x25, 0x50, 0x44, 0x46], // %PDF
+      doc: [0xd0, 0xcf, 0x11, 0xe0], // older MS Office
+      docx: [0x50, 0x4b, 0x03, 0x04], // ZIP-based formats (docx, xlsx, etc.)
+      txt: [], // No reliable signature, skip validation
+      mp4: [0x00, 0x00, 0x00, 0x18], // MP4 with ftyp
+    };
+
+    let isValid = false;
+
+    for (const key in signatures) {
+      const sig = signatures[key];
+      if (sig.length === 0) {
+        if (file.type === 'text/plain') {
+          isValid = true;
+          break;
+        }
+        continue;
+      }
+      const fileSlice = byteArray.slice(0, sig.length);
+      if (fileSlice.join() === sig.join()) {
+        isValid = true;
+        break;
+      }
+    }
+
+    if (!isValid) {
+      onError('Invalid file type. File signature mismatch detected.');
+      return;
+    }
+
+    onSuccess(file);
+  };
+
+  reader.onerror = () => {
+    onError('Error reading file.');
+  };
+
+  reader.readAsArrayBuffer(file);
+};
+
 export const validateFileType = (file: File) => {
   const fileType = file.type;
   const fileExtension = file.name

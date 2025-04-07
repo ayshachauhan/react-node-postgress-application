@@ -11,9 +11,8 @@ import {
   fetchListings,
   updateRecordAsync,
 } from '@root/store/reducers/templates';
-import { MAX_FILE_SIZE, MAX_FILE_SIZE_BYTES } from '@root/utils/constants';
 import { TEMPLATE_VARIABLES } from '@root/utils/enums';
-import { getPracticeId } from '@utils/index';
+import { getPracticeId, validateTemplateFileSignature } from '@utils/index';
 import { Checkbox, STYLE_TYPE } from 'baseui/checkbox';
 import { SIZE, Select } from 'baseui/select';
 import { Textarea } from 'baseui/textarea';
@@ -44,6 +43,7 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({
   const [updatedTemplateInfo, setTemplateInfo] = useState<
     Partial<ITemplateUpdate>
   >({});
+  const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
   const userInfo = useAppSelector((state) => state.auth.user);
   const userId = userInfo?.id;
   const userPermissions = userInfo?.permissions;
@@ -148,53 +148,41 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({
     }
   }, [templateId, templateInfo]);
 
-  const handleFileChange = async (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    const allowedType = 'application/pdf';
-
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
+    if (!file) return;
 
-    if (!file) {
-      alert('No file uploaded.');
+    if (file.size > MAX_FILE_SIZE) {
+      alert('File size exceeds 5MB limit.');
       return;
     }
 
-    if (file.type !== allowedType) {
-      alert('Only PDF files are allowed.');
+    const allowedTypes = [
+      'application/msword', // .doc
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // .docx
+      'application/pdf', // .pdf
+      'text/plain', // .txt
+      'image/png',
+      'image/jpeg',
+      'image/jpg',
+      'video/mp4',
+    ];
+
+    if (!allowedTypes.includes(file.type)) {
+      alert('Unsupported file type.');
       return;
     }
 
-    if (file.size > MAX_FILE_SIZE_BYTES) {
-      alert(`File size must be less than ${MAX_FILE_SIZE} MB.`);
-      return;
-    }
-
-    try {
-      const isValidPDF = await validatePDFContent(file);
-      if (!isValidPDF) {
-        alert('Invalid PDF file. Please upload a valid PDF.');
-        return;
-      }
-
-      setAttachment(file);
-      console.log('Valid PDF uploaded:', file);
-    } catch (error) {
-      alert('Failed to validate PDF content.');
-    }
-  };
-
-  const validatePDFContent = (file: File): Promise<boolean> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => {
-        const content = new Uint8Array(reader.result as ArrayBuffer);
-        const header = new TextDecoder().decode(content.slice(0, 5));
-        resolve(header === '%PDF-');
-      };
-      reader.onerror = () => reject('Error reading file');
-      reader.readAsArrayBuffer(file);
-    });
+    validateTemplateFileSignature(
+      file,
+      (safeFile) => {
+        console.log('File passed validation:', safeFile);
+        setAttachment(safeFile);
+      },
+      (signatureError) => {
+        alert(signatureError);
+      },
+    );
   };
 
   const handleHtmlChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -454,7 +442,11 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({
                     >
                       Attachment
                     </label>
-                    <input type="file" onChange={handleFileChange} />
+                    <input
+                      type="file"
+                      accept=".doc,.docx,.pdf,.txt,image/*,video/*"
+                      onChange={handleFileChange}
+                    />
                   </div>
                 </div>
               </div>

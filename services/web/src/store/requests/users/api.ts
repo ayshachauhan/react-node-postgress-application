@@ -237,3 +237,29 @@ export const uploadImg = async (
     throw new Error();
   }
 };
+
+/**
+ * @param email
+ * @returns An object with:
+ *   - `exists`: `true` if the email exists, otherwise `false`
+ *   - `type`: the user type (e.g., 'admin', 'staff'), or `undefined` if the user doesn't exist
+ */
+export const checkEmail = async (
+  email: string,
+  { rejectWithValue }: { rejectWithValue: (value: string) => void },
+): Promise<{ exists: boolean; type?: string }> => {
+  try {
+    const response = await apiClient.get(`/users/check-email?email=${email}`);
+    if (!response.ok) throw new Error('Failed to check email');
+
+    const data = await response.json();
+    return {
+      exists: data.exists,
+      type: data.type,
+    };
+  } catch (error) {
+    console.error('Error checking email:', error);
+    rejectWithValue(error instanceof Error ? error.message : 'Unknown error');
+    return { exists: false };
+  }
+};

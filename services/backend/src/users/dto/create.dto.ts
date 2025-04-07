@@ -1,6 +1,13 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { UserType } from '@packages/entities/user';
-import { IsEmail, IsNotEmpty, IsOptional } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { UserDesignation, UserType } from '@packages/entities/user';
+import { Transform } from 'class-transformer';
+import {
+  IsEmail,
+  IsEnum,
+  IsNotEmpty,
+  IsOptional,
+  Matches,
+} from 'class-validator';
 
 export class CreateUserDto {
   @IsNotEmpty({ message: 'First name is required' })
@@ -20,11 +27,14 @@ export class CreateUserDto {
   @ApiProperty()
   userName: string;
 
+  @Transform(({ value }) => (value === '' ? undefined : value))
   @IsOptional()
-  @ApiProperty()
-  designation: string;
+  @IsEnum(UserDesignation, { message: 'Invalid designation' })
+  @ApiPropertyOptional({ enum: UserDesignation })
+  designation?: UserDesignation;
 
   @IsNotEmpty({ message: 'userType is required.' })
+  @IsEnum(UserType, { message: 'Invalid user type' })
   @ApiProperty()
   type: UserType;
 
@@ -33,10 +43,16 @@ export class CreateUserDto {
   url: string;
 
   @IsNotEmpty({ message: 'contact number is required' })
+  @Matches(/^\d{6,15}$/, {
+    message: 'Contact number must contain 6–15 digits',
+  })
   @ApiProperty()
   contactNumber: string;
 
   @IsNotEmpty({ message: 'country code is required' })
+  @Matches(/^\+\d{1,4}$/, {
+    message: 'Country code must start with + followed by 1–4 digits',
+  })
   @ApiProperty()
   countryCode: string;
 
