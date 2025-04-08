@@ -206,7 +206,7 @@ export class PracticesService {
       );
 
       const token: string = this.jwtService.sign({
-        ...newAdmin,
+        email: newAdmin.email,
         practiceId: practice.id,
       });
 

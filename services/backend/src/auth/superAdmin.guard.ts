@@ -21,6 +21,8 @@ export class SuperAdminGuard extends AuthGuard {
 
     try {
       const payload = await this.verify(token);
+      console.log('--------------------------->>>>>>>>>>>>>>>>>');
+      console.log(payload);
       request['user'] = payload;
       return payload?.isSuperAdmin;
     } catch (error) {

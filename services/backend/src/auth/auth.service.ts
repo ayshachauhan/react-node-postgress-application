@@ -62,8 +62,13 @@ export class AuthService {
   }
 
   async login(user: SanitizedUser | SuperAdminUser) {
+    const payload = {
+      ...('id' in user ? { id: user.id } : { email: user.email }),
+      isSuperAdmin: user.isSuperAdmin,
+    };
+
     return {
-      access_token: this.jwtService.sign(user),
+      access_token: this.jwtService.sign(payload),
       is_super_admin: user.isSuperAdmin,
     };
   }
@@ -73,7 +78,7 @@ export class AuthService {
 
     if (user && user.status !== 'active') {
       throw new UnauthorizedException(
-        'Please accept the invitation and reset your password using the link in email.',
+        'Please accDept the invitation and reset your password using the link in email.',
       );
     }
 

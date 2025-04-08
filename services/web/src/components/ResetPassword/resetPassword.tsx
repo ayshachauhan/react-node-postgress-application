@@ -110,6 +110,8 @@ export const ResetPassword: React.FC<Props> = ({
     const encryptedNewPassword = encryptPassword(newPassword);
     const encryptedConfirmPassword = encryptPassword(confirmPassword);
     const encryptedOldPassword = encryptPassword(oldPassword);
+    console.log(userInfo);
+    console.log('---------------');
 
     if (userInfo && userInfo.practices) {
       setTokenExpired(false);

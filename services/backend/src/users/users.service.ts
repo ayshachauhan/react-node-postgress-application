@@ -269,6 +269,7 @@ export class UsersService {
     changePasswordDto,
     practiceId,
   }): Promise<SanitizedUser> {
+    console.log(changePasswordDto);
     logger.info(
       `Starting change password process for user with email ${changePasswordDto?.email}`,
     );
@@ -297,6 +298,9 @@ export class UsersService {
     }
 
     const user = await this.findUserByEmail(email);
+    console.log(token);
+    console.log('-------------');
+    console.log(user?.token);
     if (user) {
       const newHashedPassword = await bcrypt.hash(decryptedNewPassword, 10);
 
@@ -403,7 +407,8 @@ export class UsersService {
     surgeries && surgeries;
 
     const token = this.jwtService.sign({
-      ...newSanitizedUser,
+      id: newSanitizedUser.id,
+      email: newSanitizedUser.email,
     });
 
     // Read the HTML file content

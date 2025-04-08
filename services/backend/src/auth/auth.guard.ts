@@ -40,6 +40,8 @@ export class AuthGuard implements CanActivate {
 
     try {
       const payload = await this.verify(token);
+      console.log('---------------------------');
+      console.log(payload);
       request['user'] = payload;
       return true;
     } catch (error) {

@@ -817,6 +817,8 @@ export class EmailHandlerService {
       `Starting process of marking email as read for email log ID: ${id}`,
     );
     const jwtResponse = await this.jwtService.verify(token);
+    console.log(jwtResponse);
+    console.log('---->>----------------------');
     if (jwtResponse) {
       logger.info(`Updating email log ID: ${id}`);
       await this.emailLogRepository.update(id, {
