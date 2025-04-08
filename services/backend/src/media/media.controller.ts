@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -21,8 +20,8 @@ import { AuthGuard } from 'src/auth/auth.guard';
 import { PermissionGuard } from 'src/auth/userPermissions.guard';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
 import { PracticeGuard } from 'src/practices/practice.guard';
-import { checkFileType } from 'src/utils';
-import { MAX_FILE_SIZE, MAX_FILE_SIZE_BYTES } from 'src/utils/constants';
+import { validateUploadedFile } from 'src/utils';
+
 import { CreateMediaDto, SendVideoDto } from './dtos/createMedia.dto';
 import { MediaService } from './media.service';
 
@@ -79,17 +78,7 @@ export class MediaController {
   ) {
     if (files?.files?.length) {
       for (const file of files.files) {
-        if (!file) {
-          throw new BadRequestException('File is required.');
-        }
-
-        if (file.size > MAX_FILE_SIZE_BYTES) {
-          throw new BadRequestException(
-            `File size exceeds the limit of ${MAX_FILE_SIZE} MB.`,
-          );
-        }
-
-        await checkFileType(file.buffer);
+        await validateUploadedFile(file);
       }
     }
 

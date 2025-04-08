@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -15,8 +14,7 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express/multer';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { PracticeEntity } from '@packages/entities/practice';
-import { checkFileType } from 'src/utils';
-import { MAX_FILE_SIZE, MAX_FILE_SIZE_BYTES } from 'src/utils/constants';
+import { validateUploadedFile } from 'src/utils';
 import { AuthGuard } from '../auth/auth.guard';
 import { SuperAdminGuard } from '../auth/superAdmin.guard';
 import { PracticeCreateDto } from './dto/create.dto';
@@ -75,17 +73,7 @@ export class PracticesController {
     @Param() params: { id: string },
     @UploadedFile() file: Express.Multer.File,
   ) {
-    if (!file) {
-      throw new BadRequestException('File is required.');
-    }
-
-    if (file.size > MAX_FILE_SIZE_BYTES) {
-      throw new BadRequestException(
-        `File size exceeds the limit of ${MAX_FILE_SIZE} MB.`,
-      );
-    }
-
-    await checkFileType(file.buffer);
+    await validateUploadedFile(file);
     return this.practiceService.uploadPracticeImg({
       practiceId: params.id,
       file,

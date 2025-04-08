@@ -8,7 +8,12 @@ import { USER_PERMISSIONS } from '@packages/entities/permission';
 import * as CryptoJS from 'crypto-js';
 import { fromBuffer } from 'file-type';
 import { Between } from 'typeorm';
-import { allowedExtensions, allowedMimeTypes } from './constants';
+import {
+  MAX_FILE_SIZE,
+  MAX_FILE_SIZE_BYTES,
+  allowedExtensions,
+  allowedMimeTypes,
+} from './constants';
 
 const secretKey = process.env.NEXT_PUBLIC_ENCRYPTION_KEY;
 
@@ -284,4 +289,18 @@ export async function validatePDFContent(
   } catch (error) {
     throw new BadRequestException('Failed to validate PDF content');
   }
+}
+
+export async function validateUploadedFile(file?: Express.Multer.File) {
+  if (!file) {
+    throw new BadRequestException('File is required.');
+  }
+
+  if (file.size > MAX_FILE_SIZE_BYTES) {
+    throw new BadRequestException(
+      `File size exceeds the limit of ${MAX_FILE_SIZE} MB.`,
+    );
+  }
+
+  await checkFileType(file.buffer);
 }
