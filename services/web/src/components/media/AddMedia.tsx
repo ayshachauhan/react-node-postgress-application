@@ -5,7 +5,7 @@ import { useAppDispatch, useAppSelector } from '@root/store';
 import { addRecordAsync } from '@root/store/reducers/media';
 import { fetchListings as fetchsurgeryConfigurations } from '@root/store/reducers/surgeryConfigurations';
 import { AddMediaDTO } from '@root/store/requests/media/types';
-import { getPracticeId } from '@utils/index';
+import { getPracticeId, isValidYouTubeUrl } from '@utils/index';
 import { Checkbox, LABEL_PLACEMENT } from 'baseui/checkbox';
 import { Select } from 'baseui/select';
 import React, { useEffect, useState } from 'react';
@@ -32,6 +32,7 @@ const MediaPage: React.FC<{
     label: patient[key].mrn,
     id: patient[key].id,
   }));
+  const [videoErrors, setVideoErrors] = useState(['']);
 
   const practiceId = getPracticeId();
   const dispatch = useAppDispatch();
@@ -105,6 +106,7 @@ const MediaPage: React.FC<{
           ...practiceForm,
           video: [...practiceForm.video, { title: '', url: '' }],
         });
+        setVideoErrors((practiceForm) => [...practiceForm, '']);
       }
     } else {
       if (patientForm.video.length < 5) {
@@ -112,6 +114,7 @@ const MediaPage: React.FC<{
           ...patientForm,
           video: [...patientForm.video, { title: '', url: '' }],
         });
+        setVideoErrors((patientForm) => [...patientForm, '']);
       }
     }
   };
@@ -120,26 +123,68 @@ const MediaPage: React.FC<{
     if (selectedMedia === MediaType.PRACTICE) {
       const newFields = practiceForm.video.filter((_, idx) => idx !== index);
       setPracticeForm({ ...practiceForm, video: newFields });
+      setVideoErrors((practiceForm) =>
+        practiceForm.filter((_, i) => i !== index),
+      );
     } else {
       const newFields = patientForm.video.filter((_, idx) => idx !== index);
       setPatientForm({ ...patientForm, video: newFields });
+      setVideoErrors((patientForm) =>
+        patientForm.filter((_, i) => i !== index),
+      );
     }
   };
 
   const handleVideoChangeInput = (index, value, field) => {
+    const isVideoUrlField = field === 'url';
+    const updatedErrors = [...videoErrors];
+
+    const updateForm = (form, setForm) => {
+      const newFields = [...form.video];
+      newFields[index][field] = value;
+
+      if (isVideoUrlField && newFields[index].title) {
+        const isValid = isValidYouTubeUrl(value);
+        updatedErrors[index] = isValid ? '' : 'Invalid YouTube URL';
+      } else if (isVideoUrlField) {
+        updatedErrors[index] = '';
+      }
+
+      setForm({ ...form, video: newFields });
+    };
     if (selectedMedia === MediaType.PRACTICE) {
-      const newFields = [...practiceForm.video];
-      newFields[index][field] = value;
-      setPracticeForm({ ...practiceForm, video: newFields });
+      updateForm(practiceForm, setPracticeForm);
     } else {
-      const newFields = [...patientForm.video];
-      newFields[index][field] = value;
-      setPatientForm({ ...patientForm, video: newFields });
+      updateForm(patientForm, setPatientForm);
     }
+    setVideoErrors(updatedErrors);
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const videosToCheck =
+      selectedMedia === MediaType.PRACTICE
+        ? practiceForm.video
+        : patientForm.video;
+
+    const updatedErrors: string[] = [];
+
+    videosToCheck.forEach((video) => {
+      if (video.url && !isValidYouTubeUrl(video.url)) {
+        updatedErrors.push('Invalid YouTube URL');
+      } else {
+        updatedErrors.push('');
+      }
+    });
+
+    setVideoErrors(updatedErrors);
+
+    const hasInvalidVideoUrl = updatedErrors.some((err) => err !== '');
+
+    if (hasInvalidVideoUrl) {
+      alert('Please correct all invalid YouTube URLs before submitting.');
+      return;
+    }
     if (practiceId) {
       const sanitizedPracticeForm = sanitizeStateValues(practiceForm);
       const sanitizedPatientForm = sanitizeStateValues(patientForm);
@@ -383,6 +428,11 @@ const MediaPage: React.FC<{
                           }
                         />
                       </div>
+                      {videoErrors[index] && (
+                        <p className="text-sm text-red-500 mt-1">
+                          {videoErrors[index]}
+                        </p>
+                      )}
                     </div>
                   </div>
                 </>
@@ -603,6 +653,11 @@ const MediaPage: React.FC<{
                           }
                         />
                       </div>
+                      {videoErrors[index] && (
+                        <p className="text-sm text-red-500 mt-1">
+                          {videoErrors[index]}
+                        </p>
+                      )}
                     </div>
                   </div>
                 </>

@@ -473,3 +473,9 @@ export function checkPasswordStrength(password: string): string {
   if (strengthScore >= 3) return 'Medium';
   return 'Weak';
 }
+
+export const isValidYouTubeUrl = (url: string) => {
+  return /^(https?:\/\/)?(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/)[\w-]{11}/.test(
+    url,
+  );
+};
