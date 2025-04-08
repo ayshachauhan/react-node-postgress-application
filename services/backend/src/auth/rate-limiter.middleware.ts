@@ -1,50 +1,39 @@
-import {
-  HttpException,
-  HttpStatus,
-  Injectable,
-  NestMiddleware,
-} from '@nestjs/common';
+import { HttpException, HttpStatus } from '@nestjs/common';
 import { NextFunction, Request, Response } from 'express';
 
-@Injectable()
-export class RateLimiterMiddleware implements NestMiddleware {
-  private readonly emailRequestCount = new Map<
-    string,
-    { count: number; timestamp: number }
-  >();
+export function createRateLimiter(options: {
+  maxRequests: number;
+  timeWindowMs: number;
+}) {
+  const requestCounts = new Map<string, { count: number; timestamp: number }>();
 
-  use(req: Request, res: Response, next: NextFunction) {
-    const email = req.params.email;
-    res && res;
+  return function (req: Request, res: Response, next: NextFunction) {
+    console.log(res);
+    const email = req.params.email || req.body.email || req.query.email;
     if (!email) {
       throw new HttpException('Email is required', HttpStatus.BAD_REQUEST);
     }
 
-    const currentTime = Date.now();
-    const timeWindow = 60 * 60 * 1000; // 1 hour
-    const maxRequests = 5;
+    const now = Date.now();
+    const entry = requestCounts.get(email);
 
-    const requestInfo = this.emailRequestCount.get(email);
-
-    // Check existing requests
-    if (requestInfo) {
-      // Within time window
-      if (currentTime - requestInfo.timestamp < timeWindow) {
-        if (requestInfo.count >= maxRequests) {
+    if (entry) {
+      if (now - entry.timestamp < options.timeWindowMs) {
+        if (entry.count >= options.maxRequests) {
           throw new HttpException(
-            'Too many password reset requests. Please try again after an hour.',
+            'Too many requests. Please try again later.',
             HttpStatus.TOO_MANY_REQUESTS,
           );
         } else {
-          requestInfo.count++;
+          entry.count++;
         }
       } else {
-        this.emailRequestCount.set(email, { count: 1, timestamp: currentTime });
+        requestCounts.set(email, { count: 1, timestamp: now });
       }
     } else {
-      this.emailRequestCount.set(email, { count: 1, timestamp: currentTime });
+      requestCounts.set(email, { count: 1, timestamp: now });
     }
 
     next();
-  }
+  };
 }

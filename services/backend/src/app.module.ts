@@ -1,8 +1,10 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { SchedulerModule } from 'src/scheduler/scheduler.module';
 import { AIModule } from './ai/ai.module';
 import { AuthModule } from './auth/auth.module';
 import { CalendarModule } from './calendar/calendar.module';
+import rateLimitConfig from './config/rate-limit.config';
 import { EmailHandlerModule } from './emailHandler/emailHandler.module';
 import { EvalsModule } from './evals/evals.module';
 import { HealthModule } from './healthz/health.module';
@@ -31,6 +33,10 @@ import { WaitlistModule } from './waitlist/waitlist.module';
 @Module({
   imports: [
     ...createInfraModuleProviders(),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      load: [rateLimitConfig],
+    }),
     UsersModule,
     AuthModule,
     HealthModule,
