@@ -37,7 +37,6 @@ export default function PracticeOnboardPage() {
   const practiceId = getPracticeId();
   const practiceInfo = useAppSelector((state) => state.practices.practiceInfo);
   const userInfo = useAppSelector((state) => state.auth.user);
-  console.log(userInfo);
   const router = useRouter();
   const searchParams = useSearchParams();
   const token: string | null = searchParams.get('token');

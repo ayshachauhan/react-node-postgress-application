@@ -35,7 +35,6 @@ export const PermissionGuard = (
         const payload = await this.verify(token);
         request['user'] = payload;
         const userId = (request['user'] as SanitizedUser)?.id;
-        console.log(userId, 'userid---');
 
         if (!userId) {
           return false;
