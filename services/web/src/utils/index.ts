@@ -587,3 +587,9 @@ export const validateFileSize = (file: File) => {
   }
   return null;
 };
+
+export const isValidYouTubeUrl = (url: string) => {
+  return /^(https?:\/\/)?(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/)[\w-]{11}/.test(
+    url,
+  );
+};

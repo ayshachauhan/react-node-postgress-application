@@ -131,46 +131,41 @@ export class AuthService {
     }
 
     const user = await this.usersService.findUserByEmail(email);
-    if (!user) {
-      throw new HttpException(
-        'User email is not registered with us! Please enter registered email.',
-        HttpStatus.PRECONDITION_FAILED,
+    if (user) {
+      const token: string = this.jwtService.sign(
+        {
+          id: user.id,
+          email: user.email,
+          type: user.type,
+          status: user.status,
+          fullName: user.fullName,
+        },
+        { expiresIn: '15m' },
       );
+
+      const mailOptions: Mail.Options = {
+        to: user.email,
+        subject: 'POD: Reset Your Password',
+      };
+
+      const frontendBaseUrl: string | undefined = this.configService.get(
+        ENVIRONMENT_VARIABLES.FRONT_END_BASE_URL,
+      );
+
+      const mailData = {
+        resetLink: frontendBaseUrl + `/resetpassword?token=${token}`,
+        userFirstName: user.firstName,
+        userLastName: user.lastName,
+      };
+
+      await this.transporterService.sendSystemEmails(
+        mailOptions,
+        mailData,
+        SystemTemplates.RESET_PASSWORD,
+      );
+      await this.usersService.updateUser(user.id, {
+        token: token,
+      } as UpdateUserDto);
     }
-
-    const token: string = this.jwtService.sign(
-      {
-        id: user.id,
-        email: user.email,
-        type: user.type,
-        status: user.status,
-        fullName: user.fullName,
-      },
-      { expiresIn: '15m' },
-    );
-
-    const mailOptions: Mail.Options = {
-      to: user.email,
-      subject: 'POD: Reset Your Password',
-    };
-
-    const frontendBaseUrl: string | undefined = this.configService.get(
-      ENVIRONMENT_VARIABLES.FRONT_END_BASE_URL,
-    );
-
-    const mailData = {
-      resetLink: frontendBaseUrl + `/resetpassword?token=${token}`,
-      userFirstName: user.firstName,
-      userLastName: user.lastName,
-    };
-
-    await this.transporterService.sendSystemEmails(
-      mailOptions,
-      mailData,
-      SystemTemplates.RESET_PASSWORD,
-    );
-    await this.usersService.updateUser(user.id, {
-      token: token,
-    } as UpdateUserDto);
   }
 }
