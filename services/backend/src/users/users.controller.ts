@@ -22,6 +22,7 @@ import { FileInterceptor } from '@nestjs/platform-express/multer';
 import { AuthGuard, RequestWithUser } from 'src/auth/auth.guard';
 import { Roles } from 'src/auth/role.decorator';
 import { RolesGuard } from 'src/auth/roles.gaurd';
+import { validateUploadedFile } from 'src/utils';
 import { PracticeGuard } from '../practices/practice.guard';
 import { ChangePasswordDto } from './dto/changePassword.dto';
 import { CreateUserDto } from './dto/create.dto';
@@ -95,6 +96,8 @@ export class UsersController {
     @Param() params: { id: string; practiceId: string },
     @UploadedFile() file: Express.Multer.File,
   ) {
+    await validateUploadedFile(file);
+
     return this.usersService.uploadUserImg({
       practiceId: params.practiceId,
       id: params.id,

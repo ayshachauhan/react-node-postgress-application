@@ -2,10 +2,11 @@
 import { PracticeStatus } from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
+import { ValidatedFileUploader } from '@root/components/shared/ValidatedFileUploader';
 import { useAppDispatch } from '@root/store';
 import { updateRecordAsync } from '@root/store/reducers/practices';
+import { allowedExtensions } from '@root/utils/constants';
 import { PracticesEditInterface } from '@store/requests/practices';
-import { FileUploader } from 'baseui/file-uploader';
 import { Select } from 'baseui/select';
 import { isValidPhoneNumber, parsePhoneNumber } from 'libphonenumber-js';
 import React, { useEffect, useRef, useState } from 'react';
@@ -182,6 +183,8 @@ const PracticeEditModule: React.FC<{
     }
   };
 
+  const acceptAttribute = allowedExtensions.join(', ');
+
   return (
     <div>
       {errorMessage && isValidPhnNo && (
@@ -312,37 +315,13 @@ const PracticeEditModule: React.FC<{
               <label htmlFor="imgUrl" className="">
                 Practice Photo
               </label>
-              <FileUploader
-                onDrop={(acceptedFiles: File[]) => {
-                  setPracticeImg(acceptedFiles[0]);
+              <ValidatedFileUploader
+                accept={acceptAttribute}
+                onSuccess={(file) => {
+                  setPracticeImg(file);
+                  setErrorMessage('');
                 }}
-                onDropRejected={(file: File[]) => {
-                  if (!file[0].type.startsWith('image'))
-                    setErrorMessage('Only Image type Files are allowed.');
-                }}
-                accept="image/*"
-                overrides={{
-                  ContentMessage: {
-                    component: () => (
-                      <div>
-                        {practiceImg ? (
-                          <div>
-                            <p>{practiceImg?.name}</p>
-                          </div>
-                        ) : (
-                          <span>Drag and drop or click to upload</span>
-                        )}
-                      </div>
-                    ),
-                  },
-                  FileDragAndDrop: {
-                    style: {
-                      marginBottom: '16px',
-                      borderColor: '#22C55E',
-                      color: '##F0FDF4',
-                    },
-                  },
-                }}
+                onError={setErrorMessage}
               />
             </div>
           </div>

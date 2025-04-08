@@ -47,3 +47,11 @@ export const DEFAULT_SURGERYNAME_COLOR = '#299479';
 export const DEFAULT_SURGERYLOCATION_COLOR = '#299479';
 
 export const PAGINATION_LIMIT = 100;
+
+export const MAX_FILE_SIZE = 8;
+
+export const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE * 1024 * 1024;
+
+export const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+
+export const allowedExtensions = ['.jpg', '.jpeg', '.png'];

@@ -5,7 +5,13 @@ import { useAppDispatch, useAppSelector } from '@root/store';
 import { addRecordAsync } from '@root/store/reducers/media';
 import { fetchListings as fetchsurgeryConfigurations } from '@root/store/reducers/surgeryConfigurations';
 import { AddMediaDTO } from '@root/store/requests/media/types';
-import { getPracticeId, isValidYouTubeUrl } from '@utils/index';
+import {
+  getPracticeId,
+  isValidYouTubeUrl,
+  validateFileSignature,
+  validateFileSize,
+  validateFileType,
+} from '@utils/index';
 import { Checkbox, LABEL_PLACEMENT } from 'baseui/checkbox';
 import { Select } from 'baseui/select';
 import React, { useEffect, useState } from 'react';
@@ -255,21 +261,61 @@ const MediaPage: React.FC<{
     }
   };
 
-  const handleImageChangeInput = (index, event, field) => {
+  const handleImageChangeInput = async (index, event, field) => {
+    const file = event.target.files?.[0];
+
+    if (field === 'file') {
+      if (!file) {
+        alert('No file uploaded.');
+        return;
+      }
+
+      const typeError = validateFileType(file);
+      if (typeError) {
+        alert(typeError);
+        return;
+      }
+
+      const sizeError = validateFileSize(file);
+      if (sizeError) {
+        alert(sizeError);
+        return;
+      }
+
+      try {
+        await validateFileSignature(
+          file,
+          (validatedFile) => {
+            updateImageField(index, validatedFile, field);
+          },
+          (errorMessage) => {
+            alert(errorMessage);
+          },
+        );
+      } catch (err) {
+        alert('Invalid file format.');
+        return;
+      }
+    } else {
+      updateImageField(index, event.target.value, field);
+    }
+  };
+
+  const updateImageField = (index, value, field) => {
     if (selectedMedia === MediaType.PRACTICE) {
       const newImageFields = [...practiceForm.image];
       if (field === 'file') {
-        newImageFields[index][field] = event.target.files[0];
+        newImageFields[index][field] = value;
       } else {
-        newImageFields[index][field] = event.target.value;
+        newImageFields[index][field] = value;
       }
       setPracticeForm({ ...practiceForm, image: newImageFields });
     } else {
       const newImageFields = [...patientForm.image];
       if (field === 'file') {
-        newImageFields[index][field] = event.target.files[0];
+        newImageFields[index][field] = value;
       } else {
-        newImageFields[index][field] = event.target.value;
+        newImageFields[index][field] = value;
       }
       setPatientForm({ ...patientForm, image: newImageFields });
     }

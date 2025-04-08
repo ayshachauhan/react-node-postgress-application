@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -84,6 +85,54 @@ export class TemplatesController {
     @Param() params: { id: string; practiceId: string },
     @UploadedFile() file: Express.Multer.File,
   ) {
+    if (!file) {
+      throw new BadRequestException('No file uploaded');
+    }
+
+    const { mimetype, size } = file;
+
+    const allowedTemplateTypes = [
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'application/pdf',
+      'text/plain',
+      'image/png',
+      'image/jpeg',
+      'image/jpg',
+      'video/mp4',
+    ];
+
+    const maxTempFileSizeInBytes = 5 * 1024 * 1024; // 5MB
+
+    if (!allowedTemplateTypes.includes(mimetype)) {
+      throw new BadRequestException(`Unsupported file type: ${mimetype}`);
+    }
+
+    if (size > maxTempFileSizeInBytes) {
+      throw new BadRequestException(`File size exceeds the limit of 5 MB.`);
+    }
+
+    const validTemplateSignatures = {
+      jpg: [0xff, 0xd8, 0xff],
+      png: [0x89, 0x50, 0x4e, 0x47],
+      pdf: [0x25, 0x50, 0x44, 0x46],
+      doc: [0xd0, 0xcf, 0x11, 0xe0],
+      docx: [0x50, 0x4b, 0x03, 0x04],
+      mp4: [0x00, 0x00, 0x00, 0x18],
+    };
+
+    const buffer = file.buffer;
+    const byteArray = new Uint8Array(buffer);
+    const matched = Object.values(validTemplateSignatures).some((sig) => {
+      const slice = byteArray.slice(0, sig.length);
+      return slice.join() === sig.join();
+    });
+
+    if (!matched && mimetype !== 'text/plain') {
+      throw new BadRequestException(
+        'File signature does not match known types',
+      );
+    }
     return this.templateService.uploadTemplateAttachment({
       practiceId: params.practiceId,
       id: params.id,

@@ -20,6 +20,8 @@ import { AuthGuard } from 'src/auth/auth.guard';
 import { PermissionGuard } from 'src/auth/userPermissions.guard';
 import { practiceNotFoundInterceptor } from 'src/interceptors/practiceNotFoundInterceptor';
 import { PracticeGuard } from 'src/practices/practice.guard';
+import { validateUploadedFile } from 'src/utils';
+
 import { CreateMediaDto, SendVideoDto } from './dtos/createMedia.dto';
 import { MediaService } from './media.service';
 
@@ -74,6 +76,12 @@ export class MediaController {
     @Param() { id, practiceId }: { id: string; practiceId: string },
     @UploadedFiles() files: { files?: Express.Multer.File[] },
   ) {
+    if (files?.files?.length) {
+      for (const file of files.files) {
+        await validateUploadedFile(file);
+      }
+    }
+
     return this.mediaService.uploadUserImg({
       id,
       practiceId,
