@@ -78,7 +78,7 @@ export class AuthService {
 
     if (user && user.status !== 'active') {
       throw new UnauthorizedException(
-        'Please accDept the invitation and reset your password using the link in email.',
+        'Please accept the invitation and reset your password using the link in email.',
       );
     }
 

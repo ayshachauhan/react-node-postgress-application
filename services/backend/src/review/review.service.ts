@@ -159,8 +159,6 @@ export class ReviewService {
   async validateReviewRequest(practice_id: string, _token: string) {
     try {
       const jwtResponse = await this.jwtService.verify(_token);
-      console.log(jwtResponse);
-      console.log('----###############33----------------------');
       const { practiceId, reviewId, id: patientId } = jwtResponse;
 
       if (practiceId && reviewId && patientId) {
