@@ -404,6 +404,7 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose, withLoader }) => {
               <Select
                 options={userTypeOptions}
                 onChange={handleTypeChange}
+                disabled={isDisabled || false}
                 overrides={{
                   ControlContainer: {
                     style: {
