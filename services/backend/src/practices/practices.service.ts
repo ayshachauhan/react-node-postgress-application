@@ -63,7 +63,7 @@ export class PracticesService {
 
     dbPractices.forEach((element: PracticeEntity) => {
       const { id, name, code, status, imgUrl, emailData } = element;
-      const dbAdminsByPractice: UserEntity[] = element.users
+      const dbUsersByPractice: UserEntity[] = element.users
         ?.filter((user) => user.type?.toLowerCase() === UserType.ADMIN)
         .sort((a, b) => {
           // sorting on the basis of createdAt to get oldest admin in the for the practice. considering it the actual practice admin
@@ -79,11 +79,11 @@ export class PracticesService {
           }
         });
 
-      if (dbAdminsByPractice.length === 0) {
+      if (dbUsersByPractice.length === 0) {
         return;
       }
 
-      const adminUser = dbAdminsByPractice[0];
+      const adminUser = dbUsersByPractice[0];
       const finalPractice: PracticesGetInterface = {
         id,
         name,
