@@ -61,26 +61,27 @@ export class PracticesService {
       },
     });
 
-    const adminUsers = dbPractices.filter(
-      (practice) =>
-        practice.users?.some((user) => user.type === UserType.ADMIN),
-    );
-
-    adminUsers.forEach((element: PracticeEntity) => {
+    dbPractices.forEach((element: PracticeEntity) => {
       const { id, name, code, status, imgUrl, emailData } = element;
-      const dbUsersByPractice: UserEntity[] = element.users.sort((a, b) => {
-        // sorting on the basis of createdAt to get oldest admin in the for the practice. considering it the actual practice admin
-        const timestampA = a.dateCreated.getTime();
-        const timestampB = b.dateCreated.getTime();
+      const dbUsersByPractice: UserEntity[] = element.users
+        ?.filter((user) => user.type?.toLowerCase() === UserType.ADMIN)
+        .sort((a, b) => {
+          // sorting on the basis of createdAt to get oldest admin in the for the practice. considering it the actual practice admin
+          const timestampA = a.dateCreated.getTime();
+          const timestampB = b.dateCreated.getTime();
 
-        if (timestampA < timestampB) {
-          return -1;
-        } else if (timestampA > timestampB) {
-          return 1;
-        } else {
-          return 0;
-        }
-      });
+          if (timestampA < timestampB) {
+            return -1;
+          } else if (timestampA > timestampB) {
+            return 1;
+          } else {
+            return 0;
+          }
+        });
+
+      if (dbUsersByPractice.length === 0) {
+        return;
+      }
 
       const adminUser = dbUsersByPractice[0];
       const finalPractice: PracticesGetInterface = {
