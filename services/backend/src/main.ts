@@ -3,13 +3,41 @@ import { NestFactory } from '@nestjs/core';
 
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import helmet from 'helmet';
 import { AppModule } from './app.module';
 import { ENVIRONMENT_VARIABLES } from './enums/environment.enums';
 import { LoggingInterceptor } from './interceptors/loggingInterceptor';
 import logger from './logger';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, { cors: true });
+  const app = await NestFactory.create(AppModule);
+
+  app.enableCors({
+    origin: ['http://localhost:8081'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    credentials: true,
+  });
+
+  const nonce = Buffer.from(Date.now().toString()).toString('base64');
+
+  app.use(
+    helmet({
+      contentSecurityPolicy: {
+        useDefaults: true,
+        directives: {
+          'default-src': ["'self'"],
+          'script-src': ["'self'", `'nonce-${nonce}'`],
+          'style-src': ["'self'", "'unsafe-inline'"],
+          'img-src': ["'self'", 'data:'],
+          'font-src': ["'self'", 'https:', 'data:'],
+          'object-src': ["'none'"],
+          'base-uri': ["'self'"],
+          'frame-ancestors': ["'self'"],
+        },
+      },
+    }),
+  );
+
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true, // This ensures that transformation takes place
