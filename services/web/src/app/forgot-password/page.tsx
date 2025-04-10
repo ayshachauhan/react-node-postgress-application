@@ -29,6 +29,7 @@ const ForgotPassword: React.FC = () => {
       const { isValid, error } = validateEmail(email);
       if (!isValid) {
         setFieldError(error);
+        return;
       }
       const response = await dispatch(forgotPassword({ email }));
 
