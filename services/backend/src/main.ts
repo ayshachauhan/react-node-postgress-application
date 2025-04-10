@@ -12,8 +12,14 @@ import logger from './logger';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  const configService = await app.resolve(ConfigService);
+
+  const frontendBaseUrl = configService.get(
+    ENVIRONMENT_VARIABLES.FRONT_END_BASE_URL,
+  )!;
+
   app.enableCors({
-    origin: ['https://app-qa.pod111.com'],
+    origin: [frontendBaseUrl],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     credentials: true,
   });
@@ -44,8 +50,6 @@ async function bootstrap() {
     }),
   );
   app.useGlobalInterceptors(new LoggingInterceptor());
-
-  const configService = await app.resolve(ConfigService);
 
   const port: number = configService.get(ENVIRONMENT_VARIABLES.BACKEND_PORT)!;
 
