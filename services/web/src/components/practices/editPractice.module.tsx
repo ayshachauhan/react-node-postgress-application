@@ -114,8 +114,6 @@ const PracticeEditModule: React.FC<{
 
     const parsedPhoneNumber = cleanedPhoneNumber(fullPhoneNumber);
     const isValid = parsedPhoneNumber?.isValid?.() ?? false;
-
-    setIsValidPhnNo(isValid);
     setErrorMessage(isValid ? '' : 'Invalid phone number');
 
     setFormChanged(
