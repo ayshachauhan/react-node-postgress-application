@@ -185,12 +185,14 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose, withLoader }) => {
       };
 
       // Construct fullPhoneNumber based on the field being updated
-      const fullPhoneNumber =
-        fieldName === 'countryCode'
-          ? value + prevState.contactNumber
-          : prevState.countryCode + value;
+      if (fieldName === 'countryCode' || fieldName === 'contactNumber') {
+        const fullPhoneNumber =
+          fieldName === 'countryCode'
+            ? value + prevState.contactNumber
+            : prevState.countryCode + value;
 
-      validatePhoneNumber(fullPhoneNumber);
+        validatePhoneNumber(fullPhoneNumber);
+      }
 
       return updatedState;
     });
