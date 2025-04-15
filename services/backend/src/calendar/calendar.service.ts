@@ -285,7 +285,14 @@ export class CalendarService {
     await Promise.all(
       data.map(async (data) => {
         const { id, maxSlots, bookedSlots, surgeryTypeId, bookedHours } = data;
-
+        if (maxSlots) {
+          if (maxSlots > 99) {
+            throw new HttpException(
+              'Max slots cannot be greater than 99',
+              HttpStatus.BAD_REQUEST,
+            );
+          }
+        }
         if (maxSlots && bookedHours && maxSlots < parseFloat(bookedHours)) {
           throw new HttpException(
             'MaxSlots should be greater than or equal to booked slots',

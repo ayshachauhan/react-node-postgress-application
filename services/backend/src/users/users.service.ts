@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   HttpException,
   HttpStatus,
   Inject,
@@ -31,7 +32,7 @@ import {
   UploadType,
   UploadUserImgData,
 } from 'src/users/types';
-import { decryptPassword } from 'src/utils';
+import { decryptPassword, validatePhoneNumber } from 'src/utils';
 import { DataSource, Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create.dto';
 import { UpdateUserDto } from './dto/update.dto';
@@ -70,7 +71,16 @@ export class UsersService {
     logger.info(
       `Starting creation of new user with name ${createUserDto?.firstName} ${createUserDto?.lastName} `,
     );
-    const { firstName, lastName } = createUserDto;
+    const { firstName, lastName, countryCode, contactNumber } = createUserDto;
+    if (countryCode || contactNumber) {
+      if (!countryCode || !contactNumber) {
+        throw new BadRequestException(
+          'Both country code and phone number must be provided',
+        );
+      }
+
+      validatePhoneNumber(countryCode, contactNumber);
+    }
     const { permissionIds } = createUserDto;
     const fullName = `${firstName} ${lastName}`;
     const hashedDefaultPassword = await bcrypt.hash(
@@ -207,18 +217,34 @@ export class UsersService {
       );
     }
 
-    if (updateUserDto.email) {
-      const existingUser = await this.usersRepository.findOne({
-        where: { email: updateUserDto.email },
-      });
-
-      if (existingUser && existingUser.id !== id) {
-        throw new HttpException(
-          `Email ${updateUserDto.email} is already in use`,
-          HttpStatus.BAD_REQUEST,
-        );
-      }
+    if (updateUserDto.email && updateUserDto.email !== userToUpdate.email) {
+      throw new HttpException(
+        'Email updates are not allowed',
+        HttpStatus.BAD_REQUEST,
+      );
     }
+
+    if (
+      updateUserDto.userName &&
+      updateUserDto.userName !== userToUpdate.userName
+    ) {
+      throw new HttpException(
+        'Username updates are not allowed',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    delete updateUserDto.email;
+    delete updateUserDto.userName;
+
+    // ✅ Validate phone number (if either field is being updated)
+    if (updateUserDto.contactNumber || updateUserDto.countryCode) {
+      validatePhoneNumber(
+        updateUserDto.countryCode || userToUpdate.countryCode,
+        updateUserDto.contactNumber || userToUpdate.contactNumber,
+      );
+    }
+
     const { designation, firstName, lastName, ...rest } = updateUserDto;
 
     const fullName =

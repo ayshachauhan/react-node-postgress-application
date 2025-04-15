@@ -5,10 +5,10 @@ import TextInput from '@root/components/TextInput';
 import { ValidatedFileUploader } from '@root/components/shared/ValidatedFileUploader';
 import { useAppDispatch } from '@root/store';
 import { updateRecordAsync } from '@root/store/reducers/practices';
+import { cleanedPhoneNumber } from '@root/utils';
 import { allowedExtensions } from '@root/utils/constants';
 import { PracticesEditInterface } from '@store/requests/practices';
 import { Select } from 'baseui/select';
-import { isValidPhoneNumber, parsePhoneNumber } from 'libphonenumber-js';
 import React, { useEffect, useRef, useState } from 'react';
 import { PhoneInput } from 'react-international-phone';
 import 'react-international-phone/style.css';
@@ -80,7 +80,7 @@ const PracticeEditModule: React.FC<{
 
   const validatePhoneNumber = (fullNumber: string) => {
     try {
-      const parsedPhoneNumber = parsePhoneNumber(fullNumber);
+      const parsedPhoneNumber = cleanedPhoneNumber(fullNumber);
       if (parsedPhoneNumber.isValid()) {
         setIsValidPhnNo(true);
         setErrorMessage('');
@@ -115,12 +115,11 @@ const PracticeEditModule: React.FC<{
   useEffect(() => {
     const fullPhoneNumber = adminCountryCode + adminContactNumber;
 
-    const isPhoneNumberValid = isValidPhoneNumber(fullPhoneNumber);
-
-    if (!isPhoneNumberValid) {
-      setErrorMessage('Invalid phone number');
-    } else {
+    const parsedPhoneNumber = cleanedPhoneNumber(fullPhoneNumber);
+    if (parsedPhoneNumber.isValid()) {
       setErrorMessage('');
+    } else {
+      setErrorMessage('Invalid phone number');
     }
 
     setFormChanged(
@@ -132,7 +131,7 @@ const PracticeEditModule: React.FC<{
         adminFirstName !== initialValues.adminFirstName ||
         status !== initialValues.status ||
         practiceImg !== null ||
-        !isPhoneNumberValid,
+        !parsedPhoneNumber.isValid(),
     );
   }, [
     name,

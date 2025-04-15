@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   HttpException,
   HttpStatus,
   Inject,
@@ -11,6 +12,7 @@ import { PracticeEntity } from '@packages/entities/practice';
 import { EmailHandlerService } from 'src/emailHandler/emailHandler.service';
 import logger from 'src/logger';
 import { CreatePatientDto } from 'src/patients/dto/createPatient.dto';
+import { validatePhoneNumber } from 'src/utils';
 import { Brackets, DataSource, Repository } from 'typeorm';
 
 @Injectable()
@@ -44,7 +46,17 @@ export class PatientsService {
       practiceEntity.id,
       createPatientDto.mrn,
     );
+    const { countryCode, phoneNumber } = createPatientDto;
 
+    if (countryCode || phoneNumber) {
+      if (!countryCode || !phoneNumber) {
+        throw new BadRequestException(
+          'Both country code and phone number must be provided',
+        );
+      }
+
+      validatePhoneNumber(countryCode, phoneNumber);
+    }
     if (mrnCheck) {
       const hasChanges =
         mrnCheck.firstName !== createPatientDto.firstName ||
@@ -92,6 +104,11 @@ export class PatientsService {
       });
 
       if (patientEntity) {
+        // ✅ Validate phone number if both countryCode and phoneNumber are present
+        if (!data.countryCode || !data.phoneNumber) {
+          validatePhoneNumber(data.countryCode, data.phoneNumber);
+        }
+
         logger.info(`Updating patient with ID: ${id}`);
         await this.patientRepository.update(id, {
           firstName: data.firstName,

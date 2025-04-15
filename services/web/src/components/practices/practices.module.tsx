@@ -5,9 +5,9 @@ import { ValidatedFileUploader } from '@root/components/shared/ValidatedFileUplo
 import { useAppDispatch } from '@root/store';
 import { addRecordAsync } from '@root/store/reducers/practices';
 import { checkEmailExistence } from '@root/store/reducers/users';
+import { cleanedPhoneNumber } from '@root/utils';
 import { allowedExtensions } from '@root/utils/constants';
 import { PracticeCreateInterface } from '@store/requests/practices';
-import { parsePhoneNumber } from 'libphonenumber-js';
 import { debounce } from 'lodash';
 import React, { useEffect, useRef, useState } from 'react';
 import { PhoneInput } from 'react-international-phone';
@@ -71,7 +71,7 @@ const PracticePage: React.FC<{
 
   const validatePhoneNumber = (fullNumber: string) => {
     try {
-      const parsedPhoneNumber = parsePhoneNumber(fullNumber);
+      const parsedPhoneNumber = cleanedPhoneNumber(fullNumber);
 
       if (parsedPhoneNumber.isValid()) {
         setIsValidPhnNo(true);
@@ -116,10 +116,6 @@ const PracticePage: React.FC<{
 
     if (!adminEmail.trim() || !/\S+@\S+\.\S+/.test(adminEmail)) {
       setErrorMessage('Invalid email address.');
-      return false;
-    }
-    if (!adminContactNumber.trim() || !/^\d{10}$/.test(adminContactNumber)) {
-      setErrorMessage('Invalid contact number. Must be 10 digits.');
       return false;
     }
 
