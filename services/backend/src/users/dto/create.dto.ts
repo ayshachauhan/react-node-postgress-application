@@ -43,9 +43,6 @@ export class CreateUserDto {
   url: string;
 
   @IsNotEmpty({ message: 'contact number is required' })
-  @Matches(/^\d{6,15}$/, {
-    message: 'Contact number must contain 6–15 digits',
-  })
   @ApiProperty()
   contactNumber: string;
 

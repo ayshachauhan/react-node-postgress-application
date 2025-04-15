@@ -17,8 +17,7 @@ import {
   fetchAllSurgeries,
 } from '@root/store/reducers/surgery';
 import { fetchListings as fetchUsersList } from '@root/store/reducers/users';
-import { getUserId } from '@root/utils';
-import { parsePhoneNumber } from 'libphonenumber-js';
+import { cleanedPhoneNumber, getUserId } from '@root/utils';
 import { PhoneInput } from 'react-international-phone';
 import 'react-international-phone/style.css';
 
@@ -112,7 +111,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
 
   const validatePhoneNumber = (fullNumber: string) => {
     try {
-      const parsedPhoneNumber = parsePhoneNumber(fullNumber);
+      const parsedPhoneNumber = cleanedPhoneNumber(fullNumber);
 
       if (parsedPhoneNumber.isValid()) {
         setIsValidPhnNo(true);

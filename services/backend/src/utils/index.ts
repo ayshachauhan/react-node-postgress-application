@@ -7,6 +7,7 @@ import {
 import { USER_PERMISSIONS } from '@packages/entities/permission';
 import * as CryptoJS from 'crypto-js';
 import { fromBuffer } from 'file-type';
+import parsePhoneNumberFromString from 'libphonenumber-js';
 import { Between } from 'typeorm';
 import {
   MAX_FILE_SIZE,
@@ -304,3 +305,21 @@ export async function validateUploadedFile(file?: Express.Multer.File) {
 
   await checkFileType(file.buffer);
 }
+
+/**
+ * Validates a phone number using libphonenumber-js.
+ * @param countryCode - Country dialing code (e.g., '+91')
+ * @param phoneNumber - The local phone number (e.g., '9876543210')
+ * @throws BadRequestException if the phone number is invalid
+ */
+export const validatePhoneNumber = (
+  countryCode: string,
+  phoneNumber: string,
+): void => {
+  const fullNumber = `${countryCode}${phoneNumber}`;
+  const parsedPhone = parsePhoneNumberFromString(fullNumber);
+
+  if (!parsedPhone || !parsedPhone.isValid()) {
+    throw new BadRequestException('Invalid phone number');
+  }
+};

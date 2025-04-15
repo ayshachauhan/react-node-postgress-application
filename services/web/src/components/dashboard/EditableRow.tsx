@@ -12,6 +12,7 @@ import {
 import { fetchListings as fetchReviews } from '@root/store/reducers/review';
 import { updateRecordAsync } from '@root/store/reducers/surgery';
 import {
+  cleanedPhoneNumber,
   getBackGroundColorCss,
   getPracticeId,
   getSelectedMonths,
@@ -24,7 +25,6 @@ import {
 import { Checkbox } from 'baseui/checkbox';
 import { DatePicker } from 'baseui/datepicker';
 import { SIZE, Select } from 'baseui/select';
-import { parsePhoneNumber } from 'libphonenumber-js';
 import React, { useEffect, useRef, useState } from 'react';
 import { PhoneInput } from 'react-international-phone';
 import 'react-international-phone/style.css';
@@ -184,7 +184,7 @@ const EditableRow: React.FC<EditableRowProps> = ({
 
   const validatePhoneNumber = (fullNumber: string) => {
     try {
-      const parsedPhoneNumber = parsePhoneNumber(fullNumber);
+      const parsedPhoneNumber = cleanedPhoneNumber(fullNumber);
 
       if (parsedPhoneNumber.isValid()) {
         setIsValidPhnNo(true);

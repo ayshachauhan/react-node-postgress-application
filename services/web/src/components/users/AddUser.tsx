@@ -14,10 +14,13 @@ import {
 } from '@root/store/reducers/users';
 import { AddUserDto } from '@root/store/requests/users/types';
 import { allowedExtensions } from '@root/utils/constants';
-import { generateFullName, getPracticeId } from '@utils/index';
+import {
+  cleanedPhoneNumber,
+  generateFullName,
+  getPracticeId,
+} from '@utils/index';
 import { Checkbox } from 'baseui/checkbox';
 import { Select } from 'baseui/select';
-import { parsePhoneNumber } from 'libphonenumber-js';
 import { debounce } from 'lodash';
 import React, { useEffect, useRef, useState } from 'react';
 import { PhoneInput } from 'react-international-phone';
@@ -170,7 +173,7 @@ const AddUserPage: React.FC<{
 
   const validatePhoneNumber = (fullNumber: string) => {
     try {
-      const parsedPhoneNumber = parsePhoneNumber(fullNumber);
+      const parsedPhoneNumber = cleanedPhoneNumber(fullNumber);
 
       if (parsedPhoneNumber.isValid()) {
         setIsValidPhnNo(true);

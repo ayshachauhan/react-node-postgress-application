@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   HttpException,
   HttpStatus,
   Inject,
@@ -31,7 +32,7 @@ import {
   UploadType,
   UploadUserImgData,
 } from 'src/users/types';
-import { decryptPassword } from 'src/utils';
+import { decryptPassword, validatePhoneNumber } from 'src/utils';
 import { DataSource, Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create.dto';
 import { UpdateUserDto } from './dto/update.dto';
@@ -70,7 +71,16 @@ export class UsersService {
     logger.info(
       `Starting creation of new user with name ${createUserDto?.firstName} ${createUserDto?.lastName} `,
     );
-    const { firstName, lastName } = createUserDto;
+    const { firstName, lastName, countryCode, contactNumber } = createUserDto;
+    if (countryCode || contactNumber) {
+      if (!countryCode || !contactNumber) {
+        throw new BadRequestException(
+          'Both country code and phone number must be provided',
+        );
+      }
+
+      validatePhoneNumber(countryCode, contactNumber);
+    }
     const { permissionIds } = createUserDto;
     const fullName = `${firstName} ${lastName}`;
     const hashedDefaultPassword = await bcrypt.hash(
@@ -226,6 +236,14 @@ export class UsersService {
 
     delete updateUserDto.email;
     delete updateUserDto.userName;
+
+    // ✅ Validate phone number (if either field is being updated)
+    if (updateUserDto.contactNumber || updateUserDto.countryCode) {
+      validatePhoneNumber(
+        updateUserDto.countryCode || userToUpdate.countryCode,
+        updateUserDto.contactNumber || userToUpdate.contactNumber,
+      );
+    }
 
     const { designation, firstName, lastName, ...rest } = updateUserDto;
 

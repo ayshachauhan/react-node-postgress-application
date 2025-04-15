@@ -8,6 +8,7 @@ import {
   allowedTypes,
 } from '@root/utils/constants';
 import CryptoJS from 'crypto-js';
+import { parsePhoneNumber } from 'libphonenumber-js/min';
 import moment from 'moment';
 
 const secretKey = process.env.NEXT_PUBLIC_ENCRYPTION_KEY;
@@ -592,4 +593,11 @@ export const isValidYouTubeUrl = (url: string) => {
   return /^(https?:\/\/)?(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/)[\w-]{11}/.test(
     url,
   );
+};
+
+export const cleanedPhoneNumber = (fullNumber: string) => {
+  const cleanedNumer = fullNumber.trim().replace(/\s+/g, ' ');
+  const returnnumber = parsePhoneNumber(cleanedNumer);
+  console.log(returnnumber);
+  return returnnumber;
 };

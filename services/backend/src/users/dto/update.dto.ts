@@ -52,9 +52,6 @@ export class UpdateUserDto {
   imgUrl: string;
 
   @IsOptional()
-  @Matches(/^\d{6,15}$/, {
-    message: 'Contact number must contain 6–15 digits',
-  })
   @ApiProperty()
   contactNumber: string;
 
