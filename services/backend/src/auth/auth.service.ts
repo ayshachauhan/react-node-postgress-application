@@ -63,7 +63,7 @@ export class AuthService {
 
   async login(user: SanitizedUser | SuperAdminUser) {
     const payload = {
-      ...('id' in user ? { id: user.id } : { email: user.email }),
+      ...(user.isSuperAdmin ? {} : { id: user.id, type: user.type }),
       isSuperAdmin: user.isSuperAdmin,
     };
 
@@ -140,10 +140,8 @@ export class AuthService {
       const token: string = this.jwtService.sign(
         {
           id: user.id,
-          email: user.email,
           type: user.type,
           status: user.status,
-          fullName: user.fullName,
         },
         { expiresIn: '15m' },
       );
