@@ -1,4 +1,10 @@
-import { Inject, Injectable, forwardRef } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+  forwardRef,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
@@ -509,6 +515,14 @@ export class SurgeryService {
     logger.info(
       `Starting the creation of new surgery for patient ${createSurgeryDto?.firstName} ${createSurgeryDto?.lastName} , Date ${createSurgeryDto.date}`,
     );
+    if (createSurgeryDto.slot) {
+      if (createSurgeryDto.slot > 99) {
+        throw new HttpException(
+          'Max slots cannot be greater than 99',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+    }
     const newSurgery: SurgeryEntity = new SurgeryEntity();
 
     const practiceEntity = await this.practiceService.findOne(practiceId);
@@ -713,6 +727,15 @@ export class SurgeryService {
   ): Promise<ISurgery | null> {
     logger.info(`Starting update for surgery with ID: ${id}`);
     const surgeryToUpdate = await this.getSurgeryById(id);
+
+    if (createSurgeryDto.slot) {
+      if (createSurgeryDto.slot > 99) {
+        throw new HttpException(
+          'Max slots cannot be greater than 99',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+    }
 
     if (createSurgeryDto.insuranceTypeId) {
       const insuranceTypeEntity =
