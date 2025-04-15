@@ -14,11 +14,11 @@ export class UpdateUserDto {
 
   @IsOptional()
   @ApiProperty()
-  email: string;
+  email?: string;
 
   @IsOptional()
   @ApiProperty()
-  userName: string;
+  userName?: string;
 
   @Transform(({ value }) => (value === '' ? null : value))
   @IsOptional()

@@ -58,7 +58,8 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose, withLoader }) => {
 
   const validatePhoneNumber = (fullNumber: string) => {
     try {
-      const parsedPhoneNumber = parsePhoneNumber(fullNumber);
+      const cleanedNumber = fullNumber.trim().replace(/\s+/g, ' ');
+      const parsedPhoneNumber = parsePhoneNumber(cleanedNumber);
 
       if (parsedPhoneNumber.isValid()) {
         setIsValidPhnNo(true);

@@ -207,18 +207,26 @@ export class UsersService {
       );
     }
 
-    if (updateUserDto.email) {
-      const existingUser = await this.usersRepository.findOne({
-        where: { email: updateUserDto.email },
-      });
-
-      if (existingUser && existingUser.id !== id) {
-        throw new HttpException(
-          `Email ${updateUserDto.email} is already in use`,
-          HttpStatus.BAD_REQUEST,
-        );
-      }
+    if (updateUserDto.email && updateUserDto.email !== userToUpdate.email) {
+      throw new HttpException(
+        'Email updates are not allowed',
+        HttpStatus.BAD_REQUEST,
+      );
     }
+
+    if (
+      updateUserDto.userName &&
+      updateUserDto.userName !== userToUpdate.userName
+    ) {
+      throw new HttpException(
+        'Username updates are not allowed',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    delete updateUserDto.email;
+    delete updateUserDto.userName;
+
     const { designation, firstName, lastName, ...rest } = updateUserDto;
 
     const fullName =
