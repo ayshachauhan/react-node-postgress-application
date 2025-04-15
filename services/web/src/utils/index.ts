@@ -596,6 +596,6 @@ export const isValidYouTubeUrl = (url: string) => {
 };
 
 export const cleanedPhoneNumber = (fullNumber: string) => {
-  const cleanedNumer = fullNumber.trim().replace(/\s+/g, ' ');
+  const cleanedNumer = fullNumber.trim().replace(/[^\d+]/g, '');
   return parsePhoneNumber(cleanedNumer);
 };
