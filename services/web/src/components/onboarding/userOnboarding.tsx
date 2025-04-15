@@ -6,7 +6,7 @@ import { getPracticeInfo } from '@root/store/reducers/practices';
 import { setLoginCookie } from '@root/store/requests/login';
 import { getPracticeId } from '@utils/index';
 import { useSearchParams } from 'next/navigation';
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import ResetPassword from '../ResetPassword/resetPassword';
 import { AlreadyOnboarded } from './completedOnboarding';
 
@@ -18,6 +18,7 @@ export default function PracticeOnboardPage() {
   const userInfo = useAppSelector((state) => state.auth.user);
   const searchParams = useSearchParams();
   const token: string | null = searchParams.get('token');
+  const isUserLoading = userInfo === undefined;
 
   useEffect(() => {
     if (token) {
@@ -36,12 +37,16 @@ export default function PracticeOnboardPage() {
     }
   }, []);
 
+  const isUserAlreadyOnboarded: boolean = useMemo(() => {
+    return !!(userInfo && userInfo.status === 'active');
+  }, [userInfo]);
+
+  if (isUserLoading) return <div className="text-center mt-10">Loading...</div>;
+
   return (
     <ResetPassword
       isOnboarding={true}
-      isAlreadyOnboared={Boolean(
-        practiceInfo && practiceInfo.status == 'active',
-      )}
+      isAlreadyOnboared={isUserAlreadyOnboarded}
     >
       <AlreadyOnboarded type="User" />
     </ResetPassword>

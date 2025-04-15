@@ -1,3 +1,4 @@
+import { BadRequestException } from '@nestjs/common';
 import {
   CalendarEntity,
   PermissionEntity,
@@ -5,7 +6,15 @@ import {
 } from '@packages/entities/*';
 import { USER_PERMISSIONS } from '@packages/entities/permission';
 import * as CryptoJS from 'crypto-js';
+import { fromBuffer } from 'file-type';
+import parsePhoneNumberFromString from 'libphonenumber-js';
 import { Between } from 'typeorm';
+import {
+  MAX_FILE_SIZE,
+  MAX_FILE_SIZE_BYTES,
+  allowedExtensions,
+  allowedMimeTypes,
+} from './constants';
 
 const secretKey = process.env.NEXT_PUBLIC_ENCRYPTION_KEY;
 
@@ -253,3 +262,64 @@ export function sanitizeCalendars(
     };
   });
 }
+
+export async function checkFileType(buffer: Buffer) {
+  const fileType = await fromBuffer(buffer);
+
+  if (!fileType) {
+    throw new BadRequestException('Unsupported or invalid file type.');
+  }
+
+  const { ext, mime } = fileType;
+
+  if (!allowedExtensions.includes(ext) || !allowedMimeTypes.includes(mime)) {
+    throw new BadRequestException(
+      'Invalid file type. Only images are allowed.',
+    );
+  }
+
+  return { ext, mime };
+}
+
+export async function validatePDFContent(
+  file: Express.Multer.File,
+): Promise<boolean> {
+  try {
+    const header = file.buffer.toString('utf-8', 0, 5);
+    return header === '%PDF-';
+  } catch (error) {
+    throw new BadRequestException('Failed to validate PDF content');
+  }
+}
+
+export async function validateUploadedFile(file?: Express.Multer.File) {
+  if (!file) {
+    throw new BadRequestException('File is required.');
+  }
+
+  if (file.size > MAX_FILE_SIZE_BYTES) {
+    throw new BadRequestException(
+      `File size exceeds the limit of ${MAX_FILE_SIZE} MB.`,
+    );
+  }
+
+  await checkFileType(file.buffer);
+}
+
+/**
+ * Validates a phone number using libphonenumber-js.
+ * @param countryCode - Country dialing code (e.g., '+91')
+ * @param phoneNumber - The local phone number (e.g., '9876543210')
+ * @throws BadRequestException if the phone number is invalid
+ */
+export const validatePhoneNumber = (
+  countryCode: string,
+  phoneNumber: string,
+): void => {
+  const fullNumber = `${countryCode}${phoneNumber}`;
+  const parsedPhone = parsePhoneNumberFromString(fullNumber);
+
+  if (!parsedPhone || !parsedPhone.isValid()) {
+    throw new BadRequestException('Invalid phone number');
+  }
+};

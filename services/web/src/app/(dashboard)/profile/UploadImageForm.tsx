@@ -1,9 +1,10 @@
 import Button from '@root/components/Button';
+import { ValidatedFileUploader } from '@root/components/shared/ValidatedFileUploader';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { uploadImage } from '@root/store/reducers/auth';
 import { UploadImgPayload } from '@root/store/requests/users';
+import { allowedExtensions } from '@root/utils/constants';
 import { getPracticeId, getUserId } from '@utils/index';
-import { FileUploader } from 'baseui/file-uploader';
 import React, { useState } from 'react';
 const UploadImageForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const dispatch = useAppDispatch();
@@ -30,6 +31,7 @@ const UploadImageForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       }
     }
   };
+  const acceptAttribute = allowedExtensions.join(', ');
 
   return (
     <div>
@@ -44,38 +46,13 @@ const UploadImageForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             <label htmlFor="adminEmail" className="text-black text-sm">
               User Photo
             </label>
-            <FileUploader
-              errorMessage={''}
-              onDrop={(acceptedFiles: File[]) => {
-                setUserImg(acceptedFiles[0]);
+            <ValidatedFileUploader
+              accept={acceptAttribute}
+              onSuccess={(file) => {
+                setUserImg(file);
+                setErrorMessage('');
               }}
-              onDropRejected={(file: File[]) => {
-                if (!file[0].type.startsWith('image'))
-                  setErrorMessage('Only Image type Files are allowed.');
-              }}
-              accept="image/*"
-              overrides={{
-                ContentMessage: {
-                  component: () => (
-                    <div>
-                      {userImg ? (
-                        <div>
-                          <p>{userImg?.name}</p>
-                        </div>
-                      ) : (
-                        <span>Drag and drop or click to upload</span>
-                      )}
-                    </div>
-                  ),
-                },
-                FileDragAndDrop: {
-                  style: {
-                    marginBottom: '16px',
-                    borderColor: '#22C55E',
-                    color: '##F0FDF4',
-                  },
-                },
-              }}
+              onError={setErrorMessage}
             />
           </div>
         </div>

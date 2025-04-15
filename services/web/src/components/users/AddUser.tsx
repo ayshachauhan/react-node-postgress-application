@@ -5,6 +5,7 @@ import {
 } from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import TextInput from '@root/components/TextInput';
+import { ValidatedFileUploader } from '@root/components/shared/ValidatedFileUploader';
 import { useAppDispatch, useAppSelector } from '@root/store';
 import { fetchListings as fetchPermissions } from '@root/store/reducers/userPermissions';
 import {
@@ -12,11 +13,14 @@ import {
   checkEmailExistence,
 } from '@root/store/reducers/users';
 import { AddUserDto } from '@root/store/requests/users/types';
-import { generateFullName, getPracticeId } from '@utils/index';
+import { allowedExtensions } from '@root/utils/constants';
+import {
+  cleanedPhoneNumber,
+  generateFullName,
+  getPracticeId,
+} from '@utils/index';
 import { Checkbox } from 'baseui/checkbox';
-import { FileUploader } from 'baseui/file-uploader';
 import { Select } from 'baseui/select';
-import { parsePhoneNumber } from 'libphonenumber-js';
 import { debounce } from 'lodash';
 import React, { useEffect, useRef, useState } from 'react';
 import { PhoneInput } from 'react-international-phone';
@@ -169,7 +173,7 @@ const AddUserPage: React.FC<{
 
   const validatePhoneNumber = (fullNumber: string) => {
     try {
-      const parsedPhoneNumber = parsePhoneNumber(fullNumber);
+      const parsedPhoneNumber = cleanedPhoneNumber(fullNumber);
 
       if (parsedPhoneNumber.isValid()) {
         setIsValidPhnNo(true);
@@ -276,6 +280,8 @@ const AddUserPage: React.FC<{
   useEffect(() => {
     dispatch(fetchPermissions(undefined));
   }, []);
+
+  const acceptAttribute = allowedExtensions.join(', ');
 
   return (
     <div>
@@ -488,38 +494,13 @@ const AddUserPage: React.FC<{
               <label htmlFor="type" className="text-black text-sm font-normal">
                 User Photo
               </label>
-              <FileUploader
-                errorMessage={''}
-                onDrop={(acceptedFiles: File[]) => {
-                  setUserImg(acceptedFiles[0]);
+              <ValidatedFileUploader
+                accept={acceptAttribute}
+                onSuccess={(file) => {
+                  setUserImg(file);
+                  setErrorMessage('');
                 }}
-                onDropRejected={(file: File[]) => {
-                  if (!file[0].type.startsWith('image'))
-                    setErrorMessage('Only Image type Files are allowed.');
-                }}
-                accept="image/*"
-                overrides={{
-                  ContentMessage: {
-                    component: () => (
-                      <div>
-                        {userImg ? (
-                          <div>
-                            <p>{userImg?.name}</p>
-                          </div>
-                        ) : (
-                          <span>Drag and drop or click to upload</span>
-                        )}
-                      </div>
-                    ),
-                  },
-                  FileDragAndDrop: {
-                    style: {
-                      marginBottom: '16px',
-                      borderColor: '#22C55E',
-                      color: '##F0FDF4',
-                    },
-                  },
-                }}
+                onError={setErrorMessage}
               />
             </div>
             <div className="w-1/2 space-y-2 flex flex-col">

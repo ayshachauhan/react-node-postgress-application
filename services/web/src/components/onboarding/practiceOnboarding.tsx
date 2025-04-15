@@ -55,14 +55,20 @@ export default function PracticeOnboardPage() {
         dispatch(fetchLoggedInUser());
       }
 
-      const isPracticeInfoEmpty =
-        practiceInfo && Object.getOwnPropertyNames(practiceInfo).length === 0;
-
-      if (isPracticeInfoEmpty && practiceId) {
+      if (
+        practiceId &&
+        (!practiceInfo || Object.keys(practiceInfo).length === 0)
+      ) {
         dispatch(getPracticeInfo({ id: practiceId }));
       }
     }
-  }, [practiceId]);
+  }, [practiceId, token]);
+
+  const isLoading =
+    !userInfo ||
+    !userInfo.practices ||
+    !practiceInfo ||
+    Object.keys(practiceInfo).length === 0;
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -136,10 +142,10 @@ export default function PracticeOnboardPage() {
           />
         </div>
 
-        {practiceInfo && practiceInfo.status == 'active' ? (
-          <div>
-            <AlreadyOnboarded type="Practice" />
-          </div>
+        {isLoading ? (
+          <div>Loading...</div>
+        ) : practiceInfo.status === 'active' ? (
+          <AlreadyOnboarded type="Practice" />
         ) : (
           <>
             <div className="mt-11 mx-11">

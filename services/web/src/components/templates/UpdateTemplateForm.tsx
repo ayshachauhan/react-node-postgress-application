@@ -12,7 +12,7 @@ import {
   updateRecordAsync,
 } from '@root/store/reducers/templates';
 import { TEMPLATE_VARIABLES } from '@root/utils/enums';
-import { getPracticeId } from '@utils/index';
+import { getPracticeId, validateTemplateFileSignature } from '@utils/index';
 import { Checkbox, STYLE_TYPE } from 'baseui/checkbox';
 import { SIZE, Select } from 'baseui/select';
 import { Textarea } from 'baseui/textarea';
@@ -43,6 +43,7 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({
   const [updatedTemplateInfo, setTemplateInfo] = useState<
     Partial<ITemplateUpdate>
   >({});
+  const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
   const userInfo = useAppSelector((state) => state.auth.user);
   const userId = userInfo?.id;
   const userPermissions = userInfo?.permissions;
@@ -149,10 +150,39 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
+    if (!file) return;
 
-    if (file) {
-      setAttachment(file);
+    if (file.size > MAX_FILE_SIZE) {
+      alert('File size exceeds 5MB limit.');
+      return;
     }
+
+    const allowedTypes = [
+      'application/msword', // .doc
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // .docx
+      'application/pdf', // .pdf
+      'text/plain', // .txt
+      'image/png',
+      'image/jpeg',
+      'image/jpg',
+      'video/mp4',
+    ];
+
+    if (!allowedTypes.includes(file.type)) {
+      alert('Unsupported file type.');
+      return;
+    }
+
+    validateTemplateFileSignature(
+      file,
+      (safeFile) => {
+        console.log('File passed validation:', safeFile);
+        setAttachment(safeFile);
+      },
+      (signatureError) => {
+        alert(signatureError);
+      },
+    );
   };
 
   const handleHtmlChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -412,7 +442,11 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({
                     >
                       Attachment
                     </label>
-                    <input type="file" onChange={handleFileChange} />
+                    <input
+                      type="file"
+                      accept=".doc,.docx,.pdf,.txt,image/*,video/*"
+                      onChange={handleFileChange}
+                    />
                   </div>
                 </div>
               </div>
