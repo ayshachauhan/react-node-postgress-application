@@ -81,13 +81,10 @@ const PracticeEditModule: React.FC<{
   const validatePhoneNumber = (fullNumber: string) => {
     try {
       const parsedPhoneNumber = cleanedPhoneNumber(fullNumber);
-      if (parsedPhoneNumber.isValid()) {
-        setIsValidPhnNo(true);
-        setErrorMessage('');
-      } else {
-        setIsValidPhnNo(false);
-        setErrorMessage('Invalid phone number');
-      }
+      const isValid = parsedPhoneNumber?.isValid?.() ?? false;
+
+      setIsValidPhnNo(isValid);
+      setErrorMessage(isValid ? '' : 'Invalid phone number');
     } catch (error) {
       setIsValidPhnNo(false);
       setErrorMessage('Invalid phone number');
@@ -116,11 +113,10 @@ const PracticeEditModule: React.FC<{
     const fullPhoneNumber = adminCountryCode + adminContactNumber;
 
     const parsedPhoneNumber = cleanedPhoneNumber(fullPhoneNumber);
-    if (parsedPhoneNumber.isValid()) {
-      setErrorMessage('');
-    } else {
-      setErrorMessage('Invalid phone number');
-    }
+    const isValid = parsedPhoneNumber?.isValid?.() ?? false;
+
+    setIsValidPhnNo(isValid);
+    setErrorMessage(isValid ? '' : 'Invalid phone number');
 
     setFormChanged(
       name !== initialValues.name ||
@@ -131,7 +127,7 @@ const PracticeEditModule: React.FC<{
         adminFirstName !== initialValues.adminFirstName ||
         status !== initialValues.status ||
         practiceImg !== null ||
-        !parsedPhoneNumber.isValid(),
+        !isValid,
     );
   }, [
     name,
