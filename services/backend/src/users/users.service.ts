@@ -429,7 +429,8 @@ export class UsersService {
     surgeries && surgeries;
 
     const token = this.jwtService.sign({
-      ...newSanitizedUser,
+      id: newSanitizedUser.id,
+      type: newSanitizedUser.type,
     });
 
     // Read the HTML file content

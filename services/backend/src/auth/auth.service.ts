@@ -62,8 +62,13 @@ export class AuthService {
   }
 
   async login(user: SanitizedUser | SuperAdminUser) {
+    const payload = {
+      ...(user.isSuperAdmin ? {} : { id: user.id, type: user.type }),
+      isSuperAdmin: user.isSuperAdmin,
+    };
+
     return {
-      access_token: this.jwtService.sign(user),
+      access_token: this.jwtService.sign(payload),
       is_super_admin: user.isSuperAdmin,
     };
   }
@@ -135,10 +140,8 @@ export class AuthService {
       const token: string = this.jwtService.sign(
         {
           id: user.id,
-          email: user.email,
           type: user.type,
           status: user.status,
-          fullName: user.fullName,
         },
         { expiresIn: '15m' },
       );
