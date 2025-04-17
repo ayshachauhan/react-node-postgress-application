@@ -205,14 +205,10 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
   const validatePhoneNumber = (fullNumber: string) => {
     try {
       const parsedPhoneNumber = cleanedPhoneNumber(fullNumber);
+      const isValid = parsedPhoneNumber?.isValid?.() ?? false;
 
-      if (parsedPhoneNumber.isValid()) {
-        setIsValidPhnNo(true);
-        setErrorMessage('');
-      } else {
-        setIsValidPhnNo(false);
-        setErrorMessage('Invalid phone number');
-      }
+      setIsValidPhnNo(isValid);
+      setErrorMessage(isValid ? '' : 'Invalid phone number');
     } catch (error) {
       setIsValidPhnNo(false);
       setErrorMessage('Invalid phone number');

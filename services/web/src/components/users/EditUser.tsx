@@ -62,14 +62,10 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose, withLoader }) => {
   const validatePhoneNumber = (fullNumber: string) => {
     try {
       const parsedPhoneNumber = cleanedPhoneNumber(fullNumber);
+      const isValid = parsedPhoneNumber?.isValid?.() ?? false;
 
-      if (parsedPhoneNumber.isValid()) {
-        setIsValidPhnNo(true);
-        setErrorMessage('');
-      } else {
-        setIsValidPhnNo(false);
-        setErrorMessage('Invalid phone number');
-      }
+      setIsValidPhnNo(isValid);
+      setErrorMessage(isValid ? '' : 'Invalid phone number');
     } catch (error) {
       setIsValidPhnNo(false);
       setErrorMessage('Invalid phone number');
@@ -189,12 +185,14 @@ const EditUserPage: React.FC<ChildProps> = ({ data, onClose, withLoader }) => {
       };
 
       // Construct fullPhoneNumber based on the field being updated
-      const fullPhoneNumber =
-        fieldName === 'countryCode'
-          ? value + prevState.contactNumber
-          : prevState.countryCode + value;
+      if (fieldName === 'countryCode' || fieldName === 'contactNumber') {
+        const fullPhoneNumber =
+          fieldName === 'countryCode'
+            ? value + prevState.contactNumber
+            : prevState.countryCode + value;
 
-      validatePhoneNumber(fullPhoneNumber);
+        validatePhoneNumber(fullPhoneNumber);
+      }
 
       return updatedState;
     });
