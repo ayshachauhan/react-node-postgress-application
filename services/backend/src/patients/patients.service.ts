@@ -105,6 +105,11 @@ export class PatientsService {
 
       if (patientEntity) {
         if (data.countryCode || data.phoneNumber) {
+          if (!data.countryCode || !data.phoneNumber) {
+            throw new BadRequestException(
+              'Both countryCode and phoneNumber are required to update phone number.',
+            );
+          }
           validatePhoneNumber(data.countryCode, data.phoneNumber);
         }
 
