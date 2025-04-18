@@ -104,8 +104,7 @@ export class PatientsService {
       });
 
       if (patientEntity) {
-        // ✅ Validate phone number if both countryCode and phoneNumber are present
-        if (!data.countryCode || !data.phoneNumber) {
+        if (data.countryCode || data.phoneNumber) {
           validatePhoneNumber(data.countryCode, data.phoneNumber);
         }
 
