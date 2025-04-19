@@ -68,7 +68,7 @@ const EditableRow: React.FC<EditableRowProps> = ({
     referrersList,
     pcpList,
     practiceHomesList,
-    patientsByMrn,
+    patients,
   } = useAppSelector((state) => ({
     selectedMonth: state.surgeries.surgeryFilters.selectedMonth,
     selectedValue: state.surgeries.surgeryFilters.selectedValue,
@@ -81,7 +81,7 @@ const EditableRow: React.FC<EditableRowProps> = ({
     referrersList: Object.values(state.referrers.entities),
     pcpList: Object.values(state.referrers.entities),
     practiceHomesList: Object.values(state.practiceHomes.entities),
-    patientsByMrn: Object.values(state.patients.entities),
+    patients: Object.values(state.patients.entities),
   }));
 
   const month = getSelectedMonths(selectedMonth);
@@ -120,8 +120,8 @@ const EditableRow: React.FC<EditableRowProps> = ({
   };
 
   useEffect(() => {
-    if (pendingMrnCheck !== null && patientsByMrn.length > 0) {
-      const isDuplicate = patientsByMrn.some(
+    if (pendingMrnCheck !== null && patients.length > 0) {
+      const isDuplicate = patients.some(
         (patient) =>
           String(patient.mrn) === String(pendingMrnCheck) &&
           patient.id !== surgeryInfo.patient.id,
@@ -135,7 +135,7 @@ const EditableRow: React.FC<EditableRowProps> = ({
 
       setPendingMrnCheck(null);
     }
-  }, [patientsByMrn, pendingMrnCheck]);
+  }, [patients, pendingMrnCheck]);
 
   useEffect(() => {
     if (phoneInputRef.current) {
@@ -312,7 +312,7 @@ const EditableRow: React.FC<EditableRowProps> = ({
       setMrnError('');
     }
 
-    const duplicate = patientsByMrn.some(
+    const duplicate = patients.some(
       (patient) =>
         String(patient.mrn) === String(obj.mrn) &&
         patient.id !== surgeryInfo.patient.id,
