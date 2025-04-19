@@ -136,7 +136,10 @@ const EditableRow: React.FC<EditableRowProps> = ({
     if (patients.length === 0) return;
 
     // MRN check
-    if (pendingMrnCheck !== null) {
+    if (
+      pendingMrnCheck !== null &&
+      String(pendingMrnCheck) !== String(evalInfo?.patient?.mrn)
+    ) {
       const isDuplicateMrn = patients.some(
         (patient) =>
           String(patient.mrn).trim() === String(pendingMrnCheck).trim() &&
@@ -148,7 +151,13 @@ const EditableRow: React.FC<EditableRowProps> = ({
     }
 
     // Email check
-    if (pendingEmailCheck !== null) {
+    if (
+      pendingEmailCheck !== null &&
+      String(pendingEmailCheck).trim().toLowerCase() !==
+        String(evalInfo?.patient?.email || '')
+          .trim()
+          .toLowerCase()
+    ) {
       const isDuplicateEmail = patients.some(
         (patient) =>
           String(patient.email).trim().toLowerCase() ===
