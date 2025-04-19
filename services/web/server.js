@@ -14,6 +14,11 @@ app.prepare().then(() => {
   // Middleware
   server.use(bodyParser.json());
 
+  server.use((req, res, next) => {
+    res.removeHeader('X-Powered-By');
+    next();
+  });
+
   // Health Endpoint
   server.get('/health', (req, res) => {
     res.status(200).json({ message: 'ok' });

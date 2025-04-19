@@ -1,4 +1,5 @@
 module.exports = {
+  poweredByHeader: false,
   serverRuntimeConfig: {
     PORT: process.env.WEB_PORT,
   },
