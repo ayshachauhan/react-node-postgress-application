@@ -68,6 +68,7 @@ const EditableRow: React.FC<EditableRowProps> = ({
     referrersList,
     pcpList,
     practiceHomesList,
+    patientsByMrn,
   } = useAppSelector((state) => ({
     selectedMonth: state.surgeries.surgeryFilters.selectedMonth,
     selectedValue: state.surgeries.surgeryFilters.selectedValue,
@@ -80,6 +81,7 @@ const EditableRow: React.FC<EditableRowProps> = ({
     referrersList: Object.values(state.referrers.entities),
     pcpList: Object.values(state.referrers.entities),
     practiceHomesList: Object.values(state.practiceHomes.entities),
+    patientsByMrn: Object.values(state.patients.entities),
   }));
 
   const month = getSelectedMonths(selectedMonth);
@@ -102,6 +104,7 @@ const EditableRow: React.FC<EditableRowProps> = ({
   const [isValidPhnNo, setIsValidPhnNo] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
   const [waitlistId, setWaitlistId] = useState<string>('');
+  const [pendingMrnCheck, setPendingMrnCheck] = useState<string | null>(null);
 
   const doctorId: string | null = getUserId();
 
@@ -115,6 +118,24 @@ const EditableRow: React.FC<EditableRowProps> = ({
       setEmailError('');
     }
   };
+
+  useEffect(() => {
+    if (pendingMrnCheck !== null && patientsByMrn.length > 0) {
+      const isDuplicate = patientsByMrn.some(
+        (patient) =>
+          String(patient.mrn) === String(pendingMrnCheck) &&
+          patient.id !== surgeryInfo.patient.id,
+      );
+
+      if (isDuplicate) {
+        setMrnError('MRN already exists');
+      } else {
+        setMrnError('');
+      }
+
+      setPendingMrnCheck(null);
+    }
+  }, [patientsByMrn, pendingMrnCheck]);
 
   useEffect(() => {
     if (phoneInputRef.current) {
@@ -237,6 +258,7 @@ const EditableRow: React.FC<EditableRowProps> = ({
         if (validationError) {
           setMrnError(validationError);
         } else {
+          setPendingMrnCheck(newValue);
           setMrnError('');
         }
       }
@@ -285,6 +307,19 @@ const EditableRow: React.FC<EditableRowProps> = ({
     const mrnErrorMessage = validateMRNLength(String(obj.mrn));
     if (mrnErrorMessage) {
       setMrnError(mrnErrorMessage);
+      return;
+    } else {
+      setMrnError('');
+    }
+
+    const duplicate = patientsByMrn.some(
+      (patient) =>
+        String(patient.mrn) === String(obj.mrn) &&
+        patient.id !== surgeryInfo.patient.id,
+    );
+
+    if (duplicate) {
+      setMrnError('MRN already exists');
       return;
     } else {
       setMrnError('');
