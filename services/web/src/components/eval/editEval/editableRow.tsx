@@ -55,6 +55,7 @@ const EditableRow: React.FC<EditableRowProps> = ({
     waitlist,
     practiceHomesList,
     calendars,
+    patients,
   } = useAppSelector((state) => ({
     insuranceTypesList: Object.values(state.insuranceTypes.entities),
     referrersList: Object.values(state.referrers.entities),
@@ -63,6 +64,7 @@ const EditableRow: React.FC<EditableRowProps> = ({
     calendars: Object.values(state.calendars?.entities).filter(
       (calendar) => calendar?.user?.id === doctorId,
     ),
+    patients: Object.values(state.patients.entities),
   }));
 
   const evalStatusOption = Object.keys(EVAL_STATUS).map((key) => ({
@@ -97,6 +99,7 @@ const EditableRow: React.FC<EditableRowProps> = ({
   }));
 
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth() + 1);
+  const [pendingMrnCheck, setPendingMrnCheck] = useState<string | null>(null);
   const [mrnError, setMrnError] = useState('');
   const handleMonthChange = ({ date }) => {
     setCurrentMonth(date.getMonth() + 1);
@@ -124,6 +127,24 @@ const EditableRow: React.FC<EditableRowProps> = ({
   };
 
   const phoneInputRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (pendingMrnCheck !== null && patients.length > 0) {
+      const isDuplicateMrn = patients.some(
+        (patient) =>
+          String(patient.mrn) === String(pendingMrnCheck) &&
+          patient.id !== evalInfo?.patient?.id,
+      );
+
+      if (isDuplicateMrn) {
+        setMrnError('MRN already exists');
+      } else {
+        setMrnError('');
+      }
+
+      setPendingMrnCheck(null);
+    }
+  }, [patients, pendingMrnCheck]);
 
   useEffect(() => {
     if (phoneInputRef.current) {
@@ -196,6 +217,7 @@ const EditableRow: React.FC<EditableRowProps> = ({
           if (validationError) {
             setMrnError(validationError);
           } else {
+            setPendingMrnCheck(newValue);
             setMrnError('');
           }
         }
@@ -263,6 +285,19 @@ const EditableRow: React.FC<EditableRowProps> = ({
       const mrnErrorMessage = validateMRNLength(String(obj.mrn));
       if (mrnErrorMessage) {
         setMrnError(mrnErrorMessage);
+        return;
+      } else {
+        setMrnError('');
+      }
+
+      const duplicateMrn = patients.some(
+        (patient) =>
+          String(patient.mrn) === String(obj.mrn) &&
+          patient.id !== evalInfo?.patient?.id,
+      );
+
+      if (duplicateMrn) {
+        setMrnError('MRN already exists');
         return;
       } else {
         setMrnError('');

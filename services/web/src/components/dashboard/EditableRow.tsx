@@ -121,13 +121,13 @@ const EditableRow: React.FC<EditableRowProps> = ({
 
   useEffect(() => {
     if (pendingMrnCheck !== null && patients.length > 0) {
-      const isDuplicate = patients.some(
+      const isDuplicateMrn = patients.some(
         (patient) =>
           String(patient.mrn) === String(pendingMrnCheck) &&
-          patient.id !== surgeryInfo.patient.id,
+          patient.id !== surgeryInfo?.patient?.id,
       );
 
-      if (isDuplicate) {
+      if (isDuplicateMrn) {
         setMrnError('MRN already exists');
       } else {
         setMrnError('');
@@ -312,13 +312,13 @@ const EditableRow: React.FC<EditableRowProps> = ({
       setMrnError('');
     }
 
-    const duplicate = patients.some(
+    const duplicateMrn = patients.some(
       (patient) =>
         String(patient.mrn) === String(obj.mrn) &&
-        patient.id !== surgeryInfo.patient.id,
+        patient.id !== surgeryInfo?.patient?.id,
     );
 
-    if (duplicate) {
+    if (duplicateMrn) {
       setMrnError('MRN already exists');
       return;
     } else {
