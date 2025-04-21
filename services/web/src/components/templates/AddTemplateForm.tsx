@@ -42,22 +42,12 @@ const AddTemplateForm: React.FC<{
   const [showDateOffsetField, setShowDateOffsetField] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
-  const templates = useAppSelector(
-    (state) => Object.values(state.templates.entities) || [],
-  );
-
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const surgeryName = surgeryConfigurationOptions?.find(
       (s) => s?.id === surgeryConfigurationId,
     )?.label;
-    const isBookingTemplateExist = templates.find(
-      (t) => t?.surgeryConfigurationName === surgeryName,
-    )?.booking?.length;
-    if (isBookingTemplateExist && messageType === TemplateMessageType.BOOKING) {
-      setErrorMessage('Booking template already created for this surgery');
-      return;
-    }
+
     console.log({ surgeryName });
     if (practiceId && userInfo) {
       const data: ITemplateRequest = {
@@ -78,6 +68,16 @@ const AddTemplateForm: React.FC<{
         onClose();
       } catch (error) {
         onClose();
+        const err = error as
+          | { response?: { data?: { message?: string } } }
+          | string;
+        if (typeof err === 'string') {
+          setErrorMessage(err);
+        } else {
+          setErrorMessage(
+            err?.response?.data?.message || 'Something went wrong',
+          );
+        }
       }
     }
   };
