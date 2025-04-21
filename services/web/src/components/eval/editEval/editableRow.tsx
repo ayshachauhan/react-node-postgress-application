@@ -55,6 +55,7 @@ const EditableRow: React.FC<EditableRowProps> = ({
     waitlist,
     practiceHomesList,
     calendars,
+    patients,
   } = useAppSelector((state) => ({
     insuranceTypesList: Object.values(state.insuranceTypes.entities),
     referrersList: Object.values(state.referrers.entities),
@@ -63,6 +64,7 @@ const EditableRow: React.FC<EditableRowProps> = ({
     calendars: Object.values(state.calendars?.entities).filter(
       (calendar) => calendar?.user?.id === doctorId,
     ),
+    patients: Object.values(state.patients.entities),
   }));
 
   const evalStatusOption = Object.keys(EVAL_STATUS).map((key) => ({
@@ -97,6 +99,10 @@ const EditableRow: React.FC<EditableRowProps> = ({
   }));
 
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth() + 1);
+  const [pendingMrnCheck, setPendingMrnCheck] = useState<string | null>(null);
+  const [pendingEmailCheck, setPendingEmailCheck] = useState<string | null>(
+    null,
+  );
   const [mrnError, setMrnError] = useState('');
   const handleMonthChange = ({ date }) => {
     setCurrentMonth(date.getMonth() + 1);
@@ -107,6 +113,7 @@ const EditableRow: React.FC<EditableRowProps> = ({
     if (!emailRegex.test(value)) {
       setEmailError('Invalid email address');
     } else {
+      setPendingEmailCheck(value);
       setEmailError('');
     }
   };
@@ -124,6 +131,44 @@ const EditableRow: React.FC<EditableRowProps> = ({
   };
 
   const phoneInputRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (patients.length === 0) return;
+
+    // MRN check
+    if (
+      pendingMrnCheck !== null &&
+      String(pendingMrnCheck) !== String(evalInfo?.patient?.mrn)
+    ) {
+      const isDuplicateMrn = patients.some(
+        (patient) =>
+          String(patient.mrn).trim() === String(pendingMrnCheck).trim() &&
+          patient.id !== evalInfo?.patient?.id,
+      );
+
+      setMrnError(isDuplicateMrn ? 'MRN already exists' : '');
+      setPendingMrnCheck(null);
+    }
+
+    // Email check
+    if (
+      pendingEmailCheck !== null &&
+      String(pendingEmailCheck).trim().toLowerCase() !==
+        String(evalInfo?.patient?.email || '')
+          .trim()
+          .toLowerCase()
+    ) {
+      const isDuplicateEmail = patients.some(
+        (patient) =>
+          String(patient.email).trim().toLowerCase() ===
+            String(pendingEmailCheck).trim().toLowerCase() &&
+          patient.id !== evalInfo?.patient?.id,
+      );
+
+      setEmailError(isDuplicateEmail ? 'Patient email already exists' : '');
+      setPendingEmailCheck(null);
+    }
+  }, [patients, pendingMrnCheck, pendingEmailCheck, evalInfo?.patient?.id]);
 
   useEffect(() => {
     if (phoneInputRef.current) {
@@ -196,6 +241,7 @@ const EditableRow: React.FC<EditableRowProps> = ({
           if (validationError) {
             setMrnError(validationError);
           } else {
+            setPendingMrnCheck(newValue);
             setMrnError('');
           }
         }
@@ -268,12 +314,42 @@ const EditableRow: React.FC<EditableRowProps> = ({
         setMrnError('');
       }
 
+      const originalMrn = evalInfo?.patient?.mrn;
+      if (String(obj.mrn) !== String(originalMrn)) {
+        const duplicateMrn = patients.some(
+          (patient) =>
+            String(patient.mrn) === String(obj.mrn) &&
+            patient.id !== evalInfo?.patient?.id,
+        );
+
+        if (duplicateMrn) {
+          setMrnError('MRN already exists');
+          return;
+        }
+      }
+      setMrnError('');
+
       if (emailError) {
         setEmailError(emailError);
         return;
       } else {
         setEmailError('');
       }
+
+      const originalEmail = evalInfo?.patient?.email;
+      if (String(obj.email) !== String(originalEmail)) {
+        const duplicateEmail = patients.some(
+          (patient) =>
+            String(patient.email) === String(obj.email) &&
+            patient.id !== evalInfo?.patient?.id,
+        );
+
+        if (duplicateEmail) {
+          setEmailError('Email already exists');
+          return;
+        }
+      }
+      setEmailError('');
 
       if (isValidPhnNo) {
         if (practiceId) {

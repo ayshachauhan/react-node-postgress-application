@@ -252,15 +252,17 @@ export function sanitizedSurgeriesEvals(surgeryEvals) {
 export function sanitizeCalendars(
   calendars: CalendarEntity[],
 ): CalendarEntity[] {
-  return calendars.map((calendar) => {
-    const { password, token, ...userWithoutPassword } = calendar.user;
-    password && password;
-    token && token;
-    return {
-      ...calendar,
-      user: userWithoutPassword as UserEntity,
-    };
-  });
+  return calendars
+    .filter((calendar) => calendar.user !== null)
+    .map((calendar) => {
+      const { password, token, ...userWithoutPassword } = calendar.user;
+      password && password;
+      token && token;
+      return {
+        ...calendar,
+        user: userWithoutPassword as UserEntity,
+      };
+    });
 }
 
 export async function checkFileType(buffer: Buffer) {

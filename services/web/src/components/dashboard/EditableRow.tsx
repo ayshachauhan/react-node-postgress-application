@@ -68,6 +68,7 @@ const EditableRow: React.FC<EditableRowProps> = ({
     referrersList,
     pcpList,
     practiceHomesList,
+    patients,
   } = useAppSelector((state) => ({
     selectedMonth: state.surgeries.surgeryFilters.selectedMonth,
     selectedValue: state.surgeries.surgeryFilters.selectedValue,
@@ -80,6 +81,7 @@ const EditableRow: React.FC<EditableRowProps> = ({
     referrersList: Object.values(state.referrers.entities),
     pcpList: Object.values(state.referrers.entities),
     practiceHomesList: Object.values(state.practiceHomes.entities),
+    patients: Object.values(state.patients.entities),
   }));
 
   const month = getSelectedMonths(selectedMonth);
@@ -102,6 +104,10 @@ const EditableRow: React.FC<EditableRowProps> = ({
   const [isValidPhnNo, setIsValidPhnNo] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
   const [waitlistId, setWaitlistId] = useState<string>('');
+  const [pendingMrnCheck, setPendingMrnCheck] = useState<string | null>(null);
+  const [pendingEmailCheck, setPendingEmailCheck] = useState<string | null>(
+    null,
+  );
 
   const doctorId: string | null = getUserId();
 
@@ -112,9 +118,48 @@ const EditableRow: React.FC<EditableRowProps> = ({
     if (!emailRegex.test(value)) {
       setEmailError('Invalid email address');
     } else {
+      setPendingEmailCheck(value);
       setEmailError('');
     }
   };
+
+  useEffect(() => {
+    if (patients.length === 0) return;
+
+    // MRN check
+    if (
+      pendingMrnCheck !== null &&
+      String(pendingMrnCheck) !== String(surgeryInfo?.patient?.mrn)
+    ) {
+      const isDuplicateMrn = patients.some(
+        (patient) =>
+          String(patient.mrn).trim() === String(pendingMrnCheck).trim() &&
+          patient.id !== surgeryInfo?.patient?.id,
+      );
+
+      setMrnError(isDuplicateMrn ? 'MRN already exists' : '');
+      setPendingMrnCheck(null);
+    }
+
+    // Email check
+    if (
+      pendingEmailCheck !== null &&
+      String(pendingEmailCheck).trim().toLowerCase() !==
+        String(surgeryInfo?.patient?.email || '')
+          .trim()
+          .toLowerCase()
+    ) {
+      const isDuplicateEmail = patients.some(
+        (patient) =>
+          String(patient.email).trim().toLowerCase() ===
+            String(pendingEmailCheck).trim().toLowerCase() &&
+          patient.id !== surgeryInfo?.patient?.id,
+      );
+
+      setEmailError(isDuplicateEmail ? 'Patient email already exists' : '');
+      setPendingEmailCheck(null);
+    }
+  }, [patients, pendingMrnCheck, pendingEmailCheck, surgeryInfo?.patient?.id]);
 
   useEffect(() => {
     if (phoneInputRef.current) {
@@ -237,6 +282,7 @@ const EditableRow: React.FC<EditableRowProps> = ({
         if (validationError) {
           setMrnError(validationError);
         } else {
+          setPendingMrnCheck(newValue);
           setMrnError('');
         }
       }
@@ -290,6 +336,21 @@ const EditableRow: React.FC<EditableRowProps> = ({
       setMrnError('');
     }
 
+    const originalMrn = surgeryInfo?.patient?.mrn;
+    if (String(obj.mrn) !== String(originalMrn)) {
+      const duplicateMrn = patients.some(
+        (patient) =>
+          String(patient.mrn) === String(obj.mrn) &&
+          patient.id !== surgeryInfo?.patient?.id,
+      );
+
+      if (duplicateMrn) {
+        setMrnError('MRN already exists');
+        return;
+      }
+    }
+    setMrnError('');
+
     const slotError = validateSlotValue(String(obj.slot));
     if (slotError) {
       return;
@@ -301,6 +362,21 @@ const EditableRow: React.FC<EditableRowProps> = ({
     } else {
       setEmailError('');
     }
+
+    const originalEmail = surgeryInfo?.patient?.email;
+    if (String(obj.email) !== String(originalEmail)) {
+      const duplicateEmail = patients.some(
+        (patient) =>
+          String(patient.email) === String(obj.email) &&
+          patient.id !== surgeryInfo?.patient?.id,
+      );
+
+      if (duplicateEmail) {
+        setEmailError('Email already exists');
+        return;
+      }
+    }
+    setEmailError('');
 
     if (isValidPhnNo) {
       if (practiceId) {
