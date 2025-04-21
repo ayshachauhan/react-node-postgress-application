@@ -54,10 +54,7 @@ const AddTemplateForm: React.FC<{
     const isBookingTemplateExist = templates.find(
       (t) => t?.surgeryConfigurationName === surgeryName,
     )?.booking?.length;
-    if (
-      isBookingTemplateExist &&
-      messageType === TemplateMessageType.BOOKING.toUpperCase()
-    ) {
+    if (isBookingTemplateExist && messageType === TemplateMessageType.BOOKING) {
       setErrorMessage('Booking template already created for this surgery');
       return;
     }
