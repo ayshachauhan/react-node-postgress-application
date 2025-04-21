@@ -1,9 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import {
-  TemplateEntity,
-  TemplateMessageType,
-} from '@packages/entities/template';
+import { TemplateEntity } from '@packages/entities/template';
 import { S3Service } from 'src/users/s3.service';
 import { UploadType, UploadUserImgData } from 'src/users/types';
 import { getUploadFileKey } from 'src/users/utils';
@@ -84,11 +81,6 @@ export class TemplatesService {
     }
 
     const practiceEntity = await this.practiceService.findOne(practiceId);
-
-    if (templatePatchDto.messageType) {
-      templatePatchDto.messageType =
-        TemplateMessageType[templatePatchDto.messageType];
-    }
 
     delete templatePatchDto.surgeryConfigurationId;
     await this.templateRepository.update(id, {
