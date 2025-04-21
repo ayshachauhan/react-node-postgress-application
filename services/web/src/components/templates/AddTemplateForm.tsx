@@ -17,10 +17,10 @@ const AddTemplateForm: React.FC<{
   withLoader: (func: () => Promise<void>) => Promise<void>;
   showDateOffsetControl: (v: string) => boolean;
 }> = ({ onClose, withLoader, showDateOffsetControl }) => {
-  const templateMessageTypeOptions = Object.keys(TemplateMessageType).map(
-    (key) => ({
+  const templateMessageTypeOptions = Object.entries(TemplateMessageType).map(
+    ([key, value]) => ({
       label: key,
-      id: TemplateMessageType[key as keyof typeof TemplateMessageType],
+      id: value,
     }),
   );
   const practiceId = getPracticeId();
@@ -54,10 +54,7 @@ const AddTemplateForm: React.FC<{
     const isBookingTemplateExist = templates.find(
       (t) => t?.surgeryConfigurationName === surgeryName,
     )?.booking?.length;
-    if (
-      isBookingTemplateExist &&
-      messageType === TemplateMessageType.BOOKING.toUpperCase()
-    ) {
+    if (isBookingTemplateExist && messageType === TemplateMessageType.BOOKING) {
       setErrorMessage('Booking template already created for this surgery');
       return;
     }
@@ -95,7 +92,7 @@ const AddTemplateForm: React.FC<{
 
   const handleMsgTypeChange = ({ value }) => {
     setShowDateOffsetField(showDateOffsetControl(value[0].label));
-    setMsgType(value[0] ? value[0].label : null);
+    setMsgType(value[0] ? value[0].id : null);
   };
 
   useEffect(() => {
