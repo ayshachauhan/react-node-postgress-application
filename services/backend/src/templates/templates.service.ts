@@ -60,10 +60,6 @@ export class TemplatesService {
         HttpStatus.NOT_FOUND,
       );
     }
-
-    templateCreateDto.messageType =
-      TemplateMessageType[templateCreateDto.messageType];
-
     return await this.templateRepository.save({
       ...newTemplate,
       ...templateCreateDto,
