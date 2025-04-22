@@ -4,6 +4,7 @@ import {
   HttpStatus,
   Inject,
   Injectable,
+  NotFoundException,
   forwardRef,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -13,7 +14,13 @@ import { EmailHandlerService } from 'src/emailHandler/emailHandler.service';
 import logger from 'src/logger';
 import { CreatePatientDto } from 'src/patients/dto/createPatient.dto';
 import { validatePhoneNumber } from 'src/utils';
-import { Brackets, DataSource, Repository } from 'typeorm';
+import {
+  Brackets,
+  DataSource,
+  FindOptionsWhere,
+  Not,
+  Repository,
+} from 'typeorm';
 
 @Injectable()
 export class PatientsService {
@@ -103,33 +110,45 @@ export class PatientsService {
         where: { id, practice: { id: practiceId } },
       });
 
-      if (patientEntity) {
-        if (data.countryCode || data.phoneNumber) {
-          if (!data.countryCode || !data.phoneNumber) {
-            throw new BadRequestException(
-              'Both countryCode and phoneNumber are required to update phone number.',
-            );
-          }
-          validatePhoneNumber(data.countryCode, data.phoneNumber);
-        }
-
-        logger.info(`Updating patient with ID: ${id}`);
-        await this.patientRepository.update(id, {
-          firstName: data.firstName,
-          lastName: data.lastName,
-          email: data.email,
-          phoneNumber: data.phoneNumber,
-          countryCode: data.countryCode,
-          mrn: data.mrn,
-        });
-
-        logger.info(`Patient with ID: ${id} updated successfully`);
-
-        await this.emailHandlerService.updateEmailLogsByPatientMrn(
-          patientEntity?.mrn,
-          data,
-        );
+      if (!patientEntity) {
+        throw new NotFoundException(`Patient with ID ${id} not found`);
       }
+
+      // 🔍 Check if MRN already exists for another patient
+      if (data.mrn && data.mrn !== patientEntity.mrn) {
+        const mrnExists = await this.getPatientsByMrn(practiceId, data.mrn, id);
+
+        if (mrnExists) {
+          throw new BadRequestException(`MRN '${data.mrn}' is already in use.`);
+        }
+      }
+
+      if (data.countryCode || data.phoneNumber) {
+        if (!data.countryCode || !data.phoneNumber) {
+          throw new BadRequestException(
+            'Both countryCode and phoneNumber are required to update phone number.',
+          );
+        }
+        validatePhoneNumber(data.countryCode, data.phoneNumber);
+      }
+
+      logger.info(`Updating patient with ID: ${id}`);
+      await this.patientRepository.update(id, {
+        firstName: data.firstName,
+        lastName: data.lastName,
+        email: data.email,
+        phoneNumber: data.phoneNumber,
+        countryCode: data.countryCode,
+        mrn: data.mrn,
+      });
+
+      logger.info(`Patient with ID: ${id} updated successfully`);
+
+      await this.emailHandlerService.updateEmailLogsByPatientMrn(
+        patientEntity?.mrn,
+        data,
+      );
+
       await queryRunner.commitTransaction();
       return await this.patientRepository.findOne({
         where: { id, practice: { id: practiceId } },
@@ -151,9 +170,19 @@ export class PatientsService {
   async getPatientsByMrn(
     practiceId: string,
     mrn: number,
+    excludePatientId?: string,
   ): Promise<PatientEntity | null> {
+    const whereClause: FindOptionsWhere<PatientEntity> = {
+      practice: { id: practiceId },
+      mrn,
+    };
+
+    if (excludePatientId) {
+      whereClause.id = Not(excludePatientId);
+    }
+
     return this.patientRepository.findOne({
-      where: { practice: { id: practiceId }, mrn },
+      where: whereClause,
       relations: ['surgeries', 'evals', 'surgeries.surgeryConfiguration'],
     });
   }

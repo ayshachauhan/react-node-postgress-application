@@ -58,6 +58,7 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({
   const templateId = data.id;
   const messageType = data.messageType;
   const versionOffset = data.versionOffset;
+  const [errorMessage, setErrorMessage] = useState('');
 
   const [attachment, setAttachment] = useState<File | null>(null);
   const [emailPreview, setEmailPreview] = useState<Partial<ITemplateUpdate>>(
@@ -271,6 +272,16 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({
         onClose();
       } catch (error) {
         onClose();
+        const err = error as
+          | { response?: { data?: { message?: string } } }
+          | string;
+        if (typeof err === 'string') {
+          setErrorMessage(err);
+        } else {
+          setErrorMessage(
+            err?.response?.data?.message || 'Something went wrong',
+          );
+        }
       }
     }
   };
@@ -278,6 +289,9 @@ const TemplateUpdatePage: React.FC<ChildProps> = ({
   return (
     <div>
       <form onSubmit={handleSubmit}>
+        {errorMessage && (
+          <div className="flex justify-center text-red-700">{errorMessage}</div>
+        )}
         <div className="flex justify-between mt-1 items-center text-xl font-bold border-b border-gray-100 pb-2 text-black">
           <p>Write New Template</p>
           <div className="flex items-center gap-7 mr-5">

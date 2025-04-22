@@ -1,6 +1,9 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { TemplateEntity } from '@packages/entities/template';
+import {
+  TemplateEntity,
+  TemplateMessageType,
+} from '@packages/entities/template';
 import { S3Service } from 'src/users/s3.service';
 import { UploadType, UploadUserImgData } from 'src/users/types';
 import { getUploadFileKey } from 'src/users/utils';
@@ -29,7 +32,10 @@ export class TemplatesService {
   }
 
   async getTemplateById(id: string): Promise<TemplateEntity | null> {
-    return await this.templateRepository.findOneBy({ id });
+    return await this.templateRepository.findOne({
+      where: { id },
+      relations: ['surgeryConfiguration'],
+    });
   }
 
   async create({
@@ -57,6 +63,27 @@ export class TemplatesService {
         HttpStatus.NOT_FOUND,
       );
     }
+
+    if (templateCreateDto.messageType === TemplateMessageType.BOOKING) {
+      const existingTemplate = await this.templateRepository.findOne({
+        where: {
+          practice: { id: practiceId },
+          surgeryConfiguration: {
+            id: templateCreateDto.surgeryConfigurationId,
+          },
+          messageType: TemplateMessageType.BOOKING,
+        },
+        relations: ['practice', 'surgeryConfiguration'],
+      });
+
+      if (existingTemplate) {
+        throw new HttpException(
+          'Booking template already exists for this surgery configuration',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+    }
+
     return await this.templateRepository.save({
       ...newTemplate,
       ...templateCreateDto,
@@ -74,6 +101,30 @@ export class TemplatesService {
     id,
   }): Promise<TemplateEntity | null> {
     const templateToUpdate = await this.getTemplateById(id);
+
+    if (!templateToUpdate) {
+      throw new HttpException('Template not found', HttpStatus.NOT_FOUND);
+    }
+
+    if (templatePatchDto.messageType === TemplateMessageType.BOOKING) {
+      const existingTemplate = await this.templateRepository.findOne({
+        where: {
+          practice: { id: practiceId },
+          surgeryConfiguration: {
+            id: templatePatchDto.surgeryConfiguration.id,
+          },
+          messageType: TemplateMessageType.BOOKING,
+        },
+        relations: ['practice', 'surgeryConfiguration'],
+      });
+
+      if (existingTemplate && existingTemplate.id !== id) {
+        throw new HttpException(
+          'Another booking template already exists for this surgery configuration',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+    }
 
     const surgeonEntity = await this.userService.getUserById(surgeonId);
     if (!surgeonEntity) {

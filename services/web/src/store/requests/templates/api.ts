@@ -71,7 +71,8 @@ export const addTemplate = async (
     );
 
     if (!response.ok) {
-      throw new Error('Failed to add template');
+      const errorData = await response.json();
+      return rejectWithValue(errorData.message || 'Failed to add template');
     }
     const data: ITemplate = await response.json();
     return data;
@@ -101,7 +102,8 @@ export const updateTemplate = async (
       sanitizedPayload,
     );
     if (!response.ok) {
-      throw new Error('Failed to update template');
+      const errorData = await response.json();
+      return rejectWithValue(errorData.message || 'Failed to update template');
     }
     const data = await response.json();
 

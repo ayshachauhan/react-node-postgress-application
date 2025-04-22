@@ -1,6 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { ReferrerType } from '@packages/entities/referrer';
-import { IsEmail, IsEnum, IsNotEmpty, IsOptional } from 'class-validator';
+import {
+  IsEmail,
+  IsEnum,
+  IsNotEmpty,
+  IsOptional,
+  ValidateIf,
+} from 'class-validator';
 
 export class CreateReferrerDto {
   @IsNotEmpty({ message: 'Firstname is required' })
@@ -11,10 +17,11 @@ export class CreateReferrerDto {
   @ApiProperty()
   lastName: string;
 
-  @IsOptional()
+  @ValidateIf((o) => o.email !== '')
   @IsEmail({}, { message: 'Invalid email format' })
+  @IsOptional()
   @ApiProperty()
-  email: string;
+  email?: string;
 
   // @IsNotEmpty({ message: 'Referrer type is required' })
   @IsOptional()
