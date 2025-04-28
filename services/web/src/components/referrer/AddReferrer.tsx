@@ -2,7 +2,10 @@
 import { IReferrer, ReferrerType } from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import { useAppDispatch } from '@root/store';
-import { addRecordAsync } from '@root/store/reducers/referrer';
+import {
+  addRecordAsync,
+  fetchReferrerByEmail,
+} from '@root/store/reducers/referrer';
 import { getPracticeId } from '@utils/index';
 import { Select } from 'baseui/select';
 import { useState } from 'react';
@@ -43,9 +46,27 @@ const AddReferrerForm: React.FC<{
     if (emailError) {
       setEmailError(emailError);
       return;
-    } else {
-      setEmailError('');
     }
+    if (email && practiceId) {
+      try {
+        const emailCheckResult = (await dispatch(
+          fetchReferrerByEmail({
+            email: email,
+            practiceId,
+          }),
+        )) as { payload: boolean };
+
+        if (emailCheckResult.payload) {
+          setEmailError('Referrer with this email already exists.');
+          return;
+        }
+      } catch (error) {
+        setEmailError('Error checking email');
+        return;
+      }
+    }
+
+    setEmailError('');
     if (practiceId) {
       const referrerPayloadData: AddReferrerDto = {
         practiceId,

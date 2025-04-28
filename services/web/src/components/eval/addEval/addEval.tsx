@@ -196,6 +196,28 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
     validatePhoneNumber(fullPhoneNumber);
   };
 
+  const handleEmailChange = async (value: string) => {
+    setEmail(value);
+
+    validateEmail(value);
+
+    if (value && practiceId) {
+      try {
+        const duplicateEmail = patientsList.some(
+          (patient) => String(patient.email) === String(value),
+        );
+
+        if (duplicateEmail) {
+          setEmailError('Patient with this email already exists.');
+        } else {
+          setEmailError('');
+        }
+      } catch (error) {
+        setEmailError('Error checking email');
+      }
+    }
+  };
+
   const handlePhoneNumberChange = (value: string) => {
     setPhoneNumber(value);
     const fullPhoneNumber = countryCode + value;
@@ -552,10 +574,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
                   size={SIZE.mini}
                   name="email"
                   value={email}
-                  onChange={(value) => {
-                    setEmail(value);
-                    validateEmail(value);
-                  }}
+                  onChange={(value) => handleEmailChange(value)}
                   required
                 />
               </div>

@@ -2,7 +2,10 @@
 import { IReferrer, ReferrerType } from '@packages/entities/index.browser';
 import Button from '@root/components/Button';
 import { useAppDispatch, useAppSelector } from '@root/store';
-import { updateRecordAsync } from '@root/store/reducers/referrer';
+import {
+  fetchReferrerByEmail,
+  updateRecordAsync,
+} from '@root/store/reducers/referrer';
 import { getPracticeId } from '@utils/index';
 import { Select } from 'baseui/select';
 import { useEffect, useState } from 'react';
@@ -74,9 +77,32 @@ const EditReferrerForm: React.FC<ChildProps> = ({
     if (emailError) {
       setEmailError(emailError);
       return;
-    } else {
-      setEmailError('');
     }
+
+    if (
+      updatedReferrerInfo.email &&
+      updatedReferrerInfo.email !== referrerInfo?.email &&
+      practiceId
+    ) {
+      try {
+        const emailCheckResult = (await dispatch(
+          fetchReferrerByEmail({
+            email: updatedReferrerInfo.email,
+            practiceId,
+          }),
+        )) as { payload: boolean };
+
+        if (emailCheckResult.payload) {
+          setEmailError('Referrer with this email already exists.');
+          return;
+        }
+      } catch (error) {
+        setEmailError('Error checking email');
+        return;
+      }
+    }
+    setEmailError('');
+
     if (practiceId && referrerId) {
       const referrerPayloadData = {
         ...updatedReferrerInfo,

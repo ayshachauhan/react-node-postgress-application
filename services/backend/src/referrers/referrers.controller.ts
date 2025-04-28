@@ -62,6 +62,20 @@ export class ReferrersController {
     return this.referrerService.getReferrer(practiceId);
   }
 
+  @Get('/check-email')
+  async checkEmailExists(
+    @Query('email') email: string,
+    @Param('practiceId') practiceId: string,
+  ): Promise<{ exists: boolean }> {
+    console.log('Email:', email);
+    console.log('Practice ID:', practiceId);
+    const referrer = await this.referrerService.getReferrerByEmail(
+      email,
+      practiceId,
+    );
+    return { exists: !!referrer };
+  }
+
   @Get('search')
   @UseGuards(PermissionGuard(USER_PERMISSIONS.VIEW_REFERRERS))
   async searchReferrers(

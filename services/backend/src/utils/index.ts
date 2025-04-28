@@ -238,15 +238,17 @@ export function decryptPassword(encryptedPassword: string): string {
 }
 
 export function sanitizedSurgeriesEvals(surgeryEvals) {
-  return surgeryEvals.map((surgeryEval) => {
-    const { password, token, ...userWithoutPassword } = surgeryEval.doctor;
-    password && password;
-    token && token;
-    return {
-      ...surgeryEval,
-      doctor: userWithoutPassword as UserEntity,
-    };
-  });
+  return surgeryEvals
+    .filter((surgeryEval) => surgeryEval.doctor !== null)
+    .map((surgeryEval) => {
+      const { password, token, ...userWithoutPassword } = surgeryEval.doctor;
+      password && password;
+      token && token;
+      return {
+        ...surgeryEval,
+        doctor: userWithoutPassword as UserEntity,
+      };
+    });
 }
 
 export function sanitizeCalendars(

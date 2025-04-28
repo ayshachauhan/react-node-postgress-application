@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Inject,
   Injectable,
   NotFoundException,
@@ -30,6 +31,21 @@ export class ReferrersService {
     logger.info(
       `Starting the creation of new referrer with name ${referrerData?.firstName} ${referrerData?.lastName}`,
     );
+    if (referrerData.email) {
+      const existingReferrer = await this.getReferrerByEmail(
+        referrerData.email,
+        practiceId,
+      );
+
+      if (existingReferrer) {
+        logger.warn(
+          `Referrer with email ${referrerData.email} already exists in practice ${practiceId}`,
+        );
+        throw new BadRequestException(
+          'A referrer with this email already exists.',
+        );
+      }
+    }
     logger.info(
       `Creating new referrer with name ${referrerData?.firstName} ${referrerData?.lastName}`,
     );
@@ -120,6 +136,18 @@ export class ReferrersService {
     const referrer = await this.getReferrerById(practiceId, referrerId);
     const { email: userEmail } = referrerData;
     const { email: dbEmail } = referrer;
+    if (userEmail && userEmail !== dbEmail) {
+      const existing = await this.getReferrerByEmail(userEmail, practiceId);
+
+      if (existing && existing.id !== referrerId) {
+        logger.warn(
+          `Cannot update referrer. Email ${userEmail} already exists in practice ${practiceId}`,
+        );
+        throw new BadRequestException(
+          'Another referrer with this email already exists.',
+        );
+      }
+    }
     const updatedReferrer = this.referrers.merge(referrer, referrerData);
     logger.info(`Updating referrer with ID: ${referrerId}`);
     const result = await this.referrers.save(updatedReferrer);
@@ -189,5 +217,16 @@ export class ReferrersService {
     }
 
     return referrers;
+  }
+
+  async getReferrerByEmail(
+    email: string,
+    practiceId: string,
+  ): Promise<ReferrersEntity | null> {
+    const referrer = await this.referrers.findOne({
+      where: { email, practiceId },
+    });
+
+    return referrer ?? null;
   }
 }
