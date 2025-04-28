@@ -73,6 +73,25 @@ export class PatientsService {
         mrnCheck.countryCode !== createPatientDto.countryCode;
 
       if (hasChanges) {
+        if (
+          createPatientDto.email &&
+          createPatientDto.email !== mrnCheck.email
+        ) {
+          const emailExists = await this.patientRepository.findOne({
+            where: {
+              email: createPatientDto.email,
+              practice: { id: practiceEntity.id },
+              id: Not(mrnCheck.id),
+            },
+            relations: ['practice'],
+          });
+
+          if (emailExists) {
+            throw new BadRequestException(
+              `Email '${createPatientDto.email}' is already in use.`,
+            );
+          }
+        }
         logger.info(`Updating patient with ID: ${mrnCheck.id}`);
         await this.patientRepository.update(mrnCheck.id, {
           firstName: createPatientDto.firstName,
@@ -85,6 +104,21 @@ export class PatientsService {
       }
       return mrnCheck;
     } else {
+      if (createPatientDto.email) {
+        const existingEmailPatient = await this.patientRepository.findOne({
+          where: {
+            email: createPatientDto.email,
+            practice: { id: practiceEntity.id },
+          },
+          relations: ['practice'],
+        });
+
+        if (existingEmailPatient) {
+          throw new BadRequestException(
+            'A patient with this email already exists.',
+          );
+        }
+      }
       logger.info(
         `Creating new patient with name ${createPatientDto?.firstName} ${createPatientDto?.lastName}`,
       );
@@ -120,6 +154,23 @@ export class PatientsService {
 
         if (mrnExists) {
           throw new BadRequestException(`MRN '${data.mrn}' is already in use.`);
+        }
+      }
+
+      if (data.email && data.email !== patientEntity.email) {
+        const emailExists = await this.patientRepository.findOne({
+          where: {
+            email: data.email,
+            practice: { id: practiceId },
+            id: Not(id),
+          },
+          relations: ['practice'],
+        });
+
+        if (emailExists) {
+          throw new BadRequestException(
+            `Email '${data.email}' is already in use.`,
+          );
         }
       }
 

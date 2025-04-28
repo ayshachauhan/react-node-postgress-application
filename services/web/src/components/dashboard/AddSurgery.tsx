@@ -348,6 +348,28 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
     id: key.id,
   }));
 
+  const handleEmailChange = async (value: string) => {
+    setEmail(value);
+
+    validateEmail(value);
+
+    if (value && practiceId) {
+      try {
+        const duplicateEmail = patientsList.some(
+          (patient) => String(patient.email) === String(value),
+        );
+
+        if (duplicateEmail) {
+          setEmailError('Patient with this email already exists.');
+        } else {
+          setEmailError('');
+        }
+      } catch (error) {
+        setEmailError('Error checking email');
+      }
+    }
+  };
+
   const practiceHomesOptions = Object.keys(practiceHomesList).map((key) => ({
     label: practiceHomesList[key].name,
     id: practiceHomesList[key].id,
@@ -845,10 +867,7 @@ const SurgeryPage: React.FC<SurgeryPageProps> = ({
                 size={SIZE.mini}
                 name="email"
                 value={email}
-                onChange={(value) => {
-                  setEmail(value);
-                  validateEmail(value);
-                }}
+                onChange={(value) => handleEmailChange(value)}
                 required
               />
               <div className="space-y-4"></div>

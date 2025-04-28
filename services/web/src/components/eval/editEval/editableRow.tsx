@@ -100,6 +100,9 @@ const EditableRow: React.FC<EditableRowProps> = ({
 
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth() + 1);
   const [pendingMrnCheck, setPendingMrnCheck] = useState<string | null>(null);
+  const [pendingEmailCheck, setPendingEmailCheck] = useState<string | null>(
+    null,
+  );
 
   const [mrnError, setMrnError] = useState('');
   const handleMonthChange = ({ date }) => {
@@ -111,6 +114,7 @@ const EditableRow: React.FC<EditableRowProps> = ({
     if (!emailRegex.test(value)) {
       setEmailError('Invalid email address');
     } else {
+      setPendingEmailCheck(value);
       setEmailError('');
     }
   };
@@ -146,7 +150,25 @@ const EditableRow: React.FC<EditableRowProps> = ({
       setMrnError(isDuplicateMrn ? 'MRN already exists' : '');
       setPendingMrnCheck(null);
     }
-  }, [patients, pendingMrnCheck, evalInfo?.patient?.id]);
+    // Email check
+    if (
+      pendingEmailCheck !== null &&
+      String(pendingEmailCheck).trim().toLowerCase() !==
+        String(evalInfo?.patient?.email || '')
+          .trim()
+          .toLowerCase()
+    ) {
+      const isDuplicateEmail = patients.some(
+        (patient) =>
+          String(patient.email).trim().toLowerCase() ===
+            String(pendingEmailCheck).trim().toLowerCase() &&
+          patient.id !== evalInfo?.patient?.id,
+      );
+
+      setEmailError(isDuplicateEmail ? 'Patient email already exists' : '');
+      setPendingEmailCheck(null);
+    }
+  }, [patients, pendingMrnCheck, pendingEmailCheck, evalInfo?.patient?.id]);
 
   useEffect(() => {
     if (phoneInputRef.current) {

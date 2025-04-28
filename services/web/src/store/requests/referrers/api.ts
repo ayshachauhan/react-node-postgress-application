@@ -77,7 +77,10 @@ export const addReferrer = async (
       sanitizedPayload,
     );
     if (!response.ok) {
-      throw new Error('Failed to add referrer');
+      const errorData = await response.json();
+      const errorMessage =
+        errorData?.message || errorData?.error || 'Failed to add referrer';
+      return rejectWithValue(errorMessage);
     }
     const data: IReferrer = await response.json();
     return data;
@@ -138,7 +141,10 @@ export const updateReferrer = async (
       sanitizedPayload,
     );
     if (!response.ok) {
-      throw new Error('Failed to update referrer');
+      const errorData = await response.json();
+      const errorMessage =
+        errorData?.message || errorData?.error || 'Failed to update referrer';
+      return rejectWithValue(errorMessage);
     }
     const data: EditReferrer = await response.json();
     return data;
@@ -148,4 +154,20 @@ export const updateReferrer = async (
     }
     return rejectWithValue('An unknown error occurred');
   }
+};
+
+export const checkReferrerEmailExists = async ({
+  email,
+  practiceId,
+}: {
+  email: string;
+  practiceId: string;
+}): Promise<boolean> => {
+  const response = await apiClient.get(
+    `/practices/${practiceId}/referrer/check-email?email=${encodeURIComponent(
+      email,
+    )}`,
+  );
+  const data = await response.json();
+  return data.exists;
 };

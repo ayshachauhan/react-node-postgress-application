@@ -2,6 +2,7 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { indexBy } from '@root/utils/index';
 import {
   addReferrer,
+  checkReferrerEmailExists,
   deleteReferrer,
   getReferrerInfo,
   getReferrers,
@@ -178,5 +179,10 @@ export const updateRecordAsync = createAsyncThunk(
   'referrers/updateRecordAsync',
   updateReferrer,
 );
+
+export const fetchReferrerByEmail = createAsyncThunk<
+  boolean,
+  { email: string; practiceId: string }
+>('referrers/fetchReferrerByEmail', checkReferrerEmailExists);
 
 export default referrerSlice.reducer;
