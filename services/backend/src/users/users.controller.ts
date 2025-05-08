@@ -49,8 +49,29 @@ export class UsersController {
 
   @Get()
   @UseInterceptors(practiceNotFoundInterceptor)
-  async getUsersByPractice(@Param('practiceId') practiceId: string) {
-    return this.usersService.getUsersByPractice(practiceId);
+  async getUsersByPractice(
+    @Param('practiceId') practiceId: string,
+    @Req() request: RequestWithUser,
+  ) {
+    const isAdmin = request.user.type === 'admin';
+    const currentUserId = request.user.id;
+
+    const users = await this.usersService.getUsersByPractice(practiceId);
+
+    if (isAdmin) return users;
+
+    return users.map((user) => {
+      if (user.id === currentUserId) {
+        return user;
+      } else {
+        const { permissions, ...rest } = user;
+        permissions && permissions;
+        return {
+          ...rest,
+          permissions: user.id === currentUserId ? user.permissions : [],
+        };
+      }
+    });
   }
 
   @Get(':id')
