@@ -22,13 +22,19 @@ export type CustomError = {
 @Injectable()
 export class TransporterService {
   private twilioClient: Twilio;
+
   constructor(
     @Inject(EMAIL_CONNECTION_TOKEN)
     private readonly emailTransporter: Transporter<SMTPTransport.SentMessageInfo>,
     private readonly configService: ConfigService,
   ) {
     const { twilioSID, twilioToken } = this.getEnvVariables();
-    if (typeof twilioSID == 'string' && typeof twilioToken == 'string') {
+
+    if (
+      typeof twilioSID === 'string' &&
+      typeof twilioToken === 'string' &&
+      twilioSID.startsWith('AC')
+    ) {
       this.twilioClient = new Twilio(twilioSID, twilioToken);
     }
   }

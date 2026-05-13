@@ -117,6 +117,7 @@ export const createInfraModuleProviders = (): Array<
         logging: false,
         // logger: new TypeOrmLogger(),
         synchronize: false,
+        migrationsRun: true,
       }),
     }),
     TransporterModule.forRootAsync({

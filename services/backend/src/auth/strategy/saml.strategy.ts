@@ -20,7 +20,7 @@ export class SamlStrategy extends PassportStrategy(Strategy) {
     super({
       issuer,
       callbackUrl: `${url}/auth/login/sso/cb`,
-      cert,
+      cert: cert || 'dummy-cert',
       entryPoint,
       wantAssertionsSigned: true,
       acceptedClockSkewMs: -1,
@@ -32,10 +32,12 @@ export class SamlStrategy extends PassportStrategy(Strategy) {
       const email = profile[
         'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'
       ] as string;
+
       if (email) {
-        const user = this.authService.loginUsingEmail(email);
+        const user = await this.authService.loginUsingEmail(email);
         return user;
       }
+
       throw new Error('email not found');
     } catch (e) {
       throw new ForbiddenException('invalid user attributes');
