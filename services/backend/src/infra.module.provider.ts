@@ -90,6 +90,9 @@ export const createInfraModuleProviders = (): Array<
         username: configService.get(ENVIRONMENT_VARIABLES.DB_USERNAME),
         password: configService.get(ENVIRONMENT_VARIABLES.DB_PASSWORD),
         database: configService.get(ENVIRONMENT_VARIABLES.DB_DATABASE),
+        synchronize: true,
+        logging: true,
+
         ssl: {
           rejectUnauthorized: false,
         },
