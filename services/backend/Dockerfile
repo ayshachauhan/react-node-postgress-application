@@ -16,6 +16,12 @@ RUN corepack prepare pnpm@8.15.3 --activate || npm install -g pnpm@8.15.3
 # =========================
 FROM base AS build
 
+# Increase Node memory for NestJS/Turbo build
+ENV NODE_OPTIONS="--max-old-space-size=2048"
+
+# Reduce pnpm store size
+ENV PNPM_STORE_DIR=/tmp/pnpm-store
+
 RUN pnpm install --frozen-lockfile
 
 # Build backend
@@ -35,6 +41,14 @@ FROM node:20-slim AS runner
 
 WORKDIR /app
 
+ENV NODE_ENV=production
+
+# Increase runtime memory slightly
+ENV NODE_OPTIONS="--max-old-space-size=1024"
+
+ARG PORT=1600
+ENV PORT=$PORT
+
 # Copy production node_modules
 COPY --from=prod_dependencies /app/pruned/node_modules /app/node_modules
 
@@ -50,11 +64,6 @@ COPY --from=build /app/services/backend/migration-runner /app/migration-runner
 # Copy package.json
 COPY --from=build /app/services/backend/package.json /app/package.json
 
-ENV NODE_ENV=production
-
-ARG PORT
-ENV PORT=$PORT
-
-EXPOSE $PORT
+EXPOSE 1600
 
 CMD ["node", "dist/main.js"]
