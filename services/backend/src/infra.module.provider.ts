@@ -90,6 +90,15 @@ export const createInfraModuleProviders = (): Array<
         username: configService.get(ENVIRONMENT_VARIABLES.DB_USERNAME),
         password: configService.get(ENVIRONMENT_VARIABLES.DB_PASSWORD),
         database: configService.get(ENVIRONMENT_VARIABLES.DB_DATABASE),
+        ssl: {
+          rejectUnauthorized: false,
+        },
+
+        extra: {
+          ssl: {
+            rejectUnauthorized: false,
+          },
+        },
         entities: [
           InsuranceTypeEntity,
           MediaEntity,
