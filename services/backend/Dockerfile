@@ -16,16 +16,17 @@ RUN corepack prepare pnpm@8.15.3 --activate || npm install -g pnpm@8.15.3
 # =========================
 FROM base AS build
 
-# Increase Node memory for NestJS/Turbo build
+# Increase Node memory for low-memory EC2
 ENV NODE_OPTIONS="--max-old-space-size=2048"
 
-# Reduce pnpm store size
+# Reduce pnpm memory/disk pressure
 ENV PNPM_STORE_DIR=/tmp/pnpm-store
 
-RUN pnpm install --frozen-lockfile
+# Install dependencies with low concurrency
+RUN pnpm install --frozen-lockfile --network-concurrency=1
 
-# Build backend
-RUN pnpm turbo build --filter=backend
+# Build backend with single worker to avoid memory freeze
+RUN pnpm turbo build --filter=backend --concurrency=1
 
 # =========================
 # PRODUCTION DEPENDENCIES
@@ -43,7 +44,7 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
-# Increase runtime memory slightly
+# Runtime memory limit
 ENV NODE_OPTIONS="--max-old-space-size=1024"
 
 ARG PORT=1600
@@ -52,7 +53,7 @@ ENV PORT=$PORT
 # Copy production node_modules
 COPY --from=prod_dependencies /app/pruned/node_modules /app/node_modules
 
-# Copy backend dist
+# Copy backend build
 COPY --from=build /app/services/backend/dist /app/dist
 
 # Copy migrations
