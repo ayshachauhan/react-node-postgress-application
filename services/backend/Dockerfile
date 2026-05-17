@@ -1,69 +1,78 @@
+# =========================
+# BASE
+# =========================
 FROM node:20-slim AS base
 
 RUN corepack enable
 
-COPY . /app
 WORKDIR /app
 
-# Fix Corepack issue
+# Copy repo
+COPY . .
+
+# Fix Corepack issues
 RUN corepack disable && rm -rf ~/.cache/corepack && corepack enable
 
 # Install pnpm explicitly
 RUN corepack prepare pnpm@8.15.3 --activate || npm install -g pnpm@8.15.3
 
 # =========================
-# BUILD STAGE
+# DEPENDENCIES
 # =========================
-FROM base AS build
+FROM base AS dependencies
 
-# Increase Node memory for low-memory EC2
-ENV NODE_OPTIONS="--max-old-space-size=2048"
-
-# Reduce pnpm memory/disk pressure
 ENV PNPM_STORE_DIR=/tmp/pnpm-store
 
-# Install dependencies with low concurrency
+# Install ALL dependencies including devDependencies
 RUN pnpm install --frozen-lockfile --network-concurrency=1
 
-# Build backend with single worker to avoid memory freeze
-RUN pnpm turbo build --filter=backend --concurrency=1
+# =========================
+# BUILD
+# =========================
+FROM dependencies AS build
+
+ENV NODE_OPTIONS="--max-old-space-size=3072"
+
+# Build backend only
+RUN pnpm --filter backend build
+
+# Verify dist exists
+RUN ls -la /app/services/backend/dist
 
 # =========================
-# PRODUCTION DEPENDENCIES
+# PRODUCTION DEPS
 # =========================
-FROM build AS prod_dependencies
+FROM dependencies AS prod_dependencies
 
-RUN pnpm --filter backend --prod deploy pruned
+RUN pnpm --filter backend deploy --prod /app/pruned
 
 # =========================
-# FINAL RUNNER IMAGE
+# RUNNER
 # =========================
 FROM node:20-slim AS runner
 
 WORKDIR /app
 
 ENV NODE_ENV=production
-
-# Runtime memory limit
-ENV NODE_OPTIONS="--max-old-space-size=1024"
+ENV NODE_OPTIONS="--max-old-space-size=2048"
 
 ARG PORT=1600
-ENV PORT=$PORT
+ENV PORT=${PORT}
 
-# Copy production node_modules
-COPY --from=prod_dependencies /app/pruned/node_modules /app/node_modules
+# Copy production dependencies
+COPY --from=prod_dependencies /app/pruned/node_modules ./node_modules
 
-# Copy backend build
-COPY --from=build /app/services/backend/dist /app/dist
-
-# Copy migrations
-COPY --from=build /app/services/backend/migrations /app/migrations
-
-# Copy migration runner
-COPY --from=build /app/services/backend/migration-runner /app/migration-runner
+# Copy built backend
+COPY --from=build /app/services/backend/dist ./dist
 
 # Copy package.json
-COPY --from=build /app/services/backend/package.json /app/package.json
+COPY --from=build /app/services/backend/package.json ./package.json
+
+# Copy migrations
+COPY --from=build /app/services/backend/migrations ./migrations
+
+# Copy migration runner (if exists)
+COPY --from=build /app/services/backend/migration-runner ./migration-runner
 
 EXPOSE 1600
 
