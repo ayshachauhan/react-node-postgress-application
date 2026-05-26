@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  namespace: azentia
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+        - name: backend
+          image: 108631844439.dkr.ecr.ap-south-1.amazonaws.com/azentia-backend:latest
+          ports:
+            - containerPort: 4000
+          envFrom:
+            - secretRef:
+                name: db-secret
+            - configMapRef:
+                name: app-config
